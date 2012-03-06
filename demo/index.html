@@ -1,42 +1,40 @@
 <html>
   <head>
-    <link href="public/css/bootstrap.css" rel="stylesheet">
+    <link href="../css/bootstrap.css" rel="stylesheet">
 
-    <script src="public/javascripts/underscore-min.js"></script>
-    <script src="public/javascripts/jquery-1.7.js"></script>
-    <script src="public/javascripts/backbone.js"></script>
+    <!-- Core dependencies -->
+    <script src="../lib/underscore-min.js"></script>
+    <script src="../lib/jquery-1.7.js"></script>
+    <script src="../lib/backbone.js"></script>
 
-    <!-- Google Prettify -->
-    <link href="public/javascripts/google-code-prettify/prettify.css" type="text/css" rel="stylesheet"/>
-    <script src="public/javascripts/google-code-prettify/prettify.js"></script>
+    <!-- jQuery UI, for slider -->
+    <script src="../lib/jquery-ui-1.8.18.custom.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="../lib/css/cupertino/jquery-ui-1.8.18.custom.css">
 
-    <!-- DataTables -->
-    <script src="public/imtables/lib/DataTables-1.9.0/media/js/jquery.dataTables.js"></script>
-    <script src="public/imtables/lib/DataTables-1.9.0/extras/ColVis/media/js/ColVis.js"></script>
-    <script src="public/imtables/lib/DataTables-1.9.0/extras/ColReorder/media/js/ColReorder.js"></script>
-    <link rel="stylesheet" type="text/css" href="public/imtables/lib/DataTables-1.9.0/extras/ColVis/media/css/ColVis.css">
+    <!-- Data Tables -->
+    <script src="../lib/DataTables-1.9.0/media/js/jquery.dataTables.js"></script>
+    <script src="../lib/DataTables-1.9.0/extras/ColVis/media/js/ColVis.js"></script>
+    <script src="../lib/DataTables-1.9.0/extras/ColReorder/media/js/ColReorder.js"></script>
+    <link rel="stylesheet" type="text/css" href="../lib/DataTables-1.9.0/extras/ColVis/media/css/ColVis.css">
+    <script type="text/javascript" src="../lib/paging.js"></script>
 
-    <script src="public/imtables/lib/jquery-ui-1.8.18.custom.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="public/imtables/lib/css/cupertino/jquery-ui-1.8.18.custom.css">
-
-
+    <!-- BootStrap plugins -->
+    <script type="text/javascript" src="../lib/bootstrap-tab.js"></script>
+    <script type="text/javascript" src="../lib/bootstrap-button.js"></script>
+    <script type="text/javascript" src="../lib/bootstrap-typeahead.js"></script>
+    <script type="text/javascript" src="../lib/bootstrap-tooltip.js"></script>
     <!-- im code -->
-    <script type="text/javascript" src="public/javascripts/im/model.js"></script>
-    <script type="text/javascript" src="public/javascripts/im/lists.js"></script>
-    <script type="text/javascript" src="public/javascripts/im/service.js"></script>
-    <script type="text/javascript" src="public/javascripts/im/query.js"></script>
+    <script type="text/javascript" src="../lib/imjs/src/model.js"></script>
+    <script type="text/javascript" src="../lib/imjs/src/lists.js"></script>
+    <script type="text/javascript" src="../lib/imjs/src/service.js"></script>
+    <script type="text/javascript" src="../lib/imjs/src/query.js"></script>
 
-    <script type="text/javascript" src="public/imtables/lib/paging.js"></script>
-    <script type="text/javascript" src="public/imtables/lib/bootstrap-tab.js"></script>
-    <script type="text/javascript" src="public/imtables/lib/bootstrap-button.js"></script>
-    <script type="text/javascript" src="public/imtables/lib/bootstrap-typeahead.js"></script>
-    <script type="text/javascript" src="public/imtables/lib/bootstrap-tooltip.js"></script>
-    <script type="text/javascript" src="public/imtables/tables.js"></script>
-    <script type="text/javascript" src="public/imtables/facets.js"></script>
-    <script type="text/javascript" src="public/imtables/constraints.js"></script>
-    <link rel="stylesheet" type="text/css" href="public/imtables/tables.css">
+    <!-- Tables -->
+    <script type="text/javascript" src="../js/imtables.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/tables.css">
 
-    <script type="text/javascript" src="public/imtables/test.js"></script>
+    <!-- Demo webapp -->
+    <script type="text/javascript" src="demo.js"></script>
   </head>
  
 
@@ -124,7 +122,7 @@
   </body>
 
     <!-- SVG drawing -->
-    <script src="public/imtables/lib/raphael-min.js"></script>
+    <script src="../lib/raphael-min.js"></script>
 
   <style>
         @import url(http://fonts.googleapis.com/css?family=Alegreya);

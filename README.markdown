@@ -11,6 +11,7 @@ Comes with the following libraries:
   * DataTables 1.9
   * Raphael.js
   * [uglify-js](https://github.com/mishoo/UglifyJS) (only if you want to)
+  * imjs
 
 Development Environment:
 ------------------------
