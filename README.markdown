@@ -22,7 +22,7 @@ Usage:
 ------
 
  1. `./cake compile` (or `./cake watch` to rebuild on change)
-   i. compile `.coffee` to `.js`
-   i. Minify and uglify resultant files
+   - compile `.coffee` to `.js`
+   - Minify and uglify resultant files
 
 
