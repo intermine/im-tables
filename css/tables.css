@@ -1,0 +1,334 @@
+
+div.dataTables_length label {
+    float: left;
+    text-align: left;
+}
+
+div.dataTables_length select {
+    width: 75px;
+}
+
+div.dataTables_filter label {
+    float: right;
+}
+
+div.dataTables_info {
+    padding-top: 8px;
+}
+
+div.dataTables_paginate {
+    float: right;
+    margin: 0;
+}
+
+table.table {
+    clear: both;
+    margin-bottom: 6px !important;
+}
+
+table.table thead .sorting,
+table.table thead .sorting_asc,
+table.table thead .sorting_desc,
+table.table thead .sorting_asc_disabled,
+table.table thead .sorting_desc_disabled {
+    cursor: pointer;
+    *cursor: hand;
+}
+
+table.table thead .sorting { background: url('lib/DataTables-1.9.0/media/images/sort_both.png') no-repeat center right; }
+table.table thead .sorting_asc { background: url('lib/DataTables-1.9.0/media/images/sort_asc.png') no-repeat center right; }
+table.table thead .sorting_desc { background: url('lib/DataTables-1.9.0/media/images/sort_desc.png') no-repeat center right; }
+
+table.table thead .sorting_asc_disabled { background: url('lib/DataTables-1.9.0/media/images/sort_asc_disabled.png') no-repeat center right; }
+table.table thead .sorting_desc_disabled { background: url('images/sort_desc_disabled.png') no-repeat center right; }
+
+table.dataTable th:active {
+    outline: none;
+}
+
+th i {
+    float: right;
+    margin-right: 1em;
+}
+
+.typeahead.dropdown-menu {
+    max-width: none;
+}
+
+.typeahead.dropdown-menu strong {
+    color: #08c;
+}
+
+.typeahead.dropdown-menu .active strong {
+    color: white;
+    text-transform: uppercase;
+}
+
+.im-constraint label {
+    padding: 0 1em 0 1em;
+    display: block;
+    font-weight: bold;
+}
+
+.im-query-tools select, .im-query-tools input, .im-query-tools label  {
+    height: 28px;
+    margin-top: 0px;
+    margin-bottom: 0px;
+    margin-right: 0.4em;
+}
+
+.im-constraint {
+    font-size: 0.9em;
+}
+
+.colvis {
+    float: left;
+}
+
+.node-adder label {
+    margin-right: 0.5em;
+    text-transform: uppercase;
+    font-weight: bold;
+    font-size: 0.9em;
+}
+
+.null-value {
+    text-transform: uppercase;
+    color: #aaa;
+}
+
+.im-node {
+    border-left: 1px solid #aaa;
+    padding: 0.5em;
+    display: inline-block;
+    list-style-type: none;
+}
+
+.im-constraint {
+    list-style-type: none;
+}
+
+.im-node i {
+    margin-left: 1em;
+}
+
+.im-node:first-child {
+    border-left: none;
+}
+
+.node-adder {
+    width: 100%;
+}
+
+.node-remover dd input {
+    margin-right: 1em;
+}
+
+.node-remover dt {
+    border-top: 1px solid #ddd;
+    padding-top: 0.5em;
+    margin-top: 0.5em;
+}
+
+.node-remover dt i {
+    float: right;
+    margin-right: 2em;
+}
+
+.node-remover dd {
+    display: none;
+}
+
+.im-constraints {
+    padding-right: 0.5em;
+}
+
+.im-constraints ul {
+    margin: 0;
+}
+
+.im-constraint form label i {
+    float: right;
+    margin-right: 0.5em;
+}
+
+.im-constraint fieldset, .im-constraint .btn-group {
+    display: none;
+}
+
+.im-constraint-adder select, .im-constraint-adder input {
+    display: inline-block;
+}
+
+.im-constraint .btn-group {
+    margin: 0.3em;
+}
+
+.im-query-facets input {
+    margin: 1em 0 1em 0;
+}
+
+input.im-extra-value {
+    width: 100%;
+    margin-top: 0.4em;
+}
+
+input.im-constraint-adder {
+    margin-bottom: 0.5em;
+}
+
+.im-constraint a {
+    margin-left: 0.5em;
+    margin-top: 0.5em;
+    float: right;
+}
+
+.im-constraint-edit a {
+    display: none;
+}
+
+.table .alert-error {
+    padding: 1em;
+    max-width: 30em;
+    min-height: 10em;
+    margin-top: 5em;
+    margin-left: 5em;
+    margin-bottom: 5em;
+}
+
+.table .alert-error .close {
+    right: -8px;
+    top: -10px;
+}
+
+#logged-in {
+    display: none;
+}
+#logged-in.logged-in {
+    display: inline-block;
+}
+#logged-out {
+    display: inline-block;
+}
+#logged-out.logged-in {
+    display: none;
+}
+
+.v9.unsupported {
+    display: none;
+}
+
+.im-con-summary {
+    margin-left: 0px;
+}
+
+.im-table-summary {
+    font-weight: bold;
+    font-size: 1.5em;
+    padding: 0.3em;
+    margin-bottom: 0.5em;
+}
+
+form.im-join {
+    margin-bottom: 0px;
+    margin-top: -4px;
+}
+
+.im-column-group {
+    line-height: 1.7em;
+}
+
+.im-facet-count {
+    margin-right: 0.5em;
+    margin-left: 0.5em;
+}
+.im-column-summary dl {
+    margin: 0px;
+}
+.im-column-summary dl dd {
+    display: none;
+}
+.im-column-summary dl dd a {
+    display: inline-block;
+    width: 100%;
+}
+.im-column-summary dl dt i {
+    margin-right: 0.5em;
+}
+
+i.summary-img {
+    background: #333;
+    color: white;
+    border-radius: 1em;
+    width: 1em;
+    height: 1em;
+    padding: 1px 1px 4px 5px;
+    font-family: serif;
+}
+
+.im-numeric-facet input, .im-numeric-facet label {
+    display: inline-block;
+}
+
+.im-numeric-facet .facet-content {
+    display: none;
+}
+.im-numeric-facet input {
+    display: inline-block;
+    border: 0px;
+    font-weight: bold;
+    width: 3em;
+}
+
+.im-pie-facet {
+    display: none;
+}
+
+.im-pie-facet form td, .im-pie-facet form th {
+    font-size: 0.8em;
+    line-height: 1em;
+    vertical-align: middle;
+}
+.im-pie-facet form input[type="checkbox"] {
+    height: 1em;
+}
+
+form tr.active {
+    background: #D9EDF7;
+}
+
+/* SVG styles */
+path {
+    fill: #D9EDF7;
+    stroke: #3A87AD;
+    stroke-width: 2px;
+}
+
+path.falses {
+    fill: #bce8f1;
+}
+
+path.disabled {
+    opacity: 0.5;
+}
+
+path.selected {
+    fill: #bce8f1;
+}
+
+text.pie-label {
+    font-size: 14px;
+}
+
+.ui-slider-range.ui-widget-header {
+    background:#D9EDF7;
+}
+
+@media screen and (max-width: 900px) {
+    .im-query-results, .im-query-toolbox {
+        width: 100% !important;
+    }
+}
+
+
+
