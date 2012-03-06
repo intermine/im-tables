@@ -1,0 +1,143 @@
+<html>
+  <head>
+    <link href="public/css/bootstrap.css" rel="stylesheet">
+
+    <script src="public/javascripts/underscore-min.js"></script>
+    <script src="public/javascripts/jquery-1.7.js"></script>
+    <script src="public/javascripts/backbone.js"></script>
+
+    <!-- Google Prettify -->
+    <link href="public/javascripts/google-code-prettify/prettify.css" type="text/css" rel="stylesheet"/>
+    <script src="public/javascripts/google-code-prettify/prettify.js"></script>
+
+    <!-- DataTables -->
+    <script src="public/imtables/lib/DataTables-1.9.0/media/js/jquery.dataTables.js"></script>
+    <script src="public/imtables/lib/DataTables-1.9.0/extras/ColVis/media/js/ColVis.js"></script>
+    <script src="public/imtables/lib/DataTables-1.9.0/extras/ColReorder/media/js/ColReorder.js"></script>
+    <link rel="stylesheet" type="text/css" href="public/imtables/lib/DataTables-1.9.0/extras/ColVis/media/css/ColVis.css">
+
+    <script src="public/imtables/lib/jquery-ui-1.8.18.custom.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="public/imtables/lib/css/cupertino/jquery-ui-1.8.18.custom.css">
+
+
+    <!-- im code -->
+    <script type="text/javascript" src="public/javascripts/im/model.js"></script>
+    <script type="text/javascript" src="public/javascripts/im/lists.js"></script>
+    <script type="text/javascript" src="public/javascripts/im/service.js"></script>
+    <script type="text/javascript" src="public/javascripts/im/query.js"></script>
+
+    <script type="text/javascript" src="public/imtables/lib/paging.js"></script>
+    <script type="text/javascript" src="public/imtables/lib/bootstrap-tab.js"></script>
+    <script type="text/javascript" src="public/imtables/lib/bootstrap-button.js"></script>
+    <script type="text/javascript" src="public/imtables/lib/bootstrap-typeahead.js"></script>
+    <script type="text/javascript" src="public/imtables/lib/bootstrap-tooltip.js"></script>
+    <script type="text/javascript" src="public/imtables/tables.js"></script>
+    <script type="text/javascript" src="public/imtables/facets.js"></script>
+    <script type="text/javascript" src="public/imtables/constraints.js"></script>
+    <link rel="stylesheet" type="text/css" href="public/imtables/tables.css">
+
+    <script type="text/javascript" src="public/imtables/test.js"></script>
+  </head>
+ 
+
+  <body>
+  <!-- navbar -->
+  <div class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+      <div class="container" style="width: auto;">
+        <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </a>
+        <a class="brand" href="#">Results Tables Demo</a>
+          <div class="nav-collapse">
+          
+          <ul class="nav entry-points">
+            <li class="active"><a href="#">Production</a></li>
+            <li><a href="#">Preview</a></li>
+            <li><a href="#">TestModel</a></li>
+            <li><a href="#">PlantMine</a></li>
+          </ul>
+            <ul id="login-status" class='nav pull-right secondary-nav v9'>
+                <li id="logged-in" class="pull-right login-controls">
+                    <span class="navbar-text" id="logged-in-notice">
+                        Logged in as 
+                        <a href="#" class="username"></a>
+                    </span>
+                    <span class="navbar-text">
+                        <a id="log-out" href="#">Log Out</a>
+                    </span>
+                </li>
+                <li class='dropdown pull-right login-controls' data-dropdown='dropdown' id="logged-out">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                        Login
+                        <b class="caret"></b>
+                    </a>
+                    <div class='dropdown-menu' id="change-user-menu">
+                        <form id="change-user-form">
+                            <div style="margin:0;padding:0;display:inline">
+                            <fieldset class='textbox'>
+                                <div class="input-prepend">
+                                    <span class="add-on">
+                                        <i class="icon-envelope"></i>
+                                    </span>
+                                    <input class="span2" type="text" id="new-user"
+                                        placeholder="email">
+                                </div>
+                                <div class="input-prepend">
+                                    <span class="add-on">
+                                        <i class="icon-user"></i>
+                                    </span>
+                                    <input class="span2" id="new-pass"
+                                        type="password" placeholder="password">
+                                </div>
+                                <div id="registration-fields">
+                                <div class="input-prepend">
+                                    <span class="add-on">
+                                        <i class="icon-user"></i>
+                                    </span>
+                                    <input class="span2"
+                                        type="password" placeholder="confirm password">
+                                </div>
+                                <label for="spamme">Sign up for mailing list?</label>
+                                <input type="checkbox" name="spamme">
+                                </div>
+                            </fieldset>
+                            <fieldset class='subchk'>
+                                <button id="user-changer" class="btn" type="submit">Log-In</button>
+                                <p>
+                                    Don't have an account? 
+                                    <a id="start-registration" href="#">Sign up</a>
+                                </p>
+                            </fieldset>
+                        </form>
+                    </div>
+                </li>
+            </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+     <div id="table-display"></div>
+  </body>
+
+    <!-- SVG drawing -->
+    <script src="public/imtables/lib/raphael-min.js"></script>
+
+  <style>
+        @import url(http://fonts.googleapis.com/css?family=Alegreya);
+        @import url(http://fonts.googleapis.com/css?family=Muli);
+
+        body, input, select, label, form {
+            font-family: 'Muli', "Helvetica", sans-serif;
+        }
+        body {
+            padding-top: 44px;
+        }
+  </style>
+
+</html>
+
+
