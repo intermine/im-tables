@@ -46,7 +46,8 @@ task 'clean', 'Remove old build', clean = (cb) ->
 task 'build', 'Run a complete build', ->
     compile ->
         concat ->
-            console.log "done"
+            finish = new Date()
+            console.log "done at #{finish}"
 
 task 'watch', 'Watch production files and rebuild the application', watch = (cb) ->
     console.log "Watching for changes in ./src"
