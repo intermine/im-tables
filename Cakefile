@@ -48,4 +48,15 @@ task 'build', 'Run a complete build', ->
         concat ->
             console.log "done"
 
+task 'watch', 'Watch production files and rebuild the application', watch = (cb) ->
+    console.log "Watching for changes in ./src"
+    fs.readdir 'src', (err, files) ->
+        throw err if err
+        for f in files then do (f) ->
+            fs.watchFile "src/#{f}", (curr, prev) ->
+                if +curr.mtime isnt +prev.mtime
+                    console.log "Saw change in js/#{f} - rebuilding"
+                    invoke 'build'
+    
+
 # vim: set syntax=coffee
