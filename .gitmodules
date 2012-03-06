@@ -1,0 +1,3 @@
+[submodule "lib/imjs"]
+	path = lib/imjs
+	url = git://github.com/alexkalderimis/imjs.git
