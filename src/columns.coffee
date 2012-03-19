@@ -35,7 +35,7 @@ namespace "intermine.query.columns", (public) ->
 
             this
 
-    class ColumnAdder extends intermine.query.ConstraintAdder
+    public class ColumnAdder extends intermine.query.ConstraintAdder
         className: "form node-adder row-fluid"
 
         handleSubmission: (e) ->
