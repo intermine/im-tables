@@ -1,0 +1,82 @@
+<div class="btn-group">
+    <a class="btn btn-action" href="#">
+        <i class="icon-download-alt"></i>
+        Export
+        <span class="im-export-format"></span>
+    </a>
+    <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+        <b class="caret"></b>
+    </a>
+    <ul class="dropdown-menu">
+        <li>
+            <a href="#" data-format="tab">
+                Spreadsheet (tab separated values)
+            </a>
+        </li>
+        <li>
+            <a href="#" data-format="csv">
+                Spreadsheet (comma separated values)
+            </a>
+        </li>
+        <li class="divider"></li>
+        <li>
+            <a href="#" data-format="xml">
+                XML
+            </a>
+        </li>
+        <li>
+            <a href="#" data-format="json">
+                JSON
+            </a>
+        </li>
+        <li class="divider"></li>
+        <li>
+            <a href="#" data-format="bed">
+                UCSC-BED
+            </a>
+        </li>
+        <li>
+            <a href="#" data-format="fasta">
+                FASTA
+            </a>
+        </li>
+        <li>
+            <a href="#" data-format="gff3">
+                GFF3
+            </a>
+        </li>
+        <li>
+            <form class="form form-inline im-export-destinations">
+                <div class="btn-group" data-toggle="buttons-radio">
+                    <button class="btn active" data-destination="download">Download</button>
+                    <button class="btn" data-destination="galaxy">Export To Galaxy</button>
+                </div>
+            </form>
+        </li>
+    </ul>
+</div>
+<div class="modal fade">
+    <div class="modal-header">
+        <a class="close" data-dismiss="modal">close</a>
+        <h3>Export Options</h3>
+    </div>
+    <!-- TODO -->
+    <div class="modal-body">
+        <form class="form">
+            <label>All rows
+                <input type="checkbox" checked>
+            </label>
+            <label>start
+                <input type="text">
+            </label>
+            <label>end
+                <input type="text">
+            </label>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <a href="#" class="btn btn-save"><i class="icon-file"></i>Save</a>
+        <button href="#" class="btn im-show-comments" data-toggle="button">Show Comments</button>
+        <a href="#" data-dismiss="modal" class="btn">Close</a>
+    </div>
+</div>
