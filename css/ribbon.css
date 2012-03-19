@@ -14,10 +14,13 @@
     text-decoration: none;
 }
 
-.gh-ribbon a {
+.gh-ribbon a > .text {
     font-family: Collegiate, sans-serif;
     font-size: 14px;
     letter-spacing: -.1px;
+}
+
+.gh-ribbon a {
     color: white;
     line-height: 1.35em;
     opacity: 0.80;
@@ -36,7 +39,7 @@
 }
 
 .right.gh-ribbon {
-    right: 0;
+    right: -0.5em;
 }
 
 .gh-ribbon {
@@ -53,7 +56,8 @@
 }
 
 .gh-ribbon .red {
-    background:-webkit-gradient(linear, left bottom, left top, from(#9A0000), to(#A90000));
+    background-color: #9A0000;
+    background: -webkit-gradient(linear, left bottom, left top, from(#9A0000), to(#A90000));
 }
 
 .gh-ribbon .red .text {
