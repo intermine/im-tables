@@ -48,8 +48,7 @@ namespace "intermine.query.columns", (public) ->
                 class: "span10"
                 placeholder: "Add a column..."
             @$el.append input
-
-            this
+            @initTypeahead()
 
     JOIN_TOGGLE_HTML = _.template """
     <form class="form-inline pull-right im-join">
