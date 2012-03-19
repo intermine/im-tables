@@ -56,3 +56,15 @@ namespace "intermine.query.tools", (public) ->
 
             this
 
+    public class ToolBar extends Backbone.View
+
+        className: "im-query-actionbar"
+
+        initialize: (@query) ->
+
+        render: ->
+            actions = new intermine.query.actions.ActionBar(@query)
+            actions.render().$el.appendTo @el
+
+            this
+
