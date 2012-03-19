@@ -80,7 +80,11 @@ namespace "intermine.query.actions", (public) ->
                 </form>
             """
             @query.service.fetchLists (ls) =>
-                @$('.im-receiving-list').append((@make("option", {value: l.name, "data-type": l.type}, "#{l.name} (#{l.size} #{l.type}s)") for l in ls))
+                toOpt = (l) => @make "option"
+                    , value: l.name, "data-type": l.type
+                    , "#{l.name} (#{l.size} #{l.type}s)"
+
+                @$('.im-receiving-list').append(ls.map toOpt)
 
             this
 
