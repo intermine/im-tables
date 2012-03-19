@@ -73,6 +73,12 @@ namespace "intermine.query.actions", (public) ->
                     evt = "stop"
                 @query.trigger "#{evt}:list-creation"
 
+
+        reset: ->
+            form = @$('form').slideUp 90
+            @query.trigger "stop:list-creation"
+            this
+
         appendToList: (e) ->
             ids = _(@types).keys()
             receiver = @$ '.im-receiving-list'
@@ -88,13 +94,24 @@ namespace "intermine.query.actions", (public) ->
 
             selectedOption = receiver.find(':selected').first()
             targetType = selectedOption.data 'type'
+            targetSize = selectedOption.data 'size'
+            console.log targetSize
 
             listQ =
                 select: ["id"]
                 from: targetType
                 where:
                     id: ids
-            console.log listQ
+
+            @query.service.query listQ, (q) =>
+                promise = q.appendToList receiver.val(), (updatedList) =>
+                    @query.trigger "list-update:success", updatedList, updatedList.size - parseInt(targetSize)
+                    @fillSelect().reset()
+                promise.fail (xhr, level, message) =>
+                    if xhr.responseText
+                        message = (JSON.parse xhr.responseText).error
+                    @query.trigger "list-update:failure", message
+
         
         render: ->
             @$el.append """
@@ -114,14 +131,27 @@ namespace "intermine.query.actions", (public) ->
                     </div>
                 </form>
             """
+
+            @fillSelect()
             @query.service.fetchLists (ls) =>
                 toOpt = (l) => @make "option"
-                    , value: l.name, "data-type": l.type
+                    , value: l.name, "data-type": l.type, "data-size": l.size
                     , "#{l.name} (#{l.size} #{l.type}s)"
 
-                @$('.im-receiving-list').append(ls.map toOpt)
+                @$('.im-receiving-list').append("""<option value=""><i>Select a list</i></option>""")
+                                        .append(ls.map toOpt)
 
             this
+
+        fillSelect: ->
+            @query.service.fetchLists (ls) =>
+                toOpt = (l) => @make "option"
+                    , value: l.name, "data-type": l.type, "data-size": l.size
+                    , "#{l.name} (#{l.size} #{l.type}s)"
+
+                @$('.im-receiving-list').empty().append(ls.map toOpt)
+            this
+
 
     openWindowWithPost = (uri, name, params) ->
 
