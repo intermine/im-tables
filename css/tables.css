@@ -26,13 +26,109 @@ table.table {
     margin-bottom: 6px !important;
 }
 
+th .im-col-summary.navbar {
+    margin-bottom: 0px;
+}
+
+table.progress {
+    padding: 5em 3em;
+}
+
+.im-table-overlay {
+    border-radius: 10px;
+    -moz-box-shadow: 0 0 3px 3px #333;
+    -webkit-box-shadow: 0 0 3px 3px #333;
+    box-shadow: 0 0 3px 3px #333;
+    position: absolute;
+    opacity: 0.4;
+    background-color: #333;
+    z-index: 5000;
+}
+
+.im-table-overlay.discrete {
+    opacity: 0;
+}
+
+.im-table-overlay h1 {
+    color: white;
+    position: absolute;
+    font-size: 64px;
+    /*margin-left: auto;
+    margin-right: auto;
+    margin-top: 3em;*/
+}
+
 table.table thead .sorting,
 table.table thead .sorting_asc,
 table.table thead .sorting_desc,
 table.table thead .sorting_asc_disabled,
 table.table thead .sorting_desc_disabled {
     cursor: pointer;
-    *cursor: hand;
+}
+
+table.dataTable > thead > tr {
+    color: white;
+    background-color: #2c2c2c;
+}
+
+.im-col-summary.dropdown .dropdown-menu {
+    padding: 0.2em;
+    color: #333;
+    top: 111%;
+    left: -20%;
+    min-width: 20em;
+    max-width: 25em;
+    font-family: 'Muli', 'Helvetica', sans-serif;
+    font-weight: normal;
+}
+
+.im-selector-col {
+    width: 10%;
+}
+
+.im-item-col {
+    width: 80%;
+}
+
+.im-count-col {
+    width: 10%;
+}
+
+.im-prop-col {
+    10%;
+}
+
+.im-filter {
+    position: relative;
+    top: -0.5em;
+    margin-right: 0.5em;
+}
+
+.im-pie-facet .im-item-col {
+    width: 70%;
+}
+
+.im-col-summary .dropdown-menu a {
+    display: inline-block;
+    clear: none;
+}
+
+.im-col-summary .dropdown-menu .im-item-table {
+    display: block;
+    max-height: 12em;
+    overflow: auto;
+}
+
+.im-con-overview i {
+    float: right;
+}
+
+.dropdown.open .summary-img {
+    border-color: rgba(82, 168, 236, 0.8);
+    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(82, 168, 236, 0.6);
+    -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(82, 168, 236, 0.6);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(82, 168, 236, 0.6); 
+
 }
 
 table.table thead .sorting { background: url('../lib/DataTables-1.9.0/media/images/sort_both.png') no-repeat center right; }
@@ -46,13 +142,68 @@ table.dataTable th:active {
     outline: none;
 }
 
-th i {
+th > i {
     float: right;
     margin-right: 1em;
 }
 
-.typeahead.dropdown-menu {
+table.dataTable tbody tr td.active {
+    background-color: rgba(200, 240, 240, 0.35)
+}
+
+.im-query-results {
+    min-height: 30em;
+}
+
+.im-result-field {
+    display: block;
+    width: 100%;
+    margin: -8px;
+    padding: 8px;
+}
+
+.im-dropdown-summary .im-constraints h3 {
+
+}
+
+.im-dropdown-summary .im-constraints button[type="submit"] {
+    width: 40%;
+}
+
+.im-value-options.btn-group {
+    float: right;
+}
+
+.im-query-actions .dropdown-menu, .typeahead.dropdown-menu {
     max-width: none;
+}
+
+/* Actions (export, create list, etc.) */
+
+.im-query-actions li {
+    list-style-type: none;
+    margin: 0.5em 0em;
+}
+
+.im-query-actions li > .btn {
+   width: 15em;
+}
+
+.im-query-actions li > .btn-group > .btn:first-child {
+    width: 13em;
+}
+
+.im-query-actions fieldset.control-group > label {
+    width: 6em;
+}
+
+.im-action > form > .btn-group {
+    margin-top: 1em;
+}
+
+.im-export-destinations.form {
+    display: block;
+    margin: 0 0.2em;
 }
 
 .typeahead.dropdown-menu strong {
@@ -65,13 +216,17 @@ th i {
 }
 
 .im-constraint label {
-    padding: 0 1em 0 1em;
+    padding: 0;
     display: block;
     font-weight: bold;
 }
 
+.im-constraint .table td {
+    vertical-align: middle;
+    font-size: 0.9em;
+}
+
 .im-query-tools select, .im-query-tools input, .im-query-tools label  {
-    height: 28px;
     margin-top: 0px;
     margin-bottom: 0px;
     margin-right: 0.4em;
@@ -140,11 +295,15 @@ th i {
 }
 
 .im-constraints {
-    padding-right: 0.5em;
+    padding: 0.5em;
+}
+
+.im-col-summary .dropdown-menu .divider {
+    background-color: transparent;
 }
 
 .im-constraints ul {
-    margin: 0;
+    margin-left: 0;
 }
 
 .im-constraint form label i {
@@ -156,6 +315,11 @@ th i {
     display: none;
 }
 
+.new.im-constraint fieldset, .new.im-constraint .btn-group {
+    width: 100%;
+    display: block;
+}
+
 .im-constraint-adder select, .im-constraint-adder input {
     display: inline-block;
 }
@@ -165,7 +329,7 @@ th i {
 }
 
 .im-query-facets input {
-    margin: 1em 0 1em 0;
+    margin: 0em 0 1em 0;
 }
 
 input.im-extra-value {
@@ -185,6 +349,14 @@ input.im-constraint-adder {
 
 .im-constraint-edit a {
     display: none;
+}
+
+.btn-toggle-selection:after {
+    content: "Select All";
+}
+
+.btn-toggle-selection.im-invert:after {
+    content: "Invert Selection"
 }
 
 .table .alert-error {
@@ -220,9 +392,17 @@ input.im-constraint-adder {
 
 .im-con-summary {
     margin-left: 0px;
+    margin-bottom: 0.5em;
+}
+
+.dataTables_paginate.paging_bootstrap {
+    position: relative;
+    right: -50px;
 }
 
 .im-table-summary {
+    position: relative;
+    left: 20px;
     font-weight: bold;
     font-size: 1.5em;
     padding: 0.3em;
@@ -236,6 +416,23 @@ form.im-join {
 
 .im-column-group {
     line-height: 1.7em;
+}
+
+.im-facet .form {
+    margin-bottom: 0;
+}
+
+.im-facet .im-item-table {
+    margin-bottom: 1em;
+    border-bottom: 1px solid #ddd;
+}
+
+.im-col-summary.dropdown .im-item-table {
+    border-top: 1px solid #ddd;
+}
+
+.im-facet .input-prepend {
+    width: 100%;
 }
 
 .im-facet-count {
@@ -256,13 +453,16 @@ form.im-join {
     margin-right: 0.5em;
 }
 
-i.summary-img {
-    background: #333;
+.summary-img {
+    margin-right: 1em;
+    margin-bottom: 0.2em;
+    background: #2c2c2c;
     color: white;
+    border: 2px solid #dedede;
     border-radius: 1em;
     width: 1em;
     height: 1em;
-    padding: 1px 1px 4px 5px;
+    padding: 1px 1px 5px 5px;
     font-family: serif;
 }
 
@@ -280,8 +480,12 @@ i.summary-img {
     width: 3em;
 }
 
-.im-pie-facet {
+.im-facet {
     display: none;
+}
+
+.im-col-summary .im-facet {
+    display: block;
 }
 
 .im-pie-facet form td, .im-pie-facet form th {
@@ -297,8 +501,59 @@ form tr.active {
     background: #D9EDF7;
 }
 
+.im-item-table > table > tbody > tr.active > td {
+    background-color: transparent;
+}
+
+.im-query-actions form {
+    margin-top: 1em;
+    display: none;
+}
+
+.im-code-gen .modal {
+    width: 700px;
+}
+
+.im-code-gen .modal {
+    max-height: 600;
+    overflow: auto;
+}
+
+ul.im-list-tags {
+    width: 23em;
+    margin: 1em 0;
+    padding: 0 0 0.5em 0.5em;
+}
+
+ul.im-list-tags.suggestions {
+    margin-top: 0;
+}
+
+.label i {
+}
+
+ul.im-list-tags .label {
+    max-width: 22em;
+    display: inline-block;
+}
+ul.im-list-tags .tag-text {
+    display: inline-block;
+    max-width: 18em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+ul.im-list-tags li {
+    display: inline-block;
+    float: left;
+    margin: 0.5em 0.5em 0 0;
+}
+
+
+
 /* SVG styles */
-path {
+path, circle {
     fill: #D9EDF7;
     stroke: #3A87AD;
     stroke-width: 2px;
@@ -313,11 +568,27 @@ path.disabled {
 }
 
 path.selected {
-    fill: #bce8f1;
+    fill: #c9aad4;
+}
+
+path.yaxis {
+    stroke: #555;
+    stroke-width: 1px;
+}
+
+path.tickline {
+    stroke: #ddd;
+    stroke-width: 1px;
 }
 
 text.pie-label {
     font-size: 14px;
+}
+
+.im-facet .slider {
+    margin: 1em 1.5em;
+    width: 85%;
+    font-size: 0.8em;
 }
 
 .ui-slider-range.ui-widget-header {
