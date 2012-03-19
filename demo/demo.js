@@ -76,6 +76,14 @@ $(function() {
         + '</tr></table>'
     );
 
+    var failuriser = function(msg) {
+        notifier.notify({
+            text: msg,
+            title: "Failure",
+            level: "warning"
+        });
+    };
+
     var query_events = {
         "list-creation:success": function(list) {
             notifier.notify({
@@ -84,23 +92,31 @@ $(function() {
                 level: "success"
             });
         },
-        "list-creation:failure": function(msg) {
+        "list-creation:failure": failuriser,
+        "list-update:failure": failuriser,
+        "list-update:success": function(list, change) {
             notifier.notify({
-                text: msg,
-                title: "Failure",
-                level: "warning"
+                text: list.name + " successfully updated. " + ((change > 0) ? "Added" : "Removed") + " "
+                      + Math.abs(change) + " items",
+                title: "Success",
+                level: "success"
             });
         }
     };
 
+    var displayCls = intermine.query.results.DashBoard;
+    var display;
+
     var login = function(serviceArgs) {
         var q = services[serviceArgs].q;
         var service = new intermine.Service(services[serviceArgs]);
-        var qv = new intermine.query.results.DashBoard(service, q, query_events);
+        var qv = new displayCls(service, q, query_events);
 
         $('#table-display').empty();
         qv.$el.appendTo("#table-display");
         qv.render();
+
+        display = qv;
 
         $('.login-controls').toggleClass("logged-in", !!service.token);
 
@@ -114,10 +130,45 @@ $(function() {
     };
 
     $('.entry-points li').click(function() {
-        login($(this).text());
-        $('.entry-points li').removeClass("active");
-        $(this).addClass("active");
+        var text = $(this).text();
+        if (services[text]) {
+            login($(this).text());
+            $('.entry-points li').removeClass("active");
+            $(this).addClass("active");
+        }
     });
+
+    $('.layout-chooser li').click(function() {
+        $(this).addClass("active").siblings().removeClass("active");
+    });
+
+    var classOf = function(obj) {
+        return obj.constructor.toString().match(/function\s*(\w+)/)[1];
+    };
+
+    var changeLayout = function() {
+        if (classOf(display) != displayCls.name) {
+            var service = display.service;
+            var query = display.query;
+            var evts = display.queryEvents;
+            display = new displayCls(service, query, evts);
+            $('#table-display').empty();
+            display.$el.appendTo("#table-display");
+            display.render();
+        }
+    };
+
+    $('#select-wide-layout').click(function() {
+        displayCls = intermine.query.results.DashBoard;
+        changeLayout();
+    });
+
+    $('#select-compact-layout').click(function() {
+        displayCls = intermine.query.results.CompactView;
+        changeLayout();
+    });
+
+
 
     login("Production");
     
