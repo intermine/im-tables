@@ -14,22 +14,36 @@ namespace "intermine.query.results", (public) ->
             else
                 @service = new intermine.Service service
 
+        TABLE_CLASSES: "span9 im-query-results"
+
         render: ->
             @service.query @query, (q) =>
-                main = @make "div", {class: "span9 im-query-results"}
+                main = @make "div", {class: @TABLE_CLASSES}
                 @$el.append main
                 @table = new intermine.query.results.Table(q, main)
                 @table.render()
 
-                tools = @make "div", {class: "span3 im-query-toolbox"}
-                @$el.append tools
-                toolbar = new intermine.query.tools.Tools(q)
-                toolbar.render().$el.appendTo tools
+                @renderTools(q)
 
                 q.on evt, cb for evt, cb of @queryEvents
             this
 
+        renderTools: (q) ->
+            tools = @make "div", {class: "span3 im-query-toolbox"}
+            @$el.append tools
+            toolbar = new intermine.query.tools.Tools(q)
+            toolbar.render().$el.appendTo tools
 
+
+    public class CompactView extends DashBoard
+
+        className: "query-display compact"
+
+        TABLE_CLASSES: "im-query-results"
+
+        renderTools: (q) ->
+            toolbar = new intermine.query.tools.ToolBar(q)
+            toolbar.render().$el.appendTo @el
 
 
 
