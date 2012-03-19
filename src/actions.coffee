@@ -48,15 +48,23 @@ namespace "intermine.query.actions", (public) ->
                 else
                     delete @types[id]
                 types = _(@types).values()
-                m = @query.service.model
-                commonType = m.findCommonTypeOfMultipleClasses(types)
-                @$('form select option').each (i, elem) =>
-                    $o = $(elem)
-                    $o.attr disabled: commonType? and not m.findCommonTypeOf(commonType, $o.data("type"))?
+                hasSelectedItems = !!types.length
+                @$('.btn-primary').attr disabled: !hasSelectedItems
+                if hasSelectedItems
+                    m = @query.service.model
+                    commonType = m.findCommonTypeOfMultipleClasses(types)
+                    @$('form select option').each (i, elem) =>
+                        $o = $(elem)
+                        $o.attr disabled: commonType? and not m.findCommonTypeOf(commonType, $o.data("type"))?
+                else
+                    @$('form select option').each (i, elem) =>
+                        $(elem).attr disabled: false
+
 
         events:
             'click .btn-activate': 'activate'
             'click .btn-cancel': 'activate'
+            'click .btn-primary': 'appendToList'
 
         activate: (e) ->
             form = @$('form').slideToggle 90, =>
@@ -65,6 +73,15 @@ namespace "intermine.query.actions", (public) ->
                 else
                     evt = "stop"
                 @query.trigger "#{evt}:list-creation"
+
+        appendToList: (e) ->
+            ids = _(@types).keys()
+
+
+
+
+
+
         
         render: ->
             @$el.append """
@@ -74,7 +91,7 @@ namespace "intermine.query.actions", (public) ->
                         <select class="im-receiving-list"></select>
                     </label>
                     <div class="btn-group">
-                        <button class="btn btn-primary">Add to list</button>
+                        <button disabled class="btn btn-primary">Add to list</button>
                         <button class="btn btn-cancel">Cancel</button>
                     </div>
                 </form>
