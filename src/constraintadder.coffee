@@ -61,12 +61,14 @@ namespace "intermine.query", (public) ->
             ac = new intermine.query.NewConstraint(@query, con)
             ac.render().$el.appendTo @el
 
-        render: ->
-            @$el.append CONSTRAINT_ADDER_HTML
+        initTypeahead: ->
             @$('input').typeahead
                 source: @paths
                 items: 15
                 sorter: intermine.query.PATH_LEN_SORTER
             this
 
+        render: ->
+            @$el.append CONSTRAINT_ADDER_HTML
+            @initTypeahead()
 
