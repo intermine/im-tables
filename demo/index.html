@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
   <head>
     <link href="../css/bootstrap.css" rel="stylesheet">
@@ -18,11 +19,23 @@
     <link rel="stylesheet" type="text/css" href="../lib/DataTables-1.9.0/extras/ColVis/media/css/ColVis.css">
     <script type="text/javascript" src="../lib/paging.js"></script>
 
+    <!-- Google Prettify -->
+    <link href="../lib/google-code-prettify/prettify.css" type="text/css" rel="stylesheet"/>
+    <script src="../lib/google-code-prettify/prettify.js"></script>
+
+    <!-- Google JavaScript Client. Not working, sadly.
+    <script type="text/javascript" src="http://www.google.com/jsapi"></script>
+    <script type="text/javascript">
+        google.load("gdata", "1.x");
+    </script> -->
+
     <!-- BootStrap plugins -->
     <script type="text/javascript" src="../lib/bootstrap-tab.js"></script>
     <script type="text/javascript" src="../lib/bootstrap-button.js"></script>
     <script type="text/javascript" src="../lib/bootstrap-typeahead.js"></script>
     <script type="text/javascript" src="../lib/bootstrap-tooltip.js"></script>
+    <script type="text/javascript" src="../lib/bootstrap-dropdown.js"></script>
+    <script type="text/javascript" src="../lib/bootstrap-modal.js"></script>
     <!-- im code -->
     <script type="text/javascript" src="../lib/imjs/src/model.js"></script>
     <script type="text/javascript" src="../lib/imjs/src/lists.js"></script>
@@ -34,6 +47,8 @@
     <link rel="stylesheet" type="text/css" href="../css/tables.css">
 
     <!-- Demo webapp -->
+    <script type="text/javascript" src="lib/notifications/Notifications.js"></script>
+    <link rel="stylesheet" type="text/css" href="lib/notifications/notifications.css">
     <script type="text/javascript" src="demo.js"></script>
 
     <link rel="stylesheet" type="text/css" href="../css/ribbon.css">
@@ -58,6 +73,17 @@
             <li><a href="#">Preview</a></li>
             <li><a href="#">TestModel</a></li>
             <li><a href="#">PlantMine</a></li>
+            <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                    Layout
+                    <span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu">
+                    <li><a href="#">Dashboard</a></li>
+                    <li><a href="#">Query-Actions</a></li>
+                    <li><a href="#">Minimal</a></li>
+                </ul>
+            </li>
           </ul>
             <ul id="login-status" class='nav pull-right secondary-nav v9'>
                 <li id="logged-in" class="pull-right login-controls">
@@ -133,7 +159,7 @@
         @import url(http://fonts.googleapis.com/css?family=Alegreya);
         @import url(http://fonts.googleapis.com/css?family=Muli);
 
-        body, input, select, label, form {
+        body, input, select, label, form, p, span {
             font-family: 'Muli', "Helvetica", sans-serif;
         }
         body {

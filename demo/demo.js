@@ -57,10 +57,46 @@ $(function() {
         }
     };
 
+    window.notifier = new growlr.NotificationContainer({
+        extraClasses: "withnav",
+        timeout: 7000
+    });
+
+    var messageTemplate = _.template(
+        "List successfully created:"
+        + '<table class="table table-bordered">'
+        + '<tr>'
+        + '<td>name</td><td><%- name %></td>'
+        + '</tr><tr>'
+        + '<td>description</td><td><%- description %></td>'
+        + '</tr></tr>'
+        + '<td>size</td><td><%- size %></td>'
+        + '</tr></tr>'
+        + '<td>type</td><td><%- type %></td>'
+        + '</tr></table>'
+    );
+
+    var query_events = {
+        "list-creation:success": function(list) {
+            notifier.notify({
+                text: messageTemplate(list),
+                title: "Success",
+                level: "success"
+            });
+        },
+        "list-creation:failure": function(msg) {
+            notifier.notify({
+                text: msg,
+                title: "Failure",
+                level: "warning"
+            });
+        }
+    };
+
     var login = function(serviceArgs) {
         var q = services[serviceArgs].q;
         var service = new intermine.Service(services[serviceArgs]);
-        var qv = new intermine.results.QueryView(service, q);
+        var qv = new intermine.query.results.DashBoard(service, q, query_events);
 
         $('#table-display').empty();
         qv.$el.appendTo("#table-display");

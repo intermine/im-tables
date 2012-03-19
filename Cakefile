@@ -3,14 +3,15 @@ fs     = require 'fs'
 {IM}     = require './intermine.spec'
 
 header = """
-  /**
+  ###
    * InterMine Results Tables Library v#{IM.VERSION}
    * http://www.intermine.org
    *
    * Copyright 2012, Alex Kalderimis
    * Released under the LGPL license.
-   */
-
+   * 
+   * Built at #{new Date()}
+  ###
 """
 
 cont = (cb) ->
@@ -19,38 +20,55 @@ cont = (cb) ->
 task 'copyright', 'Show the copyright header', ->
     console.log header
 
-task 'build:compile', 'Build project from src/*.coffee to lib/*.js', compile = (cb) ->
+task 'build:compile', 'Build project from build/* to js/imtables.js', compile = (cb) ->
     console.log "Compiling #{IM.NAME} (#{IM.VERSION}) to /js"
-    exec 'coffee --compile --output js/ src/', (err, stdout, stderr) ->
+    exec 'coffee --compile --join js/imtables.js build/', (err, stdout, stderr) ->
         throw err if err
+        console.log stdout + stderr
         cont cb
 
 writing = false
 
+neededEarly = ["module.coffee", "constraintadder.coffee"]
+
 task 'build:concat',
-    'Concatenate the resulting .js files to a single application script',
+    'Concatenate the source files to a single application script',
     concat = (cb) ->
-        console.log "Reading js"
+        console.log "Building source file"
         unless writing
             writing = true
-            fs.readdir 'js', (err, files) ->
+            fs.readdir 'src', (err, files) ->
                 appContents = new Array remaining = files.length
                 throw err if err
+                files = neededEarly.concat (f for f in files when f not in neededEarly)
                 for f, i in files then do (f, i) ->
-                    fs.readFile "js/#{f}", 'utf8', (err, fileContents) ->
+                    fs.readFile "src/#{f}", 'utf8', (err, fileContents) ->
                         appContents[i] = fileContents
                         process(appContents) if --remaining is 0
         process = (texts) ->
             console.log "Writing build"
-            fs.writeFile 'js/imtables.js', header + texts.join('\n\n'), 'utf8', (err) ->
+            fs.writeFile 'build/build.coffee', header + "\n\n" + texts.join('\n\n'), 'utf8', (err) ->
                 writing = false
                 throw err if err
                 cont cb
 
 cleaning = false
 
-task 'clean', 'Remove old build', clean = (cb) ->
-    buildf = "js/imtables.js"
+task 'clean:js', 'Remove old js', cleanjs = (cb) ->
+    jsf = "js/imtables.js"
+    fs.stat jsf, (err, stats) ->
+        if stats? and not cleaning
+            cleaning = true
+            console.log "Removing old compiled js"
+            fs.unlink jsf, (err) ->
+                cleaning = false
+                throw err if err
+                cont cb
+        else
+            cont cb
+
+task 'clean:build', 'Remove old build', cleanbuild = (cb) ->
+    buildf = "build/build.coffee"
     fs.stat buildf, (err, stats) ->
         if stats? and not cleaning
             cleaning = true
@@ -62,11 +80,16 @@ task 'clean', 'Remove old build', clean = (cb) ->
         else
             cont cb
 
+task 'clean', "Remove old artifacts", clean = (cb) ->
+    cleanbuild ->
+        cleanjs ->
+            console.log "Cleaned up"
+            cont cb
 
 task 'build', 'Run a complete build', ->
     clean ->
-        compile ->
-            concat ->
+        concat ->
+            compile ->
                 console.log "done at #{new Date()}"
 
 task 'watch', 'Watch production files and rebuild the application', watch = (cb) ->
