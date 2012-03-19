@@ -29,12 +29,17 @@ namespace "intermine.query.actions", (public) ->
 
         initialize: (@query) ->
 
+        actionClasses: -> [ListCreator, ListAppender, CodeGenerator, Exporters]
         render: ->
-            for cls in [ListCreator, ListAppender, CodeGenerator, Exporters]
+            for cls in @actionClasses()
                 action = new cls(@query)
                 action.render().$el.addClass("im-action").appendTo @el
 
             this
+
+    public class ActionBar extends Actions
+        actionClasses: ->
+            [ListCreator, ListAppender, CodeGenerator, Exporters, intermine.query.columns.ColumnAdder]
 
     class ListAppender extends Backbone.View
         tagName: "li"
