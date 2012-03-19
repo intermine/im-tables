@@ -427,6 +427,25 @@ form.im-join {
     border-bottom: 1px solid #ddd;
 }
 
+.im-query-actionbar > ul > .im-action {
+    margin: 0 1em;
+    display: block;
+    float: left;
+}
+
+.im-query-actionbar > ul > .im-action > .btn-group > a.btn, 
+.im-query-actionbar > ul > .im-action.node-adder input,
+.im-query-actionbar > ul > .im-action > a.btn {
+    padding-top: 10px;
+    padding-bottom: 11px;
+}
+
+.im-query-actionbar > ul > .im-action.node-adder {
+    width: 217px;
+}
+
+/* FACETS */
+
 .im-col-summary.dropdown .im-item-table {
     border-top: 1px solid #ddd;
 }
