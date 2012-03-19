@@ -60,7 +60,6 @@ namespace "intermine.query.actions", (public) ->
                     @$('form select option').each (i, elem) =>
                         $(elem).attr disabled: false
 
-
         events:
             'click .btn-activate': 'activate'
             'click .btn-cancel': 'activate'
@@ -76,20 +75,38 @@ namespace "intermine.query.actions", (public) ->
 
         appendToList: (e) ->
             ids = _(@types).keys()
+            receiver = @$ '.im-receiving-list'
+            unless lName = receiver.val()
+                cg = receiver.closest('.control-group').addClass 'error'
+                ilh = @$('.help-inline').text("No receiving list selected").show()
+                backToNormal = ->
+                    ilh.fadeOut 1000, ->
+                        ilh.text ""
+                        cg.removeClass "error" 
+                _.delay backToNormal, 5000
+                return false
 
+            targetType = receiver.data 'type'
 
-
-
-
-
+            listQ =
+                select: ["id"]
+                from: targetType
+                where:
+                    id: ids
+            console.log listQ
         
         render: ->
             @$el.append """
                 <a href="#" class="btn btn-activate">Add items to List</a>
                 <form class="form-horizontal form">
-                    <label>Add to:
-                        <select class="im-receiving-list"></select>
-                    </label>
+                    <fieldset class="control-group">
+                        <label>Add to:
+                            <select class="im-receiving-list">
+                                <option value=""><i>Select a list</i></option>
+                            </select>
+                        </label>
+                        <span class="help-inline"></span>
+                    </fieldset>
                     <div class="btn-group">
                         <button disabled class="btn btn-primary">Add to list</button>
                         <button class="btn btn-cancel">Cancel</button>
