@@ -82,11 +82,12 @@ namespace "intermine.query.actions", (public) ->
                 backToNormal = ->
                     ilh.fadeOut 1000, ->
                         ilh.text ""
-                        cg.removeClass "error" 
+                        cg.removeClass "error"
                 _.delay backToNormal, 5000
                 return false
 
-            targetType = receiver.data 'type'
+            selectedOption = receiver.find(':selected').first()
+            targetType = selectedOption.data 'type'
 
             listQ =
                 select: ["id"]
