@@ -23,13 +23,15 @@ task 'copyright', 'Show the copyright header', ->
 task 'build:compile', 'Build project from build/* to js/imtables.js', compile = (cb) ->
     console.log "Compiling #{IM.NAME} (#{IM.VERSION}) to /js"
     exec 'coffee --compile --join js/imtables.js build/', (err, stdout, stderr) ->
-        throw err if err
-        console.log stdout + stderr
-        cont cb
+        if err
+            console.log "Compilation failed:", stdout + stderr
+            exec "notify-send 'Compilation Failed' '#{ err + stdout + stderr }'", cb
+        else
+            cont cb
 
 writing = false
 
-neededEarly = ["module.coffee", "constraintadder.coffee"]
+neededEarly = ["shiv.coffee", "module.coffee", "constraintadder.coffee"]
 
 task 'build:concat',
     'Concatenate the source files to a single application script',
