@@ -1,7 +1,7 @@
 namespace "intermine.query.results", (public) ->
 
     ## Inline form fix: http://datatables.net/blog/Twitter_Bootstrap_2
-    $ -> $.extend $.fn.dataTableExt.oStdClasses, {sWrapper: "dataTables_wrapper form-inline"}
+    jQuery -> jQuery.extend jQuery.fn.dataTableExt.oStdClasses, {sWrapper: "dataTables_wrapper form-inline"}
 
     TABLE_INIT_PARAMS =
         sDom: "R<'row-fluid'<'span2 im-table-summary'><'span3'l><'span6 pull-right'p>t<'row-fluid'<'span6'i>>"
@@ -45,7 +45,7 @@ namespace "intermine.query.results", (public) ->
             @cache = {}
             @itemModels = {}
             @_pipe_factor = 10
-            @$parent = $(selector)
+            @$parent = jQuery(selector)
             @__selecting = false
             @visibleViews = @query.views.slice()
 
@@ -132,7 +132,7 @@ namespace "intermine.query.results", (public) ->
             return unless @table and @drawn
             elOffset = @$el.offset()
             tableOffset = @table.offset()
-            @overlay = $ @make "div", class: "im-table-overlay discrete"
+            @overlay = jQuery @make "div", class: "im-table-overlay discrete"
             @overlay.css
                 top: elOffset.top
                 left: elOffset.left
@@ -230,7 +230,7 @@ namespace "intermine.query.results", (public) ->
         ##
         serveResultsFromCache: (echo, start, size, callback) ->
             base = @query.service.root.replace /\/service\/?$/, ""
-            result = $.extend true, {}, @cache.lastResult
+            result = jQuery.extend true, {}, @cache.lastResult
             result.sEcho = echo
             # Splice off the undesired sections.
             result.results.splice(0, start - @cache.lowerBound)
@@ -268,7 +268,7 @@ namespace "intermine.query.results", (public) ->
             @$el.empty()
             tel = @make "table", @tableAttrs
             @$el.append tel
-            $(tel).append """
+            jQuery(tel).append """
                 <div class="progress progress-striped active progress-info">
                     <div class="bar" style="width: 100%"></div>
                 </div>
@@ -279,7 +279,7 @@ namespace "intermine.query.results", (public) ->
                 query: @query.toXML()
                 token: @query.service.token
             @$el.appendTo @$parent
-            $.ajax
+            jQuery.ajax
                 url: url
                 dataType: "json"
                 type: "POST"
@@ -292,7 +292,7 @@ namespace "intermine.query.results", (public) ->
             'click .summary-img': 'showColumnSummary'
 
         showColumnSummary: (e) =>
-            $el = $(e.target)
+            $el = jQuery(e.target)
 
             i = $el.data "col-idx"
             view = @query.views[i]
@@ -324,16 +324,16 @@ namespace "intermine.query.results", (public) ->
                 mDataProp: i
 
         onSetupSuccess: (telem) -> (result) =>
-            $(telem).empty()
-            dtopts = $.extend true, {}, TABLE_INIT_PARAMS,
+            jQuery(telem).empty()
+            dtopts = jQuery.extend true, {}, TABLE_INIT_PARAMS,
                 fnServerData: @getRowData
                 fnDrawCallback: @onDraw
                 aoColumns: (@makeCol(result) view, index for view, index in @query.views)
 
-            @table = $(telem).dataTable dtopts
+            @table = jQuery(telem).dataTable dtopts
 
         onSetupError: (telem) -> (xhr) =>
-            $(telem).empty()
+            jQuery(telem).empty()
             notice = @make "div", {class: "alert alert-error"}
             explanation = """
                 Could not load the data-table. The server may be down, or 
@@ -349,7 +349,7 @@ namespace "intermine.query.results", (public) ->
                     @make("ul", {}, (@make "li", {}, issue for issue in parts[true]))
                 ]
 
-            $(notice).append(@make("a", {class: "close", "data-dismiss": "alert"}, "close"))
+            jQuery(notice).append(@make("a", {class: "close", "data-dismiss": "alert"}, "close"))
                      .append(@make("strong", {}, "Ooops...!"))
                      .append(explanation)
                      .appendTo(telem)
