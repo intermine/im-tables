@@ -170,16 +170,90 @@ namespace "intermine.query.actions", (public) ->
         form.remove()
         w.close()
 
+    EXPORT_FORMATS = [
+        {name: "Spreadsheet (tab separated values)", extension: "tab"},
+        {name: "Spreadsheet (comma separated values)", extension: "csv"},
+        null,
+        {name: "XML", extension: "xml"},
+        {name: "JSON", extension: "json"},
+        null,
+        {name: "UCSC-BED", extension: "bed"},
+        {name: "FASTA", extension: "fasta"},
+        {name: "GFF3", extension: "gff3"}
+    ]
+
     class Exporters extends Backbone.View
         tagName: "li"
         className: "im-exporters"
 
+        html: _.template("""
+            <div class="btn-group">
+                <a class="btn btn-action" href="#">
+                    <i class="icon-download-alt"></i>
+                    Export
+                    <span class="im-export-format"></span>
+                </a>
+                <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+                    <b class="caret"></b>
+                </a>
+                <ul class="dropdown-menu">
+                    <% _(formats).each(function(format) { %>
+                        <% if (format) { %>
+                            <li>
+                                <a href="#" data-format="<%= format.extension %>">
+                                    <%= format.name %>
+                                </a>
+                            </li>
+                        <% } else { %>
+                            <li class="divider"></li>
+                        <% } %>
+                    <% }); %>
+                    <li>
+                        <form class="form form-inline im-export-destinations">
+                            <div class="btn-group" data-toggle="buttons-radio">
+                                <button class="btn active" data-destination="download">
+                                    Download
+                                </button>
+                                <button class="btn" data-destination="galaxy">
+                                    Export To Galaxy
+                                </button>
+                            </div>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+            <div class="modal fade">
+                <div class="modal-header">
+                    <a class="close" data-dismiss="modal">close</a>
+                    <h3>Export Options</h3>
+                </div>
+                <!-- TODO -->
+                <div class="modal-body">
+                    <form class="form">
+                        <label>All rows
+                            <input type="checkbox" checked>
+                        </label>
+                        <label>start
+                            <input type="text">
+                        </label>
+                        <label>end
+                            <input type="text">
+                        </label>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <a href="#" class="btn btn-save"><i class="icon-file"></i>Save</a>
+                    <button href="#" class="btn im-show-comments" data-toggle="button">Show Comments</button>
+                    <a href="#" data-dismiss="modal" class="btn">Close</a>
+                </div>
+            </div>
+        """, {formats: EXPORT_FORMATS})
+
         initialize: (@query) ->
 
         render: ->
-            $.get "../html/export-actions.html", (snippet) =>
-                @$el.append snippet
-                @destination = @$('form .btn.active').data 'destination'
+            @$el.append @html
+            @destination = @$('form .btn.active').data 'destination'
             this
 
         events:
@@ -224,15 +298,59 @@ namespace "intermine.query.actions", (public) ->
                 openWindowWithPost "http://main.g2.bx.psu.edu/tool_runner", "Upload", req
 
 
+    CODE_GEN_LANGS = [
+        {name: "Perl", extension: "pl"},
+        {name: "Python", extension: "py"},
+        {name: "Ruby", extension: "rb"},
+        {name: "Java", extension: "java"},
+        {name: "JavaScript", extension: "js"}
+    ]
+
     class CodeGenerator extends Backbone.View
         tagName: "li"
         className: "im-code-gen"
 
+        html: _.template("""
+            <div class="btn-group">
+                <a class="btn btn-action" href="#">
+                    <i class="icon-script"></i>
+                    Get <span class="im-code-lang"></span> code
+                </a>
+                <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+                    <span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu">
+                    <% _(langs).each(function(lang) { %>
+                      <li>
+                        <a href="#" data-lang="<%= lang.extension %>">
+                           <i class="icon-<%= lang.extension %>"></i>
+                           <%= lang.name %>
+                        </a>
+                      </li>
+                    <% }); %>
+                </ul>
+            </div>
+            <div class="modal fade">
+                <div class="modal-header">
+                    <a class="close" data-dismiss="modal">close</a>
+                    <h3>Generated <span class="im-code-lang"></span> Code</h3>
+                </div>
+                <div class="modal-body">
+                    <pre class="im-generated-code prettyprint linenums">
+                    </pre>
+                </div>
+                <div class="modal-footer">
+                    <a href="#" class="btn btn-save"><i class="icon-file"></i>Save</a>
+                    <button href="#" class="btn im-show-comments" data-toggle="button">Show Comments</button>
+                    <a href="#" data-dismiss="modal" class="btn">Close</a>
+                </div>
+            </div>
+        """, {langs: CODE_GEN_LANGS})
+
         initialize: (@query) ->
 
         render: =>
-            $.get "../html/code-generator.html", (snippet) =>
-                @$el.append snippet
+            @$el.append @html
             this
 
         events:
@@ -277,6 +395,43 @@ namespace "intermine.query.actions", (public) ->
 
         tagName: "li"
         className: "im-create-list"
+
+        html: """
+            <a href="#" class="btn" data-toggle="button">
+                <i class="icon-list-alt"></i>
+                Create List
+            </a>
+            <form class="form form-horizontal">
+                <p class="im-list-summary"></p>
+                <fieldset class="control-group">
+                    <label>Name</label>
+                    <input class="im-list-name input-long" type="text" placeholder="required identifier">
+                    <span class="help-inline"></span>
+                </fieldset>
+                <fieldset class="control-group">
+                    <label>Description</label>
+                    <input class="im-list-desc input-long" type="text" placeholder="an optional description" >
+                </fieldset>
+                <fieldset class="control-group">
+                    <label>Add Tags</label>
+                    <input type="text" class="im-available-tags input-medium" placeholder="categorize your list">
+                    <button class="btn im-confirm-tag" disabled>Add</button>
+                    <ul class="im-list-tags choices well">
+                        <div style="clear:both"></div>
+                    </ul>
+                    <h5><i class="icon-chevron-down"></i>Suggested Tags</h5>
+                    <ul class="im-list-tags suggestions well">
+                        <div style="clear:both"></div>
+                    </ul>
+                </fieldset>
+                <input type="hidden" class="im-list-type">
+                <div class="btn-group">
+                    <button class="btn btn-primary">Create</button>
+                    <button class="btn btn-cancel">Cancel</button>
+                    <button class="btn btn-reset">Reset</button>
+                </div>
+            </form>
+        """
 
         initialize: (@query) ->
             @model = new Backbone.Model()
@@ -441,25 +596,24 @@ namespace "intermine.query.actions", (public) ->
             tagAdder.next().attr(disabled: true)
 
         render: ->
-            $.get "../html/list_creation.html", (snippet) =>
-                @$el.append snippet
-                @updateTagBox()
-                tagAdder = @$ '.im-available-tags'
+            @$el.append @html
+            @updateTagBox()
+            tagAdder = @$ '.im-available-tags'
 
-                @$('a').button()
+            @$('a').button()
 
-                @query.service.fetchLists (ls) ->
-                    tags = _(ls).reduce( ((a, l) -> _.union(a, l.tags)), [])
-                    tagAdder.typeahead
-                        source: tags
-                        items: 10
-                        matcher: (item) ->
-                            return true unless @query # Show all options on focus
-                            pattern = new RegExp @query, "i"
-                            return pattern.test item
-                tagAdder.keyup (e) =>
-                    @$('.im-confirm-tag').attr("disabled", false)
-                    if e.which is 13 # <ENTER>
-                        @addTag(e)
+            @query.service.fetchLists (ls) ->
+                tags = _(ls).reduce( ((a, l) -> _.union(a, l.tags)), [])
+                tagAdder.typeahead
+                    source: tags
+                    items: 10
+                    matcher: (item) ->
+                        return true unless @query # Show all options on focus
+                        pattern = new RegExp @query, "i"
+                        return pattern.test item
+            tagAdder.keyup (e) =>
+                @$('.im-confirm-tag').attr("disabled", false)
+                if e.which is 13 # <ENTER>
+                    @addTag(e)
 
             this
