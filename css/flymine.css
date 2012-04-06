@@ -1,0 +1,8 @@
+.alert-info {
+    background-color: #F4eef7;
+    border-color: #5c0075;
+}
+
+.alert-info > h3 {
+    border-top: none;
+}
