@@ -5,7 +5,7 @@ $(function() {
             root: "www.flymine.org/query", 
             token: "21k3D5x5B8pdd8T9yeY24fG8th2",
             q: {
-                select: ["symbol", "organism.name"], 
+                select: ["symbol", "organism.name", "chromosome.primaryIdentifier", "chromosomeLocation.start"], 
                 from: "Gene", 
                 where: {
                     Gene: {IN: "an awesome list"}, 
@@ -26,7 +26,7 @@ $(function() {
           }
         },
         TestModel: {
-          root: "risu.flymine.org/intermine-test",
+          root: "localhost:8080/intermine-test",
           token: "test-user-token",
           q: {
               select: ["*", "age"],
