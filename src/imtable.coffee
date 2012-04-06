@@ -4,7 +4,7 @@ namespace "intermine.query.results", (public) ->
     jQuery -> jQuery.extend jQuery.fn.dataTableExt.oStdClasses, {sWrapper: "dataTables_wrapper form-inline"}
 
     TABLE_INIT_PARAMS =
-        sDom: "R<'row-fluid'<'span2 im-table-summary'><'span3'l><'span6 pull-right'p>t<'row-fluid'<'span6'i>>"
+        sDom: "R<'row-fluid'<'span2 im-table-summary'><'pull-right'p><'pull-right'l>t<'row-fluid'<'span6'i>>"
         sPaginationType: "bootstrap"
         oLanguage:
             sLengthMenu: "_MENU_ rows per page"
@@ -14,7 +14,7 @@ namespace "intermine.query.results", (public) ->
                 </div>
             """
         aLengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]]
-        iDisplayLength: 10
+        iDisplayLength: 25
         bProcessing: false
         bServerSide: true
 
@@ -24,6 +24,83 @@ namespace "intermine.query.results", (public) ->
     class Page
         constructor: (@start, @size) ->
         end: -> @start + @size
+
+    class ResultsTable extends Backbone.View
+        className: "im-results-table table table-striped table-bordered"
+        tagName: "table"
+        attributes:
+            width: "100%"
+            cellpadding: 0
+            border: 0
+            cellspacing: 0
+        pageSize: 25
+        pageSizes: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]]
+        throbber: """
+            <div class="progress progress-info progress-striped active">
+                <div class="bar" style="width: 100%"></div>
+            </div>
+        """
+        pageSizeTempl: _.template """
+            <%= pageSize %> rows per page
+        """
+
+        initialize: (@query, @getData) ->
+
+        render: ->
+            @$el.empty()
+            @addColumnHeaders()
+
+            throbber = $ @throbber
+            throbber.appendTo @el
+
+            promise = @getData 0, @pageSize
+
+            promise.then(@appendRows, @handleError).always -> throbber.remove()
+
+        appendRows: (rows) => @appendRow(row) for row in rows
+
+        appendRow: (row) ->
+            tr = $ "<tr>"
+            for cell in row then do (cell) ->
+                tr.append(cell.render().el)
+            tr.appendTo @el
+
+        errorTempl: _.template """
+            <div class="alert alert-error">
+                <h2>Error</h2>
+                <p><%= error %>
+            </div>
+        """
+
+        handleError: (err) -> @$el.append @errorTempl error: err
+
+        columnHeaderTempl: _.template """
+            <th>
+                <%- title %>
+                <div class="im-th-button im-col-sort-indicator" title="sort this column">
+                    <i class="icon-white"></i>
+                </div>
+                <div class="im-th-button im-col-remover" title="remove this column" data-view="<%= view %>">
+                    <i class="icon-remove-sign icon-white"></i>
+                </div>
+                <div class="im-th-button summary-img dropdown-toggle" title="column summary"
+                    data-toggle="dropdown" data-col-idx="<% i %>" >
+                    <i class="icon-info-sign icon-white"></i>
+                </div>
+                <div class="dropdown-menu">
+                    <div>Could not ititialise the column summary.</div>
+                </div>
+            </th>
+        """
+
+        addColumnHeaders: (result) -> () =>
+            thead = $ "<thead>"
+            tr = $ "<tr>"
+            thead.append tr
+            for view, i in @query.views
+                title = result.columnHeaders[i].split(' > ').slice(1).join(" > ")
+                th = @columnHeaderTempl title: title, i: i, view: view
+                tr.append th
 
     public class Table extends Backbone.View
 
@@ -96,8 +173,6 @@ namespace "intermine.query.results", (public) ->
             size = intermine.utils.getParameter(params, "iDisplayLength")
             end = start + size
             isOutOfRange = false
-
-            console.log @
 
             @adjustSortOrder(params)
 
@@ -216,8 +291,9 @@ namespace "intermine.query.results", (public) ->
 
         updateSummary: (result) ->
             summary = @$ '.im-table-summary'
+            console.log result
             html    = COUNT_HTML
-                count: intermine.utils.numToString(result.iTotalRecords)
+                count: intermine.utils.numToString(result.iTotalRecords, ",", 3)
                 roots: intermine.utils.pluralise(@query.root)
             summary.html html
 
@@ -238,7 +314,7 @@ namespace "intermine.query.results", (public) ->
 
             @updateSummary result
 
-            fields = (f.replace(/^.*\./, "") for f in result.views)
+            fields = (v.replace(/^.*\./, "") for v in result.views)
             result.aaData = result.results.map (row) =>
                 (row).map (cell, idx) =>
                     cv = if cell.id
@@ -273,30 +349,24 @@ namespace "intermine.query.results", (public) ->
                     <div class="bar" style="width: 100%"></div>
                 </div>
             """
-            url = @query.service.root + "query/results"
+            path = "query/results"
             setupParams =
                 format: "jsontable"
                 query: @query.toXML()
                 token: @query.service.token
             @$el.appendTo @$parent
-            jQuery.ajax
-                url: url
-                dataType: "json"
-                type: "POST"
-                data: setupParams
-                success: @onSetupSuccess(tel)
-                error: @onSetupError(tel)
+            @query.service.makeRequest(path, setupParams, @onSetupSuccess(tel), "POST").fail @onSetupError(tel)
             this
 
         events:
             'click .summary-img': 'showColumnSummary'
+            'click .im-col-remover': 'removeColumn'
 
         showColumnSummary: (e) =>
-            $el = jQuery(e.target)
+            $el = jQuery(e.target).closest '.summary-img'
 
             i = $el.data "col-idx"
             view = @query.views[i]
-            console.log "ARRRGRG!!", view
             unless view
                 e.stopPropagation()
                 e.preventDefault()
@@ -306,20 +376,31 @@ namespace "intermine.query.results", (public) ->
 
             false
 
+        removeColumn: (e) =>
+            e.stopPropagation()
+            $el = jQuery(e.target).closest '.im-col-remover'
+            view = $el.data "view"
+            @query.removeFromSelect view
+            false
+
         makeCol: (result) -> (view, i)  =>
             col =
                 bVisible: view in @visibleViews
                 sTitle: result.columnHeaders[i].split(" > ").slice(1).join(" &gt; ") + """
                     <span class="im-col-summary navbar dropdown pull-right">
-                        <div class="summary-img dropdown-toggle" title="column summary"
+                        <div class="im-th-button im-col-remover" title="remove this column" data-view="#{view}">
+                            <i class="icon-remove-sign icon-white"></i>
+                        </div>
+                        <div class="im-th-button summary-img dropdown-toggle" title="column summary"
                             data-toggle="dropdown" data-col-idx="#{i}" >
-                            \u03A3
+                            <i class="icon-info-sign icon-white"></i>
                         </div>
                         <div class="dropdown-menu">
                             <div>Some content of some type or another.</div>
                         </div>
                     </span>
                 """
+                # \u03A3
                 sName: view
                 mDataProp: i
 
@@ -333,24 +414,24 @@ namespace "intermine.query.results", (public) ->
             @table = jQuery(telem).dataTable dtopts
 
         onSetupError: (telem) -> (xhr) =>
-            jQuery(telem).empty()
+            $(telem).empty()
+            console.log "SETUP FAILURE", arguments
             notice = @make "div", {class: "alert alert-error"}
             explanation = """
                 Could not load the data-table. The server may be down, or 
                 incorrectly configured, or we could be pointed at an invalid URL.
             """
 
-            console.log arguments
             if xhr?.responseText
                 explanation = JSON?.parse(xhr.responseText).error or explanation
-                parts = _(part for part in explanation.split("") when part?).groupBy (p, i) -> i > 0
+                parts = _(part for part in explanation.split("\n") when part?).groupBy (p, i) -> i > 0
                 explanation = [
                     @make("span", {}, parts[false] + ""),
                     @make("ul", {}, (@make "li", {}, issue for issue in parts[true]))
                 ]
 
-            jQuery(notice).append(@make("a", {class: "close", "data-dismiss": "alert"}, "close"))
-                     .append(@make("strong", {}, "Ooops...!"))
+            $(notice).append(@make("a", {class: "close", "data-dismiss": "alert"}, "close"))
+                     .append(@make("strong", {}, "Ooops...! "))
                      .append(explanation)
                      .appendTo(telem)
 

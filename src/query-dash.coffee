@@ -17,7 +17,9 @@ namespace "intermine.query.results", (public) ->
         TABLE_CLASSES: "span9 im-query-results"
 
         render: ->
-            @service.query @query, (q) =>
+            console.log "Rendering"
+            promise = @service.query @query, (q) =>
+                console.log "Made a query"
                 main = @make "div", {class: @TABLE_CLASSES}
                 @$el.append main
                 @table = new intermine.query.results.Table(q, main)
@@ -26,6 +28,15 @@ namespace "intermine.query.results", (public) ->
                 @renderTools(q)
 
                 q.on evt, cb for evt, cb of @queryEvents
+
+            promise.fail (xhr, err, msg) =>
+                console.log arguments
+                @$el.append """
+                    <div class="alert alert-error">
+                        <h1>#{err}</h1>
+                        <p>Unable to construct query: #{msg}</p>
+                    </div>
+                """
             this
 
         renderTools: (q) ->

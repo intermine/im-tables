@@ -1,6 +1,6 @@
 namespace "intermine.query.tools", (public) ->
 
-## Define stuff...
+    ## Define stuff...
 
     TAB_HTML = _.template """
         <li>

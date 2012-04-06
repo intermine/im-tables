@@ -17,14 +17,18 @@ namespace "intermine", (public) ->
             else
                 word + "s"
 
+        # TODO: unit tests
         @numToString = (num, sep, every) ->
             rets = []
             i = 0
-            groups = _((num + "").split("")).groupBy (c, i) -> (i / every).toFixed()
+            chars =  (num + "").split("")
+            len = chars.length
+            groups = _(chars).groupBy (c, i) -> Math.floor((len - (i + 1)) / every).toFixed()
+            console.log groups
             while groups[i]
-                rets = rets.unshift groups[i].join("")
+                rets.unshift groups[i].join("")
                 i++
-            return rets.join sep
+            return rets.join(sep)
 
 
         @getParameter = (params, name) ->

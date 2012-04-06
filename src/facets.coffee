@@ -69,7 +69,14 @@ namespace "intermine.results", (public) ->
     public class FrequencyFacet extends FacetView
         render: ->
             super()
+            $progress = $ """
+                <div class="progress progress-info progress-striped active">
+                    <div class="bar" style="width:100%"></div>
+                </div>
+            """
+            $progress.appendTo @el
             promise = @query.summarise @facet.path, @limit, (items, total) =>
+                $progress.remove()
                 @$dt.append " (#{total})"
                 if total > @limit
                     more = $(MORE_FACETS_HTML).appendTo(@$dt)
@@ -91,8 +98,11 @@ namespace "intermine.results", (public) ->
                     @$el.append hf.el
                     hf.render()
 
-                    #@addItem item for item in items
-                $(@el).remove() if total <= 1
+                if total <= 1
+                    @$el.empty().append """
+                        All items are unique.
+                    """
+
             promise.fail @remove
             this
 
@@ -227,6 +237,8 @@ namespace "intermine.results", (public) ->
         initialize: (@query, @facet, items) ->
             @items = new Backbone.Collection(items)
             @items.each (item) -> item.set "visibility", true
+
+            @items.maxCount = @items.first().get "count"
             @items.on "change:selected", =>
                 someAreSelected = @items.any((item) -> item.get "selected")
                 allAreSelected = !@items.any (item) -> not item.get "selected"
@@ -372,12 +384,17 @@ namespace "intermine.results", (public) ->
 
         render: ->
             inputType = if @items.size() > 2 then "checkbox" else "radio"
+            percent = (parseInt(@item.get("count")) / @items.maxCount * 100).toFixed()
             @$el.append """
                 <td class="im-selector-col">
                     <input type="#{inputType}">
                 </td>
                 <td class="im-item-col">#{@item.get "item"}</td>
-                <td class="im-count-col">#{@item.get "count"}</td>
+                <td class="im-count-col">
+                    <div class="im-facet-bar" style="width:#{percent}%">
+                        #{@item.get "count"}
+                    </div>
+                </td>
             """
             if @item.get "percent"
                 @$el.append """<td class="im-prop-col"><i>#{@item.get("percent").toFixed()}%</i></td>"""
@@ -402,16 +419,17 @@ namespace "intermine.results", (public) ->
         """
         
         addChart: ->
-            h = 150
-            hh = 120
+            h = 75
+            hh = h * 0.8
             w = @$el.closest(':visible').width() * 0.95
-            max = @items.first().get "count"
+            f = @items.first()
+            max = f.get "count"
             return this if @items.all (i) -> i.get("count") is 1
             chart = @make "div"
             @$el.append chart
             p = @paper = Raphael chart, w, h
-            gap = 4
-            topMargin = 15
+            gap = w * 0.01
+            topMargin = h * 0.1
             leftMargin = 30
             stepWidth = (w - (leftMargin + 1)) / @items.size()
             baseline = hh + topMargin

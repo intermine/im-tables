@@ -13,7 +13,7 @@ namespace "intermine.query.columns", (public) ->
             this
 
     class CurrentColumns extends Backbone.View
-        className: "node-remover"
+        className: "node-remover" # TODO- change this to be a more descriptive, namespaced class name
         tagName: "dl"
 
         initialize: (@query) ->
@@ -38,7 +38,9 @@ namespace "intermine.query.columns", (public) ->
     public class ColumnAdder extends intermine.query.ConstraintAdder
         className: "form node-adder row-fluid"
 
-        handleSubmission: (e) ->
+        handleSubmission: (e) =>
+            e.preventDefault()
+            e.stopPropagation()
             newPath = @$('input').val()
             @query.addToSelect newPath
 
@@ -51,15 +53,15 @@ namespace "intermine.query.columns", (public) ->
             @initTypeahead()
 
     JOIN_TOGGLE_HTML = _.template """
-    <form class="form-inline pull-right im-join">
-    <div class="btn-group" data-toggle="buttons-radio">
-        <button data-style="INNER" class="btn btn-small <% print(outer ? "" : "active") %>">
-        Required
-        </button>
-        <button data-style="OUTER" class="btn btn-small <% print(outer ? "active" : "") %>">
-        Optional
-        </button>
-    </div></form>
+        <form class="form-inline pull-right im-join">
+        <div class="btn-group" data-toggle="buttons-radio">
+            <button data-style="INNER" class="btn btn-small <% print(outer ? "" : "active") %>">
+            Required
+            </button>
+            <button data-style="OUTER" class="btn btn-small <% print(outer ? "active" : "") %>">
+            Optional
+            </button>
+        </div></form>
     """
 
     ATTR_HTML = _.template """
@@ -78,7 +80,7 @@ namespace "intermine.query.columns", (public) ->
 
         initialize: (@query, @table, @field) ->
             @path = @query.root + (if @field then ".#{@field.name}" else "")
-            @query.on "change:views", @render
+            @query.on "change:views", @setCheckBoxState
 
         events:
             'click dt': 'toggleFields'
@@ -88,13 +90,18 @@ namespace "intermine.query.columns", (public) ->
             @$('dd').slideToggle()
 
         changeView: (e) ->
-            ## TODO check that these events are emitted.
             $t = $(e.target)
             path = $t.data "path"
             if $t.attr "checked"
                 @query.addToSelect path
             else
                 @query.removeFromSelect path
+
+        setCheckBoxState: (e) =>
+            @$('dd input').each (i, cbx) =>
+                $cbx = $(cbx)
+                path = $cbx.data "path"
+                $cbx.attr checked: @query.hasView path
 
         render: =>
             @$el.empty()

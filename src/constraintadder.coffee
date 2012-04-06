@@ -1,8 +1,27 @@
 namespace "intermine.query", (public) ->
 
+    pos = (substr) -> _.memoize (str) -> str.toLowerCase().indexOf substr
+    pathLen = _.memoize (str) -> str.split(".").length
+
     public PATH_LEN_SORTER = (items) ->
-        _(items).sortBy (x) ->
-            x.split(".").length
+        getPos = pos @query.toLowerCase()
+        items.sort (a, b) ->
+            if a is b
+                0
+            else
+                getPos(a) - getPos(b) || pathLen(a) - pathLen(b) || if a < b then -1 else 1
+        return items
+
+    public PATH_MATCHER = (item) ->
+        lci = item.toLowerCase()
+        terms = (term for term in @query.toLowerCase().split(/\s+/) when term)
+        item and _.all terms, (t) -> lci.match(t)
+
+    public PATH_HIGHLIGHTER = (item) ->
+        terms = @query.toLowerCase().split(/\s+/)
+        for term in terms when term
+            item = item.replace new RegExp(term, "gi"), (match) -> "<>#{ match }</>"
+        item.replace(/>/g, "strong>")
 
     CONSTRAINT_ADDER_HTML = """
         <input type="text" placeholder="Add a new filter" class="im-constraint-adder span9">
@@ -26,14 +45,11 @@ namespace "intermine.query", (public) ->
 
         events:
             'submit': 'handleSubmission'
-            'keyup input': 'handleKeyup'
             'focus input': 'activateSearch'
             'blur input': 'leaveSearch'
             'click': 'handleClick'
 
-        handleKeyup: (e) ->
-            console.log "KEYUP"
-            $(e.target).next().attr disabled: false
+        handleKeyup: (e) -> $(e.target).next().attr disabled: false
 
         activateSearch: (e) ->
             $(e.target).val(@query.root).keyup()
@@ -62,10 +78,12 @@ namespace "intermine.query", (public) ->
             ac.render().$el.appendTo @el
 
         initTypeahead: ->
-            @$('input').typeahead
+            @$('input').keyup(@handleKeyup).typeahead
                 source: @paths
                 items: 15
-                sorter: intermine.query.PATH_LEN_SORTER
+                sorter: PATH_LEN_SORTER
+                matcher: PATH_MATCHER
+                highlighter: PATH_HIGHLIGHTER
             this
 
         render: ->
