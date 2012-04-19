@@ -1,6 +1,6 @@
-namespace "intermine.query.results", (public) ->
+scope "intermine.query.results", (exporting) ->
 
-    public class DropDownColumnSummary extends Backbone.View
+    exporting class DropDownColumnSummary extends Backbone.View
         className: "im-dropdown-summary"
 
         initialize: (@view, @query) ->

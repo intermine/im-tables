@@ -1,6 +1,6 @@
-namespace "intermine", (public) ->
+scope "intermine", (exporting) ->
 
-    public class utils
+    exporting class utils
         ##
         # Very naïve English word pluralisation algorithm
         #

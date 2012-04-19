@@ -1,6 +1,6 @@
-namespace "intermine.query.columns", (public) ->
+scope "intermine.query.columns", (exporting) ->
 
-    public class Columns extends Backbone.View
+    exporting class Columns extends Backbone.View
         className: "im-query-columns"
 
         initialize: (@query) ->
@@ -13,7 +13,7 @@ namespace "intermine.query.columns", (public) ->
             this
 
     class CurrentColumns extends Backbone.View
-        className: "node-remover" # TODO- change this to be a more descriptive, namespaced class name
+        className: "node-remover" # TODO- change this to be a more descriptive, scoped class name
         tagName: "dl"
 
         initialize: (@query) ->
@@ -35,7 +35,7 @@ namespace "intermine.query.columns", (public) ->
 
             this
 
-    public class ColumnAdder extends intermine.query.ConstraintAdder
+    exporting class ColumnAdder extends intermine.query.ConstraintAdder
         className: "form node-adder row-fluid"
 
         handleSubmission: (e) =>

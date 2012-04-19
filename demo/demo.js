@@ -17,7 +17,7 @@ $(function() {
           root: "preview.flymine.org/preview",
           token: "T1f3e5D8H9f0w7n1U3RaraXk9J8",
           q: {
-              select: ["symbol", "proteins.name"], 
+              select: ["**", "proteins.name"], 
               from: "Gene", 
               where: {
                   length: {lt: 5000},

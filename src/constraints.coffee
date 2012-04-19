@@ -1,8 +1,8 @@
-namespace "intermine.query",  (public) ->
+scope "intermine.query",  (exporting) ->
 
     PATH_SEGMENT_DIVIDER = "&rarr;"
 
-    public class ActiveConstraint extends Backbone.View
+    exporting class ActiveConstraint extends Backbone.View
         tagName: "form"
         className: "form-inline im-constraint row-fluid"
         
@@ -137,11 +137,11 @@ namespace "intermine.query",  (public) ->
                 values = @con.values or []
                 $multiValues = $('<table class="table table-condensed im-value-options"></table>').appendTo fs
                 _(values).each (v) -> $multiValues.append """
-                    <tr>
-                        <td><input type=checkbox checked data-value="#{ v }></td>
-                        <td>#{ v }</td>
-                    </tr>
-                """
+                        <tr>
+                            <td><input type=checkbox checked data-value="#{ v }"></td>
+                            <td>#{ v }</td>
+                        </tr>
+                    """
             else if op in intermine.Query.LIST_OPS
                 $lists = $("""<select class="im-value-options"></select>""").appendTo fs
                 @query.service.fetchLists (ls) =>
@@ -162,7 +162,7 @@ namespace "intermine.query",  (public) ->
                     >
                 """
 
-    public class NewConstraint extends ActiveConstraint
+    exporting class NewConstraint extends ActiveConstraint
 
         initialize: (@query, @con) ->
             super @query, @con

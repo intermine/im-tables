@@ -11,14 +11,14 @@ stope = (f) -> (e) ->
     e.preventDefault()
     f(e)
 
-namespace = (path, code = ->) ->
+scope = (path, code = ->) ->
     parts = path.split "."
     ns = root
     for part in parts
         ns = if ns[part] then ns[part] else (ns[part] = {})
-    public = (cls) ->
+    exporting = (cls) ->
         ns[cls.name] = cls
-    code(public)
+    code(exporting)
     return ns
 
 

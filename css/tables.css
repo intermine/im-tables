@@ -16,9 +16,13 @@ div.dataTables_info {
     padding-top: 8px;
 }
 
-div.dataTables_paginate {
-    float: right;
-    margin: 0;
+.im-current-page form {
+    display: inline;
+    float: left;
+}
+
+.im-current-page form > select, .im-current-page form > input {
+    width: 5em;
 }
 
 table.table {
@@ -26,12 +30,32 @@ table.table {
     margin-bottom: 6px !important;
 }
 
+.im-table-container > .table tr > .im-minimised-col {
+    background-color: #aaa;
+}
+
+.bootstrap .table-striped tbody tr:nth-child(odd) td.im-minimised-col {
+    background-color: #ccc;
+}
+
+.btn.im-reorderer {
+    float: left;
+    display: inline;
+    position: relative;
+    left: 3em;
+}
+
+
 th .im-col-summary.navbar {
     margin-bottom: 0px;
 }
 
 table.progress {
     padding: 5em 3em;
+}
+
+.im-table-throbber h2 {
+    color: #ccc;
 }
 
 .im-table-overlay {
@@ -66,12 +90,27 @@ table.table thead .sorting_desc_disabled {
     cursor: pointer;
 }
 
-table.dataTable > thead > tr {
+.im-table-container > table > thead > tr {
     color: white;
     background-color: #2c2c2c;
 }
 
-.im-col-summary.dropdown .dropdown-menu {
+.im-col-order-dialog > .modal-body {
+    max-height: 500px;
+}
+
+.im-col-order-dialog {
+    display: none;
+}
+
+.im-reordering-container {
+    max-width: 80%;
+}
+
+.im-reorderable {
+}
+
+.im-th-buttons .dropdown-menu {
     padding: 0.2em;
     color: #333;
     top: 85%;
@@ -113,9 +152,9 @@ table.dataTable > thead > tr {
     clear: none;
 }
 
-.im-col-summary .dropdown-menu .im-item-table {
+.im-dropdown-summary .im-item-table {
     display: block;
-    max-height: 12em;
+    max-height: 20em;
     overflow: auto;
 }
 
@@ -158,7 +197,6 @@ table.dataTable tbody tr td.active {
 }
 
 .im-result-field {
-    display: block;
     width: 100%;
     margin: -8px;
     padding: 8px;
@@ -459,12 +497,20 @@ input.im-constraint-adder {
 }
 
 .im-table-summary {
+    float: left;
     position: relative;
     left: 20px;
     font-weight: bold;
     font-size: 1.5em;
     padding: 0.3em;
     margin-bottom: 0.5em;
+}
+
+.im-table-container > table.table > thead:last-child > tr:last-child > th:first-child {
+    border-radius: 4px 0 0 0;
+}
+.im-table-container > table.table > thead:last-child > tr:last-child > th:last-child {
+    border-radius: 0 4px 0 0;
 }
 
 form.im-join {
@@ -538,6 +584,17 @@ form.im-join {
     margin-right: 0.5em;
 }
 
+.im-table-container > .table > thead > tr > th {
+    height: 100%;
+}
+
+.im-th-buttons {
+    display: block;
+}
+
+.bootstrap .table thead th {
+    vertical-align: top;
+}
 .dropdown.open > .im-th-button {
     background: #2c2c2c;
 }
@@ -547,14 +604,9 @@ form.im-join {
     float: right;
     margin-bottom: 0.2em;
     color: white;
-    /*
-    border: 2px solid #dedede;
-    border-radius: 1em;
-    width: 1em;
-    height: 1em;
-    */
-    padding: 1px 1px 5px 5px;
+    padding: 1px 1px 5px 1px;
     font-family: serif;
+    vertical-align: top;
 }
 
 .im-col-remover {
@@ -582,7 +634,7 @@ form.im-join {
     display: none;
 }
 
-.im-col-summary .im-facet {
+.im-dropdown-summary .im-facet {
     display: block;
 }
 
@@ -648,7 +700,17 @@ ul.im-list-tags li {
     margin: 0.5em 0.5em 0 0;
 }
 
+.im-item-field { 
+    background: #eee;
+}
 
+.im-item-details { 
+}
+
+.im-item-details td { 
+    max-height: 5em;
+    overflow: hidden;
+}
 
 /* SVG styles */
 path, circle {
@@ -682,6 +744,17 @@ path.tickline {
 text.pie-label {
     font-size: 14px;
 }
+
+.scroll-bar-wrap {
+    clear: left;
+    padding: 0 4px 0 2px;
+    margin: 0 -1px -1px -1px;
+    overflow: hidden;
+}
+.scroll-bar-wrap .ui-slider { background: none; border:0; height: 2em; margin: 0 auto;  }
+.scroll-bar-wrap .ui-handle-helper-parent { position: relative; width: 100%; height: 100%; margin: 0 auto; }
+.scroll-bar-wrap .ui-slider-handle { top:.2em; height: 1.5em; }
+.scroll-bar-wrap .ui-slider-handle .ui-icon { margin: -8px auto 0; position: relative; top: 50%; }
 
 .im-facet .slider {
     margin: 1em 1.5em;

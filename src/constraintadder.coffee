@@ -1,9 +1,9 @@
-namespace "intermine.query", (public) ->
+scope "intermine.query", (exporting) ->
 
     pos = (substr) -> _.memoize (str) -> str.toLowerCase().indexOf substr
     pathLen = _.memoize (str) -> str.split(".").length
 
-    public PATH_LEN_SORTER = (items) ->
+    exporting PATH_LEN_SORTER = (items) ->
         getPos = pos @query.toLowerCase()
         items.sort (a, b) ->
             if a is b
@@ -12,12 +12,12 @@ namespace "intermine.query", (public) ->
                 getPos(a) - getPos(b) || pathLen(a) - pathLen(b) || if a < b then -1 else 1
         return items
 
-    public PATH_MATCHER = (item) ->
+    exporting PATH_MATCHER = (item) ->
         lci = item.toLowerCase()
         terms = (term for term in @query.toLowerCase().split(/\s+/) when term)
         item and _.all terms, (t) -> lci.match(t)
 
-    public PATH_HIGHLIGHTER = (item) ->
+    exporting PATH_HIGHLIGHTER = (item) ->
         terms = @query.toLowerCase().split(/\s+/)
         for term in terms when term
             item = item.replace new RegExp(term, "gi"), (match) -> "<>#{ match }</>"
@@ -30,7 +30,7 @@ namespace "intermine.query", (public) ->
         </button>
     """
 
-    public class ConstraintAdder extends Backbone.View
+    exporting class ConstraintAdder extends Backbone.View
 
         tagName: "form"
         className: "form im-constraint-adder row-fluid im-constraint"

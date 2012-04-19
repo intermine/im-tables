@@ -1,6 +1,6 @@
-namespace "intermine.model", (public) ->
+scope "intermine.model", (exporting) ->
     
-    public class IMObject extends Backbone.Model
+    exporting class IMObject extends Backbone.Model
 
         initialize: (query, obj, field, base) ->
             obj.type = obj.class

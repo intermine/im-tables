@@ -1,6 +1,6 @@
-namespace "intermine.query.results", (public) ->
+scope "intermine.query.results", (exporting) ->
 
-    public class DashBoard extends Backbone.View
+    exporting class DashBoard extends Backbone.View
         tagName: "div"
         className: "query-display row-fluid"
 
@@ -46,7 +46,7 @@ namespace "intermine.query.results", (public) ->
             toolbar.render().$el.appendTo tools
 
 
-    public class CompactView extends DashBoard
+    exporting class CompactView extends DashBoard
 
         className: "query-display compact"
 

@@ -1,4 +1,4 @@
-namespace "intermine.results", (public) ->
+scope "intermine.results", (exporting) ->
 
     ##----------------
     ## Returns a fn to calculate a point Z(x), 
@@ -27,7 +27,7 @@ namespace "intermine.results", (public) ->
         </dd>
     """
 
-    public class ColumnSummary extends Backbone.View
+    exporting class ColumnSummary extends Backbone.View
         tagName: 'div'
         className: "im-column-summary"
         initialize: (facet, @query) ->
@@ -54,7 +54,7 @@ namespace "intermine.results", (public) ->
             fac.render()
             this
 
-    public class FacetView extends Backbone.View
+    exporting class FacetView extends Backbone.View
         tagName: "dl"
         initialize: (@query, @facet, @limit) ->
             @query.on "change:constraints", @render
@@ -66,7 +66,7 @@ namespace "intermine.results", (public) ->
                 @$dt.find('i').first().toggleClass 'icon-chevron-right icon-chevron-down'
             this
 
-    public class FrequencyFacet extends FacetView
+    exporting class FrequencyFacet extends FacetView
         render: ->
             super()
             $progress = $ """
@@ -117,7 +117,7 @@ namespace "intermine.results", (public) ->
             $dd
 
 
-    public class NumericFacet extends FacetView
+    exporting class NumericFacet extends FacetView
 
         events: # A bit heavy handed, admittedly, but otherwise datatables goes a bit mental...
             'click': (e) -> e.stopPropagation()
@@ -231,14 +231,14 @@ namespace "intermine.results", (public) ->
                 "font-size": "16px"
 
 
-    public class PieFacet extends Backbone.View
+    exporting class PieFacet extends Backbone.View
 
         className: 'im-pie-facet im-facet'
         initialize: (@query, @facet, items) ->
             @items = new Backbone.Collection(items)
             @items.each (item) -> item.set "visibility", true
 
-            @items.maxCount = @items.first().get "count"
+            @items.maxCount = @items.first()?.get "count"
             @items.on "change:selected", =>
                 someAreSelected = @items.any((item) -> item.get "selected")
                 allAreSelected = !@items.any (item) -> not item.get "selected"
@@ -362,7 +362,7 @@ namespace "intermine.results", (public) ->
             row = new FacetRow(item, @items)
             return row.render().$el
 
-    public class FacetRow extends Backbone.View
+    exporting class FacetRow extends Backbone.View
 
         tagName: "tr"
         className: "im-facet-row"
@@ -410,7 +410,7 @@ namespace "intermine.results", (public) ->
             e.preventDefault()
             @item.set "selected", @$('input').attr 'checked'
 
-    public class HistoFacet extends PieFacet
+    exporting class HistoFacet extends PieFacet
 
         columnHeaders: """
             <th></th>
@@ -461,7 +461,7 @@ namespace "intermine.results", (public) ->
             this
 
 
-    public class BooleanFacet extends NumericFacet
+    exporting class BooleanFacet extends NumericFacet
         handleSummary: (items) =>
             t = _(items).find (i) -> i.item is true
             f = _(items).find (i) -> i.item is false

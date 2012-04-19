@@ -1,4 +1,4 @@
-namespace "intermine.query.tools", (public) ->
+scope "intermine.query.tools", (exporting) ->
 
     ## Define stuff...
 
@@ -14,7 +14,7 @@ namespace "intermine.query.tools", (public) ->
         <div class="tab-pane" id="<%= ref %>"></div>
     """
 
-    public class Tools extends Backbone.View
+    exporting class Tools extends Backbone.View
         className: "im-query-tools"
 
         initialize: (@query) ->
@@ -56,7 +56,7 @@ namespace "intermine.query.tools", (public) ->
 
             this
 
-    public class ToolBar extends Backbone.View
+    exporting class ToolBar extends Backbone.View
 
         className: "im-query-actionbar"
 

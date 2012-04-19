@@ -1,4 +1,4 @@
-namespace "intermine.query.actions", (public) ->
+scope "intermine.query.actions", (exporting) ->
 
    # Model for representing something with one major field
     class Item extends Backbone.Model
@@ -22,7 +22,7 @@ namespace "intermine.query.actions", (public) ->
 
     ILLEGAL_LIST_NAME_CHARS = /[^\w\s\(\):+\.-]/g
 
-    public class Actions extends Backbone.View
+    exporting class Actions extends Backbone.View
 
         className: "im-query-actions"
         tagName: "ul"
@@ -37,7 +37,7 @@ namespace "intermine.query.actions", (public) ->
 
             this
 
-    public class ActionBar extends Actions
+    exporting class ActionBar extends Actions
         actionClasses: ->
             [ListCreator, ListAppender, CodeGenerator, Exporters, intermine.query.columns.ColumnAdder]
 

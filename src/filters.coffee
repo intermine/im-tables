@@ -1,6 +1,6 @@
-namespace "intermine.query.filters", (public) ->
+scope "intermine.query.filters", (exporting) ->
 
-    public class Filters extends Backbone.View
+    exporting class Filters extends Backbone.View
         className: "im-query-filters"
 
         initialize: (@query) ->
@@ -97,12 +97,20 @@ namespace "intermine.query.filters", (public) ->
             @$el.append """<input type="hidden" value="#{ @view }">"""
             this
     
-    public class SingleColumnConstraints extends Constraints
+    exporting class SingleColumnConstraints extends Constraints
         initialize: (query, @view) -> super(query)
 
         getConAdder: -> new SingleConstraintAdder(@query, @view)
 
         getConstraints: -> c for c in @query.constraints when c.path is @view
+
+        render: ->
+            super()
+            cons = @getConstraints()
+            if cons.length < 1
+                @undelegateEvents()
+                @$el.hide()
+            this
 
     
         
