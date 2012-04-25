@@ -24,7 +24,6 @@ scope "intermine", (exporting) ->
             chars =  (num + "").split("")
             len = chars.length
             groups = _(chars).groupBy (c, i) -> Math.floor((len - (i + 1)) / every).toFixed()
-            console.log groups
             while groups[i]
                 rets.unshift groups[i].join("")
                 i++
