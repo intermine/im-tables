@@ -76,6 +76,7 @@ scope "intermine.results", (exporting) ->
             """
             $progress.appendTo @el
             promise = @query.summarise @facet.path, @limit, (items, total) =>
+                @query.trigger "got:summary:total", @facet.path, total
                 $progress.remove()
                 @$dt.append " (#{total})"
                 if total > @limit
@@ -99,10 +100,7 @@ scope "intermine.results", (exporting) ->
                     hf.render()
 
                 if total <= 1
-                    @$el.empty().append """
-                        All items are unique.
-                    """
-
+                    @$el.empty()
             promise.fail @remove
             this
 
