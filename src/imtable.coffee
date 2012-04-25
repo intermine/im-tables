@@ -1,23 +1,5 @@
 scope "intermine.query.results", (exporting) ->
 
-    ## Inline form fix: http://datatables.net/blog/Twitter_Bootstrap_2
-    jQuery -> jQuery.extend jQuery.fn.dataTableExt.oStdClasses, {sWrapper: "dataTables_wrapper form-inline"}
-
-    TABLE_INIT_PARAMS =
-        sDom: "R<'row-fluid'<'span2 im-table-summary'><'pull-right'p><'pull-right'l>t<'row-fluid'<'span6'i>>"
-        sPaginationType: "bootstrap"
-        oLanguage:
-            sLengthMenu: "_MENU_ rows per page"
-            sProcessing: """
-                <div class="progress progress-info progress-striped active">
-                    <div class="bar" style="width: 100%"></div>
-                </div>
-            """
-        aLengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]]
-        iDisplayLength: 25
-        bProcessing: false
-        bServerSide: true
-
     NUMERIC_TYPES = ["int", "Integer", "double", "Double", "float", "Float"]
     COUNT_HTML = _.template """<span>Showing <%= first %> to <%= last %> of <%= count %></span> <%= roots %>"""
 
@@ -246,9 +228,6 @@ scope "intermine.query.results", (exporting) ->
 
         onDraw: =>
             @query.trigger("start:list-creation") if @__selecting
-
-            #unless @drawn
-            #    @table?.find('.summary-img').click(@showColumnSummary).dropdown()
             @drawn = true
 
         refresh: =>
@@ -308,13 +287,8 @@ scope "intermine.query.results", (exporting) ->
         ##
         ##
         getRowData: (start, size) => # params, callback) =>
-            # echo = intermine.utils.getParameter(params, "sEcho")
-            # start = intermine.utils.getParameter(params, "iDisplayStart")
-            # size = intermine.utils.getParameter(params, "iDisplayLength")
             end = start + size
             isOutOfRange = false
-
-            #@adjustSortOrder(params)
 
             freshness = @query.getSorting() + @query.getConstraintXML() + @query.views.join()
             isStale = (freshness isnt @cache.freshness)
