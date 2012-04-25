@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Wed Apr 25 2012 18:05:52 GMT+0100 (BST)
+ * Built at Wed Apr 25 2012 18:11:05 GMT+0100 (BST)
 */
 
 
@@ -329,24 +329,7 @@
   });
 
   scope("intermine.query.results", function(exporting) {
-    var COUNT_HTML, NUMERIC_TYPES, Page, ResultsTable, TABLE_INIT_PARAMS, Table;
-    jQuery(function() {
-      return jQuery.extend(jQuery.fn.dataTableExt.oStdClasses, {
-        sWrapper: "dataTables_wrapper form-inline"
-      });
-    });
-    TABLE_INIT_PARAMS = {
-      sDom: "R<'row-fluid'<'span2 im-table-summary'><'pull-right'p><'pull-right'l>t<'row-fluid'<'span6'i>>",
-      sPaginationType: "bootstrap",
-      oLanguage: {
-        sLengthMenu: "_MENU_ rows per page",
-        sProcessing: "<div class=\"progress progress-info progress-striped active\">\n    <div class=\"bar\" style=\"width: 100%\"></div>\n</div>"
-      },
-      aLengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
-      iDisplayLength: 25,
-      bProcessing: false,
-      bServerSide: true
-    };
+    var COUNT_HTML, NUMERIC_TYPES, Page, ResultsTable, Table;
     NUMERIC_TYPES = ["int", "Integer", "double", "Double", "float", "Float"];
     COUNT_HTML = _.template("<span>Showing <%= first %> to <%= last %> of <%= count %></span> <%= roots %>");
     Page = (function() {
