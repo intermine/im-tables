@@ -20,7 +20,8 @@ $(function() {
               select: ["**", "proteins.name"], 
               from: "Gene", 
               where: {
-                  length: {lt: 5000},
+                  length: {lt: 8000},
+                  "pathways.name": ["Metabolic pathways", "Gene Expression", "Transcription", "mRNA Processing"],
                   "chromosome.primaryIdentifier": "2L"
               }
           }
@@ -104,7 +105,7 @@ $(function() {
         }
     };
 
-    var displayCls = intermine.query.results.DashBoard;
+    var displayCls = intermine.query.results.CompactView;
     var display;
 
     var login = function(serviceArgs) {
@@ -167,8 +168,6 @@ $(function() {
         displayCls = intermine.query.results.CompactView;
         changeLayout();
     });
-
-
 
     login("Production");
     
