@@ -53,7 +53,6 @@ scope "intermine.query.results", (exporting) ->
         initialize: (@query, @getData) ->
             @minimisedCols = {}
             @query.on "set:sortorder", (oes) =>
-                # TODO: handle setting multiple sort orders...
                 @fill()
 
         render: ->
@@ -62,7 +61,7 @@ scope "intermine.query.results", (exporting) ->
             promise.done(@addColumnHeaders)
 
         goTo: (start) ->
-            @pageStart = start
+            @pageStart = parseInt(start)
             @fill()
 
         goToPage: (page) ->
@@ -70,9 +69,8 @@ scope "intermine.query.results", (exporting) ->
             @fill()
 
         fill: () ->
-            @$("tbody > tr").remove()
             throbber = $ @throbber colcount: @query.views.length
-            throbber.appendTo @el
+            #throbber.appendTo @el
 
             promise = @getData @pageStart, @pageSize
             promise.then(@appendRows, @handleError).always -> throbber.remove()
@@ -80,7 +78,10 @@ scope "intermine.query.results", (exporting) ->
                 @query.trigger "imtable:change:page", @pageStart, @pageSize
             promise
 
-        appendRows: (res) => @appendRow(row) for row in res.rows
+        appendRows: (res) =>
+            @$("tbody > tr").remove()
+            @appendRow(row) for row in res.rows
+            @query.trigger "table:filled"
 
         minimisedColumnPlaceholder: _.template """
             <td class="im-minimised-col" style="width:<%= width %>px">&hellip;</td>
@@ -88,7 +89,7 @@ scope "intermine.query.results", (exporting) ->
 
         appendRow: (row) ->
             tr = $ "<tr>"
-            minWidth = 70
+            minWidth = 10
             minimised = (k for k, v of @minimisedCols when v)
             w = 1 / (row.length - minimised.length) * (@$el.width() - (minWidth * minimised.length))
             for cell, i in row then do (cell, i) =>
@@ -109,8 +110,8 @@ scope "intermine.query.results", (exporting) ->
 
         columnHeaderTempl: _.template """
             <th title="<%- title %>">
-                <div class="navbar" style="position:relative">
-                    <div class="dropdown im-th-buttons">
+                <div class="navbar">
+                    <div class="im-th-buttons">
                         <% if (sortable) { %>
                             <div class="im-th-button im-col-sort-indicator" title="sort this column">
                                 <i class="icon-white icon-resize-vertical"></i>
@@ -119,15 +120,17 @@ scope "intermine.query.results", (exporting) ->
                         <div class="im-th-button im-col-remover" title="remove this column" data-view="<%= view %>">
                             <i class="icon-remove-sign icon-white"></i>
                         </div>
-                        <div class="im-th-button summary-img dropdown-toggle" title="column summary"
-                            data-toggle="dropdown" data-col-idx="<%= i %>" >
-                            <i class="icon-info-sign icon-white"></i>
-                        </div>
                         <div class="im-th-button im-col-minumaximiser" title="Hide column" data-col-idx="<%= i %>">
-                            <i class="icon-white icon-resize-small"></i>
+                            <i class="icon-white icon-minus-sign"></i>
                         </div>
-                        <div class="dropdown-menu">
-                            <div>Could not ititialise the column summary.</div>
+                        <div class="dropdown im-summary">
+                            <div class="im-th-button summary-img dropdown-toggle" title="column summary"
+                                data-toggle="dropdown" data-col-idx="<%= i %>" >
+                                <i class="icon-info-sign icon-white"></i>
+                            </div>
+                            <div class="dropdown-menu">
+                                <div>Could not ititialise the column summary.</div>
+                            </div>
                         </div>
                     </div>
                     <span class="im-col-title"><%- title %></span>
@@ -152,11 +155,22 @@ scope "intermine.query.results", (exporting) ->
                     i: i
                     view: view
                     sortable: sortable
+                    
                 tr.append th
+                th.find('.im-th-button').tooltip(placement: "left")
                 sortButton = th.find('.icon-resize-vertical')
-                switch direction
-                    when "ASC" then sortButton.toggleClass "icon-resize-vertical icon-arrow-up"
-                    when "DESC" then sortButton.toggleClass "icon-resize-vertical icon-arrow-down"
+                setDirectionClass = (d) ->
+                    sortButton.addClass("icon-resize-vertical")
+                    sortButton.removeClass("icon-arrow-up icon-arrow-down")
+                    switch d
+                        when 'ASC' then sortButton.toggleClass "icon-resize-vertical icon-arrow-up"
+                        when 'DESC' then sortButton.toggleClass "icon-resize-vertical icon-arrow-down"
+
+                setDirectionClass(direction)
+                q.on "set:sortorder", ->
+                    sd = q.getSortDirection(view)
+                    setDirectionClass(sd) if sd
+
                 direction = (nextDirections[ direction ] or "ASC")
                 sortButton.click (e) ->
                     $elem = $ this
@@ -175,7 +189,7 @@ scope "intermine.query.results", (exporting) ->
                     console.log q.sortOrder
                 minumaximiser = th.find('.im-col-minumaximiser')
                 minumaximiser.click (e) =>
-                    minumaximiser.find('i').toggleClass("icon-resize-small icon-resize-full")
+                    minumaximiser.find('i').toggleClass("icon-minus-sign icon-plus-sign")
                     isMinimised = @minimisedCols[i] = !@minimisedCols[i]
                     th.find('.im-col-title').toggle(!isMinimised)
                     @fill()
@@ -204,14 +218,28 @@ scope "intermine.query.results", (exporting) ->
         paginationTempl: _.template """
             <div class="pagination pagination-right">
                 <ul>
-                    <li><a class="im-pagination-button" data-goto=start href="#">&#x21e4;</a></li>
-                    <li><a class="im-pagination-button" data-goto=prev  href="#">&larr;</a></li>
-                    <li class="im-current-page active">
+                    <li title="Go to start">
+                        <a class="im-pagination-button" data-goto=start href="#">&#x21e4;</a>
+                    </li>
+                    <li title="Go back five pages">
+                        <a class="im-pagination-button" data-goto=fast-rewind href="#">&#x219e;</a>
+                    </li>
+                    <li title="Go to previous page">
+                        <a class="im-pagination-button" data-goto=prev  href="#">&larr;</a>
+                    </li>
+                    <li class="im-current-page">
                         <a data-goto=here  href="#">&hellip;</a>
                         <form style="display:none;"><select></select></form>
                     </li>
-                    <li><a class="im-pagination-button" data-goto=next  href="#">&rarr;</a></li>
-                    <li><a class="im-pagination-button" data-goto=end   href="#">&#x21e5;</a></li>
+                    <li title="Go to next page">
+                        <a class="im-pagination-button" data-goto=next  href="#">&rarr;</a>
+                    </li>
+                    <li title="Go forward five pages">
+                        <a class="im-pagination-button" data-goto=fast-forward href="#">&#x21a0;</a>
+                    </li>
+                    <li title="Go to last page">
+                        <a class="im-pagination-button" data-goto=end   href="#">&#x21e5;</a>
+                    </li>
                 </ul>
             </div>
         """
@@ -219,8 +247,8 @@ scope "intermine.query.results", (exporting) ->
         onDraw: =>
             @query.trigger("start:list-creation") if @__selecting
 
-            unless @drawn
-                @table?.find('.summary-img').click(@showColumnSummary).dropdown()
+            #unless @drawn
+            #    @table?.find('.summary-img').click(@showColumnSummary).dropdown()
             @drawn = true
 
         refresh: =>
@@ -241,9 +269,11 @@ scope "intermine.query.results", (exporting) ->
                 @refresh()
 
             @query.on "start:list-creation", => @__selecting = true
+            @query.on "stop:list-creation", => @__selecting = false
 
             @query.on "change:constraints", @refresh
             @query.on "change:joins", @refresh
+            @query.on "table:filled", @onDraw
 
         ##
         ## Set the sort order of a query so that it matches the parameters 
@@ -319,17 +349,17 @@ scope "intermine.query.results", (exporting) ->
         overlayTable: =>
             return unless @table and @drawn
             elOffset = @$el.offset()
-            tableOffset = @table.offset()
+            tableOffset = @table.$el.offset()
             @overlay = jQuery @make "div", class: "im-table-overlay discrete"
             @overlay.css
                 top: elOffset.top
                 left: elOffset.left
-                width: @table.outerWidth(true)
-                height: (tableOffset.top - elOffset.top) + @table.outerHeight()
+                width: @table.$el.outerWidth(true)
+                height: (tableOffset.top - elOffset.top) + @table.$el.outerHeight()
             @overlay.append @make "h1", {}, "Requesting data..."
             @overlay.find("h1").css
-                top: (@table.height() / 2) + "px"
-                left: (@table.width() / 4) + "px"
+                top: (@table.$el.height() / 2) + "px"
+                left: (@table.$el.width() / 4) + "px"
             @overlay.appendTo 'body'
             _.delay (=> @overlay.removeClass "discrete"), 100
 
@@ -427,16 +457,19 @@ scope "intermine.query.results", (exporting) ->
 
             @updateSummary start, size, result
 
-            fields = (v.replace(/^.*\./, "") for v in result.views)
+            # TODO - make sure cells know their node...
+
+            fields = ([@query.getPathInfo(v).getParent(), v.replace(/^.*\./, "")] for v in result.views)
             result.rows = result.results.map (row) =>
                 (row).map (cell, idx) =>
                     cv = if cell.id
                         field = fields[idx]
-                        imo = @itemModels[cell.id] or= (new intermine.model.IMObject(@query, cell, field, base))
-                        imo.merge cell, field
+                        imo = @itemModels[cell.id] or= (new intermine.model.IMObject(@query, cell, field[1], base))
+                        imo.merge cell, field[1]
                         new intermine.results.table.Cell(
                             model: imo
-                            field: field
+                            node: field[0]
+                            field: field[1]
                             query: @query
                         )
                     else
@@ -523,8 +556,10 @@ scope "intermine.query.results", (exporting) ->
                 mDataProp: i
 
         horizontalScroller: """
-            <div class="scroll-bar-wrap ui-widget-content">
-                <div class="scroll-bar"></div>
+            <div class="scroll-bar-wrap well">
+                <div class="scroll-bar-containment">
+                    <div class="scroll-bar alert-info alert"></div>
+                </div>
             </div>
         """
 
@@ -535,6 +570,7 @@ scope "intermine.query.results", (exporting) ->
             reorderer.render().$el.insertBefore(telem)
 
             $pagination = $(@paginationTempl()).insertBefore(telem)
+            $pagination.find('li').tooltip(placement: "left")
             pageSelector = $pagination.find('select').change =>
                 @table.goToPage pageSelector.val()
                 currentPageButton.show()
@@ -550,27 +586,23 @@ scope "intermine.query.results", (exporting) ->
             scrollbar = @$ '.scroll-bar'
 
             currentPos = 0
-            scrollbar.slider
-                start: -> scrollbar.find('.ui-slider-handle').tooltip('show')
-                slide: (event, ui) =>
-                    currentPos = ui.value
-                    scrollbar.find('.ui-slider-handle').tooltip('show')
-                    if ui.value is scrollbar.slider("option", "max")
-                        return false
+            scrollbar.draggable
+                axis: "x"
+                containment: "parent"
                 stop: (event, ui) =>
-                    scrollbar.find('.ui-slider-handle').tooltip('hide')
-                    @table.goTo(ui.value)
-            handleHelper = scrollbar.find('.ui-slider-handle')
-                                    .mousedown(-> scrollbar.width(handleHelper.width()))
-                                    .mouseup( -> scrollbar.width('100%'))
-                                    .append("""<span class='ui-icon ui-icon-grip-dotted-vertical'></span>""")
-                                    .wrap("""<div class='ui-handle-helper-parent'></div>""")
-                                    .parent()
-            scrollbar.find('.ui-slider-handle').tooltip
+                    scrollbar.removeClass("scrolling")
+                    scrollbar.tooltip("hide")
+                    @table.goTo currentPos
+                start: -> $(this).addClass("scrolling")
+                drag: (event, ui) =>
+                    scrollbar.tooltip("show")
+                    left = ui.position.left
+                    total = ui.helper.closest('.scroll-bar-wrap').width()
+                    currentPos = @cache.lastResult.iTotalRecords * left / total
+
+            scrollbar.tooltip
                 trigger: "manual"
-                title: =>
-                    size = @table.pageSize
-                    "#{currentPos + 1} &hellip; #{currentPos + size}"
+                title: => "#{(currentPos + 1).toFixed()} &hellip; #{(currentPos + @table.pageSize).toFixed()}"
 
             @table = new ResultsTable @query, @getRowData
             @table.setElement(telem)
@@ -581,41 +613,50 @@ scope "intermine.query.results", (exporting) ->
         updatePageDisplay: (start, size) =>
             total = @cache.lastResult.iTotalRecords
 
-            scrollbar = @$ '.scroll-bar'
+            scrollbar = @$ '.scroll-bar-wrap'
 
-            scrollbar.slider("option", {max: total}) #, step: size})
-            handle = @$ '.ui-slider-handle'
+            #scrollbar.slider("option", {max: total}) #, step: size})
             totalWidth = scrollbar.width()
 
             proportion = size / total
             scrollbar.toggle size < total
-            console.log proportion
-            scaled = Math.max(totalWidth * proportion, 25)
-            handle.css width: scaled
+            unit = totalWidth / total
+            scaled = Math.max(totalWidth * proportion, 20)
+            overhang = size - ((total - (size * Math.floor(total / size)) ) % size)
+            scrollbar.find('.scroll-bar-containment').css width: totalWidth + (unit * overhang)
+            handle = scrollbar.find('.scroll-bar').css width: scaled
 
-            scrollbar.slider("value", start)
+            handle.animate
+                left: unit * start
 
-            console.log total
             tbl = @table
             buttons = @$('.im-pagination-button')
             buttons.filter('.direct').remove()
             buttons.unbind("click").each ->
                 $elem = $ this
+                whenEnabled = (f) -> () -> f() unless $elem.parent().is('.active')
                 switch $elem.data("goto")
                     when "start"
-                        $elem.click -> tbl.goTo(0)
+                        $elem.click whenEnabled -> tbl.goTo(0)
                         $elem.parent().toggleClass "active", start is 0
                     when "prev"
-                        $elem.click -> tbl.goTo(Math.max(0, start - size))
+                        $elem.click whenEnabled -> tbl.goTo(Math.max(0, start - size))
+                        $elem.parent().toggleClass "active", start is 0
+                    when "fast-rewind"
+                        $elem.click whenEnabled -> tbl.goTo(Math.max(0, start - (5 * size)))
                         $elem.parent().toggleClass "active", start is 0
                     when "next"
-                        $elem.click -> tbl.goTo(start + size)
+                        $elem.click whenEnabled -> tbl.goTo(start + size)
                         $elem.parent().toggleClass "active", (start + size >= total)
+                    when "fast-forward"
+                        $elem.click whenEnabled -> tbl.goTo(start + (5 * size))
+                        $elem.parent().toggleClass "active", (start + (5 * size) >= total)
                     when "end"
-                        $elem.click -> tbl.goTo(Math.floor(total / size) * size)
+                        $elem.click whenEnabled -> tbl.goTo(Math.floor(total / size) * size)
                         $elem.parent().toggleClass "active", (start + size >= total)
             centre = @$('.im-current-page')
             centre.find('a').text("p. #{Math.floor(start / size) + 1}")
+            centre.toggleClass "active", size >= total
             pageForm = centre.find('form')
             pageForm.find('input').remove()
             pageSelector = pageForm.find('select').empty()
@@ -624,6 +665,7 @@ scope "intermine.query.results", (exporting) ->
                 pageSelector.append """
                     <option value="#{p}">p. #{p + 1}</option>
                 """
+            pageSelector.val(Math.floor(start / size))
             if maxPage <= 100
                 pageSelector.show()
             else
@@ -632,25 +674,6 @@ scope "intermine.query.results", (exporting) ->
                     newSelectorVal = parseInt($(this).val().replace(/\s*/g, "")) - 1
                     pageSelector.val(newSelectorVal).change()
                     $(this).remove()
-
-
-            ###
-            for i in [3 .. 1] when (start - (i * size) >= 0) then do (i) ->
-                thisStart = start - (i * size)
-                thisPage = Math.floor(thisStart / size) + 1
-                $li = $ """
-                    <li><a class="im-pagination-button direct">#{ thisPage }</a></li>
-                """
-                $li.insertBefore(centre).find('a').click -> tbl.goTo thisStart
-
-            for i in [3 .. 1] when (start + (i * size) + size <= total) then do (i) ->
-                thisStart = start + (i * size)
-                thisPage = Math.floor(thisStart / size) + 1
-                $li = $ """
-                    <li><a class="im-pagination-button direct">#{ thisPage }</a></li>
-                """
-                $li.insertAfter(centre).find('a').click -> tbl.goTo thisStart
-            ###
 
         onSetupError: (telem) -> (xhr) =>
             $(telem).empty()
@@ -673,35 +696,4 @@ scope "intermine.query.results", (exporting) ->
                      .append(@make("strong", {}, "Ooops...! "))
                      .append(explanation)
                      .appendTo(telem)
-
-
-
-
-
-
-
-
-
-
-
-
-
-            
-
-            
-
-
-
-
-
-
-            
-
-
-
-
-
-
-
-
 
