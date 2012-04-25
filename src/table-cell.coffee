@@ -21,18 +21,21 @@ scope "intermine.results.table", (exporting) ->
             'click': 'activateChooser'
 
         initialize: ->
-            @model.on "change:selected", =>
-                s = @model.get "selected"
-                @$el.toggleClass "active", s
-                @$('input').attr checked: s
-            @model.on "change:selectable", =>
-                s = @model.get "selectable"
-                @$('input').attr disabled: s
+            @model.on "change:selected", (model, selected) =>
+                @$el.toggleClass "active", selected
+                @$('input').attr checked: selected
+            @model.on "change:selectable", (model, selectable) =>
+                @$('input').attr disabled: !selectable
             @options.query.on "start:list-creation", => @$('input').show()
             @options.query.on "stop:list-creation", =>
                 @$('input').hide()
                 @$el.removeClass "active"
                 @model.set "selected", false
+
+            @options.query.on "start:highlight:node", (node) =>
+                if @options.node.toPathString() is node.toPathString()
+                    @$el.addClass "im-highlight"
+            @options.query.on "stop:highlight", => @$el.removeClass "im-highlight"
 
         render: ->
             html = CELL_HTML _.extend {}, @model.toJSON(), {value: @model.get(@options.field)}
@@ -71,12 +74,23 @@ scope "intermine.results.table", (exporting) ->
                                         <td>#{ v }</td>
                                     </tr>
                                 """
+                            getLeaves = (o) ->
+                                leaves = []
+                                values = (leaf for name, leaf of o when name not in HIDDEN_FIELDS)
+                                for x in values
+                                    if x['objectId']
+                                        leaves = leaves.concat(getLeaves(x))
+                                    else
+                                        leaves.push(x)
+                                leaves
+                                
                             for field, value of item when value and value['objectId']
-                                values = (v for f, v of value when f not in HIDDEN_FIELDS)
+                                values = getLeaves(value)
+                                console.log values
                                 content.append """
                                     <tr>
                                         <td>#{ field }</td>
-                                        <td>#{ values.join '' }</td>
+                                        <td>#{ values.join ', ' }</td>
                                     </tr>
                                 """
 
@@ -87,7 +101,8 @@ scope "intermine.results.table", (exporting) ->
             this
 
         activateChooser: ->
-            @model.set selected: !@model.get("selected") if @$('input').is ':visible'
+            if @model.get "selectable"
+                @model.set selected: !@model.get("selected") if @$('input').is ':visible'
 
 
     exporting class NullCell extends Cell
