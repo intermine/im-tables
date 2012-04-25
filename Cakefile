@@ -54,6 +54,27 @@ task 'build:concat',
                 throw err if err
                 cont cb
 
+writingDeps = false
+
+task 'build:deps', 'concatenate dependencies', builddeps = (cb) ->
+    console.log "Building deps"
+    unless writingDeps
+        writingDeps = true
+        fs.readdir "lib/bootstrap/js", (err, files) ->
+            throw err if err
+            wanted = (f for f in files when f.match(/\.js$/) and not f.match(/(scrollspy|carousel|collapse)/))
+            depContents = new Array remaining = wanted.length
+            for f, i in wanted then do (f, i) ->
+                fs.readFile "lib/bootstrap/js/#{ f }", "utf8", (err, fileContents) ->
+                    depContents[i] = fileContents
+                    process(depContents) if --remaining is 0
+        process = (texts) ->
+            console.log "Writing deps"
+            fs.writeFile 'js/deps.js', texts.join('\n\n'), 'utf8', (err) ->
+                writing = false
+                throw err if err
+                cont cb
+
 cleaning = false
 
 task 'clean:js', 'Remove old js', cleanjs = (cb) ->
@@ -100,9 +121,10 @@ task 'build:setup', 'Set things up for building', prebuild = (cb) ->
 task 'build', 'Run a complete build', ->
     clean ->
         prebuild ->
-            concat ->
-                compile ->
-                    console.log "done at #{new Date()}"
+            builddeps ->
+                concat ->
+                    compile ->
+                        console.log "done at #{new Date()}"
 
 task 'watch', 'Watch production files and rebuild the application', watch = (cb) ->
     console.log "Watching for changes in ./src"
