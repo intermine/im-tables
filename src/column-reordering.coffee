@@ -55,7 +55,6 @@ scope "intermine.query.results.table", (exporting) ->
             @initSorting()
 
             @$('.nav-tabs li a').each (i, e) =>
-                console.log "Unpromoted", i, e
                 $elem = $(e)
                 $elem.data target: @$($elem.data("target"))
 
@@ -66,14 +65,13 @@ scope "intermine.query.results.table", (exporting) ->
         events:
             'click a.im-reorderer': 'showModal'
             'click .btn-cancel': 'hideModel'
-            'click .btn-primary': 'changeOrder'
+            'click .btn-primary': 'applyChanges'
             'click .nav-tabs li a': 'changeTab'
-            'click .im-soe i.icon-remove-circle': 'removeSortOrder'
-            'click .im-soe i.icon-arrow-up': 'sortCol'
-            'click .im-soe i.icon-arrow-down': 'sortCol'
+            'click .im-soe i.im-remove-soe': 'removeSortOrder'
+            'click .im-add-soe': 'addSortOrder'
+            'click .im-sort-direction': 'sortCol'
 
         changeTab: (e) ->
-            console.log "Obj?", $(e.target).data("target")
             $(e.target).tab("show")
 
         initOrdering: ->
@@ -88,58 +86,85 @@ scope "intermine.query.results.table", (exporting) ->
             $elem = $(e.target).parent()
             newDirection = if $elem.data("direction") is "ASC" then "DESC" else "ASC"
             $elem.data direction: newDirection
-            $(e.target).toggleClass "icon-arrow-up icon-arrow-down"
+            $(e.target).toggleClass "asc desc"
 
         soTemplate: _.template """
             <li class="im-reorderable breadcrumb im-soe" 
-                data-path="<%- path %> data-direction=<% direction %>">
+                data-path="<%- path %>" data-direction="<%- direction %>">
                 <% if (direction === 'ASC') { %>
-                    <i class="icon-arrow-up"></i>
+                    <span class="im-sort-direction asc"></span>
                 <% } else { %>
-                    <i class="icon-arrow-down"></i>
+                    <span class="im-sort-direction desc"></span>
                 <% } %>
                 <%- path %>
-                <i class="icon-remove-circle pull-right"></i>
+                <i class="icon-minus pull-right im-remove-soe" title="Remove this column from the sort order"></i>
             </li>
         """
 
         possibleSortOptionTemplate: _.template """
             <li class="im-reorderable breadcrumb" data-path="<%- path %>">
                 <%- path %>
+                <i class="icon-plus pull-right im-add-soe" title="Add this column to the sort order"></i>
             </li>
         """
 
         removeSortOrder: (e) ->
             $elem = $(e.target).parent()
             path = $elem.data "path"
+            $elem.find('.im-remove-soe').tooltip("hide")
             $elem.remove()
             possibilities = @$ '.im-sorting-container-possibilities'
             psoe = $ @possibleSortOptionTemplate path: path
             psoe.draggable
                 revert: "invalid"
                 revertDuration: 100
+            psoe.find(".im-add-soe").tooltip()
             possibilities.append psoe
+
+        addSortOrder: (e) ->
+            $elem = $(e.target).parent()
+            path = $elem.data "path"
+            $elem.find('.im-add-soe').tooltip('hide')
+            $elem.remove()
+            @$('.im-sorting-container').append @makeSortOrderElem path: path, direction: "ASC"
+
+        sortingPlaceholder: """
+            <div class="placeholder">
+                Drop columns here.
+            </div>
+        """
+
+        makeSortOrderElem: (so) ->
+            soe = $ @soTemplate so
+            soe.addClass("numeric") if @query.getPathInfo(so.path).getType() in intermine.Model.NUMERIC_TYPES
+            soe.find('.im-remove-soe').tooltip()
+            soe
 
         initSorting: =>
             container = @$ '.im-sorting-container'
-            container.empty()
+            container.empty().append(@sortingPlaceholder)
             for so, i in (@query.sortOrder or [])
-                container.append @soTemplate so
+                container.append @makeSortOrderElem(so)
 
             possibilities = @$ '.im-sorting-container-possibilities'
             possibilities.empty()
             for v in @query.views when not @query.getSortDirection(v)
                 possibilities.append @possibleSortOptionTemplate path: v
 
+            for n in @query.getQueryNodes()
+                for cn in n.getChildNodes() when cn.isAttribute() and cn.toPathString() not in @query.views
+                    possibilities.append @possibleSortOptionTemplate path: cn.toPathString()
+
             possibilities.find("li").draggable
                 revert: "invalid"
                 revertDuration: 100
+            possibilities.find(".im-add-soe").tooltip()
 
             container.sortable().droppable
                 drop: (event, ui) =>
                     path = $(ui.draggable).data("path")
                     $(ui.draggable).remove()
-                    container.append @soTemplate path: path, direction: "ASC"
+                    container.append @makeSortOrderElem path: path, direction: "ASC"
 
         hideModel: ->
             @$('.modal').modal('hide')
@@ -149,8 +174,21 @@ scope "intermine.query.results.table", (exporting) ->
         showModal: ->
             @$('.modal').modal('show')
 
+        applyChanges: (e) ->
+            if @$('.im-reordering').is('.active')
+                @changeOrder(e)
+            else
+                @changeSorting(e)
+
         changeOrder: (e) ->
             lis = @$('.im-reordering-container li')
             newView = lis.map( (i, e) -> $(e).data('path')).get()
             @$('.modal').modal('hide')
             @query.select(newView)
+
+        changeSorting: (e) ->
+            lis = @$('.im-sorting-container li')
+            newSO = lis.map( (i, e) -> {path: $(e).data('path'), direction: $(e).data("direction")}).get()
+            @$('.modal').modal('hide')
+            @query.orderBy(newSO)
+
