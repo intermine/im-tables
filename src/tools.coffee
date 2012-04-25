@@ -66,5 +66,7 @@ scope "intermine.query.tools", (exporting) ->
             actions = new intermine.query.actions.ActionBar(@query)
             actions.render().$el.appendTo @el
 
+            @$el.append """ <div style="clear: both;"></div> """
+
             this
 
