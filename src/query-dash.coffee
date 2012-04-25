@@ -48,13 +48,13 @@ scope "intermine.query.results", (exporting) ->
 
     exporting class CompactView extends DashBoard
 
-        className: "query-display compact"
+        className: "im-query-display compact"
 
         TABLE_CLASSES: "im-query-results"
 
         renderTools: (q) ->
             toolbar = new intermine.query.tools.ToolBar(q)
-            toolbar.render().$el.appendTo @el
+            toolbar.render().$el.prependTo @el
 
 
 
