@@ -88,11 +88,21 @@ task 'clean', "Remove old artifacts", clean = (cb) ->
             console.log "Cleaned up"
             cont cb
 
+task 'build:setup', 'Set things up for building', prebuild = (cb) ->
+    console.log "Checking for build directory"
+    fs.stat "build", (err, stats) ->
+        if stats?
+            cont cb
+        else
+            fs.mkdir "build", "770", ->
+                cont cb
+
 task 'build', 'Run a complete build', ->
     clean ->
-        concat ->
-            compile ->
-                console.log "done at #{new Date()}"
+        prebuild ->
+            concat ->
+                compile ->
+                    console.log "done at #{new Date()}"
 
 task 'watch', 'Watch production files and rebuild the application', watch = (cb) ->
     console.log "Watching for changes in ./src"
