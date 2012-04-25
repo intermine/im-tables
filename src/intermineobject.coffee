@@ -9,9 +9,13 @@ scope "intermine.model", (exporting) ->
             obj.selected = false
             obj.selectable = true
             @attributes = obj
-            query.on "imo:selected", (type) =>
-                commonType = query.service.model.findCommonTypeOf(type, @get "type")
-                @set selectable: commonType? and @get "selectable"
+            m = query.service.model
+            pathInfo = m.getPathInfo(obj.type)
+            query.on "selection:cleared", => @set selectable: true
+            query.on "common:type:selected", (type) =>
+                typesAreCompatible = type and (pathInfo.isa(type) or (m.getPathInfo(type).isa(@get("type"))))
+                console.log obj.type, typesAreCompatible
+                @set selectable: (typesAreCompatible or !type)
             @on "change:selected", ->
                 query.trigger "imo:selected", @get("type"), @get("id"), @get("selected")
 
