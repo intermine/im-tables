@@ -47,7 +47,7 @@ scope "intermine.query.columns", (exporting) ->
         render: ->
             input = @make "input",
                 type: "text",
-                class: "span10"
+                class: "span12"
                 placeholder: "Add a column..."
             @$el.append input
             @initTypeahead()
