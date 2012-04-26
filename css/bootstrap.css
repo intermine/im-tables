@@ -34,11 +34,13 @@
   -webkit-text-size-adjust: 100%;
   -ms-text-size-adjust: 100%;
 }
+.typeahead a:focus,
 .bootstrap a:focus {
   outline: thin dotted #333;
   outline: 5px auto -webkit-focus-ring-color;
   outline-offset: -2px;
 }
+.typeahead a:hover,
 .bootstrap a:hover,
 .bootstrap a:active {
   outline: 0;
@@ -138,10 +140,12 @@
   color: #333333;
   background-color: #ffffff;
 }
+.typeahead a,
 .bootstrap a {
   color: #0088cc;
   text-decoration: none;
 }
+.typeahead a:hover,
 .bootstrap a:hover {
   color: #005580;
   text-decoration: underline;
@@ -1798,6 +1802,7 @@
   opacity: 1;
   filter: alpha(opacity=100);
 }
+.typeahead.dropdown-menu,
 .bootstrap .dropdown-menu {
   position: absolute;
   top: 100%;
@@ -1839,6 +1844,11 @@
   *width: 100%;
   *margin: -5px 0 5px;
 }
+
+.bootstrap .dropdown-menu .btn-group {
+    margin: 2px 4px 2px 4px;
+}
+.typeahead.dropdown-menu a,
 .bootstrap .dropdown-menu a {
   display: block;
   padding: 3px 15px;
@@ -1848,6 +1858,22 @@
   color: #333333;
   white-space: nowrap;
 }
+.typeahead.dropdown-menu li > a {
+    width: 100%;
+    display: inline-block;
+    padding: 3px 0 3px 4px;
+}
+.typeahead.dropdown-menu li {
+    margin-left: 0;
+    font-size: 0.95em;
+}
+.typeahead.dropdown-menu li > a:hover {
+    width: 100%;
+}
+
+.typeahead.dropdown-menu li > a:hover,
+.typeahead.dropdown-menu .active > a,
+.typeahead.dropdown-menu .active > a:hover,
 .bootstrap .dropdown-menu li > a:hover,
 .bootstrap .dropdown-menu .active > a,
 .bootstrap .dropdown-menu .active > a:hover {
@@ -1882,7 +1908,7 @@
   bottom: 100%;
   margin-bottom: 1px;
 }
-.bootstrap .typeahead {
+.typeahead {
   margin-top: 2px;
   -webkit-border-radius: 4px;
   -moz-border-radius: 4px;
@@ -1918,7 +1944,7 @@
   -moz-border-radius: 3px;
   border-radius: 3px;
 }
-.bootstrap .fade {
+.fade {
   -webkit-transition: opacity 0.15s linear;
   -moz-transition: opacity 0.15s linear;
   -ms-transition: opacity 0.15s linear;
@@ -1926,7 +1952,7 @@
   transition: opacity 0.15s linear;
   opacity: 0;
 }
-.bootstrap .fade.in {
+.fade.in {
   opacity: 1;
 }
 .bootstrap .collapse {
@@ -3242,19 +3268,19 @@
   background-color: #fff;
   cursor: default;
 }
-.bootstrap .modal-open .dropdown-menu {
+.modal-open .dropdown-menu {
   z-index: 2050;
 }
-.bootstrap .modal-open .dropdown.open {
+.modal-open .dropdown.open {
   *z-index: 2050;
 }
-.bootstrap .modal-open .popover {
+.modal-open .popover {
   z-index: 2060;
 }
-.bootstrap .modal-open .tooltip {
+.modal-open .tooltip {
   z-index: 2070;
 }
-.bootstrap .modal-backdrop {
+.modal-backdrop {
   position: fixed;
   top: 0;
   right: 0;
@@ -3263,15 +3289,15 @@
   z-index: 1040;
   background-color: #000000;
 }
-.bootstrap .modal-backdrop.fade {
+.modal-backdrop.fade {
   opacity: 0;
 }
-.bootstrap .modal-backdrop,
-.bootstrap .modal-backdrop.fade.in {
+.modal-backdrop,
+.modal-backdrop.fade.in {
   opacity: 0.8;
   filter: alpha(opacity=80);
 }
-.bootstrap .modal {
+.modal {
   position: fixed;
   top: 50%;
   left: 50%;
@@ -3295,7 +3321,7 @@
   -moz-background-clip: padding-box;
   background-clip: padding-box;
 }
-.bootstrap .modal.fade {
+.modal.fade {
   -webkit-transition: opacity .3s linear, top .3s ease-out;
   -moz-transition: opacity .3s linear, top .3s ease-out;
   -ms-transition: opacity .3s linear, top .3s ease-out;
@@ -3303,25 +3329,25 @@
   transition: opacity .3s linear, top .3s ease-out;
   top: -25%;
 }
-.bootstrap .modal.fade.in {
+.modal.fade.in {
   top: 50%;
 }
-.bootstrap .modal-header {
+.modal-header {
   padding: 9px 15px;
   border-bottom: 1px solid #eee;
 }
-.bootstrap .modal-header .close {
+.modal-header .close {
   margin-top: 2px;
 }
-.bootstrap .modal-body {
+.modal-body {
   overflow-y: auto;
   max-height: 400px;
   padding: 15px;
 }
-.bootstrap .modal-form {
+.modal-form {
   margin-bottom: 0;
 }
-.bootstrap .modal-footer {
+.modal-footer {
   padding: 14px 15px 15px;
   margin-bottom: 0;
   text-align: right;
@@ -3335,22 +3361,22 @@
   box-shadow: inset 0 1px 0 #ffffff;
   *zoom: 1;
 }
-.bootstrap .modal-footer:before,
-.bootstrap .modal-footer:after {
+.modal-footer:before,
+.modal-footer:after {
   display: table;
   content: "";
 }
-.bootstrap .modal-footer:after {
+.modal-footer:after {
   clear: both;
 }
-.bootstrap .modal-footer .btn + .btn {
+.modal-footer .btn + .btn {
   margin-left: 5px;
   margin-bottom: 0;
 }
-.bootstrap .modal-footer .btn-group .btn + .btn {
+.modal-footer .btn-group .btn + .btn {
   margin-left: -1px;
 }
-.bootstrap .tooltip {
+.tooltip {
   position: absolute;
   z-index: 1020;
   display: block;
@@ -3360,23 +3386,23 @@
   opacity: 0;
   filter: alpha(opacity=0);
 }
-.bootstrap .tooltip.in {
+.tooltip.in {
   opacity: 0.8;
   filter: alpha(opacity=80);
 }
-.bootstrap .tooltip.top {
+.tooltip.top {
   margin-top: -2px;
 }
-.bootstrap .tooltip.right {
+.tooltip.right {
   margin-left: 2px;
 }
-.bootstrap .tooltip.bottom {
+.tooltip.bottom {
   margin-top: 2px;
 }
-.bootstrap .tooltip.left {
+.tooltip.left {
   margin-left: -2px;
 }
-.bootstrap .tooltip.top .tooltip-arrow {
+.tooltip.top .tooltip-arrow {
   bottom: 0;
   left: 50%;
   margin-left: -5px;
@@ -3384,7 +3410,7 @@
   border-right: 5px solid transparent;
   border-top: 5px solid #000000;
 }
-.bootstrap .tooltip.left .tooltip-arrow {
+.tooltip.left .tooltip-arrow {
   top: 50%;
   right: 0;
   margin-top: -5px;
@@ -3392,7 +3418,7 @@
   border-bottom: 5px solid transparent;
   border-left: 5px solid #000000;
 }
-.bootstrap .tooltip.bottom .tooltip-arrow {
+.tooltip.bottom .tooltip-arrow {
   top: 0;
   left: 50%;
   margin-left: -5px;
@@ -3400,7 +3426,7 @@
   border-right: 5px solid transparent;
   border-bottom: 5px solid #000000;
 }
-.bootstrap .tooltip.right .tooltip-arrow {
+.tooltip.right .tooltip-arrow {
   top: 50%;
   left: 0;
   margin-top: -5px;
@@ -3408,7 +3434,7 @@
   border-bottom: 5px solid transparent;
   border-right: 5px solid #000000;
 }
-.bootstrap .tooltip-inner {
+.tooltip-inner {
   max-width: 200px;
   padding: 3px 8px;
   color: #ffffff;
@@ -3419,12 +3445,12 @@
   -moz-border-radius: 4px;
   border-radius: 4px;
 }
-.bootstrap .tooltip-arrow {
+.tooltip-arrow {
   position: absolute;
   width: 0;
   height: 0;
 }
-.bootstrap .popover {
+.popover {
   position: absolute;
   top: 0;
   left: 0;
@@ -3432,19 +3458,19 @@
   display: none;
   padding: 5px;
 }
-.bootstrap .popover.top {
+.popover.top {
   margin-top: -5px;
 }
-.bootstrap .popover.right {
+.popover.right {
   margin-left: 5px;
 }
-.bootstrap .popover.bottom {
+.popover.bottom {
   margin-top: 5px;
 }
-.bootstrap .popover.left {
+.popover.left {
   margin-left: -5px;
 }
-.bootstrap .popover.top .arrow {
+.popover.top .arrow {
   bottom: 0;
   left: 50%;
   margin-left: -5px;
@@ -3452,7 +3478,7 @@
   border-right: 5px solid transparent;
   border-top: 5px solid #000000;
 }
-.bootstrap .popover.right .arrow {
+.popover.right .arrow {
   top: 50%;
   left: 0;
   margin-top: -5px;
@@ -3460,7 +3486,7 @@
   border-bottom: 5px solid transparent;
   border-right: 5px solid #000000;
 }
-.bootstrap .popover.bottom .arrow {
+.popover.bottom .arrow {
   top: 0;
   left: 50%;
   margin-left: -5px;
@@ -3468,7 +3494,7 @@
   border-right: 5px solid transparent;
   border-bottom: 5px solid #000000;
 }
-.bootstrap .popover.left .arrow {
+.popover.left .arrow {
   top: 50%;
   right: 0;
   margin-top: -5px;
@@ -3476,12 +3502,12 @@
   border-bottom: 5px solid transparent;
   border-left: 5px solid #000000;
 }
-.bootstrap .popover .arrow {
+.popover .arrow {
   position: absolute;
   width: 0;
   height: 0;
 }
-.bootstrap .popover-inner {
+.popover-inner {
   padding: 3px;
   width: 280px;
   overflow: hidden;
@@ -3494,7 +3520,7 @@
   -moz-box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);
   box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);
 }
-.bootstrap .popover-title {
+.popover-title {
   padding: 9px 15px;
   line-height: 1;
   background-color: #f5f5f5;
@@ -3502,9 +3528,13 @@
   -webkit-border-radius: 3px 3px 0 0;
   -moz-border-radius: 3px 3px 0 0;
   border-radius: 3px 3px 0 0;
+  margin-before: 0;
+  margin: 0;
+  margin-after: 0;
 }
-.bootstrap .popover-content {
+.popover-content {
   padding: 14px;
+  font-size: 12px;
   background-color: #ffffff;
   -webkit-border-radius: 0 0 3px 3px;
   -moz-border-radius: 0 0 3px 3px;
@@ -3513,11 +3543,41 @@
   -moz-background-clip: padding-box;
   background-clip: padding-box;
 }
-.bootstrap .popover-content p,
-.bootstrap .popover-content ul,
-.bootstrap .popover-content ol {
+.popover-content p,
+.popover-content ul,
+.popover-content ol {
   margin-bottom: 0;
 }
+.popover-content table {
+  max-width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+  background-color: transparent;
+}
+.popover-content .table-condensed td {
+  padding: 4px 5px;
+}
+.popover-content .table-bordered {
+  border: 1px solid #dddddd;
+  border-left: 0;
+  border-collapse: separate;
+  *border-collapse: collapsed;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+}
+.popover-content .table td {
+  padding: 8px;
+  line-height: 18px;
+  text-align: left;
+  vertical-align: top;
+  border-top: 1px solid #dddddd;
+}
+.popover-content .table-bordered th,
+.popover-content .table-bordered td {
+  border-left: 1px solid #dddddd;
+}
+
 .bootstrap .thumbnails {
   margin-left: -20px;
   list-style: none;
