@@ -39,7 +39,7 @@ scope "intermine.query.actions", (exporting) ->
 
     exporting class ActionBar extends Actions
         actionClasses: ->
-            [ListManager, CodeGenerator, Exporters, intermine.query.columns.ColumnAdder]
+            [intermine.query.columns.ColumnAdder, ListManager, CodeGenerator, Exporters]
 
     class ListDialogue extends Backbone.View
         tagName: "li"
@@ -126,7 +126,7 @@ scope "intermine.query.actions", (exporting) ->
         html: """
             <div class="modal fade">
                 <div class="modal-header">
-                    <a data-dismiss="modal">close</a>
+                    <a class="close btn-cancel">close</a>
                     <h2>Add Items To Existing List</h2>
                 </div>
                 <div class="modal-body">
@@ -279,10 +279,10 @@ scope "intermine.query.actions", (exporting) ->
                     Export
                     <span class="im-export-format"></span>
                 </a>
-                <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+                <a class="btn dropdown-toggle" data-toggle="dropdown" href="#" style="height: 18px">
                     <b class="caret"></b>
                 </a>
-                <ul class="dropdown-menu">
+                <ul class="dropdown-menu pull-right">
                     <% _(formats).each(function(format) { %>
                         <% if (format) { %>
                             <li>
@@ -402,7 +402,7 @@ scope "intermine.query.actions", (exporting) ->
                     <i class="icon-script"></i>
                     Get <span class="im-code-lang"></span> code
                 </a>
-                <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+                <a class="btn dropdown-toggle" data-toggle="dropdown" href="#" style="height: 18px">
                     <span class="caret"></span>
                 </a>
                 <ul class="dropdown-menu">
