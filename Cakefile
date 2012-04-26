@@ -56,16 +56,19 @@ task 'build:concat',
 
 writingDeps = false
 
+otherDeps = ["lib/raphael-min.js", "lib/google-code-prettify/prettify.js"]
+
 task 'build:deps', 'concatenate dependencies', builddeps = (cb) ->
     console.log "Building deps"
     unless writingDeps
         writingDeps = true
         fs.readdir "lib/bootstrap/js", (err, files) ->
             throw err if err
-            wanted = (f for f in files when f.match(/\.js$/) and not f.match(/(scrollspy|carousel|collapse)/))
+            wanted = ("lib/bootstrap/js/#{f}" for f in files when f.match(/\.js$/) and not f.match(/(scrollspy|carousel|collapse)/))
+            wanted = wanted.concat otherDeps
             depContents = new Array remaining = wanted.length
             for f, i in wanted then do (f, i) ->
-                fs.readFile "lib/bootstrap/js/#{ f }", "utf8", (err, fileContents) ->
+                fs.readFile f, "utf8", (err, fileContents) ->
                     depContents[i] = fileContents
                     process(depContents) if --remaining is 0
         process = (texts) ->
