@@ -1,3 +1,10 @@
+scope "intermine.css", {
+    headerIcon: "icon-white"
+    headerIconRemove: "icon-remove-sign"
+    headerIconHide: "icon-minus-sign"
+    headerIconSummary: "icon-info-sign"
+}
+
 scope "intermine.query.results", (exporting) ->
 
     NUMERIC_TYPES = ["int", "Integer", "double", "Double", "float", "Float"]
@@ -90,25 +97,25 @@ scope "intermine.query.results", (exporting) ->
 
         handleError: (err) => @$el.append @errorTempl error: err
 
-        columnHeaderTempl: _.template """
+        columnHeaderTempl: (ctx) -> _.template """
             <th title="<%- title %>">
                 <div class="navbar">
                     <div class="im-th-buttons">
                         <% if (sortable) { %>
                             <div class="im-th-button im-col-sort-indicator" title="sort this column">
-                                <i class="icon-white icon-resize-vertical"></i>
+                                <i class="icon-resize-vertical #{ intermine.css.headerIcon }"></i>
                             </div>
                         <% }; %>
                         <div class="im-th-button im-col-remover" title="remove this column" data-view="<%= view %>">
-                            <i class="icon-remove-sign icon-white"></i>
+                            <i class="#{ intermine.css.headerIconRemove } #{ intermine.css.headerIcon }"></i>
                         </div>
                         <div class="im-th-button im-col-minumaximiser" title="Hide column" data-col-idx="<%= i %>">
-                            <i class="icon-white icon-minus-sign"></i>
+                            <i class="#{ intermine.css.headerIconHide } #{ intermine.css.headerIcon }"></i>
                         </div>
                         <div class="dropdown im-summary">
                             <div class="im-th-button summary-img dropdown-toggle" title="column summary"
                                 data-toggle="dropdown" data-col-idx="<%= i %>" >
-                                <i class="icon-info-sign icon-white"></i>
+                                <i class="#{ intermine.css.headerIconSummary } #{ intermine.css.headerIcon }"></i>
                             </div>
                             <div class="dropdown-menu">
                                 <div>Could not ititialise the column summary.</div>
@@ -118,7 +125,7 @@ scope "intermine.query.results", (exporting) ->
                     <span class="im-col-title"><%- title %></span>
                 </div>
             </th>
-        """
+        """, ctx
 
         addColumnHeaders: (result) =>
             thead = $ "<thead>"
@@ -574,9 +581,11 @@ scope "intermine.query.results", (exporting) ->
                     total = ui.helper.closest('.scroll-bar-wrap').width()
                     currentPos = @cache.lastResult.iTotalRecords * left / total
 
+            scrollbar.css(position: "absolute").parent().css(position: "relative")
+
             scrollbar.tooltip
                 trigger: "manual"
-                title: => "#{(currentPos + 1).toFixed()} &hellip; #{(currentPos + @table.pageSize).toFixed()}"
+                title: => "#{(currentPos + 1).toFixed()} ... #{(currentPos + @table.pageSize).toFixed()}"
 
             @table = new ResultsTable @query, @getRowData
             @table.setElement(telem)
