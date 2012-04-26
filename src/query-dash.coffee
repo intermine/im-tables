@@ -17,7 +17,7 @@ scope "intermine.query.results", (exporting) ->
         TABLE_CLASSES: "span9 im-query-results"
 
         render: ->
-            console.log "Rendering"
+            @$el.addClass "bootstrap"
             promise = @service.query @query, (q) =>
                 console.log "Made a query"
                 main = @make "div", {class: @TABLE_CLASSES}
@@ -30,7 +30,6 @@ scope "intermine.query.results", (exporting) ->
                 q.on evt, cb for evt, cb of @queryEvents
 
             promise.fail (xhr, err, msg) =>
-                console.log arguments
                 @$el.append """
                     <div class="alert alert-error">
                         <h1>#{err}</h1>
