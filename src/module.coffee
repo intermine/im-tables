@@ -11,14 +11,18 @@ stope = (f) -> (e) ->
     e.preventDefault()
     f(e)
 
-scope = (path, code = ->) ->
+scope = (path, code = (() ->), overwrite = false) ->
     parts = path.split "."
     ns = root
     for part in parts
         ns = if ns[part] then ns[part] else (ns[part] = {})
     exporting = (cls) ->
         ns[cls.name] = cls
-    code(exporting)
+    if _.isFunction code
+        code(exporting)
+    else
+        for name, value of code
+            ns[ name ] = value
     return ns
 
 
