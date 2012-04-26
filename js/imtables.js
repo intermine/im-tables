@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Thu Apr 26 2012 10:43:29 GMT+0100 (BST)
+ * Built at Thu Apr 26 2012 18:25:33 GMT+0100 (BST)
 */
 
 
@@ -64,10 +64,13 @@
     };
   };
 
-  scope = function(path, code) {
-    var exporting, ns, part, parts, _i, _len;
+  scope = function(path, code, overwrite) {
+    var exporting, name, ns, part, parts, value, _i, _len;
     if (code == null) {
-      code = function() {};
+      code = (function() {});
+    }
+    if (overwrite == null) {
+      overwrite = false;
     }
     parts = path.split(".");
     ns = root;
@@ -78,7 +81,14 @@
     exporting = function(cls) {
       return ns[cls.name] = cls;
     };
-    code(exporting);
+    if (_.isFunction(code)) {
+      code(exporting);
+    } else {
+      for (name in code) {
+        value = code[name];
+        ns[name] = value;
+      }
+    }
     return ns;
   };
 
@@ -328,6 +338,13 @@
     })(Backbone.View));
   });
 
+  scope("intermine.css", {
+    headerIcon: "icon-white",
+    headerIconRemove: "icon-remove-sign",
+    headerIconHide: "icon-minus-sign",
+    headerIconSummary: "icon-info-sign"
+  });
+
   scope("intermine.query.results", function(exporting) {
     var COUNT_HTML, NUMERIC_TYPES, Page, ResultsTable, Table;
     NUMERIC_TYPES = ["int", "Integer", "double", "Double", "float", "Float"];
@@ -486,7 +503,9 @@
         }));
       };
 
-      ResultsTable.prototype.columnHeaderTempl = _.template("<th title=\"<%- title %>\">\n    <div class=\"navbar\">\n        <div class=\"im-th-buttons\">\n            <% if (sortable) { %>\n                <div class=\"im-th-button im-col-sort-indicator\" title=\"sort this column\">\n                    <i class=\"icon-white icon-resize-vertical\"></i>\n                </div>\n            <% }; %>\n            <div class=\"im-th-button im-col-remover\" title=\"remove this column\" data-view=\"<%= view %>\">\n                <i class=\"icon-remove-sign icon-white\"></i>\n            </div>\n            <div class=\"im-th-button im-col-minumaximiser\" title=\"Hide column\" data-col-idx=\"<%= i %>\">\n                <i class=\"icon-white icon-minus-sign\"></i>\n            </div>\n            <div class=\"dropdown im-summary\">\n                <div class=\"im-th-button summary-img dropdown-toggle\" title=\"column summary\"\n                    data-toggle=\"dropdown\" data-col-idx=\"<%= i %>\" >\n                    <i class=\"icon-info-sign icon-white\"></i>\n                </div>\n                <div class=\"dropdown-menu\">\n                    <div>Could not ititialise the column summary.</div>\n                </div>\n            </div>\n        </div>\n        <span class=\"im-col-title\"><%- title %></span>\n    </div>\n</th>");
+      ResultsTable.prototype.columnHeaderTempl = function(ctx) {
+        return _.template("<th title=\"<%- title %>\">\n    <div class=\"navbar\">\n        <div class=\"im-th-buttons\">\n            <% if (sortable) { %>\n                <div class=\"im-th-button im-col-sort-indicator\" title=\"sort this column\">\n                    <i class=\"icon-resize-vertical " + intermine.css.headerIcon + "\"></i>\n                </div>\n            <% }; %>\n            <div class=\"im-th-button im-col-remover\" title=\"remove this column\" data-view=\"<%= view %>\">\n                <i class=\"" + intermine.css.headerIconRemove + " " + intermine.css.headerIcon + "\"></i>\n            </div>\n            <div class=\"im-th-button im-col-minumaximiser\" title=\"Hide column\" data-col-idx=\"<%= i %>\">\n                <i class=\"" + intermine.css.headerIconHide + " " + intermine.css.headerIcon + "\"></i>\n            </div>\n            <div class=\"dropdown im-summary\">\n                <div class=\"im-th-button summary-img dropdown-toggle\" title=\"column summary\"\n                    data-toggle=\"dropdown\" data-col-idx=\"<%= i %>\" >\n                    <i class=\"" + intermine.css.headerIconSummary + " " + intermine.css.headerIcon + "\"></i>\n                </div>\n                <div class=\"dropdown-menu\">\n                    <div>Could not ititialise the column summary.</div>\n                </div>\n            </div>\n        </div>\n        <span class=\"im-col-title\"><%- title %></span>\n    </div>\n</th>", ctx);
+      };
 
       ResultsTable.prototype.addColumnHeaders = function(result) {
         var i, nextDirections, q, thead, tr, view, _fn, _i, _len, _ref,
@@ -968,10 +987,15 @@
               return currentPos = _this.cache.lastResult.iTotalRecords * left / total;
             }
           });
+          scrollbar.css({
+            position: "absolute"
+          }).parent().css({
+            position: "relative"
+          });
           scrollbar.tooltip({
             trigger: "manual",
             title: function() {
-              return "" + ((currentPos + 1).toFixed()) + " &hellip; " + ((currentPos + _this.table.pageSize).toFixed());
+              return "" + ((currentPos + 1).toFixed()) + " ... " + ((currentPos + _this.table.pageSize).toFixed());
             }
           });
           _this.table = new ResultsTable(_this.query, _this.getRowData);
@@ -1545,7 +1569,7 @@
         var input;
         input = this.make("input", {
           type: "text",
-          "class": "span10",
+          "class": "span12",
           placeholder: "Add a column..."
         });
         this.$el.append(input);
@@ -1782,7 +1806,7 @@
       }
 
       ActionBar.prototype.actionClasses = function() {
-        return [ListManager, CodeGenerator, Exporters, intermine.query.columns.ColumnAdder];
+        return [intermine.query.columns.ColumnAdder, ListManager, CodeGenerator, Exporters];
       };
 
       return ActionBar;
@@ -1937,7 +1961,7 @@
         return ListAppender.__super__.constructor.apply(this, arguments);
       }
 
-      ListAppender.prototype.html = "<div class=\"modal fade\">\n    <div class=\"modal-header\">\n        <a data-dismiss=\"modal\">close</a>\n        <h2>Add Items To Existing List</h2>\n    </div>\n    <div class=\"modal-body\">\n        <form class=\"form-horizontal form\">\n            <fieldset class=\"control-group\">\n                <label>\n                    Add\n                    <span class=\"im-item-count\"></span>\n                    <span class=\"im-item-type\"></span>\n                    to:\n                    <select class=\"im-receiving-list\">\n                        <option value=\"\"><i>Select a list</i></option>\n                    </select>\n                </label>\n                <span class=\"help-inline\"></span>\n            </fieldset>\n        </form>\n        <div class=\"alert alert-error im-none-compatible-error\">\n            <b>Sorry!</b> You don't have access to any compatible lists.\n        </div>\n        <div class=\"alert alert-info im-selection-instruction\">\n            <b>Get started!</b> Choose items from the table below.\n            You can move this dialogue around by dragging it, if you \n            need access to a column it is covering up.\n        </div>\n    </div>\n    <div class=\"modal-footer\">\n        <div class=\"btn-group\">\n            <button disabled class=\"btn btn-primary\">Add to list</button>\n            <button class=\"btn btn-cancel\">Cancel</button>\n        </div>\n    </div>\n</div>";
+      ListAppender.prototype.html = "<div class=\"modal fade\">\n    <div class=\"modal-header\">\n        <a class=\"close btn-cancel\">close</a>\n        <h2>Add Items To Existing List</h2>\n    </div>\n    <div class=\"modal-body\">\n        <form class=\"form-horizontal form\">\n            <fieldset class=\"control-group\">\n                <label>\n                    Add\n                    <span class=\"im-item-count\"></span>\n                    <span class=\"im-item-type\"></span>\n                    to:\n                    <select class=\"im-receiving-list\">\n                        <option value=\"\"><i>Select a list</i></option>\n                    </select>\n                </label>\n                <span class=\"help-inline\"></span>\n            </fieldset>\n        </form>\n        <div class=\"alert alert-error im-none-compatible-error\">\n            <b>Sorry!</b> You don't have access to any compatible lists.\n        </div>\n        <div class=\"alert alert-info im-selection-instruction\">\n            <b>Get started!</b> Choose items from the table below.\n            You can move this dialogue around by dragging it, if you \n            need access to a column it is covering up.\n        </div>\n    </div>\n    <div class=\"modal-footer\">\n        <div class=\"btn-group\">\n            <button disabled class=\"btn btn-primary\">Add to list</button>\n            <button class=\"btn btn-cancel\">Cancel</button>\n        </div>\n    </div>\n</div>";
 
       ListAppender.prototype.selectionChanged = function(n) {
         ListAppender.__super__.selectionChanged.call(this, n);
@@ -2127,7 +2151,7 @@
 
       Exporters.prototype.className = "im-exporters";
 
-      Exporters.prototype.html = _.template("<div class=\"btn-group\">\n    <a class=\"btn btn-action\" href=\"#\">\n        <i class=\"icon-download-alt\"></i>\n        Export\n        <span class=\"im-export-format\"></span>\n    </a>\n    <a class=\"btn dropdown-toggle\" data-toggle=\"dropdown\" href=\"#\">\n        <b class=\"caret\"></b>\n    </a>\n    <ul class=\"dropdown-menu\">\n        <% _(formats).each(function(format) { %>\n            <% if (format) { %>\n                <li>\n                    <a href=\"#\" data-format=\"<%= format.extension %>\">\n                        <%= format.name %>\n                    </a>\n                </li>\n            <% } else { %>\n                <li class=\"divider\"></li>\n            <% } %>\n        <% }); %>\n        <li>\n            <form class=\"form form-inline im-export-destinations\">\n                <div class=\"btn-group\" data-toggle=\"buttons-radio\">\n                    <button class=\"btn active\" data-destination=\"download\">\n                        Download\n                    </button>\n                    <button class=\"btn\" data-destination=\"galaxy\">\n                        Export To Galaxy\n                    </button>\n                </div>\n            </form>\n        </li>\n    </ul>\n</div>\n<div class=\"modal fade\">\n    <div class=\"modal-header\">\n        <a class=\"close\" data-dismiss=\"modal\">close</a>\n        <h3>Export Options</h3>\n    </div>\n    <!-- TODO -->\n    <div class=\"modal-body\">\n        <form class=\"form\">\n            <label>All rows\n                <input type=\"checkbox\" checked>\n            </label>\n            <label>start\n                <input type=\"text\">\n            </label>\n            <label>end\n                <input type=\"text\">\n            </label>\n        </form>\n    </div>\n    <div class=\"modal-footer\">\n        <a href=\"#\" class=\"btn btn-save\"><i class=\"icon-file\"></i>Save</a>\n        <button href=\"#\" class=\"btn im-show-comments\" data-toggle=\"button\">Show Comments</button>\n        <a href=\"#\" data-dismiss=\"modal\" class=\"btn\">Close</a>\n    </div>\n</div>", {
+      Exporters.prototype.html = _.template("<div class=\"btn-group\">\n    <a class=\"btn btn-action\" href=\"#\">\n        <i class=\"icon-download-alt\"></i>\n        Export\n        <span class=\"im-export-format\"></span>\n    </a>\n    <a class=\"btn dropdown-toggle\" data-toggle=\"dropdown\" href=\"#\" style=\"height: 18px\">\n        <b class=\"caret\"></b>\n    </a>\n    <ul class=\"dropdown-menu pull-right\">\n        <% _(formats).each(function(format) { %>\n            <% if (format) { %>\n                <li>\n                    <a href=\"#\" data-format=\"<%= format.extension %>\">\n                        <%= format.name %>\n                    </a>\n                </li>\n            <% } else { %>\n                <li class=\"divider\"></li>\n            <% } %>\n        <% }); %>\n        <li>\n            <form class=\"form form-inline im-export-destinations\">\n                <div class=\"btn-group\" data-toggle=\"buttons-radio\">\n                    <button class=\"btn active\" data-destination=\"download\">\n                        Download\n                    </button>\n                    <button class=\"btn\" data-destination=\"galaxy\">\n                        Export To Galaxy\n                    </button>\n                </div>\n            </form>\n        </li>\n    </ul>\n</div>\n<div class=\"modal fade\">\n    <div class=\"modal-header\">\n        <a class=\"close\" data-dismiss=\"modal\">close</a>\n        <h3>Export Options</h3>\n    </div>\n    <!-- TODO -->\n    <div class=\"modal-body\">\n        <form class=\"form\">\n            <label>All rows\n                <input type=\"checkbox\" checked>\n            </label>\n            <label>start\n                <input type=\"text\">\n            </label>\n            <label>end\n                <input type=\"text\">\n            </label>\n        </form>\n    </div>\n    <div class=\"modal-footer\">\n        <a href=\"#\" class=\"btn btn-save\"><i class=\"icon-file\"></i>Save</a>\n        <button href=\"#\" class=\"btn im-show-comments\" data-toggle=\"button\">Show Comments</button>\n        <a href=\"#\" data-dismiss=\"modal\" class=\"btn\">Close</a>\n    </div>\n</div>", {
         formats: EXPORT_FORMATS
       });
 
@@ -2251,7 +2275,7 @@
 
       CodeGenerator.prototype.className = "im-code-gen";
 
-      CodeGenerator.prototype.html = _.template("<div class=\"btn-group\">\n    <a class=\"btn btn-action\" href=\"#\">\n        <i class=\"icon-script\"></i>\n        Get <span class=\"im-code-lang\"></span> code\n    </a>\n    <a class=\"btn dropdown-toggle\" data-toggle=\"dropdown\" href=\"#\">\n        <span class=\"caret\"></span>\n    </a>\n    <ul class=\"dropdown-menu\">\n        <% _(langs).each(function(lang) { %>\n          <li>\n            <a href=\"#\" data-lang=\"<%= lang.extension %>\">\n               <i class=\"icon-<%= lang.extension %>\"></i>\n               <%= lang.name %>\n            </a>\n          </li>\n        <% }); %>\n    </ul>\n</div>\n<div class=\"modal fade\">\n    <div class=\"modal-header\">\n        <a class=\"close\" data-dismiss=\"modal\">close</a>\n        <h3>Generated <span class=\"im-code-lang\"></span> Code</h3>\n    </div>\n    <div class=\"modal-body\">\n        <pre class=\"im-generated-code prettyprint linenums\">\n        </pre>\n    </div>\n    <div class=\"modal-footer\">\n        <a href=\"#\" class=\"btn btn-save\"><i class=\"icon-file\"></i>Save</a>\n        <button href=\"#\" class=\"btn im-show-comments\" data-toggle=\"button\">Show Comments</button>\n        <a href=\"#\" data-dismiss=\"modal\" class=\"btn\">Close</a>\n    </div>\n</div>", {
+      CodeGenerator.prototype.html = _.template("<div class=\"btn-group\">\n    <a class=\"btn btn-action\" href=\"#\">\n        <i class=\"icon-script\"></i>\n        Get <span class=\"im-code-lang\"></span> code\n    </a>\n    <a class=\"btn dropdown-toggle\" data-toggle=\"dropdown\" href=\"#\" style=\"height: 18px\">\n        <span class=\"caret\"></span>\n    </a>\n    <ul class=\"dropdown-menu\">\n        <% _(langs).each(function(lang) { %>\n          <li>\n            <a href=\"#\" data-lang=\"<%= lang.extension %>\">\n               <i class=\"icon-<%= lang.extension %>\"></i>\n               <%= lang.name %>\n            </a>\n          </li>\n        <% }); %>\n    </ul>\n</div>\n<div class=\"modal fade\">\n    <div class=\"modal-header\">\n        <a class=\"close\" data-dismiss=\"modal\">close</a>\n        <h3>Generated <span class=\"im-code-lang\"></span> Code</h3>\n    </div>\n    <div class=\"modal-body\">\n        <pre class=\"im-generated-code prettyprint linenums\">\n        </pre>\n    </div>\n    <div class=\"modal-footer\">\n        <a href=\"#\" class=\"btn btn-save\"><i class=\"icon-file\"></i>Save</a>\n        <button href=\"#\" class=\"btn im-show-comments\" data-toggle=\"button\">Show Comments</button>\n        <a href=\"#\" data-dismiss=\"modal\" class=\"btn\">Close</a>\n    </div>\n</div>", {
         langs: CODE_GEN_LANGS
       });
 
@@ -3076,7 +3100,7 @@
       DashBoard.prototype.render = function() {
         var promise,
           _this = this;
-        console.log("Rendering");
+        this.$el.addClass("bootstrap");
         promise = this.service.query(this.query, function(q) {
           var cb, evt, main, _ref, _results;
           console.log("Made a query");
@@ -3096,7 +3120,6 @@
           return _results;
         });
         promise.fail(function(xhr, err, msg) {
-          console.log(arguments);
           return _this.$el.append("<div class=\"alert alert-error\">\n    <h1>" + err + "</h1>\n    <p>Unable to construct query: " + msg + "</p>\n</div>");
         });
         return this;
