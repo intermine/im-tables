@@ -56,7 +56,7 @@ task 'build:concat',
 
 writingDeps = false
 
-otherDeps = ["lib/raphael-min.js", "lib/google-code-prettify/prettify.js"]
+otherDeps = ["lib/raphael-min.js", "lib/google-code-prettify/prettify.js", "lib/jquery-ui-1.8.19.custom.js"]
 
 task 'build:deps', 'concatenate dependencies', builddeps = (cb) ->
     console.log "Building deps"
