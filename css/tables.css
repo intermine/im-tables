@@ -263,6 +263,10 @@ th > i {
     max-width: none;
 }
 
+.im-query-actions > * {
+    max-width: 22%;
+}
+
 /* Actions (export, create list, etc.) */
 
 .im-query-actions li {
@@ -276,6 +280,7 @@ th > i {
 
 .im-query-actions li > .btn-group > .btn:first-child {
     width: 13em;
+    max-width: 77%;
 }
 
 
