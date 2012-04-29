@@ -6,4 +6,4 @@
 	url = git://github.com/alexkalderimis/backbone.js-growl-notifications.git
 [submodule "lib/bootstrap"]
 	path = lib/bootstrap
-	url = https://github.com/twitter/bootstrap.git
+	url = git://github.com/twitter/bootstrap.git
