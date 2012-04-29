@@ -89,7 +89,7 @@ scope "intermine.query.actions", (exporting) ->
         startPicking: ->
             @query.trigger "start:list-creation"
             @nothingSelected()
-            m = @$('.modal').show -> $(@).addClass("in").draggable(handle: "h2", drag: (e, ui) -> console.log e, ui)
+            m = @$('.modal').show -> $(@).addClass("in").draggable(handle: "h2")
             @$('.modal-header h2').css(cursor: "move").tooltip title: "Drag me around!"
             @$('.btn-primary').unbind('click').click => @create()
 
@@ -210,7 +210,6 @@ scope "intermine.query.actions", (exporting) ->
             selectedOption = receiver.find(':selected').first()
             targetType = selectedOption.data 'type'
             targetSize = selectedOption.data 'size'
-            console.log targetSize
 
             listQ = (q or {select: ["id"], from: targetType, where: {id: ids}})
 

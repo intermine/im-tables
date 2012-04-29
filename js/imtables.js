@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Sun Apr 29 2012 21:32:02 GMT+0100 (BST)
+ * Built at Sun Apr 29 2012 21:50:50 GMT+0100 (BST)
 */
 
 
@@ -1892,10 +1892,7 @@
         this.nothingSelected();
         m = this.$('.modal').show(function() {
           return $(this).addClass("in").draggable({
-            handle: "h2",
-            drag: function(e, ui) {
-              return console.log(e, ui);
-            }
+            handle: "h2"
           });
         });
         this.$('.modal-header h2').css({
@@ -2047,7 +2044,6 @@
         selectedOption = receiver.find(':selected').first();
         targetType = selectedOption.data('type');
         targetSize = selectedOption.data('size');
-        console.log(targetSize);
         listQ = q || {
           select: ["id"],
           from: targetType,
