@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Sun Apr 29 2012 21:27:32 GMT+0100 (BST)
+ * Built at Sun Apr 29 2012 21:32:02 GMT+0100 (BST)
 */
 
 
@@ -1891,7 +1891,7 @@
         this.query.trigger("start:list-creation");
         this.nothingSelected();
         m = this.$('.modal').show(function() {
-          return m.addClass("in").draggable({
+          return $(this).addClass("in").draggable({
             handle: "h2",
             drag: function(e, ui) {
               return console.log(e, ui);
