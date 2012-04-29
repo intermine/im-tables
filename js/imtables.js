@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Sun Apr 29 2012 22:02:12 GMT+0100 (BST)
+ * Built at Sun Apr 29 2012 22:12:41 GMT+0100 (BST)
 */
 
 
@@ -752,6 +752,7 @@
         }
         elOffset = this.$el.offset();
         tableOffset = this.table.$el.offset();
+        jQuery('.im-table-overlay').remove();
         this.overlay = jQuery(this.make("div", {
           "class": "im-table-overlay discrete"
         }));

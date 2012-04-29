@@ -331,6 +331,7 @@ scope "intermine.query.results", (exporting) ->
             return unless @table and @drawn
             elOffset = @$el.offset()
             tableOffset = @table.$el.offset()
+            jQuery('.im-table-overlay').remove()
             @overlay = jQuery @make "div", class: "im-table-overlay discrete"
             @overlay.css
                 top: elOffset.top

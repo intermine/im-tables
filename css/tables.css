@@ -86,6 +86,7 @@ table.progress {
 
 .im-table-overlay.discrete {
     opacity: 0;
+    z-index: -1000;
 }
 
 .im-table-overlay h1 {
