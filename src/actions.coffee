@@ -89,8 +89,8 @@ scope "intermine.query.actions", (exporting) ->
         startPicking: ->
             @query.trigger "start:list-creation"
             @nothingSelected()
-            @$('.modal').show().addClass("in").draggable(handle: "h2")
-            @$('.modal-header h2').tooltip title: "Drag me around!"
+            @$('.modal').show().addClass("in").draggable(handle: "h2", drag: (e, ui) -> console.log e, ui)
+            @$('.modal-header h2').css(cursor: "move").tooltip title: "Drag me around!"
             @$('.btn-primary').unbind('click').click => @create()
 
         stop: (e) ->
