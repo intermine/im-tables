@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Sun Apr 29 2012 21:07:17 GMT+0100 (BST)
+ * Built at Sun Apr 29 2012 21:27:32 GMT+0100 (BST)
 */
 
 
@@ -1886,14 +1886,17 @@
       };
 
       ListDialogue.prototype.startPicking = function() {
-        var _this = this;
+        var m,
+          _this = this;
         this.query.trigger("start:list-creation");
         this.nothingSelected();
-        this.$('.modal').show().addClass("in").draggable({
-          handle: "h2",
-          drag: function(e, ui) {
-            return console.log(e, ui);
-          }
+        m = this.$('.modal').show(function() {
+          return m.addClass("in").draggable({
+            handle: "h2",
+            drag: function(e, ui) {
+              return console.log(e, ui);
+            }
+          });
         });
         this.$('.modal-header h2').css({
           cursor: "move"
