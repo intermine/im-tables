@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Sun Apr 29 2012 21:50:50 GMT+0100 (BST)
+ * Built at Sun Apr 29 2012 22:02:12 GMT+0100 (BST)
 */
 
 
@@ -920,6 +920,7 @@
         var $el, view;
         e.stopPropagation();
         $el = jQuery(e.target).closest('.im-col-remover');
+        $el.tooltip("hide");
         view = $el.data("view");
         this.query.removeFromSelect(view);
         return false;

@@ -511,6 +511,7 @@ scope "intermine.query.results", (exporting) ->
         removeColumn: (e) =>
             e.stopPropagation()
             $el = jQuery(e.target).closest '.im-col-remover'
+            $el.tooltip("hide")
             view = $el.data "view"
             @query.removeFromSelect view
             false
