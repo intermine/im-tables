@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Sun Apr 29 2012 22:12:41 GMT+0100 (BST)
+ * Built at Mon Apr 30 2012 10:19:34 GMT+0100 (BST)
 */
 
 
@@ -3084,9 +3084,10 @@
 
       DashBoard.prototype.className = "query-display row-fluid";
 
-      DashBoard.prototype.initialize = function(service, query, queryEvents) {
+      DashBoard.prototype.initialize = function(service, query, queryEvents, tableProperties) {
         this.query = query;
         this.queryEvents = queryEvents;
+        this.tableProperties = tableProperties;
         if (this.events == null) {
           this.events = {};
         }
@@ -3108,19 +3109,24 @@
           _this = this;
         this.$el.addClass("bootstrap");
         promise = this.service.query(this.query, function(q) {
-          var cb, evt, main, _ref, _results;
+          var cb, evt, k, main, v, _ref, _ref1, _results;
           console.log("Made a query");
           main = _this.make("div", {
             "class": _this.TABLE_CLASSES
           });
           _this.$el.append(main);
           _this.table = new intermine.query.results.Table(q, main);
+          _ref = _this.tableProperties;
+          for (k in _ref) {
+            v = _ref[k];
+            _this.table[k] = v;
+          }
           _this.table.render();
           _this.renderTools(q);
-          _ref = _this.queryEvents;
+          _ref1 = _this.queryEvents;
           _results = [];
-          for (evt in _ref) {
-            cb = _ref[evt];
+          for (evt in _ref1) {
+            cb = _ref1[evt];
             _results.push(q.on(evt, cb));
           }
           return _results;

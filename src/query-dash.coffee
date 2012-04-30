@@ -4,7 +4,7 @@ scope "intermine.query.results", (exporting) ->
         tagName: "div"
         className: "query-display row-fluid"
 
-        initialize: (service, @query, @queryEvents) ->
+        initialize: (service, @query, @queryEvents, @tableProperties) ->
             @events ?= {}
             if _(service).isString()
                 @service = new intermine.Service root: service
@@ -23,6 +23,7 @@ scope "intermine.query.results", (exporting) ->
                 main = @make "div", {class: @TABLE_CLASSES}
                 @$el.append main
                 @table = new intermine.query.results.Table(q, main)
+                @table[k] = v for k, v of @tableProperties
                 @table.render()
 
                 @renderTools(q)
