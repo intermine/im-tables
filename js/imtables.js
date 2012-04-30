@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Mon Apr 30 2012 11:25:54 GMT+0100 (BST)
+ * Built at Mon Apr 30 2012 11:48:00 GMT+0100 (BST)
 */
 
 
@@ -1002,6 +1002,12 @@
           });
           _this.table = new ResultsTable(_this.query, _this.getRowData);
           _this.table.setElement(telem);
+          if (_this.pageSize != null) {
+            _this.table.pageSize = _this.pageSize;
+          }
+          if (_this.pageStart != null) {
+            _this.table.pageStart = _this.pageStart;
+          }
           _this.table.render();
           return _this.query.on("imtable:change:page", _this.updatePageDisplay);
         };

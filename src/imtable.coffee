@@ -591,6 +591,9 @@ scope "intermine.query.results", (exporting) ->
 
             @table = new ResultsTable @query, @getRowData
             @table.setElement(telem)
+            # TODO: make more generic...
+            @table.pageSize = @pageSize if @pageSize?
+            @table.pageStart = @pageStart if @pageStart?
             @table.render()
 
             @query.on "imtable:change:page", @updatePageDisplay
