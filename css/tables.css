@@ -541,6 +541,8 @@ input.im-constraint-adder {
     max-width: 10em;
     overflow: hidden;
     text-overflow: ellipsis;
+    display: inline-block;
+    white-space: nowrap;
 }
 
 #logged-in {
