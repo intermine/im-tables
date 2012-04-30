@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Mon Apr 30 2012 16:31:38 GMT+0100 (BST)
+ * Built at Mon Apr 30 2012 16:46:02 GMT+0100 (BST)
 */
 
 
@@ -483,9 +483,7 @@
               width: minWidth
             }));
           } else {
-            return tr.append(cell.render().$el.css({
-              width: w + "px"
-            }));
+            return tr.append(cell.render().setWidth(w));
           }
         };
         for (i = _i = 0, _len = row.length; _i < _len; i = ++_i) {
@@ -2717,7 +2715,7 @@
 
   scope("intermine.results.table", function(exporting) {
     var CELL_HTML, Cell, HIDDEN_FIELDS, NullCell;
-    CELL_HTML = _.template("<input class=\"list-chooser\" type=\"checkbox\" style=\"display: none\" data-obj-id=\"<%= id %>\" \n       <% if (selected) { %>checked <% }; %>\n       data-obj-type=\"<%= type %>\">\n<% if (value == null) { %>\n <span class=\"null-value\">no value</span>\n<% } else { %>\n <a class=\"im-cell-link\" href=\"<%= base %><%= url %>\"><%= value %></a>\n<% } %>\n<% if (field == 'url') { %>\n <a class=\"im-cell-link external\" href=\"<%= value %>\">link</a>\n<% } %>");
+    CELL_HTML = _.template("<div class=\"im-confinement\">\n    <input class=\"list-chooser\" type=\"checkbox\" style=\"display: none\" data-obj-id=\"<%= id %>\" \n        <% if (selected) { %>checked <% }; %>\n        data-obj-type=\"<%= type %>\">\n    <% if (value == null) { %>\n    <span class=\"null-value\">no value</span>\n    <% } else { %>\n    <a class=\"im-cell-link\" href=\"<%= base %><%= url %>\"><%= value %></a>\n    <% } %>\n    <% if (field == 'url') { %>\n    <a class=\"im-cell-link external\" href=\"<%= value %>\">link</a>\n    <% } %>\n</div>");
     HIDDEN_FIELDS = ["class", "objectId"];
     exporting(Cell = (function(_super) {
 
@@ -2781,7 +2779,7 @@
         id = this.model.get("id");
         s = this.options.query.service;
         content = $("<table class=\"im-item-details table table-condensed table-bordered\">\n<colgroup>\n    <col class=\"im-item-field\"/>\n    <col class=\"im-item-value\"/>\n</colgroup>\n</table>");
-        cellLink = this.$el.find('.im-cell-link').popover({
+        cellLink = this.$el.find('.im-cell-link').first().popover({
           placement: function() {
             var table;
             table = cellLink.closest("table");
@@ -2854,6 +2852,12 @@
           }
         });
         return this;
+      };
+
+      Cell.prototype.setWidth = function(w) {
+        return this.$('.im-confinement').css({
+          width: w + "px"
+        });
       };
 
       Cell.prototype.activateChooser = function() {

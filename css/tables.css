@@ -920,9 +920,9 @@ text.pie-label {
     background:#D9EDF7;
 }
 
-.im-cell-link {
+.im-confinement {
     max-width: 100%;
-    text-overflow: ellipsis;
+    overflow: hidden;
 }
 
 @media screen and (max-width: 900px) {

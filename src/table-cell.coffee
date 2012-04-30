@@ -1,17 +1,19 @@
 scope "intermine.results.table", (exporting) ->
 
     CELL_HTML = _.template """
-        <input class="list-chooser" type="checkbox" style="display: none" data-obj-id="<%= id %>" 
-               <% if (selected) { %>checked <% }; %>
-               data-obj-type="<%= type %>">
-        <% if (value == null) { %>
-         <span class="null-value">no value</span>
-        <% } else { %>
-         <a class="im-cell-link" href="<%= base %><%= url %>"><%= value %></a>
-        <% } %>
-        <% if (field == 'url') { %>
-         <a class="im-cell-link external" href="<%= value %>">link</a>
-        <% } %>
+        <div class="im-confinement">
+            <input class="list-chooser" type="checkbox" style="display: none" data-obj-id="<%= id %>" 
+                <% if (selected) { %>checked <% }; %>
+                data-obj-type="<%= type %>">
+            <% if (value == null) { %>
+            <span class="null-value">no value</span>
+            <% } else { %>
+            <a class="im-cell-link" href="<%= base %><%= url %>"><%= value %></a>
+            <% } %>
+            <% if (field == 'url') { %>
+            <a class="im-cell-link external" href="<%= value %>">link</a>
+            <% } %>
+        </div>
     """
 
     HIDDEN_FIELDS = ["class", "objectId"]
@@ -54,7 +56,7 @@ scope "intermine.results.table", (exporting) ->
                 </colgroup>
                 </table>
             """
-            cellLink = @$el.find('.im-cell-link').popover
+            cellLink = @$el.find('.im-cell-link').first().popover
                 placement: ->
                     table = cellLink.closest "table"
                     if cellLink.offset().left + 300 >= table.offset().left + table.width()
@@ -102,6 +104,8 @@ scope "intermine.results.table", (exporting) ->
 
                     return content
             this
+
+        setWidth: (w) -> @$('.im-confinement').css width: w + "px"
 
         activateChooser: ->
             if @model.get "selectable"
