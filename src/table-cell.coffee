@@ -44,7 +44,7 @@ scope "intermine.results.table", (exporting) ->
 
         render: ->
             html = CELL_HTML _.extend {}, @model.toJSON(), {value: @model.get(@options.field), field: @options.field}
-            @$el.html(html).toggleClass(active: @model.get "selected")
+            @$el.append(html).toggleClass(active: @model.get "selected")
             type = @model.get "type"
             id = @model.get "id"
             s = @options.query.service

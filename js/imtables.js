@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Mon Apr 30 2012 16:46:02 GMT+0100 (BST)
+ * Built at Mon Apr 30 2012 16:55:51 GMT+0100 (BST)
 */
 
 
@@ -2772,7 +2772,7 @@
           value: this.model.get(this.options.field),
           field: this.options.field
         }));
-        this.$el.html(html).toggleClass({
+        this.$el.append(html).toggleClass({
           active: this.model.get("selected")
         });
         type = this.model.get("type");
