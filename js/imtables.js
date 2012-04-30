@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Mon Apr 30 2012 17:46:51 GMT+0100 (BST)
+ * Built at Mon Apr 30 2012 18:00:20 GMT+0100 (BST)
 */
 
 
@@ -342,7 +342,7 @@
     headerIcon: "icon-white",
     headerIconRemove: "icon-remove-sign",
     headerIconHide: "icon-minus-sign",
-    headerIconSummary: "icon-filter"
+    headerIconSummary: "icon-info-sign"
   });
 
   scope("intermine.query.results", function(exporting) {
