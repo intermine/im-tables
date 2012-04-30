@@ -537,6 +537,12 @@ input.im-constraint-adder {
     top: -10px;
 }
 
+.logged-in-notice a.username {
+    max-width: 10em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 #logged-in {
     display: none;
 }
