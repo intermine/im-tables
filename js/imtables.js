@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Mon Apr 30 2012 17:28:25 GMT+0100 (BST)
+ * Built at Mon Apr 30 2012 17:36:23 GMT+0100 (BST)
 */
 
 
@@ -635,7 +635,7 @@
 
       Table.prototype.className = "im-table-container";
 
-      Table.prototype.paginationTempl = _.template("<div class=\"pagination pagination-right\">\n    <ul>\n        <li title=\"Go to start\">\n            <a class=\"im-pagination-button\" data-goto=start href=\"#\">&#x21e4;</a>\n        </li>\n        <li title=\"Go back five pages\">\n            <a class=\"im-pagination-button\" data-goto=fast-rewind href=\"#\">&#x219e;</a>\n        </li>\n        <li title=\"Go to previous page\">\n            <a class=\"im-pagination-button\" data-goto=prev  href=\"#\">&larr;</a>\n        </li>\n        <li class=\"im-current-page\">\n            <a data-goto=here  href=\"#\">&hellip;</a>\n            <form style=\"display:none;\"><select></select></form>\n        </li>\n        <li title=\"Go to next page\">\n            <a class=\"im-pagination-button\" data-goto=next  href=\"#\">&rarr;</a>\n        </li>\n        <li title=\"Go forward five pages\">\n            <a class=\"im-pagination-button\" data-goto=fast-forward href=\"#\">&#x21a0;</a>\n        </li>\n        <li title=\"Go to last page\">\n            <a class=\"im-pagination-button\" data-goto=end   href=\"#\">&#x21e5;</a>\n        </li>\n    </ul>\n</div>");
+      Table.prototype.paginationTempl = _.template("<div class=\"pagination pagination-right\">\n    <ul>\n        <li title=\"Go to start\">\n            <a class=\"im-pagination-button\" data-goto=start>&#x21e4;</a>\n        </li>\n        <li title=\"Go back five pages\">\n            <a class=\"im-pagination-button\" data-goto=fast-rewind>&#x219e;</a>\n        </li>\n        <li title=\"Go to previous page\">\n            <a class=\"im-pagination-button\" data-goto=prev>&larr;</a>\n        </li>\n        <li class=\"im-current-page\">\n            <a data-goto=here  href=\"#\">&hellip;</a>\n            <form style=\"display:none;\"><select></select></form>\n        </li>\n        <li title=\"Go to next page\">\n            <a class=\"im-pagination-button\" data-goto=next>&rarr;</a>\n        </li>\n        <li title=\"Go forward five pages\">\n            <a class=\"im-pagination-button\" data-goto=fast-forward>&#x21a0;</a>\n        </li>\n        <li title=\"Go to last page\">\n            <a class=\"im-pagination-button\" data-goto=end>&#x21e5;</a>\n        </li>\n    </ul>\n</div>");
 
       Table.prototype.onDraw = function() {
         if (this.__selecting) {

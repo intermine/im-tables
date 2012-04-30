@@ -208,26 +208,26 @@ scope "intermine.query.results", (exporting) ->
             <div class="pagination pagination-right">
                 <ul>
                     <li title="Go to start">
-                        <a class="im-pagination-button" data-goto=start href="#">&#x21e4;</a>
+                        <a class="im-pagination-button" data-goto=start>&#x21e4;</a>
                     </li>
                     <li title="Go back five pages">
-                        <a class="im-pagination-button" data-goto=fast-rewind href="#">&#x219e;</a>
+                        <a class="im-pagination-button" data-goto=fast-rewind>&#x219e;</a>
                     </li>
                     <li title="Go to previous page">
-                        <a class="im-pagination-button" data-goto=prev  href="#">&larr;</a>
+                        <a class="im-pagination-button" data-goto=prev>&larr;</a>
                     </li>
                     <li class="im-current-page">
                         <a data-goto=here  href="#">&hellip;</a>
                         <form style="display:none;"><select></select></form>
                     </li>
                     <li title="Go to next page">
-                        <a class="im-pagination-button" data-goto=next  href="#">&rarr;</a>
+                        <a class="im-pagination-button" data-goto=next>&rarr;</a>
                     </li>
                     <li title="Go forward five pages">
-                        <a class="im-pagination-button" data-goto=fast-forward href="#">&#x21a0;</a>
+                        <a class="im-pagination-button" data-goto=fast-forward>&#x21a0;</a>
                     </li>
                     <li title="Go to last page">
-                        <a class="im-pagination-button" data-goto=end   href="#">&#x21e5;</a>
+                        <a class="im-pagination-button" data-goto=end>&#x21e5;</a>
                     </li>
                 </ul>
             </div>

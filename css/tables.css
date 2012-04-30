@@ -1,7 +1,6 @@
 
-div.dataTables_length label {
-    float: left;
-    text-align: left;
+a.im-pagination-button {
+    cursor: pointer;
 }
 
 div.dataTables_length select {
