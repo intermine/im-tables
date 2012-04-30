@@ -1,6 +1,5 @@
 scope "intermine.results.table", (exporting) ->
 
-    # <div class="im-confinement">
     # </div>
     CELL_HTML = _.template """
             <input class="list-chooser" type="checkbox" style="display: none" data-obj-id="<%= id %>" 
@@ -9,7 +8,9 @@ scope "intermine.results.table", (exporting) ->
             <% if (value == null) { %>
             <span class="null-value">no value</span>
             <% } else { %>
-            <a class="im-cell-link" href="<%= base %><%= url %>"><%= value %></a>
+                <div class="im-confinement">
+                    <a class="im-cell-link" href="<%= base %><%= url %>"><%= value %></a>
+                </div>
             <% } %>
             <% if (field == 'url') { %>
             <a class="im-cell-link external" href="<%= value %>">link</a>
