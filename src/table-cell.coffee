@@ -11,7 +11,7 @@ scope "intermine.results.table", (exporting) ->
                 <a class="im-cell-link" href="<%= base %><%= url %>"><%= value %></a>
             <% } %>
             <% if (field == 'url') { %>
-                <a class="im-cell-link external" href="<%= value %>">link</a>
+                <i class="icon-globe"></i><a class="im-cell-link external" href="<%= value %>">link</a>
             <% } %>
     """
 

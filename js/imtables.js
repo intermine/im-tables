@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Mon Apr 30 2012 17:36:23 GMT+0100 (BST)
+ * Built at Mon Apr 30 2012 17:46:51 GMT+0100 (BST)
 */
 
 
@@ -342,7 +342,7 @@
     headerIcon: "icon-white",
     headerIconRemove: "icon-remove-sign",
     headerIconHide: "icon-minus-sign",
-    headerIconSummary: "icon-info-sign"
+    headerIconSummary: "icon-filter"
   });
 
   scope("intermine.query.results", function(exporting) {
@@ -923,19 +923,6 @@
         view = $el.data("view");
         this.query.removeFromSelect(view);
         return false;
-      };
-
-      Table.prototype.makeCol = function(result) {
-        var _this = this;
-        return function(view, i) {
-          var col;
-          return col = {
-            bVisible: __indexOf.call(_this.visibleViews, view) >= 0,
-            sTitle: result.columnHeaders[i].split(" > ").slice(1).join(" &gt; ") + ("<span class=\"im-col-summary navbar dropdown pull-right\">\n    <div class=\"im-th-button im-col-remover\" title=\"remove this column\" data-view=\"" + view + "\">\n        <i class=\"icon-remove-sign icon-white\"></i>\n    </div>\n    <div class=\"im-th-button summary-img dropdown-toggle\" title=\"column summary\"\n        data-toggle=\"dropdown\" data-col-idx=\"" + i + "\" >\n        <i class=\"icon-info-sign icon-white\"></i>\n    </div>\n    <div class=\"dropdown-menu\">\n        <div>Some content of some type or another.</div>\n    </div>\n</span>"),
-            sName: view,
-            mDataProp: i
-          };
-        };
       };
 
       Table.prototype.horizontalScroller = "<div class=\"scroll-bar-wrap well\">\n    <div class=\"scroll-bar-containment\">\n        <div class=\"scroll-bar alert-info alert\"></div>\n    </div>\n</div>";
@@ -2715,7 +2702,7 @@
 
   scope("intermine.results.table", function(exporting) {
     var CELL_HTML, Cell, HIDDEN_FIELDS, NullCell;
-    CELL_HTML = _.template("<input class=\"list-chooser\" type=\"checkbox\" style=\"display: none\" data-obj-id=\"<%= id %>\" \n    <% if (selected) { %>checked <% }; %>\n    data-obj-type=\"<%= type %>\">\n<% if (value == null) { %>\n<span class=\"null-value\">no value</span>\n<% } else { %>\n    <a class=\"im-cell-link\" href=\"<%= base %><%= url %>\"><%= value %></a>\n<% } %>\n<% if (field == 'url') { %>\n    <a class=\"im-cell-link external\" href=\"<%= value %>\">link</a>\n<% } %>");
+    CELL_HTML = _.template("<input class=\"list-chooser\" type=\"checkbox\" style=\"display: none\" data-obj-id=\"<%= id %>\" \n    <% if (selected) { %>checked <% }; %>\n    data-obj-type=\"<%= type %>\">\n<% if (value == null) { %>\n<span class=\"null-value\">no value</span>\n<% } else { %>\n    <a class=\"im-cell-link\" href=\"<%= base %><%= url %>\"><%= value %></a>\n<% } %>\n<% if (field == 'url') { %>\n    <i class=\"icon-globe\"></i><a class=\"im-cell-link external\" href=\"<%= value %>\">link</a>\n<% } %>");
     HIDDEN_FIELDS = ["class", "objectId"];
     exporting(Cell = (function(_super) {
 

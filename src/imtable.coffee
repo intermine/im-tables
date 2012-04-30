@@ -2,7 +2,7 @@ scope "intermine.css", {
     headerIcon: "icon-white"
     headerIconRemove: "icon-remove-sign"
     headerIconHide: "icon-minus-sign"
-    headerIconSummary: "icon-info-sign"
+    headerIconSummary: "icon-filter"
 }
 
 scope "intermine.query.results", (exporting) ->
@@ -516,27 +516,6 @@ scope "intermine.query.results", (exporting) ->
             view = $el.data "view"
             @query.removeFromSelect view
             false
-
-        makeCol: (result) -> (view, i)  =>
-            col =
-                bVisible: view in @visibleViews
-                sTitle: result.columnHeaders[i].split(" > ").slice(1).join(" &gt; ") + """
-                    <span class="im-col-summary navbar dropdown pull-right">
-                        <div class="im-th-button im-col-remover" title="remove this column" data-view="#{view}">
-                            <i class="icon-remove-sign icon-white"></i>
-                        </div>
-                        <div class="im-th-button summary-img dropdown-toggle" title="column summary"
-                            data-toggle="dropdown" data-col-idx="#{i}" >
-                            <i class="icon-info-sign icon-white"></i>
-                        </div>
-                        <div class="dropdown-menu">
-                            <div>Some content of some type or another.</div>
-                        </div>
-                    </span>
-                """
-                # \u03A3
-                sName: view
-                mDataProp: i
 
         horizontalScroller: """
             <div class="scroll-bar-wrap well">
