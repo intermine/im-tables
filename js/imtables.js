@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Mon Apr 30 2012 16:55:51 GMT+0100 (BST)
+ * Built at Mon Apr 30 2012 16:58:31 GMT+0100 (BST)
 */
 
 
@@ -2855,9 +2855,10 @@
       };
 
       Cell.prototype.setWidth = function(w) {
-        return this.$('.im-confinement').css({
+        this.$('.im-confinement').css({
           width: w + "px"
         });
+        return this;
       };
 
       Cell.prototype.activateChooser = function() {
