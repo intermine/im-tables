@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Mon Apr 30 2012 16:58:31 GMT+0100 (BST)
+ * Built at Mon Apr 30 2012 17:00:51 GMT+0100 (BST)
 */
 
 
@@ -483,7 +483,7 @@
               width: minWidth
             }));
           } else {
-            return tr.append(cell.render().setWidth(w));
+            return tr.append(cell.render().setWidth(w).$el);
           }
         };
         for (i = _i = 0, _len = row.length; _i < _len; i = ++_i) {

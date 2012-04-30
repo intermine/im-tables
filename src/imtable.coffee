@@ -85,7 +85,7 @@ scope "intermine.query.results", (exporting) ->
                 if @minimisedCols[i]
                     tr.append(@minimisedColumnPlaceholder(width: minWidth))
                 else
-                    tr.append(cell.render().setWidth(w))
+                    tr.append(cell.render().setWidth(w).$el)
             tr.appendTo @el
 
         errorTempl: _.template """
