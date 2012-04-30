@@ -8,12 +8,10 @@ scope "intermine.results.table", (exporting) ->
             <% if (value == null) { %>
             <span class="null-value">no value</span>
             <% } else { %>
-                <div class="im-confinement">
-                    <a class="im-cell-link" href="<%= base %><%= url %>"><%= value %></a>
-                </div>
+                <a class="im-cell-link" href="<%= base %><%= url %>"><%= value %></a>
             <% } %>
             <% if (field == 'url') { %>
-            <a class="im-cell-link external" href="<%= value %>">link</a>
+                <a class="im-cell-link external" href="<%= value %>">link</a>
             <% } %>
     """
 
@@ -108,7 +106,7 @@ scope "intermine.results.table", (exporting) ->
 
         setWidth: (w) ->
             @$el.css width: w + "px"
-            @$('.im-confinement').css width: (w - 5) + "px"
+            @$('.im-cell-link').css "max-width": (w - 5) + "px"
             this
 
         activateChooser: ->

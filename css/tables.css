@@ -34,6 +34,10 @@ table.table {
     font-size: 0.9em;
 }
 
+.im-cell-link {
+    overflow: hidden;
+}
+
 .im-table-container .table tbody > tr td.im-highlight {
     background: #6fb9de;
 }
