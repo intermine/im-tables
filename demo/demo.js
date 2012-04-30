@@ -107,14 +107,17 @@ $(function() {
 
     var displayCls = intermine.query.results.CompactView;
     var display;
+    var tableProps = {pageSize: 10};
 
     var login = function(serviceArgs) {
         var q = services[serviceArgs].q;
         var service = new intermine.Service(services[serviceArgs]);
-        var qv = new displayCls(service, q, query_events);
+        var qv = new displayCls(service, q, query_events, tableProps);
 
         $('#table-display').empty();
         qv.$el.appendTo("#table-display");
+
+        console.log(tableProps, qv);
         qv.render();
 
         display = qv;
