@@ -920,6 +920,11 @@ text.pie-label {
     background:#D9EDF7;
 }
 
+.im-cell-link {
+    max-width: 100%;
+    text-overflow: ellipsis;
+}
+
 @media screen and (max-width: 900px) {
     .im-query-results {
         width: 100% !important;

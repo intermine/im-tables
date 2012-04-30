@@ -9,6 +9,9 @@ scope "intermine.results.table", (exporting) ->
         <% } else { %>
          <a class="im-cell-link" href="<%= base %><%= url %>"><%= value %></a>
         <% } %>
+        <% if (field == 'url') { %>
+         <a class="im-cell-link external" href="<%= value %>">link</a>
+        <% } %>
     """
 
     HIDDEN_FIELDS = ["class", "objectId"]
@@ -38,7 +41,7 @@ scope "intermine.results.table", (exporting) ->
             @options.query.on "stop:highlight", => @$el.removeClass "im-highlight"
 
         render: ->
-            html = CELL_HTML _.extend {}, @model.toJSON(), {value: @model.get(@options.field)}
+            html = CELL_HTML _.extend {}, @model.toJSON(), {value: @model.get(@options.field), field: @options.field}
             @$el.html(html).toggleClass(active: @model.get "selected")
             type = @model.get "type"
             id = @model.get "id"
