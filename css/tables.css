@@ -36,6 +36,8 @@ table.table {
 
 .im-cell-link {
     overflow: hidden;
+    display: inline-block;
+    text-overflow: ellipsis;
 }
 
 .im-table-container .table tbody > tr td.im-highlight {
