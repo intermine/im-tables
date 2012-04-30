@@ -106,7 +106,8 @@ scope "intermine.results.table", (exporting) ->
             this
 
         setWidth: (w) ->
-            @$('.im-confinement').css width: w + "px"
+            @$el.css width: w + "px"
+            @$('.im-confinement').css width: (w - 5) + "px"
             this
 
         activateChooser: ->
