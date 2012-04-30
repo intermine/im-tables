@@ -2,7 +2,7 @@ scope "intermine.css", {
     headerIcon: "icon-white"
     headerIconRemove: "icon-remove-sign"
     headerIconHide: "icon-minus-sign"
-    headerIconSummary: "icon-filter"
+    headerIconSummary: "icon-info-sign"
 }
 
 scope "intermine.query.results", (exporting) ->
