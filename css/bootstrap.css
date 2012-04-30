@@ -1414,6 +1414,13 @@
 .bootstrap .icon-glass {
   background-position: 0      0;
 }
+.bootstrap .icon-globe {
+background-position: -336px -144px;
+}
+.bootstrap .icon-filter {
+background-position: -408px -144px;
+}
+
 .bootstrap .icon-music {
   background-position: -24px 0;
 }
