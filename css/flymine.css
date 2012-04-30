@@ -75,6 +75,6 @@
     padding: 0;
 }
 
-.bag-detail-table .im-action {
+.bag-detail-table .im-query-actionbar > ul > .im-action {
     margin-right: 2.5em;
 }
