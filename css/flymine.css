@@ -62,6 +62,17 @@
     background-color: transparent;
 }
 
+.bag-detail-table .im-query-actions li > .btn {
+    width: none;
+}
+.bag-detail-table .im-query-actions li > .btn-group > .btn:first-child {
+    width: 9em;
+}
 
+.bag-detail-table .active {
+    background-color: white;
+    color: #ccc;
+    padding: 0;
+}
 
 
