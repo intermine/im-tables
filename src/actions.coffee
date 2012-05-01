@@ -616,7 +616,7 @@ scope "intermine.query.actions", (exporting) ->
                 query.saveAsList(opts, @handleSuccess).fail(@handleFailure)
                 @stop()
             else
-                @query.service.query query, @makeNewList
+                @query.service.query query, (q) => @makeNewList q, opts
 
         handleSuccess: (list) =>
             console.log "Created a list", list

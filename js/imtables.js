@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Tue May 01 2012 16:54:18 GMT+0100 (BST)
+ * Built at Tue May 01 2012 17:08:50 GMT+0100 (BST)
 */
 
 
@@ -2477,11 +2477,14 @@
       };
 
       ListCreator.prototype.makeNewList = function(query, opts) {
+        var _this = this;
         if (query.service != null) {
           query.saveAsList(opts, this.handleSuccess).fail(this.handleFailure);
           return this.stop();
         } else {
-          return this.query.service.query(query, this.makeNewList);
+          return this.query.service.query(query, function(q) {
+            return _this.makeNewList(q, opts);
+          });
         }
       };
 
