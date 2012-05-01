@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Mon Apr 30 2012 18:01:40 GMT+0100 (BST)
+ * Built at Tue May 01 2012 16:54:18 GMT+0100 (BST)
 */
 
 
@@ -2352,6 +2352,12 @@
 
       function ListCreator() {
         this.updateTagBox = __bind(this.updateTagBox, this);
+
+        this.handleFailure = __bind(this.handleFailure, this);
+
+        this.handleSuccess = __bind(this.handleSuccess, this);
+
+        this.makeNewList = __bind(this.makeNewList, this);
         return ListCreator.__super__.constructor.apply(this, arguments);
       }
 
@@ -2438,8 +2444,7 @@
       };
 
       ListCreator.prototype.create = function(q) {
-        var $nameInput, illegals, listQ, newListDesc, newListName, newListTags, newListType, opts,
-          _this = this;
+        var $nameInput, illegals, listQ, newListDesc, newListName, newListTags, newListType, opts;
         $nameInput = this.$('.im-list-name');
         newListName = $nameInput.val();
         newListDesc = this.$('.im-list-desc').val();
@@ -2466,22 +2471,30 @@
             description: newListDesc,
             tags: newListTags
           };
-          this.query.service.query(listQ, function(query) {
-            var promise;
-            promise = query.saveAsList(opts, function(list) {
-              console.log("Created a list", list);
-              return _this.query.trigger("list-creation:success", list);
-            });
-            promise.fail(function(xhr, level, message) {
-              if (xhr.responseText) {
-                message = (JSON.parse(xhr.responseText)).error;
-              }
-              return _this.query.trigger("list-creation:failure", message);
-            });
-            return _this.stop();
-          });
+          this.makeNewList(listQ, opts);
           return this.$('.btn-primary').unbind('click');
         }
+      };
+
+      ListCreator.prototype.makeNewList = function(query, opts) {
+        if (query.service != null) {
+          query.saveAsList(opts, this.handleSuccess).fail(this.handleFailure);
+          return this.stop();
+        } else {
+          return this.query.service.query(query, this.makeNewList);
+        }
+      };
+
+      ListCreator.prototype.handleSuccess = function(list) {
+        console.log("Created a list", list);
+        return this.query.trigger("list-creation:success", list);
+      };
+
+      ListCreator.prototype.handleFailure = function(xhr, level, message) {
+        if (xhr.responseText) {
+          message = (JSON.parse(xhr.responseText)).error;
+        }
+        return this.query.trigger("list-creation:failure", message);
       };
 
       ListCreator.prototype.removeTag = function(e) {

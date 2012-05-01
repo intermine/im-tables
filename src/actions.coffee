@@ -607,16 +607,24 @@ scope "intermine.query.actions", (exporting) ->
                     name: newListName
                     description: newListDesc
                     tags: newListTags
-                @query.service.query listQ, (query) =>
-                    promise = query.saveAsList opts, (list) =>
-                        console.log "Created a list", list
-                        @query.trigger "list-creation:success", list
-                    promise.fail (xhr, level, message) =>
-                        if xhr.responseText
-                            message = (JSON.parse xhr.responseText).error
-                        @query.trigger "list-creation:failure", message
-                    @stop()
+
+                @makeNewList listQ, opts
                 @$('.btn-primary').unbind('click')
+
+        makeNewList: (query, opts) =>
+            if query.service?
+                query.saveAsList(opts, @handleSuccess).fail(@handleFailure)
+                @stop()
+            else
+                @query.service.query query, @makeNewList
+
+        handleSuccess: (list) =>
+            console.log "Created a list", list
+            @query.trigger "list-creation:success", list
+
+        handleFailure: (xhr, level, message) =>
+            message = (JSON.parse xhr.responseText).error if xhr.responseText
+            @query.trigger "list-creation:failure", message
 
         removeTag: (e) ->
             tag = $(e.target).siblings('.tag-text').text()
