@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Tue May 01 2012 17:08:50 GMT+0100 (BST)
+ * Built at Fri May 18 2012 13:20:43 GMT+0100 (BST)
 */
 
 
@@ -3600,7 +3600,11 @@
       function NumericFacet() {
         this.drawCurve = __bind(this.drawCurve, this);
 
+        this.drawChart = __bind(this.drawChart, this);
+
         this.drawSlider = __bind(this.drawSlider, this);
+
+        this.drawStats = __bind(this.drawStats, this);
 
         this.handleSummary = __bind(this.handleSummary, this);
         return NumericFacet.__super__.constructor.apply(this, arguments);
@@ -3623,7 +3627,7 @@
         this.$el.append(this.container);
         canvas = this.make("div");
         $(this.container).append(canvas);
-        this.paper = Raphael(canvas, this.$el.width(), 120);
+        this.paper = Raphael(canvas, this.$el.width(), 75);
         promise = this.query.summarise(this.facet.path, this.handleSummary);
         promise.fail(this.remove);
         return this;
@@ -3636,8 +3640,17 @@
         this.dev = parseFloat(summary.stdev);
         this.max = summary.max;
         this.min = summary.min;
-        this.drawCurve();
+        if (summary.count != null) {
+          this.drawChart(items);
+        } else {
+          this.drawCurve();
+        }
+        this.drawStats();
         return this.drawSlider();
+      };
+
+      NumericFacet.prototype.drawStats = function() {
+        return $(this.container).append("<table class=\"table table-bordered table-condensed\">\n    <thead>\n        <tr>\n            <th>Min</th>\n            <th>Max</th>\n            <th>Mean</th>\n            <th>Standard Deviation</th>\n        </tr>\n    </thead>\n    <tbody>\n        <tr>\n            <td>" + this.min + "</td>\n            <td>" + this.max + "</td>\n            <td>" + (this.mean.toFixed(5)) + "</td>\n            <td>" + (this.dev.toFixed(5)) + "</td>\n        </tr>\n    </tbody>\n</table>");
       };
 
       NumericFacet.prototype.drawSlider = function() {
@@ -3684,8 +3697,65 @@
         });
       };
 
+      NumericFacet.prototype.drawChart = function(items) {
+        var baseLine, gap, h, hh, i, item, leftMargin, max, p, stepWidth, tick, topMargin, w, yaxis, _fn, _fn1, _fn2, _i, _j, _k, _len,
+          _this = this;
+        h = 75;
+        hh = h * 0.8;
+        max = _.max(_.pluck(items, "count"));
+        w = this.$el.closest(':visible').width() * 0.95;
+        p = this.paper;
+        gap = w * 0.01;
+        topMargin = h * 0.1;
+        leftMargin = 30;
+        stepWidth = (w - (leftMargin + 1)) / items.length;
+        baseLine = hh + topMargin;
+        _fn = function(tick) {
+          var line;
+          line = p.path("M" + (leftMargin - 4) + "," + (baseLine - (hh / 10 * tick)) + " h" + (w - gap));
+          return line.node.setAttribute("class", "tickline");
+        };
+        for (tick = _i = 0; _i <= 10; tick = ++_i) {
+          _fn(tick);
+        }
+        yaxis = this.paper.path("M" + (leftMargin - 4) + ", " + baseLine + " v-" + hh);
+        yaxis.node.setAttribute("class", "yaxis");
+        _fn1 = function(tick) {
+          var t, val, ypos;
+          ypos = baseLine - (hh / 10 * tick);
+          val = max / 10 * tick;
+          if (!(val % 1)) {
+            t = _this.paper.text(leftMargin - 6, ypos, val.toFixed()).attr({
+              "text-anchor": "end",
+              "font-size": "10px"
+            });
+            if ($.browser.webkit) {
+              if (!_this.$el.offsetParent().filter(function() {
+                return $(this).css("position") === "absolute";
+              }).length) {
+                return t.translate(0, -ypos);
+              }
+            }
+          }
+        };
+        for (tick = _j = 0; _j <= 10; tick = ++_j) {
+          _fn1(tick);
+        }
+        _fn2 = function(item, i) {
+          var path, pathCmd, prop;
+          prop = item.count / max;
+          pathCmd = "M" + (i * stepWidth + leftMargin) + "," + baseLine + " v-" + (hh * prop) + " h" + (stepWidth - gap) + " v" + (hh * prop) + " z";
+          return path = _this.paper.path(pathCmd);
+        };
+        for (i = _k = 0, _len = items.length; _k < _len; i = ++_k) {
+          item = items[i];
+          _fn2(item, i);
+        }
+        return this;
+      };
+
       NumericFacet.prototype.drawCurve = function() {
-        var drawDivider, f, factor, getPathCmd, h, i, invert, nc, pathCmd, points, scale, sections, stdevs, text, val, vals, w, x, xs, _i, _j, _k, _l, _len, _len1, _ref, _results,
+        var drawDivider, f, factor, getPathCmd, h, invert, nc, pathCmd, points, scale, sections, stdevs, w, x, xs, _i, _j, _ref, _results, _results1,
           _this = this;
         if (this.max === this.min) {
           $(this.el).remove();
@@ -3693,10 +3763,9 @@
         }
         sections = ((this.max - this.min) / this.dev).toFixed();
         w = this.$el.width();
-        h = 100;
-        pathCmd = "M1,100S";
+        h = 75;
         nc = NormalCurve(w / 2, w / sections);
-        factor = 100 / nc(w / 2);
+        factor = h / nc(w / 2);
         invert = function(x) {
           return h - x + 2;
         };
@@ -3720,39 +3789,28 @@
         })());
         pathCmd = "M1," + h + "S" + (points.join(",")) + "L" + (w - 1) + "," + h + "Z";
         this.paper.path(pathCmd);
+        _results1 = [];
         for (stdevs = _j = 0, _ref = (sections / 2) + 1; 0 <= _ref ? _j <= _ref : _j >= _ref; stdevs = 0 <= _ref ? ++_j : --_j) {
           xs = _.uniq([w / 2 - (stdevs * w / sections), w / 2 + (stdevs * w / sections)]);
-          vals = _.uniq([this.mean - stdevs * this.dev, this.mean + stdevs * this.dev]);
           getPathCmd = function(x) {
             return "M" + x + "," + h + "L" + x + "," + (f(x));
           };
           drawDivider = function(x) {
             return _this.paper.path(getPathCmd(x));
           };
-          for (_k = 0, _len = xs.length; _k < _len; _k++) {
-            x = xs[_k];
-            drawDivider(x);
-          }
-          for (i = _l = 0, _len1 = vals.length; _l < _len1; i = ++_l) {
-            val = vals[i];
-            if ((this.min < val && val < this.max)) {
-              text = this.paper.text(xs[i], 110, val.toFixed(2)).attr({
-                "font-size": "16px"
-              });
-              if (xs[i] <= 0) {
-                text.translate(16, 0);
-              } else if (xs[i] >= w) {
-                text.translate(-16, 0);
+          _results1.push((function() {
+            var _k, _len, _results2;
+            _results2 = [];
+            for (_k = 0, _len = xs.length; _k < _len; _k++) {
+              x = xs[_k];
+              if ((0 <= x && x <= w)) {
+                _results2.push(drawDivider(x));
               }
             }
-          }
+            return _results2;
+          })());
         }
-        this.paper.text(0 + 16, 30, this.min).attr({
-          "font-size": "16px"
-        });
-        return this.paper.text(w - 16, 30, this.max).attr({
-          "font-size": "16px"
-        });
+        return _results1;
       };
 
       return NumericFacet;
@@ -3854,9 +3912,9 @@
         })) {
           return this;
         }
-        h = 150;
+        h = 100;
         w = this.$el.closest(':visible').width();
-        r = 50;
+        r = h * 0.8 / 2;
         chart = this.make("div");
         this.$el.append(chart);
         this.paper = Raphael(chart, w, h);
@@ -4118,9 +4176,9 @@
 
       BooleanFacet.prototype.drawChart = function(total, subtotal) {
         var cx, cy, degs, fprop, h, i, prop, r, t, texts, tprop, w, _i, _len;
-        h = 120;
+        h = 75;
         w = this.$el.closest(':visible').width();
-        r = 50;
+        r = h * 0.8 / 2;
         cx = w / 2;
         cy = h / 2;
         fprop = subtotal / total;
@@ -4161,7 +4219,7 @@
               num = i === 0 ? subtotal : total - subtotal;
               t = _this.paper.text(cx, cy, "" + (i === 0 ? "false" : "true") + " (" + num + ")");
               t.attr({
-                "font-size": "16px",
+                "font-size": "12px",
                 "text-anchor": textdx > 0 ? "start" : "end"
               });
               t.translate(textdx, textdy);
@@ -4279,7 +4337,13 @@
         return this.$('.im-value-options').show();
       };
 
-      ActiveConstraint.prototype.hideEditForm = function() {
+      ActiveConstraint.prototype.hideEditForm = function(e) {
+        if (e != null) {
+          e.preventDefault();
+        }
+        if (e != null) {
+          e.stopPropagation();
+        }
         return this.$('.im-con-overview').siblings().slideUp(200);
       };
 

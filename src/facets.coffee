@@ -129,7 +129,7 @@ scope "intermine.results", (exporting) ->
             @$el.append(@container)
             canvas = @make "div"
             $(@container).append canvas
-            @paper = Raphael(canvas, @$el.width(), 120)
+            @paper = Raphael(canvas, @$el.width(), 75)
             promise = @query.summarise @facet.path, @handleSummary
             promise.fail @remove
             this
@@ -140,15 +140,41 @@ scope "intermine.results", (exporting) ->
             @dev = parseFloat(summary.stdev)
             @max = summary.max
             @min = summary.min
-            @drawCurve()
+            if summary.count?
+                @drawChart(items)
+            else
+                @drawCurve()
+            @drawStats()
             @drawSlider()
+
+        drawStats: () =>
+            $(@container).append """
+                <table class="table table-bordered table-condensed">
+                    <thead>
+                        <tr>
+                            <th>Min</th>
+                            <th>Max</th>
+                            <th>Mean</th>
+                            <th>Standard Deviation</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>#{ @min }</td>
+                            <td>#{ @max }</td>
+                            <td>#{ @mean.toFixed(5) }</td>
+                            <td>#{ @dev.toFixed(5) }</td>
+                        </tr>
+                    </tbody>
+                </table>
+            """
 
         drawSlider: =>
             $(@container).append """
                 <label>Range:</label>
-                <input type="text" class="im-range-min input-small" value="#{@min}">
+                <input type="text" class="im-range-min input" value="#{@min}">
                 <span>...</span>
-                <input type="text" class="im-range-max input-small" value="#{@max}">
+                <input type="text" class="im-range-max input" value="#{@max}">
                 <button class="btn btn-primary disabled">Apply</button>
                 <button class="btn btn-cancel disabled">Reset</button>
                 <div class="slider"></div>
@@ -187,16 +213,54 @@ scope "intermine.results", (exporting) ->
                     }
                 ]
 
+
+        drawChart: (items) =>
+            h = 75
+            hh = h * 0.8
+            max = _.max _.pluck items, "count"
+            w = @$el.closest(':visible').width() * 0.95
+            p = @paper
+            gap = w * 0.01
+            topMargin = h * 0.1
+            leftMargin = 30
+            stepWidth = (w - (leftMargin + 1)) / items.length
+            baseLine = hh + topMargin
+
+            for tick in [0 .. 10] then do (tick) ->
+                line = p.path "M#{leftMargin - 4},#{baseLine - (hh / 10 * tick)} h#{w - gap}"
+                line.node.setAttribute "class", "tickline"
+
+            yaxis = @paper.path "M#{leftMargin - 4}, #{baseLine} v-#{hh}"
+            yaxis.node.setAttribute "class", "yaxis"
+            
+            for tick in [0 .. 10] then do (tick) =>
+                ypos = baseLine - (hh / 10 * tick)
+                val = max / 10 * tick
+                unless val % 1
+                    t = @paper.text(leftMargin - 6, ypos, val.toFixed()).attr
+                        "text-anchor": "end"
+                        "font-size": "10px"
+                    # Lord knows why?? Firefox does not need this... not needed in absolute...
+                    if $.browser.webkit
+                        t.translate 0, -ypos unless @$el.offsetParent().filter( -> $(@).css("position") is "absolute").length
+
+            for item, i in items then do (item, i) =>
+                prop = item.count / max
+                pathCmd = "M#{i * stepWidth + leftMargin},#{baseLine} v-#{hh * prop} h#{stepWidth - gap} v#{hh * prop} z"
+                path = @paper.path pathCmd
+                #item.set "path", path
+
+            this
+
         drawCurve: () =>
             if @max is @min
                 $(@el).remove()
                 return
             sections = ((@max - @min) / @dev).toFixed()
             w = @$el.width()
-            h = 100
-            pathCmd = "M1,100S"
+            h = 75
             nc = NormalCurve(w / 2, w / sections)
-            factor = 100 / nc(w / 2)
+            factor = h / nc(w / 2)
             invert = (x) -> h - x + 2
             scale = (x) -> x * factor
             f = _.compose invert, scale, nc
@@ -208,25 +272,10 @@ scope "intermine.results", (exporting) ->
             @paper.path(pathCmd)
             for stdevs in [0 .. ((sections/2) + 1)]
                 xs = _.uniq([w / 2 - (stdevs * w / sections), w / 2 + (stdevs * w / sections)])
-                vals = _.uniq([@mean - stdevs * @dev, @mean + stdevs * @dev])
 
                 getPathCmd = (x) -> "M#{x},#{h}L#{x},#{f(x)}"
                 drawDivider = (x) => @paper.path(getPathCmd(x))
-                drawDivider x for x in xs
-
-                for val, i in vals
-                    if @min < val < @max
-                        text = @paper.text(xs[i], 110, val.toFixed(2)).attr
-                            "font-size": "16px"
-                        if xs[i] <= 0
-                            text.translate 16, 0
-                        else if xs[i] >= w
-                            text.translate -16, 0
-
-            @paper.text(0 + 16, 30, @min).attr
-                "font-size": "16px"
-            @paper.text(w - 16, 30, @max).attr
-                "font-size": "16px"
+                drawDivider x for x in xs when ( 0 <= x <= w )
 
 
     exporting class PieFacet extends Backbone.View
@@ -271,9 +320,9 @@ scope "intermine.results", (exporting) ->
 
         addChart: ->
             return this if @items.all (i) -> i.get("count") is 1
-            h = 150
+            h = 100
             w = @$el.closest(':visible').width()
-            r = 50
+            r = h * 0.8 / 2
             chart = @make "div"
             @$el.append chart
             @paper = Raphael chart, w, h
@@ -468,9 +517,9 @@ scope "intermine.results", (exporting) ->
             @drawControls total, (f?.count or 0)
 
         drawChart: (total, subtotal) =>
-            h = 120
+            h = 75
             w = @$el.closest(':visible').width()
-            r = 50
+            r = h * 0.8 / 2
             cx = w / 2
             cy = h / 2
 
@@ -501,7 +550,7 @@ scope "intermine.results", (exporting) ->
                 num = if i is 0 then subtotal else total - subtotal
                 t = @paper.text cx, cy, """#{if i is 0 then "false" else "true"} (#{num})"""
                 t.attr
-                    "font-size": "16px"
+                    "font-size": "12px"
                     "text-anchor": if textdx > 0 then "start" else "end"
                 t.translate textdx, textdy
                 # Lord knows why?? - not needed if in absolute...

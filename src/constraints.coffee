@@ -33,7 +33,9 @@ scope "intermine.query",  (exporting) ->
             @$('.im-con-overview').siblings().slideToggle 200
             @$('.im-value-options').show()
 
-        hideEditForm: ->
+        hideEditForm: (e) ->
+            e?.preventDefault()
+            e?.stopPropagation()
             @$('.im-con-overview').siblings().slideUp 200
         editConstraint: ->
             console.log "editingConstraint"

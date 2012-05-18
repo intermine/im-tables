@@ -220,6 +220,22 @@ tr > th:last-child .im-th-buttons .dropdown-menu::before {
     overflow: auto;
 }
 
+.im-dropdown-summary label.im-con-overview {
+    width: 100%;
+}
+
+.im-dropdown-summary .im-constraints form {
+    margin-bottom: 0.5em;
+}
+
+.im-con-overview .im-con-summary {
+    margin-bottom: 5px;
+}
+.im-con-summary {
+    width: 75%;
+    display: inline-block;
+}
+
 .im-con-overview i {
     float: right;
 }
