@@ -3,6 +3,14 @@ a.im-pagination-button {
     cursor: pointer;
 }
 
+.im-facet .form-inline .btn-group {
+    display: inline-table;
+}
+.im-facet .btn-group .im-falses, .im-facet .btn-group .im-trues {
+    float: none;
+    display: inline-block;
+}
+
 div.dataTables_length select {
     width: 75px;
 }
@@ -187,6 +195,10 @@ tr > th:last-child .im-th-buttons .dropdown-menu::before {
     width: 10%;
 }
 
+.im-pie-facet .im-selector-col {
+    width: 15%;
+}
+
 .im-item-col {
     width: 80%;
 }
@@ -285,10 +297,6 @@ th > i {
     max-width: none;
 }
 
-.im-query-actions > * {
-    max-width: 22%;
-}
-
 /* Actions (export, create list, etc.) */
 
 .im-query-actions li {
@@ -301,7 +309,7 @@ th > i {
 }
 
 .im-query-actions li > .btn-group > .btn:first-child {
-    width: 13em;
+    width: 6em;
     max-width: 77%;
 }
 
@@ -633,7 +641,7 @@ form.im-join {
 }
 
 .im-query-actionbar > ul > .im-action {
-    margin: 0 1em;
+    margin: 0 0 0 1em;
     display: block;
     float: left;
 }
