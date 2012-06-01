@@ -21,12 +21,16 @@ scope "intermine.query.results", (exporting) ->
     class SummaryHeading extends Backbone.View
 
         initialize: (@query, @view) ->
-            @query.on "got:summary:total", (path, total) =>
+            @query.on "got:summary:total", (path, total, got) =>
                 if path is @view
                     @$('.im-item-count').text(intermine.utils.numToString(total, ",", 3))
+                    @$('.im-item-got').text(if got is total then 'All' else got)
+
 
         template: _.template """
             <h3>
+                <span class="im-item-got"></span>
+                of
                 <span class="im-item-count"></span>
                 <span class="im-type-name"></span>
                 <span class="im-attr-name"></span>
