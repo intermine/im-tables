@@ -588,20 +588,17 @@ scope "intermine.query.results", (exporting) ->
             total = @cache.lastResult.iTotalRecords
 
             scrollbar = @$ '.scroll-bar-wrap'
-
-            #scrollbar.slider("option", {max: total}) #, step: size})
-            totalWidth = scrollbar.width()
-
-            proportion = size / total
-            scrollbar.toggle size < total
-            unit = totalWidth / total
-            scaled = Math.max(totalWidth * proportion, 20)
-            overhang = size - ((total - (size * Math.floor(total / size)) ) % size)
-            scrollbar.find('.scroll-bar-containment').css width: totalWidth + (unit * overhang)
-            handle = scrollbar.find('.scroll-bar').css width: scaled
-
-            handle.animate
-                left: unit * start
+            if scrollbar.length
+                totalWidth = scrollbar.width()
+                proportion = size / total
+                scrollbar.toggle size < total
+                unit = totalWidth / total
+                scaled = Math.max(totalWidth * proportion, 20)
+                overhang = size - ((total - (size * Math.floor(total / size)) ) % size)
+                scrollbar.find('.scroll-bar-containment').css width: totalWidth + (unit * overhang)
+                handle = scrollbar.find('.scroll-bar').css width: scaled
+                handle.animate
+                    left: unit * start
 
             tbl = @table
             buttons = @$('.im-pagination-button')
@@ -635,12 +632,12 @@ scope "intermine.query.results", (exporting) ->
             pageForm.find('input').remove()
             pageSelector = pageForm.find('select').empty()
             maxPage = Math.floor(total / size)
-            for p in [0 .. maxPage]
-                pageSelector.append """
-                    <option value="#{p}">p. #{p + 1}</option>
-                """
             pageSelector.val(Math.floor(start / size))
             if maxPage <= 100
+                for p in [0 .. maxPage]
+                    pageSelector.append """
+                        <option value="#{p}">p. #{p + 1}</option>
+                    """
                 pageSelector.show()
             else
                 pageSelector.hide()
