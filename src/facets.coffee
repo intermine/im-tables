@@ -48,7 +48,7 @@ scope "intermine.results", (exporting) ->
                 clazz = BooleanFacet
             else
                 clazz = FrequencyFacet
-            initalLimit = 20 # items
+            initalLimit = 20 #400 # items
             fac = new clazz(@query, @facet, initalLimit)
             @$el.append fac.el
             fac.render()
@@ -58,6 +58,7 @@ scope "intermine.results", (exporting) ->
         tagName: "dl"
         initialize: (@query, @facet, @limit) ->
             @query.on "change:constraints", @render
+            @query.on "filter:summary", @render
 
         render: =>
             @$dt = $(FACET_TITLE @facet).appendTo @el
@@ -67,7 +68,10 @@ scope "intermine.results", (exporting) ->
             this
 
     exporting class FrequencyFacet extends FacetView
-        render: ->
+        render: (filterTerm = "") ->
+            return if @rendering
+            @rendering = true
+            @$el.empty()
             super()
             $progress = $ """
                 <div class="progress progress-info progress-striped active">
@@ -75,11 +79,12 @@ scope "intermine.results", (exporting) ->
                 </div>
             """
             $progress.appendTo @el
-            promise = @query.summarise @facet.path, @limit, (items, total) =>
-                @query.trigger "got:summary:total", @facet.path, total
+            promise = @query.filterSummary @facet.path, filterTerm, @limit, (items, total) =>
+                @query.trigger "got:summary:total", @facet.path, total, items.length
                 $progress.remove()
                 @$dt.append " (#{total})"
-                if total > @limit
+                hasMore = if items.length < @limit then false else (total > @limit)
+                if hasMore
                     more = $(MORE_FACETS_HTML).appendTo(@$dt)
                                         .tooltip( {placement: "left"} )
                                         .click (e) =>
@@ -91,16 +96,17 @@ scope "intermine.results", (exporting) ->
                         more.tooltip('hide').remove()
 
                 if total <= 12 and not @query.canHaveMultipleValues @facet.path
-                    pf = new PieFacet(@query, @facet, items)
+                    pf = new PieFacet(@query, @facet, items, hasMore, filterTerm)
                     @$el.append pf.el
                     pf.render()
                 else
-                    hf = new HistoFacet(@query, @facet, items)
+                    hf = new HistoFacet(@query, @facet, items, hasMore, filterTerm)
                     @$el.append hf.el
                     hf.render()
 
                 if total <= 1
                     @$el.empty()
+                @rendering = false
             promise.fail @remove
             this
 
@@ -216,14 +222,15 @@ scope "intermine.results", (exporting) ->
 
         drawChart: (items) =>
             h = 75
-            hh = h * 0.8
+            hh = h * 0.7
             max = _.max _.pluck items, "count"
             w = @$el.closest(':visible').width() * 0.95
+            acceptableGap = w / 15
             p = @paper
-            gap = w * 0.01
+            gap = 0
             topMargin = h * 0.1
-            leftMargin = 30
-            stepWidth = (w - (leftMargin + 1)) / items.length
+            leftMargin = 20
+            stepWidth = (w - (leftMargin + 1)) / items[0].buckets
             baseLine = hh + topMargin
 
             for tick in [0 .. 10] then do (tick) ->
@@ -233,22 +240,30 @@ scope "intermine.results", (exporting) ->
             yaxis = @paper.path "M#{leftMargin - 4}, #{baseLine} v-#{hh}"
             yaxis.node.setAttribute "class", "yaxis"
             
-            for tick in [0 .. 10] then do (tick) =>
+            for tick in [0, 5, 10] then do (tick) =>
                 ypos = baseLine - (hh / 10 * tick)
                 val = max / 10 * tick
-                unless val % 1
-                    t = @paper.text(leftMargin - 6, ypos, val.toFixed()).attr
-                        "text-anchor": "end"
-                        "font-size": "10px"
-                    # Lord knows why?? Firefox does not need this... not needed in absolute...
-                    if $.browser.webkit
-                        t.translate 0, -ypos unless @$el.offsetParent().filter( -> $(@).css("position") is "absolute").length
+                t = @paper.text(leftMargin - 6, ypos, val.toFixed()).attr
+                    "text-anchor": "end"
+                    "font-size": "10px"
+                # Lord knows why?? Firefox does not need this... not needed in absolute...
+                if $.browser.webkit
+                    t.translate 0, -ypos unless @$el.offsetParent().filter( -> $(@).css("position") is "absolute").length
 
             for item, i in items then do (item, i) =>
                 prop = item.count / max
-                pathCmd = "M#{i * stepWidth + leftMargin},#{baseLine} v-#{hh * prop} h#{stepWidth - gap} v#{hh * prop} z"
+                pathCmd = "M#{(item.bucket - 1) * stepWidth + leftMargin},#{baseLine} v-#{hh * prop} h#{stepWidth - gap} v#{hh * prop} z"
                 path = @paper.path pathCmd
-                #item.set "path", path
+
+            item = items[0]
+            fixity = if item.max - item.min > 5 then 0 else 2
+            lastX = 0
+            for xtick in [0 .. item.buckets]
+                curX = xtick * stepWidth + leftMargin
+                if lastX is 0 or curX - lastX >= acceptableGap or xtick is item.buckets
+                    lastX = curX
+                    val = item.min + (xtick * ((item.max - item.min) / item.buckets))
+                    @paper.text(curX, baseLine + 5, val.toFixed(fixity))
 
             this
 
@@ -279,9 +294,8 @@ scope "intermine.results", (exporting) ->
 
 
     exporting class PieFacet extends Backbone.View
-
         className: 'im-pie-facet im-facet'
-        initialize: (@query, @facet, items) ->
+        initialize: (@query, @facet, items, @hasMore, @filterTerm) ->
             @items = new Backbone.Collection(items)
             @items.each (item) -> item.set "visibility", true
 
@@ -308,7 +322,6 @@ scope "intermine.results", (exporting) ->
             @items.each (item) -> item.set("selected", !item.get "selected") if item.get "visibility"
 
         addConstraint: (e) ->
-            console.log @query, @facet
             newCon =
                 path: @facet.path
                 op: "ONE OF"
@@ -317,6 +330,8 @@ scope "intermine.results", (exporting) ->
             @query.addConstraint newCon
 
         render: -> @addChart().addControls()
+
+        @GREEKS = "αβγδεζηθικλμνξορστυφχψω".split("")
 
         addChart: ->
             return this if @items.all (i) -> i.get("count") is 1
@@ -331,6 +346,7 @@ scope "intermine.results", (exporting) ->
 
             total = @items.reduce ((a, b) -> a + b.get "count"), 0
             degs = 0
+            i = 0
             texts = @items.map (item) =>
                 prop = item.get("count") / total
                 item.set "percent", prop * 100
@@ -345,7 +361,8 @@ scope "intermine.results", (exporting) ->
                 textRads = (Raphael.rad degs) + (rads / 2)
                 textdy = -(r * 0.6 * Math.cos textRads)
                 textdx = r * 0.6 * Math.sin textRads
-                t = @paper.text cx, cy, item.get "item"
+                item.set "symbol", PieFacet.GREEKS[i++]
+                t = @paper.text cx, cy, item.get "symbol" #item.get "item"
                 t.attr
                     "font-size": "14px"
                     "text-anchor": if textdx > 0 then "start" else "end"
@@ -388,12 +405,17 @@ scope "intermine.results", (exporting) ->
             """
             xs = @items
             $valFilter = $grp.find(".filter-values")
+            if @filterTerm
+                $valFilter.val @filterTerm
+            facet = @
             $valFilter.keyup (e) ->
-                pattern = new RegExp $(@).val(), "i"
-                console.log pattern
-                xs.each (x) -> x.set "visibility", pattern.test x.get("item")
+                if facet.hasMore or (facet.filterTerm and $(@).val().length < facet.filterTerm.length)
+                    _.delay (() -> facet.query.trigger('filter:summary', $valFilter.val())), 750
+                else
+                    pattern = new RegExp $(@).val(), "i"
+                    xs.each (x) -> x.set "visibility", pattern.test x.get("item")
             $valFilter.prev().click (e) ->
-                $(@).next().val("")
+                $(@).next().val(facet.filterTerm)
                 xs.each (x) -> x.set "visibility", true
 
             this
@@ -407,7 +429,8 @@ scope "intermine.results", (exporting) ->
 
         makeRow: (item) ->
             row = new FacetRow(item, @items)
-            return row.render().$el
+            row.render().$el
+            
 
     exporting class FacetRow extends Backbone.View
 
@@ -434,6 +457,7 @@ scope "intermine.results", (exporting) ->
             percent = (parseInt(@item.get("count")) / @items.maxCount * 100).toFixed()
             @$el.append """
                 <td class="im-selector-col">
+                    <span>#{ ((@item.get "symbol") || "") }</span>
                     <input type="#{inputType}">
                 </td>
                 <td class="im-item-col">#{@item.get "item"}</td>
@@ -582,14 +606,12 @@ scope "intermine.results", (exporting) ->
              .find('.btn').click (e) => c.find('.im-filter .btn').removeClass "disabled"
                 
             # TODO: move all this into events.
-            console.log "Added cancel event to: ", c.find('.btn-cancel').click (e) =>
-                console.log "Cancelando"
+            c.find('.btn-cancel').click (e) =>
                 @tpath.node.setAttribute("class", "trues")
                 @fpath.node.setAttribute("class", "falses")
                 c.find('.im-filter .btn').addClass "disabled"
                 c.find('.btn').removeClass "active"
-            console.log "Added cancel event to: ", c.find('.btn-primary').click (e) =>
-                console.log "PRIMARY!!", e
+            c.find('.btn-primary').click (e) =>
                 @query.addConstraint
                     path: @facet.path
                     op: '='
