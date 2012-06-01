@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Fri Jun 01 2012 12:51:20 GMT+0100 (BST)
+ * Built at Fri Jun 01 2012 13:45:03 GMT+0100 (BST)
 */
 
 
@@ -1001,21 +1001,23 @@
         var buttons, centre, handle, maxPage, overhang, p, pageForm, pageSelector, proportion, scaled, scrollbar, tbl, total, totalWidth, unit, _i;
         total = this.cache.lastResult.iTotalRecords;
         scrollbar = this.$('.scroll-bar-wrap');
-        totalWidth = scrollbar.width();
-        proportion = size / total;
-        scrollbar.toggle(size < total);
-        unit = totalWidth / total;
-        scaled = Math.max(totalWidth * proportion, 20);
-        overhang = size - ((total - (size * Math.floor(total / size))) % size);
-        scrollbar.find('.scroll-bar-containment').css({
-          width: totalWidth + (unit * overhang)
-        });
-        handle = scrollbar.find('.scroll-bar').css({
-          width: scaled
-        });
-        handle.animate({
-          left: unit * start
-        });
+        if (scrollbar.length) {
+          totalWidth = scrollbar.width();
+          proportion = size / total;
+          scrollbar.toggle(size < total);
+          unit = totalWidth / total;
+          scaled = Math.max(totalWidth * proportion, 20);
+          overhang = size - ((total - (size * Math.floor(total / size))) % size);
+          scrollbar.find('.scroll-bar-containment').css({
+            width: totalWidth + (unit * overhang)
+          });
+          handle = scrollbar.find('.scroll-bar').css({
+            width: scaled
+          });
+          handle.animate({
+            left: unit * start
+          });
+        }
         tbl = this.table;
         buttons = this.$('.im-pagination-button');
         buttons.filter('.direct').remove();
@@ -1069,11 +1071,11 @@
         pageForm.find('input').remove();
         pageSelector = pageForm.find('select').empty();
         maxPage = Math.floor(total / size);
-        for (p = _i = 0; 0 <= maxPage ? _i <= maxPage : _i >= maxPage; p = 0 <= maxPage ? ++_i : --_i) {
-          pageSelector.append("<option value=\"" + p + "\">p. " + (p + 1) + "</option>");
-        }
         pageSelector.val(Math.floor(start / size));
         if (maxPage <= 100) {
+          for (p = _i = 0; 0 <= maxPage ? _i <= maxPage : _i >= maxPage; p = 0 <= maxPage ? ++_i : --_i) {
+            pageSelector.append("<option value=\"" + p + "\">p. " + (p + 1) + "</option>");
+          }
           return pageSelector.show();
         } else {
           pageSelector.hide();
