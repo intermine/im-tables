@@ -14,7 +14,6 @@ scope "intermine.model", (exporting) ->
             query.on "selection:cleared", => @set selectable: true
             query.on "common:type:selected", (type) =>
                 typesAreCompatible = type and (pathInfo.isa(type) or (m.getPathInfo(type).isa(@get("type"))))
-                console.log obj.type, typesAreCompatible
                 @set selectable: (typesAreCompatible or !type)
             @on "change:selected", ->
                 query.trigger "imo:selected", @get("type"), @get("id"), @get("selected")
