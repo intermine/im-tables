@@ -5,6 +5,7 @@ scope "intermine.query.results", (exporting) ->
         className: "query-display row-fluid"
 
         initialize: (service, @query, @queryEvents, @tableProperties) ->
+            console.log @tableProperties
             @events ?= {}
             if _(service).isString()
                 @service = new intermine.Service root: service
@@ -19,7 +20,6 @@ scope "intermine.query.results", (exporting) ->
         render: ->
             @$el.addClass "bootstrap"
             promise = @service.query @query, (q) =>
-                console.log "Made a query"
                 main = @make "div", {class: @TABLE_CLASSES}
                 @$el.append main
                 @table = new intermine.query.results.Table(q, main)
