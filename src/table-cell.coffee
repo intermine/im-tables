@@ -67,7 +67,6 @@ scope "intermine.results.table", (exporting) ->
                 delay: {show: 500, hide: 100}
                 content: ->
                     unless cellLink.data "content"
-                        console.log "Fetching #{ id }"
                         s.findById type, id, (item) ->
                             for field, value of item when value and (field not in HIDDEN_FIELDS) and not value['objectId']
                                 v = value + ""
@@ -90,7 +89,6 @@ scope "intermine.results.table", (exporting) ->
                                 
                             for field, value of item when value and value['objectId']
                                 values = getLeaves(value)
-                                console.log values
                                 content.append """
                                     <tr>
                                         <td>#{ field }</td>
