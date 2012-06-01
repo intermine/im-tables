@@ -48,15 +48,15 @@ scope "intermine.results", (exporting) ->
                 clazz = BooleanFacet
             else
                 clazz = FrequencyFacet
-            initalLimit = 20 #400 # items
-            fac = new clazz(@query, @facet, initalLimit)
+            initialLimit = 400 # items
+            fac = new clazz(@query, @facet, initialLimit, @noTitle)
             @$el.append fac.el
             fac.render()
             this
 
     exporting class FacetView extends Backbone.View
         tagName: "dl"
-        initialize: (@query, @facet, @limit) ->
+        initialize: (@query, @facet, @limit, @noTitle) ->
             @query.on "change:constraints", @render
             @query.on "filter:summary", @render
 
@@ -72,17 +72,17 @@ scope "intermine.results", (exporting) ->
             return if @rendering
             @rendering = true
             @$el.empty()
-            super()
+            super() unless @noTitle
             $progress = $ """
                 <div class="progress progress-info progress-striped active">
                     <div class="bar" style="width:100%"></div>
                 </div>
             """
             $progress.appendTo @el
-            promise = @query.filterSummary @facet.path, filterTerm, @limit, (items, total) =>
-                @query.trigger "got:summary:total", @facet.path, total, items.length
+            promise = @query.filterSummary @facet.path, filterTerm, @limit, (items, total, filteredTotal) =>
+                @query.trigger "got:summary:total", @facet.path, total, items.length, filteredTotal
                 $progress.remove()
-                @$dt.append " (#{total})"
+                @$dt?.append " (#{total})"
                 hasMore = if items.length < @limit then false else (total > @limit)
                 if hasMore
                     more = $(MORE_FACETS_HTML).appendTo(@$dt)
