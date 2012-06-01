@@ -13,27 +13,31 @@ scope "intermine.query.results", (exporting) ->
             cons.render().$el.appendTo @el
 
             summ = new intermine.results.ColumnSummary(@view, @query)
+            summ.noTitle = true
             summ.render().$el.appendTo @el
 
-            summ.$('dt').remove()
             this
 
     class SummaryHeading extends Backbone.View
 
         initialize: (@query, @view) ->
-            @query.on "got:summary:total", (path, total, got) =>
+            @query.on "got:summary:total", (path, total, got, filteredTotal) =>
                 if path is @view
-                    @$('.im-item-count').text(intermine.utils.numToString(total, ",", 3))
-                    @$('.im-item-got').text(if got is total then 'All' else got)
+                    nts = (num) -> intermine.utils.numToString(num, ',', 3)
+                    available = filteredTotal ? total
+                    @$('.im-item-available').text nts available
+                    @$('.im-item-got').text(if got is available then 'All' else nts got )
+                    @$('.im-item-total').text(if filteredTotal? then "(filtered from #{ nts total })" else "")
 
 
         template: _.template """
             <h3>
                 <span class="im-item-got"></span>
                 of
-                <span class="im-item-count"></span>
+                <span class="im-item-available"></span>
                 <span class="im-type-name"></span>
                 <span class="im-attr-name"></span>
+                <span class="im-item-total"></span>
             </h3>
         """
 
