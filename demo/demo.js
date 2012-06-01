@@ -1,5 +1,18 @@
 $(function() {
 
+    var getPageParam = function(name, defaultValue) {
+        defaultValue = (defaultValue != null) ? defaultValue : "";
+        name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+        var regexS = "[\\?&]" + name + "=([^&#]*)";
+        var regex = new RegExp(regexS);
+        var results = regex.exec(window.location.search);
+        if (results == null) {
+            return defaultValue;
+        } else {
+            return decodeURIComponent(results[1].replace(/\+/g, " "));
+        }
+    };
+
     var services = {
         Production: {
             root: "www.flymine.org/query", 
@@ -8,13 +21,13 @@ $(function() {
                 select: ["symbol", "organism.name", "chromosome.primaryIdentifier", "chromosomeLocation.start"], 
                 from: "Gene", 
                 where: {
-                    Gene: {IN: "an awesome list"}, 
+                //    Gene: {IN: "an awesome list"}, 
                     length: {lt: 5000}
                 }
             }
         },
         Preview: {
-          root: "preview.flymine.org/preview",
+          root: "beta.flymine.org/beta",
           token: "T1f3e5D8H9f0w7n1U3RaraXk9J8",
           q: {
               select: ["**", "proteins.name"], 
@@ -107,7 +120,10 @@ $(function() {
 
     var displayCls = intermine.query.results.CompactView;
     var display;
-    var tableProps = {pageSize: 10};
+    var tableProps = {
+        pageSize: 10,
+        bar: getPageParam('bar', 'horizontal')
+    };
 
     var login = function(serviceArgs) {
         var q = services[serviceArgs].q;
@@ -155,7 +171,7 @@ $(function() {
             var service = display.service;
             var query = display.query;
             var evts = display.queryEvents;
-            display = new displayCls(service, query, evts);
+            display = new displayCls(service, query, evts, {bar: getPageParam('bar', 'horizontal')});
             $('#table-display').empty();
             display.$el.appendTo("#table-display");
             display.render();
