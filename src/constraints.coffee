@@ -38,7 +38,6 @@ scope "intermine.query",  (exporting) ->
             e?.stopPropagation()
             @$('.im-con-overview').siblings().slideUp 200
         editConstraint: ->
-            console.log "editingConstraint"
             @updateConstraint()
             @query.trigger "change:constraints"
 
