@@ -28,14 +28,14 @@ $(function() {
         },
         Preview: {
           root: "beta.flymine.org/beta",
-          token: "T1f3e5D8H9f0w7n1U3RaraXk9J8",
+          token: "G1N3n3O082faB924l8Lde6jN4Bh",
           q: {
               select: ["**", "proteins.name"], 
               from: "Gene", 
               where: {
                   length: {lt: 8000},
-                  "pathways.name": ["Metabolic pathways", "Gene Expression", "Transcription", "mRNA Processing"],
-                  "chromosome.primaryIdentifier": "2L"
+                  //"pathways.name": ["Metabolic pathways", "Gene Expression", "Transcription", "mRNA Processing"],
+                  //"chromosome.primaryIdentifier": "2L"
               }
           }
         },
