@@ -175,7 +175,6 @@ scope "intermine.query.results", (exporting) ->
                         when "ASC" then sortButton.toggleClass "icon-resize-vertical icon-arrow-up"
                         when "DESC" then sortButton.toggleClass "icon-resize-vertical icon-arrow-down"
                     direction = nextDirections[ direction ]
-                    console.log q.sortOrder
                 minumaximiser = th.find('.im-col-minumaximiser')
                 minumaximiser.click (e) =>
                     minumaximiser.find('i').toggleClass("icon-minus-sign icon-plus-sign")
@@ -273,13 +272,11 @@ scope "intermine.query.results", (exporting) ->
                 intermine.utils.getParameter(params, "mDataProp_" + i)
             noOfSortColumns = intermine.utils.getParameter(params, "iSortingCols")
             if noOfSortColumns
-                console.log noOfSortColumns
                 @query.orderBy (for i in [0 ... noOfSortColumns] then do (i) =>
                     displayed = intermine.utils.getParameter(params, "iSortCol_" + i)
                     so =
                         path: @query.views[viewIndices[displayed]]
                         direction: intermine.utils.getParameter(params, "sSortDir_" + i)
-                    console.log so
                     so)
 
         ##
@@ -375,14 +372,23 @@ scope "intermine.query.results", (exporting) ->
             # TODO - don't fill in gaps when it is too big (for some configuration of too big!)
             # Don't permit gaps, if the query itself conforms with the cache.
             if page.size && (page.end() < @cache.lowerBound)
-                # Extend towards 0
-                page.size = @cache.lowerBound - page.start
+                if (@cache.lowerBound - page.end()) > (page.size * 10)
+                    @cache = {} # dump cache
+                    page.size *= 2
+                    return page
+                else
+                    page.size = @cache.lowerBound - page.start
 
             if @cache.upperBound < page.start
+                if (page.start - @cache.upperBound) > (page.size * 10)
+                    @cache = {} # dump cache
+                    page.size *= 2
+                    page.start = Math.max(0, page.start - (size * @_pipe_factor))
+                    return page
                 if page.size isnt 0
-                    page.size += page.start - @cache.lowerBound
+                    page.size += page.start - @cache.upperBound
                 # Extend towards cache limit
-                page.start = @cache.lowerBound
+                page.start = @cache.upperBound
 
             return page
 
@@ -398,7 +404,7 @@ scope "intermine.query.results", (exporting) ->
         addRowsToCache: (page, result) ->
             unless @cache.lastResult
                 @cache.lastResult = result
-                @cache.lowerBound = page.start
+                @cache.lowerBound = result.start
                 @cache.upperBound = page.end()
             else
                 rows = result.results
@@ -544,29 +550,30 @@ scope "intermine.query.results", (exporting) ->
                 currentPageButton.hide()
                 pageSelector.parent().show()
 
-            $scrollwrapper = $(@horizontalScroller).insertBefore(telem)
-            scrollbar = @$ '.scroll-bar'
+            if @bar is 'horizontal'
+                $scrollwrapper = $(@horizontalScroller).insertBefore(telem)
+                scrollbar = @$ '.scroll-bar'
 
-            currentPos = 0
-            scrollbar.draggable
-                axis: "x"
-                containment: "parent"
-                stop: (event, ui) =>
-                    scrollbar.removeClass("scrolling")
-                    scrollbar.tooltip("hide")
-                    @table.goTo currentPos
-                start: -> $(this).addClass("scrolling")
-                drag: (event, ui) =>
-                    scrollbar.tooltip("show")
-                    left = ui.position.left
-                    total = ui.helper.closest('.scroll-bar-wrap').width()
-                    currentPos = @cache.lastResult.iTotalRecords * left / total
+                currentPos = 0
+                scrollbar.draggable
+                    axis: "x"
+                    containment: "parent"
+                    stop: (event, ui) =>
+                        scrollbar.removeClass("scrolling")
+                        scrollbar.tooltip("hide")
+                        @table.goTo currentPos
+                    start: -> $(this).addClass("scrolling")
+                    drag: (event, ui) =>
+                        scrollbar.tooltip("show")
+                        left = ui.position.left
+                        total = ui.helper.closest('.scroll-bar-wrap').width()
+                        currentPos = @cache.lastResult.iTotalRecords * left / total
 
-            scrollbar.css(position: "absolute").parent().css(position: "relative")
+                scrollbar.css(position: "absolute").parent().css(position: "relative")
 
-            scrollbar.tooltip
-                trigger: "manual"
-                title: => "#{(currentPos + 1).toFixed()} ... #{(currentPos + @table.pageSize).toFixed()}"
+                scrollbar.tooltip
+                    trigger: "manual"
+                    title: => "#{(currentPos + 1).toFixed()} ... #{(currentPos + @table.pageSize).toFixed()}"
 
             @table = new ResultsTable @query, @getRowData
             @table.setElement(telem)
