@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Fri Jun 01 2012 11:31:24 GMT+0100 (BST)
+ * Built at Fri Jun 01 2012 12:51:20 GMT+0100 (BST)
 */
 
 
@@ -1161,8 +1161,8 @@
         cons = new intermine.query.filters.SingleColumnConstraints(this.query, this.view);
         cons.render().$el.appendTo(this.el);
         summ = new intermine.results.ColumnSummary(this.view, this.query);
+        summ.noTitle = true;
         summ.render().$el.appendTo(this.el);
-        summ.$('dt').remove();
         return this;
       };
 
@@ -1181,15 +1181,21 @@
         var _this = this;
         this.query = query;
         this.view = view;
-        return this.query.on("got:summary:total", function(path, total, got) {
+        return this.query.on("got:summary:total", function(path, total, got, filteredTotal) {
+          var available, nts;
           if (path === _this.view) {
-            _this.$('.im-item-count').text(intermine.utils.numToString(total, ",", 3));
-            return _this.$('.im-item-got').text(got === total ? 'All' : got);
+            nts = function(num) {
+              return intermine.utils.numToString(num, ',', 3);
+            };
+            available = filteredTotal != null ? filteredTotal : total;
+            _this.$('.im-item-available').text(nts(available));
+            _this.$('.im-item-got').text(got === available ? 'All' : nts(got));
+            return _this.$('.im-item-total').text(filteredTotal != null ? "(filtered from " + (nts(total)) + ")" : "");
           }
         });
       };
 
-      SummaryHeading.prototype.template = _.template("<h3>\n    <span class=\"im-item-got\"></span>\n    of\n    <span class=\"im-item-count\"></span>\n    <span class=\"im-type-name\"></span>\n    <span class=\"im-attr-name\"></span>\n</h3>");
+      SummaryHeading.prototype.template = _.template("<h3>\n    <span class=\"im-item-got\"></span>\n    of\n    <span class=\"im-item-available\"></span>\n    <span class=\"im-type-name\"></span>\n    <span class=\"im-attr-name\"></span>\n    <span class=\"im-item-total\"></span>\n</h3>");
 
       SummaryHeading.prototype.render = function() {
         var attr, s, type,
@@ -3400,7 +3406,7 @@
       };
 
       ColumnSummary.prototype.render = function() {
-        var attrType, clazz, fac, initalLimit;
+        var attrType, clazz, fac, initialLimit;
         attrType = this.query.getPathInfo(this.facet.path).getType();
         if (__indexOf.call(intermine.Model.NUMERIC_TYPES, attrType) >= 0) {
           clazz = NumericFacet;
@@ -3409,8 +3415,8 @@
         } else {
           clazz = FrequencyFacet;
         }
-        initalLimit = 20;
-        fac = new clazz(this.query, this.facet, initalLimit);
+        initialLimit = 400;
+        fac = new clazz(this.query, this.facet, initialLimit, this.noTitle);
         this.$el.append(fac.el);
         fac.render();
         return this;
@@ -3430,10 +3436,11 @@
 
       FacetView.prototype.tagName = "dl";
 
-      FacetView.prototype.initialize = function(query, facet, limit) {
+      FacetView.prototype.initialize = function(query, facet, limit, noTitle) {
         this.query = query;
         this.facet = facet;
         this.limit = limit;
+        this.noTitle = noTitle;
         this.query.on("change:constraints", this.render);
         return this.query.on("filter:summary", this.render);
       };
@@ -3471,14 +3478,18 @@
         }
         this.rendering = true;
         this.$el.empty();
-        FrequencyFacet.__super__.render.call(this);
+        if (!this.noTitle) {
+          FrequencyFacet.__super__.render.call(this);
+        }
         $progress = $("<div class=\"progress progress-info progress-striped active\">\n    <div class=\"bar\" style=\"width:100%\"></div>\n</div>");
         $progress.appendTo(this.el);
-        promise = this.query.filterSummary(this.facet.path, filterTerm, this.limit, function(items, total) {
-          var hasMore, hf, more, pf;
-          _this.query.trigger("got:summary:total", _this.facet.path, total, items.length);
+        promise = this.query.filterSummary(this.facet.path, filterTerm, this.limit, function(items, total, filteredTotal) {
+          var hasMore, hf, more, pf, _ref;
+          _this.query.trigger("got:summary:total", _this.facet.path, total, items.length, filteredTotal);
           $progress.remove();
-          _this.$dt.append(" (" + total + ")");
+          if ((_ref = _this.$dt) != null) {
+            _ref.append(" (" + total + ")");
+          }
           hasMore = items.length < _this.limit ? false : total > _this.limit;
           if (hasMore) {
             more = $(MORE_FACETS_HTML).appendTo(_this.$dt).tooltip({
@@ -3489,11 +3500,11 @@
               got = _this.$('dd').length;
               show = _this.$('dd').first().is(':visible');
               _this.query.summarise(_this.facet.path, function(items) {
-                var item, _i, _len, _ref, _results;
-                _ref = items.slice(got);
+                var item, _i, _len, _ref1, _results;
+                _ref1 = items.slice(got);
                 _results = [];
-                for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-                  item = _ref[_i];
+                for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+                  item = _ref1[_i];
                   _results.push((_this.addItem(item)).toggle(show));
                 }
                 return _results;
