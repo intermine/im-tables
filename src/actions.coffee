@@ -467,7 +467,6 @@ scope "intermine.query.actions", (exporting) ->
             if @lang then @getAndShowCode(e) else $(e.target).next().dropdown 'toggle'
 
         compact: =>
-            console.log "compacting"
             $m = @$ '.modal'
             $m.find('span.com').closest('li').slideUp()
             $m.find('.linenums li').filter(-> $(@).text().replace(/\s+/g, "") is "").slideUp()
