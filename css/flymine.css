@@ -5,7 +5,13 @@
 }
 
 .bootstrap .alert-info > h3 {
+    background-color: #F4eef7;
     border-top: none;
+}
+
+.bootstrap .im-col-title {
+    color: #004499;
+    text-shadow: 1px 1px 1px #FFFFFF;
 }
 
 .fm-header-icon {
