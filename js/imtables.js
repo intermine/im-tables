@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Fri Jun 01 2012 13:45:03 GMT+0100 (BST)
+ * Built at Thu Jun 07 2012 14:52:09 GMT+0100 (BST)
 */
 
 
@@ -1191,13 +1191,13 @@
             };
             available = filteredTotal != null ? filteredTotal : total;
             _this.$('.im-item-available').text(nts(available));
-            _this.$('.im-item-got').text(got === available ? 'All' : nts(got));
+            _this.$('.im-item-got').text(got === available ? 'All' : "" + (nts(got)) + " of");
             return _this.$('.im-item-total').text(filteredTotal != null ? "(filtered from " + (nts(total)) + ")" : "");
           }
         });
       };
 
-      SummaryHeading.prototype.template = _.template("<h3>\n    <span class=\"im-item-got\"></span>\n    of\n    <span class=\"im-item-available\"></span>\n    <span class=\"im-type-name\"></span>\n    <span class=\"im-attr-name\"></span>\n    <span class=\"im-item-total\"></span>\n</h3>");
+      SummaryHeading.prototype.template = _.template("<h3>\n    <span class=\"im-item-got\"></span>\n    <span class=\"im-item-available\"></span>\n    <span class=\"im-type-name\"></span>\n    <span class=\"im-attr-name\"></span>\n    <span class=\"im-item-total\"></span>\n</h3>");
 
       SummaryHeading.prototype.render = function() {
         var attr, s, type,
