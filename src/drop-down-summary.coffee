@@ -26,14 +26,13 @@ scope "intermine.query.results", (exporting) ->
                     nts = (num) -> intermine.utils.numToString(num, ',', 3)
                     available = filteredTotal ? total
                     @$('.im-item-available').text nts available
-                    @$('.im-item-got').text(if got is available then 'All' else nts got )
+                    @$('.im-item-got').text(if got is available then 'All' else "#{ nts(got) } of"  )
                     @$('.im-item-total').text(if filteredTotal? then "(filtered from #{ nts total })" else "")
 
 
         template: _.template """
             <h3>
                 <span class="im-item-got"></span>
-                of
                 <span class="im-item-available"></span>
                 <span class="im-type-name"></span>
                 <span class="im-attr-name"></span>
