@@ -45,6 +45,7 @@ $(function() {
           q: {
               select: ["*", "age"],
               from: "Employee",
+              joins: ['department'],
               where: [
                   ["age", "lt", 50 ],
                   ["age", "gt", 40 ]
