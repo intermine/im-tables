@@ -148,10 +148,10 @@ scope "intermine.query.results.table", (exporting) ->
 
             possibilities = @$ '.im-sorting-container-possibilities'
             possibilities.empty()
-            for v in @query.views when not @query.getSortDirection(v)
+            for v in @query.views when not @query.getSortDirection(v) and not @query.isOuterJoined(v)
                 possibilities.append @possibleSortOptionTemplate path: v
 
-            for n in @query.getQueryNodes()
+            for n in @query.getQueryNodes() when not @query.isOuterJoined n.toPathString()
                 for cn in n.getChildNodes() when cn.isAttribute() and cn.toPathString() not in @query.views
                     possibilities.append @possibleSortOptionTemplate path: cn.toPathString()
 

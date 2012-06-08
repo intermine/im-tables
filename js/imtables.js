@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Thu Jun 07 2012 14:52:09 GMT+0100 (BST)
+ * Built at Fri Jun 08 2012 13:33:00 GMT+0100 (BST)
 */
 
 
@@ -3286,7 +3286,7 @@
         _ref1 = this.query.views;
         for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
           v = _ref1[_j];
-          if (!this.query.getSortDirection(v)) {
+          if (!this.query.getSortDirection(v) && !this.query.isOuterJoined(v)) {
             possibilities.append(this.possibleSortOptionTemplate({
               path: v
             }));
@@ -3295,13 +3295,15 @@
         _ref2 = this.query.getQueryNodes();
         for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
           n = _ref2[_k];
-          _ref3 = n.getChildNodes();
-          for (_l = 0, _len3 = _ref3.length; _l < _len3; _l++) {
-            cn = _ref3[_l];
-            if (cn.isAttribute() && (_ref4 = cn.toPathString(), __indexOf.call(this.query.views, _ref4) < 0)) {
-              possibilities.append(this.possibleSortOptionTemplate({
-                path: cn.toPathString()
-              }));
+          if (!this.query.isOuterJoined(n.toPathString())) {
+            _ref3 = n.getChildNodes();
+            for (_l = 0, _len3 = _ref3.length; _l < _len3; _l++) {
+              cn = _ref3[_l];
+              if (cn.isAttribute() && (_ref4 = cn.toPathString(), __indexOf.call(this.query.views, _ref4) < 0)) {
+                possibilities.append(this.possibleSortOptionTemplate({
+                  path: cn.toPathString()
+                }));
+              }
             }
           }
         }
