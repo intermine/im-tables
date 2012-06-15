@@ -1,5 +1,28 @@
 scope "intermine.query.results.table", (exporting) ->
 
+    class OuterJoinGroup extends Backbone.View
+        tagName: 'li'
+        className: 'im-reorderable breadcrumb'
+
+        initialize: (@query, @ojg, @views, @indices) ->
+
+        render: () ->
+            @$el.append '<i class=icon-move></i>'
+            h4 = $ '<h4>'
+            @$el.append h4
+            @ojg.getDisplayName (name) -> h4.text name
+            @$el.data 'indices', @indices
+            @$el.data 'path', @ojg.toString()
+            ul = $ '<ul>'
+            for v in @views then do (v) =>
+                li = $ '<li class="im-outer-joined-path">'
+                ul.append li
+                @query.getPathInfo(v).getDisplayName (name) =>
+                    @ojg.getDisplayName (ojname) ->
+                        li.text name.replace(ojname, '').replace(/^\s*>?\s*/, '')
+            @$el.append ul
+            this
+
     exporting class ColumnOrderer extends Backbone.View
         
         initialize: (@query) ->
@@ -44,7 +67,7 @@ scope "intermine.query.results.table", (exporting) ->
         viewTemplate: _.template """
             <li class="im-reorderable breadcrumb" data-col-idx="<%= idx %>" data-path="<%- path %>">
                 <i class="icon-move"></i>
-                <%- displayName %>
+                <h4 class="im-display-name"><%- displayName %></span>
             </li>
         """
 
@@ -77,8 +100,26 @@ scope "intermine.query.results.table", (exporting) ->
         initOrdering: ->
             colContainer = @$ '.im-reordering-container'
             colContainer.empty()
-            for v, i in @query.views
-                moveableView = $ @viewTemplate(idx: i, displayName: v, path: v)
+            processed = {}
+            for v, i in @query.views then do (v, i) =>
+                if @query.isOuterJoined(v)
+                    # find oj closest to root
+                    pi = @query.getPathInfo(v)
+                    oj = if @query.joins[pi.toString()] is 'OUTER' then pi else null
+                    while !pi?.isRoot()
+                        pi = pi.getParent()
+                        oj = if @query.joins[pi.toString()] is 'OUTER' then pi else oj
+                    unless processed[oj.toString()] # done this already.
+                        vandi = ([v, i] for v, i in @query.views when (v.match(oj.toString())))
+                        views = (x[0] for x in vandi)
+                        indices = (x[1] for x in vandi)
+                        moveableView = new OuterJoinGroup(@query, oj, views, indices).render().el
+                        processed[oj.toString()] = true
+                else
+                    moveableView = $ @viewTemplate(idx: i, displayName: v, path: v)
+                    @query.getPathInfo(v).getDisplayName (name) ->
+                        moveableView.find('.im-display-name').text name
+
                 colContainer.append moveableView
             colContainer
 
@@ -182,9 +223,18 @@ scope "intermine.query.results.table", (exporting) ->
 
         changeOrder: (e) ->
             lis = @$('.im-reordering-container li')
-            newView = lis.map( (i, e) -> $(e).data('path')).get()
+            paths = lis.map( (i, e) -> $(e).data('path')).get()
+            newViews = []
+            for p in paths
+                pi = @query.getPathInfo(p)
+                if pi.isAttribute()
+                    newViews.push p
+                else
+                    for v in @query.views when (v.match(p))
+                        newViews.push(v)
+
             @$('.modal').modal('hide')
-            @query.select(newView)
+            @query.select(newViews)
 
         changeSorting: (e) ->
             lis = @$('.im-sorting-container li')

@@ -1,5 +1,26 @@
 scope "intermine.query.results", (exporting) ->
 
+    exporting class OuterJoinDropDown extends Backbone.View
+        className: "im-summary-selector"
+        tagName: 'ul'
+
+        initialize: (@path, @query) ->
+
+        render: ->
+            console.log @path
+            for v in @query.views when v.match(@path.toString()) then do (v) =>
+                console.log "#{v}.match(#{@path.toString()}) -> #{  v.match(@path.toString()) }"
+                li = $ """<li class="im-outer-joined-path"><a href="#"></a></li>"""
+                @$el.append li
+                @query.getPathInfo(v).getDisplayName (name) -> li.find('a').text name
+                li.click (e) =>
+                    e.stopPropagation()
+                    e.preventDefault()
+                    summ = new intermine.query.results.DropDownColumnSummary(v, @query)
+                    @$el.parent().html(summ.render().el)
+                    @remove()
+            this
+
     exporting class DropDownColumnSummary extends Backbone.View
         className: "im-dropdown-summary"
 

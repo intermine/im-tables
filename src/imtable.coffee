@@ -15,6 +15,10 @@ scope "intermine.query.results", (exporting) ->
         end: -> @start + @size
 
     class ResultsTable extends Backbone.View
+
+        @nextDirections =
+            ASC: "DESC"
+            DESC: "ASC"
         className: "im-results-table table table-striped table-bordered"
         tagName: "table"
         attributes:
@@ -42,6 +46,7 @@ scope "intermine.query.results", (exporting) ->
         initialize: (@query, @getData) ->
             @minimisedCols = {}
             @query.on "set:sortorder", (oes) =>
+                @lastAction = 'resort'
                 @fill()
 
         render: ->
@@ -90,12 +95,45 @@ scope "intermine.query.results", (exporting) ->
 
         errorTempl: _.template """
             <div class="alert alert-error">
-                <h2>Error</h2>
-                <p><%- error %>
+                <h2>Oops!</h2>
+                <p><i><%- error %></i></p>
             </div>
         """
 
-        handleError: (err) => @$el.append @errorTempl error: err
+        handleError: (err, time) =>
+            notice = $ @errorTempl error: err
+            notice.append """<p>Time: #{ time }</p>""" if time?
+            notice.append """<p>
+                This is most likely related to the query that was just run. If you have
+                time, please send us an email with details of this query to help us diagnose and
+                fix this bug.
+            </p>"""
+            btn = $ '<button class="btn btn-error">'
+            notice.append btn
+            p = $ '<p style="display:none" class="well">'
+            btn.text 'show query'
+            p.text @query.toXML()
+            btn.click () -> p.slideToggle()
+            mailto = @query.service.help + "?" + $.param {
+                subject: "Error running embedded table query"
+                body: """
+                    We encountered an error running a query from an
+                    embedded result table.
+                    
+                    page:       #{ window.location }
+                    service:    #{ @query.service.root }
+                    error:      #{ err }
+                    date-stamp: #{ time }
+                    query:      #{ @query.toXML() }
+                """
+            }, true
+            mailto = mailto.replace(/\+/g, '%20') # stupid jquery 'wontfix' indeed. grumble
+            notice.append """<a class="btn btn-primary pull-right" href="mailto:#{ mailto }">
+                    Email the help-desk
+                </a>"""
+            notice.append p
+            @$el.append notice
+            
 
         columnHeaderTempl: (ctx) -> _.template """
             <th title="<%- title %>">
@@ -127,69 +165,114 @@ scope "intermine.query.results", (exporting) ->
             </th>
         """, ctx
 
+        buildColumnHeader: (view, i, title, tr) ->
+            q = @query
+            direction = q.getSortDirection(view)
+            sortable = !q.isOuterJoined(view)
+            th = $ @columnHeaderTempl
+                title: title
+                i: i
+                view: view
+                sortable: sortable
+                
+            tr.append th
+            th.find('.im-th-button').tooltip(placement: "left")
+            sortButton = th.find('.icon-resize-vertical')
+            setDirectionClass = (d) ->
+                sortButton.addClass("icon-resize-vertical")
+                sortButton.removeClass("icon-arrow-up icon-arrow-down")
+                switch d
+                    when 'ASC' then sortButton.toggleClass "icon-resize-vertical icon-arrow-up"
+                    when 'DESC' then sortButton.toggleClass "icon-resize-vertical icon-arrow-down"
+
+            setDirectionClass(direction)
+            @query.on "set:sortorder", ->
+                sd = q.getSortDirection(view)
+                setDirectionClass(sd) if sd
+
+            direction = (ResultsTable.nextDirections[ direction ] or "ASC")
+            sortButton.click (e) ->
+                $elem = $ this
+                #if e.shiftKey # allow multiple orders?
+                #    q.addOrSetSortOrder
+                #        path: view
+                #        direction: direction
+                #else
+                q.orderBy([{path: view, direction: direction}])
+                tr.find('.im-col-sort-indicator i').removeClass "icon-arrow-up icon-arrow-down"
+                tr.find('.im-col-sort-indicator i').addClass "icon-resize-vertical"
+                switch direction
+                    when "ASC" then sortButton.toggleClass "icon-resize-vertical icon-arrow-up"
+                    when "DESC" then sortButton.toggleClass "icon-resize-vertical icon-arrow-down"
+                direction = ResultsTable.nextDirections[ direction ]
+            minumaximiser = th.find('.im-col-minumaximiser')
+            minumaximiser.click (e) =>
+                minumaximiser.find('i').toggleClass("icon-minus-sign icon-plus-sign")
+                isMinimised = @minimisedCols[i] = !@minimisedCols[i]
+                th.find('.im-col-title').toggle(!isMinimised)
+                @fill()
+            path = q.getPathInfo view
+            if path.isAttribute()
+                th.find('.summary-img').click(@showColumnSummary(path)).dropdown()
+            else
+                th.find('.summary-img').click(@showOuterJoinedColumnSummaries(path)).dropdown()
+                expandAll = $ """<div class="im-th-button" title="Expand/Collapse all subtables">
+                    <i class="icon-th-list icon-white"></i>
+                </div>"""
+                expandAll.tooltip placement: 'left'
+                th.find('.im-th-buttons').prepend expandAll
+                cmds = ['expand', 'collapse']
+                cmd = 0
+                @query.on 'subtable:expanded', (node) ->
+                    if node.toString().match path.toString()
+                        cmd = 1
+                @query.on 'subtable:collapsed', (node) ->
+                    if node.toString().match path.toString()
+                        cmd = 0
+                expandAll.click (e) =>
+                    e.stopPropagation()
+                    e.preventDefault()
+                    @query.trigger "#{cmds[cmd]}:subtables", path
+                    cmd = (cmd + 1) % 2
+                    console.log cmd
+
         addColumnHeaders: (result) =>
             thead = $ "<thead>"
             tr = $ "<tr>"
             thead.append tr
-            nextDirections =
-                ASC: "DESC"
-                DESC: "ASC"
             q = @query
-            for view, i in q.views then do (view, i) =>
-                title = result.columnHeaders[i].split(' > ').slice(1).join(" > ")
-                direction = q.getSortDirection(view)
-                sortable = !q.isOuterJoined(view)
-                th = $ @columnHeaderTempl
-                    title: title
-                    i: i
-                    view: view
-                    sortable: sortable
-                    
-                tr.append th
-                th.find('.im-th-button').tooltip(placement: "left")
-                sortButton = th.find('.icon-resize-vertical')
-                setDirectionClass = (d) ->
-                    sortButton.addClass("icon-resize-vertical")
-                    sortButton.removeClass("icon-arrow-up icon-arrow-down")
-                    switch d
-                        when 'ASC' then sortButton.toggleClass "icon-resize-vertical icon-arrow-up"
-                        when 'DESC' then sortButton.toggleClass "icon-resize-vertical icon-arrow-down"
+            if result.results.length and _.has(result.results[0][0], 'column')
+                views = result.results[0].map (row) -> row.column
+                promise = new $.Deferred()
+                titles = {}
+                _.each views, (v) -> q.getPathInfo(v).getDisplayName (name) ->
+                    titles[v] = name
+                    if _.size(titles) is views.length
+                        promise.resolve titles
+                promise.done (titles) =>
+                    for v, i in views
+                        @buildColumnHeader v, i, titles[v], tr
+            else
+                views = q.views
+                for view, i in views then do (view, i) =>
+                    title = result.columnHeaders[i].split(' > ').slice(1).join(" > ")
+                    @buildColumnHeader view, i, title, tr
 
-                setDirectionClass(direction)
-                q.on "set:sortorder", ->
-                    sd = q.getSortDirection(view)
-                    setDirectionClass(sd) if sd
-
-                direction = (nextDirections[ direction ] or "ASC")
-                sortButton.click (e) ->
-                    $elem = $ this
-                    #if e.shiftKey # allow multiple orders?
-                    #    q.addOrSetSortOrder
-                    #        path: view
-                    #        direction: direction
-                    #else
-                    q.orderBy([{path: view, direction: direction}])
-                    tr.find('.im-col-sort-indicator i').removeClass "icon-arrow-up icon-arrow-down"
-                    tr.find('.im-col-sort-indicator i').addClass "icon-resize-vertical"
-                    switch direction
-                        when "ASC" then sortButton.toggleClass "icon-resize-vertical icon-arrow-up"
-                        when "DESC" then sortButton.toggleClass "icon-resize-vertical icon-arrow-down"
-                    direction = nextDirections[ direction ]
-                minumaximiser = th.find('.im-col-minumaximiser')
-                minumaximiser.click (e) =>
-                    minumaximiser.find('i').toggleClass("icon-minus-sign icon-plus-sign")
-                    isMinimised = @minimisedCols[i] = !@minimisedCols[i]
-                    th.find('.im-col-title').toggle(!isMinimised)
-                    @fill()
                     
-            tr.find('.summary-img').click(@showColumnSummary).dropdown()
             thead.appendTo @el
 
-        showColumnSummary: (e) =>
+        showOuterJoinedColumnSummaries: (path) -> (e) =>
+            $el = jQuery(e.target).closest '.summary-img'
+            unless $el.parent().hasClass 'open'
+                summ = new intermine.query.results.OuterJoinDropDown(path, @query)
+                $el.siblings('.dropdown-menu').html(summ.render().el)
+
+            false
+
+        showColumnSummary: (path) -> (e) =>
             $el = jQuery(e.target).closest '.summary-img'
 
-            i = $el.data "col-idx"
-            view = @query.views[i]
+            view = path.toString()
             unless view
                 e.stopPropagation()
                 e.preventDefault()
@@ -279,6 +362,14 @@ scope "intermine.query.results", (exporting) ->
                         direction: intermine.utils.getParameter(params, "sSortDir_" + i)
                     so)
 
+        showError: (resp) =>
+            try
+                data = JSON.parse(resp.responseText)
+                @table?.handleError(data.error, data.executionTime)
+            catch err
+                @table?.handleError("Internal error", new Date().toString())
+
+
         ##
         ## Function for buffering data for a request. Each request fetches a page of
         ## pipe_factor * size, and if subsequent requests request data within this range, then
@@ -313,7 +404,7 @@ scope "intermine.query.results", (exporting) ->
                 page = @getPage start, size
                 @overlayTable()
 
-                req = @query.table page, (rows, resultSet) =>
+                req = @query[@fetchMethod] page, (rows, resultSet) =>
                     @addRowsToCache page, resultSet
                     @cache.freshness = freshness
                 req.fail @showError
@@ -448,9 +539,29 @@ scope "intermine.query.results", (exporting) ->
             # TODO - make sure cells know their node...
 
             fields = ([@query.getPathInfo(v).getParent(), v.replace(/^.*\./, "")] for v in result.views)
+
+            makeCell = (obj) =>
+                if _.has(obj, 'rows')
+                    return new intermine.results.table.SubTable(@query, makeCell, obj)
+                else
+                    node = @query.getPathInfo(obj.column).getParent()
+                    field = obj.column.replace(/^.*\./, '')
+                    model = if obj.id?
+                        @itemModels[obj.id] or= (new intermine.model.IMObject(@query, obj, field, base))
+                    else if not obj.class?
+                        new intermine.model.NullObject @query, field
+                    else
+                        new intermine.model.FPObject(@query, obj, field, node.getType().name)
+                    model.merge obj, field
+                    args = {model, node, field}
+                    args.query = @query
+                    return new intermine.results.table.Cell(args)
+
             result.rows = result.results.map (row) =>
                 (row).map (cell, idx) =>
-                    cv = if cell.id
+                    if _.has(cell, 'column') # dealing with new-style tableRows here.
+                        makeCell(cell)
+                    else if cell?.id?
                         field = fields[idx]
                         imo = @itemModels[cell.id] or= (new intermine.model.IMObject(@query, cell, field[1], base))
                         imo.merge cell, field[1]
@@ -460,10 +571,14 @@ scope "intermine.query.results", (exporting) ->
                             field: field[1]
                             query: @query
                         )
+                    else if cell?.value?
+                        new intermine.results.table.Cell( # FastPathObjects don't have ids, and cannot be in lists.
+                            model: new intermine.model.FPObject(@query, cell, field[1])
+                            query: @query
+                            field: field[1]
+                        )
                     else
-                        new intermine.results.table.NullCell()
-                    cv
-                    #cv.render().el
+                        new intermine.results.table.NullCell query: @query
 
             result
 
@@ -483,11 +598,19 @@ scope "intermine.query.results", (exporting) ->
             tel = @make "table", @tableAttrs
             @$el.append tel
             jQuery(tel).append """
+                <h2>Building table</h2>
                 <div class="progress progress-striped active progress-info">
-                    <h2>Building table</h2>
                     <div class="bar" style="width: 100%"></div>
                 </div>
             """
+            @query.service.fetchVersion(@doRender(tel)).fail @onSetupError(tel)
+
+        doRender: (tel) -> (version) =>
+            @fetchMethod = if version >= 10
+                'tableRows'
+            else
+                'table'
+
             path = "query/results"
             setupParams =
                 format: "jsontable"
@@ -498,22 +621,7 @@ scope "intermine.query.results", (exporting) ->
             this
 
         events:
-            'click .summary-img': 'showColumnSummary'
             'click .im-col-remover': 'removeColumn'
-
-        showColumnSummary: (e) =>
-            $el = jQuery(e.target).closest '.summary-img'
-
-            i = $el.data "col-idx"
-            view = @query.views[i]
-            unless view
-                e.stopPropagation()
-                e.preventDefault()
-            else unless $el.parent().hasClass "open"
-                summ = new intermine.query.results.DropDownColumnSummary(view, @query)
-                $el.siblings('.dropdown-menu').html(summ.render().el)
-
-            false
 
         removeColumn: (e) =>
             e.stopPropagation()
@@ -577,7 +685,6 @@ scope "intermine.query.results", (exporting) ->
 
             @table = new ResultsTable @query, @getRowData
             @table.setElement(telem)
-            # TODO: make more generic...
             @table.pageSize = @pageSize if @pageSize?
             @table.pageStart = @pageStart if @pageStart?
             @table.render()

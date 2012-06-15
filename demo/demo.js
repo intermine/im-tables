@@ -40,6 +40,7 @@ $(function() {
           }
         },
         TestModel: {
+          help: 'alex@intermine.org',
           root: "localhost:8080/intermine-test",
           token: "test-user-token",
           q: {
@@ -52,22 +53,31 @@ $(function() {
               ]
           }
         },
-        PlantMine: {
-          root: "www.flymine.org/plantmine",
+        OJC: {
+          help: 'alex@intermine.org',
+          root: "localhost:8080/intermine-test",
+          token: "test-user-token",
           q: {
-              select: [
-                        "primaryIdentifier",
-                        "strainGenotypes.strain.name",
-                        "strainGenotypes.strain.populations.name",
-                        "chromosome.primaryIdentifier",
-                        "chromosomeLocation.start",
-                        "chromosomeLocation.end",
-                        "alleles",
-                        "strainGenotypes.allele1",
-                        "strainGenotypes.allele2"
-                      ],
-              from: "SNP",
-              where: {primaryIdentifier: "ENSVATH00002756"}
+              select: ['name', 'company.name', 'employees.name', 'employees.age', 'employees.end', 'employees.address.address', 'rejectedEmployee.name' ],
+              from: "Department",
+              joins: ['employees', 'rejectedEmployee'],
+              where: [
+                  ["employees.age", "lt", 50 ],
+                  ["employees.age", "gt", 40 ]
+              ]
+          }
+        },
+        DeepOJC: {
+          root: "localhost:8080/intermine-test",
+          token: "test-user-token",
+          q: {
+              select: ['name', 'CEO.name', 'departments.name', 'departments.employees.name', 'departments.employees.age', 'departments.employees.address.address', 'secretarys.name'],
+              from: "Company",
+              joins: ['departments', 'departments.employees', 'departments.employees.address', 'secretarys'],
+              where: [
+                  ["departments.employees.age", "lt", 50 ],
+                  ["departments.employees.age", "gt", 40 ]
+              ]
           }
         }
     };
