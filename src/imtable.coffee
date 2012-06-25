@@ -625,10 +625,12 @@ scope "intermine.query.results", (exporting) ->
 
         removeColumn: (e) =>
             e.stopPropagation()
+            e.preventDefault()
             $el = jQuery(e.target).closest '.im-col-remover'
             $el.tooltip("hide")
             view = $el.data "view"
-            @query.removeFromSelect view
+            unwanted = (v for v in @query.views when (v.match(view)))
+            @query.removeFromSelect unwanted
             false
 
         horizontalScroller: """

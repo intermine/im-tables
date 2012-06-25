@@ -51,14 +51,19 @@ scope "intermine.results.table", (exporting) ->
             colStr = @column.toString()
             if @rows.length > 0
                 for v in @view then do (v) =>
-                    th = $ '<th>'
+                    th = $ """<th>
+                        <i class="#{intermine.css.headerIconRemove}"></i>
+                        <span></span>
+                    </th>"""
+                    th.find('i').click (e) => @query.removeFromSelect v
                     path = @query.getPathInfo(v)
                     @column.getDisplayName (colName) ->
+                        span = th.find('span')
                         path.getDisplayName (pathName) ->
                             if pathName.match(colName)
-                                th.text pathName.replace(colName, '').replace(/^\s*>?\s*/, '')
+                                span.text pathName.replace(colName, '').replace(/^\s*>?\s*/, '')
                             else
-                                th.text pathName.replace(/^[^>]*\s*>\s*/, '')
+                                span.text pathName.replace(/^[^>]*\s*>\s*/, '')
                     t.children('thead').children('tr').append th
                 for row in @rows then do (t, row) =>
                     tr = $ '<tr>'
