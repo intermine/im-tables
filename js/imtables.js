@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Fri Jun 15 2012 17:31:41 GMT+0100 (BST)
+ * Built at Mon Jun 25 2012 16:30:49 GMT+0100 (BST)
 */
 
 
@@ -1047,12 +1047,25 @@
       };
 
       Table.prototype.removeColumn = function(e) {
-        var $el, view;
+        var $el, unwanted, v, view;
         e.stopPropagation();
+        e.preventDefault();
         $el = jQuery(e.target).closest('.im-col-remover');
         $el.tooltip("hide");
         view = $el.data("view");
-        this.query.removeFromSelect(view);
+        unwanted = (function() {
+          var _i, _len, _ref, _results;
+          _ref = this.query.views;
+          _results = [];
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            v = _ref[_i];
+            if (v.match(view)) {
+              _results.push(v);
+            }
+          }
+          return _results;
+        }).call(this);
+        this.query.removeFromSelect(unwanted);
         return false;
       };
 
@@ -2927,14 +2940,19 @@
           _ref = this.view;
           _fn = function(v) {
             var path, th;
-            th = $('<th>');
+            th = $("<th>\n    <i class=\"" + intermine.css.headerIconRemove + "\"></i>\n    <span></span>\n</th>");
+            th.find('i').click(function(e) {
+              return _this.query.removeFromSelect(v);
+            });
             path = _this.query.getPathInfo(v);
             _this.column.getDisplayName(function(colName) {
+              var span;
+              span = th.find('span');
               return path.getDisplayName(function(pathName) {
                 if (pathName.match(colName)) {
-                  return th.text(pathName.replace(colName, '').replace(/^\s*>?\s*/, ''));
+                  return span.text(pathName.replace(colName, '').replace(/^\s*>?\s*/, ''));
                 } else {
-                  return th.text(pathName.replace(/^[^>]*\s*>\s*/, ''));
+                  return span.text(pathName.replace(/^[^>]*\s*>\s*/, ''));
                 }
               });
             });
