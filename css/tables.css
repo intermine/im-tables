@@ -176,7 +176,7 @@
   border-right: 5px solid #000000;
 }
 .tooltip-inner {
-  max-width: 200px;
+  max-width: 400px;
   padding: 3px 8px;
   color: #ffffff;
   text-align: center;
@@ -329,6 +329,10 @@
   outline: 0;
 }
 
+.typeahead li.disabled > a {
+    color: #aaa;
+}
+
 .typeahead a {
   color: #0088cc;
   text-decoration: none;
@@ -346,6 +350,26 @@
   color: #333333;
   white-space: nowrap;
 }
+
+.typeahead.dropdown-menu {
+    background-clip: padding-box;
+    background-color: #FFFFFF;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 5px 5px 5px 5px;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+    display: none;
+    float: left;
+    left: 0;
+    list-style: none outside none;
+    margin: 1px 0 0;
+    min-width: 160px;
+    padding: 4px 0;
+    position: absolute;
+    top: 100%;
+    z-index: 1000;
+    font-size: 0.95em;
+}
+
 .typeahead.dropdown-menu li > a {
     width: 100%;
     display: inline-block;
@@ -360,12 +384,19 @@
     width: 100%;
 }
 
+    
+
 .typeahead.dropdown-menu li > a:hover,
 .typeahead.dropdown-menu .active > a,
 .typeahead.dropdown-menu .active > a:hover {
   color: #ffffff;
   text-decoration: none;
   background-color: #0088cc;
+}
+
+
+.typeahead.dropdown-menu li.disabled > a:hover {
+    background-color: #ccc;
 }
 .typeahead {
   margin-top: 2px;
@@ -680,7 +711,6 @@ td.im-result-subtable .im-subtable {
 }
 
 .im-query-actions li > .btn-group > .btn:first-child {
-    width: 6em;
     max-width: 77%;
 }
 
@@ -692,6 +722,20 @@ td.im-result-subtable .im-subtable {
 
 .im-query-actions form input {
     padding: 0;
+}
+
+.im-query-actionbar .im-action {
+    float: right;
+}
+
+.node-adder .dropdown-menu {
+    max-height: 50em;
+    overflow: auto;
+    min-width: 22em;
+}
+
+.im-query-actionbar .im-action::after {
+    clear: both;
 }
 
 .im-action > form > .btn-group {
@@ -707,6 +751,11 @@ td.im-result-subtable .im-subtable {
     color: #08c;
 }
 
+.typeahead.dropdown-menu .disabled strong {
+    opacity: 0.4;
+}
+
+.typeahead.dropdown-menu li > a:hover strong,
 .typeahead.dropdown-menu .active strong {
     color: white;
     text-transform: uppercase;
@@ -725,6 +774,112 @@ td.im-result-subtable .im-subtable {
 
 .im-list-creation-dialogue input.input-xlarge {
     width: 80%;
+}
+
+.im-query-trail {
+    position: relative;
+}
+
+
+.im-query-trail.well.minimised {
+    padding: 10px;
+}
+
+.im-query-trail.minimised h2,
+.im-query-trail.minimised .im-step-count {
+    font-size: 1em;
+}
+
+.im-query-trail .btn-small,
+.im-query-trail.minimised .im-step-details,
+.im-query-trail.minimised .btn {
+    display: none;
+}
+
+.im-query-trail.minimised .btn-small {
+    float: right;
+    display: inline-block;
+}
+
+
+.im-query-trail .im-minimiser {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: #fefefe;
+    border-bottom: 1px solid #dedede;
+    text-transform: uppercase;
+    font-style: italic;
+    font-weight: bold;
+    color: #ababab;
+    text-align: center;
+    box-shadow: 0px 2px 3px #ababab;
+    cursor: pointer;
+}
+
+.im-query-trail .im-step {
+    height: 100%;
+    margin-top: 1em;
+    margin-right: 3em;
+    display: inline-block;
+    list-style-type: none;
+    border: 1px solid #dedede;
+    padding: 0.5em;
+    border-radius: 0.3em;
+    background: white;
+    position: relative;
+}
+
+.im-query-trail.minimised .im-step {
+    margin-right: 1.5em;
+}
+
+.im-query-trail .im-step:after {
+    content: '';
+    position: absolute;
+    left: 100%;
+    top: 25%;
+    width: 0;
+    height: 0;
+    border-top: 42px solid transparent;
+    border-left: 26px solid #dedede;
+    border-bottom: 42px solid transparent;
+}
+
+.minimised .im-step::after {
+    border-top: 15px solid transparent;
+    border-left: 7px solid #dedede;
+    border-bottom: 15px solid transparent;
+}
+
+.im-query-trail .im-step .label {
+    padding-left: 1em;
+    margin-left: 1em;
+    padding-right: 1em;
+    margin-right: 1em;
+}
+
+.im-query-trail .im-step .btn {
+    margin-top: 1em;
+}
+
+.im-query-trail.minimised .im-step .btn {
+    margin-top: 0;
+}
+
+.im-step-count {
+    font-style: italic;
+    font-weight: bold;
+}
+
+.im-query-trail .im-step::after {
+    clear: both;
+}
+
+.im-query-trail .im-step li {
+    list-style-type: none;
+    display: none;
 }
 
 .im-query-tools select, .im-query-tools input, .im-query-tools label  {
@@ -772,9 +927,9 @@ td.im-result-subtable .im-subtable {
     border-left: none;
 }
 
-.node-adder {
+/* .node-adder {
     width: 100%;
-}
+} */
 
 .node-remover dd input {
     margin-right: 1em;
@@ -823,6 +978,10 @@ td.im-result-subtable .im-subtable {
 
 .im-constraint-adder select, .im-constraint-adder input {
     display: inline-block;
+}
+
+.im-constraint-adder, .node-adder {
+    position: relative;
 }
 
 .im-constraint .btn-group {
@@ -1031,14 +1190,24 @@ form.im-join {
     border-bottom: 1px solid #ddd;
 }
 
+.compact .im-query-actionbar {
+    float: right;
+}
+    
 .compact .im-query-actionbar > ul {
+    max-width: 100%;
     float: right;
 }
 
 .im-query-actionbar > ul > .im-action {
-    margin: 0 0 0 1em;
-    display: block;
-    float: left;
+    margin: 0 0 0.2em 1em;
+}
+
+.im-query-actionbar > ul > .im-action.node-adder input {
+    max-width: 60%;
+}
+
+.im-action .btn-action {
 }
 
 /*
@@ -1048,11 +1217,11 @@ form.im-join {
     padding-top: 10px;
     padding-bottom: 11px;
 }
-*/
 
 .im-query-actionbar > ul > .im-action.node-adder {
     width: 217px;
 }
+*/
 
 /* FACETS */
 
@@ -1101,9 +1270,8 @@ form.im-join {
     margin-bottom: 0.2em;
 }
 
-.bootstrap .table thead th {
+.im-query-results .table thead th {
     vertical-align: top;
-    padding: 1px;
 }
 
 .im-col-title {

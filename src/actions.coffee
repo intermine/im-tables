@@ -24,20 +24,23 @@ scope "intermine.query.actions", (exporting) ->
 
     exporting class Actions extends Backbone.View
 
-        className: "im-query-actions"
+        className: "im-query-actions row-fluid"
         tagName: "ul"
 
         initialize: (@query) ->
 
         actionClasses: -> [ListManager, CodeGenerator, Exporters]
+        extraClass: "im-action"
         render: ->
             for cls in @actionClasses()
                 action = new cls(@query)
-                action.render().$el.addClass("im-action").appendTo @el
+                action.render().$el.addClass(@extraClass).appendTo @el
+
 
             this
 
     exporting class ActionBar extends Actions
+        extraClass: "im-action"
         actionClasses: ->
             [intermine.query.columns.ColumnAdder, ListManager, CodeGenerator, Exporters]
 

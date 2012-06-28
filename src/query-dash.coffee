@@ -17,16 +17,22 @@ scope "intermine.query.results", (exporting) ->
 
         TABLE_CLASSES: "span9 im-query-results"
 
+        loadQuery: (q) ->
+            @main.empty()
+            @toolbar?.remove()
+            @table = new intermine.query.results.Table(q, @main)
+            @table[k] = v for k, v of @tableProperties
+            @table.render()
+            @renderTools(q)
+
         render: ->
             @$el.addClass "bootstrap"
             promise = @service.query @query, (q) =>
-                main = @make "div", {class: @TABLE_CLASSES}
-                @$el.append main
-                @table = new intermine.query.results.Table(q, main)
-                @table[k] = v for k, v of @tableProperties
-                @table.render()
+                @main = $ @make "div", {class: @TABLE_CLASSES}
+                @$el.append @main
+                @loadQuery(q, @main)
 
-                @renderTools(q)
+                @renderTrail(q)
 
                 q.on evt, cb for evt, cb of @queryEvents
 
@@ -42,9 +48,12 @@ scope "intermine.query.results", (exporting) ->
         renderTools: (q) ->
             tools = @make "div", {class: "span3 im-query-toolbox"}
             @$el.append tools
-            toolbar = new intermine.query.tools.Tools(q)
-            toolbar.render().$el.appendTo tools
+            @toolbar = new intermine.query.tools.Tools(q)
+            @toolbar.render().$el.appendTo tools
 
+        renderTrail: (q) ->
+            trail = new intermine.query.tools.Trail(q, @)
+            trail.render().$el.prependTo @el
 
     exporting class CompactView extends DashBoard
 
@@ -53,8 +62,8 @@ scope "intermine.query.results", (exporting) ->
         TABLE_CLASSES: "im-query-results"
 
         renderTools: (q) ->
-            toolbar = new intermine.query.tools.ToolBar(q)
-            toolbar.render().$el.prependTo @el
+            @toolbar = new intermine.query.tools.ToolBar(q)
+            @toolbar.render().$el.insertBefore @main
 
 
 

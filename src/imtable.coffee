@@ -519,6 +519,7 @@ scope "intermine.query.results", (exporting) ->
                 count: intermine.utils.numToString(result.iTotalRecords, ",", 3)
                 roots: "rows"
             summary.html html
+            @query.trigger 'count:is', result.iTotalRecords
 
         ##
         ## Retrieve the results from the results cache.

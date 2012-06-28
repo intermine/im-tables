@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Mon Jun 25 2012 16:30:49 GMT+0100 (BST)
+ * Built at Thu Jun 28 2012 16:08:48 GMT+0100 (BST)
 */
 
 
@@ -15,8 +15,8 @@
   var $, root, scope, stope,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
   if (!Array.prototype.filter) {
     Array.prototype.filter = function(test) {
@@ -93,7 +93,7 @@
   };
 
   scope("intermine.query", function(exporting) {
-    var CONSTRAINT_ADDER_HTML, ConstraintAdder, PATH_HIGHLIGHTER, PATH_LEN_SORTER, PATH_MATCHER, pathLen, pos;
+    var Attribute, CONSTRAINT_ADDER_HTML, ConstraintAdder, PATH_HIGHLIGHTER, PATH_LEN_SORTER, PATH_MATCHER, PathChooser, Reference, pathLen, pos;
     pos = function(substr) {
       return _.memoize(function(str) {
         return str.toLowerCase().indexOf(substr);
@@ -147,11 +147,316 @@
       return item.replace(/>/g, "strong>");
     });
     CONSTRAINT_ADDER_HTML = "<input type=\"text\" placeholder=\"Add a new filter\" class=\"im-constraint-adder span9\">\n<button disabled class=\"btn span2\" type=\"submit\">\n    Filter\n</button>";
+    Attribute = (function(_super) {
+
+      __extends(Attribute, _super);
+
+      function Attribute() {
+        return Attribute.__super__.constructor.apply(this, arguments);
+      }
+
+      Attribute.prototype.tagName = 'li';
+
+      Attribute.prototype.events = {
+        'click a': 'handleClick'
+      };
+
+      Attribute.prototype.handleClick = function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        return this.evts.trigger('chosen', this.path);
+      };
+
+      Attribute.prototype.initialize = function(query, path, depth, evts) {
+        var _this = this;
+        this.query = query;
+        this.path = path;
+        this.depth = depth;
+        this.evts = evts;
+        this.evts.on('remove', function() {
+          return _this.remove();
+        });
+        return this.evts.on('filter:paths', function(terms) {
+          var lastMatch, matches, t, _i, _len;
+          terms = (function() {
+            var _i, _len, _results;
+            _results = [];
+            for (_i = 0, _len = terms.length; _i < _len; _i++) {
+              t = terms[_i];
+              if (t) {
+                _results.push(new RegExp(t, 'i'));
+              }
+            }
+            return _results;
+          })();
+          if (terms.length) {
+            matches = 0;
+            lastMatch = null;
+            for (_i = 0, _len = terms.length; _i < _len; _i++) {
+              t = terms[_i];
+              if (t.test(_this.path.toString()) || t.test(_this.displayName)) {
+                matches += 1;
+                lastMatch = t;
+              }
+            }
+            return _this.matches(matches, terms, lastMatch);
+          } else {
+            return _this.$el.show();
+          }
+        });
+      };
+
+      Attribute.prototype.template = _.template("<a href=\"#\" title=\"<%- path %> (<%- type %>)\"><span><%- name %></span></a>");
+
+      Attribute.prototype.matches = function(matches, terms) {
+        var _this = this;
+        if (matches === terms.length) {
+          this.evts.trigger('matched', this.path.toString());
+          this.path.getDisplayName(function(name) {
+            var hl, matchesOnPath, term, _i, _len;
+            hl = _this.depth > 0 ? name.replace(/^.*>\s*/, '') : name;
+            for (_i = 0, _len = terms.length; _i < _len; _i++) {
+              term = terms[_i];
+              hl = hl.replace(term, function(match) {
+                return "<strong>" + match + "</strong>";
+              });
+            }
+            matchesOnPath = _.any(terms, function(t) {
+              return !!_this.path.end.name.match(t);
+            });
+            return _this.$('a span').html(hl.match(/strong/) || !matchesOnPath ? hl : "<strong>" + hl + "</strong>");
+          });
+        }
+        return this.$el.toggle(!!(matches === terms.length));
+      };
+
+      Attribute.prototype.render = function() {
+        var disabled, _ref,
+          _this = this;
+        disabled = (_ref = this.path.toString(), __indexOf.call(this.query.views, _ref) >= 0);
+        if (disabled) {
+          this.$el.addClass('disabled');
+        }
+        this.path.getDisplayName(function(name) {
+          var a;
+          _this.displayName = name;
+          if (_this.depth !== 0) {
+            name = name.replace(/^.*\s*>/, '');
+          }
+          a = $(_this.template({
+            name: name,
+            path: _this.path,
+            type: _this.path.getType()
+          }));
+          a.appendTo(_this.el);
+          return _this.addedLiContent(a);
+        });
+        return this;
+      };
+
+      Attribute.prototype.addedLiContent = function(a) {
+        return a.tooltip({
+          placement: 'bottom'
+        }).appendTo(this.el);
+      };
+
+      return Attribute;
+
+    })(Backbone.View);
+    Reference = (function(_super) {
+
+      __extends(Reference, _super);
+
+      function Reference() {
+        return Reference.__super__.constructor.apply(this, arguments);
+      }
+
+      Reference.prototype.initialize = function(query, path, depth, evts) {
+        var _this = this;
+        this.query = query;
+        this.path = path;
+        this.depth = depth;
+        this.evts = evts;
+        Reference.__super__.initialize.call(this, this.query, this.path, this.depth, this.evts);
+        this.evts.on('filter:paths', function(terms) {
+          return _this.$el.hide();
+        });
+        return this.evts.on('matched', function(path) {
+          if (path.match(_this.path.toString())) {
+            _this.$el.show();
+            if (!_this.$el.is('.open')) {
+              return _this.openSubFinder();
+            }
+          }
+        });
+      };
+
+      Reference.prototype.remove = function() {
+        var _ref;
+        if ((_ref = this.subfinder) != null) {
+          _ref.remove();
+        }
+        return Reference.__super__.remove.call(this);
+      };
+
+      Reference.prototype.openSubFinder = function() {
+        this.subfinder = new PathChooser(this.query, this.path, this.depth + 1, this.evts);
+        this.$el.append(this.subfinder.render().el);
+        return this.$el.addClass('open');
+      };
+
+      Reference.prototype.template = _.template("<a href=\"#\"><i class=\"icon-chevron-right\"></i> <span><%- name %></span></a>");
+
+      Reference.prototype.iconClasses = "icon-chevron-right icon-chevron-down";
+
+      Reference.prototype.addedLiContent = function(a) {
+        var i,
+          _this = this;
+        if (_.any(this.query.views, function(v) {
+          return v.match(_this.path.toString());
+        })) {
+          this.openSubFinder();
+        }
+        return i = a.find('i').click(function(e) {
+          i.toggleClass(_this.iconClasses);
+          if (_this.$el.is('.open')) {
+            return _this.$el.removeClass('open').children('ul').remove();
+          } else {
+            return _this.openSubFinder();
+          }
+        });
+      };
+
+      return Reference;
+
+    })(Attribute);
+    PathChooser = (function(_super) {
+
+      __extends(PathChooser, _super);
+
+      function PathChooser() {
+        this.searchFor = __bind(this.searchFor, this);
+        return PathChooser.__super__.constructor.apply(this, arguments);
+      }
+
+      PathChooser.prototype.tagName = 'ul';
+
+      PathChooser.prototype.dropDownClasses = 'typeahead dropdown-menu';
+
+      PathChooser.prototype.searchFor = function(terms) {
+        var m, matches, p, _i, _len, _results;
+        this.evts.trigger('filter:paths', terms);
+        matches = (function() {
+          var _i, _len, _ref, _results,
+            _this = this;
+          _ref = this.query.getPossiblePaths(3);
+          _results = [];
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            p = _ref[_i];
+            if (_.all(terms, function(t) {
+              return p.match(new RegExp(t, 'i'));
+            })) {
+              _results.push(p);
+            }
+          }
+          return _results;
+        }).call(this);
+        _results = [];
+        for (_i = 0, _len = matches.length; _i < _len; _i++) {
+          m = matches[_i];
+          _results.push(this.evts.trigger('matched', m, terms));
+        }
+        return _results;
+      };
+
+      PathChooser.prototype.initialize = function(query, path, depth, events) {
+        var attr, cd, coll, name, ref, toPath,
+          _this = this;
+        this.query = query;
+        this.path = path;
+        this.depth = depth;
+        this.evts = this.depth === 0 ? _.extend({}, Backbone.Events) : events;
+        cd = this.path.getEndClass();
+        toPath = function(f) {
+          return _this.path.append(f);
+        };
+        this.attributes = (function() {
+          var _ref, _results;
+          _ref = cd.attributes;
+          _results = [];
+          for (name in _ref) {
+            attr = _ref[name];
+            _results.push(toPath(attr));
+          }
+          return _results;
+        })();
+        this.references = (function() {
+          var _ref, _results;
+          _ref = cd.references;
+          _results = [];
+          for (name in _ref) {
+            ref = _ref[name];
+            _results.push(toPath(ref));
+          }
+          return _results;
+        })();
+        this.collections = (function() {
+          var _ref, _results;
+          _ref = cd.collections;
+          _results = [];
+          for (name in _ref) {
+            coll = _ref[name];
+            _results.push(toPath(coll));
+          }
+          return _results;
+        })();
+        if (this.depth === 0) {
+          return this.evts.on('chosen', events);
+        }
+      };
+
+      PathChooser.DIVIDER = "<li class=\"divider\"></li>";
+
+      PathChooser.prototype.render = function() {
+        var apath, cd, cpath, currentView, rpath, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2;
+        cd = this.path.getEndClass();
+        currentView = this.query.views;
+        _ref = this.attributes;
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          apath = _ref[_i];
+          this.$el.append(new Attribute(this.query, apath, this.depth, this.evts).render().el);
+        }
+        this.$el.append(PathChooser.DIVIDER);
+        _ref1 = this.references;
+        for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+          rpath = _ref1[_j];
+          this.$el.append(new Reference(this.query, rpath, this.depth, this.evts).render().el);
+        }
+        _ref2 = this.collections;
+        for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
+          cpath = _ref2[_k];
+          this.$el.append(new Reference(this.query, cpath, this.depth, this.evts).render().el);
+        }
+        if (this.depth === 0) {
+          this.$el.addClass(this.dropDownClasses);
+        }
+        this.$el.show();
+        return this;
+      };
+
+      return PathChooser;
+
+    })(Backbone.View);
     return exporting(ConstraintAdder = (function(_super) {
 
       __extends(ConstraintAdder, _super);
 
       function ConstraintAdder() {
+        this.filterOptions = __bind(this.filterOptions, this);
+
+        this.showTree = __bind(this.showTree, this);
+
+        this.handleChoice = __bind(this.handleChoice, this);
         return ConstraintAdder.__super__.constructor.apply(this, arguments);
       }
 
@@ -162,40 +467,27 @@
       ConstraintAdder.prototype.initialize = function(query) {
         var _this = this;
         this.query = query;
-        this.initPaths();
         return this.query.on("cancel:add-constraint", function() {
           _this.$('input').show();
           return _this.$('button[type="submit"]').show();
         });
       };
 
-      ConstraintAdder.prototype.initPaths = function() {
-        var depth;
-        return this.paths = this.query.getPossiblePaths(depth = 3);
-      };
-
       ConstraintAdder.prototype.events = {
-        'submit': 'handleSubmission',
-        'focus input': 'activateSearch',
-        'blur input': 'leaveSearch',
-        'click': 'handleClick'
+        'submit': 'handleSubmission'
       };
 
       ConstraintAdder.prototype.handleKeyup = function(e) {
-        return $(e.target).next().attr({
+        return $('.btn-primary').attr({
           disabled: false
         });
-      };
-
-      ConstraintAdder.prototype.activateSearch = function(e) {
-        return $(e.target).val(this.query.root).keyup();
       };
 
       ConstraintAdder.prototype.leaveSearch = function(e) {
         var emptySearchBox;
         emptySearchBox = function() {
-          $(e.target).val("");
-          return $(e.target).next().attr({
+          $('input').val('');
+          return $('.btn-primary').attr({
             disabled: true
           });
         };
@@ -204,7 +496,9 @@
 
       ConstraintAdder.prototype.handleClick = function(e) {
         e.preventDefault();
-        e.stopPropagation();
+        if (!$(e.target).is('button')) {
+          e.stopPropagation();
+        }
         if ($(e.target).is('button[type="submit"]')) {
           return this.handleSubmission(e);
         }
@@ -223,20 +517,96 @@
         return ac.render().$el.appendTo(this.el);
       };
 
-      ConstraintAdder.prototype.initTypeahead = function() {
-        this.$('input').keyup(this.handleKeyup).typeahead({
-          source: this.paths,
-          items: 15,
-          sorter: PATH_LEN_SORTER,
-          matcher: PATH_MATCHER,
-          highlighter: PATH_HIGHLIGHTER
+      ConstraintAdder.prototype.handleChoice = function(path) {
+        this.$('input').val(path.toString());
+        return this.$('.btn-primary').attr({
+          disabled: false
         });
-        return this;
       };
 
+      ConstraintAdder.prototype.showTree = function(e) {
+        var pathFinder;
+        e.stopPropagation();
+        e.preventDefault();
+        if (this.$pathfinder) {
+          this.$pathfinder.remove();
+          return this.$pathfinder = null;
+        } else {
+          root = this.query.getPathInfo(this.query.root);
+          pathFinder = new PathChooser(this.query, root, 0, this.handleChoice);
+          pathFinder.render().$el.appendTo(this.el).show();
+          pathFinder.$el.css({
+            top: this.$el.height()
+          });
+          return this.$pathfinder = pathFinder;
+        }
+      };
+
+      ConstraintAdder.prototype.showOptions = function() {};
+
+      ConstraintAdder.prototype.filterOptions = function(e) {
+        var terms, thisTime, val, _ref, _ref1;
+        if (this.filterLock) {
+          return false;
+        }
+        this.filterLock = true;
+        if (this.$pathfinder == null) {
+          this.showTree(e);
+        }
+        val = (_ref = this.$('input').val()) != null ? _ref.replace(/\s+$/g, '').replace(/^\s+/g, '') : void 0;
+        if (val != null) {
+          this.$('.btn-primary').attr({
+            disabled: false
+          });
+        }
+        if ((val != null) && val.length >= 3) {
+          thisTime = new Date().getTime();
+          if ((!(this.lastSearch != null)) || ((this.lastSearch.time + 1000 < thisTime) && (this.lastSearch.term !== val))) {
+            if (this.lastSearch != null) {
+              this.$pathfinder.remove();
+              this.$pathfinder = null;
+              this.showTree(e);
+            }
+            console.log("Searching for " + val + " at " + thisTime);
+            this.lastSearch = {
+              time: thisTime,
+              term: val
+            };
+            terms = (val != null ? val.split(/\s+/) : void 0) || [];
+            if ((_ref1 = this.$pathfinder) != null) {
+              _ref1.searchFor(terms);
+            }
+          } else {
+            console.log("No search needed at " + thisTime);
+          }
+        }
+        return this.filterLock = false;
+      };
+
+      ConstraintAdder.prototype.inputPlaceholder = "Add a column...";
+
       ConstraintAdder.prototype.render = function() {
-        this.$el.append(CONSTRAINT_ADDER_HTML);
-        return this.initTypeahead();
+        var approver, browser, input;
+        input = this.make("input", {
+          type: "text",
+          placeholder: this.inputPlaceholder
+        });
+        this.$el.append(input);
+        browser = $(this.make('button', {
+          type: "button",
+          "class": "btn"
+        }, "Browse"));
+        approver = $(this.make('button', {
+          type: "button",
+          "class": "btn btn-primary",
+          disabled: true
+        }, "Add"));
+        this.$el.append(browser);
+        this.$el.append(approver);
+        approver.click(this.handleSubmission);
+        browser.click(this.showTree);
+        this.$('input').click(this.showOptions).keyup(this.filterOptions);
+        return this;
       };
 
       return ConstraintAdder;
@@ -245,7 +615,7 @@
   });
 
   scope("intermine.query.tools", function(exporting) {
-    var PANE_HTML, TAB_HTML, ToolBar, Tools;
+    var PANE_HTML, Step, TAB_HTML, ToolBar, Tools, Trail;
     TAB_HTML = _.template("<li>\n    <a href=\"#<%= ref %>\" data-toggle=\"tab\">\n        <%= title %>\n    </a>\n</li>");
     PANE_HTML = _.template("<div class=\"tab-pane\" id=\"<%= ref %>\"></div>");
     exporting(Tools = (function(_super) {
@@ -305,7 +675,7 @@
       return Tools;
 
     })(Backbone.View));
-    return exporting(ToolBar = (function(_super) {
+    exporting(ToolBar = (function(_super) {
 
       __extends(ToolBar, _super);
 
@@ -313,7 +683,7 @@
         return ToolBar.__super__.constructor.apply(this, arguments);
       }
 
-      ToolBar.prototype.className = "im-query-actionbar";
+      ToolBar.prototype.className = "im-query-actionbar row-fluid";
 
       ToolBar.prototype.initialize = function(query) {
         this.query = query;
@@ -323,11 +693,214 @@
         var actions;
         actions = new intermine.query.actions.ActionBar(this.query);
         actions.render().$el.appendTo(this.el);
-        this.$el.append(" <div style=\"clear: both;\"></div> ");
         return this;
       };
 
       return ToolBar;
+
+    })(Backbone.View));
+    Step = (function(_super) {
+
+      __extends(Step, _super);
+
+      function Step() {
+        return Step.__super__.constructor.apply(this, arguments);
+      }
+
+      Step.prototype.className = 'im-step';
+
+      Step.prototype.tagName = 'li';
+
+      Step.prototype.initialize = function(opts) {
+        var _this = this;
+        Step.__super__.initialize.call(this, opts);
+        this.model.on('got:count', function(count) {
+          return _this.$('.im-step-count .count').text(intermine.utils.numToString(count, ',', 3));
+        });
+        this.model.on('is:current', function(isCurrent) {
+          _this.$('.btn').toggleClass('btn-warning', !isCurrent).attr({
+            disabled: isCurrent
+          });
+          return _this.$('.btn-large').text(isCurrent ? "Current State" : "Revert to this State");
+        });
+        return this.model.on('remove', function() {
+          return _this.remove();
+        });
+      };
+
+      Step.prototype.events = {
+        'click h4': function(e) {
+          $(e.target).find('i').toggleClass("icon-chevron-right icon-chevron-down");
+          return $(e.target).next().children().toggle();
+        },
+        'click .btn': 'revertToThisState'
+      };
+
+      Step.prototype.revertToThisState = function(e) {
+        this.model.trigger('revert', this.model);
+        return this.$('.btn-small').tooltip('hide');
+      };
+
+      Step.prototype.render = function() {
+        var addSection, c, clist, details, jlist, p, path, ps, q, style, toLabel, v, vlist, _fn, _fn1, _fn2, _i, _j, _len, _len1, _ref, _ref1,
+          _this = this;
+        this.$el.append("<h2>" + (this.model.get('title')) + "</h2>\n<div class=\"im-step-details\"></div>\n<button class=\"btn btn-small\" disabled title=\"Revert to this state\"><i class=icon-refresh></i></button>\n<div class=\"im-step-count\"><span class=\"count\"></span> rows</div>\n<button class=\"btn btn-large\" disabled>Current State</button>");
+        this.$('.btn-small').tooltip();
+        q = this.model.get('query');
+        details = this.$('.im-step-details');
+        addSection = function(n, things) {
+          var section;
+          section = $("<div>\n    <h4>\n        <i class=\"icon-chevron-right\"></i>\n        " + n + " " + things + "\n    </h4>\n    <ul></ul>\n</div>");
+          section.appendTo(details);
+          return section.find('ul');
+        };
+        toLabel = function(text, type) {
+          return "<span class=\"label label-" + type + "\">" + text + "</span>";
+        };
+        ps = (function() {
+          var _i, _len, _ref, _results;
+          _ref = q.views;
+          _results = [];
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            v = _ref[_i];
+            _results.push(q.getPathInfo(v));
+          }
+          return _results;
+        })();
+        vlist = addSection(ps.length, 'Columns');
+        _fn = function(p) {
+          var li;
+          li = $('<li>');
+          vlist.append(li);
+          return p.getDisplayName(function(name) {
+            return li.append(toLabel(name, 'path'));
+          });
+        };
+        for (_i = 0, _len = ps.length; _i < _len; _i++) {
+          p = ps[_i];
+          _fn(p);
+        }
+        clist = addSection(q.constraints.length, 'Filters');
+        _ref = q.constraints;
+        _fn1 = function(c) {
+          var li;
+          li = $('<li>');
+          clist.append(li);
+          return q.getPathInfo(c.path).getDisplayName(function(name) {
+            li.append(toLabel(name, 'path'));
+            li.append(toLabel(c.op, 'info'));
+            if (c.value != null) {
+              return li.append(toLabel(c.value, 'value'));
+            } else if (c.values != null) {
+              return li.append(toLabel(c.values.join(', '), 'value'));
+            }
+          });
+        };
+        for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
+          c = _ref[_j];
+          _fn1(c);
+        }
+        jlist = addSection(_.size(q.joins), 'Joins');
+        _ref1 = q.joins;
+        _fn2 = function(path, style) {
+          var li;
+          li = $('<li>');
+          jlist.append(li);
+          return q.getPathInfo(path).getDisplayName(function(name) {
+            li.append(toLabel(name, 'path'));
+            return li.append(toLabel(style, 'info'));
+          });
+        };
+        for (path in _ref1) {
+          style = _ref1[path];
+          _fn2(path, style);
+        }
+        return this;
+      };
+
+      return Step;
+
+    })(Backbone.View);
+    return exporting(Trail = (function(_super) {
+
+      __extends(Trail, _super);
+
+      function Trail() {
+        this.minumaximise = __bind(this.minumaximise, this);
+        return Trail.__super__.constructor.apply(this, arguments);
+      }
+
+      Trail.prototype.className = "im-query-trail well minimised";
+
+      Trail.prototype.tagName = "ul";
+
+      Trail.prototype.events = {
+        'click .im-minimiser': 'minumaximise'
+      };
+
+      Trail.prototype.minumaximise = function() {
+        return this.$el.toggleClass("minimised");
+      };
+
+      Trail.prototype.startListening = function() {
+        var _this = this;
+        this.query.on("change:constraints", this.addStep("Changed Filters"));
+        this.query.on("change:views", this.addStep("Changed Columns"));
+        return this.query.on('count:is', function(count) {
+          return _this.states.last().trigger('got:count', count);
+        });
+      };
+
+      Trail.prototype.initialize = function(query, display) {
+        var _this = this;
+        this.query = query;
+        this.display = display;
+        this.currentStep = 0;
+        this.states = new Backbone.Collection();
+        this.states.on('add', function(state) {
+          return _this.$el.append(new Step({
+            model: state
+          }).render().el);
+        });
+        this.states.on('add remove', function() {
+          return _this.$el.toggle(_this.states.size() > 1);
+        });
+        this.states.on('revert', function(state) {
+          var num;
+          _this.query = state.get('query').clone();
+          num = state.get('stepNo');
+          _this.display.loadQuery(_this.query);
+          _this.startListening();
+          _this.states.remove(_this.states.filter(function(s) {
+            return s.get('stepNo') > num;
+          }));
+          return state.trigger('is:current', true);
+        });
+        this.addStep('Original State')();
+        return this.startListening();
+      };
+
+      Trail.prototype.addStep = function(title) {
+        var _this = this;
+        return function() {
+          _this.states.each(function(state) {
+            return state.trigger('is:current', false);
+          });
+          return _this.states.add({
+            query: _this.query.clone(),
+            title: title,
+            stepNo: _this.currentStep++
+          });
+        };
+      };
+
+      Trail.prototype.render = function() {
+        this.$el.append("<div class=\"im-minimiser\">view details</div>");
+        this.addStep("Original State");
+        return this;
+      };
+
+      return Trail;
 
     })(Backbone.View));
   });
@@ -937,7 +1510,8 @@
           count: intermine.utils.numToString(result.iTotalRecords, ",", 3),
           roots: "rows"
         });
-        return summary.html(html);
+        summary.html(html);
+        return this.query.trigger('count:is', result.iTotalRecords);
       };
 
       Table.prototype.serveResultsFromCache = function(start, size) {
@@ -1733,7 +2307,7 @@
         return ColumnAdder.__super__.constructor.apply(this, arguments);
       }
 
-      ColumnAdder.prototype.className = "form node-adder row-fluid";
+      ColumnAdder.prototype.className = "form node-adder input-append";
 
       ColumnAdder.prototype.handleSubmission = function(e) {
         var newPath;
@@ -1741,17 +2315,6 @@
         e.stopPropagation();
         newPath = this.$('input').val();
         return this.query.addToSelect(newPath);
-      };
-
-      ColumnAdder.prototype.render = function() {
-        var input;
-        input = this.make("input", {
-          type: "text",
-          "class": "span12",
-          placeholder: "Add a column..."
-        });
-        this.$el.append(input);
-        return this.initTypeahead();
       };
 
       return ColumnAdder;
@@ -1939,7 +2502,7 @@
         return Actions.__super__.constructor.apply(this, arguments);
       }
 
-      Actions.prototype.className = "im-query-actions";
+      Actions.prototype.className = "im-query-actions row-fluid";
 
       Actions.prototype.tagName = "ul";
 
@@ -1951,13 +2514,15 @@
         return [ListManager, CodeGenerator, Exporters];
       };
 
+      Actions.prototype.extraClass = "im-action";
+
       Actions.prototype.render = function() {
         var action, cls, _i, _len, _ref;
         _ref = this.actionClasses();
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           cls = _ref[_i];
           action = new cls(this.query);
-          action.render().$el.addClass("im-action").appendTo(this.el);
+          action.render().$el.addClass(this.extraClass).appendTo(this.el);
         }
         return this;
       };
@@ -1972,6 +2537,8 @@
       function ActionBar() {
         return ActionBar.__super__.constructor.apply(this, arguments);
       }
+
+      ActionBar.prototype.extraClass = "im-action";
 
       ActionBar.prototype.actionClasses = function() {
         return [intermine.query.columns.ColumnAdder, ListManager, CodeGenerator, Exporters];
@@ -3474,28 +4041,38 @@
 
       DashBoard.prototype.TABLE_CLASSES = "span9 im-query-results";
 
+      DashBoard.prototype.loadQuery = function(q) {
+        var k, v, _ref, _ref1;
+        this.main.empty();
+        if ((_ref = this.toolbar) != null) {
+          _ref.remove();
+        }
+        this.table = new intermine.query.results.Table(q, this.main);
+        _ref1 = this.tableProperties;
+        for (k in _ref1) {
+          v = _ref1[k];
+          this.table[k] = v;
+        }
+        this.table.render();
+        return this.renderTools(q);
+      };
+
       DashBoard.prototype.render = function() {
         var promise,
           _this = this;
         this.$el.addClass("bootstrap");
         promise = this.service.query(this.query, function(q) {
-          var cb, evt, k, main, v, _ref, _ref1, _results;
-          main = _this.make("div", {
+          var cb, evt, _ref, _results;
+          _this.main = $(_this.make("div", {
             "class": _this.TABLE_CLASSES
-          });
-          _this.$el.append(main);
-          _this.table = new intermine.query.results.Table(q, main);
-          _ref = _this.tableProperties;
-          for (k in _ref) {
-            v = _ref[k];
-            _this.table[k] = v;
-          }
-          _this.table.render();
-          _this.renderTools(q);
-          _ref1 = _this.queryEvents;
+          }));
+          _this.$el.append(_this.main);
+          _this.loadQuery(q, _this.main);
+          _this.renderTrail(q);
+          _ref = _this.queryEvents;
           _results = [];
-          for (evt in _ref1) {
-            cb = _ref1[evt];
+          for (evt in _ref) {
+            cb = _ref[evt];
             _results.push(q.on(evt, cb));
           }
           return _results;
@@ -3507,13 +4084,19 @@
       };
 
       DashBoard.prototype.renderTools = function(q) {
-        var toolbar, tools;
+        var tools;
         tools = this.make("div", {
           "class": "span3 im-query-toolbox"
         });
         this.$el.append(tools);
-        toolbar = new intermine.query.tools.Tools(q);
-        return toolbar.render().$el.appendTo(tools);
+        this.toolbar = new intermine.query.tools.Tools(q);
+        return this.toolbar.render().$el.appendTo(tools);
+      };
+
+      DashBoard.prototype.renderTrail = function(q) {
+        var trail;
+        trail = new intermine.query.tools.Trail(q, this);
+        return trail.render().$el.prependTo(this.el);
       };
 
       return DashBoard;
@@ -3532,9 +4115,8 @@
       CompactView.prototype.TABLE_CLASSES = "im-query-results";
 
       CompactView.prototype.renderTools = function(q) {
-        var toolbar;
-        toolbar = new intermine.query.tools.ToolBar(q);
-        return toolbar.render().$el.prependTo(this.el);
+        this.toolbar = new intermine.query.tools.ToolBar(q);
+        return this.toolbar.render().$el.insertBefore(this.main);
       };
 
       return CompactView;
