@@ -4,33 +4,87 @@ scope "intermine.query.results.table", (exporting) ->
         tagName: 'li'
         className: 'im-reorderable breadcrumb'
 
-        initialize: (@query, @ojg, @views, @indices) ->
+        initialize: (@query, @ojg, views, @indices) ->
+            paths = (@query.getPathInfo(v) for v in views)
+            @nodes = _.groupBy(paths, (p) -> p.getParent().toString())
+
+        getViews: () ->
+            ret = []
+            for key in _.sortBy(_.keys(@nodes), (k) -> k.length) then do (key) =>
+                node = @nodes[key]
+                for p in node
+                    ret.push p.toString()
+            ret
 
         render: () ->
-            @$el.append '<i class=icon-move></i>'
+            @$el.append '<i class="icon-reorder pull-right"></i>'
             h4 = $ '<h4>'
             @$el.append h4
             @ojg.getDisplayName (name) -> h4.text name
             @$el.data 'indices', @indices
             @$el.data 'path', @ojg.toString()
             ul = $ '<ul>'
-            for v in @views then do (v) =>
-                li = $ '<li class="im-outer-joined-path">'
-                ul.append li
-                @query.getPathInfo(v).getDisplayName (name) =>
-                    @ojg.getDisplayName (ojname) ->
-                        li.text name.replace(ojname, '').replace(/^\s*>?\s*/, '')
+            for key in _.sortBy(_.keys(@nodes), (k) -> k.length) then do (key) =>
+                paths = @nodes[key]
+                for p in paths then do (p) =>
+                    li = $ '<li class="im-outer-joined-path">'
+                    ul.append li
+                    p.getDisplayName (name) =>
+                        @ojg.getDisplayName (ojname) ->
+                            li.text name.replace(ojname, '').replace(/^\s*>?\s*/, '')
             @$el.append ul
+            this
+
+        addPath: (path) ->
+            pi = @query.getPathInfo(path)
+            node = @nodes[pi.getParent().toString()]
+            unless node?
+                node = @nodes[pi.getParent().toString()] = []
+            node.push pi
+            @$el.empty()
+            @render()
+
+    class ColumnAdder extends intermine.query.ConstraintAdder
+        className: "form node-adder input-append"
+
+        handleSubmission: (e) =>
+            e.preventDefault()
+            e.stopPropagation()
+            newPath = @$('input').val()
+            @query.trigger 'column-orderer:selected', newPath
+            @$('.btn-chooser').button('toggle')
+            @$pathfinder?.remove()
+            @$pathfinder = null
+
+        render: () ->
+            super()
+            @$('input').hide()
             this
 
     exporting class ColumnOrderer extends Backbone.View
         
         initialize: (@query) ->
             @query.on "change:sortorder", @initSorting
+            @query.on 'column-orderer:selected', (path) =>
+                if @query.isOuterJoined(path)
+                    ojg = _.last(
+                        _.sortBy(
+                            _.filter(
+                                _.values(@ojgs),
+                                (ojg) -> !!path.match(ojg.ojg.toString())
+                            ),
+                            (ojg) -> ojg.ojg.descriptors.length
+                        ))
+                    ojg.addPath(path)
+                else
+                    moveableView = $ @viewTemplate path: path, displayName: path, idx: ''
+                    @query.getPathInfo(path).getDisplayName (name) ->
+                        moveableView.find('.im-display-name').text name
+                    moveableView.appendTo @$ '.im-reordering-container'
 
         template: _.template """
             <a class="btn btn-large im-reorderer">
-                <i class="icon-move"></i>
+                <i class="icon-wrench"></i>
                 Manage Columns
             </a>
             <div class="modal fade im-col-order-dialog">
@@ -45,6 +99,7 @@ scope "intermine.query.results.table", (exporting) ->
                     </ul>
                     <div class="tab-content">
                         <div class="tab-pane fade im-reordering active in">
+                            <div class="node-adder"></div>
                             <ul class="im-reordering-container well"></ul>
                         </div>
                         <div class="tab-pane fade im-sorting">
@@ -62,11 +117,12 @@ scope "intermine.query.results.table", (exporting) ->
                     </a>
                 </div>
             </div>
+            <div style="clear: both;"></div>
         """
 
         viewTemplate: _.template """
             <li class="im-reorderable breadcrumb" data-col-idx="<%= idx %>" data-path="<%- path %>">
-                <i class="icon-move"></i>
+                <i class="icon-reorder pull-right""></i>
                 <h4 class="im-display-name"><%- displayName %></span>
             </li>
         """
@@ -100,7 +156,7 @@ scope "intermine.query.results.table", (exporting) ->
         initOrdering: ->
             colContainer = @$ '.im-reordering-container'
             colContainer.empty()
-            processed = {}
+            @ojgs = {}
             for v, i in @query.views then do (v, i) =>
                 if @query.isOuterJoined(v)
                     # find oj closest to root
@@ -109,18 +165,23 @@ scope "intermine.query.results.table", (exporting) ->
                     while !pi?.isRoot()
                         pi = pi.getParent()
                         oj = if @query.joins[pi.toString()] is 'OUTER' then pi else oj
-                    unless processed[oj.toString()] # done this already.
-                        vandi = ([v, i] for v, i in @query.views when (v.match(oj.toString())))
+                    ojStr = oj.toString()
+                    unless @ojgs[ojStr] # done this already.
+                        vandi = ([v, i] for v, i in @query.views when (v.match(ojStr)))
                         views = (x[0] for x in vandi)
                         indices = (x[1] for x in vandi)
-                        moveableView = new OuterJoinGroup(@query, oj, views, indices).render().el
-                        processed[oj.toString()] = true
+                        ojg = new OuterJoinGroup(@query, oj, views, indices)
+                        @ojgs[ojStr] = ojg
+                        moveableView = ojg.render().el
                 else
                     moveableView = $ @viewTemplate(idx: i, displayName: v, path: v)
                     @query.getPathInfo(v).getDisplayName (name) ->
                         moveableView.find('.im-display-name').text name
 
                 colContainer.append moveableView
+            nodeAdder = @$ '.node-adder'
+            ca = new ColumnAdder(@query)
+            nodeAdder.empty().append ca.render().el # TODO: make this work nicely in the modal.
             colContainer
 
         sortCol: (e) ->
@@ -230,7 +291,9 @@ scope "intermine.query.results.table", (exporting) ->
                 if pi.isAttribute()
                     newViews.push p
                 else
-                    for v in @query.views when (v.match(p))
+                    console.log(p, @ojgs)
+                    ojg = @ojgs[p]
+                    for v in ojg.getViews()
                         newViews.push(v)
 
             @$('.modal').modal('hide')

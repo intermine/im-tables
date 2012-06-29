@@ -42,7 +42,7 @@ scope "intermine.query.actions", (exporting) ->
     exporting class ActionBar extends Actions
         extraClass: "im-action"
         actionClasses: ->
-            [intermine.query.columns.ColumnAdder, ListManager, CodeGenerator, Exporters]
+            [ListManager, CodeGenerator, Exporters]
 
     class ListDialogue extends Backbone.View
         tagName: "li"

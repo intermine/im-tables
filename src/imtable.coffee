@@ -1,8 +1,11 @@
 scope "intermine.css", {
+    unsorted: "icon-sort",
+    sortedASC: "icon-sort-up",
+    sortedDESC: "icon-sort-down",
     headerIcon: "icon-white"
     headerIconRemove: "icon-remove-sign"
     headerIconHide: "icon-minus-sign"
-    headerIconSummary: "icon-info-sign"
+    headerIconSummary: "icon-bar-chart"
 }
 
 scope "intermine.query.results", (exporting) ->
@@ -141,7 +144,7 @@ scope "intermine.query.results", (exporting) ->
                     <div class="im-th-buttons">
                         <% if (sortable) { %>
                             <div class="im-th-button im-col-sort-indicator" title="sort this column">
-                                <i class="icon-resize-vertical #{ intermine.css.headerIcon }"></i>
+                                <i class="icon-sorting #{intermine.css.unsorted} #{ intermine.css.headerIcon }"></i>
                             </div>
                         <% }; %>
                         <div class="im-th-button im-col-remover" title="remove this column" data-view="<%= view %>">
@@ -177,13 +180,12 @@ scope "intermine.query.results", (exporting) ->
                 
             tr.append th
             th.find('.im-th-button').tooltip(placement: "left")
-            sortButton = th.find('.icon-resize-vertical')
+            sortButton = th.find('.icon-sort-dir')
             setDirectionClass = (d) ->
-                sortButton.addClass("icon-resize-vertical")
-                sortButton.removeClass("icon-arrow-up icon-arrow-down")
-                switch d
-                    when 'ASC' then sortButton.toggleClass "icon-resize-vertical icon-arrow-up"
-                    when 'DESC' then sortButton.toggleClass "icon-resize-vertical icon-arrow-down"
+                sortButton.addClass(intermine.css.unsorted)
+                sortButton.removeClass("#{ intermine.css.sortedASC } #{ intermine.css.sortedDESC }")
+                if d
+                    sortButton.toggleClass("#{ intermine.css.unsorted } #{ intermine.css['sorted' + d] }")
 
             setDirectionClass(direction)
             @query.on "set:sortorder", ->
@@ -217,7 +219,7 @@ scope "intermine.query.results", (exporting) ->
             else
                 th.find('.summary-img').click(@showOuterJoinedColumnSummaries(path)).dropdown()
                 expandAll = $ """<div class="im-th-button" title="Expand/Collapse all subtables">
-                    <i class="icon-th-list icon-white"></i>
+                    <i class="icon-table icon-white"></i>
                 </div>"""
                 expandAll.tooltip placement: 'left'
                 th.find('.im-th-buttons').prepend expandAll
@@ -592,9 +594,6 @@ scope "intermine.query.results", (exporting) ->
 
         render: ->
             @$el.empty()
-            @$el.append """
-                <div class="im-table-summary"></div>
-            """
 
             tel = @make "table", @tableAttrs
             @$el.append tel
@@ -644,12 +643,15 @@ scope "intermine.query.results", (exporting) ->
 
         onSetupSuccess: (telem) -> (result) =>
             $telem = jQuery(telem).empty()
+            $widgets = $('<div>').insertBefore(telem)
 
-            reorderer = new intermine.query.results.table.ColumnOrderer(@query)
-            reorderer.render().$el.insertBefore(telem)
-
-            $pagination = $(@paginationTempl()).insertBefore(telem)
+            $pagination = $(@paginationTempl()).appendTo($widgets)
             $pagination.find('li').tooltip(placement: "left")
+
+            $widgets.append """
+                <div class="im-table-summary"></div>
+            """
+
             pageSelector = $pagination.find('select').change =>
                 @table.goToPage pageSelector.val()
                 currentPageButton.show()
@@ -661,8 +663,11 @@ scope "intermine.query.results", (exporting) ->
                 currentPageButton.hide()
                 pageSelector.parent().show()
 
+            reorderer = new intermine.query.results.table.ColumnOrderer(@query)
+            reorderer.render().$el.appendTo($widgets)
+
             if @bar is 'horizontal'
-                $scrollwrapper = $(@horizontalScroller).insertBefore(telem)
+                $scrollwrapper = $(@horizontalScroller).appendTo($widgets)
                 scrollbar = @$ '.scroll-bar'
 
                 currentPos = 0
@@ -685,6 +690,7 @@ scope "intermine.query.results", (exporting) ->
                 scrollbar.tooltip
                     trigger: "manual"
                     title: => "#{(currentPos + 1).toFixed()} ... #{(currentPos + @table.pageSize).toFixed()}"
+            $widgets.append """<div style="clear:both"></div>"""
 
             @table = new ResultsTable @query, @getRowData
             @table.setElement(telem)

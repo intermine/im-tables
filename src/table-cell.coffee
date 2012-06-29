@@ -6,9 +6,13 @@ scope "intermine.results.table", (exporting) ->
                 <% if (selected) { %>checked <% }; %>
                 data-obj-type="<%= type %>">
             <% if (value == null) { %>
-            <span class="null-value">no value</span>
+                <span class="null-value">no value</span>
             <% } else { %>
-                <a class="im-cell-link" href="<%= base %><%= url %>"><%= value %></a>
+                <% if (url != null && url.match(/^http/)) { %>
+                  <a class="im-cell-link" href="<%= url %>"><%= value %></a>
+                <% } else { %>
+                  <a class="im-cell-link" href="<%= base %><%= url %>"><%= value %></a>
+                <% } %>
             <% } %>
             <% if (field == 'url') { %>
                 <a class="im-cell-link external" href="<%= value %>"><i class="icon-globe"></i>link</a>
@@ -43,7 +47,7 @@ scope "intermine.results.table", (exporting) ->
                     """#{@rows[0][0].value} (#{@rows[0][1 ..].map((c) -> c.value).join(', ')})"""
 
         render: () ->
-            icon = if @rows.length > 0 then '<i class=icon-th-list></i>' else '<i class=icon-non-existent></i>'
+            icon = if @rows.length > 0 then '<i class=icon-table></i>' else '<i class=icon-non-existent></i>'
             summary = $ """<span>#{ icon }&nbsp;#{ @getSummaryText() }</span>"""
             summary.addClass('im-subtable-summary').appendTo @$el
             t = $ '<table><thead><tr></tr></thead><tbody></tbody></table>'

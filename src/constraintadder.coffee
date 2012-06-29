@@ -40,6 +40,7 @@ scope "intermine.query", (exporting) ->
             e.stopPropagation()
             e.preventDefault()
             @evts.trigger 'chosen', @path
+            @$el.addClass 'active'
 
         initialize: (@query, @path, @depth, @evts) ->
             @evts.on 'remove', () => @remove()
@@ -202,8 +203,6 @@ scope "intermine.query", (exporting) ->
             @$('.btn-primary').attr disabled: false
 
         showTree: (e) =>
-            e.stopPropagation()
-            e.preventDefault()
             if @$pathfinder
                 @$pathfinder.remove()
                 @$pathfinder = null
@@ -248,7 +247,13 @@ scope "intermine.query", (exporting) ->
                 type: "text",
                 placeholder: @inputPlaceholder
             @$el.append input
-            browser = $ @make 'button', {type: "button", class: "btn"}, "Browse"
+            browser = $ """
+                    <button type="button" class="btn btn-chooser" data-toggle="button">
+                        <i class="icon-sitemap"></i>
+                        Browse
+                    </button>
+                """
+
             approver = $ @make 'button', {type: "button", class: "btn btn-primary", disabled: true}, "Add"
             @$el.append browser
             @$el.append approver

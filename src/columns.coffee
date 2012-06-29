@@ -35,14 +35,14 @@ scope "intermine.query.columns", (exporting) ->
 
             this
 
-    exporting class ColumnAdder extends intermine.query.ConstraintAdder
-        className: "form node-adder input-append"
-
-        handleSubmission: (e) =>
-            e.preventDefault()
-            e.stopPropagation()
-            newPath = @$('input').val()
-            @query.addToSelect newPath
+    #exporting class ColumnAdder extends intermine.query.ConstraintAdder
+    #    className: "form node-adder input-append"
+    #
+    #    handleSubmission: (e) =>
+    #        e.preventDefault()
+    #        e.stopPropagation()
+    #        newPath = @$('input').val()
+    #        @query.addToSelect newPath
 
     JOIN_TOGGLE_HTML = _.template """
         <form class="form-inline pull-right im-join">
