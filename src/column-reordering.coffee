@@ -198,15 +198,15 @@ scope "intermine.query.results.table", (exporting) ->
                 <% } else { %>
                     <span class="im-sort-direction desc"></span>
                 <% } %>
-                <%- path %>
+                <span class="im-path" title="<%- path %>"><%- path %></span>
                 <i class="icon-minus pull-right im-remove-soe" title="Remove this column from the sort order"></i>
             </li>
         """
 
         possibleSortOptionTemplate: _.template """
             <li class="im-reorderable breadcrumb" data-path="<%- path %>">
-                <%- path %>
                 <i class="icon-plus pull-right im-add-soe" title="Add this column to the sort order"></i>
+                <span title="<%- path %>"><%- path %></span>
             </li>
         """
 
@@ -217,6 +217,8 @@ scope "intermine.query.results.table", (exporting) ->
             $elem.remove()
             possibilities = @$ '.im-sorting-container-possibilities'
             psoe = $ @possibleSortOptionTemplate path: path
+            do (psoe) => @query.getPathInfo(path).getDisplayName (name) ->
+                psoe.find('span').text name
             psoe.draggable
                 revert: "invalid"
                 revertDuration: 100
@@ -238,9 +240,16 @@ scope "intermine.query.results.table", (exporting) ->
 
         makeSortOrderElem: (so) ->
             soe = $ @soTemplate so
+            @query.getPathInfo(so.path).getDisplayName (name) -> soe.find('.im-path').text name
             soe.addClass("numeric") if @query.getPathInfo(so.path).getType() in intermine.Model.NUMERIC_TYPES
             soe.find('.im-remove-soe').tooltip()
             soe
+
+        makeSortOption: (path) ->
+            option = $ @possibleSortOptionTemplate path: path
+            do (option) => @query.getPathInfo(path).getDisplayName (name) ->
+                option.find('span').text name
+            return option
 
         initSorting: =>
             container = @$ '.im-sorting-container'
@@ -251,11 +260,11 @@ scope "intermine.query.results.table", (exporting) ->
             possibilities = @$ '.im-sorting-container-possibilities'
             possibilities.empty()
             for v in @query.views when not @query.getSortDirection(v) and not @query.isOuterJoined(v)
-                possibilities.append @possibleSortOptionTemplate path: v
+                possibilities.append @makeSortOption v
 
             for n in @query.getQueryNodes() when not @query.isOuterJoined n.toPathString()
                 for cn in n.getChildNodes() when cn.isAttribute() and cn.toPathString() not in @query.views
-                    possibilities.append @possibleSortOptionTemplate path: cn.toPathString()
+                    possibilities.append @makeSortOption cn.toPathString()
 
             possibilities.find("li").draggable
                 revert: "invalid"

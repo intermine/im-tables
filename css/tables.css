@@ -483,6 +483,12 @@ table.table {
     left: 3em;
 }
 
+.im-table-container th.im-has-constraint {
+    border: 2px dashed #ccc;
+}
+.im-table-container th.im-has-constraint .im-col-filters {
+    color: #08c;
+}
 
 th .im-col-summary.navbar {
     margin-bottom: 0px;
@@ -572,6 +578,7 @@ table.table thead .sorting_desc_disabled {
     display: block;    
 }
 
+
 .im-summary.dropdown {
     display: inline-block;
     float: right;
@@ -590,6 +597,10 @@ table.table thead .sorting_desc_disabled {
     max-width: 26em;
     font-family: 'Muli', 'Helvetica', sans-serif;
     font-weight: normal;
+}
+
+.im-filter-summary .dropdown-menu {
+    top: 65px;
 }
 
 tr > th:last-child .im-th-buttons .dropdown-menu {

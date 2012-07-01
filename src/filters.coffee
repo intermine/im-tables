@@ -76,7 +76,7 @@ scope "intermine.query.filters", (exporting) ->
                 con = new intermine.query.ActiveConstraint(@query, c)
                 con.render().$el.appendTo $ ul
 
-            @getConAdder().render().$el.appendTo @el
+            @getConAdder()?.render().$el.appendTo @el
 
             this
 
@@ -102,7 +102,10 @@ scope "intermine.query.filters", (exporting) ->
 
         getConAdder: -> new SingleConstraintAdder(@query, @view)
 
-        getConstraints: -> c for c in @query.constraints when c.path is @view
+        getConstraints: -> c for c in @query.constraints when (c.path.match @view)
+
+    exporting class SingleColumnConstraintsSummary extends SingleColumnConstraints
+        getConAdder: ->
 
         render: ->
             super()

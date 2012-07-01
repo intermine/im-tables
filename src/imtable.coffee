@@ -5,6 +5,7 @@ scope "intermine.css", {
     headerIcon: "icon-white"
     headerIconRemove: "icon-remove-sign"
     headerIconHide: "icon-minus-sign"
+    headerIconFilter: "icon-filter"
     headerIconSummary: "icon-bar-chart"
 }
 
@@ -153,6 +154,16 @@ scope "intermine.query.results", (exporting) ->
                         <div class="im-th-button im-col-minumaximiser" title="Hide column" data-col-idx="<%= i %>">
                             <i class="#{ intermine.css.headerIconHide } #{ intermine.css.headerIcon }"></i>
                         </div>
+                        <div class="dropdown im-filter-summary">
+                            <div class="im-th-button im-col-filters dropdown-toggle"
+                                 title="column summary"
+                                 data-toggle="dropdown" data-col-idx="<%= i %>" >
+                                <i class="#{ intermine.css.headerIconFilter } #{ intermine.css.headerIcon }"></i>
+                            </div>
+                            <div class="dropdown-menu">
+                                <div>Could not ititialise the filter summary.</div>
+                            </div>
+                        </div>
                         <div class="dropdown im-summary">
                             <div class="im-th-button summary-img dropdown-toggle" title="column summary"
                                 data-toggle="dropdown" data-col-idx="<%= i %>" >
@@ -179,8 +190,11 @@ scope "intermine.query.results", (exporting) ->
                 sortable: sortable
                 
             tr.append th
+
+            if _.any q.constraints, ((c) -> !!c.path.match(view))
+                th.addClass 'im-has-constraint'
             th.find('.im-th-button').tooltip(placement: "left")
-            sortButton = th.find('.icon-sort-dir')
+            sortButton = th.find('.icon-sorting')
             setDirectionClass = (d) ->
                 sortButton.addClass(intermine.css.unsorted)
                 sortButton.removeClass("#{ intermine.css.sortedASC } #{ intermine.css.sortedDESC }")
@@ -190,10 +204,10 @@ scope "intermine.query.results", (exporting) ->
             setDirectionClass(direction)
             @query.on "set:sortorder", ->
                 sd = q.getSortDirection(view)
-                setDirectionClass(sd) if sd
+                setDirectionClass(sd)
 
             direction = (ResultsTable.nextDirections[ direction ] or "ASC")
-            sortButton.click (e) ->
+            sortButton.parent().click (e) ->
                 $elem = $ this
                 #if e.shiftKey # allow multiple orders?
                 #    q.addOrSetSortOrder
@@ -201,11 +215,6 @@ scope "intermine.query.results", (exporting) ->
                 #        direction: direction
                 #else
                 q.orderBy([{path: view, direction: direction}])
-                tr.find('.im-col-sort-indicator i').removeClass "icon-arrow-up icon-arrow-down"
-                tr.find('.im-col-sort-indicator i').addClass "icon-resize-vertical"
-                switch direction
-                    when "ASC" then sortButton.toggleClass "icon-resize-vertical icon-arrow-up"
-                    when "DESC" then sortButton.toggleClass "icon-resize-vertical icon-arrow-down"
                 direction = ResultsTable.nextDirections[ direction ]
             minumaximiser = th.find('.im-col-minumaximiser')
             minumaximiser.click (e) =>
@@ -213,6 +222,8 @@ scope "intermine.query.results", (exporting) ->
                 isMinimised = @minimisedCols[i] = !@minimisedCols[i]
                 th.find('.im-col-title').toggle(!isMinimised)
                 @fill()
+            filterSummary = th.find('.im-col-filters')
+            filterSummary.click(@showFilterSummary(view)).dropdown()
             path = q.getPathInfo view
             if path.isAttribute()
                 th.find('.summary-img').click(@showColumnSummary(path)).dropdown()
@@ -267,6 +278,15 @@ scope "intermine.query.results", (exporting) ->
             $el = jQuery(e.target).closest '.summary-img'
             unless $el.parent().hasClass 'open'
                 summ = new intermine.query.results.OuterJoinDropDown(path, @query)
+                $el.siblings('.dropdown-menu').html(summ.render().el)
+
+            false
+
+        showFilterSummary: (path) -> (e) =>
+            console.log path
+            $el = jQuery(e.target).closest '.im-col-filters'
+            unless $el.parent().hasClass 'open'
+                summ = new intermine.query.filters.SingleColumnConstraints(@query, path)
                 $el.siblings('.dropdown-menu').html(summ.render().el)
 
             false

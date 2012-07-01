@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Fri Jun 29 2012 18:13:25 GMT+0100 (BST)
+ * Built at Sun Jul 01 2012 17:11:18 GMT+0100 (BST)
 */
 
 
@@ -918,6 +918,7 @@
     headerIcon: "icon-white",
     headerIconRemove: "icon-remove-sign",
     headerIconHide: "icon-minus-sign",
+    headerIconFilter: "icon-filter",
     headerIconSummary: "icon-bar-chart"
   });
 
@@ -1099,11 +1100,11 @@
       };
 
       ResultsTable.prototype.columnHeaderTempl = function(ctx) {
-        return _.template("<th title=\"<%- title %>\">\n    <div class=\"navbar\">\n        <div class=\"im-th-buttons\">\n            <% if (sortable) { %>\n                <div class=\"im-th-button im-col-sort-indicator\" title=\"sort this column\">\n                    <i class=\"icon-sorting " + intermine.css.unsorted + " " + intermine.css.headerIcon + "\"></i>\n                </div>\n            <% }; %>\n            <div class=\"im-th-button im-col-remover\" title=\"remove this column\" data-view=\"<%= view %>\">\n                <i class=\"" + intermine.css.headerIconRemove + " " + intermine.css.headerIcon + "\"></i>\n            </div>\n            <div class=\"im-th-button im-col-minumaximiser\" title=\"Hide column\" data-col-idx=\"<%= i %>\">\n                <i class=\"" + intermine.css.headerIconHide + " " + intermine.css.headerIcon + "\"></i>\n            </div>\n            <div class=\"dropdown im-summary\">\n                <div class=\"im-th-button summary-img dropdown-toggle\" title=\"column summary\"\n                    data-toggle=\"dropdown\" data-col-idx=\"<%= i %>\" >\n                    <i class=\"" + intermine.css.headerIconSummary + " " + intermine.css.headerIcon + "\"></i>\n                </div>\n                <div class=\"dropdown-menu\">\n                    <div>Could not ititialise the column summary.</div>\n                </div>\n            </div>\n        </div>\n        <span class=\"im-col-title\"><%- title %></span>\n    </div>\n</th>", ctx);
+        return _.template("<th title=\"<%- title %>\">\n    <div class=\"navbar\">\n        <div class=\"im-th-buttons\">\n            <% if (sortable) { %>\n                <div class=\"im-th-button im-col-sort-indicator\" title=\"sort this column\">\n                    <i class=\"icon-sorting " + intermine.css.unsorted + " " + intermine.css.headerIcon + "\"></i>\n                </div>\n            <% }; %>\n            <div class=\"im-th-button im-col-remover\" title=\"remove this column\" data-view=\"<%= view %>\">\n                <i class=\"" + intermine.css.headerIconRemove + " " + intermine.css.headerIcon + "\"></i>\n            </div>\n            <div class=\"im-th-button im-col-minumaximiser\" title=\"Hide column\" data-col-idx=\"<%= i %>\">\n                <i class=\"" + intermine.css.headerIconHide + " " + intermine.css.headerIcon + "\"></i>\n            </div>\n            <div class=\"dropdown im-filter-summary\">\n                <div class=\"im-th-button im-col-filters dropdown-toggle\"\n                     title=\"column summary\"\n                     data-toggle=\"dropdown\" data-col-idx=\"<%= i %>\" >\n                    <i class=\"" + intermine.css.headerIconFilter + " " + intermine.css.headerIcon + "\"></i>\n                </div>\n                <div class=\"dropdown-menu\">\n                    <div>Could not ititialise the filter summary.</div>\n                </div>\n            </div>\n            <div class=\"dropdown im-summary\">\n                <div class=\"im-th-button summary-img dropdown-toggle\" title=\"column summary\"\n                    data-toggle=\"dropdown\" data-col-idx=\"<%= i %>\" >\n                    <i class=\"" + intermine.css.headerIconSummary + " " + intermine.css.headerIcon + "\"></i>\n                </div>\n                <div class=\"dropdown-menu\">\n                    <div>Could not ititialise the column summary.</div>\n                </div>\n            </div>\n        </div>\n        <span class=\"im-col-title\"><%- title %></span>\n    </div>\n</th>", ctx);
       };
 
       ResultsTable.prototype.buildColumnHeader = function(view, i, title, tr) {
-        var cmd, cmds, direction, expandAll, minumaximiser, path, q, setDirectionClass, sortButton, sortable, th,
+        var cmd, cmds, direction, expandAll, filterSummary, minumaximiser, path, q, setDirectionClass, sortButton, sortable, th,
           _this = this;
         q = this.query;
         direction = q.getSortDirection(view);
@@ -1115,10 +1116,15 @@
           sortable: sortable
         }));
         tr.append(th);
+        if (_.any(q.constraints, (function(c) {
+          return !!c.path.match(view);
+        }))) {
+          th.addClass('im-has-constraint');
+        }
         th.find('.im-th-button').tooltip({
           placement: "left"
         });
-        sortButton = th.find('.icon-sort-dir');
+        sortButton = th.find('.icon-sorting');
         setDirectionClass = function(d) {
           sortButton.addClass(intermine.css.unsorted);
           sortButton.removeClass("" + intermine.css.sortedASC + " " + intermine.css.sortedDESC);
@@ -1130,12 +1136,10 @@
         this.query.on("set:sortorder", function() {
           var sd;
           sd = q.getSortDirection(view);
-          if (sd) {
-            return setDirectionClass(sd);
-          }
+          return setDirectionClass(sd);
         });
         direction = ResultsTable.nextDirections[direction] || "ASC";
-        sortButton.click(function(e) {
+        sortButton.parent().click(function(e) {
           var $elem;
           $elem = $(this);
           q.orderBy([
@@ -1144,15 +1148,6 @@
               direction: direction
             }
           ]);
-          tr.find('.im-col-sort-indicator i').removeClass("icon-arrow-up icon-arrow-down");
-          tr.find('.im-col-sort-indicator i').addClass("icon-resize-vertical");
-          switch (direction) {
-            case "ASC":
-              sortButton.toggleClass("icon-resize-vertical icon-arrow-up");
-              break;
-            case "DESC":
-              sortButton.toggleClass("icon-resize-vertical icon-arrow-down");
-          }
           return direction = ResultsTable.nextDirections[direction];
         });
         minumaximiser = th.find('.im-col-minumaximiser');
@@ -1163,6 +1158,8 @@
           th.find('.im-col-title').toggle(!isMinimised);
           return _this.fill();
         });
+        filterSummary = th.find('.im-col-filters');
+        filterSummary.click(this.showFilterSummary(view)).dropdown();
         path = q.getPathInfo(view);
         if (path.isAttribute()) {
           return th.find('.summary-img').click(this.showColumnSummary(path)).dropdown();
@@ -1247,6 +1244,20 @@
           $el = jQuery(e.target).closest('.summary-img');
           if (!$el.parent().hasClass('open')) {
             summ = new intermine.query.results.OuterJoinDropDown(path, _this.query);
+            $el.siblings('.dropdown-menu').html(summ.render().el);
+          }
+          return false;
+        };
+      };
+
+      ResultsTable.prototype.showFilterSummary = function(path) {
+        var _this = this;
+        return function(e) {
+          var $el, summ;
+          console.log(path);
+          $el = jQuery(e.target).closest('.im-col-filters');
+          if (!$el.parent().hasClass('open')) {
+            summ = new intermine.query.filters.SingleColumnConstraints(_this.query, path);
             $el.siblings('.dropdown-menu').html(summ.render().el);
           }
           return false;
@@ -1939,7 +1950,7 @@
         var cons, heading, summ;
         heading = new SummaryHeading(this.query, this.view);
         heading.render().$el.appendTo(this.el);
-        cons = new intermine.query.filters.SingleColumnConstraints(this.query, this.view);
+        cons = new intermine.query.filters.SingleColumnConstraintsSummary(this.query, this.view);
         cons.render().$el.appendTo(this.el);
         summ = new intermine.results.ColumnSummary(this.view, this.query);
         summ.noTitle = true;
@@ -2000,7 +2011,7 @@
   });
 
   scope("intermine.query.filters", function(exporting) {
-    var Constraints, FACETS, Facets, Filters, SingleColumnConstraints, SingleConstraintAdder;
+    var Constraints, FACETS, Facets, Filters, SingleColumnConstraints, SingleColumnConstraintsSummary, SingleConstraintAdder;
     exporting(Filters = (function(_super) {
 
       __extends(Filters, _super);
@@ -2131,7 +2142,7 @@
       };
 
       Constraints.prototype.render = function() {
-        var c, cons, ul, _fn, _i, _len,
+        var c, cons, ul, _fn, _i, _len, _ref,
           _this = this;
         cons = this.getConstraints();
         this.$el.empty();
@@ -2145,7 +2156,9 @@
           c = cons[_i];
           _fn(c);
         }
-        this.getConAdder().render().$el.appendTo(this.el);
+        if ((_ref = this.getConAdder()) != null) {
+          _ref.render().$el.appendTo(this.el);
+        }
         return this;
       };
 
@@ -2188,7 +2201,7 @@
       return SingleConstraintAdder;
 
     })(intermine.query.ConstraintAdder);
-    return exporting(SingleColumnConstraints = (function(_super) {
+    exporting(SingleColumnConstraints = (function(_super) {
 
       __extends(SingleColumnConstraints, _super);
 
@@ -2211,16 +2224,29 @@
         _results = [];
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           c = _ref[_i];
-          if (c.path === this.view) {
+          if (c.path.match(this.view)) {
             _results.push(c);
           }
         }
         return _results;
       };
 
-      SingleColumnConstraints.prototype.render = function() {
+      return SingleColumnConstraints;
+
+    })(Constraints));
+    return exporting(SingleColumnConstraintsSummary = (function(_super) {
+
+      __extends(SingleColumnConstraintsSummary, _super);
+
+      function SingleColumnConstraintsSummary() {
+        return SingleColumnConstraintsSummary.__super__.constructor.apply(this, arguments);
+      }
+
+      SingleColumnConstraintsSummary.prototype.getConAdder = function() {};
+
+      SingleColumnConstraintsSummary.prototype.render = function() {
         var cons;
-        SingleColumnConstraints.__super__.render.call(this);
+        SingleColumnConstraintsSummary.__super__.render.call(this);
         cons = this.getConstraints();
         if (cons.length < 1) {
           this.undelegateEvents();
@@ -2229,9 +2255,9 @@
         return this;
       };
 
-      return SingleColumnConstraints;
+      return SingleColumnConstraintsSummary;
 
-    })(Constraints));
+    })(SingleColumnConstraints));
   });
 
   scope("intermine.query.columns", function(exporting) {
@@ -4415,12 +4441,13 @@
         return $(e.target).toggleClass("asc desc");
       };
 
-      ColumnOrderer.prototype.soTemplate = _.template("<li class=\"im-reorderable breadcrumb im-soe\" \n    data-path=\"<%- path %>\" data-direction=\"<%- direction %>\">\n    <% if (direction === 'ASC') { %>\n        <span class=\"im-sort-direction asc\"></span>\n    <% } else { %>\n        <span class=\"im-sort-direction desc\"></span>\n    <% } %>\n    <%- path %>\n    <i class=\"icon-minus pull-right im-remove-soe\" title=\"Remove this column from the sort order\"></i>\n</li>");
+      ColumnOrderer.prototype.soTemplate = _.template("<li class=\"im-reorderable breadcrumb im-soe\" \n    data-path=\"<%- path %>\" data-direction=\"<%- direction %>\">\n    <% if (direction === 'ASC') { %>\n        <span class=\"im-sort-direction asc\"></span>\n    <% } else { %>\n        <span class=\"im-sort-direction desc\"></span>\n    <% } %>\n    <span class=\"im-path\" title=\"<%- path %>\"><%- path %></span>\n    <i class=\"icon-minus pull-right im-remove-soe\" title=\"Remove this column from the sort order\"></i>\n</li>");
 
-      ColumnOrderer.prototype.possibleSortOptionTemplate = _.template("<li class=\"im-reorderable breadcrumb\" data-path=\"<%- path %>\">\n    <%- path %>\n    <i class=\"icon-plus pull-right im-add-soe\" title=\"Add this column to the sort order\"></i>\n</li>");
+      ColumnOrderer.prototype.possibleSortOptionTemplate = _.template("<li class=\"im-reorderable breadcrumb\" data-path=\"<%- path %>\">\n    <i class=\"icon-plus pull-right im-add-soe\" title=\"Add this column to the sort order\"></i>\n    <span title=\"<%- path %>\"><%- path %></span>\n</li>");
 
       ColumnOrderer.prototype.removeSortOrder = function(e) {
-        var $elem, path, possibilities, psoe;
+        var $elem, path, possibilities, psoe,
+          _this = this;
         $elem = $(e.target).parent();
         path = $elem.data("path");
         $elem.find('.im-remove-soe').tooltip("hide");
@@ -4429,6 +4456,11 @@
         psoe = $(this.possibleSortOptionTemplate({
           path: path
         }));
+        (function(psoe) {
+          return _this.query.getPathInfo(path).getDisplayName(function(name) {
+            return psoe.find('span').text(name);
+          });
+        })(psoe);
         psoe.draggable({
           revert: "invalid",
           revertDuration: 100
@@ -4454,11 +4486,28 @@
       ColumnOrderer.prototype.makeSortOrderElem = function(so) {
         var soe, _ref;
         soe = $(this.soTemplate(so));
+        this.query.getPathInfo(so.path).getDisplayName(function(name) {
+          return soe.find('.im-path').text(name);
+        });
         if (_ref = this.query.getPathInfo(so.path).getType(), __indexOf.call(intermine.Model.NUMERIC_TYPES, _ref) >= 0) {
           soe.addClass("numeric");
         }
         soe.find('.im-remove-soe').tooltip();
         return soe;
+      };
+
+      ColumnOrderer.prototype.makeSortOption = function(path) {
+        var option,
+          _this = this;
+        option = $(this.possibleSortOptionTemplate({
+          path: path
+        }));
+        (function(option) {
+          return _this.query.getPathInfo(path).getDisplayName(function(name) {
+            return option.find('span').text(name);
+          });
+        })(option);
+        return option;
       };
 
       ColumnOrderer.prototype.initSorting = function() {
@@ -4477,9 +4526,7 @@
         for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
           v = _ref1[_j];
           if (!this.query.getSortDirection(v) && !this.query.isOuterJoined(v)) {
-            possibilities.append(this.possibleSortOptionTemplate({
-              path: v
-            }));
+            possibilities.append(this.makeSortOption(v));
           }
         }
         _ref2 = this.query.getQueryNodes();
@@ -4490,9 +4537,7 @@
             for (_l = 0, _len3 = _ref3.length; _l < _len3; _l++) {
               cn = _ref3[_l];
               if (cn.isAttribute() && (_ref4 = cn.toPathString(), __indexOf.call(this.query.views, _ref4) < 0)) {
-                possibilities.append(this.possibleSortOptionTemplate({
-                  path: cn.toPathString()
-                }));
+                possibilities.append(this.makeSortOption(cn.toPathString()));
               }
             }
           }
