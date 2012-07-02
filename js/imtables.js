@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Mon Jul 02 2012 14:13:30 GMT+0100 (BST)
+ * Built at Mon Jul 02 2012 14:29:06 GMT+0100 (BST)
 */
 
 
@@ -2676,6 +2676,13 @@
 
       ListDialogue.prototype.openDialogue = function(type, q) {
         var _this = this;
+        if (type == null) {
+          type = this.query.root;
+        }
+        if (q == null) {
+          q = this.query.clone();
+        }
+        q.joins = {};
         this.newCommonType(type);
         if (q != null) {
           q.count(this.selectionChanged);

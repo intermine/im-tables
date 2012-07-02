@@ -36,7 +36,6 @@ scope "intermine.query.actions", (exporting) ->
                 action = new cls(@query)
                 action.render().$el.addClass(@extraClass).appendTo @el
 
-
             this
 
     exporting class ActionBar extends Actions
@@ -114,6 +113,9 @@ scope "intermine.query.actions", (exporting) ->
             throw "Override me!"
 
         openDialogue: (type, q) ->
+            type ?= @query.root
+            q    ?= @query.clone()
+            q.joins = {}
             @newCommonType(type)
             q?.count @selectionChanged
             @$('.modal').modal("show").find('form').show()
