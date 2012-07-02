@@ -88,26 +88,26 @@ scope "intermine.query",  (exporting) ->
         getTitleVal: -> if @con.values then @con.values.length + " values" else @con.value or @con.type
 
         render: ->
-            parts = @getTitleParts()
-            #end = parts.pop()
-            #parts.push end + " #{@getTitleOp()} #{@getTitleVal()}"
-            conDetails = []
-            conDetails.push(op) if (op = @getTitleOp())
-            conDetails.push(val) if (val = @getTitleVal())
-
-            lis = ("""<li class="#{if i + 1 is parts.length then 'active' else ''}">#{p}</li>""" for p, i in parts)
-            lisB = ("""<li>#{p}</li>""" for p in conDetails)
-            
             $label = $ """
                 <label class="im-con-overview">
-                    <ul class="im-con-summary breadcrumb">
-                        #{lis.join "<span class='divider'>#{ PATH_SEGMENT_DIVIDER }</span>"}
-                        #{lisB.join '&nbsp'}
-                    </ul>
                 </label>
             """
-            @$el.append $label
             @addIcons $label
+            ul = $('<ul class="breadcrumb">').appendTo $label
+            toL = (content, type) -> $ """<span class="label label-#{type}">#{content}</span>"""
+
+            if @con.title?
+                ul.append toL @con.title, 'path'
+            else
+                sp = toL @con.path, 'path'
+                do (sp) => @query.getPathInfo(@con.path).getDisplayName (name) -> sp.text name
+                ul.append(sp)
+            if (op = @getTitleOp())
+                ul.append toL op, 'op'
+            if (val = @getTitleVal())
+                ul.append toL val, 'value'
+
+            @$el.append $label
             fs = $("""<fieldset class="im-constraint-options"></fieldset>""").appendTo @el
 
             $select = $ """<select class="span4 im-ops"><option>#{ @con.op }</option></select>"""

@@ -660,8 +660,24 @@ tr > th:last-child .im-th-buttons .dropdown-menu::before {
     overflow: auto;
 }
 
-.im-dropdown-summary label.im-con-overview {
+.im-constraints form.im-constraint {
+    margin-bottom: 0.5em;
+}
+
+.im-filter-summary .dropdown-menu .im-constraints {
+    padding-right: 8px; /* Less padding for constraints, down from default BS 35px. */
+}
+
+.im-constraint label.im-con-overview {
     width: 100%;
+}
+
+.im-con-overview .breadcrumb {
+    width: 90%;
+}
+
+.im-con-overview .breadcrumb .label {
+    margin: 0 0.2em 0 0;
 }
 
 .im-dropdown-summary .im-constraints form {
