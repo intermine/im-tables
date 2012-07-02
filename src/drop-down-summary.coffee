@@ -30,9 +30,6 @@ scope "intermine.query.results", (exporting) ->
             heading = new SummaryHeading(@query, @view)
             heading.render().$el.appendTo @el
 
-            cons = new intermine.query.filters.SingleColumnConstraintsSummary(@query, @view)
-            cons.render().$el.appendTo @el
-
             summ = new intermine.results.ColumnSummary(@view, @query)
             summ.noTitle = true
             summ.render().$el.appendTo @el

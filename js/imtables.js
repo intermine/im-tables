@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Mon Jul 02 2012 14:29:06 GMT+0100 (BST)
+ * Built at Mon Jul 02 2012 15:25:14 GMT+0100 (BST)
 */
 
 
@@ -1947,11 +1947,9 @@
       };
 
       DropDownColumnSummary.prototype.render = function() {
-        var cons, heading, summ;
+        var heading, summ;
         heading = new SummaryHeading(this.query, this.view);
         heading.render().$el.appendTo(this.el);
-        cons = new intermine.query.filters.SingleColumnConstraintsSummary(this.query, this.view);
-        cons.render().$el.appendTo(this.el);
         summ = new intermine.results.ColumnSummary(this.view, this.query);
         summ.noTitle = true;
         summ.render().$el.appendTo(this.el);
@@ -4709,11 +4707,13 @@
 
       FacetView.prototype.render = function() {
         var _this = this;
-        this.$dt = $(FACET_TITLE(this.facet)).appendTo(this.el);
-        this.$dt.click(function() {
-          _this.$dt.siblings().slideToggle();
-          return _this.$dt.find('i').first().toggleClass('icon-chevron-right icon-chevron-down');
-        });
+        if (!this.noTitle) {
+          this.$dt = $(FACET_TITLE(this.facet)).appendTo(this.el);
+          this.$dt.click(function() {
+            _this.$dt.siblings().slideToggle();
+            return _this.$dt.find('i').first().toggleClass('icon-chevron-right icon-chevron-down');
+          });
+        }
         return this;
       };
 
@@ -5053,7 +5053,7 @@
         return PieFacet.__super__.constructor.apply(this, arguments);
       }
 
-      PieFacet.prototype.className = 'im-pie-facet im-facet';
+      PieFacet.prototype.className = 'im-grouped-facet im-facet';
 
       PieFacet.prototype.initialize = function(query, facet, items, hasMore, filterTerm) {
         var _ref,

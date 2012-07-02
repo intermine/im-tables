@@ -61,10 +61,11 @@ scope "intermine.results", (exporting) ->
             @query.on "filter:summary", @render
 
         render: =>
-            @$dt = $(FACET_TITLE @facet).appendTo @el
-            @$dt.click =>
-                @$dt.siblings().slideToggle()
-                @$dt.find('i').first().toggleClass 'icon-chevron-right icon-chevron-down'
+            unless @noTitle
+                @$dt = $(FACET_TITLE @facet).appendTo @el
+                @$dt.click =>
+                    @$dt.siblings().slideToggle()
+                    @$dt.find('i').first().toggleClass 'icon-chevron-right icon-chevron-down'
             this
 
     exporting class FrequencyFacet extends FacetView
@@ -294,7 +295,7 @@ scope "intermine.results", (exporting) ->
 
 
     exporting class PieFacet extends Backbone.View
-        className: 'im-pie-facet im-facet'
+        className: 'im-grouped-facet im-facet'
         initialize: (@query, @facet, items, @hasMore, @filterTerm) ->
             @items = new Backbone.Collection(items)
             @items.each (item) -> item.set "visibility", true
