@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Sun Jul 01 2012 17:11:18 GMT+0100 (BST)
+ * Built at Mon Jul 02 2012 14:13:30 GMT+0100 (BST)
 */
 
 
@@ -2700,7 +2700,7 @@
       return ListDialogue;
 
     })(Backbone.View);
-    ListAppender = (function(_super) {
+    exporting(ListAppender = (function(_super) {
 
       __extends(ListAppender, _super);
 
@@ -2841,7 +2841,7 @@
 
       return ListAppender;
 
-    })(ListDialogue);
+    })(ListDialogue));
     openWindowWithPost = function(uri, name, params) {
       var form, value, w;
       form = $("<form method=\"POST\" action=\"" + uri + "\" target=\"" + name + "\">");

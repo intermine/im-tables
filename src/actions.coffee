@@ -124,7 +124,7 @@ scope "intermine.query.actions", (exporting) ->
             @$('.modal').modal(show: false).on "hidden", => @remove()
             this
 
-    class ListAppender extends ListDialogue
+    exporting class ListAppender extends ListDialogue
 
         html: """
             <div class="modal fade">
@@ -225,7 +225,6 @@ scope "intermine.query.actions", (exporting) ->
                         message = (JSON.parse xhr.responseText).error
                     @query.trigger "list-update:failure", message
 
-        
         render: ->
             super()
             @fillSelect()
