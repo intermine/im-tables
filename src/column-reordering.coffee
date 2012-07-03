@@ -56,6 +56,10 @@ scope "intermine.query.results.table", (exporting) ->
             @$pathfinder?.remove()
             @$pathfinder = null
 
+        refsOK: false
+
+        isDisabled: (path) => path.toString() in @query.views
+
         render: () ->
             super()
             @$('input').hide()

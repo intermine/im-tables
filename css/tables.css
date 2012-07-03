@@ -599,7 +599,7 @@ table.table thead .sorting_desc_disabled {
     left: -9px;
     top: 19px;
     min-width: 24em;
-    max-width: 26em;
+    width: 26em;
     font-family: 'Muli', 'Helvetica', sans-serif;
     font-weight: normal;
 }
@@ -608,15 +608,14 @@ table.table thead .sorting_desc_disabled {
     top: 65px;
 }
 
+.im-query-display tr > th.too-far-over .im-th-buttons .dropdown-menu,
 tr > th:last-child .im-th-buttons .dropdown-menu {
-    left: -24em;
+    left: -25em;
 }
 
-tr > th:last-child .im-th-buttons .dropdown-menu::after {
-    left: 312;
-}
-tr > th:last-child .im-th-buttons .dropdown-menu::before {
-    left: 312;
+.im-query-display tr > th.too-far-over .im-th-buttons .dropdown-menu::after,
+.im-query-display tr > th:last-child .im-th-buttons .dropdown-menu::before {
+    left: 326px;
 }
 
 .im-selector-col {
@@ -664,8 +663,9 @@ tr > th:last-child .im-th-buttons .dropdown-menu::before {
     margin-bottom: 0.5em;
 }
 
-.im-filter-summary .dropdown-menu .im-constraints {
+.im-filter-summary .dropdown-menu .im-constraints .alert-info {
     padding-right: 8px; /* Less padding for constraints, down from default BS 35px. */
+    padding-left: 8px;
 }
 
 .im-constraint label.im-con-overview {
@@ -737,8 +737,16 @@ td.im-result-subtable .im-subtable {
     width: 40%;
 }
 
+.im-query-display .im-constraints select.im-ops {
+    display: inline-block;
+    float: left;
+}
+
+.im-query-display .im-constraints select.im-value-options,
+.im-query-display .im-constraints input.im-value-options,
 .im-value-options.btn-group {
     float: right;
+    display: inline-block;
 }
 
 .im-query-actions .dropdown-menu, .typeahead.dropdown-menu {
@@ -774,6 +782,7 @@ td.im-result-subtable .im-subtable {
     float: right;
 }
 
+.im-constraint-adder .dropdown-menu,
 .node-adder .dropdown-menu {
     max-height: 20em;
     overflow-y: auto;
@@ -1020,7 +1029,7 @@ td.im-result-subtable .im-subtable {
     background-color: transparent;
 }
 
-.im-constraints ul {
+.im-constraints .alert ul {
     margin-left: 0;
 }
 
@@ -1033,9 +1042,14 @@ td.im-result-subtable .im-subtable {
     display: none;
 }
 
-.new.im-constraint fieldset, .new.im-constraint .btn-group {
+.new.im-constraint fieldset {
     width: 100%;
     display: block;
+}
+
+.new.im-constraint > .btn-group,
+.new.im-constraint fieldset .btn-group {
+    display: inline-block;
 }
 
 .im-constraint-adder select, .im-constraint-adder input {
@@ -1117,7 +1131,7 @@ li.im-outer-joined-path:last-child {
 }
 
 .im-column-summary > dl:empty:after {
-    content: "All items are unique.";
+    content: "All values are the same.";
 }
 
 .im-query-facets > .im-column-summary > dl > dt {

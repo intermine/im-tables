@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Mon Jul 02 2012 15:54:39 GMT+0100 (BST)
+ * Built at Tue Jul 03 2012 10:20:37 GMT+0100 (BST)
 */
 
 
@@ -15,8 +15,8 @@
   var $, root, scope, stope,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   if (!Array.prototype.filter) {
     Array.prototype.filter = function(test) {
@@ -162,20 +162,29 @@
       };
 
       Attribute.prototype.handleClick = function(e) {
+        var isNewChoice;
         e.stopPropagation();
         e.preventDefault();
-        this.evts.trigger('chosen', this.path);
-        return this.$el.addClass('active');
+        isNewChoice = !this.$el.is('.active');
+        return this.evts.trigger('chosen', this.path, isNewChoice);
       };
 
-      Attribute.prototype.initialize = function(query, path, depth, evts) {
+      Attribute.prototype.initialize = function(query, path, depth, evts, getDisabled) {
         var _this = this;
         this.query = query;
         this.path = path;
         this.depth = depth;
         this.evts = evts;
+        this.getDisabled = getDisabled;
         this.evts.on('remove', function() {
           return _this.remove();
+        });
+        this.evts.on('chosen', function(p, isNewChoice) {
+          if (p.toString() === _this.path.toString()) {
+            return _this.$el.toggleClass('active', isNewChoice);
+          } else {
+            return _this.$el.removeClass('active');
+          }
         });
         return this.evts.on('filter:paths', function(terms) {
           var lastMatch, matches, t, _i, _len;
@@ -232,9 +241,9 @@
       };
 
       Attribute.prototype.render = function() {
-        var disabled, _ref,
+        var disabled,
           _this = this;
-        disabled = (_ref = this.path.toString(), __indexOf.call(this.query.views, _ref) >= 0);
+        disabled = this.getDisabled(this.path);
         if (disabled) {
           this.$el.addClass('disabled');
         }
@@ -272,13 +281,15 @@
         return Reference.__super__.constructor.apply(this, arguments);
       }
 
-      Reference.prototype.initialize = function(query, path, depth, evts) {
+      Reference.prototype.initialize = function(query, path, depth, evts, getDisabled, isSelectable) {
         var _this = this;
         this.query = query;
         this.path = path;
         this.depth = depth;
         this.evts = evts;
-        Reference.__super__.initialize.call(this, this.query, this.path, this.depth, this.evts);
+        this.getDisabled = getDisabled;
+        this.isSelectable = isSelectable;
+        Reference.__super__.initialize.call(this, this.query, this.path, this.depth, this.evts, this.getDisabled);
         this.evts.on('filter:paths', function(terms) {
           return _this.$el.hide();
         });
@@ -301,31 +312,41 @@
       };
 
       Reference.prototype.openSubFinder = function() {
-        this.subfinder = new PathChooser(this.query, this.path, this.depth + 1, this.evts);
+        this.subfinder = new PathChooser(this.query, this.path, this.depth + 1, this.evts, this.getDisabled, this.isSelectable);
         this.$el.append(this.subfinder.render().el);
         return this.$el.addClass('open');
       };
 
-      Reference.prototype.template = _.template("<a href=\"#\"><i class=\"icon-chevron-right\"></i> <span><%- name %></span></a>");
+      Reference.prototype.template = _.template("<a href=\"#\">\n  <i class=\"icon-chevron-right im-has-fields\"></i>\n  <span><%- name %></span>\n</a>");
 
       Reference.prototype.iconClasses = "icon-chevron-right icon-chevron-down";
 
+      Reference.prototype.toggleFields = function() {
+        this.$el.children().filter('i.im-has-fields').toggleClass(this.iconClasses);
+        if (this.$el.is('.open')) {
+          return this.$el.removeClass('open').children('ul').remove();
+        } else {
+          return this.openSubFinder();
+        }
+      };
+
+      Reference.prototype.handleClick = function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        if ($(e.target).is('.im-has-fields') || (!this.isSelectable)) {
+          return this.toggleFields();
+        } else {
+          return Reference.__super__.handleClick.call(this, e);
+        }
+      };
+
       Reference.prototype.addedLiContent = function(a) {
-        var i,
-          _this = this;
+        var _this = this;
         if (_.any(this.query.views, function(v) {
           return v.match(_this.path.toString());
         })) {
-          this.openSubFinder();
+          return this.openSubFinder();
         }
-        return i = a.find('i').click(function(e) {
-          i.toggleClass(_this.iconClasses);
-          if (_this.$el.is('.open')) {
-            return _this.$el.removeClass('open').children('ul').remove();
-          } else {
-            return _this.openSubFinder();
-          }
-        });
       };
 
       return Reference;
@@ -370,12 +391,14 @@
         return _results;
       };
 
-      PathChooser.prototype.initialize = function(query, path, depth, events) {
+      PathChooser.prototype.initialize = function(query, path, depth, events, getDisabled, canSelectRefs) {
         var attr, cd, coll, name, ref, toPath,
           _this = this;
         this.query = query;
         this.path = path;
         this.depth = depth;
+        this.getDisabled = getDisabled;
+        this.canSelectRefs = canSelectRefs;
         this.evts = this.depth === 0 ? _.extend({}, Backbone.Events) : events;
         cd = this.path.getEndClass();
         toPath = function(f) {
@@ -419,24 +442,23 @@
       PathChooser.DIVIDER = "<li class=\"divider\"></li>";
 
       PathChooser.prototype.render = function() {
-        var apath, cd, cpath, currentView, rpath, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2;
+        var apath, cd, cpath, rpath, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2;
         cd = this.path.getEndClass();
-        currentView = this.query.views;
         _ref = this.attributes;
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           apath = _ref[_i];
-          this.$el.append(new Attribute(this.query, apath, this.depth, this.evts).render().el);
+          this.$el.append(new Attribute(this.query, apath, this.depth, this.evts, this.getDisabled).render().el);
         }
         this.$el.append(PathChooser.DIVIDER);
         _ref1 = this.references;
         for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
           rpath = _ref1[_j];
-          this.$el.append(new Reference(this.query, rpath, this.depth, this.evts).render().el);
+          this.$el.append(new Reference(this.query, rpath, this.depth, this.evts, this.getDisabled, this.canSelectRefs).render().el);
         }
         _ref2 = this.collections;
         for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
           cpath = _ref2[_k];
-          this.$el.append(new Reference(this.query, cpath, this.depth, this.evts).render().el);
+          this.$el.append(new Reference(this.query, cpath, this.depth, this.evts, this.getDisabled, this.canSelectRefs).render().el);
         }
         if (this.depth === 0) {
           this.$el.addClass(this.dropDownClasses);
@@ -458,6 +480,8 @@
         this.showTree = __bind(this.showTree, this);
 
         this.handleChoice = __bind(this.handleChoice, this);
+
+        this.handleSubmission = __bind(this.handleSubmission, this);
         return ConstraintAdder.__super__.constructor.apply(this, arguments);
       }
 
@@ -466,12 +490,7 @@
       ConstraintAdder.prototype.className = "form im-constraint-adder row-fluid im-constraint";
 
       ConstraintAdder.prototype.initialize = function(query) {
-        var _this = this;
         this.query = query;
-        return this.query.on("cancel:add-constraint", function() {
-          _this.$('input').show();
-          return _this.$('button[type="submit"]').show();
-        });
       };
 
       ConstraintAdder.prototype.events = {
@@ -506,24 +525,50 @@
       };
 
       ConstraintAdder.prototype.handleSubmission = function(e) {
-        var ac, con;
+        var ac, con, _ref;
         e.preventDefault();
         e.stopPropagation();
-        this.$('input').hide();
-        this.$('button[type="submit"]').hide();
-        con = {
-          path: this.$('input').val()
-        };
-        ac = new intermine.query.NewConstraint(this.query, con);
-        return ac.render().$el.appendTo(this.el);
+        if (this.chosen != null) {
+          con = {
+            path: this.chosen.toString()
+          };
+          ac = new intermine.query.NewConstraint(this.query, con);
+          ac.render().$el.insertAfter(this.el);
+          this.$('.btn-primary').attr({
+            disabled: true
+          });
+          if ((_ref = this.$pathfinder) != null) {
+            _ref.remove();
+          }
+          return this.$pathfinder = null;
+        } else {
+          return console.log("Nothing chosen");
+        }
       };
 
-      ConstraintAdder.prototype.handleChoice = function(path) {
-        this.$('input').val(path.toString());
-        return this.$('.btn-primary').attr({
-          disabled: false
-        });
+      ConstraintAdder.prototype.handleChoice = function(path, isNewChoice) {
+        if (isNewChoice) {
+          this.chosen = path;
+          return this.$('.btn-primary').attr({
+            disabled: false
+          });
+        } else {
+          this.chosen = null;
+          return this.$('.btn-primary').attr({
+            disabled: true
+          });
+        }
       };
+
+      ConstraintAdder.prototype.isDisabled = function(path) {
+        return false;
+      };
+
+      ConstraintAdder.prototype.getTreeRoot = function() {
+        return this.query.getPathInfo(this.query.root);
+      };
+
+      ConstraintAdder.prototype.refsOK = true;
 
       ConstraintAdder.prototype.showTree = function(e) {
         var pathFinder;
@@ -531,8 +576,8 @@
           this.$pathfinder.remove();
           return this.$pathfinder = null;
         } else {
-          root = this.query.getPathInfo(this.query.root);
-          pathFinder = new PathChooser(this.query, root, 0, this.handleChoice);
+          root = this.getTreeRoot();
+          pathFinder = new PathChooser(this.query, root, 0, this.handleChoice, this.isDisabled, this.refsOK);
           pathFinder.render().$el.appendTo(this.el).show();
           pathFinder.$el.css({
             top: this.$el.height()
@@ -1100,7 +1145,7 @@
       };
 
       ResultsTable.prototype.columnHeaderTempl = function(ctx) {
-        return _.template("<th title=\"<%- title %>\">\n    <div class=\"navbar\">\n        <div class=\"im-th-buttons\">\n            <% if (sortable) { %>\n                <div class=\"im-th-button im-col-sort-indicator\" title=\"sort this column\">\n                    <i class=\"icon-sorting " + intermine.css.unsorted + " " + intermine.css.headerIcon + "\"></i>\n                </div>\n            <% }; %>\n            <div class=\"im-th-button im-col-remover\" title=\"remove this column\" data-view=\"<%= view %>\">\n                <i class=\"" + intermine.css.headerIconRemove + " " + intermine.css.headerIcon + "\"></i>\n            </div>\n            <div class=\"im-th-button im-col-minumaximiser\" title=\"Hide column\" data-col-idx=\"<%= i %>\">\n                <i class=\"" + intermine.css.headerIconHide + " " + intermine.css.headerIcon + "\"></i>\n            </div>\n            <div class=\"dropdown im-filter-summary\">\n                <div class=\"im-th-button im-col-filters dropdown-toggle\"\n                     title=\"column summary\"\n                     data-toggle=\"dropdown\" data-col-idx=\"<%= i %>\" >\n                    <i class=\"" + intermine.css.headerIconFilter + " " + intermine.css.headerIcon + "\"></i>\n                </div>\n                <div class=\"dropdown-menu\">\n                    <div>Could not ititialise the filter summary.</div>\n                </div>\n            </div>\n            <div class=\"dropdown im-summary\">\n                <div class=\"im-th-button summary-img dropdown-toggle\" title=\"column summary\"\n                    data-toggle=\"dropdown\" data-col-idx=\"<%= i %>\" >\n                    <i class=\"" + intermine.css.headerIconSummary + " " + intermine.css.headerIcon + "\"></i>\n                </div>\n                <div class=\"dropdown-menu\">\n                    <div>Could not ititialise the column summary.</div>\n                </div>\n            </div>\n        </div>\n        <span class=\"im-col-title\"><%- title %></span>\n    </div>\n</th>", ctx);
+        return _.template("<th>\n    <div class=\"navbar\">\n        <div class=\"im-th-buttons\">\n            <% if (sortable) { %>\n                <div class=\"im-th-button im-col-sort-indicator\" title=\"sort this column\">\n                    <i class=\"icon-sorting " + intermine.css.unsorted + " " + intermine.css.headerIcon + "\"></i>\n                </div>\n            <% }; %>\n            <div class=\"im-th-button im-col-remover\" title=\"remove this column\" data-view=\"<%= view %>\">\n                <i class=\"" + intermine.css.headerIconRemove + " " + intermine.css.headerIcon + "\"></i>\n            </div>\n            <div class=\"im-th-button im-col-minumaximiser\" title=\"Hide column\" data-col-idx=\"<%= i %>\">\n                <i class=\"" + intermine.css.headerIconHide + " " + intermine.css.headerIcon + "\"></i>\n            </div>\n            <div class=\"dropdown im-filter-summary\">\n                <div class=\"im-th-button im-col-filters dropdown-toggle\"\n                     title=\"Filter by values in this column\"\n                     data-toggle=\"dropdown\" data-col-idx=\"<%= i %>\" >\n                    <i class=\"" + intermine.css.headerIconFilter + " " + intermine.css.headerIcon + "\"></i>\n                </div>\n                <div class=\"dropdown-menu\">\n                    <div>Could not ititialise the filter summary.</div>\n                </div>\n            </div>\n            <div class=\"dropdown im-summary\">\n                <div class=\"im-th-button summary-img dropdown-toggle\" title=\"column summary\"\n                    data-toggle=\"dropdown\" data-col-idx=\"<%= i %>\" >\n                    <i class=\"" + intermine.css.headerIconSummary + " " + intermine.css.headerIcon + "\"></i>\n                </div>\n                <div class=\"dropdown-menu\">\n                    <div>Could not ititialise the column summary.</div>\n                </div>\n            </div>\n        </div>\n        <span class=\"im-col-title\"><%- title %></span>\n    </div>\n</th>", ctx);
       };
 
       ResultsTable.prototype.buildColumnHeader = function(view, i, title, tr) {
@@ -1120,6 +1165,11 @@
           return !!c.path.match(view);
         }))) {
           th.addClass('im-has-constraint');
+          th.find('.im-col-filters').attr({
+            title: "" + (_.size(_.filter(q.constraints, function(c) {
+              return !!c.path.match(view);
+            }))) + " active filters"
+          });
         }
         th.find('.im-th-button').tooltip({
           placement: "left"
@@ -1250,11 +1300,20 @@
         };
       };
 
+      ResultsTable.prototype.checkHowFarOver = function(e) {
+        var bounds, thb;
+        thb = $(e.target).closest('.im-th-button');
+        bounds = thb.closest('.im-table-container');
+        if ((thb.offset().left + 350) >= (bounds.offset().left + bounds.width())) {
+          return thb.closest('th').addClass('too-far-over');
+        }
+      };
+
       ResultsTable.prototype.showFilterSummary = function(path) {
         var _this = this;
         return function(e) {
           var $el, summ;
-          console.log(path);
+          _this.checkHowFarOver(e);
           $el = jQuery(e.target).closest('.im-col-filters');
           if (!$el.parent().hasClass('open')) {
             summ = new intermine.query.filters.SingleColumnConstraints(_this.query, path);
@@ -1268,6 +1327,7 @@
         var _this = this;
         return function(e) {
           var $el, summ, view;
+          _this.checkHowFarOver(e);
           $el = jQuery(e.target).closest('.summary-img');
           view = path.toString();
           if (!view) {
@@ -2008,6 +2068,13 @@
     })(Backbone.View);
   });
 
+  scope("intermine.messages.filters", {
+    DefineNew: 'Define a new filter',
+    EditOrRemove: 'edit or remove the currently active filters',
+    None: 'No active filters',
+    Heading: "Active Filters"
+  });
+
   scope("intermine.query.filters", function(exporting) {
     var Constraints, FACETS, Facets, Filters, SingleColumnConstraints, SingleColumnConstraintsSummary, SingleConstraintAdder;
     exporting(Filters = (function(_super) {
@@ -2124,7 +2191,7 @@
         return Constraints.__super__.constructor.apply(this, arguments);
       }
 
-      Constraints.prototype.className = "alert alert-info im-constraints";
+      Constraints.prototype.className = "im-constraints";
 
       Constraints.prototype.initialize = function(query) {
         this.query = query;
@@ -2140,11 +2207,14 @@
       };
 
       Constraints.prototype.render = function() {
-        var c, cons, ul, _fn, _i, _len, _ref,
+        var c, conBox, cons, msgs, ul, _fn, _i, _len, _ref,
           _this = this;
         cons = this.getConstraints();
+        msgs = intermine.messages.filters;
         this.$el.empty();
-        this.$el.append(this.make("h3", {}, "Active Filters")).append(this.make("p", {}, cons.length ? "edit or remove the currently active filters" : "No filters")).append(ul = this.make("ul", {}));
+        this.$el.append(this.make("h3", {}, msgs.Heading));
+        conBox = $('<div class="alert alert-info">');
+        conBox.appendTo(this.el).append(this.make("p", {}, cons.length ? msgs.EditOrRemove : msgs.None)).append(ul = this.make("ul", {}));
         _fn = function(c) {
           var con;
           con = new intermine.query.ActiveConstraint(_this.query, c);
@@ -2178,21 +2248,36 @@
       }
 
       SingleConstraintAdder.prototype.initialize = function(query, view) {
+        var _this = this;
         this.view = view;
-        return SingleConstraintAdder.__super__.initialize.call(this, query);
+        SingleConstraintAdder.__super__.initialize.call(this, query);
+        return this.query.on('cancel:add-constraint', function() {
+          return _this.$('.btn-primary').attr({
+            disabled: !_this.getTreeRoot().isAttribute()
+          });
+        });
       };
 
       SingleConstraintAdder.prototype.initPaths = function() {
         return [this.view];
       };
 
+      SingleConstraintAdder.prototype.getTreeRoot = function() {
+        return this.query.getPathInfo(this.view);
+      };
+
       SingleConstraintAdder.prototype.render = function() {
         SingleConstraintAdder.__super__.render.call(this);
         this.$('input').remove();
-        this.$('button[type=submit]').attr({
-          disabled: false
-        });
-        this.$el.append("<input type=\"hidden\" value=\"" + this.view + "\">");
+        root = this.getTreeRoot();
+        console.log(this.view);
+        if (root.isAttribute()) {
+          this.chosen = root;
+          this.$('button.btn-primary').text(intermine.messages.filters.DefineNew).attr({
+            disabled: false
+          });
+          this.$('button.btn-chooser').remove();
+        }
         return this;
       };
 
@@ -4260,6 +4345,8 @@
       __extends(ColumnAdder, _super);
 
       function ColumnAdder() {
+        this.isDisabled = __bind(this.isDisabled, this);
+
         this.handleSubmission = __bind(this.handleSubmission, this);
         return ColumnAdder.__super__.constructor.apply(this, arguments);
       }
@@ -4277,6 +4364,13 @@
           _ref.remove();
         }
         return this.$pathfinder = null;
+      };
+
+      ColumnAdder.prototype.refsOK = false;
+
+      ColumnAdder.prototype.isDisabled = function(path) {
+        var _ref;
+        return _ref = path.toString(), __indexOf.call(this.query.views, _ref) >= 0;
       };
 
       ColumnAdder.prototype.render = function() {
@@ -4740,9 +4834,7 @@
         }
         this.rendering = true;
         this.$el.empty();
-        if (!this.noTitle) {
-          FrequencyFacet.__super__.render.call(this);
-        }
+        FrequencyFacet.__super__.render.call(this);
         $progress = $("<div class=\"progress progress-info progress-striped active\">\n    <div class=\"bar\" style=\"width:100%\"></div>\n</div>");
         $progress.appendTo(this.el);
         promise = this.query.filterSummary(this.facet.path, filterTerm, this.limit, function(items, total, filteredTotal) {
@@ -4785,6 +4877,11 @@
           }
           if (total <= 1) {
             _this.$el.empty();
+            if (total === 1) {
+              _this.$el.append("All items are the same: " + items[0].item);
+            } else {
+              _this.$el.append("No results");
+            }
           }
           return _this.rendering = false;
         });
@@ -5518,6 +5615,13 @@
     })(NumericFacet));
   });
 
+  scope("intermine.conbuilder.messages", {
+    ValuePlaceholder: 'David*',
+    ExtraPlaceholder: 'Wernham-Hogg',
+    ExtraLabel: 'within',
+    IsA: 'is a'
+  });
+
   scope("intermine.query", function(exporting) {
     var ActiveConstraint, NewConstraint, PATH_SEGMENT_DIVIDER;
     PATH_SEGMENT_DIVIDER = "&rarr;";
@@ -5554,13 +5658,9 @@
         'click .btn-cancel': 'hideEditForm',
         'click .btn-primary': 'editConstraint',
         'click .icon-remove-sign': 'removeConstraint',
-        'submit': 'handleSubmit'
-      };
-
-      ActiveConstraint.prototype.handleSubmit = function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        return false;
+        'submit': function(e) {
+          return e.preventDefault();
+        }
       };
 
       ActiveConstraint.prototype.toggleEditForm = function() {
@@ -5638,16 +5738,8 @@
         return this.$el.append(btns);
       };
 
-      ActiveConstraint.prototype.getTitleParts = function() {
-        if (this.con.title) {
-          return [this.con.title];
-        } else {
-          return this.con.path.replace(/^[^\.]+\.?/, "").split(".");
-        }
-      };
-
       ActiveConstraint.prototype.getTitleOp = function() {
-        return this.con.op || "is a";
+        return this.con.op || intermine.conbuilder.messages.IsA;
       };
 
       ActiveConstraint.prototype.getTitleVal = function() {
@@ -5697,13 +5789,13 @@
       };
 
       ActiveConstraint.prototype.drawValueOptions = function() {
-        var $lists, $multiValues, fs, op, values, _ref,
+        var $lists, $loops, $multiValues, fs, lc, loopCandidates, op, opt, values, _fn, _i, _len, _ref,
           _this = this;
         this.$('.im-value-options').remove();
         fs = this.$('.im-constraint-options');
         op = this.$('.im-ops').val();
         if (_ref = this.pathInfo.getType(), __indexOf.call(intermine.Model.BOOLEAN_TYPES, _ref) >= 0) {
-          fs.append("<div class=\"btn-group\" data-toggle=\"buttons-radio\">\n    <button class=\"btn " + (this.con.value === 'true' ? 'active' : '') + "\" data-value=\"true\">\n        true\n    </button>\n    <button class=\"btn " + (this.con.value === 'false' ? 'active' : '') + "\" data-value=\"false\">\n        false\n    </button>\n</div>\n<input class=\"im-value-options\" type=\"hidden\" value=\"" + this.con.value + "\">");
+          fs.append("<div class=\"im-value-options btn-group\" data-toggle=\"buttons-radio\">\n    <button class=\"btn " + (this.con.value === 'true' ? 'active' : '') + "\" data-value=\"true\">\n        true\n    </button>\n    <button class=\"btn " + (this.con.value === 'false' ? 'active' : '') + "\" data-value=\"false\">\n        false\n    </button>\n</div>\n<input class=\"im-value-options\" type=\"hidden\" value=\"" + this.con.value + "\">");
         } else if (__indexOf.call(intermine.Query.MULTIVALUE_OPS, op) >= 0) {
           values = this.con.values || [];
           $multiValues = $('<table class="table table-condensed im-value-options"></table>').appendTo(fs);
@@ -5711,25 +5803,48 @@
             return $multiValues.append("<tr>\n    <td><input type=checkbox checked data-value=\"" + v + "\"></td>\n    <td>" + v + "</td>\n</tr>");
           });
         } else if (__indexOf.call(intermine.Query.LIST_OPS, op) >= 0) {
-          $lists = $("<select class=\"im-value-options\"></select>").appendTo(fs);
+          $lists = $("<select class=\"span8 im-value-options\"></select>").appendTo(fs);
           this.query.service.fetchLists(function(ls) {
             var selectables, sl, _i, _len;
             selectables = _(ls).filter(function(l) {
-              return l.size && l.type === _this.type.name;
+              return l.size && _this.pathInfo.isa(l.type);
             });
             for (_i = 0, _len = selectables.length; _i < _len; _i++) {
               sl = selectables[_i];
               $lists.append("<option value=\"" + sl.name + "\">" + sl.name + " (" + sl.size + " " + sl.type + "s)</option>");
             }
             if (_this.con.value) {
-              return $lists.val(_this.con.value);
+              $lists.val(_this.con.value);
+            }
+            if (ls.length === 0) {
+              $lists.attr({
+                disabled: true
+              });
+              return $lists.append('No lists of this type available');
             }
           });
+        } else if (this.pathInfo.isReference() && (op === '=' || op === '!=')) {
+          loopCandidates = this.query.getQueryNodes().filter(function(lc) {
+            return lc.isa(_this.type) || _this.pathInfo.isa(lc.getEndClass());
+          });
+          $loops = $("<select class=\"span8 im-value-options\">");
+          $loops.appendTo(fs);
+          _fn = function(opt, lc) {
+            return lc.getDisplayName(function(name) {
+              return opt.text(name);
+            });
+          };
+          for (_i = 0, _len = loopCandidates.length; _i < _len; _i++) {
+            lc = loopCandidates[_i];
+            opt = $("<option value=\"" + (lc.toString()) + "\">");
+            opt.appendTo($loops);
+            _fn(opt, lc);
+          }
         } else {
-          fs.append("<input class=\"span7 im-constraint-value im-value-options\" type=\"text\" \n    value=\"" + (this.con.value || this.con.type) + "\">");
+          fs.append("<input class=\"span8 im-constraint-value im-value-options\" type=\"text\"\n    placeholder=\"" + intermine.conbuilder.messages.ValuePlaceholder + "\"\n    value=\"" + (this.con.value || this.con.type || '') + "\"\n>");
         }
         if (__indexOf.call(intermine.Query.TERNARY_OPS, op) >= 0) {
-          return fs.append("<input type=\"text\" class=\"im-extra-value im-value-options\" placeholder=\"restricting to...\"\n    value=\"" + this.con.extraValue + "\"\n>");
+          return fs.append("<label class=\"im-value-options\">\n    " + intermine.conbuilder.messages.ExtraLabel + "\n    <input type=\"text\" class=\"im-extra-value\"\n        placeholder=\"" + intermine.conbuilder.messages.ExtraPlaceholder + "\"\n        value=\"" + (this.con.extraValue || '') + "\"\n    >\n</label>");
         }
       };
 

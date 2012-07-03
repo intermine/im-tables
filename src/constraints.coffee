@@ -1,3 +1,10 @@
+scope "intermine.conbuilder.messages", {
+    ValuePlaceholder: 'David*',
+    ExtraPlaceholder: 'Wernham-Hogg',
+    ExtraLabel: 'within',
+    IsA: 'is a'
+}
+
 scope "intermine.query",  (exporting) ->
 
     PATH_SEGMENT_DIVIDER = "&rarr;"
@@ -22,12 +29,7 @@ scope "intermine.query",  (exporting) ->
             'click .btn-cancel': 'hideEditForm'
             'click .btn-primary': 'editConstraint'
             'click .icon-remove-sign': 'removeConstraint'
-            'submit': 'handleSubmit'
-
-        handleSubmit: (e) ->
-            e.preventDefault()
-            e.stopPropagation()
-            false
+            'submit': (e) -> e.preventDefault()
 
         toggleEditForm: ->
             @$('.im-con-overview').siblings().slideToggle 200
@@ -37,6 +39,7 @@ scope "intermine.query",  (exporting) ->
             e?.preventDefault()
             e?.stopPropagation()
             @$('.im-con-overview').siblings().slideUp 200
+
         editConstraint: ->
             @updateConstraint()
             @query.trigger "change:constraints"
@@ -83,8 +86,7 @@ scope "intermine.query",  (exporting) ->
 
             @$el.append btns
 
-        getTitleParts: -> if @con.title then [@con.title] else @con.path.replace(/^[^\.]+\.?/, "").split(".")
-        getTitleOp: -> @con.op or "is a"
+        getTitleOp: -> @con.op or intermine.conbuilder.messages.IsA
         getTitleVal: -> if @con.values then @con.values.length + " values" else @con.value or @con.type
 
         render: ->
@@ -123,7 +125,7 @@ scope "intermine.query",  (exporting) ->
             op = @$('.im-ops').val()
             if @pathInfo.getType() in intermine.Model.BOOLEAN_TYPES
                 fs.append """
-                    <div class="btn-group" data-toggle="buttons-radio">
+                    <div class="im-value-options btn-group" data-toggle="buttons-radio">
                         <button class="btn #{if @con.value is 'true' then 'active' else ''}" data-value="true">
                             true
                         </button>
@@ -144,23 +146,41 @@ scope "intermine.query",  (exporting) ->
                         </tr>
                     """
             else if op in intermine.Query.LIST_OPS
-                $lists = $("""<select class="im-value-options"></select>""").appendTo fs
+                $lists = $("""<select class="span8 im-value-options"></select>""").appendTo fs
                 @query.service.fetchLists (ls) =>
-                    selectables = _(ls).filter (l) => l.size and l.type is @type.name
+                    selectables = _(ls).filter (l) => l.size and @pathInfo.isa l.type
                     for sl in selectables
                         $lists.append """<option value="#{ sl.name }">#{ sl.name } (#{sl.size} #{sl.type}s)</option>"""
                     $lists.val @con.value if @con.value
+                    if ls.length is 0
+                        $lists.attr disabled: true
+                        $lists.append 'No lists of this type available'
+            else if @pathInfo.isReference() and (op in ['=', '!=']) # Loop constraint
+                loopCandidates = @query.getQueryNodes().filter (lc) =>
+                    lc.isa(@type) or @pathInfo.isa(lc.getEndClass())
+                $loops = $ """<select class="span8 im-value-options">"""
+                $loops.appendTo(fs)
+                for lc in loopCandidates
+                    opt = $ """<option value="#{ lc.toString() }">"""
+                    opt.appendTo $loops
+                    do (opt, lc) -> lc.getDisplayName (name) -> opt.text name
             else
                 fs.append """
-                    <input class="span7 im-constraint-value im-value-options" type="text" 
-                        value="#{ @con.value or @con.type }">
+                    <input class="span8 im-constraint-value im-value-options" type="text"
+                        placeholder="#{ intermine.conbuilder.messages.ValuePlaceholder }"
+                        value="#{ @con.value or @con.type or '' }"
+                    >
                 """
 
             if op in intermine.Query.TERNARY_OPS
                 fs.append """
-                    <input type="text" class="im-extra-value im-value-options" placeholder="restricting to..."
-                        value="#{ @con.extraValue }"
-                    >
+                    <label class="im-value-options">
+                        #{ intermine.conbuilder.messages.ExtraLabel }
+                        <input type="text" class="im-extra-value"
+                            placeholder="#{ intermine.conbuilder.messages.ExtraPlaceholder }"
+                            value="#{ @con.extraValue || '' }"
+                        >
+                    </label>
                 """
 
     exporting class NewConstraint extends ActiveConstraint

@@ -140,7 +140,7 @@ scope "intermine.query.results", (exporting) ->
             
 
         columnHeaderTempl: (ctx) -> _.template """
-            <th title="<%- title %>">
+            <th>
                 <div class="navbar">
                     <div class="im-th-buttons">
                         <% if (sortable) { %>
@@ -156,7 +156,7 @@ scope "intermine.query.results", (exporting) ->
                         </div>
                         <div class="dropdown im-filter-summary">
                             <div class="im-th-button im-col-filters dropdown-toggle"
-                                 title="column summary"
+                                 title="Filter by values in this column"
                                  data-toggle="dropdown" data-col-idx="<%= i %>" >
                                 <i class="#{ intermine.css.headerIconFilter } #{ intermine.css.headerIcon }"></i>
                             </div>
@@ -190,9 +190,10 @@ scope "intermine.query.results", (exporting) ->
                 sortable: sortable
                 
             tr.append th
-
+            
             if _.any q.constraints, ((c) -> !!c.path.match(view))
                 th.addClass 'im-has-constraint'
+                th.find('.im-col-filters').attr title: """#{ _.size(_.filter(q.constraints, (c) -> !!c.path.match(view))) } active filters"""
             th.find('.im-th-button').tooltip(placement: "left")
             sortButton = th.find('.icon-sorting')
             setDirectionClass = (d) ->
@@ -282,8 +283,14 @@ scope "intermine.query.results", (exporting) ->
 
             false
 
+        checkHowFarOver: (e) ->
+            thb = $(e.target).closest '.im-th-button'
+            bounds = thb.closest '.im-table-container'
+            if (thb.offset().left + 350) >= (bounds.offset().left + bounds.width())
+                thb.closest('th').addClass 'too-far-over'
+
         showFilterSummary: (path) -> (e) =>
-            console.log path
+            @checkHowFarOver(e)
             $el = jQuery(e.target).closest '.im-col-filters'
             unless $el.parent().hasClass 'open'
                 summ = new intermine.query.filters.SingleColumnConstraints(@query, path)
@@ -292,6 +299,7 @@ scope "intermine.query.results", (exporting) ->
             false
 
         showColumnSummary: (path) -> (e) =>
+            @checkHowFarOver(e)
             $el = jQuery(e.target).closest '.summary-img'
 
             view = path.toString()

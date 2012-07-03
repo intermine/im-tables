@@ -1,3 +1,10 @@
+scope "intermine.messages.filters", {
+    DefineNew: 'Define a new filter',
+    EditOrRemove: 'edit or remove the currently active filters',
+    None: 'No active filters',
+    Heading: "Active Filters"
+}
+
 scope "intermine.query.filters", (exporting) ->
 
     exporting class Filters extends Backbone.View
@@ -54,7 +61,7 @@ scope "intermine.query.filters", (exporting) ->
 
     class Constraints extends Backbone.View
 
-        className: "alert alert-info im-constraints"
+        className: "im-constraints"
 
         initialize: (@query) ->
             @query.on "change:constraints", @render
@@ -65,12 +72,14 @@ scope "intermine.query.filters", (exporting) ->
 
         render: =>
             cons = @getConstraints()
+            msgs = intermine.messages.filters
 
             @$el.empty()
-            @$el.append(@make "h3", {}, "Active Filters")
-                .append(@make "p",  {},
-                    if cons.length then "edit or remove the currently active filters" else "No filters")
-                .append(ul = @make "ul", {})
+            @$el.append(@make "h3", {}, msgs.Heading)
+            conBox = $ '<div class="alert alert-info">'
+            conBox.appendTo(@el)
+              .append(@make "p",  {}, if cons.length then msgs.EditOrRemove else msgs.None)
+              .append(ul = @make "ul", {})
 
             for c in cons then do (c) =>
                 con = new intermine.query.ActiveConstraint(@query, c)
@@ -86,15 +95,24 @@ scope "intermine.query.filters", (exporting) ->
 
     class SingleConstraintAdder extends intermine.query.ConstraintAdder
 
-        initialize: (query, @view) -> super(query)
+        initialize: (query, @view) ->
+            super(query)
+            @query.on 'cancel:add-constraint', => # Reset add button to appropriate state.
+                @$('.btn-primary').attr disabled: !@getTreeRoot().isAttribute()
 
         initPaths: -> [@view]
+
+        getTreeRoot: () -> @query.getPathInfo(@view)
 
         render: ->
             super()
             @$('input').remove()
-            @$('button[type=submit]').attr disabled: false
-            @$el.append """<input type="hidden" value="#{ @view }">"""
+            root = @getTreeRoot()
+            console.log @view
+            if root.isAttribute()
+                @chosen = root
+                @$('button.btn-primary').text(intermine.messages.filters.DefineNew).attr disabled: false
+                @$('button.btn-chooser').remove()
             this
     
     exporting class SingleColumnConstraints extends Constraints

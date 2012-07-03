@@ -73,7 +73,7 @@ scope "intermine.results", (exporting) ->
             return if @rendering
             @rendering = true
             @$el.empty()
-            super() unless @noTitle
+            super()
             $progress = $ """
                 <div class="progress progress-info progress-striped active">
                     <div class="bar" style="width:100%"></div>
@@ -107,6 +107,11 @@ scope "intermine.results", (exporting) ->
 
                 if total <= 1
                     @$el.empty()
+                    if total is 1
+                        @$el.append("All items are the same: #{  items[0].item }")
+                    else
+                        @$el.append("No results")
+
                 @rendering = false
             promise.fail @remove
             this

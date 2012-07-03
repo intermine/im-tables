@@ -39,11 +39,17 @@ scope "intermine.query", (exporting) ->
         handleClick: (e) ->
             e.stopPropagation()
             e.preventDefault()
-            @evts.trigger 'chosen', @path
-            @$el.addClass 'active'
+            isNewChoice = not @$el.is '.active'
+            @evts.trigger 'chosen', @path, isNewChoice
 
-        initialize: (@query, @path, @depth, @evts) ->
+        initialize: (@query, @path, @depth, @evts, @getDisabled) ->
             @evts.on 'remove', () => @remove()
+            @evts.on 'chosen', (p, isNewChoice) =>
+                if (p.toString() is @path.toString())
+                    @$el.toggleClass('active', isNewChoice)
+                else
+                    @$el.removeClass 'active'
+
             @evts.on 'filter:paths', (terms) =>
                 terms = (new RegExp(t, 'i') for t in terms when t)
                 if terms.length
@@ -71,7 +77,7 @@ scope "intermine.query", (exporting) ->
             @$el.toggle !!(matches is terms.length)
     
         render: () ->
-            disabled = (@path.toString() in @query.views)
+            disabled = @getDisabled(@path)
             @$el.addClass('disabled') if disabled
             @path.getDisplayName (name) =>
                 @displayName = name
@@ -86,8 +92,8 @@ scope "intermine.query", (exporting) ->
 
     class Reference extends Attribute
 
-        initialize: (@query, @path, @depth, @evts) ->
-            super(@query, @path, @depth, @evts)
+        initialize: (@query, @path, @depth, @evts, @getDisabled, @isSelectable) ->
+            super(@query, @path, @depth, @evts, @getDisabled)
 
             @evts.on 'filter:paths', (terms) =>
                 @$el.hide()
@@ -102,25 +108,36 @@ scope "intermine.query", (exporting) ->
             super()
 
         openSubFinder: () ->
-            @subfinder = new PathChooser(@query, @path, @depth + 1, @evts)
+            @subfinder = new PathChooser(@query, @path, @depth + 1, @evts, @getDisabled, @isSelectable)
             @$el.append @subfinder.render().el
             @$el.addClass('open')
 
-        template: _.template """<a href="#"><i class="icon-chevron-right"></i> <span><%- name %></span></a>"""
+        template: _.template """<a href="#">
+              <i class="icon-chevron-right im-has-fields"></i>
+              <span><%- name %></span>
+            </a>
+            """
 
         iconClasses: """icon-chevron-right icon-chevron-down"""
+
+        toggleFields: () ->
+            @$el.children().filter('i.im-has-fields').toggleClass @iconClasses
+            if @$el.is '.open'
+                @$el.removeClass('open').children('ul').remove()
+            else
+                @openSubFinder()
+
+        handleClick: (e) ->
+            e.preventDefault()
+            e.stopPropagation()
+            if $(e.target).is('.im-has-fields') or (not @isSelectable)
+                @toggleFields()
+            else
+                super(e)
 
         addedLiContent: (a) ->
             if _.any(@query.views, (v) => v.match(@path.toString()))
                 @openSubFinder()
-
-            i = a.find('i').click (e) =>
-                i.toggleClass @iconClasses
-                if @$el.is '.open'
-                    @$el.removeClass('open').children('ul').remove()
-                else
-                    @openSubFinder()
-            
 
     class PathChooser extends Backbone.View
         tagName: 'ul'
@@ -132,7 +149,7 @@ scope "intermine.query", (exporting) ->
             for m in matches
                 @evts.trigger 'matched', m, terms
             
-        initialize: (@query, @path, @depth, events) ->
+        initialize: (@query, @path, @depth, events, @getDisabled, @canSelectRefs) ->
             @evts =  if (@depth is 0) then _.extend({}, Backbone.Events) else events
             cd = @path.getEndClass()
             toPath = (f) => @path.append f
@@ -145,14 +162,13 @@ scope "intermine.query", (exporting) ->
 
         render: () ->
             cd = @path.getEndClass()
-            currentView = @query.views
             for apath in @attributes
-                @$el.append(new Attribute(@query, apath, @depth, @evts).render().el)
+                @$el.append(new Attribute(@query, apath, @depth, @evts, @getDisabled).render().el)
             @$el.append PathChooser.DIVIDER
             for rpath in @references
-                @$el.append(new Reference(@query, rpath, @depth, @evts).render().el)
+                @$el.append(new Reference(@query, rpath, @depth, @evts, @getDisabled, @canSelectRefs).render().el)
             for cpath in @collections
-                @$el.append(new Reference(@query, cpath, @depth, @evts).render().el)
+                @$el.append(new Reference(@query, cpath, @depth, @evts, @getDisabled, @canSelectRefs).render().el)
 
             @$el.addClass(@dropDownClasses) if @depth is 0
             @$el.show()
@@ -165,9 +181,6 @@ scope "intermine.query", (exporting) ->
         className: "form im-constraint-adder row-fluid im-constraint"
 
         initialize: (@query) ->
-            @query.on "cancel:add-constraint", =>
-                @$('input').show()
-                @$('button[type="submit"]').show()
 
         events:
             'submit': 'handleSubmission'
@@ -187,28 +200,42 @@ scope "intermine.query", (exporting) ->
             if $(e.target).is 'button[type="submit"]'
                 @handleSubmission(e)
 
-        handleSubmission: (e) ->
+        handleSubmission: (e) =>
             e.preventDefault()
             e.stopPropagation()
-            @$('input').hide()
-            @$('button[type="submit"]').hide()
-            con =
-                path: @$('input').val()
+            if @chosen?
+                con =
+                    path: @chosen.toString()
 
-            ac = new intermine.query.NewConstraint(@query, con)
-            ac.render().$el.appendTo @el
+                ac = new intermine.query.NewConstraint(@query, con)
+                ac.render().$el.insertAfter @el
+                @$('.btn-primary').attr disabled: true # Only add one constraint at a time...
+                @$pathfinder?.remove()
+                @$pathfinder = null
+            else
+                console.log "Nothing chosen"
 
-        handleChoice: (path) =>
-            @$('input').val(path.toString())
-            @$('.btn-primary').attr disabled: false
+        handleChoice: (path, isNewChoice) =>
+            if isNewChoice
+                @chosen = path
+                @$('.btn-primary').attr disabled: false
+            else
+                @chosen = null
+                @$('.btn-primary').attr disabled: true
+
+        isDisabled: (path) -> false
+
+        getTreeRoot: () -> @query.getPathInfo(@query.root)
+
+        refsOK: true
 
         showTree: (e) =>
             if @$pathfinder
                 @$pathfinder.remove()
                 @$pathfinder = null
             else
-                root = @query.getPathInfo(@query.root)
-                pathFinder = new PathChooser(@query, root, 0, @handleChoice)
+                root = @getTreeRoot()
+                pathFinder = new PathChooser(@query, root, 0, @handleChoice, @isDisabled, @refsOK)
                 pathFinder.render().$el.appendTo(@el).show()
                 #pathFinder.$el.offset left: @$el.offset().left, top:  @$el.offset().top + @$el.height()
                 pathFinder.$el.css top: @$el.height()
