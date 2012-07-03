@@ -197,7 +197,7 @@ scope "intermine.query", (exporting) ->
             e.preventDefault()
             unless $(e.target).is 'button'
                 e.stopPropagation()
-            if $(e.target).is 'button[type="submit"]'
+            if $(e.target).is 'button.btn-primary'
                 @handleSubmission(e)
 
         handleSubmission: (e) =>

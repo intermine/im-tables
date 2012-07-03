@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Tue Jul 03 2012 10:20:37 GMT+0100 (BST)
+ * Built at Tue Jul 03 2012 16:40:20 GMT+0100 (BST)
 */
 
 
@@ -86,7 +86,9 @@
     } else {
       for (name in code) {
         value = code[name];
-        ns[name] = value;
+        if (overwrite || !(ns[name] != null)) {
+          ns[name] = value;
+        }
       }
     }
     return ns;
@@ -519,7 +521,7 @@
         if (!$(e.target).is('button')) {
           e.stopPropagation();
         }
-        if ($(e.target).is('button[type="submit"]')) {
+        if ($(e.target).is('button.btn-primary')) {
           return this.handleSubmission(e);
         }
       };
@@ -786,8 +788,10 @@
       Step.prototype.render = function() {
         var addSection, c, clist, details, jlist, p, path, ps, q, style, toLabel, v, vlist, _fn, _fn1, _fn2, _i, _j, _len, _len1, _ref, _ref1,
           _this = this;
-        this.$el.append("<h2>" + (this.model.get('title')) + "</h2>\n<div class=\"im-step-details\"></div>\n<button class=\"btn btn-small\" disabled title=\"Revert to this state\">\n    <i class=icon-undo></i>\n</button>\n<div class=\"im-step-count\"><span class=\"count\"></span> rows</div>\n<button class=\"btn btn-main\" disabled>Current State</button>");
-        this.$('.btn-small').tooltip();
+        this.$el.append("<button class=\"btn btn-small im-state-revert\" disabled\n    title=\"Revert to this state\">\n    <i class=icon-undo></i>\n</button>\n<div>" + (this.model.get('title')) + "</div>\n<span class=\"im-step-count\"><span class=\"count\"></span> rows</span>");
+        this.$('.btn-small').tooltip({
+          placement: 'right'
+        });
         q = this.model.get('query');
         details = this.$('.im-step-details');
         addSection = function(n, things) {
@@ -872,9 +876,9 @@
         return Trail.__super__.constructor.apply(this, arguments);
       }
 
-      Trail.prototype.className = "im-query-trail well minimised";
+      Trail.prototype.className = "im-query-trail";
 
-      Trail.prototype.tagName = "ul";
+      Trail.prototype.tagName = "div";
 
       Trail.prototype.events = {
         'click a.details': 'minumaximise',
@@ -908,7 +912,7 @@
         this.currentStep = 0;
         this.states = new Backbone.Collection();
         this.states.on('add', function(state) {
-          return _this.$el.append(new Step({
+          return _this.$('.im-state-list').append(new Step({
             model: state
           }).render().el);
         });
@@ -927,7 +931,6 @@
           }));
           return state.trigger('is:current', true);
         });
-        this.addStep('Original State')();
         return this.startListening();
       };
 
@@ -946,8 +949,8 @@
       };
 
       Trail.prototype.render = function() {
-        this.$el.append("<div class=\"im-minimiser\">\n  <span class=\"im-trail-summary\"></span>\n  <a class=\"details\" href=\"#\">view details</a>\n  <a href=\"#\" class=\"shade\"><i class=\"icon-minus-sign\"></i></a>\n</div>");
-        this.addStep("Original State");
+        this.$el.append("<div class=\"btn-group\">\n  <a class=\"btn dropdown-toggle\" data-toggle=\"dropdown\" href=\"#\">\n    <span class=\"im-trail-summary\"></span>\n    <span class=\"caret\"></span>\n  </a>\n  <ul class=\"dropdown-menu im-state-list\">\n  </ul>\n</div>\n<div style=\"clear:both\"></div>");
+        this.addStep('Original State')();
         return this;
       };
 
@@ -967,10 +970,13 @@
     headerIconSummary: "icon-bar-chart"
   });
 
+  scope('intermine.messages.query', {
+    CountSummary: _.template("<span class=\"im-only-widescreen\">Showing</span>\n<span>\n  <%= first %> to <%= last %> of <%= count %> <%= roots %>\n</span>")
+  });
+
   scope("intermine.query.results", function(exporting) {
-    var COUNT_HTML, NUMERIC_TYPES, Page, ResultsTable, Table;
+    var NUMERIC_TYPES, Page, ResultsTable, Table;
     NUMERIC_TYPES = ["int", "Integer", "double", "Double", "float", "Float"];
-    COUNT_HTML = _.template("<span>Showing <%= first %> to <%= last %> of <%= count %></span> <%= roots %>");
     Page = (function() {
 
       function Page(start, size) {
@@ -1581,7 +1587,7 @@
       Table.prototype.updateSummary = function(start, size, result) {
         var html, summary;
         summary = this.$('.im-table-summary');
-        html = COUNT_HTML({
+        html = intermine.messages.query.CountSummary({
           first: start + 1,
           last: Math.min(start + size, result.iTotalRecords),
           count: intermine.utils.numToString(result.iTotalRecords, ",", 3),
@@ -1731,7 +1737,7 @@
           $pagination.find('li').tooltip({
             placement: "left"
           });
-          $widgets.append("<div class=\"im-table-summary\"></div>");
+          $widgets.append("<span class=\"im-table-summary\"></div>");
           pageSelector = $pagination.find('select').change(function() {
             _this.table.goToPage(pageSelector.val());
             currentPageButton.show();
@@ -4348,17 +4354,30 @@
         this.isDisabled = __bind(this.isDisabled, this);
 
         this.handleSubmission = __bind(this.handleSubmission, this);
+
+        this.handleChoice = __bind(this.handleChoice, this);
         return ColumnAdder.__super__.constructor.apply(this, arguments);
       }
 
-      ColumnAdder.prototype.className = "form node-adder input-append";
+      ColumnAdder.prototype.className = "form node-adder btn-group";
+
+      ColumnAdder.prototype.initialize = function(query) {
+        ColumnAdder.__super__.initialize.call(this, query);
+        return this.chosen = [];
+      };
+
+      ColumnAdder.prototype.handleChoice = function(path) {
+        this.chosen.push(path);
+        return this.$('.btn-primary').attr({
+          disabled: false
+        });
+      };
 
       ColumnAdder.prototype.handleSubmission = function(e) {
-        var newPath, _ref;
+        var _ref;
         e.preventDefault();
         e.stopPropagation();
-        newPath = this.$('input').val();
-        this.query.trigger('column-orderer:selected', newPath);
+        this.query.trigger('column-orderer:selected', this.chosen);
         this.$('.btn-chooser').button('toggle');
         if ((_ref = this.$pathfinder) != null) {
           _ref.remove();
@@ -4375,7 +4394,7 @@
 
       ColumnAdder.prototype.render = function() {
         ColumnAdder.__super__.render.call(this);
-        this.$('input').hide();
+        this.$('input').remove();
         return this;
       };
 
@@ -4395,26 +4414,32 @@
         var _this = this;
         this.query = query;
         this.query.on("change:sortorder", this.initSorting);
-        return this.query.on('column-orderer:selected', function(path) {
-          var moveableView, ojg;
-          if (_this.query.isOuterJoined(path)) {
-            ojg = _.last(_.sortBy(_.filter(_.values(_this.ojgs), function(ojg) {
-              return !!path.match(ojg.ojg.toString());
-            }), function(ojg) {
-              return ojg.ojg.descriptors.length;
-            }));
-            return ojg.addPath(path);
-          } else {
-            moveableView = $(_this.viewTemplate({
-              path: path,
-              displayName: path,
-              idx: ''
-            }));
-            _this.query.getPathInfo(path).getDisplayName(function(name) {
-              return moveableView.find('.im-display-name').text(name);
-            });
-            return moveableView.appendTo(_this.$('.im-reordering-container'));
+        return this.query.on('column-orderer:selected', function(paths) {
+          var moveableView, ojg, path, pstr, _i, _len, _results;
+          _results = [];
+          for (_i = 0, _len = paths.length; _i < _len; _i++) {
+            path = paths[_i];
+            pstr = path.toString();
+            if (_this.query.isOuterJoined(pstr)) {
+              ojg = _.last(_.sortBy(_.filter(_.values(_this.ojgs), function(ojg) {
+                return !!pstr.match(ojg.ojg.toString());
+              }), function(ojg) {
+                return ojg.ojg.descriptors.length;
+              }));
+              _results.push(ojg.addPath(pstr));
+            } else {
+              moveableView = $(_this.viewTemplate({
+                path: pstr,
+                displayName: pstr,
+                idx: ''
+              }));
+              path.getDisplayName(function(name) {
+                return moveableView.find('.im-display-name').text(name);
+              });
+              _results.push(moveableView.appendTo(_this.$('.im-reordering-container')));
+            }
           }
+          return _results;
         });
       };
 

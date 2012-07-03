@@ -97,16 +97,15 @@ scope "intermine.query.tools", (exporting) ->
 
         render: () ->
             @$el.append """
-                    <h2>#{ @model.get 'title' }</h2>
-                    <div class="im-step-details"></div>
-                    <button class="btn btn-small" disabled title="Revert to this state">
+                    <button class="btn btn-small im-state-revert" disabled
+                        title="Revert to this state">
                         <i class=icon-undo></i>
                     </button>
-                    <div class="im-step-count"><span class="count"></span> rows</div>
-                    <button class="btn btn-main" disabled>Current State</button>
+                    <div>#{ @model.get 'title' }</div>
+                    <span class="im-step-count"><span class="count"></span> rows</span>
                 """
 
-            @$('.btn-small').tooltip()
+            @$('.btn-small').tooltip(placement: 'right')
 
             q = @model.get 'query'
 
@@ -157,8 +156,8 @@ scope "intermine.query.tools", (exporting) ->
 
     exporting class Trail extends Backbone.View
         
-        className: "im-query-trail well minimised"
-        tagName: "ul"
+        className: "im-query-trail"
+        tagName: "div"
 
         events:
             'click a.details': 'minumaximise'
@@ -178,11 +177,11 @@ scope "intermine.query.tools", (exporting) ->
         initialize: (@query, @display) ->
             @currentStep = 0
             @states = new Backbone.Collection()
-            @states.on 'add', (state) => @$el.append new Step(model: state).render().el
+            @states.on 'add', (state) =>
+                @$('.im-state-list').append new Step(model: state).render().el
             @states.on 'add remove', () =>
                 @$('.im-trail-summary').text """query history: #{ @states.size() } states"""
                 @$el.toggle @states.size() > 1
-
 
             @states.on 'revert', (state) =>
                 @query = state.get('query').clone()
@@ -192,7 +191,6 @@ scope "intermine.query.tools", (exporting) ->
                 @states.remove  @states.filter (s) -> s.get('stepNo') > num
                 state.trigger 'is:current', true
 
-            @addStep('Original State')()
             @startListening()
 
         addStep: (title) -> () =>
@@ -200,12 +198,17 @@ scope "intermine.query.tools", (exporting) ->
             @states.add query: @query.clone(), title: title, stepNo: @currentStep++
 
         render: () ->
-            @$el.append """<div class="im-minimiser">
-                  <span class="im-trail-summary"></span>
-                  <a class="details" href="#">view details</a>
-                  <a href="#" class="shade"><i class="icon-minus-sign"></i></a>
+            @$el.append """
+                <div class="btn-group">
+                  <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+                    <span class="im-trail-summary"></span>
+                    <span class="caret"></span>
+                  </a>
+                  <ul class="dropdown-menu im-state-list">
+                  </ul>
                 </div>
+                <div style="clear:both"></div>
               """
-            @addStep "Original State"
+            @addStep('Original State')()
             this
 

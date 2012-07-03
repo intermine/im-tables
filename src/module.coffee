@@ -16,13 +16,14 @@ scope = (path, code = (() ->), overwrite = false) ->
     ns = root
     for part in parts
         ns = if ns[part] then ns[part] else (ns[part] = {})
-    exporting = (cls) ->
-        ns[cls.name] = cls
+    exporting = (cls) -> ns[cls.name] = cls
     if _.isFunction code
         code(exporting)
     else
         for name, value of code
-            ns[ name ] = value
+            # Update but do not overwrite values.
+            if overwrite or not ns[name]?
+                ns[ name ] = value
     return ns
 
 

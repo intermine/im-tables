@@ -9,10 +9,19 @@ scope "intermine.css", {
     headerIconSummary: "icon-bar-chart"
 }
 
+scope 'intermine.messages.query', {
+    # A function of the form ({count: i, first: i, last: i, roots: str}) -> str
+    CountSummary: _.template """
+          <span class="im-only-widescreen">Showing</span>
+          <span>
+            <%= first %> to <%= last %> of <%= count %> <%= roots %>
+          </span>
+        """
+}
+
 scope "intermine.query.results", (exporting) ->
 
     NUMERIC_TYPES = ["int", "Integer", "double", "Double", "float", "Float"]
-    COUNT_HTML = _.template """<span>Showing <%= first %> to <%= last %> of <%= count %></span> <%= roots %>"""
 
     class Page
         constructor: (@start, @size) ->
@@ -543,7 +552,7 @@ scope "intermine.query.results", (exporting) ->
 
         updateSummary: (start, size, result) ->
             summary = @$ '.im-table-summary'
-            html    = COUNT_HTML
+            html    = intermine.messages.query.CountSummary
                 first: start + 1
                 last: Math.min(start + size, result.iTotalRecords)
                 count: intermine.utils.numToString(result.iTotalRecords, ",", 3)
@@ -677,7 +686,7 @@ scope "intermine.query.results", (exporting) ->
             $pagination.find('li').tooltip(placement: "left")
 
             $widgets.append """
-                <div class="im-table-summary"></div>
+                <span class="im-table-summary"></div>
             """
 
             pageSelector = $pagination.find('select').change =>

@@ -45,13 +45,20 @@ scope "intermine.query.results.table", (exporting) ->
             @render()
 
     class ColumnAdder extends intermine.query.ConstraintAdder
-        className: "form node-adder input-append"
+        className: "form node-adder btn-group"
+
+        initialize: (query) ->
+            super(query)
+            @chosen = []
+
+        handleChoice: (path) =>
+            @chosen.push path
+            @$('.btn-primary').attr disabled: false
 
         handleSubmission: (e) =>
             e.preventDefault()
             e.stopPropagation()
-            newPath = @$('input').val()
-            @query.trigger 'column-orderer:selected', newPath
+            @query.trigger 'column-orderer:selected', @chosen
             @$('.btn-chooser').button('toggle')
             @$pathfinder?.remove()
             @$pathfinder = null
@@ -62,29 +69,31 @@ scope "intermine.query.results.table", (exporting) ->
 
         render: () ->
             super()
-            @$('input').hide()
+            @$('input').remove()
             this
 
     exporting class ColumnOrderer extends Backbone.View
         
         initialize: (@query) ->
             @query.on "change:sortorder", @initSorting
-            @query.on 'column-orderer:selected', (path) =>
-                if @query.isOuterJoined(path)
-                    ojg = _.last(
-                        _.sortBy(
-                            _.filter(
-                                _.values(@ojgs),
-                                (ojg) -> !!path.match(ojg.ojg.toString())
-                            ),
-                            (ojg) -> ojg.ojg.descriptors.length
-                        ))
-                    ojg.addPath(path)
-                else
-                    moveableView = $ @viewTemplate path: path, displayName: path, idx: ''
-                    @query.getPathInfo(path).getDisplayName (name) ->
-                        moveableView.find('.im-display-name').text name
-                    moveableView.appendTo @$ '.im-reordering-container'
+            @query.on 'column-orderer:selected', (paths) =>
+                for path in paths
+                    pstr = path.toString()
+                    if @query.isOuterJoined(pstr)
+                        ojg = _.last(
+                            _.sortBy(
+                                _.filter(
+                                    _.values(@ojgs),
+                                    (ojg) -> !!pstr.match(ojg.ojg.toString())
+                                ),
+                                (ojg) -> ojg.ojg.descriptors.length
+                            ))
+                        ojg.addPath(pstr)
+                    else
+                        moveableView = $ @viewTemplate path: pstr, displayName: pstr, idx: ''
+                        path.getDisplayName (name) ->
+                            moveableView.find('.im-display-name').text name
+                        moveableView.appendTo @$ '.im-reordering-container'
 
         template: _.template """
             <a class="btn btn-large im-reorderer">
