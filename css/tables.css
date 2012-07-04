@@ -894,6 +894,7 @@ td.im-result-subtable .im-subtable {
 }
 
 .im-query-trail .im-step {
+    margin-left: 0px;
     padding-left: 1em;
     padding-right: 1em;
     min-height: 4em;
