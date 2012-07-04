@@ -1,3 +1,7 @@
+scope "intermine.icons", {
+    Script: "icon-beaker"
+}
+
 scope "intermine.query.actions", (exporting) ->
 
    # Model for representing something with one major field
@@ -403,8 +407,10 @@ scope "intermine.query.actions", (exporting) ->
         html: _.template("""
             <div class="btn-group">
                 <a class="btn btn-action" href="#">
-                    <i class="icon-script"></i>
-                    Get <span class="im-code-lang"></span> code
+                    <i class="#{ intermine.icons.Script }"></i>
+                    <span class="im-only-widescreen">Get</span>
+                    <span class="im-code-lang"></span>
+                    Code
                 </a>
                 <a class="btn dropdown-toggle" data-toggle="dropdown" href="#" style="height: 18px">
                     <span class="caret"></span>
@@ -717,10 +723,11 @@ scope "intermine.query.actions", (exporting) ->
         html: """
             <a href="#" class="btn" data-toggle="dropdown">
                 <i class="icon-list-alt"></i>
-                Create / Add to list
+                <span class="im-only-widescreen">Create / Add to</span>
+                List
                 <b class="caret"></b>
             </a>
-            <ul class="dropdown-menu im-type-options">
+            <ul class="dropdown-menu im-type-options pull-right">
                 <div class="btn-group" data-toggle="buttons-radio">
                     <button class="btn active im-list-action-chooser" data-action="create">
                         Create New List

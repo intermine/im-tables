@@ -770,7 +770,6 @@ td.im-result-subtable .im-subtable {
 }
 
 .im-query-actions li > .btn {
-   width: 15em;
 }
 
 .im-query-actions li > .btn-group > .btn:first-child {
@@ -789,6 +788,10 @@ td.im-result-subtable .im-subtable {
 
 .im-query-actionbar .im-action {
     float: right;
+}
+
+.im-constraint-value {
+    position: relative;
 }
 
 .im-constraint-adder .dropdown-menu,

@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Wed Jul 04 2012 16:09:11 GMT+0100 (BST)
+ * Built at Wed Jul 04 2012 19:53:47 GMT+0100 (BST)
 */
 
 
@@ -171,13 +171,14 @@
         return this.evts.trigger('chosen', this.path, isNewChoice);
       };
 
-      Attribute.prototype.initialize = function(query, path, depth, evts, getDisabled) {
+      Attribute.prototype.initialize = function(query, path, depth, evts, getDisabled, multiSelect) {
         var _this = this;
         this.query = query;
         this.path = path;
         this.depth = depth;
         this.evts = evts;
         this.getDisabled = getDisabled;
+        this.multiSelect = multiSelect;
         this.evts.on('remove', function() {
           return _this.remove();
         });
@@ -185,7 +186,9 @@
           if (p.toString() === _this.path.toString()) {
             return _this.$el.toggleClass('active', isNewChoice);
           } else {
-            return _this.$el.removeClass('active');
+            if (!_this.multiSelect) {
+              return _this.$el.removeClass('active');
+            }
           }
         });
         return this.evts.on('filter:paths', function(terms) {
@@ -283,15 +286,16 @@
         return Reference.__super__.constructor.apply(this, arguments);
       }
 
-      Reference.prototype.initialize = function(query, path, depth, evts, getDisabled, isSelectable) {
+      Reference.prototype.initialize = function(query, path, depth, evts, getDisabled, multiSelect, isSelectable) {
         var _this = this;
         this.query = query;
         this.path = path;
         this.depth = depth;
         this.evts = evts;
         this.getDisabled = getDisabled;
+        this.multiSelect = multiSelect;
         this.isSelectable = isSelectable;
-        Reference.__super__.initialize.call(this, this.query, this.path, this.depth, this.evts, this.getDisabled);
+        Reference.__super__.initialize.call(this, this.query, this.path, this.depth, this.evts, this.getDisabled, this.multiSelect);
         this.evts.on('filter:paths', function(terms) {
           return _this.$el.hide();
         });
@@ -314,7 +318,7 @@
       };
 
       Reference.prototype.openSubFinder = function() {
-        this.subfinder = new PathChooser(this.query, this.path, this.depth + 1, this.evts, this.getDisabled, this.isSelectable);
+        this.subfinder = new PathChooser(this.query, this.path, this.depth + 1, this.evts, this.getDisabled, this.isSelectable, this.multiSelect);
         this.$el.append(this.subfinder.render().el);
         return this.$el.addClass('open');
       };
@@ -393,7 +397,7 @@
         return _results;
       };
 
-      PathChooser.prototype.initialize = function(query, path, depth, events, getDisabled, canSelectRefs) {
+      PathChooser.prototype.initialize = function(query, path, depth, events, getDisabled, canSelectRefs, multiSelect) {
         var attr, cd, coll, name, ref, toPath,
           _this = this;
         this.query = query;
@@ -401,6 +405,7 @@
         this.depth = depth;
         this.getDisabled = getDisabled;
         this.canSelectRefs = canSelectRefs;
+        this.multiSelect = multiSelect;
         this.evts = this.depth === 0 ? _.extend({}, Backbone.Events) : events;
         cd = this.path.getEndClass();
         toPath = function(f) {
@@ -449,18 +454,18 @@
         _ref = this.attributes;
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           apath = _ref[_i];
-          this.$el.append(new Attribute(this.query, apath, this.depth, this.evts, this.getDisabled).render().el);
+          this.$el.append(new Attribute(this.query, apath, this.depth, this.evts, this.getDisabled, this.multiSelect).render().el);
         }
         this.$el.append(PathChooser.DIVIDER);
         _ref1 = this.references;
         for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
           rpath = _ref1[_j];
-          this.$el.append(new Reference(this.query, rpath, this.depth, this.evts, this.getDisabled, this.canSelectRefs).render().el);
+          this.$el.append(new Reference(this.query, rpath, this.depth, this.evts, this.getDisabled, this.multiSelect, this.canSelectRefs).render().el);
         }
         _ref2 = this.collections;
         for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
           cpath = _ref2[_k];
-          this.$el.append(new Reference(this.query, cpath, this.depth, this.evts, this.getDisabled, this.canSelectRefs).render().el);
+          this.$el.append(new Reference(this.query, cpath, this.depth, this.evts, this.getDisabled, this.multiSelect, this.canSelectRefs).render().el);
         }
         if (this.depth === 0) {
           this.$el.addClass(this.dropDownClasses);
@@ -477,8 +482,6 @@
       __extends(ConstraintAdder, _super);
 
       function ConstraintAdder() {
-        this.filterOptions = __bind(this.filterOptions, this);
-
         this.showTree = __bind(this.showTree, this);
 
         this.handleChoice = __bind(this.handleChoice, this);
@@ -497,23 +500,6 @@
 
       ConstraintAdder.prototype.events = {
         'submit': 'handleSubmission'
-      };
-
-      ConstraintAdder.prototype.handleKeyup = function(e) {
-        return $('.btn-primary').attr({
-          disabled: false
-        });
-      };
-
-      ConstraintAdder.prototype.leaveSearch = function(e) {
-        var emptySearchBox;
-        emptySearchBox = function() {
-          $('input').val('');
-          return $('.btn-primary').attr({
-            disabled: true
-          });
-        };
-        return _.delay(emptySearchBox, 7000);
       };
 
       ConstraintAdder.prototype.handleClick = function(e) {
@@ -572,14 +558,20 @@
 
       ConstraintAdder.prototype.refsOK = true;
 
+      ConstraintAdder.prototype.multiSelect = false;
+
+      ConstraintAdder.prototype.reset = function() {
+        this.$pathfinder.remove();
+        return this.$pathfinder = null;
+      };
+
       ConstraintAdder.prototype.showTree = function(e) {
         var pathFinder;
-        if (this.$pathfinder) {
-          this.$pathfinder.remove();
-          return this.$pathfinder = null;
+        if (this.$pathfinder != null) {
+          return this.reset();
         } else {
           root = this.getTreeRoot();
-          pathFinder = new PathChooser(this.query, root, 0, this.handleChoice, this.isDisabled, this.refsOK);
+          pathFinder = new PathChooser(this.query, root, 0, this.handleChoice, this.isDisabled, this.refsOK, this.multiSelect);
           pathFinder.render().$el.appendTo(this.el).show();
           pathFinder.$el.css({
             top: this.$el.height()
@@ -587,49 +579,6 @@
           return this.$pathfinder = pathFinder;
         }
       };
-
-      ConstraintAdder.prototype.showOptions = function() {};
-
-      ConstraintAdder.prototype.filterOptions = function(e) {
-        var terms, thisTime, val, _ref, _ref1;
-        if (this.filterLock) {
-          return false;
-        }
-        this.filterLock = true;
-        if (this.$pathfinder == null) {
-          this.showTree(e);
-        }
-        val = (_ref = this.$('input').val()) != null ? _ref.replace(/\s+$/g, '').replace(/^\s+/g, '') : void 0;
-        if (val != null) {
-          this.$('.btn-primary').attr({
-            disabled: false
-          });
-        }
-        if ((val != null) && val.length >= 3) {
-          thisTime = new Date().getTime();
-          if ((!(this.lastSearch != null)) || ((this.lastSearch.time + 1000 < thisTime) && (this.lastSearch.term !== val))) {
-            if (this.lastSearch != null) {
-              this.$pathfinder.remove();
-              this.$pathfinder = null;
-              this.showTree(e);
-            }
-            console.log("Searching for " + val + " at " + thisTime);
-            this.lastSearch = {
-              time: thisTime,
-              term: val
-            };
-            terms = (val != null ? val.split(/\s+/) : void 0) || [];
-            if ((_ref1 = this.$pathfinder) != null) {
-              _ref1.searchFor(terms);
-            }
-          } else {
-            console.log("No search needed at " + thisTime);
-          }
-        }
-        return this.filterLock = false;
-      };
-
-      ConstraintAdder.prototype.inputPlaceholder = "Add a column...";
 
       ConstraintAdder.prototype.render = function() {
         var approver, browser, input;
@@ -648,7 +597,6 @@
         this.$el.append(approver);
         approver.click(this.handleSubmission);
         browser.click(this.showTree);
-        this.$('input').click(this.showOptions).keyup(this.filterOptions);
         return this;
       };
 
@@ -2609,6 +2557,10 @@
     })(Backbone.View);
   });
 
+  scope("intermine.icons", {
+    Script: "icon-beaker"
+  });
+
   scope("intermine.query.actions", function(exporting) {
     var ActionBar, Actions, CODE_GEN_LANGS, CodeGenerator, EXPORT_FORMATS, Exporters, ILLEGAL_LIST_NAME_CHARS, Item, ListAppender, ListCreator, ListDialogue, ListManager, UniqItems, openWindowWithPost;
     Item = (function(_super) {
@@ -3189,7 +3141,7 @@
 
       CodeGenerator.prototype.className = "im-code-gen";
 
-      CodeGenerator.prototype.html = _.template("<div class=\"btn-group\">\n    <a class=\"btn btn-action\" href=\"#\">\n        <i class=\"icon-script\"></i>\n        Get <span class=\"im-code-lang\"></span> code\n    </a>\n    <a class=\"btn dropdown-toggle\" data-toggle=\"dropdown\" href=\"#\" style=\"height: 18px\">\n        <span class=\"caret\"></span>\n    </a>\n    <ul class=\"dropdown-menu\">\n        <% _(langs).each(function(lang) { %>\n          <li>\n            <a href=\"#\" data-lang=\"<%= lang.extension %>\">\n               <i class=\"icon-<%= lang.extension %>\"></i>\n               <%= lang.name %>\n            </a>\n          </li>\n        <% }); %>\n    </ul>\n</div>\n<div class=\"modal fade\">\n    <div class=\"modal-header\">\n        <a class=\"close\" data-dismiss=\"modal\">close</a>\n        <h3>Generated <span class=\"im-code-lang\"></span> Code</h3>\n    </div>\n    <div class=\"modal-body\">\n        <pre class=\"im-generated-code prettyprint linenums\">\n        </pre>\n    </div>\n    <div class=\"modal-footer\">\n        <a href=\"#\" class=\"btn btn-save\"><i class=\"icon-file\"></i>Save</a>\n        <button href=\"#\" class=\"btn im-show-comments\" data-toggle=\"button\">Show Comments</button>\n        <a href=\"#\" data-dismiss=\"modal\" class=\"btn\">Close</a>\n    </div>\n</div>", {
+      CodeGenerator.prototype.html = _.template("<div class=\"btn-group\">\n    <a class=\"btn btn-action\" href=\"#\">\n        <i class=\"" + intermine.icons.Script + "\"></i>\n        <span class=\"im-only-widescreen\">Get</span>\n        <span class=\"im-code-lang\"></span>\n        Code\n    </a>\n    <a class=\"btn dropdown-toggle\" data-toggle=\"dropdown\" href=\"#\" style=\"height: 18px\">\n        <span class=\"caret\"></span>\n    </a>\n    <ul class=\"dropdown-menu\">\n        <% _(langs).each(function(lang) { %>\n          <li>\n            <a href=\"#\" data-lang=\"<%= lang.extension %>\">\n               <i class=\"icon-<%= lang.extension %>\"></i>\n               <%= lang.name %>\n            </a>\n          </li>\n        <% }); %>\n    </ul>\n</div>\n<div class=\"modal fade\">\n    <div class=\"modal-header\">\n        <a class=\"close\" data-dismiss=\"modal\">close</a>\n        <h3>Generated <span class=\"im-code-lang\"></span> Code</h3>\n    </div>\n    <div class=\"modal-body\">\n        <pre class=\"im-generated-code prettyprint linenums\">\n        </pre>\n    </div>\n    <div class=\"modal-footer\">\n        <a href=\"#\" class=\"btn btn-save\"><i class=\"icon-file\"></i>Save</a>\n        <button href=\"#\" class=\"btn im-show-comments\" data-toggle=\"button\">Show Comments</button>\n        <a href=\"#\" data-dismiss=\"modal\" class=\"btn\">Close</a>\n    </div>\n</div>", {
         langs: CODE_GEN_LANGS
       });
 
@@ -3529,7 +3481,7 @@
         return this.action = ListManager.actions.create;
       };
 
-      ListManager.prototype.html = "<a href=\"#\" class=\"btn\" data-toggle=\"dropdown\">\n    <i class=\"icon-list-alt\"></i>\n    Create / Add to list\n    <b class=\"caret\"></b>\n</a>\n<ul class=\"dropdown-menu im-type-options\">\n    <div class=\"btn-group\" data-toggle=\"buttons-radio\">\n        <button class=\"btn active im-list-action-chooser\" data-action=\"create\">\n            Create New List\n        </button>\n        <button class=\"btn im-list-action-chooser\" data-action=\"append\">\n            Add to Existing List\n        </button>\n    </div>\n</ul>";
+      ListManager.prototype.html = "<a href=\"#\" class=\"btn\" data-toggle=\"dropdown\">\n    <i class=\"icon-list-alt\"></i>\n    <span class=\"im-only-widescreen\">Create / Add to</span>\n    List\n    <b class=\"caret\"></b>\n</a>\n<ul class=\"dropdown-menu im-type-options pull-right\">\n    <div class=\"btn-group\" data-toggle=\"buttons-radio\">\n        <button class=\"btn active im-list-action-chooser\" data-action=\"create\">\n            Create New List\n        </button>\n        <button class=\"btn im-list-action-chooser\" data-action=\"append\">\n            Add to Existing List\n        </button>\n    </div>\n</ul>";
 
       ListManager.prototype.events = {
         'click .btn-group > .im-list-action-chooser': 'changeAction',
@@ -4449,25 +4401,33 @@
       };
 
       ColumnAdder.prototype.handleChoice = function(path) {
-        this.chosen.push(path);
+        if (!_.include(this.chosen, path)) {
+          this.chosen.push(path);
+        }
         return this.$('.btn-primary').attr({
           disabled: false
         });
       };
 
       ColumnAdder.prototype.handleSubmission = function(e) {
-        var _ref;
         e.preventDefault();
         e.stopPropagation();
         this.query.trigger('column-orderer:selected', this.chosen);
-        this.$('.btn-chooser').button('toggle');
-        if ((_ref = this.$pathfinder) != null) {
-          _ref.remove();
-        }
-        return this.$pathfinder = null;
+        return this.reset();
+      };
+
+      ColumnAdder.prototype.reset = function() {
+        ColumnAdder.__super__.reset.call(this);
+        this.chosen = [];
+        this.$('.btn-chooser').button('reset');
+        return this.$('.btn-primary').attr({
+          disabled: true
+        });
       };
 
       ColumnAdder.prototype.refsOK = false;
+
+      ColumnAdder.prototype.multiSelect = true;
 
       ColumnAdder.prototype.isDisabled = function(path) {
         var _ref;
@@ -4525,7 +4485,7 @@
         });
       };
 
-      ColumnOrderer.prototype.template = _.template("<a class=\"btn btn-large im-reorderer\">\n    <i class=\"icon-wrench\"></i>\n    Manage Columns\n</a>\n<div class=\"modal fade im-col-order-dialog\">\n    <div class=\"modal-header\">\n        <a class=\"close\" data-dismiss=\"modal\">close</a>\n        <h3>Manage Columns</a>\n    </div>\n    <div class=\"modal-body\">\n        <ul class=\"nav nav-tabs\">\n            <li class=\"active\"><a data-target=\".im-reordering\" data-toggle=\"tab\">Re-Order Columns</a></li>\n            <li><a data-target=\".im-sorting\" data-toggle=\"tab\">Re-Sort Columns</a></li>\n        </ul>\n        <div class=\"tab-content\">\n            <div class=\"tab-pane fade im-reordering active in\">\n                <div class=\"node-adder\"></div>\n                <ul class=\"im-reordering-container well\"></ul>\n            </div>\n            <div class=\"tab-pane fade im-sorting\">\n                <ul class=\"im-sorting-container well\"></ul>\n                <ul class=\"im-sorting-container-possibilities well\"></ul>\n            </div>\n        </div>\n    </div>\n    <div class=\"modal-footer\">\n        <a class=\"btn btn-cancel\">\n            Cancel\n        </a>\n        <a class=\"btn pull-right btn-primary\">\n            Apply\n        </a>\n    </div>\n</div>\n<div style=\"clear: both;\"></div>");
+      ColumnOrderer.prototype.template = _.template("<a class=\"btn btn-large im-reorderer\">\n    <i class=\"icon-wrench\"></i>\n    <span class=\"im-only-widescreen\">Manage</span>\n    Columns\n</a>\n<div class=\"modal fade im-col-order-dialog\">\n    <div class=\"modal-header\">\n        <a class=\"close\" data-dismiss=\"modal\">close</a>\n        <h3>Manage Columns</a>\n    </div>\n    <div class=\"modal-body\">\n        <ul class=\"nav nav-tabs\">\n            <li class=\"active\"><a data-target=\".im-reordering\" data-toggle=\"tab\">Re-Order Columns</a></li>\n            <li><a data-target=\".im-sorting\" data-toggle=\"tab\">Re-Sort Columns</a></li>\n        </ul>\n        <div class=\"tab-content\">\n            <div class=\"tab-pane fade im-reordering active in\">\n                <div class=\"node-adder\"></div>\n                <ul class=\"im-reordering-container well\"></ul>\n            </div>\n            <div class=\"tab-pane fade im-sorting\">\n                <ul class=\"im-sorting-container well\"></ul>\n                <ul class=\"im-sorting-container-possibilities well\"></ul>\n            </div>\n        </div>\n    </div>\n    <div class=\"modal-footer\">\n        <a class=\"btn btn-cancel\">\n            Cancel\n        </a>\n        <a class=\"btn pull-right btn-primary\">\n            Apply\n        </a>\n    </div>\n</div>\n<div style=\"clear: both;\"></div>");
 
       ColumnOrderer.prototype.viewTemplate = _.template("<li class=\"im-reorderable breadcrumb\" data-col-idx=\"<%= idx %>\" data-path=\"<%- path %>\">\n    <i class=\"icon-reorder pull-right\"\"></i>\n    <h4 class=\"im-display-name\"><%- displayName %></span>\n</li>");
 
@@ -5753,7 +5713,7 @@
         if (this.pathInfo.isClass()) {
           return this.ops = intermine.Query.REFERENCE_OPS;
         } else if (_ref = this.pathInfo.getType(), __indexOf.call(intermine.Model.BOOLEAN_TYPES, _ref) >= 0) {
-          return this.ops = ["=", "!="];
+          return this.ops = ["=", "!="].concat(intermine.Query.NULL_OPS);
         } else {
           return this.ops = intermine.Query.ATTRIBUTE_OPS;
         }
@@ -5790,6 +5750,8 @@
         return this.query.trigger("change:constraints");
       };
 
+      ActiveConstraint.prototype.valueChanged = function(value) {};
+
       ActiveConstraint.prototype.updateConstraint = function() {
         var con, op;
         op = this.$('.im-ops').val();
@@ -5803,7 +5765,10 @@
             return $(this).data('value');
           }).get();
         } else {
-          con.value = this.$('.im-value-options').val();
+          con.value = this.$('.im-con-value').val();
+        }
+        if (__indexOf.call(intermine.Query.TERNARY_OPS, op) >= 0) {
+          con.extraValue = this.$('.im-extra-value').val();
         }
         return _.extend(this.con, con);
       };
@@ -5845,45 +5810,52 @@
         return this.$el.append(btns);
       };
 
-      ActiveConstraint.prototype.getTitleOp = function() {
-        return this.con.op || intermine.conbuilder.messages.IsA;
+      ActiveConstraint.prototype.getTitleOp = function(con) {
+        return con.op || intermine.conbuilder.messages.IsA;
       };
 
-      ActiveConstraint.prototype.getTitleVal = function() {
-        if (this.con.values) {
-          return this.con.values.length + " values";
+      ActiveConstraint.prototype.getTitleVal = function(con) {
+        if (con.values) {
+          return con.values.length + " values";
         } else {
-          return this.con.value || this.con.type;
+          return con.value || con.type;
         }
       };
 
-      ActiveConstraint.prototype.render = function() {
-        var $label, $select, fs, op, sp, toL, ul, val,
+      ActiveConstraint.prototype.toLabel = function(content, type) {
+        return $("<span class=\"label label-" + type + "\">" + content + "</span>");
+      };
+
+      ActiveConstraint.prototype.fillConSummaryLabel = function(con) {
+        var op, sp, ul, val,
           _this = this;
-        $label = $("<label class=\"im-con-overview\">\n</label>");
-        this.addIcons($label);
-        ul = $('<ul class="breadcrumb">').appendTo($label);
-        toL = function(content, type) {
-          return $("<span class=\"label label-" + type + "\">" + content + "</span>");
-        };
-        if (this.con.title != null) {
-          ul.append(toL(this.con.title, 'path'));
+        this.label.empty();
+        this.addIcons(this.label);
+        ul = $('<ul class="breadcrumb">').appendTo(this.label);
+        if (con.title != null) {
+          ul.append(this.toLabel(con.title, 'path'));
         } else {
-          sp = toL(this.con.path, 'path');
+          sp = this.toLabel(con.path, 'path');
           (function(sp) {
-            return _this.query.getPathInfo(_this.con.path).getDisplayName(function(name) {
+            return _this.query.getPathInfo(con.path).getDisplayName(function(name) {
               return sp.text(name);
             });
           })(sp);
           ul.append(sp);
         }
-        if ((op = this.getTitleOp())) {
-          ul.append(toL(op, 'op'));
+        if ((op = this.getTitleOp(con))) {
+          ul.append(this.toLabel(op, 'op'));
         }
-        if ((val = this.getTitleVal())) {
-          ul.append(toL(val, 'value'));
+        if ((val = this.getTitleVal(con))) {
+          return ul.append(this.toLabel(val, 'value'));
         }
-        this.$el.append($label);
+      };
+
+      ActiveConstraint.prototype.render = function() {
+        var $select, fs;
+        this.label = $("<label class=\"im-con-overview\">\n</label>");
+        this.fillConSummaryLabel(this.con);
+        this.$el.append(this.label);
         fs = $("<fieldset class=\"im-constraint-options\"></fieldset>").appendTo(this.el);
         $select = $("<select class=\"span4 im-ops\"><option>" + this.con.op + "</option></select>");
         $select.appendTo(fs);
@@ -5895,14 +5867,32 @@
         return this;
       };
 
+      ActiveConstraint.prototype.opChanged = function(op) {};
+
       ActiveConstraint.prototype.drawValueOptions = function() {
-        var $lists, $loops, $multiValues, fs, lc, loopCandidates, op, opt, values, _fn, _i, _len, _ref,
+        var $lists, $loops, $multiValues, fs, input, lc, loopCandidates, op, opt, values, _fn, _i, _len, _ref,
           _this = this;
         this.$('.im-value-options').remove();
         fs = this.$('.im-constraint-options');
         op = this.$('.im-ops').val();
-        if (_ref = this.pathInfo.getType(), __indexOf.call(intermine.Model.BOOLEAN_TYPES, _ref) >= 0) {
-          fs.append("<div class=\"im-value-options btn-group\" data-toggle=\"buttons-radio\">\n    <button class=\"btn " + (this.con.value === 'true' ? 'active' : '') + "\" data-value=\"true\">\n        true\n    </button>\n    <button class=\"btn " + (this.con.value === 'false' ? 'active' : '') + "\" data-value=\"false\">\n        false\n    </button>\n</div>\n<input class=\"im-value-options\" type=\"hidden\" value=\"" + this.con.value + "\">");
+        this.opChanged(op);
+        if ((_ref = this.pathInfo.getType(), __indexOf.call(intermine.Model.BOOLEAN_TYPES, _ref) >= 0) && !(__indexOf.call(intermine.Query.NULL_OPS, op) >= 0)) {
+          fs.append("<div class=\"im-value-options btn-group\" data-toggle=\"buttons-radio\">\n    <button class=\"btn " + (this.con.value === 'true' ? 'active' : '') + "\" data-value=\"true\">\n        true\n    </button>\n    <button class=\"btn " + (this.con.value === 'false' ? 'active' : '') + "\" data-value=\"false\">\n        false\n    </button>\n</div>\n<input class=\"im-value-options im-con-value\" type=\"hidden\" value=\"" + this.con.value + "\">");
+          input = fs.find('input').change(function() {
+            return _this.valueChanged(input.val());
+          });
+          fs.find('button').click(function(e) {
+            var b, wasActive;
+            b = $(this);
+            wasActive = b.is('.active');
+            fs.find('button').removeClass('active');
+            if (!wasActive) {
+              b.addClass('active');
+              return input.val(b.data('value')).change();
+            } else {
+              return input.val('').change();
+            }
+          });
         } else if (__indexOf.call(intermine.Query.MULTIVALUE_OPS, op) >= 0) {
           values = this.con.values || [];
           $multiValues = $('<table class="table table-condensed im-value-options"></table>').appendTo(fs);
@@ -5910,7 +5900,7 @@
             return $multiValues.append("<tr>\n    <td><input type=checkbox checked data-value=\"" + v + "\"></td>\n    <td>" + v + "</td>\n</tr>");
           });
         } else if (__indexOf.call(intermine.Query.LIST_OPS, op) >= 0) {
-          $lists = $("<select class=\"span8 im-value-options\"></select>").appendTo(fs);
+          $lists = $("<select class=\"span8 im-value-options im-con-value\"></select>").appendTo(fs);
           this.query.service.fetchLists(function(ls) {
             var selectables, sl, _i, _len;
             selectables = _(ls).filter(function(l) {
@@ -5934,7 +5924,7 @@
           loopCandidates = this.query.getQueryNodes().filter(function(lc) {
             return lc.isa(_this.type) || _this.pathInfo.isa(lc.getEndClass());
           });
-          $loops = $("<select class=\"span8 im-value-options\">");
+          $loops = $("<select class=\"span8 im-value-options im-con-value\">");
           $loops.appendTo(fs);
           _fn = function(opt, lc) {
             return lc.getDisplayName(function(name) {
@@ -5947,8 +5937,27 @@
             opt.appendTo($loops);
             _fn(opt, lc);
           }
-        } else {
-          fs.append("<input class=\"span8 im-constraint-value im-value-options\" type=\"text\"\n    placeholder=\"" + intermine.conbuilder.messages.ValuePlaceholder + "\"\n    value=\"" + (this.con.value || this.con.type || '') + "\"\n>");
+        } else if (!(__indexOf.call(intermine.Query.NULL_OPS, op) >= 0)) {
+          input = $("<input class=\"span8 im-constraint-value im-value-options im-con-value\" type=\"text\"\n    placeholder=\"" + intermine.conbuilder.messages.ValuePlaceholder + "\"\n    value=\"" + (this.con.value || this.con.type || '') + "\"\n>");
+          fs.append(input);
+          input.keyup(function() {
+            return _this.valueChanged(input.val());
+          });
+          input.change(function() {
+            return _this.valueChanged(input.val());
+          });
+          (function(input) {
+            _this.query.filterSummary(_this.con.path, "", 100, function(items) {
+              if (((items != null ? items.length : void 0) > 0) && (items[0].item != null)) {
+                return input.typeahead({
+                  source: _.pluck(items, 'item')
+                });
+              }
+            });
+            return _this.query.on('cancel:add-constraint change:constraints', function() {
+              return input.data('typeahead').$menu.remove();
+            });
+          })(input);
         }
         if (__indexOf.call(intermine.Query.TERNARY_OPS, op) >= 0) {
           return fs.append("<label class=\"im-value-options\">\n    " + intermine.conbuilder.messages.ExtraLabel + "\n    <input type=\"text\" class=\"im-extra-value\"\n        placeholder=\"" + intermine.conbuilder.messages.ExtraPlaceholder + "\"\n        value=\"" + (this.con.extraValue || '') + "\"\n    >\n</label>");
@@ -5981,7 +5990,18 @@
 
       NewConstraint.prototype.addIcons = function() {};
 
-      NewConstraint.prototype.hideEditForm = function() {
+      NewConstraint.prototype.valueChanged = function(value) {
+        return this.fillConSummaryLabel(_.extend({}, this.con, {
+          value: value
+        }));
+      };
+
+      NewConstraint.prototype.opChanged = function(op) {
+        return this.$('.label-op').text(op);
+      };
+
+      NewConstraint.prototype.hideEditForm = function(e) {
+        NewConstraint.__super__.hideEditForm.call(this, e);
         this.query.trigger("cancel:add-constraint");
         return this.remove();
       };

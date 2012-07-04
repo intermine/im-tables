@@ -39,16 +39,17 @@ scope "intermine.query", (exporting) ->
         handleClick: (e) ->
             e.stopPropagation()
             e.preventDefault()
+
             isNewChoice = not @$el.is '.active'
             @evts.trigger 'chosen', @path, isNewChoice
 
-        initialize: (@query, @path, @depth, @evts, @getDisabled) ->
+        initialize: (@query, @path, @depth, @evts, @getDisabled, @multiSelect) ->
             @evts.on 'remove', () => @remove()
             @evts.on 'chosen', (p, isNewChoice) =>
                 if (p.toString() is @path.toString())
                     @$el.toggleClass('active', isNewChoice)
                 else
-                    @$el.removeClass 'active'
+                    @$el.removeClass('active') unless @multiSelect
 
             @evts.on 'filter:paths', (terms) =>
                 terms = (new RegExp(t, 'i') for t in terms when t)
@@ -92,8 +93,8 @@ scope "intermine.query", (exporting) ->
 
     class Reference extends Attribute
 
-        initialize: (@query, @path, @depth, @evts, @getDisabled, @isSelectable) ->
-            super(@query, @path, @depth, @evts, @getDisabled)
+        initialize: (@query, @path, @depth, @evts, @getDisabled, @multiSelect, @isSelectable) ->
+            super(@query, @path, @depth, @evts, @getDisabled, @multiSelect)
 
             @evts.on 'filter:paths', (terms) =>
                 @$el.hide()
@@ -108,7 +109,7 @@ scope "intermine.query", (exporting) ->
             super()
 
         openSubFinder: () ->
-            @subfinder = new PathChooser(@query, @path, @depth + 1, @evts, @getDisabled, @isSelectable)
+            @subfinder = new PathChooser(@query, @path, @depth + 1, @evts, @getDisabled, @isSelectable, @multiSelect)
             @$el.append @subfinder.render().el
             @$el.addClass('open')
 
@@ -149,7 +150,7 @@ scope "intermine.query", (exporting) ->
             for m in matches
                 @evts.trigger 'matched', m, terms
             
-        initialize: (@query, @path, @depth, events, @getDisabled, @canSelectRefs) ->
+        initialize: (@query, @path, @depth, events, @getDisabled, @canSelectRefs, @multiSelect) ->
             @evts =  if (@depth is 0) then _.extend({}, Backbone.Events) else events
             cd = @path.getEndClass()
             toPath = (f) => @path.append f
@@ -163,12 +164,12 @@ scope "intermine.query", (exporting) ->
         render: () ->
             cd = @path.getEndClass()
             for apath in @attributes
-                @$el.append(new Attribute(@query, apath, @depth, @evts, @getDisabled).render().el)
+                @$el.append(new Attribute(@query, apath, @depth, @evts, @getDisabled, @multiSelect).render().el)
             @$el.append PathChooser.DIVIDER
             for rpath in @references
-                @$el.append(new Reference(@query, rpath, @depth, @evts, @getDisabled, @canSelectRefs).render().el)
+                @$el.append(new Reference(@query, rpath, @depth, @evts, @getDisabled, @multiSelect, @canSelectRefs).render().el)
             for cpath in @collections
-                @$el.append(new Reference(@query, cpath, @depth, @evts, @getDisabled, @canSelectRefs).render().el)
+                @$el.append(new Reference(@query, cpath, @depth, @evts, @getDisabled, @multiSelect, @canSelectRefs).render().el)
 
             @$el.addClass(@dropDownClasses) if @depth is 0
             @$el.show()
@@ -184,14 +185,6 @@ scope "intermine.query", (exporting) ->
 
         events:
             'submit': 'handleSubmission'
-
-        handleKeyup: (e) -> $('.btn-primary').attr disabled: false
-
-        leaveSearch: (e) ->
-            emptySearchBox = ->
-                $('input').val('')
-                $('.btn-primary').attr disabled: true
-            _.delay emptySearchBox, 7000
 
         handleClick: (e) ->
             e.preventDefault()
@@ -228,46 +221,20 @@ scope "intermine.query", (exporting) ->
         getTreeRoot: () -> @query.getPathInfo(@query.root)
 
         refsOK: true
+        multiSelect: false
+        reset: () ->
+            @$pathfinder.remove()
+            @$pathfinder = null
 
         showTree: (e) =>
-            if @$pathfinder
-                @$pathfinder.remove()
-                @$pathfinder = null
+            if @$pathfinder?
+                @reset()
             else
                 root = @getTreeRoot()
-                pathFinder = new PathChooser(@query, root, 0, @handleChoice, @isDisabled, @refsOK)
+                pathFinder = new PathChooser(@query, root, 0, @handleChoice, @isDisabled, @refsOK, @multiSelect)
                 pathFinder.render().$el.appendTo(@el).show()
-                #pathFinder.$el.offset left: @$el.offset().left, top:  @$el.offset().top + @$el.height()
                 pathFinder.$el.css top: @$el.height()
                 @$pathfinder = pathFinder
-
-        showOptions: () ->
-
-        filterOptions: (e) =>
-            return false if @filterLock
-            @filterLock = true
-            @showTree(e) unless @$pathfinder?
-            val = @$('input').val()?.replace(/\s+$/g, '').replace(/^\s+/g, '')
-            if val?
-                @$('.btn-primary').attr disabled: false
-            if val? and val.length >= 3
-                # Handle our own throttling...
-                thisTime = new Date().getTime()
-
-                if (not @lastSearch?) or ((@lastSearch.time + 1000 < thisTime) and (@lastSearch.term isnt val))
-                    if @lastSearch?
-                        @$pathfinder.remove()
-                        @$pathfinder = null
-                        @showTree(e)
-                    console.log "Searching for #{ val } at #{ thisTime }"
-                    @lastSearch = time: thisTime, term: val
-                    terms = (val?.split(/\s+/) || [])
-                    @$pathfinder?.searchFor(terms)
-                else
-                    console.log "No search needed at #{ thisTime }"
-            @filterLock = false
-
-        inputPlaceholder: "Add a column..."
 
         render: ->
             input = @make "input",
@@ -286,6 +253,5 @@ scope "intermine.query", (exporting) ->
             @$el.append approver
             approver.click @handleSubmission
             browser.click @showTree
-            @$('input').click(@showOptions).keyup(@filterOptions)
             this
 

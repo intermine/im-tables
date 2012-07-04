@@ -52,18 +52,23 @@ scope "intermine.query.results.table", (exporting) ->
             @chosen = []
 
         handleChoice: (path) =>
-            @chosen.push path
+            @chosen.push(path) unless _.include(@chosen, path)
             @$('.btn-primary').attr disabled: false
 
         handleSubmission: (e) =>
             e.preventDefault()
             e.stopPropagation()
             @query.trigger 'column-orderer:selected', @chosen
-            @$('.btn-chooser').button('toggle')
-            @$pathfinder?.remove()
-            @$pathfinder = null
+            @reset()
+
+        reset: () ->
+            super()
+            @chosen = []
+            @$('.btn-chooser').button('reset')
+            @$('.btn-primary').attr disabled: true
 
         refsOK: false
+        multiSelect: true
 
         isDisabled: (path) => path.toString() in @query.views
 
@@ -98,7 +103,8 @@ scope "intermine.query.results.table", (exporting) ->
         template: _.template """
             <a class="btn btn-large im-reorderer">
                 <i class="icon-wrench"></i>
-                Manage Columns
+                <span class="im-only-widescreen">Manage</span>
+                Columns
             </a>
             <div class="modal fade im-col-order-dialog">
                 <div class="modal-header">
@@ -194,7 +200,7 @@ scope "intermine.query.results.table", (exporting) ->
                 colContainer.append moveableView
             nodeAdder = @$ '.node-adder'
             ca = new ColumnAdder(@query)
-            nodeAdder.empty().append ca.render().el # TODO: make this work nicely in the modal.
+            nodeAdder.empty().append ca.render().el
             colContainer
 
         sortCol: (e) ->
