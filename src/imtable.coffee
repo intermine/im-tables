@@ -67,7 +67,9 @@ scope "intermine.query.results", (exporting) ->
                 @fill()
             @query.on "page-size:selected", (size) =>
                 @pageSize = size
+                @pageStart = 0 if (size is 0)
                 @fill()
+
 
         render: ->
             @$el.empty()
@@ -264,7 +266,6 @@ scope "intermine.query.results", (exporting) ->
                     e.preventDefault()
                     @query.trigger "#{cmds[cmd]}:subtables", path
                     cmd = (cmd + 1) % 2
-                    console.log cmd
 
         addColumnHeaders: (result) =>
             thead = $ "<thead>"
@@ -348,7 +349,7 @@ scope "intermine.query.results", (exporting) ->
             for ps in PageSizer.SIZES
                 select.append @make 'option', {value: ps[0]}, (ps[1] or ps[0])
             select.change (e) =>
-                @query.trigger "page-size:selected", select.val()
+                @query.trigger "page-size:selected", parseInt(select.val())
             this
 
     exporting class Table extends Backbone.View
@@ -581,7 +582,6 @@ scope "intermine.query.results", (exporting) ->
                 @cache.lastResult.results = merged
 
         updateSummary: (start, size, result) ->
-            console.log size
             summary = @$ '.im-table-summary'
             html    = intermine.messages.query.CountSummary
                 first: start + 1
@@ -775,6 +775,8 @@ scope "intermine.query.results", (exporting) ->
 
         updatePageDisplay: (start, size) =>
             total = @cache.lastResult.iTotalRecords
+            if size is 0
+                size = total
 
             scrollbar = @$ '.scroll-bar-wrap'
             if scrollbar.length

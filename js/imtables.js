@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Wed Jul 04 2012 15:32:52 GMT+0100 (BST)
+ * Built at Wed Jul 04 2012 15:43:46 GMT+0100 (BST)
 */
 
 
@@ -1052,6 +1052,9 @@
         });
         return this.query.on("page-size:selected", function(size) {
           _this.pageSize = size;
+          if (size === 0) {
+            _this.pageStart = 0;
+          }
           return _this.fill();
         });
       };
@@ -1257,8 +1260,7 @@
             e.stopPropagation();
             e.preventDefault();
             _this.query.trigger("" + cmds[cmd] + ":subtables", path);
-            cmd = (cmd + 1) % 2;
-            return console.log(cmd);
+            return cmd = (cmd + 1) % 2;
           });
         }
       };
@@ -1396,7 +1398,7 @@
           }, ps[1] || ps[0]));
         }
         select.change(function(e) {
-          return _this.query.trigger("page-size:selected", select.val());
+          return _this.query.trigger("page-size:selected", parseInt(select.val()));
         });
         return this;
       };
@@ -1640,7 +1642,6 @@
 
       Table.prototype.updateSummary = function(start, size, result) {
         var html, summary;
-        console.log(size);
         summary = this.$('.im-table-summary');
         html = intermine.messages.query.CountSummary({
           first: start + 1,
@@ -1865,6 +1866,9 @@
       Table.prototype.updatePageDisplay = function(start, size) {
         var buttons, centre, handle, maxPage, overhang, p, pageForm, pageSelector, proportion, scaled, scrollbar, tbl, total, totalWidth, unit, _i;
         total = this.cache.lastResult.iTotalRecords;
+        if (size === 0) {
+          size = total;
+        }
         scrollbar = this.$('.scroll-bar-wrap');
         if (scrollbar.length) {
           totalWidth = scrollbar.width();
