@@ -56,9 +56,6 @@ scope "intermine.query.results", (exporting) ->
                 </td>
             </tr>
         """
-        pageSizeTempl: _.template """
-            <%= pageSize %> rows per page
-        """
 
         initialize: (@query, @getData) ->
             @minimisedCols = {}
@@ -333,9 +330,14 @@ scope "intermine.query.results", (exporting) ->
 
         tagName: 'form'
         className: "im-page-sizer form-horizontal"
-        @SIZES: [[10], [25], [50], [100], [0, 'All']]
+        sizes: [[10], [25], [50], [100], [0, 'All']]
 
-        initialize: (@query) ->
+        initialize: (@query, @pageSize) ->
+            if @pageSize?
+                unless _.include @sizes.map( (s) -> s[0] ), @pageSize
+                    @sizes.unshift [@pageSize, @pageSize]
+            else
+                @pageSize = @sizes[0][0]
 
         render: () ->
             @$el.append """
@@ -346,8 +348,8 @@ scope "intermine.query.results", (exporting) ->
                 </label>
             """
             select = @$('select')
-            for ps in PageSizer.SIZES
-                select.append @make 'option', {value: ps[0]}, (ps[1] or ps[0])
+            for ps in @sizes
+                select.append @make 'option', {value: ps[0], selected: ps[0] is @pageSize}, (ps[1] or ps[0])
             select.change (e) =>
                 @query.trigger "page-size:selected", parseInt(select.val())
             this
@@ -722,7 +724,7 @@ scope "intermine.query.results", (exporting) ->
             @query.on "imtable:change:page", @updatePageDisplay
 
 
-            pageSizer = new PageSizer(@query)
+            pageSizer = new PageSizer(@query, @pageSize)
             pageSizer.render().$el.appendTo $widgets
 
             $pagination = $(@paginationTempl()).appendTo($widgets)

@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Wed Jul 04 2012 15:43:46 GMT+0100 (BST)
+ * Built at Wed Jul 04 2012 16:09:11 GMT+0100 (BST)
 */
 
 
@@ -1039,8 +1039,6 @@
 
       ResultsTable.prototype.throbber = _.template("<tr class=\"im-table-throbber\">\n    <td colspan=\"<%= colcount %>\">\n        <h2>Requesting Data</h2>\n        <div class=\"progress progress-info progress-striped active\">\n            <div class=\"bar\" style=\"width: 100%\"></div>\n        </div>\n    </td>\n</tr>");
 
-      ResultsTable.prototype.pageSizeTempl = _.template("<%= pageSize %> rows per page");
-
       ResultsTable.prototype.initialize = function(query, getData) {
         var _this = this;
         this.query = query;
@@ -1379,10 +1377,20 @@
 
       PageSizer.prototype.className = "im-page-sizer form-horizontal";
 
-      PageSizer.SIZES = [[10], [25], [50], [100], [0, 'All']];
+      PageSizer.prototype.sizes = [[10], [25], [50], [100], [0, 'All']];
 
-      PageSizer.prototype.initialize = function(query) {
+      PageSizer.prototype.initialize = function(query, pageSize) {
         this.query = query;
+        this.pageSize = pageSize;
+        if (this.pageSize != null) {
+          if (!_.include(this.sizes.map(function(s) {
+            return s[0];
+          }), this.pageSize)) {
+            return this.sizes.unshift([this.pageSize, this.pageSize]);
+          }
+        } else {
+          return this.pageSize = this.sizes[0][0];
+        }
       };
 
       PageSizer.prototype.render = function() {
@@ -1390,11 +1398,12 @@
           _this = this;
         this.$el.append("<label>\n    <span class=\"im-only-widescreen\">Rows per page:</span>\n    <select class=\"span1\" title=\"Rows per page\">\n    </select>\n</label>");
         select = this.$('select');
-        _ref = PageSizer.SIZES;
+        _ref = this.sizes;
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           ps = _ref[_i];
           select.append(this.make('option', {
-            value: ps[0]
+            value: ps[0],
+            selected: ps[0] === this.pageSize
           }, ps[1] || ps[0]));
         }
         select.change(function(e) {
@@ -1801,7 +1810,7 @@
           }
           _this.table.render();
           _this.query.on("imtable:change:page", _this.updatePageDisplay);
-          pageSizer = new PageSizer(_this.query);
+          pageSizer = new PageSizer(_this.query, _this.pageSize);
           pageSizer.render().$el.appendTo($widgets);
           $pagination = $(_this.paginationTempl()).appendTo($widgets);
           $pagination.find('li').tooltip({
