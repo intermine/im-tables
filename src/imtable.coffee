@@ -14,7 +14,12 @@ scope 'intermine.messages.query', {
     CountSummary: _.template """
           <span class="im-only-widescreen">Showing</span>
           <span>
-            <%= first %> to <%= last %> of <%= count %> <%= roots %>
+            <% if (last == 0) { %>
+                All
+            <% } else { %>
+                <%= first %> to <%= last %> of
+            <% } %>
+            <%= count %> <%= roots %>
           </span>
         """
 }
@@ -41,7 +46,6 @@ scope "intermine.query.results", (exporting) ->
             cellspacing: 0
         pageSize: 25
         pageStart: 0
-        pageSizes: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]]
         throbber: _.template """
             <tr class="im-table-throbber">
                 <td colspan="<%= colcount %>">
@@ -60,6 +64,9 @@ scope "intermine.query.results", (exporting) ->
             @minimisedCols = {}
             @query.on "set:sortorder", (oes) =>
                 @lastAction = 'resort'
+                @fill()
+            @query.on "page-size:selected", (size) =>
+                @pageSize = size
                 @fill()
 
         render: ->
@@ -321,6 +328,29 @@ scope "intermine.query.results", (exporting) ->
 
             false
 
+    class PageSizer extends Backbone.View
+
+        tagName: 'form'
+        className: "im-page-sizer form-horizontal"
+        @SIZES: [[10], [25], [50], [100], [0, 'All']]
+
+        initialize: (@query) ->
+
+        render: () ->
+            @$el.append """
+                <label>
+                    <span class="im-only-widescreen">Rows per page:</span>
+                    <select class="span1" title="Rows per page">
+                    </select>
+                </label>
+            """
+            select = @$('select')
+            for ps in PageSizer.SIZES
+                select.append @make 'option', {value: ps[0]}, (ps[1] or ps[0])
+            select.change (e) =>
+                @query.trigger "page-size:selected", select.val()
+            this
+
     exporting class Table extends Backbone.View
 
         className: "im-table-container"
@@ -436,7 +466,7 @@ scope "intermine.query.results", (exporting) ->
                 isOutOfRange = @cache.lowerBound < 0 or
                     start < @cache.lowerBound or
                     end   > @cache.upperBound or
-                    size  < 0
+                    size  <= 0
 
             promise = new jQuery.Deferred()
             if isStale or isOutOfRange
@@ -497,7 +527,7 @@ scope "intermine.query.results", (exporting) ->
             if size > 0
                 page.size *= @_pipe_factor
             else
-                page.size = 0 ## understood by server as all.
+                page.size = '' ## understood by server as all.
 
             # TODO - don't fill in gaps when it is too big (for some configuration of too big!)
             # Don't permit gaps, if the query itself conforms with the cache.
@@ -515,7 +545,7 @@ scope "intermine.query.results", (exporting) ->
                     page.size *= 2
                     page.start = Math.max(0, page.start - (size * @_pipe_factor))
                     return page
-                if page.size isnt 0
+                if page.size
                     page.size += page.start - @cache.upperBound
                 # Extend towards cache limit
                 page.start = @cache.upperBound
@@ -551,10 +581,11 @@ scope "intermine.query.results", (exporting) ->
                 @cache.lastResult.results = merged
 
         updateSummary: (start, size, result) ->
+            console.log size
             summary = @$ '.im-table-summary'
             html    = intermine.messages.query.CountSummary
                 first: start + 1
-                last: Math.min(start + size, result.iTotalRecords)
+                last: if (size is 0) then 0 else Math.min(start + size, result.iTotalRecords)
                 count: intermine.utils.numToString(result.iTotalRecords, ",", 3)
                 roots: "rows"
             summary.html html
@@ -572,7 +603,8 @@ scope "intermine.query.results", (exporting) ->
             result = jQuery.extend true, {}, @cache.lastResult
             # Splice off the undesired sections.
             result.results.splice(0, start - @cache.lowerBound)
-            result.results.splice(size, result.results.length)
+            result.results.splice(size, result.results.length) if (size > 0)
+
 
             @updateSummary start, size, result
 
@@ -682,6 +714,17 @@ scope "intermine.query.results", (exporting) ->
             $telem = jQuery(telem).empty()
             $widgets = $('<div>').insertBefore(telem)
 
+            @table = new ResultsTable @query, @getRowData
+            @table.setElement telem
+            @table.pageSize = @pageSize if @pageSize?
+            @table.pageStart = @pageStart if @pageStart?
+            @table.render()
+            @query.on "imtable:change:page", @updatePageDisplay
+
+
+            pageSizer = new PageSizer(@query)
+            pageSizer.render().$el.appendTo $widgets
+
             $pagination = $(@paginationTempl()).appendTo($widgets)
             $pagination.find('li').tooltip(placement: "left")
 
@@ -729,13 +772,6 @@ scope "intermine.query.results", (exporting) ->
                     title: => "#{(currentPos + 1).toFixed()} ... #{(currentPos + @table.pageSize).toFixed()}"
             $widgets.append """<div style="clear:both"></div>"""
 
-            @table = new ResultsTable @query, @getRowData
-            @table.setElement(telem)
-            @table.pageSize = @pageSize if @pageSize?
-            @table.pageStart = @pageStart if @pageStart?
-            @table.render()
-
-            @query.on "imtable:change:page", @updatePageDisplay
 
         updatePageDisplay: (start, size) =>
             total = @cache.lastResult.iTotalRecords

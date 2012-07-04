@@ -416,10 +416,16 @@
     padding: 0;
 }
 
+.im-query-results .im-page-sizer,
 .im-query-results .pagination {
     float: right;
     display: inline;
     margin-top: 0;
+    margin-left: 0.5em;
+}
+
+.im-query-results .im-page-sizer select {
+    height: 34px; /* Sorry about the hard-coding - but this is required to match bootstrap */
 }
 
 a.im-pagination-button {

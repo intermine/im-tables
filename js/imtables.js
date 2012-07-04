@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Wed Jul 04 2012 12:42:42 GMT+0100 (BST)
+ * Built at Wed Jul 04 2012 15:32:52 GMT+0100 (BST)
 */
 
 
@@ -984,11 +984,11 @@
   });
 
   scope('intermine.messages.query', {
-    CountSummary: _.template("<span class=\"im-only-widescreen\">Showing</span>\n<span>\n  <%= first %> to <%= last %> of <%= count %> <%= roots %>\n</span>")
+    CountSummary: _.template("<span class=\"im-only-widescreen\">Showing</span>\n<span>\n  <% if (last == 0) { %>\n      All\n  <% } else { %>\n      <%= first %> to <%= last %> of\n  <% } %>\n  <%= count %> <%= roots %>\n</span>")
   });
 
   scope("intermine.query.results", function(exporting) {
-    var NUMERIC_TYPES, Page, ResultsTable, Table;
+    var NUMERIC_TYPES, Page, PageSizer, ResultsTable, Table;
     NUMERIC_TYPES = ["int", "Integer", "double", "Double", "float", "Float"];
     Page = (function() {
 
@@ -1037,8 +1037,6 @@
 
       ResultsTable.prototype.pageStart = 0;
 
-      ResultsTable.prototype.pageSizes = [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]];
-
       ResultsTable.prototype.throbber = _.template("<tr class=\"im-table-throbber\">\n    <td colspan=\"<%= colcount %>\">\n        <h2>Requesting Data</h2>\n        <div class=\"progress progress-info progress-striped active\">\n            <div class=\"bar\" style=\"width: 100%\"></div>\n        </div>\n    </td>\n</tr>");
 
       ResultsTable.prototype.pageSizeTempl = _.template("<%= pageSize %> rows per page");
@@ -1048,8 +1046,12 @@
         this.query = query;
         this.getData = getData;
         this.minimisedCols = {};
-        return this.query.on("set:sortorder", function(oes) {
+        this.query.on("set:sortorder", function(oes) {
           _this.lastAction = 'resort';
+          return _this.fill();
+        });
+        return this.query.on("page-size:selected", function(size) {
+          _this.pageSize = size;
           return _this.fill();
         });
       };
@@ -1363,6 +1365,45 @@
       return ResultsTable;
 
     })(Backbone.View);
+    PageSizer = (function(_super) {
+
+      __extends(PageSizer, _super);
+
+      function PageSizer() {
+        return PageSizer.__super__.constructor.apply(this, arguments);
+      }
+
+      PageSizer.prototype.tagName = 'form';
+
+      PageSizer.prototype.className = "im-page-sizer form-horizontal";
+
+      PageSizer.SIZES = [[10], [25], [50], [100], [0, 'All']];
+
+      PageSizer.prototype.initialize = function(query) {
+        this.query = query;
+      };
+
+      PageSizer.prototype.render = function() {
+        var ps, select, _i, _len, _ref,
+          _this = this;
+        this.$el.append("<label>\n    <span class=\"im-only-widescreen\">Rows per page:</span>\n    <select class=\"span1\" title=\"Rows per page\">\n    </select>\n</label>");
+        select = this.$('select');
+        _ref = PageSizer.SIZES;
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          ps = _ref[_i];
+          select.append(this.make('option', {
+            value: ps[0]
+          }, ps[1] || ps[0]));
+        }
+        select.change(function(e) {
+          return _this.query.trigger("page-size:selected", select.val());
+        });
+        return this;
+      };
+
+      return PageSizer;
+
+    })(Backbone.View);
     return exporting(Table = (function(_super) {
 
       __extends(Table, _super);
@@ -1482,7 +1523,7 @@
         if (isStale) {
           this.cache = {};
         } else {
-          isOutOfRange = this.cache.lowerBound < 0 || start < this.cache.lowerBound || end > this.cache.upperBound || size < 0;
+          isOutOfRange = this.cache.lowerBound < 0 || start < this.cache.lowerBound || end > this.cache.upperBound || size <= 0;
         }
         promise = new jQuery.Deferred();
         if (isStale || isOutOfRange) {
@@ -1550,7 +1591,7 @@
         if (size > 0) {
           page.size *= this._pipe_factor;
         } else {
-          page.size = 0;
+          page.size = '';
         }
         if (page.size && (page.end() < this.cache.lowerBound)) {
           if ((this.cache.lowerBound - page.end()) > (page.size * 10)) {
@@ -1568,7 +1609,7 @@
             page.start = Math.max(0, page.start - (size * this._pipe_factor));
             return page;
           }
-          if (page.size !== 0) {
+          if (page.size) {
             page.size += page.start - this.cache.upperBound;
           }
           page.start = this.cache.upperBound;
@@ -1599,10 +1640,11 @@
 
       Table.prototype.updateSummary = function(start, size, result) {
         var html, summary;
+        console.log(size);
         summary = this.$('.im-table-summary');
         html = intermine.messages.query.CountSummary({
           first: start + 1,
-          last: Math.min(start + size, result.iTotalRecords),
+          last: size === 0 ? 0 : Math.min(start + size, result.iTotalRecords),
           count: intermine.utils.numToString(result.iTotalRecords, ",", 3),
           roots: "rows"
         });
@@ -1616,7 +1658,9 @@
         base = this.query.service.root.replace(/\/service\/?$/, "");
         result = jQuery.extend(true, {}, this.cache.lastResult);
         result.results.splice(0, start - this.cache.lowerBound);
-        result.results.splice(size, result.results.length);
+        if (size > 0) {
+          result.results.splice(size, result.results.length);
+        }
         this.updateSummary(start, size, result);
         fields = (function() {
           var _i, _len, _ref, _results;
@@ -1743,9 +1787,21 @@
       Table.prototype.onSetupSuccess = function(telem) {
         var _this = this;
         return function(result) {
-          var $pagination, $scrollwrapper, $telem, $widgets, currentPageButton, currentPos, pageSelector, reorderer, scrollbar;
+          var $pagination, $scrollwrapper, $telem, $widgets, currentPageButton, currentPos, pageSelector, pageSizer, reorderer, scrollbar;
           $telem = jQuery(telem).empty();
           $widgets = $('<div>').insertBefore(telem);
+          _this.table = new ResultsTable(_this.query, _this.getRowData);
+          _this.table.setElement(telem);
+          if (_this.pageSize != null) {
+            _this.table.pageSize = _this.pageSize;
+          }
+          if (_this.pageStart != null) {
+            _this.table.pageStart = _this.pageStart;
+          }
+          _this.table.render();
+          _this.query.on("imtable:change:page", _this.updatePageDisplay);
+          pageSizer = new PageSizer(_this.query);
+          pageSizer.render().$el.appendTo($widgets);
           $pagination = $(_this.paginationTempl()).appendTo($widgets);
           $pagination.find('li').tooltip({
             placement: "left"
@@ -1802,17 +1858,7 @@
               }
             });
           }
-          $widgets.append("<div style=\"clear:both\"></div>");
-          _this.table = new ResultsTable(_this.query, _this.getRowData);
-          _this.table.setElement(telem);
-          if (_this.pageSize != null) {
-            _this.table.pageSize = _this.pageSize;
-          }
-          if (_this.pageStart != null) {
-            _this.table.pageStart = _this.pageStart;
-          }
-          _this.table.render();
-          return _this.query.on("imtable:change:page", _this.updatePageDisplay);
+          return $widgets.append("<div style=\"clear:both\"></div>");
         };
       };
 
