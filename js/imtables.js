@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Tue Jul 03 2012 16:40:20 GMT+0100 (BST)
+ * Built at Wed Jul 04 2012 12:42:42 GMT+0100 (BST)
 */
 
 
@@ -773,11 +773,20 @@
       };
 
       Step.prototype.events = {
-        'click h4': function(e) {
-          $(e.target).find('i').toggleClass("icon-chevron-right icon-chevron-down");
-          return $(e.target).next().children().toggle();
-        },
+        'click .icon-info-sign': 'showDetails',
+        'click h4': 'toggleSection',
         'click .btn': 'revertToThisState'
+      };
+
+      Step.prototype.toggleSection = function(e) {
+        e.stopPropagation();
+        $(e.target).find('i').toggleClass("icon-chevron-right icon-chevron-down");
+        return $(e.target).next().children().toggle();
+      };
+
+      Step.prototype.showDetails = function(e) {
+        e.stopPropagation();
+        return this.$('.im-step-details').toggle();
       };
 
       Step.prototype.revertToThisState = function(e) {
@@ -785,24 +794,28 @@
         return this.$('.btn-small').tooltip('hide');
       };
 
+      Step.prototype.sectionTempl = _.template("<div>\n    <h4>\n        <i class=\"icon-chevron-right\"></i>\n        <%= n %> <%= things %>\n    </h4>\n    <ul></ul>\n</div>");
+
       Step.prototype.render = function() {
-        var addSection, c, clist, details, jlist, p, path, ps, q, style, toLabel, v, vlist, _fn, _fn1, _fn2, _i, _j, _len, _len1, _ref, _ref1,
+        var addSection, c, clist, jlist, p, path, ps, q, style, toInfoLabel, toLabel, toPathLabel, toValLabel, v, vlist, _fn, _fn1, _fn2, _i, _j, _len, _len1, _ref, _ref1,
           _this = this;
-        this.$el.append("<button class=\"btn btn-small im-state-revert\" disabled\n    title=\"Revert to this state\">\n    <i class=icon-undo></i>\n</button>\n<div>" + (this.model.get('title')) + "</div>\n<span class=\"im-step-count\"><span class=\"count\"></span> rows</span>");
+        this.$el.append("<button class=\"btn btn-small im-state-revert\" disabled\n    title=\"Revert to this state\">\n    <i class=icon-undo></i>\n</button>\n<h3>" + (this.model.get('title')) + "</h3>\n<i class=\"icon-info-sign\"></i>\n</div>\n<span class=\"im-step-count\">\n    <span class=\"count\"></span> rows\n</span>\n<div class=\"im-step-details\">\n<div style=\"clear:both\"></div>");
+        q = this.model.get('query');
+        addSection = function(n, things) {
+          return $(_this.sectionTempl({
+            n: n,
+            things: things
+          })).appendTo(_this.$('.im-step-details')).find('ul');
+        };
+        toLabel = function(type, text) {
+          return "<span class=\"label label-" + type + "\">" + text + "</span>";
+        };
+        toPathLabel = _.bind(toLabel, {}, 'path');
+        toInfoLabel = _.bind(toLabel, {}, 'info');
+        toValLabel = _.bind(toLabel, {}, 'value');
         this.$('.btn-small').tooltip({
           placement: 'right'
         });
-        q = this.model.get('query');
-        details = this.$('.im-step-details');
-        addSection = function(n, things) {
-          var section;
-          section = $("<div>\n    <h4>\n        <i class=\"icon-chevron-right\"></i>\n        " + n + " " + things + "\n    </h4>\n    <ul></ul>\n</div>");
-          section.appendTo(details);
-          return section.find('ul');
-        };
-        toLabel = function(text, type) {
-          return "<span class=\"label label-" + type + "\">" + text + "</span>";
-        };
         ps = (function() {
           var _i, _len, _ref, _results;
           _ref = q.views;
@@ -819,7 +832,7 @@
           li = $('<li>');
           vlist.append(li);
           return p.getDisplayName(function(name) {
-            return li.append(toLabel(name, 'path'));
+            return li.append(toPathLabel(name));
           });
         };
         for (_i = 0, _len = ps.length; _i < _len; _i++) {
@@ -833,12 +846,12 @@
           li = $('<li>');
           clist.append(li);
           return q.getPathInfo(c.path).getDisplayName(function(name) {
-            li.append(toLabel(name, 'path'));
-            li.append(toLabel(c.op, 'info'));
+            li.append(toPathLabel(name));
+            li.append(toInfoLabel(c.op));
             if (c.value != null) {
-              return li.append(toLabel(c.value, 'value'));
+              return li.append(toValLabel(c.value));
             } else if (c.values != null) {
-              return li.append(toLabel(c.values.join(', '), 'value'));
+              return li.append(toValLabel(c.values.join(', ')));
             }
           });
         };
@@ -853,8 +866,8 @@
           li = $('<li>');
           jlist.append(li);
           return q.getPathInfo(path).getDisplayName(function(name) {
-            li.append(toLabel(name, 'path'));
-            return li.append(toLabel(style, 'info'));
+            li.append(toPathLabel(name));
+            return li.append(toInfoLabel(style));
           });
         };
         for (path in _ref1) {
@@ -3089,6 +3102,9 @@
       }, {
         name: "JavaScript",
         extension: "js"
+      }, {
+        name: "XML",
+        extension: "xml"
       }
     ];
     CodeGenerator = (function(_super) {
@@ -3142,21 +3158,28 @@
       };
 
       CodeGenerator.prototype.getAndShowCode = function(e) {
-        var $m, $t,
+        var $m, $t, xml,
           _this = this;
         $t = $(e.target);
         $m = this.$('.modal');
         this.lang = $t.data('lang') || this.lang;
-        $m.find('.btn-save').attr({
-          href: this.query.getCodeURI(this.lang)
-        });
         $m.find('h3 .im-code-lang').text(this.lang);
         this.$('a .im-code-lang').text(this.lang);
-        return this.query.fetchCode(this.lang, function(code) {
-          $m.find('pre').text(code);
+        if (this.lang === 'xml') {
+          xml = this.query.toXML().replace(/></g, ">\n<");
+          $m.find('pre').text(xml);
           $m.modal('show');
-          return prettyPrint(_this.compact);
-        });
+          return prettyPrint(this.compact);
+        } else {
+          $m.find('.btn-save').attr({
+            href: this.query.getCodeURI(this.lang)
+          });
+          return this.query.fetchCode(this.lang, function(code) {
+            $m.find('pre').text(code);
+            $m.modal('show');
+            return prettyPrint(_this.compact);
+          });
+        }
       };
 
       CodeGenerator.prototype.doMainAction = function(e) {

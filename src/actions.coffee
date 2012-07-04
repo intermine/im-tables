@@ -393,6 +393,7 @@ scope "intermine.query.actions", (exporting) ->
         {name: "Ruby", extension: "rb"},
         {name: "Java", extension: "java"},
         {name: "JavaScript", extension: "js"}
+        {name: "XML", extension: "xml"}
     ]
 
     class CodeGenerator extends Backbone.View
@@ -458,14 +459,19 @@ scope "intermine.query.actions", (exporting) ->
             $m = @$ '.modal'
 
             @lang = $t.data('lang') or @lang
-
-            $m.find('.btn-save').attr href: @query.getCodeURI @lang
             $m.find('h3 .im-code-lang').text @lang
             @$('a .im-code-lang').text @lang
-            @query.fetchCode @lang, (code) =>
-                $m.find('pre').text code
+            if @lang is 'xml'
+                xml = @query.toXML().replace(/></g, ">\n<")
+                $m.find('pre').text xml
                 $m.modal 'show'
                 prettyPrint @compact
+            else
+                $m.find('.btn-save').attr href: @query.getCodeURI @lang
+                @query.fetchCode @lang, (code) =>
+                    $m.find('pre').text code
+                    $m.modal 'show'
+                    prettyPrint @compact
 
         doMainAction: (e) =>
             if @lang then @getAndShowCode(e) else $(e.target).next().dropdown 'toggle'

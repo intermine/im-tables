@@ -1,4 +1,4 @@
-).modal-open .dropdown-menu {
+.modal-open .dropdown-menu {
   z-index: 2050;
 }
 .modal-open .dropdown.open {
@@ -863,23 +863,12 @@ td.im-result-subtable .im-subtable {
     font-size: 1em;
 }
 
-.im-query-trail.no-details .im-step-details {
+.im-query-trail .im-step-details {
     display: none;
 }
 
 .im-state-revert {
     float: right;
-}
-
-.im-query-trail.no-details .im-step-count,
-.im-query-trail.no-details .btn-small {
-    float: right;
-    display: inline-block;
-    margin-left: 1em;
-}
-
-.im-query-trail.no-details .im-step {
-    margin-right: 1.5em;
 }
 
 .im-query-trail .im-step .label {
@@ -918,9 +907,14 @@ td.im-result-subtable .im-subtable {
     clear: both;
 }
 
+.im-step h3 {
+    font-size: 100%;
+}
+
 .im-query-trail .im-step li {
     list-style-type: none;
     display: none;
+    margin-bottom: 0.3em;
 }
 
 .im-query-tools select, .im-query-tools input, .im-query-tools label  {
@@ -1345,6 +1339,10 @@ form.im-join {
     vertical-align: top;
 }
 
+.im-th-button [class^="icon-"]:before {
+    cursor: pointer;
+}
+
 .im-col-remover {
 }
 
@@ -1401,7 +1399,7 @@ form tr.active {
 }
 
 .im-code-gen .modal {
-    width: 700px;
+    width: 80%;
 }
 
 .im-code-gen .modal {

@@ -86,72 +86,86 @@ scope "intermine.query.tools", (exporting) ->
             @model.on 'remove', () => @remove()
 
         events:
-            'click h4': (e) ->
-                $(e.target).find('i').toggleClass("icon-chevron-right icon-chevron-down")
-                $(e.target).next().children().toggle()
+            'click .icon-info-sign': 'showDetails'
+            'click h4': 'toggleSection'
             'click .btn': 'revertToThisState'
+
+        toggleSection: (e) ->
+            e.stopPropagation()
+            $(e.target).find('i').toggleClass("icon-chevron-right icon-chevron-down")
+            $(e.target).next().children().toggle()
+
+        showDetails: (e) ->
+            e.stopPropagation()
+            @$('.im-step-details').toggle()
 
         revertToThisState: (e) ->
             @model.trigger 'revert', @model
             @$('.btn-small').tooltip('hide')
 
+        sectionTempl: _.template """
+                <div>
+                    <h4>
+                        <i class="icon-chevron-right"></i>
+                        <%= n %> <%= things %>
+                    </h4>
+                    <ul></ul>
+                </div>
+            """
         render: () ->
             @$el.append """
                     <button class="btn btn-small im-state-revert" disabled
                         title="Revert to this state">
                         <i class=icon-undo></i>
                     </button>
-                    <div>#{ @model.get 'title' }</div>
-                    <span class="im-step-count"><span class="count"></span> rows</span>
+                    <h3>#{ @model.get 'title' }</h3>
+                    <i class="icon-info-sign"></i>
+                    </div>
+                    <span class="im-step-count">
+                        <span class="count"></span> rows
+                    </span>
+                    <div class="im-step-details">
+                    <div style="clear:both"></div>
                 """
 
-            @$('.btn-small').tooltip(placement: 'right')
-
             q = @model.get 'query'
+            addSection = (n, things) =>
+                $(@sectionTempl n: n, things: things).appendTo(@$('.im-step-details')).find('ul')
 
-            details = @$ '.im-step-details'
+            toLabel = (type, text) -> """<span class="label label-#{ type }">#{ text }</span>"""
+            toPathLabel = _.bind(toLabel, {}, 'path')
+            toInfoLabel = _.bind(toLabel, {}, 'info')
+            toValLabel  = _.bind(toLabel, {}, 'value')
 
-            addSection = (n, things) ->
-                section = $ """
-                        <div>
-                            <h4>
-                                <i class="icon-chevron-right"></i>
-                                #{ n } #{ things }
-                            </h4>
-                            <ul></ul>
-                        </div>
-                    """
-                section.appendTo details
-                section.find 'ul'
-
-            toLabel = (text, type) -> """<span class="label label-#{ type }">#{ text }</span>"""
+            @$('.btn-small').tooltip(placement: 'right')
 
             ps = (q.getPathInfo(v) for v in q.views)
             vlist = addSection(ps.length, 'Columns')
             for p in ps then do (p) ->
                 li = $ '<li>'
                 vlist.append li
-                p.getDisplayName (name) -> li.append toLabel name, 'path'
+                p.getDisplayName (name) -> li.append toPathLabel name
 
             clist = addSection(q.constraints.length, 'Filters')
             for c in q.constraints then do (c) =>
                 li = $ '<li>'
                 clist.append li
                 q.getPathInfo(c.path).getDisplayName (name) ->
-                    li.append toLabel name, 'path'
-                    li.append toLabel c.op, 'info'
+                    li.append toPathLabel name
+                    li.append toInfoLabel c.op
                     if c.value?
-                        li.append toLabel c.value, 'value'
+                        li.append toValLabel c.value
                     else if c.values?
-                        li.append toLabel c.values.join(', '), 'value'
+                        li.append toValLabel c.values.join(', ')
             
             jlist = addSection _.size(q.joins), 'Joins'
             for path, style of q.joins then do (path, style) =>
                 li = $ '<li>'
                 jlist.append li
                 q.getPathInfo(path).getDisplayName (name) ->
-                    li.append toLabel name, 'path'
-                    li.append toLabel style, 'info'
+                    li.append toPathLabel name
+                    li.append toInfoLabel style
+
             this
 
     exporting class Trail extends Backbone.View
