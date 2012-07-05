@@ -40,8 +40,9 @@ scope "intermine.query", (exporting) ->
             e.stopPropagation()
             e.preventDefault()
 
-            isNewChoice = not @$el.is '.active'
-            @evts.trigger 'chosen', @path, isNewChoice
+            unless @getDisabled(@path)
+                isNewChoice = not @$el.is '.active'
+                @evts.trigger 'chosen', @path, isNewChoice
 
         initialize: (@query, @path, @depth, @evts, @getDisabled, @multiSelect) ->
             @evts.on 'remove', () => @remove()

@@ -174,7 +174,7 @@ scope "intermine.query",  (exporting) ->
             con.set(values: []) unless con.has('values')
             values = con.get('values')
             $multiValues = $(@multiValueTable).appendTo fs
-            _(values).each (v) -> $multiValues.append @multiValueOptTempl value: v
+            _(values).each (v) => $multiValues.append @multiValueOptTempl value: v
             $multiValues.find('input').change (e) ->
                 changed = $ @
                 value = changed.data 'value'

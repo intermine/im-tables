@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Thu Jul 05 2012 13:34:45 GMT+0100 (BST)
+ * Built at Thu Jul 05 2012 14:41:33 GMT+0100 (BST)
 */
 
 
@@ -167,8 +167,10 @@
         var isNewChoice;
         e.stopPropagation();
         e.preventDefault();
-        isNewChoice = !this.$el.is('.active');
-        return this.evts.trigger('chosen', this.path, isNewChoice);
+        if (!this.getDisabled(this.path)) {
+          isNewChoice = !this.$el.is('.active');
+          return this.evts.trigger('chosen', this.path, isNewChoice);
+        }
       };
 
       Attribute.prototype.initialize = function(query, path, depth, evts, getDisabled, multiSelect) {
@@ -5924,7 +5926,8 @@
       ActiveConstraint.prototype.clearer = '<div class="im-value-options" style="clear:both;">';
 
       ActiveConstraint.prototype.drawMultiValueOps = function(fs) {
-        var $multiValues, con, values;
+        var $multiValues, con, values,
+          _this = this;
         con = this.con;
         if (!con.has('values')) {
           con.set({
@@ -5934,7 +5937,7 @@
         values = con.get('values');
         $multiValues = $(this.multiValueTable).appendTo(fs);
         _(values).each(function(v) {
-          return $multiValues.append(this.multiValueOptTempl({
+          return $multiValues.append(_this.multiValueOptTempl({
             value: v
           }));
         });

@@ -618,7 +618,7 @@ table.table thead .sorting_desc_disabled {
 }
 
 .im-query-display tr > th.too-far-over .im-th-buttons .dropdown-menu,
-tr > th:last-child .im-th-buttons .dropdown-menu {
+.im-query-display tr > th:last-child .im-th-buttons .dropdown-menu {
     left: -25em;
 }
 
