@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Wed Jul 04 2012 19:53:47 GMT+0100 (BST)
+ * Built at Thu Jul 05 2012 12:34:16 GMT+0100 (BST)
 */
 
 
@@ -5704,15 +5704,16 @@
 
       ActiveConstraint.prototype.className = "form-inline im-constraint row-fluid";
 
-      ActiveConstraint.prototype.initialize = function(query, con) {
+      ActiveConstraint.prototype.initialize = function(query, orig) {
         var _ref;
         this.query = query;
-        this.con = con;
-        this.pathInfo = this.query.getPathInfo(this.con.path);
-        this.type = this.pathInfo.getEndClass();
-        if (this.pathInfo.isClass()) {
+        this.orig = orig;
+        this.path = this.query.getPathInfo(this.orig.path);
+        this.type = this.path.getEndClass();
+        this.con = new Backbone.Model(_.extend({}, this.orig));
+        if (this.path.isClass()) {
           return this.ops = intermine.Query.REFERENCE_OPS;
-        } else if (_ref = this.pathInfo.getType(), __indexOf.call(intermine.Model.BOOLEAN_TYPES, _ref) >= 0) {
+        } else if (_ref = this.path.getType(), __indexOf.call(intermine.Model.BOOLEAN_TYPES, _ref) >= 0) {
           return this.ops = ["=", "!="].concat(intermine.Query.NULL_OPS);
         } else {
           return this.ops = intermine.Query.ATTRIBUTE_OPS;
@@ -5726,7 +5727,8 @@
         'click .btn-primary': 'editConstraint',
         'click .icon-remove-sign': 'removeConstraint',
         'submit': function(e) {
-          return e.preventDefault();
+          e.preventDefault();
+          return e.stopPropagation();
         }
       };
 
@@ -5746,35 +5748,12 @@
       };
 
       ActiveConstraint.prototype.editConstraint = function() {
-        this.updateConstraint();
-        return this.query.trigger("change:constraints");
-      };
-
-      ActiveConstraint.prototype.valueChanged = function(value) {};
-
-      ActiveConstraint.prototype.updateConstraint = function() {
-        var con, op;
-        op = this.$('.im-ops').val();
-        con = {
-          op: op
-        };
-        if (__indexOf.call(intermine.Query.MULTIVALUE_OPS, op) >= 0) {
-          con.values = this.$('.im-constraint-options input[type="checkbox"]').filter(function() {
-            return $(this).attr("checked");
-          }).map(function() {
-            return $(this).data('value');
-          }).get();
-        } else {
-          con.value = this.$('.im-con-value').val();
-        }
-        if (__indexOf.call(intermine.Query.TERNARY_OPS, op) >= 0) {
-          con.extraValue = this.$('.im-extra-value').val();
-        }
-        return _.extend(this.con, con);
+        this.removeConstraint();
+        return this.query.addConstraint(this.con.toJSON());
       };
 
       ActiveConstraint.prototype.removeConstraint = function() {
-        return this.query.removeConstraint(this.con);
+        return this.query.removeConstraint(this.orig);
       };
 
       ActiveConstraint.prototype.addIcons = function($label) {
@@ -5810,15 +5789,15 @@
         return this.$el.append(btns);
       };
 
-      ActiveConstraint.prototype.getTitleOp = function(con) {
-        return con.op || intermine.conbuilder.messages.IsA;
+      ActiveConstraint.prototype.getTitleOp = function() {
+        return this.con.get('op') || intermine.conbuilder.messages.IsA;
       };
 
-      ActiveConstraint.prototype.getTitleVal = function(con) {
-        if (con.values) {
-          return con.values.length + " values";
+      ActiveConstraint.prototype.getTitleVal = function() {
+        if (this.con.get('values')) {
+          return this.con.get('values').length + " values";
         } else {
-          return con.value || con.type;
+          return this.con.get('value') || this.con.get('type');
         }
       };
 
@@ -5826,141 +5805,294 @@
         return $("<span class=\"label label-" + type + "\">" + content + "</span>");
       };
 
-      ActiveConstraint.prototype.fillConSummaryLabel = function(con) {
-        var op, sp, ul, val,
+      ActiveConstraint.prototype.fillConSummaryLabel = function() {
+        var op, sp, ul, val, _ref,
           _this = this;
         this.label.empty();
         this.addIcons(this.label);
         ul = $('<ul class="breadcrumb">').appendTo(this.label);
-        if (con.title != null) {
-          ul.append(this.toLabel(con.title, 'path'));
+        if (this.con.has('title')) {
+          ul.append(this.toLabel(this.con.get('title'), 'path'));
         } else {
-          sp = this.toLabel(con.path, 'path');
+          sp = this.toLabel(this.path, 'path');
           (function(sp) {
-            return _this.query.getPathInfo(con.path).getDisplayName(function(name) {
+            return _this.path.getDisplayName(function(name) {
               return sp.text(name);
             });
           })(sp);
           ul.append(sp);
         }
-        if ((op = this.getTitleOp(con))) {
+        if ((op = this.getTitleOp())) {
           ul.append(this.toLabel(op, 'op'));
         }
-        if ((val = this.getTitleVal(con))) {
-          return ul.append(this.toLabel(val, 'value'));
+        if (_ref = this.con.get('op'), __indexOf.call(intermine.Query.NULL_OPS, _ref) < 0) {
+          if ((val = this.getTitleVal())) {
+            ul.append(this.toLabel(val, 'value'));
+          }
+          if (this.con.has('extraValue')) {
+            ul.append(intermine.conbuilder.messages.ExtraLabel);
+            return ul.append(this.toLabel(this.con.get('extraValue'), 'extra'));
+          }
         }
       };
 
       ActiveConstraint.prototype.render = function() {
-        var $select, fs;
+        var fs;
         this.label = $("<label class=\"im-con-overview\">\n</label>");
-        this.fillConSummaryLabel(this.con);
+        this.fillConSummaryLabel();
         this.$el.append(this.label);
         fs = $("<fieldset class=\"im-constraint-options\"></fieldset>").appendTo(this.el);
-        $select = $("<select class=\"span4 im-ops\"><option>" + this.con.op + "</option></select>");
-        $select.appendTo(fs);
-        _(this.ops).chain().without(this.con.op).each(function(op) {
-          return $select.append("<option>" + op + "</select>");
-        });
+        this.drawOperatorSelector(fs);
         this.drawValueOptions();
         this.addButtons();
         return this;
       };
 
-      ActiveConstraint.prototype.opChanged = function(op) {};
-
-      ActiveConstraint.prototype.drawValueOptions = function() {
-        var $lists, $loops, $multiValues, fs, input, lc, loopCandidates, op, opt, values, _fn, _i, _len, _ref,
+      ActiveConstraint.prototype.drawOperatorSelector = function(fs) {
+        var $select, current,
           _this = this;
-        this.$('.im-value-options').remove();
-        fs = this.$('.im-constraint-options');
-        op = this.$('.im-ops').val();
-        this.opChanged(op);
-        if ((_ref = this.pathInfo.getType(), __indexOf.call(intermine.Model.BOOLEAN_TYPES, _ref) >= 0) && !(__indexOf.call(intermine.Query.NULL_OPS, op) >= 0)) {
-          fs.append("<div class=\"im-value-options btn-group\" data-toggle=\"buttons-radio\">\n    <button class=\"btn " + (this.con.value === 'true' ? 'active' : '') + "\" data-value=\"true\">\n        true\n    </button>\n    <button class=\"btn " + (this.con.value === 'false' ? 'active' : '') + "\" data-value=\"false\">\n        false\n    </button>\n</div>\n<input class=\"im-value-options im-con-value\" type=\"hidden\" value=\"" + this.con.value + "\">");
-          input = fs.find('input').change(function() {
-            return _this.valueChanged(input.val());
+        current = this.con.get('op');
+        $select = $("<select class=\"span4 im-ops\"><option>" + current + "</option></select>");
+        $select.appendTo(fs);
+        _(this.ops).chain().without(current).each(function(op) {
+          return $select.append("<option>" + op + "</select>");
+        });
+        return $select.change(function(e) {
+          return _this.con.set({
+            op: $select.val()
           });
-          fs.find('button').click(function(e) {
-            var b, wasActive;
-            b = $(this);
-            wasActive = b.is('.active');
-            fs.find('button').removeClass('active');
-            if (!wasActive) {
-              b.addClass('active');
-              return input.val(b.data('value')).change();
-            } else {
-              return input.val('').change();
-            }
-          });
-        } else if (__indexOf.call(intermine.Query.MULTIVALUE_OPS, op) >= 0) {
-          values = this.con.values || [];
-          $multiValues = $('<table class="table table-condensed im-value-options"></table>').appendTo(fs);
-          _(values).each(function(v) {
-            return $multiValues.append("<tr>\n    <td><input type=checkbox checked data-value=\"" + v + "\"></td>\n    <td>" + v + "</td>\n</tr>");
-          });
-        } else if (__indexOf.call(intermine.Query.LIST_OPS, op) >= 0) {
-          $lists = $("<select class=\"span8 im-value-options im-con-value\"></select>").appendTo(fs);
-          this.query.service.fetchLists(function(ls) {
-            var selectables, sl, _i, _len;
-            selectables = _(ls).filter(function(l) {
-              return l.size && _this.pathInfo.isa(l.type);
+        });
+      };
+
+      ActiveConstraint.prototype.btnGroup = "<div class=\"im-value-options btn-group\" data-toggle=\"buttons-radio\"></div>";
+
+      ActiveConstraint.prototype.drawBooleanOpts = function(fs) {
+        var con, current, grp, val, _i, _len, _ref, _results,
+          _this = this;
+        current = this.con.get('value');
+        con = this.con;
+        grp = $(this.btnGroup).appendTo(fs);
+        _ref = ['true', 'false'];
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          val = _ref[_i];
+          _results.push((function(val) {
+            var button;
+            button = $("<button class=\"btn " + (current === val ? 'active' : '') + "\">\n    " + val + "\n</button>");
+            button.appendTo(grp);
+            return button.click(function(e) {
+              var wasActive;
+              wasActive = button.is('.active');
+              grp.find('button').removeClass('active');
+              if (!wasActive) {
+                button.addClass('active');
+                return _this.con.set({
+                  value: val
+                });
+              } else {
+                return _this.con.unset('value');
+              }
             });
-            for (_i = 0, _len = selectables.length; _i < _len; _i++) {
-              sl = selectables[_i];
-              $lists.append("<option value=\"" + sl.name + "\">" + sl.name + " (" + sl.size + " " + sl.type + "s)</option>");
-            }
-            if (_this.con.value) {
-              $lists.val(_this.con.value);
-            }
-            if (ls.length === 0) {
-              $lists.attr({
-                disabled: true
-              });
-              return $lists.append('No lists of this type available');
-            }
+          })(val));
+        }
+        return _results;
+      };
+
+      ActiveConstraint.prototype.valueSelect = "<select class=\"span8 im-value-options im-con-value\"></select>";
+
+      ActiveConstraint.prototype.listOptionTempl = _.template("<option value=\"<%- name %>\">\n    <%- name %> (<%- size %> <%- type %>s)\n</option>");
+
+      ActiveConstraint.prototype.multiValueTable = '<table class="table table-condensed im-value-options"></table>';
+
+      ActiveConstraint.prototype.multiValueOptTempl = _.template("<tr>\n    <td><input type=checkbox checked data-value=\"<%- value %>\"></td>\n    <td><%- value %></td>\n</tr>");
+
+      ActiveConstraint.prototype.clearer = '<div class="im-value-options" style="clear:both;">';
+
+      ActiveConstraint.prototype.drawMultiValueOps = function(fs) {
+        var $multiValues, con, values;
+        con = this.con;
+        if (!con.has('values')) {
+          con.set({
+            values: []
           });
-        } else if (this.pathInfo.isReference() && (op === '=' || op === '!=')) {
-          loopCandidates = this.query.getQueryNodes().filter(function(lc) {
-            return lc.isa(_this.type) || _this.pathInfo.isa(lc.getEndClass());
+        }
+        values = con.get('values');
+        $multiValues = $(this.multiValueTable).appendTo(fs);
+        _(values).each(function(v) {
+          return $multiValues.append(this.multiValueOptTempl({
+            value: v
+          }));
+        });
+        return $multiValues.find('input').change(function(e) {
+          var changed, value;
+          changed = $(this);
+          value = changed.data('value');
+          if (changed.is(':checked')) {
+            if (!(_.include(values, value))) {
+              return values.push(value);
+            }
+          } else {
+            values = _.without(values, value);
+            return con.set({
+              values: values
+            });
+          }
+        });
+      };
+
+      ActiveConstraint.prototype.drawListOptions = function(fs) {
+        var $lists,
+          _this = this;
+        $lists = $(this.valueSelect).appendTo(fs);
+        this.query.service.fetchLists(function(ls) {
+          var selectables, sl, _i, _len;
+          selectables = _(ls).filter(function(l) {
+            return l.size && _this.path.isa(l.type);
           });
-          $loops = $("<select class=\"span8 im-value-options im-con-value\">");
-          $loops.appendTo(fs);
-          _fn = function(opt, lc) {
+          for (_i = 0, _len = selectables.length; _i < _len; _i++) {
+            sl = selectables[_i];
+            $lists.append(_this.listOptionTempl(sl));
+          }
+          if (_this.con.has('value')) {
+            $lists.val(_this.con.get('value'));
+          }
+          if (selectables.length === 0) {
+            $lists.attr({
+              disabled: true
+            });
+            return $lists.append('No lists of this type available');
+          }
+        });
+        return $lists.change(function(e) {
+          return _this.con.set({
+            value: $lists.val()
+          });
+        });
+      };
+
+      ActiveConstraint.prototype.drawLoopOpts = function(fs) {
+        var $loops, lc, loopCandidates, opt, _i, _len, _results,
+          _this = this;
+        $loops = $(this.valueSelect).appendTo(fs);
+        loopCandidates = this.query.getQueryNodes().filter(function(lc) {
+          return lc.isa(_this.type) || _this.path.isa(lc.getEndClass());
+        });
+        _results = [];
+        for (_i = 0, _len = loopCandidates.length; _i < _len; _i++) {
+          lc = loopCandidates[_i];
+          opt = $("<option value=\"" + (lc.toString()) + "\">");
+          opt.appendTo($loops);
+          _results.push((function(opt, lc) {
             return lc.getDisplayName(function(name) {
               return opt.text(name);
             });
-          };
-          for (_i = 0, _len = loopCandidates.length; _i < _len; _i++) {
-            lc = loopCandidates[_i];
-            opt = $("<option value=\"" + (lc.toString()) + "\">");
-            opt.appendTo($loops);
-            _fn(opt, lc);
-          }
-        } else if (!(__indexOf.call(intermine.Query.NULL_OPS, op) >= 0)) {
-          input = $("<input class=\"span8 im-constraint-value im-value-options im-con-value\" type=\"text\"\n    placeholder=\"" + intermine.conbuilder.messages.ValuePlaceholder + "\"\n    value=\"" + (this.con.value || this.con.type || '') + "\"\n>");
-          fs.append(input);
-          input.keyup(function() {
-            return _this.valueChanged(input.val());
-          });
-          input.change(function() {
-            return _this.valueChanged(input.val());
-          });
-          (function(input) {
-            _this.query.filterSummary(_this.con.path, "", 100, function(items) {
-              if (((items != null ? items.length : void 0) > 0) && (items[0].item != null)) {
-                return input.typeahead({
-                  source: _.pluck(items, 'item')
-                });
-              }
-            });
-            return _this.query.on('cancel:add-constraint change:constraints', function() {
-              return input.data('typeahead').$menu.remove();
-            });
-          })(input);
+          })(opt, lc));
         }
-        if (__indexOf.call(intermine.Query.TERNARY_OPS, op) >= 0) {
-          return fs.append("<label class=\"im-value-options\">\n    " + intermine.conbuilder.messages.ExtraLabel + "\n    <input type=\"text\" class=\"im-extra-value\"\n        placeholder=\"" + intermine.conbuilder.messages.ExtraPlaceholder + "\"\n        value=\"" + (this.con.extraValue || '') + "\"\n    >\n</label>");
+        return _results;
+      };
+
+      ActiveConstraint.prototype.handleSummary = function(input, items, total) {
+        if (total <= 500) {
+          input.typeahead({
+            source: _.pluck(items, 'item')
+          });
+          input.keyup(function() {
+            return input.data('typeahead').$menu.css({
+              top: input.offset().top + input.height(),
+              left: input.offset().left
+            });
+          });
+          this.query.on('cancel:add-constraint', function() {
+            var _ref;
+            return (_ref = input.data('typeahead')) != null ? _ref.$menu.remove() : void 0;
+          });
+        }
+        return input.attr({
+          placeholder: items[0].item
+        });
+      };
+
+      ActiveConstraint.prototype.handleNumericSummary = function(input, summary) {
+        var $slider, caster, fs, isInt, step, _ref;
+        isInt = (_ref = this.path.getType()) === 'int' || _ref === 'Integer';
+        step = isInt ? 1 : 0.1;
+        caster = isInt ? parseInt : parseFloat;
+        fs = input.closest('fieldset');
+        fs.append(this.clearer);
+        $slider = $('<div class="im-value-options">');
+        $slider.appendTo(fs).slider({
+          min: summary.min,
+          max: summary.max,
+          value: this.con.get('value') || summary.average,
+          step: step,
+          slide: function(e, ui) {
+            return input.val(ui.value).change();
+          }
+        });
+        input.attr({
+          placeholder: caster(summary.average)
+        });
+        fs.append(this.clearer);
+        return input.change(function(e) {
+          return $slider.slider('value', input.val());
+        });
+      };
+
+      ActiveConstraint.prototype.drawAttributeOpts = function(fs) {
+        var input,
+          _this = this;
+        input = $("<input class=\"span8 im-constraint-value im-value-options im-con-value\" type=\"text\"\n    placeholder=\"" + intermine.conbuilder.messages.ValuePlaceholder + "\"\n    value=\"" + (this.con.get('value') || this.con.get('type') || '') + "\"\n>");
+        fs.append(input);
+        input.keyup(function() {
+          return _this.con.set({
+            value: input.val()
+          });
+        });
+        input.change(function() {
+          return _this.con.set({
+            value: input.val()
+          });
+        });
+        return this.query.filterSummary(this.path.toString(), "", 500, function(items, total) {
+          if ((items != null ? items.length : void 0) > 0) {
+            if (items[0].item != null) {
+              return _this.handleSummary(input, items, total);
+            } else if (items[0].max != null) {
+              return _this.handleNumericSummary(input, items[0]);
+            }
+          }
+        });
+      };
+
+      ActiveConstraint.prototype.drawExtraOpts = function(fs) {
+        var input,
+          _this = this;
+        fs.append("<label class=\"im-value-options\">\n    " + intermine.conbuilder.messages.ExtraLabel + "\n    <input type=\"text\" class=\"im-extra-value\"\n        placeholder=\"" + intermine.conbuilder.messages.ExtraPlaceholder + "\"\n        value=\"" + (this.con.get('extraValue') || '') + "\"\n    >\n</label>");
+        return input = fs.find('input.im-extra-value').change(function(e) {
+          return _this.con.set({
+            extraValue: input.val()
+          });
+        });
+      };
+
+      ActiveConstraint.prototype.drawValueOptions = function() {
+        var currentOp, fs, _ref;
+        this.$('.im-value-options').remove();
+        fs = this.$('.im-constraint-options');
+        currentOp = this.con.get('op');
+        if ((_ref = this.path.getType(), __indexOf.call(intermine.Model.BOOLEAN_TYPES, _ref) >= 0) && !(__indexOf.call(intermine.Query.NULL_OPS, currentOp) >= 0)) {
+          this.drawBooleanOpts(fs);
+        } else if (__indexOf.call(intermine.Query.MULTIVALUE_OPS, currentOp) >= 0) {
+          this.drawMultiValueOps(fs);
+        } else if (__indexOf.call(intermine.Query.LIST_OPS, currentOp) >= 0) {
+          this.drawListOptions(fs);
+        } else if (this.path.isReference() && (currentOp === '=' || currentOp === '!=')) {
+          this.drawLoopOpts(fs);
+        } else if (!(__indexOf.call(intermine.Query.NULL_OPS, currentOp) >= 0)) {
+          this.drawAttributeOpts(fs);
+        }
+        if (__indexOf.call(intermine.Query.TERNARY_OPS, currentOp) >= 0) {
+          return this.drawExtraOpts(fs);
         }
       };
 
@@ -5975,17 +6107,14 @@
         return NewConstraint.__super__.constructor.apply(this, arguments);
       }
 
-      NewConstraint.prototype.initialize = function(query, con) {
-        this.query = query;
-        this.con = con;
-        NewConstraint.__super__.initialize.call(this, this.query, this.con);
+      NewConstraint.prototype.initialize = function(q, c) {
+        NewConstraint.__super__.initialize.call(this, q, c);
         this.$el.addClass("new");
         this.buttons[0].text = "Apply";
-        if (this.type) {
-          return this.con.op = "LOOKUP";
-        } else {
-          return this.con.op = "=";
-        }
+        this.con.set({
+          op: (this.type ? 'LOOKUP' : '=')
+        });
+        return this.con.on('change', this.fillConSummaryLabel, this);
       };
 
       NewConstraint.prototype.addIcons = function() {};
@@ -6000,15 +6129,16 @@
         return this.$('.label-op').text(op);
       };
 
+      NewConstraint.prototype.editConstraint = function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        return this.query.addConstraint(this.con.toJSON());
+      };
+
       NewConstraint.prototype.hideEditForm = function(e) {
         NewConstraint.__super__.hideEditForm.call(this, e);
         this.query.trigger("cancel:add-constraint");
         return this.remove();
-      };
-
-      NewConstraint.prototype.updateConstraint = function() {
-        NewConstraint.__super__.updateConstraint.call(this);
-        return this.query.addConstraint(this.con);
       };
 
       return NewConstraint;

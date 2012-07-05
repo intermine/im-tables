@@ -687,6 +687,7 @@ tr > th:last-child .im-th-buttons .dropdown-menu {
 
 .im-con-overview .breadcrumb .label {
     margin: 0 0.2em 0 0;
+    display: inline-block;
 }
 
 .im-dropdown-summary .im-constraints form {
@@ -750,6 +751,17 @@ td.im-result-subtable .im-subtable {
     display: inline-block;
     float: left;
 }
+
+.im-query-display .im-value-options.ui-slider {
+    margin: 1em 0;
+    height: 0.2em;
+    width: 90%;
+    position: relative;
+}
+.im-query-display .im-value-options.ui-slider .ui-slider-handle {
+    top: -1.3em;
+}
+
 
 .im-query-display .im-constraints select.im-value-options,
 .im-query-display .im-constraints input.im-value-options,
