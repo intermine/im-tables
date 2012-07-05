@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Thu Jul 05 2012 13:16:42 GMT+0100 (BST)
+ * Built at Thu Jul 05 2012 13:34:45 GMT+0100 (BST)
 */
 
 
@@ -5913,7 +5913,7 @@
         return _results;
       };
 
-      ActiveConstraint.prototype.valueSelect = "<select class=\"span8 im-value-options im-con-value\"></select>";
+      ActiveConstraint.prototype.valueSelect = "<select class=\"span7 im-value-options im-con-value\"></select>";
 
       ActiveConstraint.prototype.listOptionTempl = _.template("<option value=\"<%- name %>\">\n    <%- name %> (<%- size %> <%- type %>s)\n</option>");
 
@@ -6057,7 +6057,7 @@
       ActiveConstraint.prototype.drawAttributeOpts = function(fs) {
         var input, withOutThisConstraint,
           _this = this;
-        input = $("<input class=\"span8 im-constraint-value im-value-options im-con-value\" type=\"text\"\n    placeholder=\"" + intermine.conbuilder.messages.ValuePlaceholder + "\"\n    value=\"" + (this.con.get('value') || this.con.get('type') || '') + "\"\n>");
+        input = $("<input class=\"span7 im-constraint-value im-value-options im-con-value\" type=\"text\"\n    placeholder=\"" + intermine.conbuilder.messages.ValuePlaceholder + "\"\n    value=\"" + (this.con.get('value') || this.con.get('type') || '') + "\"\n>");
         fs.append(input);
         input.keyup(function() {
           return _this.con.set({

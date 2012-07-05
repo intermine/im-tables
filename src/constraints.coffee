@@ -154,7 +154,7 @@ scope "intermine.query",  (exporting) ->
                     else
                         @con.unset 'value'
 
-        valueSelect: """<select class="span8 im-value-options im-con-value"></select>"""
+        valueSelect: """<select class="span7 im-value-options im-con-value"></select>"""
         listOptionTempl: _.template """
             <option value="<%- name %>">
                 <%- name %> (<%- size %> <%- type %>s)
@@ -237,7 +237,7 @@ scope "intermine.query",  (exporting) ->
         
         drawAttributeOpts: (fs) ->
             input = $ """
-                <input class="span8 im-constraint-value im-value-options im-con-value" type="text"
+                <input class="span7 im-constraint-value im-value-options im-con-value" type="text"
                     placeholder="#{ intermine.conbuilder.messages.ValuePlaceholder }"
                     value="#{ @con.get('value') or @con.get('type') or '' }"
                 >
