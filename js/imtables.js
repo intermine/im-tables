@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Thu Jul 05 2012 12:58:54 GMT+0100 (BST)
+ * Built at Thu Jul 05 2012 13:16:42 GMT+0100 (BST)
 */
 
 
@@ -5708,6 +5708,7 @@
         var _ref;
         this.query = query;
         this.orig = orig;
+        this.typeaheads = [];
         this.path = this.query.getPathInfo(this.orig.path);
         this.type = this.path.getEndClass();
         this.con = new Backbone.Model(_.extend({}, this.orig));
@@ -5738,20 +5739,32 @@
       };
 
       ActiveConstraint.prototype.hideEditForm = function(e) {
+        var ta, _results;
         if (e != null) {
           e.preventDefault();
         }
         if (e != null) {
           e.stopPropagation();
         }
-        return this.$('.im-con-overview').siblings().slideUp(200);
+        this.$('.im-con-overview').siblings().slideUp(200);
+        _results = [];
+        while ((ta = this.typeaheads.shift())) {
+          _results.push(ta.remove());
+        }
+        return _results;
       };
 
       ActiveConstraint.prototype.editConstraint = function(e) {
+        var ta, _results;
         e.stopPropagation();
         e.preventDefault();
         this.removeConstraint();
-        return this.query.addConstraint(this.con.toJSON());
+        this.query.addConstraint(this.con.toJSON());
+        _results = [];
+        while ((ta = this.typeaheads.shift())) {
+          _results.push(ta.remove());
+        }
+        return _results;
       };
 
       ActiveConstraint.prototype.removeConstraint = function() {
@@ -5998,6 +6011,7 @@
           input.typeahead({
             source: _.pluck(items, 'item')
           });
+          this.typeaheads.push(input.data('typeahead').$menu);
           input.keyup(function() {
             return input.data('typeahead').$menu.css({
               top: input.offset().top + input.height(),
@@ -6135,11 +6149,7 @@
         return this.$('.label-op').text(op);
       };
 
-      NewConstraint.prototype.editConstraint = function(e) {
-        e.stopPropagation();
-        e.preventDefault();
-        return this.query.addConstraint(this.con.toJSON());
-      };
+      NewConstraint.prototype.removeConstraint = function() {};
 
       NewConstraint.prototype.hideEditForm = function(e) {
         NewConstraint.__super__.hideEditForm.call(this, e);

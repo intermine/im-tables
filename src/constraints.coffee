@@ -14,6 +14,7 @@ scope "intermine.query",  (exporting) ->
         className: "form-inline im-constraint row-fluid"
         
         initialize: (@query, @orig) ->
+            @typeaheads = []
             @path = @query.getPathInfo @orig.path
             @type = @path.getEndClass()
             @con = new Backbone.Model(_.extend({}, @orig))
@@ -40,12 +41,16 @@ scope "intermine.query",  (exporting) ->
             e?.preventDefault()
             e?.stopPropagation()
             @$('.im-con-overview').siblings().slideUp 200
+            while (ta = @typeaheads.shift())
+                ta.remove()
 
         editConstraint: (e) ->
             e.stopPropagation()
             e.preventDefault()
             @removeConstraint()
             @query.addConstraint @con.toJSON()
+            while (ta = @typeaheads.shift())
+                ta.remove()
 
         removeConstraint: ->
             @query.removeConstraint @orig
@@ -204,6 +209,7 @@ scope "intermine.query",  (exporting) ->
             if total <= 500 # Only offer typeahead if there are fewer than 500 items.
                 input.typeahead source: _.pluck(items, 'item')
                 # horrible hack to get correct typeahead placement
+                @typeaheads.push input.data('typeahead').$menu
                 input.keyup () ->
                     input.data('typeahead').$menu.css
                         top: input.offset().top + input.height()
@@ -293,10 +299,7 @@ scope "intermine.query",  (exporting) ->
 
         opChanged: (op) -> @$('.label-op').text op
 
-        editConstraint: (e) ->
-            e.stopPropagation()
-            e.preventDefault()
-            @query.addConstraint @con.toJSON()
+        removeConstraint: () -> # Nothing to do - just suppress this.
 
         hideEditForm: (e) ->
             super(e)
