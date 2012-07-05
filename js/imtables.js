@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Thu Jul 05 2012 12:34:16 GMT+0100 (BST)
+ * Built at Thu Jul 05 2012 12:58:54 GMT+0100 (BST)
 */
 
 
@@ -3219,7 +3219,7 @@
       return CodeGenerator;
 
     })(Backbone.View);
-    ListCreator = (function(_super) {
+    exporting(ListCreator = (function(_super) {
 
       __extends(ListCreator, _super);
 
@@ -3459,7 +3459,7 @@
 
       return ListCreator;
 
-    })(ListDialogue);
+    })(ListDialogue));
     return ListManager = (function(_super) {
 
       __extends(ListManager, _super);
@@ -5747,7 +5747,9 @@
         return this.$('.im-con-overview').siblings().slideUp(200);
       };
 
-      ActiveConstraint.prototype.editConstraint = function() {
+      ActiveConstraint.prototype.editConstraint = function(e) {
+        e.stopPropagation();
+        e.preventDefault();
         this.removeConstraint();
         return this.query.addConstraint(this.con.toJSON());
       };
@@ -6039,7 +6041,7 @@
       };
 
       ActiveConstraint.prototype.drawAttributeOpts = function(fs) {
-        var input,
+        var input, withOutThisConstraint,
           _this = this;
         input = $("<input class=\"span8 im-constraint-value im-value-options im-con-value\" type=\"text\"\n    placeholder=\"" + intermine.conbuilder.messages.ValuePlaceholder + "\"\n    value=\"" + (this.con.get('value') || this.con.get('type') || '') + "\"\n>");
         fs.append(input);
@@ -6053,7 +6055,11 @@
             value: input.val()
           });
         });
-        return this.query.filterSummary(this.path.toString(), "", 500, function(items, total) {
+        withOutThisConstraint = this.query.clone();
+        withOutThisConstraint.constraints = withOutThisConstraint.constraints.filter(function(c) {
+          return !((c.path === _this.path.toString()) && (c.value === _this.con.get('value')));
+        });
+        return withOutThisConstraint.filterSummary(this.path.toString(), "", 500, function(items, total) {
           if ((items != null ? items.length : void 0) > 0) {
             if (items[0].item != null) {
               return _this.handleSummary(input, items, total);

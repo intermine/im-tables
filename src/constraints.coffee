@@ -41,7 +41,9 @@ scope "intermine.query",  (exporting) ->
             e?.stopPropagation()
             @$('.im-con-overview').siblings().slideUp 200
 
-        editConstraint: ->
+        editConstraint: (e) ->
+            e.stopPropagation()
+            e.preventDefault()
             @removeConstraint()
             @query.addConstraint @con.toJSON()
 
@@ -237,7 +239,9 @@ scope "intermine.query",  (exporting) ->
             fs.append input
             input.keyup () => @con.set value: input.val()
             input.change () => @con.set value: input.val()
-            @query.filterSummary @path.toString(), "", 500, (items, total) =>
+            withOutThisConstraint = @query.clone()
+            withOutThisConstraint.constraints = withOutThisConstraint.constraints.filter((c) => not ((c.path is @path.toString()) and (c.value is @con.get('value'))))
+            withOutThisConstraint.filterSummary @path.toString(), "", 500, (items, total) =>
                 if items?.length > 0
                     if items[0].item? # string-ish values.
                         @handleSummary(input, items, total)

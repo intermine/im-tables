@@ -491,7 +491,7 @@ scope "intermine.query.actions", (exporting) ->
             $m = @$ '.modal'
             $m.find('linenums li').slideDown()
 
-    class ListCreator extends ListDialogue
+    exporting class ListCreator extends ListDialogue
 
         html: """
             <div class="modal fade im-list-creation-dialogue">
