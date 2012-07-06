@@ -1422,6 +1422,7 @@ form tr.active {
 
 .im-code-gen .modal {
     width: 80%;
+    left: 30%;
 }
 
 .im-code-gen .modal {
@@ -1589,6 +1590,12 @@ text.pie-label {
     overflow: hidden;
 }
 
+@media screen and (max-width: 1200px) {
+    .im-code-gen .modal {
+        left: 40%;
+    }
+}
+
 @media screen and (max-width: 900px) {
     .im-query-results {
         width: 100% !important;
@@ -1600,8 +1607,21 @@ text.pie-label {
     .im-only-widescreen {
         display: none;
     }
+
+    .im-code-gen .modal {
+        left: 45%;
+    }
 }
 
+@media screen and (max-width: 550px) {
+
+    .im-query-display .modal.fade.in,
+    .modal.fade.in,
+    .modal.in {
+        width: 400px;
+        left: 68%;
+    }
+}
 
 
 
