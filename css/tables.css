@@ -568,6 +568,67 @@ table.table thead .sorting_desc_disabled {
     max-width: 80%;
 }
 
+.im-export-dialogue .modal .modal-body {
+    max-height: 500px;
+}
+
+.im-export-dialogue .im-checkables {
+    display: inline-block;
+}
+
+.bootstrap .label a {
+    color: white;
+}
+
+.im-export-dialogue i.im-move {
+    cursor: move;
+}
+
+.im-export-dialogue label {
+    text-align: left;
+}
+
+.im-col-options.disabled {
+    display: none;
+}
+
+.im-export-dialogue .alert {
+    margin-top: 2em;
+}
+
+ul.im-cols {
+    margin: 0.2em 0.3em;
+    float: right;
+    display: inline;
+    width: 40%;
+    height: 15em;
+    overflow-y: auto;
+    position: relative;
+}
+
+ul.im-cols.active {
+    border-color: rgba(82, 168, 236, 0.8);
+    outline: 0;
+    outline: thin dotted 9;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(82, 168, 236, 0.6);
+    -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(82, 168, 236, 0.6);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(82, 168, 236, 0.6);
+}
+
+ul.im-cols h4 {
+    width: 95%;
+    padding: 0.5em 0 0.5em 0.4em;
+    font-size: 12px;
+    border-bottom: #ccc;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.im-cols div.label {
+    white-space: normal;
+}
+
 .well .scroll-bar {
     box-shadow: inset 0 1px 3px #fff, inset 0 -8px 2px #cbe6f2;
     text-shadow: 0 1px #fff;

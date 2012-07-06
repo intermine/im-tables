@@ -1,5 +1,39 @@
 scope "intermine.icons", {
-    Script: "icon-beaker"
+    Script: "icon-beaker",
+    Export: "icon-download-alt",
+    Remove: "icon-minus-sign",
+    Add: "icon-plus-sign",
+    Move: "icon-reorder"
+}
+
+scope "intermine.messages.actions", {
+    ExportTitle: "Download Results",
+    ExportButton: "Download",
+    ExportFormat: "Format",
+    Cancel: "Cancel",
+    Export: "Download",
+    SendToGalaxy: "Send to Galaxy",
+    AllRows: "All Rows",
+    AllColumns: "All Columns",
+    FirstRow: "From",
+    LastRow: "To",
+    ColumnHeaders: "Include Column Headers",
+    PossibleColumns: "Columns You Can Add",
+    ExportedColumns: "Columns To Export",
+    ChangeColumns: """
+            You may add any of the columns in the right hand box by clicking on the
+            plus sign. You may remove unwanted columns by clicking on the minus signs
+            in the left hand box. Note that while adding these columns will not alter your query,
+            if you remove all the attributes from an item, then you <b>may change</b> the results
+            you receive.
+        """,
+    OuterJoinWarning: """
+            This query has outer-joined collections. This means that the number of rows in 
+            the table is likely to be different from the number of rows in the exported results.
+            <b>You are strongly discouraged from specifying specific ranges for export</b>. If
+            you do specify a certain range, please check that you did in fact get all the 
+            results you wanted.
+        """
 }
 
 scope "intermine.query.actions", (exporting) ->
@@ -45,7 +79,7 @@ scope "intermine.query.actions", (exporting) ->
     exporting class ActionBar extends Actions
         extraClass: "im-action"
         actionClasses: ->
-            [ListManager, CodeGenerator, Exporters]
+            [ListManager, CodeGenerator, ExportDialogue] #Exporters]
 
     class ListDialogue extends Backbone.View
         tagName: "li"
@@ -129,6 +163,249 @@ scope "intermine.query.actions", (exporting) ->
             @$el.append @html
             @$('.modal').modal(show: false).on "hidden", => @remove()
             this
+
+    class ExportDialogue extends Backbone.View
+        tagName: "li"
+        className: "im-export-dialogue dropdown"
+
+        html: """
+            <a class="btn im-open-dialogue" href="#">
+                <i class="#{ intermine.icons.Export }"></i>
+                #{ intermine.messages.actions.ExportButton }
+            </a>
+            <div class="modal fade">
+                <div class="modal-header">
+                    <a class="close btn-cancel">close</a>
+                    <h2>#{ intermine.messages.actions.ExportTitle }</h2>
+                </div>
+                <div class="modal-body">
+                    <form class="form row-fluid">
+                        <label>
+                            <span class="span4">
+                                #{ intermine.messages.actions.ExportFormat }
+                            </span>
+                            <select class="im-export-format input-xlarge span8">
+                            </select>
+                        </label>
+                        <label>
+                            <span class="span4">
+                                #{ intermine.messages.actions.AllColumns }
+                            </span>
+                            <input type="checkbox" checked class="im-all-cols span8">
+                        </label>
+                        <div class="im-col-options disabled">
+                            <ul class="well im-cols im-can-be-exported-cols">
+                                <h4>#{ intermine.messages.actions.PossibleColumns }</h4>
+                            </ul>
+                            <ul class="well im-cols im-exported-cols">
+                                <h4>#{ intermine.messages.actions.ExportedColumns }</h4>
+                            </ul>
+                            <div style="clear:both;"></div>
+                            <div class="alert alert-info">
+                                <button class="close" data-dismiss="alert">×</button>
+                                <strong>ps</strong>
+                                <p>#{ intermine.messages.actions.ChangeColumns }</p>
+                            </div>
+                        </div>
+                        <label>
+                            <span class="span4">
+                                #{ intermine.messages.actions.AllRows }
+                             </span>
+                            <input type="checkbox" checked class="im-all-rows span8">
+                        </label>
+                        <div class="form-horizontal">
+                        <fieldset class="im-row-selection control-group">
+                            <label class="control-label">
+                                #{ intermine.messages.actions.FirstRow }
+                                <input type="text" value="0" class="disabled input-mini im-first-row">
+                            </label>
+                            <label class="control-label">
+                                #{ intermine.messages.actions.LastRow }
+                                <input type="text" class="disabled input-mini im-last-row">
+                            </label>
+                            <div style="clear:both"></div>
+                            <div class="slider im-row-range-slider"></div>
+                        </fieldset>
+                        </div>
+                        <fieldset class="im-export-options">
+                        </fieldset>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <div class="btn-group pull-right">
+                        <button class="btn btn-alt">
+                            #{ intermine.messages.actions.SendToGalaxy }
+                        </button>
+                        <button class="btn btn-primary">
+                            #{ intermine.messages.actions.Export }
+                        </button>
+                    </div>
+                    <button class="btn btn-cancel pull-left">
+                        #{ intermine.messages.actions.Cancel }
+                    </button>
+                </div>
+            </div>
+        """
+
+        events:
+            'change .im-all-cols': 'toggleColSelection'
+            'change .im-all-rows': 'toggleRowSelection'
+            'click a.im-open-dialogue': 'openDialogue'
+            'click .btn-cancel': 'stop'
+            'change .im-export-format': 'updateFormatOptions'
+            'click button.btn-primary': 'export'
+
+        export: (e) ->
+            uri = @query.getExportURI @format
+            uri += @getExtraOptions()
+            window.open(uri)
+
+        getExtraOptions: () ->
+            ret = ""
+            if @$('.im-column-headers').is ':checked'
+                ret += "&columnheaders=1"
+            unless @wantsAll
+                start = parseInt @$('.im-first-row').val()
+                end = parseInt @$('.im-last-row').val()
+                ret += "&start=#{ start }"
+                if end isnt @count
+                    ret += "&size=#{ end - start }"
+            ret
+
+        wantsAll: true
+
+        toggleColSelection: (e) ->
+            @allCols = @$('.im-all-cols').is ':checked'
+            @$('.im-col-options').toggleClass 'disabled', @allCols
+
+        toggleRowSelection: (e) ->
+            @wantsAll = @$('.im-all-rows').is ':checked'
+            @$('.im-row-selection').toggle not @wantsAll
+            #@$('.im-row-selection input').attr(disabled: @wantsAll).toggleClass('disabled', @wantsAll)
+            #@$('.slider').slider 'option', disabled: @wantsAll
+
+        openDialogue: (e) -> @$('.modal').modal('show')
+
+        stop: (e) ->
+            @$('.modal').modal('hide')
+            @reset()
+
+        reset: () -> # Go back to the initial state...
+            @$('.im-all-cols').attr checked: true
+            @$('.im-all-rows').attr checked: true
+            @$('.im-export-format').val EXPORT_FORMATS[0].extension
+            @exportedCols = @query.views.slice()
+
+            @initCols()
+            @toggleColSelection()
+            @updateFormatOptions()
+
+            @$('.slider').slider('destroy')
+            @makeSlider()
+
+        updateFormatOptions: (e) ->
+            opts = @$('.im-export-options').empty()
+            @format = @$('.im-export-format').val()
+            if @format in ['tab', 'csv']
+                opts.append """
+                    <label>
+                        <span class="span4">
+                            #{ intermine.messages.actions.ColumnHeaders }
+                        </span>
+                        <input type="checkbox" class="im-column-headers span8">
+                    </label>
+                """
+
+        initialize: (@query) ->
+
+        initCols: () ->
+            @$('.im-cols li').remove()
+
+            cols = @$ '.im-exported-cols'
+            for v in @exportedCols
+                p = @query.getPathInfo(v)
+                li = $ """<li></li>"""
+                li.appendTo cols
+                do (p, li) =>
+                    p.getDisplayName (name) =>
+                        li.append """
+                            <div class="label label-success">
+                                <i class="#{intermine.icons.Move} im-move pull-right"></i>
+                                <a href="#"><i class="#{intermine.icons.Remove}"></i></a>
+                                #{ name }
+                            </div>
+                        """
+                        li.find('a').click () =>
+                            @exportedCols = _.without @exportedCols, p.toString()
+                            maybes.addClass('active')
+                            _.delay (() -> maybes.removeClass('active')), 1000
+                            @initCols()
+
+            cols.sortable()
+
+            maybes = @$ '.im-can-be-exported-cols'
+            for n in @query.getQueryNodes()
+                for cn in n.getChildNodes() when cn.isAttribute() and cn.toString() not in @exportedCols
+                    li = $ """<li></li>"""
+                    li.appendTo maybes
+                    do (cn, li) =>
+                        cn.getDisplayName (name) =>
+                            li.append """
+                                <div class="label">
+                                    <a href="#"><i class="#{intermine.icons.Add}"></i></a>
+                                    #{ name }
+                                </div>
+                            """
+                            li.find('a').click (e) =>
+                                @exportedCols.push cn.toString()
+                                cols.addClass('active')
+                                _.delay (() -> cols.removeClass('active')), 1000
+                                @initCols()
+
+        render: () ->
+
+            @$el.append @html
+            select = @$ '.im-export-format'
+
+            for format in EXPORT_FORMATS
+                select.append """<option value="#{format.extension}">#{format.name}</option>"""
+
+            @exportedCols = @query.views.slice()
+
+            @initCols()
+            @toggleColSelection()
+            @updateFormatOptions()
+
+            if _.any(@query.joins, (s, p) => (s is 'OUTER') and @query.canHaveMultipleValues(p))
+                @$('.im-row-selection').append """
+                        <div class="alert alert-warning">
+                            <button class="close" data-dismiss="alert">×</button>
+                            <strong>NB</strong>
+                            #{ intermine.messages.actions.OuterJoinWarning }
+                        </div>
+                    """
+
+            @makeSlider()
+
+            @$el.find('.modal').hide()
+
+            this
+
+        makeSlider: () ->
+            @query.count (c) =>
+                @count = c
+                @$('.im-last-row').val c
+                sl = @$('.slider').slider
+                    range: true,
+                    min: 0,
+                    max: c,
+                    values: [0, c],
+                    step: 1,
+                    slide: (e, ui)  =>
+                        @$('.im-first-row').val ui.values[0]
+                        @$('.im-last-row').val ui.values[1]
+                @toggleRowSelection()
+
 
     exporting class ListAppender extends ListDialogue
 
@@ -266,130 +543,38 @@ scope "intermine.query.actions", (exporting) ->
     EXPORT_FORMATS = [
         {name: "Spreadsheet (tab separated values)", extension: "tab"},
         {name: "Spreadsheet (comma separated values)", extension: "csv"},
-        null,
         {name: "XML", extension: "xml"},
         {name: "JSON", extension: "json"},
-        null,
+    ]
+
+    BIO_FORMATS = [
         {name: "UCSC-BED", extension: "bed"},
         {name: "FASTA", extension: "fasta"},
         {name: "GFF3", extension: "gff3"}
     ]
 
-    class Exporters extends Backbone.View
-        tagName: "li"
-        className: "im-exporters"
 
-        html: _.template("""
-            <div class="btn-group">
-                <a class="btn btn-action" href="#">
-                    <i class="icon-download-alt"></i>
-                    Export
-                    <span class="im-export-format"></span>
-                </a>
-                <a class="btn dropdown-toggle" data-toggle="dropdown" href="#" style="height: 18px">
-                    <b class="caret"></b>
-                </a>
-                <ul class="dropdown-menu pull-right">
-                    <% _(formats).each(function(format) { %>
-                        <% if (format) { %>
-                            <li>
-                                <a href="#" data-format="<%= format.extension %>">
-                                    <%= format.name %>
-                                </a>
-                            </li>
-                        <% } else { %>
-                            <li class="divider"></li>
-                        <% } %>
-                    <% }); %>
-                    <li>
-                        <form class="form form-inline im-export-destinations">
-                            <div class="btn-group" data-toggle="buttons-radio">
-                                <button class="btn active" data-destination="download">
-                                    Download
-                                </button>
-                                <button class="btn" data-destination="galaxy">
-                                    Export To Galaxy
-                                </button>
-                            </div>
-                        </form>
-                    </li>
-                </ul>
-            </div>
-            <div class="modal fade">
-                <div class="modal-header">
-                    <a class="close" data-dismiss="modal">close</a>
-                    <h3>Export Options</h3>
-                </div>
-                <!-- TODO -->
-                <div class="modal-body">
-                    <form class="form">
-                        <label>All rows
-                            <input type="checkbox" checked>
-                        </label>
-                        <label>start
-                            <input type="text">
-                        </label>
-                        <label>end
-                            <input type="text">
-                        </label>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <a href="#" class="btn btn-save"><i class="icon-file"></i>Save</a>
-                    <button href="#" class="btn im-show-comments" data-toggle="button">Show Comments</button>
-                    <a href="#" data-dismiss="modal" class="btn">Close</a>
-                </div>
-            </div>
-        """, {formats: EXPORT_FORMATS})
+        
 
-        initialize: (@query) ->
-
-        render: ->
-            @$el.append @html
-            @destination = @$('form .btn.active').data 'destination'
-            this
-
-        events:
-           'click .dropdown-menu a': 'getExport'
-           'click .btn-action': 'doMainAction'
-           'click .form .btn': 'changeDestination'
-
-        changeDestination: (e) =>
-            e.stopPropagation()
-            e.preventDefault()
-            $t = $(e.target).button 'toggle'
-            @destination = $t.data 'destination'
-
-        doMainAction: (e) =>
-            if @format then @getExport(e) else $(e.target).next().dropdown 'toggle'
-
-        getExport: (e) =>
-            $t = $ e.target
-            @format = $t.data('format') or @format
-            @$('a .im-export-format').text "as #{@format}"
-            uri = @query.getExportURI @format
-            this[@destination] uri
-
-        download: (uri) -> window.open(uri)
-
-        galaxy: (uri) ->
-            lists = (c.value for c in @query.constraints when c.op is "IN")
-            intermine.utils.getOrganisms @query, (orgs) =>
-                req =
-                    "tool_id": "flymine"
-                    "organism": orgs.join(", ")
-                    "info": """
-                        #{ @query.root } data from #{ @query.service.root } 
-                        Uploaded from #{ window.location.toString().replace(/\?.*/, "") }.
-                        #{ if lists.length then ' source: ' + lists.join(",") else "" }
-                        #{ if orgs.length then ' organisms: ' else ""}#{orgs.join(",")} 
-                    """
-                    "URL": uri
-                    "name": "#{ if orgs.length is 1 then orgs[0] + ' ' else ""}#{ @query.root } data"
-                    "data_type": if @format is "tab" then "tabular" else @format
-
-                openWindowWithPost "http://main.g2.bx.psu.edu/tool_runner", "Upload", req
-
+    #
+    #    galaxy: (uri) ->
+    #        lists = (c.value for c in @query.constraints when c.op is "IN")
+    #        intermine.utils.getOrganisms @query, (orgs) =>
+    #            req =
+    #                "tool_id": "flymine"
+    #                "organism": orgs.join(", ")
+    #                "info": """
+    #                    #{ @query.root } data from #{ @query.service.root } 
+    #                    Uploaded from #{ window.location.toString().replace(/\?.*/, "") }.
+    #                    #{ if lists.length then ' source: ' + lists.join(",") else "" }
+    #                   #{ if orgs.length then ' organisms: ' else ""}#{orgs.join(",")} 
+    #                """
+    #                "URL": uri
+    #                "name": "#{ if orgs.length is 1 then orgs[0] + ' ' else ""}#{ @query.root } data"
+    #                "data_type": if @format is "tab" then "tabular" else @format
+    #
+    #            openWindowWithPost "http://main.g2.bx.psu.edu/tool_runner", "Upload", req
+    #
 
     CODE_GEN_LANGS = [
         {name: "Perl", extension: "pl"},
