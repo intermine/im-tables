@@ -14,7 +14,9 @@ scope "intermine.messages.actions", {
     Export: "Download",
     SendToGalaxy: "Send to Galaxy",
     AllRows: "All Rows",
+    RowsHelp: "Uncheck this box to select a range of rows from the result set",
     AllColumns: "All Columns",
+    ColumnsHelp: "Uncheck this box to select different columns for export than those in the table",
     FirstRow: "From",
     LastRow: "To",
     ColumnHeaders: "Include Column Headers",
@@ -187,7 +189,7 @@ scope "intermine.query.actions", (exporting) ->
                             <select class="im-export-format input-xlarge span8">
                             </select>
                         </label>
-                        <label>
+                        <label title="#{ intermine.messages.actions.ColumnsHelp }">
                             <span class="span4">
                                 #{ intermine.messages.actions.AllColumns }
                             </span>
@@ -207,7 +209,7 @@ scope "intermine.query.actions", (exporting) ->
                                 <p>#{ intermine.messages.actions.ChangeColumns }</p>
                             </div>
                         </div>
-                        <label>
+                        <label title="#{ intermine.messages.actions.RowsHelp }">
                             <span class="span4">
                                 #{ intermine.messages.actions.AllRows }
                              </span>
