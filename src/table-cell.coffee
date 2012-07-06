@@ -1,3 +1,27 @@
+scope "intermine.results.formatters", {
+    Manager: (model, query, $cell) ->
+        id = model.get 'id'
+        if (model.has('title') and model.has('name'))
+            title = model.get 'title'
+            name = model.get 'name'
+            return {value: "#{title} #{name}", field: "id"}
+        else
+            query.service.findById 'Manager', id, (manager) ->
+                display = "#{ manager.title } #{ manager.name }"
+                model.set title: manager.title, name: manager.name
+                $cell.find('.im-cell-link').text display
+            return {value: id, field: "id"}
+}
+
+scope "intermine.results", {
+    getFormatter:   (model, type) ->
+        formatter = null
+        type = type.name or type
+        types = [type].concat model.getAncestorsOf(type)
+        formatter or= intermine.results.formatters[t] for t in types
+        return formatter
+}
+
 scope "intermine.results.table", (exporting) ->
 
     # </div>
@@ -61,8 +85,10 @@ scope "intermine.results.table", (exporting) ->
                     </th>"""
                     th.find('i').click (e) => @query.removeFromSelect v
                     path = @query.getPathInfo(v)
-                    @column.getDisplayName (colName) ->
+                    @column.getDisplayName (colName) =>
                         span = th.find('span')
+                        if (path.end?.name is 'id') and intermine.results.getFormatter(@query.model, path.getParent().getType())?
+                            path = path.getParent()
                         path.getDisplayName (pathName) ->
                             if pathName.match(colName)
                                 span.text pathName.replace(colName, '').replace(/^\s*>?\s*/, '')
@@ -189,11 +215,14 @@ scope "intermine.results.table", (exporting) ->
                     return content
 
         render: ->
-            html = CELL_HTML _.extend {}, @model.toJSON(), {value: @model.get(@options.field), field: @options.field}
-            @$el.append(html).toggleClass(active: @model.get "selected")
             type = @model.get "type"
             id = @model.get "id"
-            s = @options.query.service
+            # only id cells are subject to special format rules.
+            if (@options.field is 'id') and (formatter = intermine.results.getFormatter(@options.query.model, type))
+                data = formatter(@model, @options.query, @$el)
+            else
+                data = {value: @model.get(@options.field), field: @options.field}
+            @$el.append(CELL_HTML _.extend {}, @model.toJSON(), data).toggleClass(active: @model.get "selected")
             @setupPreviewOverlay() if id?
             this
 

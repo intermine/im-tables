@@ -273,10 +273,14 @@ scope "intermine.query.results", (exporting) ->
                 views = result.results[0].map (row) -> row.column
                 promise = new $.Deferred()
                 titles = {}
-                _.each views, (v) -> q.getPathInfo(v).getDisplayName (name) ->
-                    titles[v] = name
-                    if _.size(titles) is views.length
-                        promise.resolve titles
+                _.each views, (v) ->
+                    path = q.getPathInfo(v)
+                    if (path.end?.name is 'id') and intermine.results.getFormatter(q.model, path.getParent().getType())?
+                        path = path.getParent()
+                    path.getDisplayName (name) ->
+                        titles[v] = name
+                        if _.size(titles) is views.length
+                            promise.resolve titles
                 promise.done (titles) =>
                     for v, i in views
                         @buildColumnHeader v, i, titles[v], tr

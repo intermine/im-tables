@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Thu Jul 05 2012 14:41:33 GMT+0100 (BST)
+ * Built at Fri Jul 06 2012 13:00:57 GMT+0100 (BST)
 */
 
 
@@ -1227,7 +1227,12 @@
           promise = new $.Deferred();
           titles = {};
           _.each(views, function(v) {
-            return q.getPathInfo(v).getDisplayName(function(name) {
+            var path, _ref;
+            path = q.getPathInfo(v);
+            if ((((_ref = path.end) != null ? _ref.name : void 0) === 'id') && (intermine.results.getFormatter(q.model, path.getParent().getType()) != null)) {
+              path = path.getParent();
+            }
+            return path.getDisplayName(function(name) {
               titles[v] = name;
               if (_.size(titles) === views.length) {
                 return promise.resolve(titles);
@@ -3589,6 +3594,49 @@
     })(Backbone.View);
   });
 
+  scope("intermine.results.formatters", {
+    Manager: function(model, query, $cell) {
+      var id, name, title;
+      id = model.get('id');
+      if (model.has('title') && model.has('name')) {
+        title = model.get('title');
+        name = model.get('name');
+        return {
+          value: "" + title + " " + name,
+          field: "id"
+        };
+      } else {
+        query.service.findById('Manager', id, function(manager) {
+          var display;
+          display = "" + manager.title + " " + manager.name;
+          model.set({
+            title: manager.title,
+            name: manager.name
+          });
+          return $cell.find('.im-cell-link').text(display);
+        });
+        return {
+          value: id,
+          field: "id"
+        };
+      }
+    }
+  });
+
+  scope("intermine.results", {
+    getFormatter: function(model, type) {
+      var formatter, t, types, _i, _len;
+      formatter = null;
+      type = type.name || type;
+      types = [type].concat(model.getAncestorsOf(type));
+      for (_i = 0, _len = types.length; _i < _len; _i++) {
+        t = types[_i];
+        formatter || (formatter = intermine.results.formatters[t]);
+      }
+      return formatter;
+    }
+  });
+
   scope("intermine.results.table", function(exporting) {
     var CELL_HTML, Cell, HIDDEN_FIELDS, NullCell, SubTable;
     CELL_HTML = _.template("<input class=\"list-chooser\" type=\"checkbox\" style=\"display: none\" data-obj-id=\"<%= id %>\" \n    <% if (selected) { %>checked <% }; %>\n    data-obj-type=\"<%= type %>\">\n<% if (value == null) { %>\n    <span class=\"null-value\">no value</span>\n<% } else { %>\n    <% if (url != null && url.match(/^http/)) { %>\n      <a class=\"im-cell-link\" href=\"<%= url %>\"><%= value %></a>\n    <% } else { %>\n      <a class=\"im-cell-link\" href=\"<%= base %><%= url %>\"><%= value %></a>\n    <% } %>\n<% } %>\n<% if (field == 'url') { %>\n    <a class=\"im-cell-link external\" href=\"<%= value %>\"><i class=\"icon-globe\"></i>link</a>\n<% } %>");
@@ -3657,8 +3705,11 @@
             });
             path = _this.query.getPathInfo(v);
             _this.column.getDisplayName(function(colName) {
-              var span;
+              var span, _ref1;
               span = th.find('span');
+              if ((((_ref1 = path.end) != null ? _ref1.name : void 0) === 'id') && (intermine.results.getFormatter(_this.query.model, path.getParent().getType()) != null)) {
+                path = path.getParent();
+              }
               return path.getDisplayName(function(pathName) {
                 if (pathName.match(colName)) {
                   return span.text(pathName.replace(colName, '').replace(/^\s*>?\s*/, ''));
@@ -3866,17 +3917,20 @@
       };
 
       Cell.prototype.render = function() {
-        var html, id, s, type;
-        html = CELL_HTML(_.extend({}, this.model.toJSON(), {
-          value: this.model.get(this.options.field),
-          field: this.options.field
-        }));
-        this.$el.append(html).toggleClass({
-          active: this.model.get("selected")
-        });
+        var data, formatter, id, type;
         type = this.model.get("type");
         id = this.model.get("id");
-        s = this.options.query.service;
+        if ((this.options.field === 'id') && (formatter = intermine.results.getFormatter(this.options.query.model, type))) {
+          data = formatter(this.model, this.options.query, this.$el);
+        } else {
+          data = {
+            value: this.model.get(this.options.field),
+            field: this.options.field
+          };
+        }
+        this.$el.append(CELL_HTML(_.extend({}, this.model.toJSON(), data))).toggleClass({
+          active: this.model.get("selected")
+        });
         if (id != null) {
           this.setupPreviewOverlay();
         }
