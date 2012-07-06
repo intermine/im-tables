@@ -1,3 +1,8 @@
+# A set of functions of the signature:
+#   (Backbone.Model, intermine.Query, jQuery) -> {value: string, field: string}
+#
+# Defining a formatter means that this function will be used to display data
+# rather than the standard id being shown.
 scope "intermine.results.formatters", {
     Manager: (model, query, $cell) ->
         id = model.get 'id'
