@@ -592,8 +592,11 @@ table.table thead .sorting_desc_disabled {
     cursor: move;
 }
 
-.im-export-dialogue label {
+.im-export-dialogue .im-export-options > label,
+.im-export-dialogue .form > fieldset,
+.im-export-dialogue .form > label {
     text-align: left;
+    clear: both;
 }
 
 .im-col-options.disabled {
@@ -604,10 +607,18 @@ table.table thead .sorting_desc_disabled {
     margin-top: 2em;
 }
 
+.im-export-dialogue .galaxy-toggle { height: 18px } /* Fix for issue in FlyMine */
+
 .im-export-dialogue .im-galaxy-options,
 .im-export-dialogue .im-row-selection, 
 .im-export-dialogue .im-col-options {
     display: none;
+}
+
+.im-export-dialogue .im-row-selection {
+    /* Fixes for firefox */
+    width: 100%;
+    float: left;
 }
 
 .im-export-dialogue .modal-footer .btn-primary {

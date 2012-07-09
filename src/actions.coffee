@@ -288,13 +288,13 @@ scope "intermine.query.actions", (exporting) ->
                         #{ intermine.messages.actions.Export }
                     </button>
                     <div class="btn-group btn-alt pull-right">
-                        <button class="btn btn-galaxy" title="#{intermine.messages.actions.GalaxyHelp}">
+                        <a href="#" class="btn btn-galaxy" title="#{intermine.messages.actions.GalaxyHelp}">
                             #{ intermine.messages.actions.SendToGalaxy }
-                        </button>
-                        <button title="#{intermine.messages.actions.GalaxyAlt}" 
+                        </a>
+                        <a href="#" title="#{intermine.messages.actions.GalaxyAlt}" 
                             class="btn dropdown-toggle galaxy-toggle" data-toggle="dropdown">
                             <span class="caret"></span>
-                        </button>
+                        </a>
                     </div>
                     <button class="btn btn-cancel pull-left">
                         #{ intermine.messages.actions.Cancel }
@@ -325,7 +325,7 @@ scope "intermine.query.actions", (exporting) ->
             'click .btn-cancel': 'stop'
             'change .im-export-format': 'updateFormat'
             'click button.btn-primary': 'export'
-            'click button.galaxy-toggle': 'toggleGalaxyOptions'
+            'click .galaxy-toggle': 'toggleGalaxyOptions'
             'change .im-galaxy-uri': 'changeGalaxyURI'
             'click .btn-galaxy': 'sendToGalaxy'
             'submit .im-galaxy-options': 'sendToAltGalaxy'
