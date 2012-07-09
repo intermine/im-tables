@@ -30,7 +30,7 @@ $(function() {
           root: "localhost/squirrelmine",
           token: "C1o3t1e0d4V06ep8xb47DdlFVMr",
           q: {
-              select: ["**", "proteins.name"], 
+              select: ["*", "proteins.name", "exons.primaryIdentifier"], 
               from: "Gene", 
               where: {
                   length: {lt: 8000},

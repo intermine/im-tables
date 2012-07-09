@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Mon Jul 09 2012 14:50:29 GMT+0100 (BST)
+ * Built at Mon Jul 09 2012 17:18:56 GMT+0100 (BST)
 */
 
 
@@ -2602,7 +2602,8 @@
     ExportedColumns: "Columns To Export",
     ChangeColumns: "You may add any of the columns in the right hand box by clicking on the\nplus sign. You may remove unwanted columns by clicking on the minus signs\nin the left hand box. Note that while adding these columns will not alter your query,\nif you remove all the attributes from an item, then you <b>may change</b> the results\nyou receive.",
     OuterJoinWarning: "This query has outer-joined collections. This means that the number of rows in \nthe table is likely to be different from the number of rows in the exported results.\n<b>You are strongly discouraged from specifying specific ranges for export</b>. If\nyou do specify a certain range, please check that you did in fact get all the \nresults you wanted.",
-    IncludedFeatures: "Sequence Features In this Query:",
+    IncludedFeatures: "Sequence Features in this Query - <strong>choose at least one</strong>:",
+    FastaFeatures: "Features with Sequences in this Query - <strong>select one</strong>:",
     NoSuitableColumns: "There are no columns of a suitable type for this format.",
     ChrPrefix: "Prefix \"chr\" to the chromosome identifier as per UCSC convention (eg: chr2)"
   });
@@ -2925,7 +2926,7 @@
         return this.exportedCols.on('add remove reset', this.initCols);
       };
 
-      ExportDialogue.prototype.html = "<a class=\"btn im-open-dialogue\" href=\"#\">\n    <i class=\"" + intermine.icons.Export + "\"></i>\n    " + intermine.messages.actions.ExportButton + "\n</a>\n<div class=\"modal fade\">\n    <div class=\"modal-header\">\n        <a class=\"close btn-cancel\">close</a>\n        <h2>" + intermine.messages.actions.ExportTitle + "</h2>\n    </div>\n    <div class=\"modal-body\">\n        <form class=\"form row-fluid\">\n            <label>\n                <span class=\"span4\">\n                    " + intermine.messages.actions.ExportFormat + "\n                </span>\n                <select class=\"im-export-format input-xlarge span8\">\n                </select>\n            </label>\n            <label title=\"" + intermine.messages.actions.ColumnsHelp + "\">\n                <span class=\"span4\">\n                    " + intermine.messages.actions.AllColumns + "\n                </span>\n                <input type=\"checkbox\" checked class=\"im-all-cols span8\">\n            </label>\n            <div class=\"im-col-options\">\n                <ul class=\"well im-cols im-can-be-exported-cols\">\n                    <h4>" + intermine.messages.actions.PossibleColumns + "</h4>\n                </ul>\n                <ul class=\"well im-cols im-exported-cols\">\n                    <h4>" + intermine.messages.actions.ExportedColumns + "</h4>\n                </ul>\n                <div style=\"clear:both;\"></div>\n                <div class=\"alert alert-info\">\n                    <button class=\"close\" data-dismiss=\"alert\">×</button>\n                    <strong>ps</strong>\n                    <p>" + intermine.messages.actions.ChangeColumns + "</p>\n                </div>\n            </div>\n            <label title=\"" + intermine.messages.actions.RowsHelp + "\">\n                <span class=\"span4\">\n                    " + intermine.messages.actions.AllRows + "\n                 </span>\n                <input type=\"checkbox\" checked class=\"im-all-rows span8\">\n            </label>\n            <div class=\"form-horizontal\">\n            <fieldset class=\"im-row-selection control-group\">\n                <label class=\"control-label\">\n                    " + intermine.messages.actions.FirstRow + "\n                    <input type=\"text\" value=\"0\" class=\"disabled input-mini im-first-row im-range-limit\">\n                </label>\n                <label class=\"control-label\">\n                    " + intermine.messages.actions.LastRow + "\n                    <input type=\"text\" class=\"disabled input-mini im-last-row im-range-limit\">\n                </label>\n                <div style=\"clear:both\"></div>\n                <div class=\"slider im-row-range-slider\"></div>\n            </fieldset>\n            </div>\n            <fieldset class=\"im-export-options\">\n            </fieldset>\n        </form>\n    </div>\n    <div class=\"modal-footer\">\n        <button class=\"btn btn-primary pull-right\" title=\"" + intermine.messages.actions.ExportHelp + "\">\n            " + intermine.messages.actions.Export + "\n        </button>\n        <div class=\"btn-group btn-alt pull-right\">\n            <button class=\"btn btn-galaxy\" title=\"" + intermine.messages.actions.GalaxyHelp + "\">\n                " + intermine.messages.actions.SendToGalaxy + "\n            </button>\n            <button title=\"" + intermine.messages.actions.GalaxyAlt + "\" \n                class=\"btn dropdown-toggle galaxy-toggle\" data-toggle=\"dropdown\">\n                <span class=\"caret\"></span>\n            </button>\n        </div>\n        <button class=\"btn btn-cancel pull-left\">\n            " + intermine.messages.actions.Cancel + "\n        </button>\n        <form class=\"well form-inline im-galaxy-options\">\n            <label>\n                " + intermine.messages.actions.GalaxyURILabel + "\n                <input type=\"text\" class=\"im-galaxy-uri input-xlarge\" \n                    value=\"" + intermine.options.GalaxyMain + "\">\n            </label>\n            <button type=\"submit\" class=\"btn\">\n                " + intermine.messages.actions.SendToOtherGalaxy + "\n            </button>\n            <div class=\"alert alert-info\">\n                <button class=\"close\" data-dismiss=\"alert\">×</button>\n                <strong>ps</strong>\n                " + intermine.messages.actions.GalaxyAuthExplanation + "\n            </div>\n        </form>\n    </div>\n</div>";
+      ExportDialogue.prototype.html = "<a class=\"btn im-open-dialogue\" href=\"#\">\n    <i class=\"" + intermine.icons.Export + "\"></i>\n    " + intermine.messages.actions.ExportButton + "\n</a>\n<div class=\"modal fade\">\n    <div class=\"modal-header\">\n        <a class=\"close btn-cancel\">close</a>\n        <h2>" + intermine.messages.actions.ExportTitle + "</h2>\n    </div>\n    <div class=\"modal-body\">\n        <form class=\"form row-fluid\">\n            <label>\n                <span class=\"span4\">\n                    " + intermine.messages.actions.ExportFormat + "\n                </span>\n                <select class=\"im-export-format input-xlarge span8\">\n                </select>\n            </label>\n            <label title=\"" + intermine.messages.actions.ColumnsHelp + "\">\n                <span class=\"span4\">\n                    " + intermine.messages.actions.AllColumns + "\n                </span>\n                <input type=\"checkbox\" checked class=\"im-all-cols span8\">\n            </label>\n            <div class=\"im-col-options\">\n                <ul class=\"well im-cols im-can-be-exported-cols\">\n                    <h4>" + intermine.messages.actions.PossibleColumns + "</h4>\n                </ul>\n                <ul class=\"well im-cols im-exported-cols\">\n                    <h4>" + intermine.messages.actions.ExportedColumns + "</h4>\n                </ul>\n                <div style=\"clear:both;\"></div>\n                <div class=\"alert alert-info\">\n                    <button class=\"close\" data-dismiss=\"alert\">×</button>\n                    <strong>ps</strong>\n                    <p>" + intermine.messages.actions.ChangeColumns + "</p>\n                </div>\n            </div>\n            <label title=\"" + intermine.messages.actions.RowsHelp + "\">\n                <span class=\"span4\">\n                    " + intermine.messages.actions.AllRows + "\n                 </span>\n                <input type=\"checkbox\" checked class=\"im-all-rows span8\">\n            </label>\n            <div class=\"form-horizontal\">\n            <fieldset class=\"im-row-selection control-group\">\n                <label class=\"control-label\">\n                    " + intermine.messages.actions.FirstRow + "\n                    <input type=\"text\" value=\"0\" class=\"disabled input-mini im-first-row im-range-limit\">\n                </label>\n                <label class=\"control-label\">\n                    " + intermine.messages.actions.LastRow + "\n                    <input type=\"text\" class=\"disabled input-mini im-last-row im-range-limit\">\n                </label>\n                <div style=\"clear:both\"></div>\n                <div class=\"slider im-row-range-slider\"></div>\n            </fieldset>\n            </div>\n            <fieldset class=\"im-export-options control-group\">\n            </fieldset>\n        </form>\n    </div>\n    <div class=\"modal-footer\">\n        <button class=\"btn btn-primary pull-right\" title=\"" + intermine.messages.actions.ExportHelp + "\">\n            " + intermine.messages.actions.Export + "\n        </button>\n        <div class=\"btn-group btn-alt pull-right\">\n            <button class=\"btn btn-galaxy\" title=\"" + intermine.messages.actions.GalaxyHelp + "\">\n                " + intermine.messages.actions.SendToGalaxy + "\n            </button>\n            <button title=\"" + intermine.messages.actions.GalaxyAlt + "\" \n                class=\"btn dropdown-toggle galaxy-toggle\" data-toggle=\"dropdown\">\n                <span class=\"caret\"></span>\n            </button>\n        </div>\n        <button class=\"btn btn-cancel pull-left\">\n            " + intermine.messages.actions.Cancel + "\n        </button>\n        <form class=\"well form-inline im-galaxy-options\">\n            <label>\n                " + intermine.messages.actions.GalaxyURILabel + "\n                <input type=\"text\" class=\"im-galaxy-uri input-xlarge\" \n                    value=\"" + intermine.options.GalaxyMain + "\">\n            </label>\n            <button type=\"submit\" class=\"btn\">\n                " + intermine.messages.actions.SendToOtherGalaxy + "\n            </button>\n            <div class=\"alert alert-info\">\n                <button class=\"close\" data-dismiss=\"alert\">×</button>\n                <strong>ps</strong>\n                " + intermine.messages.actions.GalaxyAuthExplanation + "\n            </div>\n        </form>\n    </div>\n</div>";
 
       ExportDialogue.prototype.events = {
         'change .im-all-cols': 'toggleColSelection',
@@ -3025,12 +3026,33 @@
       };
 
       ExportDialogue.prototype.getExportURI = function() {
-        var q, uri;
+        var columns, f, idAttr, isIncluded, q, toPath, uri;
         q = this.query.clone();
-        if (!this.requestInfo.get('allCols')) {
-          q.select(this.exportedCols.map(function(col) {
-            return col.get('path');
-          }));
+        f = this.requestInfo.get('format');
+        toPath = function(col) {
+          return col.get('path');
+        };
+        idAttr = function(path) {
+          return path.append('id');
+        };
+        isIncluded = function(col) {
+          return col.get('included');
+        };
+        columns = (function() {
+          switch (f) {
+            case 'bed':
+            case 'gff3':
+              return this.seqFeatures.filter(isIncluded).map(_.compose(idAttr, toPath));
+            case 'fasta':
+              return this.fastaFeatures.filter(isIncluded).map(_.compose(idAttr, toPath));
+            default:
+              if (!this.requestInfo.get('allCols')) {
+                return this.exportedCols.map(toPath);
+              }
+          }
+        }).call(this);
+        if (columns != null) {
+          q.select(columns);
         }
         uri = q.getExportURI(this.requestInfo.get('format'));
         uri += this.getExtraOptions();
@@ -3098,7 +3120,7 @@
       };
 
       ExportDialogue.prototype.updateFormatOptions = function() {
-        var format, opts, requestInfo;
+        var chrPref, format, opts, requestInfo;
         opts = this.$('.im-export-options').empty();
         requestInfo = this.requestInfo;
         format = requestInfo.get('format');
@@ -3120,22 +3142,83 @@
           case 'tab':
           case 'csv':
             opts.append("<label>\n    <span class=\"span4\">\n        " + intermine.messages.actions.ColumnHeaders + "\n    </span>\n    <input type=\"checkbox\" class=\"im-column-headers span8\">\n</label>");
-            return opts.find('.im-column-headers').change(function(e) {
+            return opts.find('.im-column-headers').attr({
+              checked: !!requestInfo.get('columnHeaders')
+            }).change(function(e) {
               return requestInfo.set('columnHeaders', $(this).is(':checked'));
             });
           case 'bed':
-            opts.append("<label>\n    <span class=\"span4\">\n        " + intermine.messages.actions.ChrPrefix + "\n    </span>\n    <input type=\"checkbox\" class=\"im-column-headers span8\">\n    <div style=\"clear:both\"></div>\n</label>");
+            chrPref = $("<label>\n    <span class=\"span4\">\n        " + intermine.messages.actions.ChrPrefix + "\n    </span>\n    <input type=\"checkbox\" class=\"span8\">\n    <div style=\"clear:both\"></div>\n</label>");
+            chrPref.appendTo(opts);
+            chrPref.find('input').attr({
+              checked: !!requestInfo.get('useChrPrefix')
+            }).change(function(e) {
+              return requestInfo.set({
+                useChrPrefix: $(this).is(':checked')
+              });
+            });
             return this.addSeqFeatureSelector();
           case 'gff3':
             return this.addSeqFeatureSelector();
+          case 'fasta':
+            return this.addFastaFeatureSelector();
         }
+      };
+
+      ExportDialogue.prototype.addFastaFeatureSelector = function() {
+        var included, l, node, opts, seqFeatCols, _i, _len, _ref,
+          _this = this;
+        opts = this.$('.im-export-options');
+        l = $("<label>\n    <span class=\"span4\">\n        " + intermine.messages.actions.FastaFeatures + "\n    </span>\n</label>");
+        l.appendTo(opts);
+        seqFeatCols = $('<ul class="well span8 im-sequence-features">');
+        this.fastaFeatures = new Backbone.Collection;
+        this.fastaFeatures.on('add', function(col) {
+          var li, path;
+          path = col.get('path');
+          li = $('<li>');
+          path.getDisplayName(function(name) {
+            li.append("<span class=\"label " + (col.get('included') ? 'label-success' : '') + "\">\n    <a href=\"#\">\n        <i class=\"" + (col.get('included') ? intermine.icons.Yes : intermine.icons.No) + "\"></i>\n        " + name + "\n    </a>\n</span>");
+            return li.find('a').click(function() {
+              _this.fastaFeatures.each(function(other) {
+                return other.set({
+                  included: false
+                });
+              });
+              return col.set({
+                included: true
+              });
+            });
+          });
+          col.on('change:included', function() {
+            li.find('i').toggleClass("" + intermine.icons.Yes + " " + intermine.icons.No);
+            return li.find('span').toggleClass("label-success");
+          });
+          return li.appendTo(seqFeatCols);
+        });
+        included = true;
+        _ref = this.query.getViewNodes();
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          node = _ref[_i];
+          if ((node.isa('SequenceFeature')) || (node.isa('Protein'))) {
+            this.fastaFeatures.add({
+              path: node,
+              included: included
+            });
+            included = false;
+          }
+        }
+        if (this.fastaFeatures.isEmpty()) {
+          seqFeatCols.append("<li>\n    <span class=\"label label-important\">\n    " + intermine.messages.actions.NoSuitableColumns + "\n    </span>\n</li>");
+        }
+        return seqFeatCols.appendTo(l);
       };
 
       ExportDialogue.prototype.addSeqFeatureSelector = function() {
         var l, node, opts, seqFeatCols, _i, _len, _ref,
           _this = this;
         opts = this.$('.im-export-options');
-        l = $("<label>\n    <span class=\"span4\">\n        " + intermine.messages.actions.IncludedFeatures + "\n    </span>\n</label>");
+        l = $("<label>\n    <span class=\"span4 control-label\">\n        " + intermine.messages.actions.IncludedFeatures + "\n    </span>\n</label>");
         l.appendTo(opts);
         seqFeatCols = $('<ul class="well span8 im-sequence-features">');
         this.seqFeatures = new Backbone.Collection;
@@ -3157,6 +3240,14 @@
             return li.find('span').toggleClass("label-success label-default");
           });
           return li.appendTo(seqFeatCols);
+        });
+        this.seqFeatures.on('change:included', function() {
+          var atLeastOneIncluded;
+          atLeastOneIncluded = _this.seqFeatures.any(function(col) {
+            return col.get('included');
+          });
+          console.log("Go at least one: " + atLeastOneIncluded);
+          return l.toggleClass("error", !atLeastOneIncluded);
         });
         _ref = this.query.getViewNodes();
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {

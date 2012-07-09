@@ -52,7 +52,8 @@ scope "intermine.messages.actions", {
             you do specify a certain range, please check that you did in fact get all the 
             results you wanted.
         """
-    IncludedFeatures: "Sequence Features In this Query:"
+    IncludedFeatures: "Sequence Features in this Query - <strong>choose at least one</strong>:"
+    FastaFeatures: "Features with Sequences in this Query - <strong>select one</strong>:"
     NoSuitableColumns: """
             There are no columns of a suitable type for this format.
         """
@@ -278,7 +279,7 @@ scope "intermine.query.actions", (exporting) ->
                             <div class="slider im-row-range-slider"></div>
                         </fieldset>
                         </div>
-                        <fieldset class="im-export-options">
+                        <fieldset class="im-export-options control-group">
                         </fieldset>
                     </form>
                 </div>
@@ -387,8 +388,18 @@ scope "intermine.query.actions", (exporting) ->
 
         getExportURI: () ->
             q = @query.clone()
-            unless @requestInfo.get 'allCols'
-                q.select @exportedCols.map (col) -> col.get 'path'
+            f = @requestInfo.get 'format'
+            toPath = (col) -> col.get 'path'
+            idAttr = (path) -> path.append 'id'
+            isIncluded = (col) -> col.get 'included'
+            columns = switch f
+                when 'bed', 'gff3'
+                    @seqFeatures.filter(isIncluded).map _.compose idAttr, toPath
+                when 'fasta'
+                    @fastaFeatures.filter(isIncluded).map _.compose idAttr, toPath
+                else
+                    @exportedCols.map(toPath) unless @requestInfo.get('allCols')
+            q.select columns if columns?
             uri = q.getExportURI @requestInfo.get 'format'
             uri += @getExtraOptions()
             return uri
@@ -448,27 +459,82 @@ scope "intermine.query.actions", (exporting) ->
                             <input type="checkbox" class="im-column-headers span8">
                         </label>
                     """
-                    opts.find('.im-column-headers').change (e) ->
+                    opts.find('.im-column-headers').attr(checked: !!requestInfo.get('columnHeaders')).change (e) ->
                         requestInfo.set 'columnHeaders', $(@).is ':checked'
                 when 'bed'
-                    opts.append """
+                    chrPref = $ """
                         <label>
                             <span class="span4">
                                 #{ intermine.messages.actions.ChrPrefix }
                             </span>
-                            <input type="checkbox" class="im-column-headers span8">
+                            <input type="checkbox" class="span8">
                             <div style="clear:both"></div>
                         </label>
                     """
+                    chrPref.appendTo opts
+                    chrPref.find('input').attr(checked: !!requestInfo.get('useChrPrefix')).change (e) ->
+                        requestInfo.set useChrPrefix: $(@).is ':checked'
                     @addSeqFeatureSelector()
                 when 'gff3'
                     @addSeqFeatureSelector()
+                when 'fasta'
+                    @addFastaFeatureSelector()
+
+        addFastaFeatureSelector: () ->
+            opts = @$('.im-export-options')
+            l = $ """
+                <label>
+                    <span class="span4">
+                        #{ intermine.messages.actions.FastaFeatures }
+                    </span>
+                </label>
+            """
+            l.appendTo opts
+            seqFeatCols = $ '<ul class="well span8 im-sequence-features">'
+            @fastaFeatures = new Backbone.Collection
+            @fastaFeatures.on 'add', (col) =>
+                path = col.get 'path'
+                li = $ '<li>'
+                path.getDisplayName (name) =>
+                    li.append """
+                        <span class="label #{if col.get('included') then 'label-success' else ''}">
+                            <a href="#">
+                                <i class="#{ if col.get('included') then intermine.icons.Yes else intermine.icons.No }"></i>
+                                #{ name }
+                            </a>
+                        </span>
+                    """
+                    li.find('a').click () =>
+                        @fastaFeatures.each((other) -> other.set included: false)
+                        col.set included: true
+                        
+                col.on 'change:included', () ->
+                    li.find('i').toggleClass "#{intermine.icons.Yes} #{intermine.icons.No}"
+                    li.find('span').toggleClass "label-success"
+                li.appendTo seqFeatCols
+
+            included = true
+            for node in @query.getViewNodes()
+                if (node.isa 'SequenceFeature') or (node.isa 'Protein')
+                    @fastaFeatures.add path: node, included: included
+                    included = false
+
+            if @fastaFeatures.isEmpty()
+                seqFeatCols.append """
+                    <li>
+                        <span class="label label-important">
+                        #{ intermine.messages.actions.NoSuitableColumns}
+                        </span>
+                    </li>
+                """
+            seqFeatCols.appendTo l
+
 
         addSeqFeatureSelector: () ->
             opts = @$('.im-export-options')
             l = $ """
                 <label>
-                    <span class="span4">
+                    <span class="span4 control-label">
                         #{ intermine.messages.actions.IncludedFeatures }
                     </span>
                 </label>
@@ -495,6 +561,10 @@ scope "intermine.query.actions", (exporting) ->
                     li.find('i').toggleClass "#{intermine.icons.Yes} #{intermine.icons.No}"
                     li.find('span').toggleClass "label-success label-default"
                 li.appendTo seqFeatCols
+            @seqFeatures.on 'change:included', () =>
+                atLeastOneIncluded = @seqFeatures.any( (col) -> col.get('included') )
+                console.log "Go at least one: #{atLeastOneIncluded}"
+                l.toggleClass "error", not atLeastOneIncluded
 
             for node in @query.getViewNodes()
                 if node.isa 'SequenceFeature'

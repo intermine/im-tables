@@ -614,6 +614,20 @@ table.table thead .sorting_desc_disabled {
     margin-left: 1em;
 }
 
+.im-export-dialogue .error .control-label strong {
+    font-weight: bold;
+    color: #b94a48;
+}
+
+.im-export-dialogue .error .im-sequence-features {
+    color: #b94a48;
+    border-color: #953b39;
+    outline: 0;
+    -webkit-box-shadow: 0 0 6px #d59392;
+    -moz-box-shadow: 0 0 6px #d59392;
+    box-shadow: 0 0 6px #d59392;
+}
+
 .im-export-dialogue .im-sequence-features li {
     display: inline-block;
     margin-right: 1em;
