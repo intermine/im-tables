@@ -27,15 +27,15 @@ $(function() {
             }
         },
         Preview: {
-          root: "beta.flymine.org/beta",
-          token: "G1N3n3O082faB924l8Lde6jN4Bh",
+          root: "localhost/squirrelmine",
+          token: "C1o3t1e0d4V06ep8xb47DdlFVMr",
           q: {
               select: ["**", "proteins.name"], 
               from: "Gene", 
               where: {
                   length: {lt: 8000},
-                  //"pathways.name": ["Metabolic pathways", "Gene Expression", "Transcription", "mRNA Processing"],
-                  //"chromosome.primaryIdentifier": "2L"
+                  "pathways.name": ["Metabolic pathways", "Gene Expression", "Transcription", "mRNA Processing"],
+                  "chromosome.primaryIdentifier": "2L"
               }
           }
         },

@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Mon Jul 09 2012 13:09:13 GMT+0100 (BST)
+ * Built at Mon Jul 09 2012 14:50:29 GMT+0100 (BST)
 */
 
 
@@ -2569,6 +2569,8 @@
   });
 
   scope("intermine.icons", {
+    Yes: "icon-star",
+    No: "icon-star-empty",
     Script: "icon-beaker",
     Export: "icon-download-alt",
     Remove: "icon-minus-sign",
@@ -2599,7 +2601,10 @@
     PossibleColumns: "Columns You Can Add",
     ExportedColumns: "Columns To Export",
     ChangeColumns: "You may add any of the columns in the right hand box by clicking on the\nplus sign. You may remove unwanted columns by clicking on the minus signs\nin the left hand box. Note that while adding these columns will not alter your query,\nif you remove all the attributes from an item, then you <b>may change</b> the results\nyou receive.",
-    OuterJoinWarning: "This query has outer-joined collections. This means that the number of rows in \nthe table is likely to be different from the number of rows in the exported results.\n<b>You are strongly discouraged from specifying specific ranges for export</b>. If\nyou do specify a certain range, please check that you did in fact get all the \nresults you wanted."
+    OuterJoinWarning: "This query has outer-joined collections. This means that the number of rows in \nthe table is likely to be different from the number of rows in the exported results.\n<b>You are strongly discouraged from specifying specific ranges for export</b>. If\nyou do specify a certain range, please check that you did in fact get all the \nresults you wanted.",
+    IncludedFeatures: "Sequence Features In this Query:",
+    NoSuitableColumns: "There are no columns of a suitable type for this format.",
+    ChrPrefix: "Prefix \"chr\" to the chromosome identifier as per UCSC convention (eg: chr2)"
   });
 
   scope("intermine.query.actions", function(exporting) {
@@ -3093,15 +3098,80 @@
       };
 
       ExportDialogue.prototype.updateFormatOptions = function() {
-        var opts, requestInfo, _ref;
+        var format, opts, requestInfo;
         opts = this.$('.im-export-options').empty();
         requestInfo = this.requestInfo;
-        if ((_ref = requestInfo.get('format')) === 'tab' || _ref === 'csv') {
-          opts.append("<label>\n    <span class=\"span4\">\n        " + intermine.messages.actions.ColumnHeaders + "\n    </span>\n    <input type=\"checkbox\" class=\"im-column-headers span8\">\n</label>");
-          return opts.find('.im-column-headers').change(function(e) {
-            return requestInfo.set('columnHeaders', $(this).is(':checked'));
+        format = requestInfo.get('format');
+        if (__indexOf.call(BIO_FORMATS.map(function(f) {
+          return f.extension;
+        }), format) >= 0) {
+          this.requestInfo.set({
+            allCols: true
+          });
+          this.$('.im-all-cols').attr({
+            disabled: true
+          });
+        } else {
+          this.$('.im-all-cols').attr({
+            disabled: false
           });
         }
+        switch (format) {
+          case 'tab':
+          case 'csv':
+            opts.append("<label>\n    <span class=\"span4\">\n        " + intermine.messages.actions.ColumnHeaders + "\n    </span>\n    <input type=\"checkbox\" class=\"im-column-headers span8\">\n</label>");
+            return opts.find('.im-column-headers').change(function(e) {
+              return requestInfo.set('columnHeaders', $(this).is(':checked'));
+            });
+          case 'bed':
+            opts.append("<label>\n    <span class=\"span4\">\n        " + intermine.messages.actions.ChrPrefix + "\n    </span>\n    <input type=\"checkbox\" class=\"im-column-headers span8\">\n    <div style=\"clear:both\"></div>\n</label>");
+            return this.addSeqFeatureSelector();
+          case 'gff3':
+            return this.addSeqFeatureSelector();
+        }
+      };
+
+      ExportDialogue.prototype.addSeqFeatureSelector = function() {
+        var l, node, opts, seqFeatCols, _i, _len, _ref,
+          _this = this;
+        opts = this.$('.im-export-options');
+        l = $("<label>\n    <span class=\"span4\">\n        " + intermine.messages.actions.IncludedFeatures + "\n    </span>\n</label>");
+        l.appendTo(opts);
+        seqFeatCols = $('<ul class="well span8 im-sequence-features">');
+        this.seqFeatures = new Backbone.Collection;
+        this.seqFeatures.on('add', function(col) {
+          var li, path;
+          path = col.get('path');
+          li = $('<li>');
+          path.getDisplayName(function(name) {
+            li.append("<span class=\"label label-success\">\n    <a href=\"#\">\n        <i class=\"" + (col.get('included') ? intermine.icons.Yes : intermine.icons.No) + "\"></i>\n        " + name + "\n    </a>\n</span>");
+            return li.find('a').click(function() {
+              return col.set({
+                included: !col.get('included')
+              });
+            });
+          });
+          col.on('change:included', function() {
+            console.log("Changed");
+            li.find('i').toggleClass("" + intermine.icons.Yes + " " + intermine.icons.No);
+            return li.find('span').toggleClass("label-success label-default");
+          });
+          return li.appendTo(seqFeatCols);
+        });
+        _ref = this.query.getViewNodes();
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          node = _ref[_i];
+          if (node.isa('SequenceFeature')) {
+            this.seqFeatures.add({
+              path: node,
+              included: true
+            });
+          }
+        }
+        if (this.seqFeatures.isEmpty()) {
+          seqFeatCols.append("<li>\n    <span class=\"label label-important\">\n    " + intermine.messages.actions.NoSuitableColumns + "\n    </span>\n</li>");
+        }
+        return seqFeatCols.appendTo(l);
       };
 
       ExportDialogue.prototype.initCols = function() {
@@ -3178,14 +3248,23 @@
       };
 
       ExportDialogue.prototype.initFormats = function() {
-        var format, select, _i, _len, _results;
+        var format, formatToOpt, select, _i, _j, _len, _len1, _results;
         select = this.$('.im-export-format');
-        _results = [];
+        formatToOpt = function(format) {
+          return "<option value=\"" + format.extension + "\">\n    " + format.name + "\n</option>";
+        };
         for (_i = 0, _len = EXPORT_FORMATS.length; _i < _len; _i++) {
           format = EXPORT_FORMATS[_i];
-          _results.push(select.append("<option value=\"" + format.extension + "\">" + format.name + "</option>"));
+          select.append(formatToOpt(format));
         }
-        return _results;
+        if (intermine.utils.modelIsBio(this.query.model)) {
+          _results = [];
+          for (_j = 0, _len1 = BIO_FORMATS.length; _j < _len1; _j++) {
+            format = BIO_FORMATS[_j];
+            _results.push(select.append(formatToOpt(format)));
+          }
+          return _results;
+        }
       };
 
       ExportDialogue.prototype.render = function() {
@@ -3401,14 +3480,14 @@
     ];
     BIO_FORMATS = [
       {
+        name: "GFF3",
+        extension: "gff3"
+      }, {
         name: "UCSC-BED",
         extension: "bed"
       }, {
         name: "FASTA",
         extension: "fasta"
-      }, {
-        name: "GFF3",
-        extension: "gff3"
       }
     ];
     CODE_GEN_LANGS = [
@@ -4333,6 +4412,10 @@
         return _(params).chain().select(function(p) {
           return p.name === name;
         }).pluck('value').first().value();
+      };
+
+      utils.modelIsBio = function(model) {
+        return !!(model != null ? model.classes['Gene'] : void 0);
       };
 
       utils.getOrganisms = function(query, cb) {

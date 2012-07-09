@@ -576,6 +576,14 @@ table.table thead .sorting_desc_disabled {
     display: inline-block;
 }
 
+.im-export-dialogue .im-export-options label {
+    display: block;
+}
+.im-export-dialogue .im-export-options label:after {
+    content: ' ';
+    clear: both;
+}
+
 .bootstrap .label a {
     color: white;
 }
@@ -604,6 +612,11 @@ table.table thead .sorting_desc_disabled {
 
 .im-export-dialogue .modal-footer .btn-primary {
     margin-left: 1em;
+}
+
+.im-export-dialogue .im-sequence-features li {
+    display: inline-block;
+    margin-right: 1em;
 }
 
 ul.im-cols {

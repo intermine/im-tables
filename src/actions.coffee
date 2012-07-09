@@ -3,6 +3,8 @@ scope "intermine.options", {
 }
 
 scope "intermine.icons", {
+    Yes: "icon-star",
+    No: "icon-star-empty",
     Script: "icon-beaker",
     Export: "icon-download-alt",
     Remove: "icon-minus-sign",
@@ -49,6 +51,13 @@ scope "intermine.messages.actions", {
             <b>You are strongly discouraged from specifying specific ranges for export</b>. If
             you do specify a certain range, please check that you did in fact get all the 
             results you wanted.
+        """
+    IncludedFeatures: "Sequence Features In this Query:"
+    NoSuitableColumns: """
+            There are no columns of a suitable type for this format.
+        """
+    ChrPrefix: """
+            Prefix "chr" to the chromosome identifier as per UCSC convention (eg: chr2)
         """
 }
 
@@ -421,17 +430,84 @@ scope "intermine.query.actions", (exporting) ->
         updateFormatOptions: () =>
             opts = @$('.im-export-options').empty()
             requestInfo = @requestInfo
+            format = requestInfo.get 'format'
 
-            if requestInfo.get('format') in ['tab', 'csv']
-                opts.append """
-                    <label>
-                        <span class="span4">
-                            #{ intermine.messages.actions.ColumnHeaders }
+            if format in BIO_FORMATS.map( (f) -> f.extension )
+                @requestInfo.set allCols: true
+                @$('.im-all-cols').attr disabled: true
+            else
+                @$('.im-all-cols').attr disabled: false
+
+            switch format
+                when 'tab', 'csv'
+                    opts.append """
+                        <label>
+                            <span class="span4">
+                                #{ intermine.messages.actions.ColumnHeaders }
+                            </span>
+                            <input type="checkbox" class="im-column-headers span8">
+                        </label>
+                    """
+                    opts.find('.im-column-headers').change (e) ->
+                        requestInfo.set 'columnHeaders', $(@).is ':checked'
+                when 'bed'
+                    opts.append """
+                        <label>
+                            <span class="span4">
+                                #{ intermine.messages.actions.ChrPrefix }
+                            </span>
+                            <input type="checkbox" class="im-column-headers span8">
+                            <div style="clear:both"></div>
+                        </label>
+                    """
+                    @addSeqFeatureSelector()
+                when 'gff3'
+                    @addSeqFeatureSelector()
+
+        addSeqFeatureSelector: () ->
+            opts = @$('.im-export-options')
+            l = $ """
+                <label>
+                    <span class="span4">
+                        #{ intermine.messages.actions.IncludedFeatures }
+                    </span>
+                </label>
+            """
+            l.appendTo opts
+            seqFeatCols = $ '<ul class="well span8 im-sequence-features">'
+            @seqFeatures = new Backbone.Collection
+            @seqFeatures.on 'add', (col) =>
+                path = col.get 'path'
+                li = $ '<li>'
+                path.getDisplayName (name) ->
+                    li.append """
+                        <span class="label label-success">
+                            <a href="#">
+                                <i class="#{ if col.get('included') then intermine.icons.Yes else intermine.icons.No }"></i>
+                                #{ name }
+                            </a>
                         </span>
-                        <input type="checkbox" class="im-column-headers span8">
-                    </label>
+                    """
+                    li.find('a').click () ->
+                        col.set included: !col.get('included')
+                col.on 'change:included', () ->
+                    console.log "Changed"
+                    li.find('i').toggleClass "#{intermine.icons.Yes} #{intermine.icons.No}"
+                    li.find('span').toggleClass "label-success label-default"
+                li.appendTo seqFeatCols
+
+            for node in @query.getViewNodes()
+                if node.isa 'SequenceFeature'
+                    @seqFeatures.add path: node, included: true
+            if @seqFeatures.isEmpty()
+                seqFeatCols.append """
+                    <li>
+                        <span class="label label-important">
+                        #{ intermine.messages.actions.NoSuitableColumns}
+                        </span>
+                    </li>
                 """
-                opts.find('.im-column-headers').change (e) -> requestInfo.set 'columnHeaders', $(@).is ':checked'
+            seqFeatCols.appendTo l
 
         initCols: () =>
             @$('.im-cols li').remove()
@@ -489,8 +565,17 @@ scope "intermine.query.actions", (exporting) ->
 
         initFormats: () ->
             select = @$ '.im-export-format'
+            formatToOpt = (format) ->  """
+                <option value="#{format.extension}">
+                    #{format.name}
+                </option>
+            """
+
             for format in EXPORT_FORMATS
-                select.append """<option value="#{format.extension}">#{format.name}</option>"""
+                select.append formatToOpt format
+            if intermine.utils.modelIsBio @query.model
+                for format in BIO_FORMATS
+                    select.append formatToOpt format
 
         render: () ->
 
@@ -664,9 +749,9 @@ scope "intermine.query.actions", (exporting) ->
     ]
 
     BIO_FORMATS = [
+        {name: "GFF3", extension: "gff3"},
         {name: "UCSC-BED", extension: "bed"},
-        {name: "FASTA", extension: "fasta"},
-        {name: "GFF3", extension: "gff3"}
+        {name: "FASTA", extension: "fasta"}
     ]
 
     CODE_GEN_LANGS = [

@@ -33,6 +33,8 @@ scope "intermine", (exporting) ->
         @getParameter = (params, name) ->
             _(params).chain().select((p) -> p.name == name).pluck('value').first().value()
 
+        @modelIsBio = (model) -> !!model?.classes['Gene']
+
         @getOrganisms = (query, cb) ->
             restrictedOrganisms = (c.value for c in query.constraints when c.path.match(/(o|O)rganism/))
             if restrictedOrganisms.length
