@@ -400,6 +400,7 @@ scope "intermine.query.actions", (exporting) ->
                 else
                     @exportedCols.map(toPath) unless @requestInfo.get('allCols')
             q.select columns if columns?
+            q.orderBy([]) if (f in _.pluck BIO_FORMATS, 'extension')
             uri = q.getExportURI @requestInfo.get 'format'
             uri += @getExtraOptions()
             return uri

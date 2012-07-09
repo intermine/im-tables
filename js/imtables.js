@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Mon Jul 09 2012 17:26:48 GMT+0100 (BST)
+ * Built at Mon Jul 09 2012 17:33:57 GMT+0100 (BST)
 */
 
 
@@ -3053,6 +3053,9 @@
         }).call(this);
         if (columns != null) {
           q.select(columns);
+        }
+        if ((__indexOf.call(_.pluck(BIO_FORMATS, 'extension'), f) >= 0)) {
+          q.orderBy([]);
         }
         uri = q.getExportURI(this.requestInfo.get('format'));
         uri += this.getExtraOptions();
