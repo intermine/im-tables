@@ -596,6 +596,16 @@ table.table thead .sorting_desc_disabled {
     margin-top: 2em;
 }
 
+.im-export-dialogue .im-galaxy-options,
+.im-export-dialogue .im-row-selection, 
+.im-export-dialogue .im-col-options {
+    display: none;
+}
+
+.im-export-dialogue .modal-footer .btn-primary {
+    margin-left: 1em;
+}
+
 ul.im-cols {
     margin: 0.2em 0.3em;
     float: right;

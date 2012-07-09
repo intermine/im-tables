@@ -1,3 +1,7 @@
+scope "intermine.options", {
+    GalaxyMain: "http://main.g2.bx.psu.edu",
+}
+
 scope "intermine.icons", {
     Script: "icon-beaker",
     Export: "icon-download-alt",
@@ -8,14 +12,24 @@ scope "intermine.icons", {
 
 scope "intermine.messages.actions", {
     ExportTitle: "Download Results",
+    ExportHelp: "Download file containing results to your computer",
     ExportButton: "Download",
     ExportFormat: "Format",
     Cancel: "Cancel",
     Export: "Download",
-    SendToGalaxy: "Send to Galaxy",
-    AllRows: "All Rows",
+    SendToGalaxy: "Send to Galaxy Main",
+    GalaxyHelp: "Start a file upload job within Galaxy",
+    GalaxyURILabel: "Your Galaxy URI:",
+    GalaxyAlt: "Send to a Different Galaxy",
+    GalaxyAuthExplanation: """
+            If you have already logged into Galaxy with this browser, then the data
+            will be sent into your active account. Otherwise it will appear in a 
+            temporary anonymous account.
+        """
+    SendToOtherGalaxy: "Send",
+    AllRows: "All Rows in Result Set",
     RowsHelp: "Uncheck this box to select a range of rows from the result set",
-    AllColumns: "All Columns",
+    AllColumns: "All columns on table",
     ColumnsHelp: "Uncheck this box to select different columns for export than those in the table",
     FirstRow: "From",
     LastRow: "To",
@@ -170,6 +184,32 @@ scope "intermine.query.actions", (exporting) ->
         tagName: "li"
         className: "im-export-dialogue dropdown"
 
+        initialize: (@query) ->
+            @requestInfo = new Backbone.Model
+                format: 'tab'
+                allRows: true
+                allCols: true
+                start: 0
+                galaxyMain: intermine.options.GalaxyMain
+                galaxyAlt: intermine.options.GalaxyMain
+            @exportedCols = new Backbone.Collection
+            for v in @query.views
+                @exportedCols.add path: @query.getPathInfo v
+            @requestInfo.on 'change:allRows', (m, allRows) =>
+                @$('.im-row-selection').toggle not allRows
+                @$('.im-all-rows').attr checked: allRows
+            @requestInfo.on 'change:allCols', (m, allCols) =>
+                @$('.im-col-options').toggle not allCols
+                @$('.im-all-cols').attr checked: allCols
+            @requestInfo.on 'change:format', @updateFormatOptions
+            @requestInfo.on 'change:start', (m, start) =>
+                @$('.im-first-row').val start
+                @$('.im-row-range-slider').slider 'option', 'values', [start, m.get('end')]
+            @requestInfo.on 'change:end', (m, end) =>
+                @$('.im-last-row').val end
+                @$('.im-row-range-slider').slider 'option', 'values', [m.get('start'), end]
+            @exportedCols.on 'add remove reset', @initCols
+
         html: """
             <a class="btn im-open-dialogue" href="#">
                 <i class="#{ intermine.icons.Export }"></i>
@@ -195,7 +235,7 @@ scope "intermine.query.actions", (exporting) ->
                             </span>
                             <input type="checkbox" checked class="im-all-cols span8">
                         </label>
-                        <div class="im-col-options disabled">
+                        <div class="im-col-options">
                             <ul class="well im-cols im-can-be-exported-cols">
                                 <h4>#{ intermine.messages.actions.PossibleColumns }</h4>
                             </ul>
@@ -219,11 +259,11 @@ scope "intermine.query.actions", (exporting) ->
                         <fieldset class="im-row-selection control-group">
                             <label class="control-label">
                                 #{ intermine.messages.actions.FirstRow }
-                                <input type="text" value="0" class="disabled input-mini im-first-row">
+                                <input type="text" value="0" class="disabled input-mini im-first-row im-range-limit">
                             </label>
                             <label class="control-label">
                                 #{ intermine.messages.actions.LastRow }
-                                <input type="text" class="disabled input-mini im-last-row">
+                                <input type="text" class="disabled input-mini im-last-row im-range-limit">
                             </label>
                             <div style="clear:both"></div>
                             <div class="slider im-row-range-slider"></div>
@@ -234,17 +274,36 @@ scope "intermine.query.actions", (exporting) ->
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <div class="btn-group pull-right">
-                        <button class="btn btn-alt">
+                    <button class="btn btn-primary pull-right" title="#{ intermine.messages.actions.ExportHelp }">
+                        #{ intermine.messages.actions.Export }
+                    </button>
+                    <div class="btn-group btn-alt pull-right">
+                        <button class="btn btn-galaxy" title="#{intermine.messages.actions.GalaxyHelp}">
                             #{ intermine.messages.actions.SendToGalaxy }
                         </button>
-                        <button class="btn btn-primary">
-                            #{ intermine.messages.actions.Export }
+                        <button title="#{intermine.messages.actions.GalaxyAlt}" 
+                            class="btn dropdown-toggle galaxy-toggle" data-toggle="dropdown">
+                            <span class="caret"></span>
                         </button>
                     </div>
                     <button class="btn btn-cancel pull-left">
                         #{ intermine.messages.actions.Cancel }
                     </button>
+                    <form class="well form-inline im-galaxy-options">
+                        <label>
+                            #{ intermine.messages.actions.GalaxyURILabel }
+                            <input type="text" class="im-galaxy-uri input-xlarge" 
+                                value="#{ intermine.options.GalaxyMain }">
+                        </label>
+                        <button type="submit" class="btn">
+                            #{ intermine.messages.actions.SendToOtherGalaxy }
+                        </button>
+                        <div class="alert alert-info">
+                            <button class="close" data-dismiss="alert">×</button>
+                            <strong>ps</strong>
+                            #{ intermine.messages.actions.GalaxyAuthExplanation }
+                        </div>
+                    </form>
                 </div>
             </div>
         """
@@ -254,19 +313,82 @@ scope "intermine.query.actions", (exporting) ->
             'change .im-all-rows': 'toggleRowSelection'
             'click a.im-open-dialogue': 'openDialogue'
             'click .btn-cancel': 'stop'
-            'change .im-export-format': 'updateFormatOptions'
+            'change .im-export-format': 'updateFormat'
             'click button.btn-primary': 'export'
+            'click button.galaxy-toggle': 'toggleGalaxyOptions'
+            'change .im-galaxy-uri': 'changeGalaxyURI'
+            'click .btn-galaxy': 'sendToGalaxy'
+            'submit .im-galaxy-options': 'sendToAltGalaxy'
+            'change .im-first-row': 'changeStart'
+            'change .im-last-row': 'changeEnd'
+            'keyup .im-range-limit': 'keyPressOnLimit'
 
-        export: (e) ->
-            uri = @query.getExportURI @format
+        keyPressOnLimit: (e) ->
+            input = $(e.target)
+            switch e.keyCode
+                when 38 # UP
+                    input.val 1 + parseInt input.val()
+                    input.change()
+                when 40 # DOWN
+                    input.val parseInt(input.val()) - 1
+                    input.change()
+
+        changeStart: (e) ->
+            @requestInfo.set start: parseInt @$('.im-first-row').val()
+
+        changeEnd: (e) ->
+            @requestInfo.set end: parseInt @$('.im-last-row').val()
+
+        sendToGalaxy: (e) ->
+            e.stopPropagation()
+            e.preventDefault()
+            @doGalaxy @requestInfo.get('galaxyMain')
+
+        sendToAltGalaxy: (e) ->
+            e.stopPropagation()
+            e.preventDefault()
+            @doGalaxy @requestInfo.get('galaxyAlt')
+
+        doGalaxy: (galaxy) ->
+            console.log "Sending to #{ galaxy }"
+            uri = @getExportURI()
+            format = @requestInfo.get 'format'
+            qLists = (c.value for c in @query when c.op is 'IN')
+            intermine.utils.getOrganisms @query, (orgs) =>
+                openWindowWithPost "#{ galaxy }/tool_runner", "Upload",
+                    tool_id: 'flymine' # name of tool within galaxy that does uploads.
+                    organism: orgs.join(', ')
+                    URL: uri
+                    name: "#{ if orgs.length is 1 then orgs[0] + ' ' else ''}#{ @query.root } data"
+                    data_type: if format is 'tab' then 'tabular' else format
+                    info: """
+                        #{ @query.root } data from #{ @query.service.root }.
+                        Uploaded from #{ window.location.toString().replace(/\?.*/, '') }.
+                        #{ if qLists.length then ' source: ' + lists.join(', ') else '' }
+                        #{ if orgs.length then ' organisms: ' + orgs.join(', ') else '' }
+                    """
+
+        changeGalaxyURI: (e) ->
+            @requestInfo.set galaxyAlt: @$('.im-galaxy-uri').val()
+
+        toggleGalaxyOptions: (e) ->
+            @$('.im-galaxy-options').slideToggle('fast')
+
+        export: (e) -> window.open @getExportURI()
+
+        getExportURI: () ->
+            q = @query.clone()
+            unless @requestInfo.get 'allCols'
+                q.select @exportedCols.map (col) -> col.get 'path'
+            uri = q.getExportURI @requestInfo.get 'format'
             uri += @getExtraOptions()
-            window.open(uri)
+            return uri
 
         getExtraOptions: () ->
             ret = ""
-            if @$('.im-column-headers').is ':checked'
+            if @requestInfo.get 'columnHeaders'
                 ret += "&columnheaders=1"
-            unless @wantsAll
+            unless @requestInfo.get 'allRows'
                 start = parseInt @$('.im-first-row').val()
                 end = parseInt @$('.im-last-row').val()
                 ret += "&start=#{ start }"
@@ -274,17 +396,9 @@ scope "intermine.query.actions", (exporting) ->
                     ret += "&size=#{ end - start }"
             ret
 
-        wantsAll: true
+        toggleColSelection: (e) -> @requestInfo.set allCols: @$('.im-all-cols').is ':checked'
 
-        toggleColSelection: (e) ->
-            @allCols = @$('.im-all-cols').is ':checked'
-            @$('.im-col-options').toggleClass 'disabled', @allCols
-
-        toggleRowSelection: (e) ->
-            @wantsAll = @$('.im-all-rows').is ':checked'
-            @$('.im-row-selection').toggle not @wantsAll
-            #@$('.im-row-selection input').attr(disabled: @wantsAll).toggleClass('disabled', @wantsAll)
-            #@$('.slider').slider 'option', disabled: @wantsAll
+        toggleRowSelection: (e) -> @requestInfo.set allRows: @$('.im-all-rows').is ':checked'
 
         openDialogue: (e) -> @$('.modal').modal('show')
 
@@ -293,22 +407,22 @@ scope "intermine.query.actions", (exporting) ->
             @reset()
 
         reset: () -> # Go back to the initial state...
-            @$('.im-all-cols').attr checked: true
-            @$('.im-all-rows').attr checked: true
-            @$('.im-export-format').val EXPORT_FORMATS[0].extension
-            @exportedCols = @query.views.slice()
+            @requestInfo.set
+                format: EXPORT_FORMATS[0].extension
+                allCols: true
+                allRows: true
+                start: 0
+                end: @count
 
-            @initCols()
-            @toggleColSelection()
-            @updateFormatOptions()
+            @exportedCols.reset @query.views.map (v) => path: @query.getPathInfo v
 
-            @$('.slider').slider('destroy')
-            @makeSlider()
+        updateFormat: (e) -> @requestInfo.set format: @$('.im-export-format').val()
 
-        updateFormatOptions: (e) ->
+        updateFormatOptions: () =>
             opts = @$('.im-export-options').empty()
-            @format = @$('.im-export-format').val()
-            if @format in ['tab', 'csv']
+            requestInfo = @requestInfo
+
+            if requestInfo.get('format') in ['tab', 'csv']
                 opts.append """
                     <label>
                         <span class="span4">
@@ -317,37 +431,38 @@ scope "intermine.query.actions", (exporting) ->
                         <input type="checkbox" class="im-column-headers span8">
                     </label>
                 """
+                opts.find('.im-column-headers').change (e) -> requestInfo.set 'columnHeaders', $(@).is ':checked'
 
-        initialize: (@query) ->
-
-        initCols: () ->
+        initCols: () =>
             @$('.im-cols li').remove()
 
+            emphasise = (elem) ->
+                elem.addClass 'active'
+                _.delay (() -> elem.removeClass 'active'), 1000
+
             cols = @$ '.im-exported-cols'
-            for v in @exportedCols
-                p = @query.getPathInfo(v)
+            @exportedCols.each (col) =>
+                path = col.get 'path'
                 li = $ """<li></li>"""
                 li.appendTo cols
-                do (p, li) =>
-                    p.getDisplayName (name) =>
-                        li.append """
-                            <div class="label label-success">
-                                <i class="#{intermine.icons.Move} im-move pull-right"></i>
-                                <a href="#"><i class="#{intermine.icons.Remove}"></i></a>
-                                #{ name }
-                            </div>
-                        """
-                        li.find('a').click () =>
-                            @exportedCols = _.without @exportedCols, p.toString()
-                            maybes.addClass('active')
-                            _.delay (() -> maybes.removeClass('active')), 1000
-                            @initCols()
+                path.getDisplayName (name) =>
+                    li.append """
+                        <div class="label label-success">
+                            <i class="#{intermine.icons.Move} im-move pull-right"></i>
+                            <a href="#"><i class="#{intermine.icons.Remove}"></i></a>
+                            #{ name }
+                        </div>
+                    """
+                    li.find('a').click () =>
+                        @exportedCols.remove col
+                        emphasise maybes
 
-            cols.sortable()
+            cols.sortable
+                placeholder: 'ui-state-highlight'
 
             maybes = @$ '.im-can-be-exported-cols'
             for n in @query.getQueryNodes()
-                for cn in n.getChildNodes() when cn.isAttribute() and cn.toString() not in @exportedCols
+                for cn in n.getChildNodes() when cn.isAttribute() and not @exportedCols.any((path) -> path.toString() is cn.toString())
                     li = $ """<li></li>"""
                     li.appendTo maybes
                     do (cn, li) =>
@@ -359,25 +474,10 @@ scope "intermine.query.actions", (exporting) ->
                                 </div>
                             """
                             li.find('a').click (e) =>
-                                @exportedCols.push cn.toString()
-                                cols.addClass('active')
-                                _.delay (() -> cols.removeClass('active')), 1000
-                                @initCols()
+                                @exportedCols.add path: cn
+                                emphasise cols
 
-        render: () ->
-
-            @$el.append @html
-            select = @$ '.im-export-format'
-
-            for format in EXPORT_FORMATS
-                select.append """<option value="#{format.extension}">#{format.name}</option>"""
-
-            @exportedCols = @query.views.slice()
-
-            @initCols()
-            @toggleColSelection()
-            @updateFormatOptions()
-
+        warnOfOuterJoinedCollections: () ->
             if _.any(@query.joins, (s, p) => (s is 'OUTER') and @query.canHaveMultipleValues(p))
                 @$('.im-row-selection').append """
                         <div class="alert alert-warning">
@@ -387,6 +487,22 @@ scope "intermine.query.actions", (exporting) ->
                         </div>
                     """
 
+        initFormats: () ->
+            select = @$ '.im-export-format'
+            for format in EXPORT_FORMATS
+                select.append """<option value="#{format.extension}">#{format.name}</option>"""
+
+        render: () ->
+
+            @$el.append @html
+            @$('.modal-footer .btn').tooltip()
+
+
+            @initFormats()
+            @initCols()
+            @toggleColSelection()
+            @updateFormatOptions()
+            @warnOfOuterJoinedCollections()
             @makeSlider()
 
             @$el.find('.modal').hide()
@@ -396,16 +512,14 @@ scope "intermine.query.actions", (exporting) ->
         makeSlider: () ->
             @query.count (c) =>
                 @count = c
-                @$('.im-last-row').val c
+                @requestInfo.set end: c
                 sl = @$('.slider').slider
                     range: true,
                     min: 0,
                     max: c,
                     values: [0, c],
                     step: 1,
-                    slide: (e, ui)  =>
-                        @$('.im-first-row').val ui.values[0]
-                        @$('.im-last-row').val ui.values[1]
+                    slide: (e, ui)  => @requestInfo.set start: ui.values[0], end: ui.values[1]
                 @toggleRowSelection()
 
 
@@ -554,29 +668,6 @@ scope "intermine.query.actions", (exporting) ->
         {name: "FASTA", extension: "fasta"},
         {name: "GFF3", extension: "gff3"}
     ]
-
-
-        
-
-    #
-    #    galaxy: (uri) ->
-    #        lists = (c.value for c in @query.constraints when c.op is "IN")
-    #        intermine.utils.getOrganisms @query, (orgs) =>
-    #            req =
-    #                "tool_id": "flymine"
-    #                "organism": orgs.join(", ")
-    #                "info": """
-    #                    #{ @query.root } data from #{ @query.service.root } 
-    #                    Uploaded from #{ window.location.toString().replace(/\?.*/, "") }.
-    #                    #{ if lists.length then ' source: ' + lists.join(",") else "" }
-    #                   #{ if orgs.length then ' organisms: ' else ""}#{orgs.join(",")} 
-    #                """
-    #                "URL": uri
-    #                "name": "#{ if orgs.length is 1 then orgs[0] + ' ' else ""}#{ @query.root } data"
-    #                "data_type": if @format is "tab" then "tabular" else @format
-    #
-    #            openWindowWithPost "http://main.g2.bx.psu.edu/tool_runner", "Upload", req
-    #
 
     CODE_GEN_LANGS = [
         {name: "Perl", extension: "pl"},

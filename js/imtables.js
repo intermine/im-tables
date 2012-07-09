@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Fri Jul 06 2012 20:09:45 GMT+0100 (BST)
+ * Built at Mon Jul 09 2012 13:09:13 GMT+0100 (BST)
 */
 
 
@@ -2564,6 +2564,10 @@
     })(Backbone.View);
   });
 
+  scope("intermine.options", {
+    GalaxyMain: "http://main.g2.bx.psu.edu"
+  });
+
   scope("intermine.icons", {
     Script: "icon-beaker",
     Export: "icon-download-alt",
@@ -2574,14 +2578,20 @@
 
   scope("intermine.messages.actions", {
     ExportTitle: "Download Results",
+    ExportHelp: "Download file containing results to your computer",
     ExportButton: "Download",
     ExportFormat: "Format",
     Cancel: "Cancel",
     Export: "Download",
-    SendToGalaxy: "Send to Galaxy",
-    AllRows: "All Rows",
+    SendToGalaxy: "Send to Galaxy Main",
+    GalaxyHelp: "Start a file upload job within Galaxy",
+    GalaxyURILabel: "Your Galaxy URI:",
+    GalaxyAlt: "Send to a Different Galaxy",
+    GalaxyAuthExplanation: "If you have already logged into Galaxy with this browser, then the data\nwill be sent into your active account. Otherwise it will appear in a \ntemporary anonymous account.",
+    SendToOtherGalaxy: "Send",
+    AllRows: "All Rows in Result Set",
     RowsHelp: "Uncheck this box to select a range of rows from the result set",
-    AllColumns: "All Columns",
+    AllColumns: "All columns on table",
     ColumnsHelp: "Uncheck this box to select different columns for export than those in the table",
     FirstRow: "From",
     LastRow: "To",
@@ -2856,6 +2866,9 @@
       __extends(ExportDialogue, _super);
 
       function ExportDialogue() {
+        this.initCols = __bind(this.initCols, this);
+
+        this.updateFormatOptions = __bind(this.updateFormatOptions, this);
         return ExportDialogue.__super__.constructor.apply(this, arguments);
       }
 
@@ -2863,31 +2876,169 @@
 
       ExportDialogue.prototype.className = "im-export-dialogue dropdown";
 
-      ExportDialogue.prototype.html = "<a class=\"btn im-open-dialogue\" href=\"#\">\n    <i class=\"" + intermine.icons.Export + "\"></i>\n    " + intermine.messages.actions.ExportButton + "\n</a>\n<div class=\"modal fade\">\n    <div class=\"modal-header\">\n        <a class=\"close btn-cancel\">close</a>\n        <h2>" + intermine.messages.actions.ExportTitle + "</h2>\n    </div>\n    <div class=\"modal-body\">\n        <form class=\"form row-fluid\">\n            <label>\n                <span class=\"span4\">\n                    " + intermine.messages.actions.ExportFormat + "\n                </span>\n                <select class=\"im-export-format input-xlarge span8\">\n                </select>\n            </label>\n            <label title=\"" + intermine.messages.actions.ColumnsHelp + "\">\n                <span class=\"span4\">\n                    " + intermine.messages.actions.AllColumns + "\n                </span>\n                <input type=\"checkbox\" checked class=\"im-all-cols span8\">\n            </label>\n            <div class=\"im-col-options disabled\">\n                <ul class=\"well im-cols im-can-be-exported-cols\">\n                    <h4>" + intermine.messages.actions.PossibleColumns + "</h4>\n                </ul>\n                <ul class=\"well im-cols im-exported-cols\">\n                    <h4>" + intermine.messages.actions.ExportedColumns + "</h4>\n                </ul>\n                <div style=\"clear:both;\"></div>\n                <div class=\"alert alert-info\">\n                    <button class=\"close\" data-dismiss=\"alert\">×</button>\n                    <strong>ps</strong>\n                    <p>" + intermine.messages.actions.ChangeColumns + "</p>\n                </div>\n            </div>\n            <label title=\"" + intermine.messages.actions.RowsHelp + "\">\n                <span class=\"span4\">\n                    " + intermine.messages.actions.AllRows + "\n                 </span>\n                <input type=\"checkbox\" checked class=\"im-all-rows span8\">\n            </label>\n            <div class=\"form-horizontal\">\n            <fieldset class=\"im-row-selection control-group\">\n                <label class=\"control-label\">\n                    " + intermine.messages.actions.FirstRow + "\n                    <input type=\"text\" value=\"0\" class=\"disabled input-mini im-first-row\">\n                </label>\n                <label class=\"control-label\">\n                    " + intermine.messages.actions.LastRow + "\n                    <input type=\"text\" class=\"disabled input-mini im-last-row\">\n                </label>\n                <div style=\"clear:both\"></div>\n                <div class=\"slider im-row-range-slider\"></div>\n            </fieldset>\n            </div>\n            <fieldset class=\"im-export-options\">\n            </fieldset>\n        </form>\n    </div>\n    <div class=\"modal-footer\">\n        <div class=\"btn-group pull-right\">\n            <button class=\"btn btn-alt\">\n                " + intermine.messages.actions.SendToGalaxy + "\n            </button>\n            <button class=\"btn btn-primary\">\n                " + intermine.messages.actions.Export + "\n            </button>\n        </div>\n        <button class=\"btn btn-cancel pull-left\">\n            " + intermine.messages.actions.Cancel + "\n        </button>\n    </div>\n</div>";
+      ExportDialogue.prototype.initialize = function(query) {
+        var v, _i, _len, _ref,
+          _this = this;
+        this.query = query;
+        this.requestInfo = new Backbone.Model({
+          format: 'tab',
+          allRows: true,
+          allCols: true,
+          start: 0,
+          galaxyMain: intermine.options.GalaxyMain,
+          galaxyAlt: intermine.options.GalaxyMain
+        });
+        this.exportedCols = new Backbone.Collection;
+        _ref = this.query.views;
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          v = _ref[_i];
+          this.exportedCols.add({
+            path: this.query.getPathInfo(v)
+          });
+        }
+        this.requestInfo.on('change:allRows', function(m, allRows) {
+          _this.$('.im-row-selection').toggle(!allRows);
+          return _this.$('.im-all-rows').attr({
+            checked: allRows
+          });
+        });
+        this.requestInfo.on('change:allCols', function(m, allCols) {
+          _this.$('.im-col-options').toggle(!allCols);
+          return _this.$('.im-all-cols').attr({
+            checked: allCols
+          });
+        });
+        this.requestInfo.on('change:format', this.updateFormatOptions);
+        this.requestInfo.on('change:start', function(m, start) {
+          _this.$('.im-first-row').val(start);
+          return _this.$('.im-row-range-slider').slider('option', 'values', [start, m.get('end')]);
+        });
+        this.requestInfo.on('change:end', function(m, end) {
+          _this.$('.im-last-row').val(end);
+          return _this.$('.im-row-range-slider').slider('option', 'values', [m.get('start'), end]);
+        });
+        return this.exportedCols.on('add remove reset', this.initCols);
+      };
+
+      ExportDialogue.prototype.html = "<a class=\"btn im-open-dialogue\" href=\"#\">\n    <i class=\"" + intermine.icons.Export + "\"></i>\n    " + intermine.messages.actions.ExportButton + "\n</a>\n<div class=\"modal fade\">\n    <div class=\"modal-header\">\n        <a class=\"close btn-cancel\">close</a>\n        <h2>" + intermine.messages.actions.ExportTitle + "</h2>\n    </div>\n    <div class=\"modal-body\">\n        <form class=\"form row-fluid\">\n            <label>\n                <span class=\"span4\">\n                    " + intermine.messages.actions.ExportFormat + "\n                </span>\n                <select class=\"im-export-format input-xlarge span8\">\n                </select>\n            </label>\n            <label title=\"" + intermine.messages.actions.ColumnsHelp + "\">\n                <span class=\"span4\">\n                    " + intermine.messages.actions.AllColumns + "\n                </span>\n                <input type=\"checkbox\" checked class=\"im-all-cols span8\">\n            </label>\n            <div class=\"im-col-options\">\n                <ul class=\"well im-cols im-can-be-exported-cols\">\n                    <h4>" + intermine.messages.actions.PossibleColumns + "</h4>\n                </ul>\n                <ul class=\"well im-cols im-exported-cols\">\n                    <h4>" + intermine.messages.actions.ExportedColumns + "</h4>\n                </ul>\n                <div style=\"clear:both;\"></div>\n                <div class=\"alert alert-info\">\n                    <button class=\"close\" data-dismiss=\"alert\">×</button>\n                    <strong>ps</strong>\n                    <p>" + intermine.messages.actions.ChangeColumns + "</p>\n                </div>\n            </div>\n            <label title=\"" + intermine.messages.actions.RowsHelp + "\">\n                <span class=\"span4\">\n                    " + intermine.messages.actions.AllRows + "\n                 </span>\n                <input type=\"checkbox\" checked class=\"im-all-rows span8\">\n            </label>\n            <div class=\"form-horizontal\">\n            <fieldset class=\"im-row-selection control-group\">\n                <label class=\"control-label\">\n                    " + intermine.messages.actions.FirstRow + "\n                    <input type=\"text\" value=\"0\" class=\"disabled input-mini im-first-row im-range-limit\">\n                </label>\n                <label class=\"control-label\">\n                    " + intermine.messages.actions.LastRow + "\n                    <input type=\"text\" class=\"disabled input-mini im-last-row im-range-limit\">\n                </label>\n                <div style=\"clear:both\"></div>\n                <div class=\"slider im-row-range-slider\"></div>\n            </fieldset>\n            </div>\n            <fieldset class=\"im-export-options\">\n            </fieldset>\n        </form>\n    </div>\n    <div class=\"modal-footer\">\n        <button class=\"btn btn-primary pull-right\" title=\"" + intermine.messages.actions.ExportHelp + "\">\n            " + intermine.messages.actions.Export + "\n        </button>\n        <div class=\"btn-group btn-alt pull-right\">\n            <button class=\"btn btn-galaxy\" title=\"" + intermine.messages.actions.GalaxyHelp + "\">\n                " + intermine.messages.actions.SendToGalaxy + "\n            </button>\n            <button title=\"" + intermine.messages.actions.GalaxyAlt + "\" \n                class=\"btn dropdown-toggle galaxy-toggle\" data-toggle=\"dropdown\">\n                <span class=\"caret\"></span>\n            </button>\n        </div>\n        <button class=\"btn btn-cancel pull-left\">\n            " + intermine.messages.actions.Cancel + "\n        </button>\n        <form class=\"well form-inline im-galaxy-options\">\n            <label>\n                " + intermine.messages.actions.GalaxyURILabel + "\n                <input type=\"text\" class=\"im-galaxy-uri input-xlarge\" \n                    value=\"" + intermine.options.GalaxyMain + "\">\n            </label>\n            <button type=\"submit\" class=\"btn\">\n                " + intermine.messages.actions.SendToOtherGalaxy + "\n            </button>\n            <div class=\"alert alert-info\">\n                <button class=\"close\" data-dismiss=\"alert\">×</button>\n                <strong>ps</strong>\n                " + intermine.messages.actions.GalaxyAuthExplanation + "\n            </div>\n        </form>\n    </div>\n</div>";
 
       ExportDialogue.prototype.events = {
         'change .im-all-cols': 'toggleColSelection',
         'change .im-all-rows': 'toggleRowSelection',
         'click a.im-open-dialogue': 'openDialogue',
         'click .btn-cancel': 'stop',
-        'change .im-export-format': 'updateFormatOptions',
-        'click button.btn-primary': 'export'
+        'change .im-export-format': 'updateFormat',
+        'click button.btn-primary': 'export',
+        'click button.galaxy-toggle': 'toggleGalaxyOptions',
+        'change .im-galaxy-uri': 'changeGalaxyURI',
+        'click .btn-galaxy': 'sendToGalaxy',
+        'submit .im-galaxy-options': 'sendToAltGalaxy',
+        'change .im-first-row': 'changeStart',
+        'change .im-last-row': 'changeEnd',
+        'keyup .im-range-limit': 'keyPressOnLimit'
+      };
+
+      ExportDialogue.prototype.keyPressOnLimit = function(e) {
+        var input;
+        input = $(e.target);
+        switch (e.keyCode) {
+          case 38:
+            input.val(1 + parseInt(input.val()));
+            return input.change();
+          case 40:
+            input.val(parseInt(input.val()) - 1);
+            return input.change();
+        }
+      };
+
+      ExportDialogue.prototype.changeStart = function(e) {
+        return this.requestInfo.set({
+          start: parseInt(this.$('.im-first-row').val())
+        });
+      };
+
+      ExportDialogue.prototype.changeEnd = function(e) {
+        return this.requestInfo.set({
+          end: parseInt(this.$('.im-last-row').val())
+        });
+      };
+
+      ExportDialogue.prototype.sendToGalaxy = function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        return this.doGalaxy(this.requestInfo.get('galaxyMain'));
+      };
+
+      ExportDialogue.prototype.sendToAltGalaxy = function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        return this.doGalaxy(this.requestInfo.get('galaxyAlt'));
+      };
+
+      ExportDialogue.prototype.doGalaxy = function(galaxy) {
+        var c, format, qLists, uri,
+          _this = this;
+        console.log("Sending to " + galaxy);
+        uri = this.getExportURI();
+        format = this.requestInfo.get('format');
+        qLists = (function() {
+          var _i, _len, _ref, _results;
+          _ref = this.query;
+          _results = [];
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            c = _ref[_i];
+            if (c.op === 'IN') {
+              _results.push(c.value);
+            }
+          }
+          return _results;
+        }).call(this);
+        return intermine.utils.getOrganisms(this.query, function(orgs) {
+          return openWindowWithPost("" + galaxy + "/tool_runner", "Upload", {
+            tool_id: 'flymine',
+            organism: orgs.join(', '),
+            URL: uri,
+            name: "" + (orgs.length === 1 ? orgs[0] + ' ' : '') + _this.query.root + " data",
+            data_type: format === 'tab' ? 'tabular' : format,
+            info: "" + _this.query.root + " data from " + _this.query.service.root + ".\nUploaded from " + (window.location.toString().replace(/\?.*/, '')) + ".\n" + (qLists.length ? ' source: ' + lists.join(', ') : '') + "\n" + (orgs.length ? ' organisms: ' + orgs.join(', ') : '')
+          });
+        });
+      };
+
+      ExportDialogue.prototype.changeGalaxyURI = function(e) {
+        return this.requestInfo.set({
+          galaxyAlt: this.$('.im-galaxy-uri').val()
+        });
+      };
+
+      ExportDialogue.prototype.toggleGalaxyOptions = function(e) {
+        return this.$('.im-galaxy-options').slideToggle('fast');
       };
 
       ExportDialogue.prototype["export"] = function(e) {
-        var uri;
-        uri = this.query.getExportURI(this.format);
+        return window.open(this.getExportURI());
+      };
+
+      ExportDialogue.prototype.getExportURI = function() {
+        var q, uri;
+        q = this.query.clone();
+        if (!this.requestInfo.get('allCols')) {
+          q.select(this.exportedCols.map(function(col) {
+            return col.get('path');
+          }));
+        }
+        uri = q.getExportURI(this.requestInfo.get('format'));
         uri += this.getExtraOptions();
-        return window.open(uri);
+        return uri;
       };
 
       ExportDialogue.prototype.getExtraOptions = function() {
         var end, ret, start;
         ret = "";
-        if (this.$('.im-column-headers').is(':checked')) {
+        if (this.requestInfo.get('columnHeaders')) {
           ret += "&columnheaders=1";
         }
-        if (!this.wantsAll) {
+        if (!this.requestInfo.get('allRows')) {
           start = parseInt(this.$('.im-first-row').val());
           end = parseInt(this.$('.im-last-row').val());
           ret += "&start=" + start;
@@ -2898,16 +3049,16 @@
         return ret;
       };
 
-      ExportDialogue.prototype.wantsAll = true;
-
       ExportDialogue.prototype.toggleColSelection = function(e) {
-        this.allCols = this.$('.im-all-cols').is(':checked');
-        return this.$('.im-col-options').toggleClass('disabled', this.allCols);
+        return this.requestInfo.set({
+          allCols: this.$('.im-all-cols').is(':checked')
+        });
       };
 
       ExportDialogue.prototype.toggleRowSelection = function(e) {
-        this.wantsAll = this.$('.im-all-rows').is(':checked');
-        return this.$('.im-row-selection').toggle(!this.wantsAll);
+        return this.requestInfo.set({
+          allRows: this.$('.im-all-rows').is(':checked')
+        });
       };
 
       ExportDialogue.prototype.openDialogue = function(e) {
@@ -2920,74 +3071,81 @@
       };
 
       ExportDialogue.prototype.reset = function() {
-        this.$('.im-all-cols').attr({
-          checked: true
+        var _this = this;
+        this.requestInfo.set({
+          format: EXPORT_FORMATS[0].extension,
+          allCols: true,
+          allRows: true,
+          start: 0,
+          end: this.count
         });
-        this.$('.im-all-rows').attr({
-          checked: true
-        });
-        this.$('.im-export-format').val(EXPORT_FORMATS[0].extension);
-        this.exportedCols = this.query.views.slice();
-        this.initCols();
-        this.toggleColSelection();
-        this.updateFormatOptions();
-        this.$('.slider').slider('destroy');
-        return this.makeSlider();
+        return this.exportedCols.reset(this.query.views.map(function(v) {
+          return {
+            path: _this.query.getPathInfo(v)
+          };
+        }));
       };
 
-      ExportDialogue.prototype.updateFormatOptions = function(e) {
-        var opts, _ref;
+      ExportDialogue.prototype.updateFormat = function(e) {
+        return this.requestInfo.set({
+          format: this.$('.im-export-format').val()
+        });
+      };
+
+      ExportDialogue.prototype.updateFormatOptions = function() {
+        var opts, requestInfo, _ref;
         opts = this.$('.im-export-options').empty();
-        this.format = this.$('.im-export-format').val();
-        if ((_ref = this.format) === 'tab' || _ref === 'csv') {
-          return opts.append("<label>\n    <span class=\"span4\">\n        " + intermine.messages.actions.ColumnHeaders + "\n    </span>\n    <input type=\"checkbox\" class=\"im-column-headers span8\">\n</label>");
+        requestInfo = this.requestInfo;
+        if ((_ref = requestInfo.get('format')) === 'tab' || _ref === 'csv') {
+          opts.append("<label>\n    <span class=\"span4\">\n        " + intermine.messages.actions.ColumnHeaders + "\n    </span>\n    <input type=\"checkbox\" class=\"im-column-headers span8\">\n</label>");
+          return opts.find('.im-column-headers').change(function(e) {
+            return requestInfo.set('columnHeaders', $(this).is(':checked'));
+          });
         }
-      };
-
-      ExportDialogue.prototype.initialize = function(query) {
-        this.query = query;
       };
 
       ExportDialogue.prototype.initCols = function() {
-        var cn, cols, li, maybes, n, p, v, _fn, _i, _j, _len, _len1, _ref, _ref1, _results,
+        var cn, cols, emphasise, li, maybes, n, _i, _len, _ref, _results,
           _this = this;
         this.$('.im-cols li').remove();
-        cols = this.$('.im-exported-cols');
-        _ref = this.exportedCols;
-        _fn = function(p, li) {
-          return p.getDisplayName(function(name) {
-            li.append("<div class=\"label label-success\">\n    <i class=\"" + intermine.icons.Move + " im-move pull-right\"></i>\n    <a href=\"#\"><i class=\"" + intermine.icons.Remove + "\"></i></a>\n    " + name + "\n</div>");
-            return li.find('a').click(function() {
-              _this.exportedCols = _.without(_this.exportedCols, p.toString());
-              maybes.addClass('active');
-              _.delay((function() {
-                return maybes.removeClass('active');
-              }), 1000);
-              return _this.initCols();
-            });
-          });
+        emphasise = function(elem) {
+          elem.addClass('active');
+          return _.delay((function() {
+            return elem.removeClass('active');
+          }), 1000);
         };
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          v = _ref[_i];
-          p = this.query.getPathInfo(v);
+        cols = this.$('.im-exported-cols');
+        this.exportedCols.each(function(col) {
+          var li, path;
+          path = col.get('path');
           li = $("<li></li>");
           li.appendTo(cols);
-          _fn(p, li);
-        }
-        cols.sortable();
+          return path.getDisplayName(function(name) {
+            li.append("<div class=\"label label-success\">\n    <i class=\"" + intermine.icons.Move + " im-move pull-right\"></i>\n    <a href=\"#\"><i class=\"" + intermine.icons.Remove + "\"></i></a>\n    " + name + "\n</div>");
+            return li.find('a').click(function() {
+              _this.exportedCols.remove(col);
+              return emphasise(maybes);
+            });
+          });
+        });
+        cols.sortable({
+          placeholder: 'ui-state-highlight'
+        });
         maybes = this.$('.im-can-be-exported-cols');
-        _ref1 = this.query.getQueryNodes();
+        _ref = this.query.getQueryNodes();
         _results = [];
-        for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-          n = _ref1[_j];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          n = _ref[_i];
           _results.push((function() {
-            var _k, _len2, _ref2, _ref3, _results1,
+            var _j, _len1, _ref1, _results1,
               _this = this;
-            _ref2 = n.getChildNodes();
+            _ref1 = n.getChildNodes();
             _results1 = [];
-            for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
-              cn = _ref2[_k];
-              if (!(cn.isAttribute() && (_ref3 = cn.toString(), __indexOf.call(this.exportedCols, _ref3) < 0))) {
+            for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+              cn = _ref1[_j];
+              if (!(cn.isAttribute() && !this.exportedCols.any(function(path) {
+                return path.toString() === cn.toString();
+              }))) {
                 continue;
               }
               li = $("<li></li>");
@@ -2996,12 +3154,10 @@
                 return cn.getDisplayName(function(name) {
                   li.append("<div class=\"label\">\n    <a href=\"#\"><i class=\"" + intermine.icons.Add + "\"></i></a>\n    " + name + "\n</div>");
                   return li.find('a').click(function(e) {
-                    _this.exportedCols.push(cn.toString());
-                    cols.addClass('active');
-                    _.delay((function() {
-                      return cols.removeClass('active');
-                    }), 1000);
-                    return _this.initCols();
+                    _this.exportedCols.add({
+                      path: cn
+                    });
+                    return emphasise(cols);
                   });
                 });
               })(cn, li));
@@ -3012,24 +3168,34 @@
         return _results;
       };
 
-      ExportDialogue.prototype.render = function() {
-        var format, select, _i, _len,
-          _this = this;
-        this.$el.append(this.html);
-        select = this.$('.im-export-format');
-        for (_i = 0, _len = EXPORT_FORMATS.length; _i < _len; _i++) {
-          format = EXPORT_FORMATS[_i];
-          select.append("<option value=\"" + format.extension + "\">" + format.name + "</option>");
-        }
-        this.exportedCols = this.query.views.slice();
-        this.initCols();
-        this.toggleColSelection();
-        this.updateFormatOptions();
+      ExportDialogue.prototype.warnOfOuterJoinedCollections = function() {
+        var _this = this;
         if (_.any(this.query.joins, function(s, p) {
           return (s === 'OUTER') && _this.query.canHaveMultipleValues(p);
         })) {
-          this.$('.im-row-selection').append("<div class=\"alert alert-warning\">\n    <button class=\"close\" data-dismiss=\"alert\">×</button>\n    <strong>NB</strong>\n    " + intermine.messages.actions.OuterJoinWarning + "\n</div>");
+          return this.$('.im-row-selection').append("<div class=\"alert alert-warning\">\n    <button class=\"close\" data-dismiss=\"alert\">×</button>\n    <strong>NB</strong>\n    " + intermine.messages.actions.OuterJoinWarning + "\n</div>");
         }
+      };
+
+      ExportDialogue.prototype.initFormats = function() {
+        var format, select, _i, _len, _results;
+        select = this.$('.im-export-format');
+        _results = [];
+        for (_i = 0, _len = EXPORT_FORMATS.length; _i < _len; _i++) {
+          format = EXPORT_FORMATS[_i];
+          _results.push(select.append("<option value=\"" + format.extension + "\">" + format.name + "</option>"));
+        }
+        return _results;
+      };
+
+      ExportDialogue.prototype.render = function() {
+        this.$el.append(this.html);
+        this.$('.modal-footer .btn').tooltip();
+        this.initFormats();
+        this.initCols();
+        this.toggleColSelection();
+        this.updateFormatOptions();
+        this.warnOfOuterJoinedCollections();
         this.makeSlider();
         this.$el.find('.modal').hide();
         return this;
@@ -3040,7 +3206,9 @@
         return this.query.count(function(c) {
           var sl;
           _this.count = c;
-          _this.$('.im-last-row').val(c);
+          _this.requestInfo.set({
+            end: c
+          });
           sl = _this.$('.slider').slider({
             range: true,
             min: 0,
@@ -3048,8 +3216,10 @@
             values: [0, c],
             step: 1,
             slide: function(e, ui) {
-              _this.$('.im-first-row').val(ui.values[0]);
-              return _this.$('.im-last-row').val(ui.values[1]);
+              return _this.requestInfo.set({
+                start: ui.values[0],
+                end: ui.values[1]
+              });
             }
           });
           return _this.toggleRowSelection();
