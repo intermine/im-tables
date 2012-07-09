@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Mon Jul 09 2012 17:18:56 GMT+0100 (BST)
+ * Built at Mon Jul 09 2012 17:26:48 GMT+0100 (BST)
 */
 
 
@@ -3348,7 +3348,7 @@
           format = EXPORT_FORMATS[_i];
           select.append(formatToOpt(format));
         }
-        if (intermine.utils.modelIsBio(this.query.model)) {
+        if (intermine.utils.modelIsBio(this.query.service.model)) {
           _results = [];
           for (_j = 0, _len1 = BIO_FORMATS.length; _j < _len1; _j++) {
             format = BIO_FORMATS[_j];

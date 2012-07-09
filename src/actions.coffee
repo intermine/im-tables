@@ -643,7 +643,7 @@ scope "intermine.query.actions", (exporting) ->
 
             for format in EXPORT_FORMATS
                 select.append formatToOpt format
-            if intermine.utils.modelIsBio @query.model
+            if intermine.utils.modelIsBio @query.service.model
                 for format in BIO_FORMATS
                     select.append formatToOpt format
 
