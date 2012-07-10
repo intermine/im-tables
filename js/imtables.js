@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Tue Jul 10 2012 14:05:44 GMT+0100 (BST)
+ * Built at Tue Jul 10 2012 15:46:14 GMT+0100 (BST)
 */
 
 
@@ -5401,8 +5401,6 @@
         attrType = this.query.getPathInfo(this.facet.path).getType();
         if (__indexOf.call(intermine.Model.NUMERIC_TYPES, attrType) >= 0) {
           clazz = NumericFacet;
-        } else if (__indexOf.call(intermine.Model.BOOLEAN_TYPES, attrType) >= 0) {
-          clazz = BooleanFacet;
         } else {
           clazz = FrequencyFacet;
         }
@@ -5842,26 +5840,37 @@
       };
 
       PieFacet.prototype.addConstraint = function(e) {
-        var item, newCon;
+        var item, newCon, vals;
         newCon = {
-          path: this.facet.path,
-          op: "ONE OF",
-          values: (function() {
-            var _i, _len, _ref, _results;
-            _ref = this.items.filter(function(item) {
-              return item.get("selected");
-            });
-            _results = [];
-            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-              item = _ref[_i];
-              _results.push(item.get("item"));
-            }
-            return _results;
-          }).call(this)
+          path: this.facet.path
         };
+        vals = (function() {
+          var _i, _len, _ref, _results;
+          _ref = this.items.filter(function(item) {
+            return item.get("selected");
+          });
+          _results = [];
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            item = _ref[_i];
+            _results.push(item.get("item"));
+          }
+          return _results;
+        }).call(this);
+        if (vals.length === 1) {
+          if (vals[0] === null) {
+            newCon.op = 'IS NULL';
+          } else {
+            newCon.op = '=';
+            newCon.value = "" + vals[0];
+          }
+        } else {
+          newCon.op = "ONE OF";
+          newCon.values = vals;
+        }
         if (!this.facet.ignoreTitle) {
           newCon.title = this.facet.title;
         }
+        console.log(newCon);
         return this.query.addConstraint(newCon);
       };
 
@@ -6133,14 +6142,17 @@
       }
 
       BooleanFacet.prototype.handleSummary = function(items) {
-        var f, t, total;
+        var f, n, t, total;
         t = _(items).find(function(i) {
           return i.item === true;
         });
         f = _(items).find(function(i) {
           return i.item === false;
         });
-        total = ((t != null ? t.count : void 0) || 0) + ((f != null ? f.count : void 0) || 0);
+        n = _(items).find(function(i) {
+          return i.item === null;
+        });
+        total = ((t != null ? t.count : void 0) || 0) + ((f != null ? f.count : void 0) || 0) + ((n != null ? n.count : void 0) || 0);
         this.drawChart(total, (f != null ? f.count : void 0) || 0);
         return this.drawControls(total, (f != null ? f.count : void 0) || 0);
       };

@@ -51,8 +51,8 @@ scope "intermine.results", (exporting) ->
             attrType = @query.getPathInfo(@facet.path).getType()
             if attrType in intermine.Model.NUMERIC_TYPES
                 clazz = NumericFacet
-            else if attrType in intermine.Model.BOOLEAN_TYPES
-                clazz = BooleanFacet
+                #else if attrType in intermine.Model.BOOLEAN_TYPES
+                #clazz = BooleanFacet
             else
                 clazz = FrequencyFacet
             initialLimit = 400 # items
@@ -337,11 +337,19 @@ scope "intermine.results", (exporting) ->
             @items.each (item) -> item.set("selected", !item.get "selected") if item.get "visibility"
 
         addConstraint: (e) ->
-            newCon =
-                path: @facet.path
-                op: "ONE OF"
-                values: (item.get "item" for item in @items.filter (item) -> item.get "selected")
+            newCon = path: @facet.path
+            vals = (item.get "item" for item in @items.filter (item) -> item.get "selected")
+            if vals.length is 1
+                if vals[0] is null
+                    newCon.op = 'IS NULL'
+                else
+                    newCon.op = '='
+                    newCon.value = "#{vals[0]}"
+            else
+                newCon.op = "ONE OF"
+                newCon.values = vals
             newCon.title = @facet.title unless @facet.ignoreTitle
+            console.log newCon
             @query.addConstraint newCon
 
         render: -> @addChart().addControls()
@@ -550,7 +558,8 @@ scope "intermine.results", (exporting) ->
         handleSummary: (items) =>
             t = _(items).find (i) -> i.item is true
             f = _(items).find (i) -> i.item is false
-            total = (t?.count or 0) + (f?.count or 0)
+            n = _(items).find (i) -> i.item is null
+            total = (t?.count or 0) + (f?.count or 0) + (n?.count or 0)
             @drawChart total, (f?.count or 0)
             @drawControls total, (f?.count or 0)
 
