@@ -459,12 +459,11 @@ scope "intermine.results", (exporting) ->
             'change input': 'handleChange'
 
         render: ->
-            inputType = if @items.size() > 2 then "checkbox" else "radio"
             percent = (parseInt(@item.get("count")) / @items.maxCount * 100).toFixed()
             @$el.append """
                 <td class="im-selector-col">
                     <span>#{ ((@item.get "symbol") || "") }</span>
-                    <input type="#{inputType}">
+                    <input type="checkbox">
                 </td>
                 <td class="im-item-col">#{@item.get "item"}</td>
                 <td class="im-count-col">
@@ -484,8 +483,8 @@ scope "intermine.results", (exporting) ->
                 @$('input').trigger "click"
 
         handleChange: (e) ->
-            e.preventDefault()
-            @item.set "selected", @$('input').attr 'checked'
+            e.stopPropagation()
+            @item.set "selected", @$('input').is ':checked'
 
     exporting class HistoFacet extends PieFacet
 

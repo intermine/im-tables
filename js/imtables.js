@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Mon Jul 09 2012 18:07:25 GMT+0100 (BST)
+ * Built at Tue Jul 10 2012 09:21:12 GMT+0100 (BST)
 */
 
 
@@ -5987,10 +5987,9 @@
       };
 
       FacetRow.prototype.render = function() {
-        var inputType, percent;
-        inputType = this.items.size() > 2 ? "checkbox" : "radio";
+        var percent;
         percent = (parseInt(this.item.get("count")) / this.items.maxCount * 100).toFixed();
-        this.$el.append("<td class=\"im-selector-col\">\n    <span>" + ((this.item.get("symbol")) || "") + "</span>\n    <input type=\"" + inputType + "\">\n</td>\n<td class=\"im-item-col\">" + (this.item.get("item")) + "</td>\n<td class=\"im-count-col\">\n    <div class=\"im-facet-bar\" style=\"width:" + percent + "%\">\n        " + (this.item.get("count")) + "\n    </div>\n</td>");
+        this.$el.append("<td class=\"im-selector-col\">\n    <span>" + ((this.item.get("symbol")) || "") + "</span>\n    <input type=\"checkbox\">\n</td>\n<td class=\"im-item-col\">" + (this.item.get("item")) + "</td>\n<td class=\"im-count-col\">\n    <div class=\"im-facet-bar\" style=\"width:" + percent + "%\">\n        " + (this.item.get("count")) + "\n    </div>\n</td>");
         if (this.item.get("percent")) {
           this.$el.append("<td class=\"im-prop-col\"><i>" + (this.item.get("percent").toFixed()) + "%</i></td>");
         }
@@ -6005,8 +6004,8 @@
       };
 
       FacetRow.prototype.handleChange = function(e) {
-        e.preventDefault();
-        return this.item.set("selected", this.$('input').attr('checked'));
+        e.stopPropagation();
+        return this.item.set("selected", this.$('input').is(':checked'));
       };
 
       return FacetRow;
