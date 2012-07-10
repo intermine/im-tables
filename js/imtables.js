@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Tue Jul 10 2012 09:33:35 GMT+0100 (BST)
+ * Built at Tue Jul 10 2012 11:01:42 GMT+0100 (BST)
 */
 
 
@@ -885,7 +885,7 @@
         });
         this.states.on('revert', function(state) {
           var num;
-          _this.query = state.get('query').clone();
+          _this.query = state.get('query').clone(true);
           num = state.get('stepNo');
           _this.display.loadQuery(_this.query);
           _this.startListening();
@@ -904,7 +904,7 @@
             return state.trigger('is:current', false);
           });
           return _this.states.add({
-            query: _this.query.clone(),
+            query: _this.query.clone(true),
             title: title,
             stepNo: _this.currentStep++
           });
@@ -1828,7 +1828,7 @@
       };
 
       Table.prototype.updatePageDisplay = function(start, size) {
-        var buttons, centre, handle, maxPage, overhang, p, pageForm, pageSelector, proportion, scaled, scrollbar, tbl, total, totalWidth, unit, _i;
+        var buttons, centre, handle, inp, maxPage, overhang, p, pageForm, pageSelector, proportion, scaled, scrollbar, tbl, total, totalWidth, unit, _i;
         total = this.cache.lastResult.iTotalRecords;
         if (size === 0) {
           size = total;
@@ -1912,11 +1912,12 @@
           return pageSelector.show();
         } else {
           pageSelector.hide();
-          return $("<input type=text placeholder=\"go to page...\">").appendTo(pageForm).change(function() {
+          return inp = $("<input type=text placeholder=\"go to page...\">").appendTo(pageForm).change(function() {
             var newSelectorVal;
-            newSelectorVal = parseInt($(this).val().replace(/\s*/g, "")) - 1;
-            pageSelector.val(newSelectorVal).change();
-            return $(this).remove();
+            newSelectorVal = parseInt(inp.val().replace(/\s*/g, "")) - 1;
+            tbl.goToPage(newSelectorVal);
+            centre.find('a').show();
+            return pageForm.hide();
           });
         }
       };
@@ -3965,6 +3966,7 @@
       ListManager.prototype.initialize = function(query) {
         this.query = query;
         this.query.on("change:views", this.updateTypeOptions);
+        this.query.on("change:constraints", this.updateTypeOptions);
         return this.action = ListManager.actions.create;
       };
 

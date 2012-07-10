@@ -838,10 +838,11 @@ scope "intermine.query.results", (exporting) ->
                 pageSelector.show()
             else
                 pageSelector.hide()
-                $("""<input type=text placeholder="go to page...">""").appendTo(pageForm).change ->
-                    newSelectorVal = parseInt($(this).val().replace(/\s*/g, "")) - 1
-                    pageSelector.val(newSelectorVal).change()
-                    $(this).remove()
+                inp = $("""<input type=text placeholder="go to page...">""").appendTo(pageForm).change ->
+                    newSelectorVal = parseInt(inp.val().replace(/\s*/g, "")) - 1
+                    tbl.goToPage newSelectorVal
+                    centre.find('a').show()
+                    pageForm.hide()
 
         onSetupError: (telem) -> (xhr) =>
             $(telem).empty()

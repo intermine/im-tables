@@ -1152,6 +1152,7 @@ scope "intermine.query.actions", (exporting) ->
 
         initialize: (@query) ->
             @query.on "change:views", @updateTypeOptions
+            @query.on "change:constraints", @updateTypeOptions
             @action = ListManager.actions.create
 
         html: """
