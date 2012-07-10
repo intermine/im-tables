@@ -398,7 +398,7 @@ scope "intermine.query.results", (exporting) ->
                     </li>
                     <li class="im-current-page">
                         <a data-goto=here  href="#">&hellip;</a>
-                        <form style="display:none;"><select></select></form>
+                        <form class="input-append form form-horizontal" style="display:none;"><select></select></form>
                     </li>
                     <li title="Go to next page">
                         <a class="im-pagination-button" data-goto=next>&rarr;</a>
@@ -850,6 +850,7 @@ scope "intermine.query.results", (exporting) ->
             centre.toggleClass "active", size >= total
             pageForm = centre.find('form')
             pageForm.find('input').remove()
+            pageForm.find('button').remove()
             pageSelector = pageForm.find('select').empty()
             maxPage = Math.floor(total / size)
             pageSelector.val(Math.floor(start / size))
@@ -861,7 +862,10 @@ scope "intermine.query.results", (exporting) ->
                 pageSelector.show()
             else
                 pageSelector.hide()
-                inp = $("""<input type=text placeholder="go to page...">""").appendTo(pageForm).change ->
+                inp = $("""<input type=text placeholder="go to page...">""").appendTo(pageForm)
+                pageForm.append("""<button class="btn" type="submit">go</button>""").submit (e) ->
+                    e.stopPropagation()
+                    e.preventDefault()
                     newSelectorVal = parseInt(inp.val().replace(/\s*/g, "")) - 1
                     tbl.goToPage newSelectorVal
                     centre.find('a').show()

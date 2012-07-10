@@ -416,6 +416,13 @@
     padding: 0;
 }
 
+.im-query-display .pagination li .form {
+    padding: 0.3em;
+    margin: 0;
+    border: 1px solid #ddd;
+    border-left: none;
+}
+
 .im-query-results .im-page-sizer,
 .im-query-results .pagination {
     float: right;

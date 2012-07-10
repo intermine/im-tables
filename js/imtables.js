@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Tue Jul 10 2012 19:29:31 GMT+0100 (BST)
+ * Built at Tue Jul 10 2012 19:55:19 GMT+0100 (BST)
 */
 
 
@@ -1418,7 +1418,7 @@
 
       Table.prototype.className = "im-table-container";
 
-      Table.prototype.paginationTempl = _.template("<div class=\"pagination pagination-right\">\n    <ul>\n        <li title=\"Go to start\">\n            <a class=\"im-pagination-button\" data-goto=start>&#x21e4;</a>\n        </li>\n        <li title=\"Go back five pages\">\n            <a class=\"im-pagination-button\" data-goto=fast-rewind>&#x219e;</a>\n        </li>\n        <li title=\"Go to previous page\">\n            <a class=\"im-pagination-button\" data-goto=prev>&larr;</a>\n        </li>\n        <li class=\"im-current-page\">\n            <a data-goto=here  href=\"#\">&hellip;</a>\n            <form style=\"display:none;\"><select></select></form>\n        </li>\n        <li title=\"Go to next page\">\n            <a class=\"im-pagination-button\" data-goto=next>&rarr;</a>\n        </li>\n        <li title=\"Go forward five pages\">\n            <a class=\"im-pagination-button\" data-goto=fast-forward>&#x21a0;</a>\n        </li>\n        <li title=\"Go to last page\">\n            <a class=\"im-pagination-button\" data-goto=end>&#x21e5;</a>\n        </li>\n    </ul>\n</div>");
+      Table.prototype.paginationTempl = _.template("<div class=\"pagination pagination-right\">\n    <ul>\n        <li title=\"Go to start\">\n            <a class=\"im-pagination-button\" data-goto=start>&#x21e4;</a>\n        </li>\n        <li title=\"Go back five pages\">\n            <a class=\"im-pagination-button\" data-goto=fast-rewind>&#x219e;</a>\n        </li>\n        <li title=\"Go to previous page\">\n            <a class=\"im-pagination-button\" data-goto=prev>&larr;</a>\n        </li>\n        <li class=\"im-current-page\">\n            <a data-goto=here  href=\"#\">&hellip;</a>\n            <form class=\"input-append form form-horizontal\" style=\"display:none;\"><select></select></form>\n        </li>\n        <li title=\"Go to next page\">\n            <a class=\"im-pagination-button\" data-goto=next>&rarr;</a>\n        </li>\n        <li title=\"Go forward five pages\">\n            <a class=\"im-pagination-button\" data-goto=fast-forward>&#x21a0;</a>\n        </li>\n        <li title=\"Go to last page\">\n            <a class=\"im-pagination-button\" data-goto=end>&#x21e5;</a>\n        </li>\n    </ul>\n</div>");
 
       Table.prototype.onDraw = function() {
         if (this.__selecting) {
@@ -1926,6 +1926,7 @@
         centre.toggleClass("active", size >= total);
         pageForm = centre.find('form');
         pageForm.find('input').remove();
+        pageForm.find('button').remove();
         pageSelector = pageForm.find('select').empty();
         maxPage = Math.floor(total / size);
         pageSelector.val(Math.floor(start / size));
@@ -1936,8 +1937,11 @@
           return pageSelector.show();
         } else {
           pageSelector.hide();
-          return inp = $("<input type=text placeholder=\"go to page...\">").appendTo(pageForm).change(function() {
+          inp = $("<input type=text placeholder=\"go to page...\">").appendTo(pageForm);
+          return pageForm.append("<button class=\"btn\" type=\"submit\">go</button>").submit(function(e) {
             var newSelectorVal;
+            e.stopPropagation();
+            e.preventDefault();
             newSelectorVal = parseInt(inp.val().replace(/\s*/g, "")) - 1;
             tbl.goToPage(newSelectorVal);
             centre.find('a').show();
