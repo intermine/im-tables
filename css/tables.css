@@ -445,6 +445,10 @@ a.im-pagination-button {
     width: 90%;
 }
 
+.im-column-summary .im-all-same {
+    margin: 1em;
+}
+
 .im-current-page form {
     display: inline;
     float: left;
@@ -709,6 +713,7 @@ ul.im-cols h4 {
 
 .im-dropdown-summary h3 {
     margin-left: 1em;
+    padding: 0.5em;
 }
 
 .im-th-buttons .dropdown-menu {

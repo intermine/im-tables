@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Tue Jul 10 2012 12:31:05 GMT+0100 (BST)
+ * Built at Tue Jul 10 2012 14:05:44 GMT+0100 (BST)
 */
 
 
@@ -5354,6 +5354,10 @@
     })(Backbone.View));
   });
 
+  scope('intermine.snippets.facets', {
+    OnlyOne: _.template("<div class=\"alert alert-info im-all-same\">\n    All <%= count %> values are the same: <strong><%= item %></strong>\n</div>")
+  });
+
   scope("intermine.results", function(exporting) {
     var BooleanFacet, ColumnSummary, FACET_TEMPLATE, FACET_TITLE, FacetRow, FacetView, FrequencyFacet, HistoFacet, MORE_FACETS_HTML, NormalCurve, NumericFacet, PieFacet;
     NormalCurve = function(mean, stdev) {
@@ -5511,7 +5515,7 @@
           if (total <= 1) {
             _this.$el.empty();
             if (total === 1) {
-              _this.$el.append("All items are the same: " + items[0].item);
+              _this.$el.append(intermine.snippets.facets.OnlyOne(items[0]));
             } else {
               _this.$el.append("No results");
             }
@@ -5583,6 +5587,9 @@
       NumericFacet.prototype.handleSummary = function(items) {
         var summary;
         summary = items[0];
+        if (summary.item != null) {
+          return this.$el.empty().append(intermine.snippets.facets.OnlyOne(summary));
+        }
         this.mean = parseFloat(summary.average);
         this.dev = parseFloat(summary.stdev);
         this.max = summary.max;

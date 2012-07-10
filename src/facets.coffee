@@ -1,3 +1,10 @@
+scope 'intermine.snippets.facets', {
+    OnlyOne: _.template """
+            <div class="alert alert-info im-all-same">
+                All <%= count %> values are the same: <strong><%= item %></strong>
+            </div>
+        """
+}
 scope "intermine.results", (exporting) ->
 
     ##----------------
@@ -108,7 +115,7 @@ scope "intermine.results", (exporting) ->
                 if total <= 1
                     @$el.empty()
                     if total is 1
-                        @$el.append("All items are the same: #{  items[0].item }")
+                        @$el.append intermine.snippets.facets.OnlyOne items[0]
                     else
                         @$el.append("No results")
 
@@ -148,6 +155,8 @@ scope "intermine.results", (exporting) ->
 
         handleSummary: (items) =>
             summary = items[0]
+            if summary.item? # Dealing with the single value edge case here...
+                return @$el.empty().append intermine.snippets.facets.OnlyOne(summary)
             @mean = parseFloat(summary.average)
             @dev = parseFloat(summary.stdev)
             @max = summary.max
