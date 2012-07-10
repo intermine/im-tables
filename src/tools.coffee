@@ -198,7 +198,7 @@ scope "intermine.query.tools", (exporting) ->
                 @$el.toggle @states.size() > 1
 
             @states.on 'revert', (state) =>
-                @query = state.get('query').clone(true)
+                @query = state.get('query').clone()
                 num = state.get 'stepNo'
                 @display.loadQuery(@query)
                 @startListening()
@@ -209,7 +209,7 @@ scope "intermine.query.tools", (exporting) ->
 
         addStep: (title) -> () =>
             @states.each (state) -> state.trigger 'is:current', false
-            @states.add query: @query.clone(true), title: title, stepNo: @currentStep++
+            @states.add query: @query.clone(), title: title, stepNo: @currentStep++
 
         render: () ->
             @$el.append """

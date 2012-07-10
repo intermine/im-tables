@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Tue Jul 10 2012 11:35:23 GMT+0100 (BST)
+ * Built at Tue Jul 10 2012 12:31:05 GMT+0100 (BST)
 */
 
 
@@ -885,7 +885,7 @@
         });
         this.states.on('revert', function(state) {
           var num;
-          _this.query = state.get('query').clone(true);
+          _this.query = state.get('query').clone();
           num = state.get('stepNo');
           _this.display.loadQuery(_this.query);
           _this.startListening();
@@ -904,7 +904,7 @@
             return state.trigger('is:current', false);
           });
           return _this.states.add({
-            query: _this.query.clone(true),
+            query: _this.query.clone(),
             title: title,
             stepNo: _this.currentStep++
           });
@@ -4743,7 +4743,7 @@
       DashBoard.prototype.TABLE_CLASSES = "span9 im-query-results";
 
       DashBoard.prototype.loadQuery = function(q) {
-        var k, v, _ref, _ref1;
+        var cb, evt, k, v, _ref, _ref1, _ref2, _results;
         this.main.empty();
         if ((_ref = this.toolbar) != null) {
           _ref.remove();
@@ -4755,7 +4755,14 @@
           this.table[k] = v;
         }
         this.table.render();
-        return this.renderTools(q);
+        this.renderTools(q);
+        _ref2 = this.queryEvents;
+        _results = [];
+        for (evt in _ref2) {
+          cb = _ref2[evt];
+          _results.push(q.on(evt, cb));
+        }
+        return _results;
       };
 
       DashBoard.prototype.render = function() {
@@ -4763,20 +4770,12 @@
           _this = this;
         this.$el.addClass("bootstrap");
         promise = this.service.query(this.query, function(q) {
-          var cb, evt, _ref, _results;
           _this.main = $(_this.make("div", {
             "class": _this.TABLE_CLASSES
           }));
           _this.$el.append(_this.main);
-          _this.loadQuery(q, _this.main);
-          _this.renderTrail(q);
-          _ref = _this.queryEvents;
-          _results = [];
-          for (evt in _ref) {
-            cb = _ref[evt];
-            _results.push(q.on(evt, cb));
-          }
-          return _results;
+          _this.loadQuery(q);
+          return _this.renderTrail(q);
         });
         promise.fail(function(xhr, err, msg) {
           return _this.$el.append("<div class=\"alert alert-error\">\n    <h1>" + err + "</h1>\n    <p>Unable to construct query: " + msg + "</p>\n</div>");

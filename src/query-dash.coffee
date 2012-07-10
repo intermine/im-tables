@@ -24,17 +24,17 @@ scope "intermine.query.results", (exporting) ->
             @table[k] = v for k, v of @tableProperties
             @table.render()
             @renderTools(q)
+            q.on evt, cb for evt, cb of @queryEvents
 
         render: ->
             @$el.addClass "bootstrap"
             promise = @service.query @query, (q) =>
                 @main = $ @make "div", {class: @TABLE_CLASSES}
                 @$el.append @main
-                @loadQuery(q, @main)
+                @loadQuery(q)
 
                 @renderTrail(q)
 
-                q.on evt, cb for evt, cb of @queryEvents
 
             promise.fail (xhr, err, msg) =>
                 @$el.append """
