@@ -1,3 +1,7 @@
+scope 'intermine.messages.results', {
+    ReorderHelp: 'Drag the columns to reorder them'
+}
+
 scope "intermine.query.results.table", (exporting) ->
 
     class OuterJoinGroup extends Backbone.View
@@ -175,6 +179,10 @@ scope "intermine.query.results.table", (exporting) ->
         initOrdering: ->
             colContainer = @$ '.im-reordering-container'
             colContainer.empty()
+            colContainer.tooltip
+                title: intermine.messages.results.ReorderHelp
+                placement: 'top'
+
             @ojgs = {}
             for v, i in @query.views then do (v, i) =>
                 if @query.isOuterJoined(v)

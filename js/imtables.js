@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Tue Jul 10 2012 11:27:40 GMT+0100 (BST)
+ * Built at Tue Jul 10 2012 11:35:23 GMT+0100 (BST)
 */
 
 
@@ -4825,6 +4825,10 @@
     })(DashBoard));
   });
 
+  scope('intermine.messages.results', {
+    ReorderHelp: 'Drag the columns to reorder them'
+  });
+
   scope("intermine.query.results.table", function(exporting) {
     var ColumnAdder, ColumnOrderer, OuterJoinGroup;
     OuterJoinGroup = (function(_super) {
@@ -5087,6 +5091,10 @@
           _this = this;
         colContainer = this.$('.im-reordering-container');
         colContainer.empty();
+        colContainer.tooltip({
+          title: intermine.messages.results.ReorderHelp,
+          placement: 'top'
+        });
         this.ojgs = {};
         _ref = this.query.views;
         _fn = function(v, i) {
