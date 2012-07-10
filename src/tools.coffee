@@ -187,6 +187,10 @@ scope "intermine.query.tools", (exporting) ->
             @query.on "change:constraints", @addStep "Changed Filters"
             @query.on "change:views", @addStep "Changed Columns"
             @query.on 'count:is', (count) => @states.last().trigger 'got:count', count
+            @query.on 'undo', () =>
+                @states.remove(@states.last())
+                newState = @states.last()
+                newState.trigger 'revert', newState
 
         initialize: (@query, @display) ->
             @currentStep = 0

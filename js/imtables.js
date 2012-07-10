@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Tue Jul 10 2012 15:46:14 GMT+0100 (BST)
+ * Built at Tue Jul 10 2012 18:32:23 GMT+0100 (BST)
 */
 
 
@@ -863,8 +863,14 @@
         var _this = this;
         this.query.on("change:constraints", this.addStep("Changed Filters"));
         this.query.on("change:views", this.addStep("Changed Columns"));
-        return this.query.on('count:is', function(count) {
+        this.query.on('count:is', function(count) {
           return _this.states.last().trigger('got:count', count);
+        });
+        return this.query.on('undo', function() {
+          var newState;
+          _this.states.remove(_this.states.last());
+          newState = _this.states.last();
+          return newState.trigger('revert', newState);
         });
       };
 
@@ -1041,12 +1047,21 @@
       };
 
       ResultsTable.prototype.appendRows = function(res) {
-        var row, _i, _len, _ref;
+        var apology, row, _i, _len, _ref,
+          _this = this;
         this.$("tbody > tr").remove();
-        _ref = res.rows;
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          row = _ref[_i];
-          this.appendRow(row);
+        if (res.rows.length === 0) {
+          console.log("0 results!");
+          apology = $("<tr>\n    <td colspan=\"" + this.query.views.length + "\">\n        <div class=\"im-no-results alert alert-info\">\n        <strong>NO RESULTS</strong>\n        This query returned 0 results.\n        " + (this.query.__changed > 0 ? '<button><i class="icon-undo"></i> undo</button>' : '') + "\n        </div>\n    </td>\n</tr>");
+          apology.appendTo(this.el).find('button').click(function(e) {
+            return _this.query.trigger('undo');
+          });
+        } else {
+          _ref = res.rows;
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            row = _ref[_i];
+            this.appendRow(row);
+          }
         }
         return this.query.trigger("table:filled");
       };
@@ -1406,6 +1421,7 @@
 
       Table.prototype.refresh = function() {
         var _ref;
+        this.query.__changed = (this.query.__changed || 0) + 1;
         if ((_ref = this.table) != null) {
           _ref.remove();
         }

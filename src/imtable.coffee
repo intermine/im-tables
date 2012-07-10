@@ -67,7 +67,6 @@ scope "intermine.query.results", (exporting) ->
                 @pageStart = 0 if (size is 0)
                 @fill()
 
-
         render: ->
             @$el.empty()
             promise = @fill()
@@ -93,7 +92,23 @@ scope "intermine.query.results", (exporting) ->
 
         appendRows: (res) =>
             @$("tbody > tr").remove()
-            @appendRow(row) for row in res.rows
+            if res.rows.length is 0
+                console.log "0 results!"
+                apology = $ """
+                    <tr>
+                        <td colspan="#{ @query.views.length }">
+                            <div class="im-no-results alert alert-info">
+                            <strong>NO RESULTS</strong>
+                            This query returned 0 results.
+                            #{ if (@query.__changed > 0) then '<button><i class="icon-undo"></i> undo</button>' else ''}
+                            </div>
+                        </td>
+                    </tr>
+                """
+                apology.appendTo(@el).find('button').click (e) => @query.trigger 'undo'
+            else
+                @appendRow(row) for row in res.rows
+
             @query.trigger "table:filled"
 
         minimisedColumnPlaceholder: _.template """
@@ -396,6 +411,7 @@ scope "intermine.query.results", (exporting) ->
             @drawn = true
 
         refresh: =>
+            @query.__changed = (@query.__changed or 0) + 1
             @table?.remove()
             @drawn = false
             @render()
