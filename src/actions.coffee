@@ -945,7 +945,7 @@ scope "intermine.query.actions", (exporting) ->
                             <label>Description</label>
                             <input class="im-list-desc input-xlarge" type="text" placeholder="an optional description" >
                         </fieldset>
-                        <fieldset class="control-group">
+                        <fieldset class="control-group im-tag-options">
                             <label>Add Tags</label>
                             <input type="text" class="im-available-tags input-medium" placeholder="categorize your list">
                             <button class="btn im-confirm-tag" disabled>Add</button>
@@ -977,12 +977,18 @@ scope "intermine.query.actions", (exporting) ->
 
         initialize: (@query) ->
             super(@query)
+            @query.service.whoami (me) =>
+                @canTag = me.username?
+                if @rendered and not @canTag
+                    @hideTagOptions()
             @tags  = new UniqItems()
             @suggestedTags = new UniqItems()
             @tags.on "add", @updateTagBox
             @tags.on "remove", @updateTagBox
 
             @initTags()
+
+        hideTagOptions: () -> @$('.im-tag-options').hide()
 
         newCommonType: (type) ->
             super(type)
@@ -1125,9 +1131,12 @@ scope "intermine.query.actions", (exporting) ->
             tagAdder.val("")
             tagAdder.next().attr(disabled: true)
 
+        rendered: false
+
         render: ->
             super()
             @updateTagBox()
+
             tagAdder = @$ '.im-available-tags'
             @$('a').button()
             @query.service.fetchLists (ls) ->
@@ -1143,6 +1152,11 @@ scope "intermine.query.actions", (exporting) ->
                 @$('.im-confirm-tag').attr("disabled", false)
                 if e.which is 13 # <ENTER>
                     @addTag(e)
+
+            if @canTag? and not @canTag
+                @hideTagOptions()
+
+            @rendered = true
 
             this
 

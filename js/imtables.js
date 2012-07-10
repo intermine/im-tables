@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Tue Jul 10 2012 11:01:42 GMT+0100 (BST)
+ * Built at Tue Jul 10 2012 11:27:40 GMT+0100 (BST)
 */
 
 
@@ -3722,16 +3722,27 @@
         return ListCreator.__super__.constructor.apply(this, arguments);
       }
 
-      ListCreator.prototype.html = "<div class=\"modal fade im-list-creation-dialogue\">\n    <div class=\"modal-header\">\n        <a class=\"close btn-cancel\">close</a>\n        <h2>List Details</h2>\n    </div>\n    <div class=\"modal-body\">\n        <form class=\"form form-horizontal\">\n            <p class=\"im-list-summary\"></p>\n            <fieldset class=\"control-group\">\n                <label>Name</label>\n                <input class=\"im-list-name input-xlarge\" type=\"text\" placeholder=\"required identifier\">\n                <span class=\"help-inline\"></span>\n            </fieldset>\n            <fieldset class=\"control-group\">\n                <label>Description</label>\n                <input class=\"im-list-desc input-xlarge\" type=\"text\" placeholder=\"an optional description\" >\n            </fieldset>\n            <fieldset class=\"control-group\">\n                <label>Add Tags</label>\n                <input type=\"text\" class=\"im-available-tags input-medium\" placeholder=\"categorize your list\">\n                <button class=\"btn im-confirm-tag\" disabled>Add</button>\n                <ul class=\"im-list-tags choices well\">\n                    <div style=\"clear:both\"></div>\n                </ul>\n                <h5><i class=\"icon-chevron-down\"></i>Suggested Tags</h5>\n                <ul class=\"im-list-tags suggestions well\">\n                    <div style=\"clear:both\"></div>\n                </ul>\n            </fieldset>\n            <input type=\"hidden\" class=\"im-list-type\">\n        </form>\n        <div class=\"alert alert-info im-selection-instruction\">\n            <b>Get started!</b> Choose items from the table below.\n            You can move this dialogue around by dragging it, if you \n            need access to a column it is covering up.\n        </div>\n    </div>\n    <div class=\"modal-footer\">\n        <div class=\"btn-group\">\n            <button class=\"btn btn-primary\">Create</button>\n            <button class=\"btn btn-cancel\">Cancel</button>\n            <button class=\"btn btn-reset\">Reset</button>\n        </div>\n    </div>\n</div>";
+      ListCreator.prototype.html = "<div class=\"modal fade im-list-creation-dialogue\">\n    <div class=\"modal-header\">\n        <a class=\"close btn-cancel\">close</a>\n        <h2>List Details</h2>\n    </div>\n    <div class=\"modal-body\">\n        <form class=\"form form-horizontal\">\n            <p class=\"im-list-summary\"></p>\n            <fieldset class=\"control-group\">\n                <label>Name</label>\n                <input class=\"im-list-name input-xlarge\" type=\"text\" placeholder=\"required identifier\">\n                <span class=\"help-inline\"></span>\n            </fieldset>\n            <fieldset class=\"control-group\">\n                <label>Description</label>\n                <input class=\"im-list-desc input-xlarge\" type=\"text\" placeholder=\"an optional description\" >\n            </fieldset>\n            <fieldset class=\"control-group im-tag-options\">\n                <label>Add Tags</label>\n                <input type=\"text\" class=\"im-available-tags input-medium\" placeholder=\"categorize your list\">\n                <button class=\"btn im-confirm-tag\" disabled>Add</button>\n                <ul class=\"im-list-tags choices well\">\n                    <div style=\"clear:both\"></div>\n                </ul>\n                <h5><i class=\"icon-chevron-down\"></i>Suggested Tags</h5>\n                <ul class=\"im-list-tags suggestions well\">\n                    <div style=\"clear:both\"></div>\n                </ul>\n            </fieldset>\n            <input type=\"hidden\" class=\"im-list-type\">\n        </form>\n        <div class=\"alert alert-info im-selection-instruction\">\n            <b>Get started!</b> Choose items from the table below.\n            You can move this dialogue around by dragging it, if you \n            need access to a column it is covering up.\n        </div>\n    </div>\n    <div class=\"modal-footer\">\n        <div class=\"btn-group\">\n            <button class=\"btn btn-primary\">Create</button>\n            <button class=\"btn btn-cancel\">Cancel</button>\n            <button class=\"btn btn-reset\">Reset</button>\n        </div>\n    </div>\n</div>";
 
       ListCreator.prototype.initialize = function(query) {
+        var _this = this;
         this.query = query;
         ListCreator.__super__.initialize.call(this, this.query);
+        this.query.service.whoami(function(me) {
+          _this.canTag = me.username != null;
+          if (_this.rendered && !_this.canTag) {
+            return _this.hideTagOptions();
+          }
+        });
         this.tags = new UniqItems();
         this.suggestedTags = new UniqItems();
         this.tags.on("add", this.updateTagBox);
         this.tags.on("remove", this.updateTagBox);
         return this.initTags();
+      };
+
+      ListCreator.prototype.hideTagOptions = function() {
+        return this.$('.im-tag-options').hide();
       };
 
       ListCreator.prototype.newCommonType = function(type) {
@@ -3911,6 +3922,8 @@
         });
       };
 
+      ListCreator.prototype.rendered = false;
+
       ListCreator.prototype.render = function() {
         var tagAdder,
           _this = this;
@@ -3942,6 +3955,10 @@
             return _this.addTag(e);
           }
         });
+        if ((this.canTag != null) && !this.canTag) {
+          this.hideTagOptions();
+        }
+        this.rendered = true;
         return this;
       };
 
