@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Tue Jul 10 2012 18:40:32 GMT+0100 (BST)
+ * Built at Tue Jul 10 2012 19:15:05 GMT+0100 (BST)
 */
 
 
@@ -3308,7 +3308,9 @@
           var li, path;
           path = col.get('path');
           li = $("<li></li>");
-          li.appendTo(cols);
+          li.data({
+            col: col
+          }).appendTo(cols);
           return path.getDisplayName(function(name) {
             li.append("<div class=\"label label-success\">\n    <i class=\"" + intermine.icons.Move + " im-move pull-right\"></i>\n    <a href=\"#\"><i class=\"" + intermine.icons.Remove + "\"></i></a>\n    " + name + "\n</div>");
             return li.find('a').click(function() {
@@ -3318,7 +3320,15 @@
           });
         });
         cols.sortable({
-          placeholder: 'ui-state-highlight'
+          items: 'li',
+          placeholder: 'ui-state-highlight',
+          update: function(e, ui) {
+            return _this.exportedCols.reset(cols.find('li').map(function(i, elem) {
+              return $(elem).data('col');
+            }).get(), {
+              silent: true
+            });
+          }
         });
         maybes = this.$('.im-can-be-exported-cols');
         _ref = this.query.getQueryNodes();

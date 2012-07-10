@@ -591,7 +591,7 @@ scope "intermine.query.actions", (exporting) ->
             @exportedCols.each (col) =>
                 path = col.get 'path'
                 li = $ """<li></li>"""
-                li.appendTo cols
+                li.data(col: col).appendTo cols
                 path.getDisplayName (name) =>
                     li.append """
                         <div class="label label-success">
@@ -605,7 +605,10 @@ scope "intermine.query.actions", (exporting) ->
                         emphasise maybes
 
             cols.sortable
+                items: 'li'
                 placeholder: 'ui-state-highlight'
+                update: (e, ui) =>
+                    @exportedCols.reset(cols.find('li').map( (i, elem) -> $(elem).data('col') ).get(), silent: true)
 
             maybes = @$ '.im-can-be-exported-cols'
             for n in @query.getQueryNodes()
