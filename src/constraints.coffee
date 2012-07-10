@@ -22,8 +22,10 @@ scope "intermine.query",  (exporting) ->
                 @ops = intermine.Query.REFERENCE_OPS
             else if @path.getType() in intermine.Model.BOOLEAN_TYPES
                 @ops = ["=", "!="].concat(intermine.Query.NULL_OPS)
-            else
+            else if @con.has('values')
                 @ops = intermine.Query.ATTRIBUTE_OPS
+            else
+                @ops = intermine.Query.ATTRIBUTE_VALUE_OPS.concat(intermine.Query.NULL_OPS)
 
         events:
             'change .im-ops': 'drawValueOptions'
@@ -48,6 +50,10 @@ scope "intermine.query",  (exporting) ->
             e.stopPropagation()
             e.preventDefault()
             @removeConstraint()
+            if @con.get('op') in intermine.Query.MULTIVALUE_OPS.concat(intermine.Query.NULL_OPS)
+                @con.unset('value')
+            if @con.get('op') in intermine.Query.ATTRIBUTE_OPS.concat(intermine.Query.NULL_OPS)
+                @con.unset('values')
             @query.addConstraint @con.toJSON()
             while (ta = @typeaheads.shift())
                 ta.remove()

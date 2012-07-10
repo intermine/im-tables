@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Tue Jul 10 2012 19:15:05 GMT+0100 (BST)
+ * Built at Tue Jul 10 2012 19:29:31 GMT+0100 (BST)
 */
 
 
@@ -6334,8 +6334,10 @@
           return this.ops = intermine.Query.REFERENCE_OPS;
         } else if (_ref = this.path.getType(), __indexOf.call(intermine.Model.BOOLEAN_TYPES, _ref) >= 0) {
           return this.ops = ["=", "!="].concat(intermine.Query.NULL_OPS);
-        } else {
+        } else if (this.con.has('values')) {
           return this.ops = intermine.Query.ATTRIBUTE_OPS;
+        } else {
+          return this.ops = intermine.Query.ATTRIBUTE_VALUE_OPS.concat(intermine.Query.NULL_OPS);
         }
       };
 
@@ -6373,10 +6375,16 @@
       };
 
       ActiveConstraint.prototype.editConstraint = function(e) {
-        var ta, _results;
+        var ta, _ref, _ref1, _results;
         e.stopPropagation();
         e.preventDefault();
         this.removeConstraint();
+        if (_ref = this.con.get('op'), __indexOf.call(intermine.Query.MULTIVALUE_OPS.concat(intermine.Query.NULL_OPS), _ref) >= 0) {
+          this.con.unset('value');
+        }
+        if (_ref1 = this.con.get('op'), __indexOf.call(intermine.Query.ATTRIBUTE_OPS.concat(intermine.Query.NULL_OPS), _ref1) >= 0) {
+          this.con.unset('values');
+        }
         this.query.addConstraint(this.con.toJSON());
         _results = [];
         while ((ta = this.typeaheads.shift())) {
