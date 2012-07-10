@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Tue Jul 10 2012 18:32:23 GMT+0100 (BST)
+ * Built at Tue Jul 10 2012 18:40:32 GMT+0100 (BST)
 */
 
 
@@ -939,6 +939,10 @@
     headerIconSummary: "icon-bar-chart"
   });
 
+  scope('intermine.snippets.query', {
+    UndoButton: '<button class="btn btn-primary pull-right"><i class="icon-undo"></i> undo</button>'
+  });
+
   scope('intermine.messages.query', {
     CountSummary: _.template("<span class=\"im-only-widescreen\">Showing</span>\n<span>\n  <% if (last == 0) { %>\n      All\n  <% } else { %>\n      <%= first %> to <%= last %> of\n  <% } %>\n  <%= count %> <%= roots %>\n</span>")
   });
@@ -1046,16 +1050,20 @@
         return promise;
       };
 
-      ResultsTable.prototype.appendRows = function(res) {
-        var apology, row, _i, _len, _ref,
+      ResultsTable.prototype.handleEmptyTable = function() {
+        var apology,
           _this = this;
+        apology = $("<tr>\n    <td colspan=\"" + this.query.views.length + "\">\n        <div class=\"im-no-results alert alert-info\">\n            " + (this.query.__changed > 0 ? intermine.snippets.query.UndoButton : '') + "\n            <strong>NO RESULTS</strong>\n            This query returned 0 results.\n            <div style=\"clear:both\"></div>\n        </div>\n    </td>\n</tr>");
+        return apology.appendTo(this.el).find('button').click(function(e) {
+          return _this.query.trigger('undo');
+        });
+      };
+
+      ResultsTable.prototype.appendRows = function(res) {
+        var row, _i, _len, _ref;
         this.$("tbody > tr").remove();
         if (res.rows.length === 0) {
-          console.log("0 results!");
-          apology = $("<tr>\n    <td colspan=\"" + this.query.views.length + "\">\n        <div class=\"im-no-results alert alert-info\">\n        <strong>NO RESULTS</strong>\n        This query returned 0 results.\n        " + (this.query.__changed > 0 ? '<button><i class="icon-undo"></i> undo</button>' : '') + "\n        </div>\n    </td>\n</tr>");
-          apology.appendTo(this.el).find('button').click(function(e) {
-            return _this.query.trigger('undo');
-          });
+          this.handleEmptyTable();
         } else {
           _ref = res.rows;
           for (_i = 0, _len = _ref.length; _i < _len; _i++) {

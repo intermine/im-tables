@@ -9,6 +9,10 @@ scope "intermine.css", {
     headerIconSummary: "icon-bar-chart"
 }
 
+scope 'intermine.snippets.query', {
+    UndoButton: '<button class="btn btn-primary pull-right"><i class="icon-undo"></i> undo</button>'
+}
+
 scope 'intermine.messages.query', {
     # A function of the form ({count: i, first: i, last: i, roots: str}) -> str
     CountSummary: _.template """
@@ -90,22 +94,25 @@ scope "intermine.query.results", (exporting) ->
                 @query.trigger "imtable:change:page", @pageStart, @pageSize
             promise
 
+        handleEmptyTable: () ->
+            apology = $ """
+                <tr>
+                    <td colspan="#{ @query.views.length }">
+                        <div class="im-no-results alert alert-info">
+                            #{ if (@query.__changed > 0) then intermine.snippets.query.UndoButton else ''}
+                            <strong>NO RESULTS</strong>
+                            This query returned 0 results.
+                            <div style="clear:both"></div>
+                        </div>
+                    </td>
+                </tr>
+            """
+            apology.appendTo(@el).find('button').click (e) => @query.trigger 'undo'
+
         appendRows: (res) =>
             @$("tbody > tr").remove()
             if res.rows.length is 0
-                console.log "0 results!"
-                apology = $ """
-                    <tr>
-                        <td colspan="#{ @query.views.length }">
-                            <div class="im-no-results alert alert-info">
-                            <strong>NO RESULTS</strong>
-                            This query returned 0 results.
-                            #{ if (@query.__changed > 0) then '<button><i class="icon-undo"></i> undo</button>' else ''}
-                            </div>
-                        </td>
-                    </tr>
-                """
-                apology.appendTo(@el).find('button').click (e) => @query.trigger 'undo'
+                @handleEmptyTable()
             else
                 @appendRow(row) for row in res.rows
 
