@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Tue Jul 10 2012 09:21:12 GMT+0100 (BST)
+ * Built at Tue Jul 10 2012 09:33:35 GMT+0100 (BST)
 */
 
 
@@ -3628,7 +3628,7 @@
 
       CodeGenerator.prototype.className = "im-code-gen";
 
-      CodeGenerator.prototype.html = _.template("<div class=\"btn-group\">\n    <a class=\"btn btn-action\" href=\"#\">\n        <i class=\"" + intermine.icons.Script + "\"></i>\n        <span class=\"im-only-widescreen\">Get</span>\n        <span class=\"im-code-lang\"></span>\n        Code\n    </a>\n    <a class=\"btn dropdown-toggle\" data-toggle=\"dropdown\" href=\"#\" style=\"height: 18px\">\n        <span class=\"caret\"></span>\n    </a>\n    <ul class=\"dropdown-menu\">\n        <% _(langs).each(function(lang) { %>\n          <li>\n            <a href=\"#\" data-lang=\"<%= lang.extension %>\">\n               <i class=\"icon-<%= lang.extension %>\"></i>\n               <%= lang.name %>\n            </a>\n          </li>\n        <% }); %>\n    </ul>\n</div>\n<div class=\"modal fade\">\n    <div class=\"modal-header\">\n        <a class=\"close\" data-dismiss=\"modal\">close</a>\n        <h3>Generated <span class=\"im-code-lang\"></span> Code</h3>\n    </div>\n    <div class=\"modal-body\">\n        <pre class=\"im-generated-code prettyprint linenums\">\n        </pre>\n    </div>\n    <div class=\"modal-footer\">\n        <a href=\"#\" class=\"btn btn-save\"><i class=\"icon-file\"></i>Save</a>\n        <button href=\"#\" class=\"btn im-show-comments\" data-toggle=\"button\">Show Comments</button>\n        <a href=\"#\" data-dismiss=\"modal\" class=\"btn\">Close</a>\n    </div>\n</div>", {
+      CodeGenerator.prototype.html = _.template("<div class=\"btn-group\">\n    <a class=\"btn btn-action\" href=\"#\">\n        <i class=\"" + intermine.icons.Script + "\"></i>\n        <span class=\"im-only-widescreen\">Get</span>\n        <span class=\"im-code-lang\"></span>\n        Code\n    </a>\n    <a class=\"btn dropdown-toggle\" data-toggle=\"dropdown\" href=\"#\" style=\"height: 18px\">\n        <span class=\"caret\"></span>\n    </a>\n    <ul class=\"dropdown-menu\">\n        <% _(langs).each(function(lang) { %>\n          <li>\n            <a href=\"#\" data-lang=\"<%= lang.extension %>\">\n               <i class=\"icon-<%= lang.extension %>\"></i>\n               <%= lang.name %>\n            </a>\n          </li>\n        <% }); %>\n    </ul>\n</div>\n<div class=\"modal fade\">\n    <div class=\"modal-header\">\n        <a class=\"close\" data-dismiss=\"modal\">close</a>\n        <h3>Generated <span class=\"im-code-lang\"></span> Code</h3>\n    </div>\n    <div class=\"modal-body\">\n        <pre class=\"im-generated-code prettyprint linenums\">\n        </pre>\n    </div>\n    <div class=\"modal-footer\">\n        <a href=\"#\" class=\"btn btn-save\"><i class=\"icon-file\"></i>Save</a>\n        <!-- <button href=\"#\" class=\"btn im-show-comments\" data-toggle=\"button\">Show Comments</button> -->\n        <a href=\"#\" data-dismiss=\"modal\" class=\"btn\">Close</a>\n    </div>\n</div>", {
         langs: CODE_GEN_LANGS
       });
 
@@ -3667,7 +3667,7 @@
           xml = this.query.toXML().replace(/></g, ">\n<");
           $m.find('pre').text(xml);
           $m.modal('show');
-          return prettyPrint(this.compact);
+          return prettyPrint(function() {});
         } else {
           $m.find('.btn-save').attr({
             href: this.query.getCodeURI(this.lang)
@@ -3675,7 +3675,7 @@
           return this.query.fetchCode(this.lang, function(code) {
             $m.find('pre').text(code);
             $m.modal('show');
-            return prettyPrint(_this.compact);
+            return prettyPrint(function() {});
           });
         }
       };

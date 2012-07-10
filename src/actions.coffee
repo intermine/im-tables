@@ -871,7 +871,7 @@ scope "intermine.query.actions", (exporting) ->
                 </div>
                 <div class="modal-footer">
                     <a href="#" class="btn btn-save"><i class="icon-file"></i>Save</a>
-                    <button href="#" class="btn im-show-comments" data-toggle="button">Show Comments</button>
+                    <!-- <button href="#" class="btn im-show-comments" data-toggle="button">Show Comments</button> -->
                     <a href="#" data-dismiss="modal" class="btn">Close</a>
                 </div>
             </div>
@@ -905,13 +905,13 @@ scope "intermine.query.actions", (exporting) ->
                 xml = @query.toXML().replace(/></g, ">\n<")
                 $m.find('pre').text xml
                 $m.modal 'show'
-                prettyPrint @compact
+                prettyPrint ->
             else
                 $m.find('.btn-save').attr href: @query.getCodeURI @lang
                 @query.fetchCode @lang, (code) =>
                     $m.find('pre').text code
                     $m.modal 'show'
-                    prettyPrint @compact
+                    prettyPrint ->
 
         doMainAction: (e) =>
             if @lang then @getAndShowCode(e) else $(e.target).next().dropdown 'toggle'
