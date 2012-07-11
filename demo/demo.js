@@ -27,8 +27,8 @@ $(function() {
             }
         },
         Preview: {
-          root: "localhost/squirrelmine",
-          token: "C1o3t1e0d4V06ep8xb47DdlFVMr",
+          root: "beta.flymine.org/beta",
+          token: "M1n3x2ydw4icj140pbBcffIgR4Q",
           q: {
               select: ["*", "proteins.name", "exons.primaryIdentifier"], 
               from: "Gene", 

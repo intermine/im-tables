@@ -422,6 +422,14 @@
     border: 1px solid #ddd;
     border-left: none;
 }
+.im-query-display .pagination li .form select,
+.im-query-display .pagination li .form input {
+    width: 6em;
+}
+
+.im-query-display .pagination li .form .control-group {
+    margin-bottom: 0;
+}
 
 .im-query-results .im-page-sizer,
 .im-query-results .pagination {

@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Tue Jul 10 2012 19:55:19 GMT+0100 (BST)
+ * Built at Thu Jul 12 2012 00:14:01 GMT+0100 (BST)
 */
 
 
@@ -607,1990 +607,135 @@
     })(Backbone.View));
   });
 
-  scope("intermine.query.tools", function(exporting) {
-    var PANE_HTML, Step, TAB_HTML, ToolBar, Tools, Trail;
-    TAB_HTML = _.template("<li>\n    <a href=\"#<%= ref %>\" data-toggle=\"tab\">\n        <%= title %>\n    </a>\n</li>");
-    PANE_HTML = _.template("<div class=\"tab-pane\" id=\"<%= ref %>\"></div>");
-    exporting(Tools = (function(_super) {
+  scope("intermine", function(exporting) {
+    var utils;
+    return exporting(utils = (function() {
 
-      __extends(Tools, _super);
+      function utils() {}
 
-      function Tools() {
-        return Tools.__super__.constructor.apply(this, arguments);
-      }
-
-      Tools.prototype.className = "im-query-tools";
-
-      Tools.prototype.initialize = function(query) {
-        this.query = query;
-      };
-
-      Tools.prototype.render = function() {
-        var $pane, actions, c, columns, conf, content, filters, tabs, view, _i, _j, _len, _len1;
-        tabs = this.make("ul", {
-          "class": "nav nav-tabs"
-        });
-        conf = [
-          filters = {
-            title: "Filters",
-            ref: "filters",
-            view: intermine.query.filters.Filters
-          }, columns = {
-            title: "Columns",
-            ref: "columns",
-            view: intermine.query.columns.Columns
-          }, actions = {
-            title: "Actions",
-            ref: "actions",
-            view: intermine.query.actions.Actions
-          }
-        ];
-        for (_i = 0, _len = conf.length; _i < _len; _i++) {
-          c = conf[_i];
-          $(tabs).append(TAB_HTML(c));
+      utils.pluralise = function(word, count) {
+        if (count === 1) {
+          return word;
+        } else if (word.match(/(s|x|ch)$/)) {
+          return word + "es";
+        } else if (word.match(/[^aeiou]y$/)) {
+          return word.replace(/y$/, "ies");
+        } else {
+          return word + "s";
         }
-        this.$el.append(tabs);
-        content = this.make("div", {
-          "class": "tab-content"
+      };
+
+      utils.numToString = function(num, sep, every) {
+        var chars, groups, i, len, rets;
+        rets = [];
+        i = 0;
+        chars = (num + "").split("");
+        len = chars.length;
+        groups = _(chars).groupBy(function(c, i) {
+          return Math.floor((len - (i + 1)) / every).toFixed();
         });
-        for (_j = 0, _len1 = conf.length; _j < _len1; _j++) {
-          c = conf[_j];
-          $pane = $(PANE_HTML(c)).appendTo(content);
-          view = new c.view(this.query);
-          $pane.append(view.render().el);
+        while (groups[i]) {
+          rets.unshift(groups[i].join(""));
+          i++;
         }
-        $(content).find('.tab-pane').first().addClass("active");
-        $(tabs).find("a").first().tab('show');
-        this.$el.append(content);
-        return this;
+        return rets.join(sep);
       };
 
-      return Tools;
-
-    })(Backbone.View));
-    exporting(ToolBar = (function(_super) {
-
-      __extends(ToolBar, _super);
-
-      function ToolBar() {
-        return ToolBar.__super__.constructor.apply(this, arguments);
-      }
-
-      ToolBar.prototype.className = "im-query-actionbar row-fluid";
-
-      ToolBar.prototype.initialize = function(query) {
-        this.query = query;
+      utils.getParameter = function(params, name) {
+        return _(params).chain().select(function(p) {
+          return p.name === name;
+        }).pluck('value').first().value();
       };
 
-      ToolBar.prototype.render = function() {
-        var actions;
-        actions = new intermine.query.actions.ActionBar(this.query);
-        actions.render().$el.appendTo(this.el);
-        return this;
+      utils.modelIsBio = function(model) {
+        return !!(model != null ? model.classes['Gene'] : void 0);
       };
 
-      return ToolBar;
-
-    })(Backbone.View));
-    Step = (function(_super) {
-
-      __extends(Step, _super);
-
-      function Step() {
-        return Step.__super__.constructor.apply(this, arguments);
-      }
-
-      Step.prototype.className = 'im-step';
-
-      Step.prototype.tagName = 'li';
-
-      Step.prototype.initialize = function(opts) {
-        var _this = this;
-        Step.__super__.initialize.call(this, opts);
-        this.model.on('got:count', function(count) {
-          return _this.$('.im-step-count .count').text(intermine.utils.numToString(count, ',', 3));
-        });
-        this.model.on('is:current', function(isCurrent) {
-          _this.$('.btn').toggleClass('btn-inverse', !isCurrent).attr({
-            disabled: isCurrent
-          });
-          _this.$('.btn-main').text(isCurrent ? "Current State" : "Revert to this State");
-          return _this.$('.btn i').toggleClass('icon-white', !isCurrent);
-        });
-        return this.model.on('remove', function() {
-          return _this.remove();
-        });
-      };
-
-      Step.prototype.events = {
-        'click .icon-info-sign': 'showDetails',
-        'click h4': 'toggleSection',
-        'click .btn': 'revertToThisState'
-      };
-
-      Step.prototype.toggleSection = function(e) {
-        e.stopPropagation();
-        $(e.target).find('i').toggleClass("icon-chevron-right icon-chevron-down");
-        return $(e.target).next().children().toggle();
-      };
-
-      Step.prototype.showDetails = function(e) {
-        e.stopPropagation();
-        return this.$('.im-step-details').toggle();
-      };
-
-      Step.prototype.revertToThisState = function(e) {
-        this.model.trigger('revert', this.model);
-        return this.$('.btn-small').tooltip('hide');
-      };
-
-      Step.prototype.sectionTempl = _.template("<div>\n    <h4>\n        <i class=\"icon-chevron-right\"></i>\n        <%= n %> <%= things %>\n    </h4>\n    <ul></ul>\n</div>");
-
-      Step.prototype.render = function() {
-        var addSection, c, clist, jlist, p, path, ps, q, style, toInfoLabel, toLabel, toPathLabel, toValLabel, v, vlist, _fn, _fn1, _fn2, _i, _j, _len, _len1, _ref, _ref1,
-          _this = this;
-        this.$el.append("<button class=\"btn btn-small im-state-revert\" disabled\n    title=\"Revert to this state\">\n    <i class=icon-undo></i>\n</button>\n<h3>" + (this.model.get('title')) + "</h3>\n<i class=\"icon-info-sign\"></i>\n</div>\n<span class=\"im-step-count\">\n    <span class=\"count\"></span> rows\n</span>\n<div class=\"im-step-details\">\n<div style=\"clear:both\"></div>");
-        q = this.model.get('query');
-        addSection = function(n, things) {
-          return $(_this.sectionTempl({
-            n: n,
-            things: things
-          })).appendTo(_this.$('.im-step-details')).find('ul');
-        };
-        toLabel = function(type, text) {
-          return "<span class=\"label label-" + type + "\">" + text + "</span>";
-        };
-        toPathLabel = _.bind(toLabel, {}, 'path');
-        toInfoLabel = _.bind(toLabel, {}, 'info');
-        toValLabel = _.bind(toLabel, {}, 'value');
-        this.$('.btn-small').tooltip({
-          placement: 'right'
-        });
-        ps = (function() {
+      utils.getOrganisms = function(query, cb) {
+        var c, n, newView, nodes, onodes, onodes2, orgs, promise, restrictedOrganisms, toRun, v;
+        restrictedOrganisms = (function() {
           var _i, _len, _ref, _results;
-          _ref = q.views;
+          _ref = query.constraints;
           _results = [];
           for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            v = _ref[_i];
-            _results.push(q.getPathInfo(v));
+            c = _ref[_i];
+            if (c.path.match(/(o|O)rganism/)) {
+              _results.push(c.value);
+            }
           }
           return _results;
         })();
-        vlist = addSection(ps.length, 'Columns');
-        _fn = function(p) {
-          var li;
-          li = $('<li>');
-          vlist.append(li);
-          return p.getDisplayName(function(name) {
-            return li.append(toPathLabel(name));
-          });
-        };
-        for (_i = 0, _len = ps.length; _i < _len; _i++) {
-          p = ps[_i];
-          _fn(p);
-        }
-        clist = addSection(q.constraints.length, 'Filters');
-        _ref = q.constraints;
-        _fn1 = function(c) {
-          var li;
-          li = $('<li>');
-          clist.append(li);
-          return q.getPathInfo(c.path).getDisplayName(function(name) {
-            li.append(toPathLabel(name));
-            li.append(toInfoLabel(c.op));
-            if (c.value != null) {
-              return li.append(toValLabel(c.value));
-            } else if (c.values != null) {
-              return li.append(toValLabel(c.values.join(', ')));
-            }
-          });
-        };
-        for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
-          c = _ref[_j];
-          _fn1(c);
-        }
-        jlist = addSection(_.size(q.joins), 'Joins');
-        _ref1 = q.joins;
-        _fn2 = function(path, style) {
-          var li;
-          li = $('<li>');
-          jlist.append(li);
-          return q.getPathInfo(path).getDisplayName(function(name) {
-            li.append(toPathLabel(name));
-            return li.append(toInfoLabel(style));
-          });
-        };
-        for (path in _ref1) {
-          style = _ref1[path];
-          _fn2(path, style);
-        }
-        return this;
-      };
-
-      return Step;
-
-    })(Backbone.View);
-    return exporting(Trail = (function(_super) {
-
-      __extends(Trail, _super);
-
-      function Trail() {
-        this.minumaximise = __bind(this.minumaximise, this);
-        return Trail.__super__.constructor.apply(this, arguments);
-      }
-
-      Trail.prototype.className = "im-query-trail";
-
-      Trail.prototype.tagName = "div";
-
-      Trail.prototype.events = {
-        'click a.details': 'minumaximise',
-        'click a.shade': 'toggle'
-      };
-
-      Trail.prototype.toggle = function() {
-        var _this = this;
-        return this.$('.im-step').slideToggle('fast', function() {
-          return _this.$el.toggleClass("toggled");
-        });
-      };
-
-      Trail.prototype.minumaximise = function() {
-        return this.$el.toggleClass("minimised");
-      };
-
-      Trail.prototype.startListening = function() {
-        var _this = this;
-        this.query.on("change:constraints", this.addStep("Changed Filters"));
-        this.query.on("change:views", this.addStep("Changed Columns"));
-        this.query.on('count:is', function(count) {
-          return _this.states.last().trigger('got:count', count);
-        });
-        return this.query.on('undo', function() {
-          var newState;
-          _this.states.remove(_this.states.last());
-          newState = _this.states.last();
-          return newState.trigger('revert', newState);
-        });
-      };
-
-      Trail.prototype.initialize = function(query, display) {
-        var _this = this;
-        this.query = query;
-        this.display = display;
-        this.currentStep = 0;
-        this.states = new Backbone.Collection();
-        this.states.on('add', function(state) {
-          return _this.$('.im-state-list').append(new Step({
-            model: state
-          }).render().el);
-        });
-        this.states.on('add remove', function() {
-          _this.$('.im-trail-summary').text("query history: " + (_this.states.size()) + " states");
-          return _this.$el.toggle(_this.states.size() > 1);
-        });
-        this.states.on('revert', function(state) {
-          var num;
-          _this.query = state.get('query').clone();
-          num = state.get('stepNo');
-          _this.display.loadQuery(_this.query);
-          _this.startListening();
-          _this.states.remove(_this.states.filter(function(s) {
-            return s.get('stepNo') > num;
-          }));
-          return state.trigger('is:current', true);
-        });
-        return this.startListening();
-      };
-
-      Trail.prototype.addStep = function(title) {
-        var _this = this;
-        return function() {
-          _this.states.each(function(state) {
-            return state.trigger('is:current', false);
-          });
-          return _this.states.add({
-            query: _this.query.clone(),
-            title: title,
-            stepNo: _this.currentStep++
-          });
-        };
-      };
-
-      Trail.prototype.render = function() {
-        this.$el.append("<div class=\"btn-group\">\n  <a class=\"btn dropdown-toggle\" data-toggle=\"dropdown\" href=\"#\">\n    <span class=\"im-trail-summary\"></span>\n    <span class=\"caret\"></span>\n  </a>\n  <ul class=\"dropdown-menu im-state-list\">\n  </ul>\n</div>\n<div style=\"clear:both\"></div>");
-        this.addStep('Original State')();
-        return this;
-      };
-
-      return Trail;
-
-    })(Backbone.View));
-  });
-
-  scope("intermine.css", {
-    unsorted: "icon-sort",
-    sortedASC: "icon-sort-up",
-    sortedDESC: "icon-sort-down",
-    headerIcon: "icon-white",
-    headerIconRemove: "icon-remove-sign",
-    headerIconHide: "icon-minus-sign",
-    headerIconFilter: "icon-filter",
-    headerIconSummary: "icon-bar-chart"
-  });
-
-  scope('intermine.snippets.query', {
-    UndoButton: '<button class="btn btn-primary pull-right"><i class="icon-undo"></i> undo</button>'
-  });
-
-  scope('intermine.messages.query', {
-    CountSummary: _.template("<span class=\"im-only-widescreen\">Showing</span>\n<span>\n  <% if (last == 0) { %>\n      All\n  <% } else { %>\n      <%= first %> to <%= last %> of\n  <% } %>\n  <%= count %> <%= roots %>\n</span>")
-  });
-
-  scope("intermine.query.results", function(exporting) {
-    var NUMERIC_TYPES, Page, PageSizer, ResultsTable, Table;
-    NUMERIC_TYPES = ["int", "Integer", "double", "Double", "float", "Float"];
-    Page = (function() {
-
-      function Page(start, size) {
-        this.start = start;
-        this.size = size;
-      }
-
-      Page.prototype.end = function() {
-        return this.start + this.size;
-      };
-
-      return Page;
-
-    })();
-    ResultsTable = (function(_super) {
-
-      __extends(ResultsTable, _super);
-
-      function ResultsTable() {
-        this.addColumnHeaders = __bind(this.addColumnHeaders, this);
-
-        this.handleError = __bind(this.handleError, this);
-
-        this.appendRows = __bind(this.appendRows, this);
-        return ResultsTable.__super__.constructor.apply(this, arguments);
-      }
-
-      ResultsTable.nextDirections = {
-        ASC: "DESC",
-        DESC: "ASC"
-      };
-
-      ResultsTable.prototype.className = "im-results-table table table-striped table-bordered";
-
-      ResultsTable.prototype.tagName = "table";
-
-      ResultsTable.prototype.attributes = {
-        width: "100%",
-        cellpadding: 0,
-        border: 0,
-        cellspacing: 0
-      };
-
-      ResultsTable.prototype.pageSize = 25;
-
-      ResultsTable.prototype.pageStart = 0;
-
-      ResultsTable.prototype.throbber = _.template("<tr class=\"im-table-throbber\">\n    <td colspan=\"<%= colcount %>\">\n        <h2>Requesting Data</h2>\n        <div class=\"progress progress-info progress-striped active\">\n            <div class=\"bar\" style=\"width: 100%\"></div>\n        </div>\n    </td>\n</tr>");
-
-      ResultsTable.prototype.initialize = function(query, getData) {
-        var _this = this;
-        this.query = query;
-        this.getData = getData;
-        this.minimisedCols = {};
-        this.query.on("set:sortorder", function(oes) {
-          _this.lastAction = 'resort';
-          return _this.fill();
-        });
-        return this.query.on("page-size:selected", function(size) {
-          _this.pageSize = size;
-          if (size === 0) {
-            _this.pageStart = 0;
-          }
-          return _this.fill();
-        });
-      };
-
-      ResultsTable.prototype.render = function() {
-        var promise;
-        this.$el.empty();
-        promise = this.fill();
-        return promise.done(this.addColumnHeaders);
-      };
-
-      ResultsTable.prototype.goTo = function(start) {
-        this.pageStart = parseInt(start);
-        return this.fill();
-      };
-
-      ResultsTable.prototype.goToPage = function(page) {
-        this.pageStart = page * this.pageSize;
-        return this.fill();
-      };
-
-      ResultsTable.prototype.fill = function() {
-        var promise, throbber,
-          _this = this;
-        throbber = $(this.throbber({
-          colcount: this.query.views.length
-        }));
-        promise = this.getData(this.pageStart, this.pageSize);
-        promise.then(this.appendRows, this.handleError).always(function() {
-          return throbber.remove();
-        });
-        promise.done(function() {
-          return _this.query.trigger("imtable:change:page", _this.pageStart, _this.pageSize);
-        });
-        return promise;
-      };
-
-      ResultsTable.prototype.handleEmptyTable = function() {
-        var apology,
-          _this = this;
-        apology = $("<tr>\n    <td colspan=\"" + this.query.views.length + "\">\n        <div class=\"im-no-results alert alert-info\">\n            " + (this.query.__changed > 0 ? intermine.snippets.query.UndoButton : '') + "\n            <strong>NO RESULTS</strong>\n            This query returned 0 results.\n            <div style=\"clear:both\"></div>\n        </div>\n    </td>\n</tr>");
-        return apology.appendTo(this.el).find('button').click(function(e) {
-          return _this.query.trigger('undo');
-        });
-      };
-
-      ResultsTable.prototype.appendRows = function(res) {
-        var row, _i, _len, _ref;
-        this.$("tbody > tr").remove();
-        if (res.rows.length === 0) {
-          this.handleEmptyTable();
+        if (restrictedOrganisms.length) {
+          return cb(restrictedOrganisms);
         } else {
-          _ref = res.rows;
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            row = _ref[_i];
-            this.appendRow(row);
-          }
-        }
-        return this.query.trigger("table:filled");
-      };
-
-      ResultsTable.prototype.minimisedColumnPlaceholder = _.template("<td class=\"im-minimised-col\" style=\"width:<%= width %>px\">&hellip;</td>");
-
-      ResultsTable.prototype.appendRow = function(row) {
-        var cell, i, k, minWidth, minimised, tr, v, w, _fn, _i, _len,
-          _this = this;
-        tr = $("<tr>");
-        minWidth = 10;
-        minimised = (function() {
-          var _ref, _results;
-          _ref = this.minimisedCols;
-          _results = [];
-          for (k in _ref) {
-            v = _ref[k];
-            if (v) {
-              _results.push(k);
+          toRun = query.clone();
+          orgs = [];
+          nodes = (function() {
+            var _i, _len, _ref, _results;
+            _ref = toRun.views;
+            _results = [];
+            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+              v = _ref[_i];
+              _results.push(toRun.getPathInfo(v).getParent());
             }
-          }
-          return _results;
-        }).call(this);
-        w = 1 / (row.length - minimised.length) * (this.$el.width() - (minWidth * minimised.length));
-        _fn = function(cell, i) {
-          if (_this.minimisedCols[i]) {
-            return tr.append(_this.minimisedColumnPlaceholder({
-              width: minWidth
-            }));
-          } else {
-            return tr.append(cell.render().setWidth(w).$el);
-          }
-        };
-        for (i = _i = 0, _len = row.length; _i < _len; i = ++_i) {
-          cell = row[i];
-          _fn(cell, i);
-        }
-        return tr.appendTo(this.el);
-      };
-
-      ResultsTable.prototype.errorTempl = _.template("<div class=\"alert alert-error\">\n    <h2>Oops!</h2>\n    <p><i><%- error %></i></p>\n</div>");
-
-      ResultsTable.prototype.handleError = function(err, time) {
-        var btn, mailto, notice, p;
-        notice = $(this.errorTempl({
-          error: err
-        }));
-        if (time != null) {
-          notice.append("<p>Time: " + time + "</p>");
-        }
-        notice.append("<p>\n    This is most likely related to the query that was just run. If you have\n    time, please send us an email with details of this query to help us diagnose and\n    fix this bug.\n</p>");
-        btn = $('<button class="btn btn-error">');
-        notice.append(btn);
-        p = $('<p style="display:none" class="well">');
-        btn.text('show query');
-        p.text(this.query.toXML());
-        btn.click(function() {
-          return p.slideToggle();
-        });
-        mailto = this.query.service.help + "?" + $.param({
-          subject: "Error running embedded table query",
-          body: "We encountered an error running a query from an\nembedded result table.\n\npage:       " + window.location + "\nservice:    " + this.query.service.root + "\nerror:      " + err + "\ndate-stamp: " + time + "\nquery:      " + (this.query.toXML())
-        }, true);
-        mailto = mailto.replace(/\+/g, '%20');
-        notice.append("<a class=\"btn btn-primary pull-right\" href=\"mailto:" + mailto + "\">\n    Email the help-desk\n</a>");
-        notice.append(p);
-        return this.$el.append(notice);
-      };
-
-      ResultsTable.prototype.columnHeaderTempl = function(ctx) {
-        return _.template("<th>\n    <div class=\"navbar\">\n        <div class=\"im-th-buttons\">\n            <% if (sortable) { %>\n                <div class=\"im-th-button im-col-sort-indicator\" title=\"sort this column\">\n                    <i class=\"icon-sorting " + intermine.css.unsorted + " " + intermine.css.headerIcon + "\"></i>\n                </div>\n            <% }; %>\n            <div class=\"im-th-button im-col-remover\" title=\"remove this column\" data-view=\"<%= view %>\">\n                <i class=\"" + intermine.css.headerIconRemove + " " + intermine.css.headerIcon + "\"></i>\n            </div>\n            <div class=\"im-th-button im-col-minumaximiser\" title=\"Hide column\" data-col-idx=\"<%= i %>\">\n                <i class=\"" + intermine.css.headerIconHide + " " + intermine.css.headerIcon + "\"></i>\n            </div>\n            <div class=\"dropdown im-filter-summary\">\n                <div class=\"im-th-button im-col-filters dropdown-toggle\"\n                     title=\"Filter by values in this column\"\n                     data-toggle=\"dropdown\" data-col-idx=\"<%= i %>\" >\n                    <i class=\"" + intermine.css.headerIconFilter + " " + intermine.css.headerIcon + "\"></i>\n                </div>\n                <div class=\"dropdown-menu\">\n                    <div>Could not ititialise the filter summary.</div>\n                </div>\n            </div>\n            <div class=\"dropdown im-summary\">\n                <div class=\"im-th-button summary-img dropdown-toggle\" title=\"column summary\"\n                    data-toggle=\"dropdown\" data-col-idx=\"<%= i %>\" >\n                    <i class=\"" + intermine.css.headerIconSummary + " " + intermine.css.headerIcon + "\"></i>\n                </div>\n                <div class=\"dropdown-menu\">\n                    <div>Could not ititialise the column summary.</div>\n                </div>\n            </div>\n        </div>\n        <span class=\"im-col-title\"><%- title %></span>\n    </div>\n</th>", ctx);
-      };
-
-      ResultsTable.prototype.buildColumnHeader = function(view, i, title, tr) {
-        var cmd, cmds, direction, expandAll, filterSummary, minumaximiser, path, q, setDirectionClass, sortButton, sortable, th,
-          _this = this;
-        q = this.query;
-        direction = q.getSortDirection(view);
-        sortable = !q.isOuterJoined(view);
-        th = $(this.columnHeaderTempl({
-          title: title,
-          i: i,
-          view: view,
-          sortable: sortable
-        }));
-        tr.append(th);
-        if (_.any(q.constraints, (function(c) {
-          return !!c.path.match(view);
-        }))) {
-          th.addClass('im-has-constraint');
-          th.find('.im-col-filters').attr({
-            title: "" + (_.size(_.filter(q.constraints, function(c) {
-              return !!c.path.match(view);
-            }))) + " active filters"
-          });
-        }
-        th.find('.im-th-button').tooltip({
-          placement: "left"
-        });
-        sortButton = th.find('.icon-sorting');
-        setDirectionClass = function(d) {
-          sortButton.addClass(intermine.css.unsorted);
-          sortButton.removeClass("" + intermine.css.sortedASC + " " + intermine.css.sortedDESC);
-          if (d) {
-            return sortButton.toggleClass("" + intermine.css.unsorted + " " + intermine.css['sorted' + d]);
-          }
-        };
-        setDirectionClass(direction);
-        this.query.on("set:sortorder", function() {
-          var sd;
-          sd = q.getSortDirection(view);
-          return setDirectionClass(sd);
-        });
-        direction = ResultsTable.nextDirections[direction] || "ASC";
-        sortButton.parent().click(function(e) {
-          var $elem;
-          $elem = $(this);
-          q.orderBy([
-            {
-              path: view,
-              direction: direction
-            }
-          ]);
-          return direction = ResultsTable.nextDirections[direction];
-        });
-        minumaximiser = th.find('.im-col-minumaximiser');
-        minumaximiser.click(function(e) {
-          var isMinimised;
-          minumaximiser.find('i').toggleClass("icon-minus-sign icon-plus-sign");
-          isMinimised = _this.minimisedCols[i] = !_this.minimisedCols[i];
-          th.find('.im-col-title').toggle(!isMinimised);
-          return _this.fill();
-        });
-        filterSummary = th.find('.im-col-filters');
-        filterSummary.click(this.showFilterSummary(view)).dropdown();
-        path = q.getPathInfo(view);
-        if (path.isAttribute()) {
-          return th.find('.summary-img').click(this.showColumnSummary(path)).dropdown();
-        } else {
-          th.find('.summary-img').click(this.showOuterJoinedColumnSummaries(path)).dropdown();
-          expandAll = $("<div class=\"im-th-button\" title=\"Expand/Collapse all subtables\">\n    <i class=\"icon-table icon-white\"></i>\n</div>");
-          expandAll.tooltip({
-            placement: 'left'
-          });
-          th.find('.im-th-buttons').prepend(expandAll);
-          cmds = ['expand', 'collapse'];
-          cmd = 0;
-          this.query.on('subtable:expanded', function(node) {
-            if (node.toString().match(path.toString())) {
-              return cmd = 1;
-            }
-          });
-          this.query.on('subtable:collapsed', function(node) {
-            if (node.toString().match(path.toString())) {
-              return cmd = 0;
-            }
-          });
-          return expandAll.click(function(e) {
-            e.stopPropagation();
-            e.preventDefault();
-            _this.query.trigger("" + cmds[cmd] + ":subtables", path);
-            return cmd = (cmd + 1) % 2;
-          });
-        }
-      };
-
-      ResultsTable.prototype.addColumnHeaders = function(result) {
-        var i, promise, q, thead, titles, tr, view, views, _fn, _i, _len,
-          _this = this;
-        thead = $("<thead>");
-        tr = $("<tr>");
-        thead.append(tr);
-        q = this.query;
-        if (result.results.length && _.has(result.results[0][0], 'column')) {
-          views = result.results[0].map(function(row) {
-            return row.column;
-          });
-          promise = new $.Deferred();
-          titles = {};
-          _.each(views, function(v) {
-            var path, _ref;
-            path = q.getPathInfo(v);
-            if ((((_ref = path.end) != null ? _ref.name : void 0) === 'id') && (intermine.results.getFormatter(q.model, path.getParent().getType()) != null)) {
-              path = path.getParent();
-            }
-            return path.getDisplayName(function(name) {
-              titles[v] = name;
-              if (_.size(titles) === views.length) {
-                return promise.resolve(titles);
+            return _results;
+          })();
+          onodes = (function() {
+            var _i, _len, _results;
+            _results = [];
+            for (_i = 0, _len = nodes.length; _i < _len; _i++) {
+              n = nodes[_i];
+              if (n.toPathString() === "Organism" || (n.getType().fields["organism"] != null)) {
+                _results.push(n);
               }
-            });
-          });
-          promise.done(function(titles) {
-            var i, v, _i, _len, _results;
-            _results = [];
-            for (i = _i = 0, _len = views.length; _i < _len; i = ++_i) {
-              v = views[i];
-              _results.push(_this.buildColumnHeader(v, i, titles[v], tr));
             }
             return _results;
-          });
-        } else {
-          views = q.views;
-          _fn = function(view, i) {
-            var title;
-            title = result.columnHeaders[i].split(' > ').slice(1).join(" > ");
-            return _this.buildColumnHeader(view, i, title, tr);
-          };
-          for (i = _i = 0, _len = views.length; _i < _len; i = ++_i) {
-            view = views[i];
-            _fn(view, i);
-          }
-        }
-        return thead.appendTo(this.el);
-      };
-
-      ResultsTable.prototype.showOuterJoinedColumnSummaries = function(path) {
-        var _this = this;
-        return function(e) {
-          var $el, summ;
-          $el = jQuery(e.target).closest('.summary-img');
-          if (!$el.parent().hasClass('open')) {
-            summ = new intermine.query.results.OuterJoinDropDown(path, _this.query);
-            $el.siblings('.dropdown-menu').html(summ.render().el);
-          }
-          return false;
-        };
-      };
-
-      ResultsTable.prototype.checkHowFarOver = function(e) {
-        var bounds, thb;
-        thb = $(e.target).closest('.im-th-button');
-        bounds = thb.closest('.im-table-container');
-        if ((thb.offset().left + 350) >= (bounds.offset().left + bounds.width())) {
-          return thb.closest('th').addClass('too-far-over');
-        }
-      };
-
-      ResultsTable.prototype.showFilterSummary = function(path) {
-        var _this = this;
-        return function(e) {
-          var $el, summ;
-          _this.checkHowFarOver(e);
-          $el = jQuery(e.target).closest('.im-col-filters');
-          if (!$el.parent().hasClass('open')) {
-            summ = new intermine.query.filters.SingleColumnConstraints(_this.query, path);
-            $el.siblings('.dropdown-menu').html(summ.render().el);
-          }
-          return false;
-        };
-      };
-
-      ResultsTable.prototype.showColumnSummary = function(path) {
-        var _this = this;
-        return function(e) {
-          var $el, summ, view;
-          _this.checkHowFarOver(e);
-          $el = jQuery(e.target).closest('.summary-img');
-          view = path.toString();
-          if (!view) {
-            e.stopPropagation();
-            e.preventDefault();
-          } else if (!$el.parent().hasClass("open")) {
-            summ = new intermine.query.results.DropDownColumnSummary(view, _this.query);
-            $el.siblings('.dropdown-menu').html(summ.render().el);
-          }
-          return false;
-        };
-      };
-
-      return ResultsTable;
-
-    })(Backbone.View);
-    PageSizer = (function(_super) {
-
-      __extends(PageSizer, _super);
-
-      function PageSizer() {
-        return PageSizer.__super__.constructor.apply(this, arguments);
-      }
-
-      PageSizer.prototype.tagName = 'form';
-
-      PageSizer.prototype.className = "im-page-sizer form-horizontal";
-
-      PageSizer.prototype.sizes = [[10], [25], [50], [100], [0, 'All']];
-
-      PageSizer.prototype.initialize = function(query, pageSize) {
-        this.query = query;
-        this.pageSize = pageSize;
-        if (this.pageSize != null) {
-          if (!_.include(this.sizes.map(function(s) {
-            return s[0];
-          }), this.pageSize)) {
-            return this.sizes.unshift([this.pageSize, this.pageSize]);
-          }
-        } else {
-          return this.pageSize = this.sizes[0][0];
-        }
-      };
-
-      PageSizer.prototype.render = function() {
-        var ps, select, _i, _len, _ref,
-          _this = this;
-        this.$el.append("<label>\n    <span class=\"im-only-widescreen\">Rows per page:</span>\n    <select class=\"span1\" title=\"Rows per page\">\n    </select>\n</label>");
-        select = this.$('select');
-        _ref = this.sizes;
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          ps = _ref[_i];
-          select.append(this.make('option', {
-            value: ps[0],
-            selected: ps[0] === this.pageSize
-          }, ps[1] || ps[0]));
-        }
-        select.change(function(e) {
-          return _this.query.trigger("page-size:selected", parseInt(select.val()));
-        });
-        return this;
-      };
-
-      return PageSizer;
-
-    })(Backbone.View);
-    return exporting(Table = (function(_super) {
-
-      __extends(Table, _super);
-
-      function Table() {
-        this.updatePageDisplay = __bind(this.updatePageDisplay, this);
-
-        this.removeColumn = __bind(this.removeColumn, this);
-
-        this.removeOverlay = __bind(this.removeOverlay, this);
-
-        this.overlayTable = __bind(this.overlayTable, this);
-
-        this.getRowData = __bind(this.getRowData, this);
-
-        this.showError = __bind(this.showError, this);
-
-        this.refresh = __bind(this.refresh, this);
-
-        this.onDraw = __bind(this.onDraw, this);
-        return Table.__super__.constructor.apply(this, arguments);
-      }
-
-      Table.prototype.className = "im-table-container";
-
-      Table.prototype.paginationTempl = _.template("<div class=\"pagination pagination-right\">\n    <ul>\n        <li title=\"Go to start\">\n            <a class=\"im-pagination-button\" data-goto=start>&#x21e4;</a>\n        </li>\n        <li title=\"Go back five pages\">\n            <a class=\"im-pagination-button\" data-goto=fast-rewind>&#x219e;</a>\n        </li>\n        <li title=\"Go to previous page\">\n            <a class=\"im-pagination-button\" data-goto=prev>&larr;</a>\n        </li>\n        <li class=\"im-current-page\">\n            <a data-goto=here  href=\"#\">&hellip;</a>\n            <form class=\"input-append form form-horizontal\" style=\"display:none;\"><select></select></form>\n        </li>\n        <li title=\"Go to next page\">\n            <a class=\"im-pagination-button\" data-goto=next>&rarr;</a>\n        </li>\n        <li title=\"Go forward five pages\">\n            <a class=\"im-pagination-button\" data-goto=fast-forward>&#x21a0;</a>\n        </li>\n        <li title=\"Go to last page\">\n            <a class=\"im-pagination-button\" data-goto=end>&#x21e5;</a>\n        </li>\n    </ul>\n</div>");
-
-      Table.prototype.onDraw = function() {
-        if (this.__selecting) {
-          this.query.trigger("start:list-creation");
-        }
-        return this.drawn = true;
-      };
-
-      Table.prototype.refresh = function() {
-        var _ref;
-        this.query.__changed = (this.query.__changed || 0) + 1;
-        if ((_ref = this.table) != null) {
-          _ref.remove();
-        }
-        this.drawn = false;
-        return this.render();
-      };
-
-      Table.prototype.initialize = function(query, selector) {
-        var _this = this;
-        this.query = query;
-        this.cache = {};
-        this.itemModels = {};
-        this._pipe_factor = 10;
-        this.$parent = jQuery(selector);
-        this.__selecting = false;
-        this.visibleViews = this.query.views.slice();
-        this.query.on("change:views", function() {
-          _this.visibleViews = _this.query.views.slice();
-          return _this.refresh();
-        });
-        this.query.on("start:list-creation", function() {
-          return _this.__selecting = true;
-        });
-        this.query.on("stop:list-creation", function() {
-          return _this.__selecting = false;
-        });
-        this.query.on("change:constraints", this.refresh);
-        this.query.on("change:joins", this.refresh);
-        return this.query.on("table:filled", this.onDraw);
-      };
-
-      Table.prototype.adjustSortOrder = function(params) {
-        var i, noOfSortColumns, viewIndices;
-        viewIndices = (function() {
-          var _i, _ref, _results;
-          _results = [];
-          for (i = _i = 0, _ref = intermine.utils.getParameter(params, "iColumns"); 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
-            _results.push(intermine.utils.getParameter(params, "mDataProp_" + i));
-          }
-          return _results;
-        })();
-        noOfSortColumns = intermine.utils.getParameter(params, "iSortingCols");
-        if (noOfSortColumns) {
-          return this.query.orderBy((function() {
-            var _i, _results,
-              _this = this;
-            _results = [];
-            for (i = _i = 0; 0 <= noOfSortColumns ? _i < noOfSortColumns : _i > noOfSortColumns; i = 0 <= noOfSortColumns ? ++_i : --_i) {
-              _results.push((function(i) {
-                var displayed, so;
-                displayed = intermine.utils.getParameter(params, "iSortCol_" + i);
-                so = {
-                  path: _this.query.views[viewIndices[displayed]],
-                  direction: intermine.utils.getParameter(params, "sSortDir_" + i)
-                };
-                return so;
-              })(i));
-            }
-            return _results;
-          }).call(this));
-        }
-      };
-
-      Table.prototype.showError = function(resp) {
-        var data, _ref, _ref1;
-        try {
-          data = JSON.parse(resp.responseText);
-          return (_ref = this.table) != null ? _ref.handleError(data.error, data.executionTime) : void 0;
-        } catch (err) {
-          return (_ref1 = this.table) != null ? _ref1.handleError("Internal error", new Date().toString()) : void 0;
-        }
-      };
-
-      Table.prototype.getRowData = function(start, size) {
-        var end, freshness, isOutOfRange, isStale, page, promise, req,
-          _this = this;
-        end = start + size;
-        isOutOfRange = false;
-        freshness = this.query.getSorting() + this.query.getConstraintXML() + this.query.views.join();
-        isStale = freshness !== this.cache.freshness;
-        if (isStale) {
-          this.cache = {};
-        } else {
-          isOutOfRange = this.cache.lowerBound < 0 || start < this.cache.lowerBound || end > this.cache.upperBound || size <= 0;
-        }
-        promise = new jQuery.Deferred();
-        if (isStale || isOutOfRange) {
-          page = this.getPage(start, size);
-          this.overlayTable();
-          req = this.query[this.fetchMethod](page, function(rows, resultSet) {
-            _this.addRowsToCache(page, resultSet);
-            return _this.cache.freshness = freshness;
-          });
-          req.fail(this.showError);
-          req.done(function() {
-            return promise.resolve(_this.serveResultsFromCache(start, size));
-          });
-          req.always(this.removeOverlay);
-        } else {
-          promise.resolve(this.serveResultsFromCache(start, size));
-        }
-        return promise;
-      };
-
-      Table.prototype.overlayTable = function() {
-        var elOffset, tableOffset,
-          _this = this;
-        if (!(this.table && this.drawn)) {
-          return;
-        }
-        elOffset = this.$el.offset();
-        tableOffset = this.table.$el.offset();
-        jQuery('.im-table-overlay').remove();
-        this.overlay = jQuery(this.make("div", {
-          "class": "im-table-overlay discrete"
-        }));
-        this.overlay.css({
-          top: elOffset.top,
-          left: elOffset.left,
-          width: this.table.$el.outerWidth(true),
-          height: (tableOffset.top - elOffset.top) + this.table.$el.outerHeight()
-        });
-        this.overlay.append(this.make("h1", {}, "Requesting data..."));
-        this.overlay.find("h1").css({
-          top: (this.table.$el.height() / 2) + "px",
-          left: (this.table.$el.width() / 4) + "px"
-        });
-        this.overlay.appendTo('body');
-        return _.delay((function() {
-          return _this.overlay.removeClass("discrete");
-        }), 100);
-      };
-
-      Table.prototype.removeOverlay = function() {
-        var _ref;
-        return (_ref = this.overlay) != null ? _ref.remove() : void 0;
-      };
-
-      Table.prototype.getPage = function(start, size) {
-        var page;
-        page = new Page(start, size);
-        if (!this.cache.lastResult) {
-          page.size *= this._pipe_factor;
-          return page;
-        }
-        if (start < this.cache.lowerBound) {
-          page.start = Math.max(0, start - (size * this._pipe_factor));
-        }
-        if (size > 0) {
-          page.size *= this._pipe_factor;
-        } else {
-          page.size = '';
-        }
-        if (page.size && (page.end() < this.cache.lowerBound)) {
-          if ((this.cache.lowerBound - page.end()) > (page.size * 10)) {
-            this.cache = {};
-            page.size *= 2;
-            return page;
-          } else {
-            page.size = this.cache.lowerBound - page.start;
-          }
-        }
-        if (this.cache.upperBound < page.start) {
-          if ((page.start - this.cache.upperBound) > (page.size * 10)) {
-            this.cache = {};
-            page.size *= 2;
-            page.start = Math.max(0, page.start - (size * this._pipe_factor));
-            return page;
-          }
-          if (page.size) {
-            page.size += page.start - this.cache.upperBound;
-          }
-          page.start = this.cache.upperBound;
-        }
-        return page;
-      };
-
-      Table.prototype.addRowsToCache = function(page, result) {
-        var merged, rows;
-        if (!this.cache.lastResult) {
-          this.cache.lastResult = result;
-          this.cache.lowerBound = result.start;
-          return this.cache.upperBound = page.end();
-        } else {
-          rows = result.results;
-          merged = this.cache.lastResult.results.slice();
-          if (page.start < this.cache.lowerBound) {
-            merged = rows.concat(merged.slice(page.end() - this.cache.lowerBound));
-          }
-          if (this.cache.upperBound < page.end()) {
-            merged = merged.slice(0, page.start - this.cache.lowerBound).concat(rows);
-          }
-          this.cache.lowerBound = Math.min(this.cache.lowerBound, page.start);
-          this.cache.upperBound = Math.max(this.cache.upperBound, page.end());
-          return this.cache.lastResult.results = merged;
-        }
-      };
-
-      Table.prototype.updateSummary = function(start, size, result) {
-        var html, summary;
-        summary = this.$('.im-table-summary');
-        html = intermine.messages.query.CountSummary({
-          first: start + 1,
-          last: size === 0 ? 0 : Math.min(start + size, result.iTotalRecords),
-          count: intermine.utils.numToString(result.iTotalRecords, ",", 3),
-          roots: "rows"
-        });
-        summary.html(html);
-        return this.query.trigger('count:is', result.iTotalRecords);
-      };
-
-      Table.prototype.serveResultsFromCache = function(start, size) {
-        var base, fields, makeCell, result, v,
-          _this = this;
-        base = this.query.service.root.replace(/\/service\/?$/, "");
-        result = jQuery.extend(true, {}, this.cache.lastResult);
-        result.results.splice(0, start - this.cache.lowerBound);
-        if (size > 0) {
-          result.results.splice(size, result.results.length);
-        }
-        this.updateSummary(start, size, result);
-        fields = (function() {
-          var _i, _len, _ref, _results;
-          _ref = result.views;
-          _results = [];
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            v = _ref[_i];
-            _results.push([this.query.getPathInfo(v).getParent(), v.replace(/^.*\./, "")]);
-          }
-          return _results;
-        }).call(this);
-        makeCell = function(obj) {
-          var args, field, model, node, _base, _name;
-          if (_.has(obj, 'rows')) {
-            return new intermine.results.table.SubTable(_this.query, makeCell, obj);
-          } else {
-            node = _this.query.getPathInfo(obj.column).getParent();
-            field = obj.column.replace(/^.*\./, '');
-            model = obj.id != null ? (_base = _this.itemModels)[_name = obj.id] || (_base[_name] = new intermine.model.IMObject(_this.query, obj, field, base)) : !(obj["class"] != null) ? new intermine.model.NullObject(_this.query, field) : new intermine.model.FPObject(_this.query, obj, field, node.getType().name);
-            model.merge(obj, field);
-            args = {
-              model: model,
-              node: node,
-              field: field
-            };
-            args.query = _this.query;
-            return new intermine.results.table.Cell(args);
-          }
-        };
-        result.rows = result.results.map(function(row) {
-          return row.map(function(cell, idx) {
-            var field, imo, _base, _name;
-            if (_.has(cell, 'column')) {
-              return makeCell(cell);
-            } else if ((cell != null ? cell.id : void 0) != null) {
-              field = fields[idx];
-              imo = (_base = _this.itemModels)[_name = cell.id] || (_base[_name] = new intermine.model.IMObject(_this.query, cell, field[1], base));
-              imo.merge(cell, field[1]);
-              return new intermine.results.table.Cell({
-                model: imo,
-                node: field[0],
-                field: field[1],
-                query: _this.query
-              });
-            } else if ((cell != null ? cell.value : void 0) != null) {
-              return new intermine.results.table.Cell({
-                model: new intermine.model.FPObject(_this.query, cell, field[1]),
-                query: _this.query,
-                field: field[1]
-              });
+          })();
+          onodes2 = ((function() {
+            var _i, _len, _results;
+            if (n.toPathString() === "Organism") {
+              return n;
             } else {
-              return new intermine.results.table.NullCell({
-                query: _this.query
-              });
-            }
-          });
-        });
-        return result;
-      };
-
-      Table.prototype.tableAttrs = {
-        "class": "table table-striped table-bordered",
-        width: "100%",
-        cellpadding: 0,
-        border: 0,
-        cellspacing: 0
-      };
-
-      Table.prototype.render = function() {
-        var tel;
-        this.$el.empty();
-        tel = this.make("table", this.tableAttrs);
-        this.$el.append(tel);
-        jQuery(tel).append("<h2>Building table</h2>\n<div class=\"progress progress-striped active progress-info\">\n    <div class=\"bar\" style=\"width: 100%\"></div>\n</div>");
-        return this.query.service.fetchVersion(this.doRender(tel)).fail(this.onSetupError(tel));
-      };
-
-      Table.prototype.doRender = function(tel) {
-        var _this = this;
-        return function(version) {
-          var path, setupParams;
-          _this.fetchMethod = version >= 10 ? 'tableRows' : 'table';
-          path = "query/results";
-          setupParams = {
-            format: "jsontable",
-            query: _this.query.toXML(),
-            token: _this.query.service.token
-          };
-          _this.$el.appendTo(_this.$parent);
-          _this.query.service.makeRequest(path, setupParams, _this.onSetupSuccess(tel), "POST").fail(_this.onSetupError(tel));
-          return _this;
-        };
-      };
-
-      Table.prototype.events = {
-        'click .im-col-remover': 'removeColumn'
-      };
-
-      Table.prototype.removeColumn = function(e) {
-        var $el, unwanted, v, view;
-        e.stopPropagation();
-        e.preventDefault();
-        $el = jQuery(e.target).closest('.im-col-remover');
-        $el.tooltip("hide");
-        view = $el.data("view");
-        unwanted = (function() {
-          var _i, _len, _ref, _results;
-          _ref = this.query.views;
-          _results = [];
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            v = _ref[_i];
-            if (v.match(view)) {
-              _results.push(v);
-            }
-          }
-          return _results;
-        }).call(this);
-        this.query.removeFromSelect(unwanted);
-        return false;
-      };
-
-      Table.prototype.horizontalScroller = "<div class=\"scroll-bar-wrap well\">\n    <div class=\"scroll-bar-containment\">\n        <div class=\"scroll-bar alert-info alert\"></div>\n    </div>\n</div>";
-
-      Table.prototype.onSetupSuccess = function(telem) {
-        var _this = this;
-        return function(result) {
-          var $pagination, $scrollwrapper, $telem, $widgets, currentPageButton, currentPos, pageSelector, pageSizer, reorderer, scrollbar;
-          $telem = jQuery(telem).empty();
-          $widgets = $('<div>').insertBefore(telem);
-          _this.table = new ResultsTable(_this.query, _this.getRowData);
-          _this.table.setElement(telem);
-          if (_this.pageSize != null) {
-            _this.table.pageSize = _this.pageSize;
-          }
-          if (_this.pageStart != null) {
-            _this.table.pageStart = _this.pageStart;
-          }
-          _this.table.render();
-          _this.query.on("imtable:change:page", _this.updatePageDisplay);
-          pageSizer = new PageSizer(_this.query, _this.pageSize);
-          pageSizer.render().$el.appendTo($widgets);
-          $pagination = $(_this.paginationTempl()).appendTo($widgets);
-          $pagination.find('li').tooltip({
-            placement: "left"
-          });
-          $widgets.append("<span class=\"im-table-summary\"></div>");
-          pageSelector = $pagination.find('select').change(function() {
-            _this.table.goToPage(pageSelector.val());
-            currentPageButton.show();
-            return pageSelector.parent().hide();
-          });
-          currentPageButton = $pagination.find(".im-current-page a").click(function() {
-            var total;
-            total = _this.cache.lastResult.iTotalRecords;
-            if (_this.table.pageSize >= total) {
-              return false;
-            }
-            currentPageButton.hide();
-            return pageSelector.parent().show();
-          });
-          reorderer = new intermine.query.results.table.ColumnOrderer(_this.query);
-          reorderer.render().$el.appendTo($widgets);
-          if (_this.bar === 'horizontal') {
-            $scrollwrapper = $(_this.horizontalScroller).appendTo($widgets);
-            scrollbar = _this.$('.scroll-bar');
-            currentPos = 0;
-            scrollbar.draggable({
-              axis: "x",
-              containment: "parent",
-              stop: function(event, ui) {
-                scrollbar.removeClass("scrolling");
-                scrollbar.tooltip("hide");
-                return _this.table.goTo(currentPos);
-              },
-              start: function() {
-                return $(this).addClass("scrolling");
-              },
-              drag: function(event, ui) {
-                var left, total;
-                scrollbar.tooltip("show");
-                left = ui.position.left;
-                total = ui.helper.closest('.scroll-bar-wrap').width();
-                return currentPos = _this.cache.lastResult.iTotalRecords * left / total;
-              }
-            });
-            scrollbar.css({
-              position: "absolute"
-            }).parent().css({
-              position: "relative"
-            });
-            scrollbar.tooltip({
-              trigger: "manual",
-              title: function() {
-                return "" + ((currentPos + 1).toFixed()) + " ... " + ((currentPos + _this.table.pageSize).toFixed());
-              }
-            });
-          }
-          return $widgets.append("<div style=\"clear:both\"></div>");
-        };
-      };
-
-      Table.prototype.updatePageDisplay = function(start, size) {
-        var buttons, centre, handle, inp, maxPage, overhang, p, pageForm, pageSelector, proportion, scaled, scrollbar, tbl, total, totalWidth, unit, _i;
-        total = this.cache.lastResult.iTotalRecords;
-        if (size === 0) {
-          size = total;
-        }
-        scrollbar = this.$('.scroll-bar-wrap');
-        if (scrollbar.length) {
-          totalWidth = scrollbar.width();
-          proportion = size / total;
-          scrollbar.toggle(size < total);
-          unit = totalWidth / total;
-          scaled = Math.max(totalWidth * proportion, 20);
-          overhang = size - ((total - (size * Math.floor(total / size))) % size);
-          scrollbar.find('.scroll-bar-containment').css({
-            width: totalWidth + (unit * overhang)
-          });
-          handle = scrollbar.find('.scroll-bar').css({
-            width: scaled
-          });
-          handle.animate({
-            left: unit * start
-          });
-        }
-        tbl = this.table;
-        buttons = this.$('.im-pagination-button');
-        buttons.filter('.direct').remove();
-        buttons.unbind("click").each(function() {
-          var $elem, whenEnabled;
-          $elem = $(this);
-          whenEnabled = function(f) {
-            return function() {
-              if (!$elem.parent().is('.active')) {
-                return f();
-              }
-            };
-          };
-          switch ($elem.data("goto")) {
-            case "start":
-              $elem.click(whenEnabled(function() {
-                return tbl.goTo(0);
-              }));
-              return $elem.parent().toggleClass("active", start === 0);
-            case "prev":
-              $elem.click(whenEnabled(function() {
-                return tbl.goTo(Math.max(0, start - size));
-              }));
-              return $elem.parent().toggleClass("active", start === 0);
-            case "fast-rewind":
-              $elem.click(whenEnabled(function() {
-                return tbl.goTo(Math.max(0, start - (5 * size)));
-              }));
-              return $elem.parent().toggleClass("active", start === 0);
-            case "next":
-              $elem.click(whenEnabled(function() {
-                return tbl.goTo(start + size);
-              }));
-              return $elem.parent().toggleClass("active", start + size >= total);
-            case "fast-forward":
-              $elem.click(whenEnabled(function() {
-                return tbl.goTo(start + (5 * size));
-              }));
-              return $elem.parent().toggleClass("active", start + (5 * size) >= total);
-            case "end":
-              $elem.click(whenEnabled(function() {
-                return tbl.goTo(Math.floor(total / size) * size);
-              }));
-              return $elem.parent().toggleClass("active", start + size >= total);
-          }
-        });
-        centre = this.$('.im-current-page');
-        centre.find('a').text("p. " + (Math.floor(start / size) + 1));
-        centre.toggleClass("active", size >= total);
-        pageForm = centre.find('form');
-        pageForm.find('input').remove();
-        pageForm.find('button').remove();
-        pageSelector = pageForm.find('select').empty();
-        maxPage = Math.floor(total / size);
-        pageSelector.val(Math.floor(start / size));
-        if (maxPage <= 100) {
-          for (p = _i = 0; 0 <= maxPage ? _i <= maxPage : _i >= maxPage; p = 0 <= maxPage ? ++_i : --_i) {
-            pageSelector.append("<option value=\"" + p + "\">p. " + (p + 1) + "</option>");
-          }
-          return pageSelector.show();
-        } else {
-          pageSelector.hide();
-          inp = $("<input type=text placeholder=\"go to page...\">").appendTo(pageForm);
-          return pageForm.append("<button class=\"btn\" type=\"submit\">go</button>").submit(function(e) {
-            var newSelectorVal;
-            e.stopPropagation();
-            e.preventDefault();
-            newSelectorVal = parseInt(inp.val().replace(/\s*/g, "")) - 1;
-            tbl.goToPage(newSelectorVal);
-            centre.find('a').show();
-            return pageForm.hide();
-          });
-        }
-      };
-
-      Table.prototype.onSetupError = function(telem) {
-        var _this = this;
-        return function(xhr) {
-          var explanation, issue, notice, part, parts;
-          $(telem).empty();
-          console.log("SETUP FAILURE", arguments);
-          notice = _this.make("div", {
-            "class": "alert alert-error"
-          });
-          explanation = "Could not load the data-table. The server may be down, or \nincorrectly configured, or we could be pointed at an invalid URL.";
-          if (xhr != null ? xhr.responseText : void 0) {
-            explanation = (typeof JSON !== "undefined" && JSON !== null ? JSON.parse(xhr.responseText).error : void 0) || explanation;
-            parts = _((function() {
-              var _i, _len, _ref, _results;
-              _ref = explanation.split("\n");
               _results = [];
-              for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-                part = _ref[_i];
-                if (part != null) {
-                  _results.push(part);
-                }
+              for (_i = 0, _len = onodes.length; _i < _len; _i++) {
+                n = onodes[_i];
+                _results.push(n.append("organism"));
               }
               return _results;
-            })()).groupBy(function(p, i) {
-              return i > 0;
+            }
+          })());
+          newView = (function() {
+            var _i, _len, _results;
+            _results = [];
+            for (_i = 0, _len = onodes2.length; _i < _len; _i++) {
+              n = onodes2[_i];
+              _results.push("" + (n.toPathString()) + ".shortName");
+            }
+            return _results;
+          })();
+          toRun.views = _.uniq(newView);
+          if (toRun.views.length) {
+            toRun.sortOrder = [];
+            promise = toRun.rows(function(rows) {
+              var row, _i, _len;
+              for (_i = 0, _len = rows.length; _i < _len; _i++) {
+                row = rows[_i];
+                orgs = orgs.concat(row);
+              }
+              return cb(_.uniq(orgs));
             });
-            explanation = [
-              _this.make("span", {}, parts[false] + ""), _this.make("ul", {}, (function() {
-                var _i, _len, _ref, _results;
-                _ref = parts[true];
-                _results = [];
-                for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-                  issue = _ref[_i];
-                  _results.push(this.make("li", {}, issue));
-                }
-                return _results;
-              }).call(_this))
-            ];
-          }
-          return $(notice).append(_this.make("a", {
-            "class": "close",
-            "data-dismiss": "alert"
-          }, "close")).append(_this.make("strong", {}, "Ooops...! ")).append(explanation).appendTo(telem);
-        };
-      };
-
-      return Table;
-
-    })(Backbone.View));
-  });
-
-  scope("intermine.query.results", function(exporting) {
-    var DropDownColumnSummary, OuterJoinDropDown, SummaryHeading;
-    exporting(OuterJoinDropDown = (function(_super) {
-
-      __extends(OuterJoinDropDown, _super);
-
-      function OuterJoinDropDown() {
-        return OuterJoinDropDown.__super__.constructor.apply(this, arguments);
-      }
-
-      OuterJoinDropDown.prototype.className = "im-summary-selector";
-
-      OuterJoinDropDown.prototype.tagName = 'ul';
-
-      OuterJoinDropDown.prototype.initialize = function(path, query) {
-        this.path = path;
-        this.query = query;
-      };
-
-      OuterJoinDropDown.prototype.render = function() {
-        var v, _i, _len, _ref,
-          _this = this;
-        console.log(this.path);
-        _ref = this.query.views;
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          v = _ref[_i];
-          if (v.match(this.path.toString())) {
-            (function(v) {
-              var li;
-              console.log("" + v + ".match(" + (_this.path.toString()) + ") -> " + (v.match(_this.path.toString())));
-              li = $("<li class=\"im-outer-joined-path\"><a href=\"#\"></a></li>");
-              _this.$el.append(li);
-              _this.query.getPathInfo(v).getDisplayName(function(name) {
-                return li.find('a').text(name);
-              });
-              return li.click(function(e) {
-                var summ;
-                e.stopPropagation();
-                e.preventDefault();
-                summ = new intermine.query.results.DropDownColumnSummary(v, _this.query);
-                _this.$el.parent().html(summ.render().el);
-                return _this.remove();
-              });
-            })(v);
-          }
-        }
-        return this;
-      };
-
-      return OuterJoinDropDown;
-
-    })(Backbone.View));
-    exporting(DropDownColumnSummary = (function(_super) {
-
-      __extends(DropDownColumnSummary, _super);
-
-      function DropDownColumnSummary() {
-        return DropDownColumnSummary.__super__.constructor.apply(this, arguments);
-      }
-
-      DropDownColumnSummary.prototype.className = "im-dropdown-summary";
-
-      DropDownColumnSummary.prototype.initialize = function(view, query) {
-        this.view = view;
-        this.query = query;
-      };
-
-      DropDownColumnSummary.prototype.render = function() {
-        var heading, summ;
-        heading = new SummaryHeading(this.query, this.view);
-        heading.render().$el.appendTo(this.el);
-        summ = new intermine.results.ColumnSummary(this.view, this.query);
-        summ.noTitle = true;
-        summ.render().$el.appendTo(this.el);
-        return this;
-      };
-
-      return DropDownColumnSummary;
-
-    })(Backbone.View));
-    return SummaryHeading = (function(_super) {
-
-      __extends(SummaryHeading, _super);
-
-      function SummaryHeading() {
-        return SummaryHeading.__super__.constructor.apply(this, arguments);
-      }
-
-      SummaryHeading.prototype.initialize = function(query, view) {
-        var _this = this;
-        this.query = query;
-        this.view = view;
-        return this.query.on("got:summary:total", function(path, total, got, filteredTotal) {
-          var available, nts;
-          if (path === _this.view) {
-            nts = function(num) {
-              return intermine.utils.numToString(num, ',', 3);
-            };
-            available = filteredTotal != null ? filteredTotal : total;
-            _this.$('.im-item-available').text(nts(available));
-            _this.$('.im-item-got').text(got === available ? 'All' : "" + (nts(got)) + " of");
-            return _this.$('.im-item-total').text(filteredTotal != null ? "(filtered from " + (nts(total)) + ")" : "");
-          }
-        });
-      };
-
-      SummaryHeading.prototype.template = _.template("<h3>\n    <span class=\"im-item-got\"></span>\n    <span class=\"im-item-available\"></span>\n    <span class=\"im-type-name\"></span>\n    <span class=\"im-attr-name\"></span>\n    <span class=\"im-item-total\"></span>\n</h3>");
-
-      SummaryHeading.prototype.render = function() {
-        var attr, s, type,
-          _this = this;
-        this.$el.append(this.template());
-        s = this.query.service;
-        type = this.query.getPathInfo(this.view).getParent().getType().name;
-        attr = this.query.getPathInfo(this.view).end.name;
-        s.makeRequest("model/" + type, {}, function(info) {
-          return _this.$('.im-type-name').text(info.name);
-        });
-        s.makeRequest("model/" + type + "/" + attr, {}, function(info) {
-          return _this.$('.im-attr-name').text(intermine.utils.pluralise(info.name));
-        });
-        return this;
-      };
-
-      return SummaryHeading;
-
-    })(Backbone.View);
-  });
-
-  scope("intermine.messages.filters", {
-    DefineNew: 'Define a new filter',
-    EditOrRemove: 'edit or remove the currently active filters',
-    None: 'No active filters',
-    Heading: "Active Filters"
-  });
-
-  scope("intermine.query.filters", function(exporting) {
-    var Constraints, FACETS, Facets, Filters, SingleColumnConstraints, SingleColumnConstraintsSummary, SingleConstraintAdder;
-    exporting(Filters = (function(_super) {
-
-      __extends(Filters, _super);
-
-      function Filters() {
-        return Filters.__super__.constructor.apply(this, arguments);
-      }
-
-      Filters.prototype.className = "im-query-filters";
-
-      Filters.prototype.initialize = function(query) {
-        this.query = query;
-      };
-
-      Filters.prototype.render = function() {
-        var constraints, facets;
-        constraints = new Constraints(this.query);
-        constraints.render().$el.appendTo(this.el);
-        facets = new Facets(this.query);
-        facets.render().$el.appendTo(this.el);
-        return this;
-      };
-
-      return Filters;
-
-    })(Backbone.View));
-    FACETS = {
-      Gene: [
-        {
-          title: "Pathways",
-          path: "pathways.name"
-        }, {
-          title: "Expression Term",
-          path: "mRNAExpressionResults.mRNAExpressionTerms.name"
-        }, {
-          title: "Ontology Term",
-          path: "ontologyAnnotations.ontologyTerm.name"
-        }, {
-          title: "Protein Domains",
-          path: "proteins.proteinDomains.name"
-        }
-      ]
-    };
-    Facets = (function(_super) {
-
-      __extends(Facets, _super);
-
-      function Facets() {
-        this.render = __bind(this.render, this);
-        return Facets.__super__.constructor.apply(this, arguments);
-      }
-
-      Facets.prototype.className = "im-query-facets";
-
-      Facets.prototype.tagName = "dl";
-
-      Facets.prototype.initialize = function(query) {
-        this.query = query;
-        this.query.on("change:constraints", this.render);
-        return this.query.on("change:joins", this.render);
-      };
-
-      Facets.prototype.render = function() {
-        var cs, f, facets, searcher, simplify, v, _i, _len,
-          _this = this;
-        this.$el.empty();
-        simplify = function(x) {
-          return x.replace(/^[^\.]+\./, "").replace(/\./g, " > ");
-        };
-        facets = (FACETS[this.query.root] || []).concat((function() {
-          var _i, _len, _ref, _results;
-          _ref = this.query.views;
-          _results = [];
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            v = _ref[_i];
-            _results.push({
-              title: simplify(v),
-              path: v
+            return promise.fail(function() {
+              return cb(orgs);
             });
-          }
-          return _results;
-        }).call(this));
-        if (facets) {
-          searcher = this.make("input", {
-            "class": "input-long",
-            placeholder: "Filter facets..."
-          });
-          $(searcher).appendTo(this.el).keyup(function(e) {
-            var pattern;
-            pattern = new RegExp($(e.target).val(), "i");
-            return _this.query.trigger("filter:facets", pattern);
-          });
-          for (_i = 0, _len = facets.length; _i < _len; _i++) {
-            f = facets[_i];
-            cs = new intermine.results.ColumnSummary(f, this.query);
-            this.$el.append(cs.el);
-            cs.render();
+          } else {
+            return cb(orgs);
           }
         }
-        return this;
       };
 
-      return Facets;
+      return utils;
 
-    })(Backbone.View);
-    Constraints = (function(_super) {
-
-      __extends(Constraints, _super);
-
-      function Constraints() {
-        this.render = __bind(this.render, this);
-        return Constraints.__super__.constructor.apply(this, arguments);
-      }
-
-      Constraints.prototype.className = "im-constraints";
-
-      Constraints.prototype.initialize = function(query) {
-        this.query = query;
-        return this.query.on("change:constraints", this.render);
-      };
-
-      Constraints.prototype.getConstraints = function() {
-        return this.query.constraints;
-      };
-
-      Constraints.prototype.getConAdder = function() {
-        return new intermine.query.ConstraintAdder(this.query);
-      };
-
-      Constraints.prototype.render = function() {
-        var c, conBox, cons, msgs, ul, _fn, _i, _len, _ref,
-          _this = this;
-        cons = this.getConstraints();
-        msgs = intermine.messages.filters;
-        this.$el.empty();
-        this.$el.append(this.make("h3", {}, msgs.Heading));
-        conBox = $('<div class="alert alert-info">');
-        conBox.appendTo(this.el).append(this.make("p", {}, cons.length ? msgs.EditOrRemove : msgs.None)).append(ul = this.make("ul", {}));
-        _fn = function(c) {
-          var con;
-          con = new intermine.query.ActiveConstraint(_this.query, c);
-          return con.render().$el.appendTo($(ul));
-        };
-        for (_i = 0, _len = cons.length; _i < _len; _i++) {
-          c = cons[_i];
-          _fn(c);
-        }
-        if ((_ref = this.getConAdder()) != null) {
-          _ref.render().$el.appendTo(this.el);
-        }
-        return this;
-      };
-
-      Constraints.prototype.events = {
-        click: function(e) {
-          return e.stopPropagation();
-        }
-      };
-
-      return Constraints;
-
-    })(Backbone.View);
-    SingleConstraintAdder = (function(_super) {
-
-      __extends(SingleConstraintAdder, _super);
-
-      function SingleConstraintAdder() {
-        return SingleConstraintAdder.__super__.constructor.apply(this, arguments);
-      }
-
-      SingleConstraintAdder.prototype.initialize = function(query, view) {
-        var _this = this;
-        this.view = view;
-        SingleConstraintAdder.__super__.initialize.call(this, query);
-        return this.query.on('cancel:add-constraint', function() {
-          return _this.$('.btn-primary').attr({
-            disabled: !_this.getTreeRoot().isAttribute()
-          });
-        });
-      };
-
-      SingleConstraintAdder.prototype.initPaths = function() {
-        return [this.view];
-      };
-
-      SingleConstraintAdder.prototype.getTreeRoot = function() {
-        return this.query.getPathInfo(this.view);
-      };
-
-      SingleConstraintAdder.prototype.render = function() {
-        SingleConstraintAdder.__super__.render.call(this);
-        this.$('input').remove();
-        root = this.getTreeRoot();
-        console.log(this.view);
-        if (root.isAttribute()) {
-          this.chosen = root;
-          this.$('button.btn-primary').text(intermine.messages.filters.DefineNew).attr({
-            disabled: false
-          });
-          this.$('button.btn-chooser').remove();
-        }
-        return this;
-      };
-
-      return SingleConstraintAdder;
-
-    })(intermine.query.ConstraintAdder);
-    exporting(SingleColumnConstraints = (function(_super) {
-
-      __extends(SingleColumnConstraints, _super);
-
-      function SingleColumnConstraints() {
-        return SingleColumnConstraints.__super__.constructor.apply(this, arguments);
-      }
-
-      SingleColumnConstraints.prototype.initialize = function(query, view) {
-        this.view = view;
-        return SingleColumnConstraints.__super__.initialize.call(this, query);
-      };
-
-      SingleColumnConstraints.prototype.getConAdder = function() {
-        return new SingleConstraintAdder(this.query, this.view);
-      };
-
-      SingleColumnConstraints.prototype.getConstraints = function() {
-        var c, _i, _len, _ref, _results;
-        _ref = this.query.constraints;
-        _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          c = _ref[_i];
-          if (c.path.match(this.view)) {
-            _results.push(c);
-          }
-        }
-        return _results;
-      };
-
-      return SingleColumnConstraints;
-
-    })(Constraints));
-    return exporting(SingleColumnConstraintsSummary = (function(_super) {
-
-      __extends(SingleColumnConstraintsSummary, _super);
-
-      function SingleColumnConstraintsSummary() {
-        return SingleColumnConstraintsSummary.__super__.constructor.apply(this, arguments);
-      }
-
-      SingleColumnConstraintsSummary.prototype.getConAdder = function() {};
-
-      SingleColumnConstraintsSummary.prototype.render = function() {
-        var cons;
-        SingleColumnConstraintsSummary.__super__.render.call(this);
-        cons = this.getConstraints();
-        if (cons.length < 1) {
-          this.undelegateEvents();
-          this.$el.hide();
-        }
-        return this;
-      };
-
-      return SingleColumnConstraintsSummary;
-
-    })(SingleColumnConstraints));
-  });
-
-  scope("intermine.query.columns", function(exporting) {
-    var ATTR_HTML, Columns, CurrentColumns, JOIN_TOGGLE_HTML, Selectable;
-    exporting(Columns = (function(_super) {
-
-      __extends(Columns, _super);
-
-      function Columns() {
-        return Columns.__super__.constructor.apply(this, arguments);
-      }
-
-      Columns.prototype.className = "im-query-columns";
-
-      Columns.prototype.initialize = function(query) {
-        this.query = query;
-      };
-
-      Columns.prototype.render = function() {
-        var cls, _fn, _i, _len, _ref,
-          _this = this;
-        _ref = [ColumnAdder, CurrentColumns];
-        _fn = function(cls) {
-          var inst;
-          inst = new cls(_this.query);
-          return _this.$el.append(inst.render().el);
-        };
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          cls = _ref[_i];
-          _fn(cls);
-        }
-        return this;
-      };
-
-      return Columns;
-
-    })(Backbone.View));
-    CurrentColumns = (function(_super) {
-
-      __extends(CurrentColumns, _super);
-
-      function CurrentColumns() {
-        return CurrentColumns.__super__.constructor.apply(this, arguments);
-      }
-
-      CurrentColumns.prototype.className = "node-remover";
-
-      CurrentColumns.prototype.tagName = "dl";
-
-      CurrentColumns.prototype.initialize = function(query) {
-        this.query = query;
-      };
-
-      CurrentColumns.prototype.render = function() {
-        var cd, rootSel, subnodes,
-          _this = this;
-        cd = this.query.service.model.classes[this.query.root];
-        rootSel = new Selectable(this.query, cd);
-        rootSel.render().$el.appendTo(this.el);
-        subnodes = _({}).extend(cd.references, cd.collections);
-        _(subnodes).chain().values().sortBy(function(f) {
-          return f.name;
-        }).each(function(f) {
-          var sel, type;
-          type = _this.query.getPathInfo(f).getEndClass();
-          sel = new Selectable(_this.query, type, f);
-          return sel.render().$el.appendTo(_this.el);
-        });
-        return this;
-      };
-
-      return CurrentColumns;
-
-    })(Backbone.View);
-    JOIN_TOGGLE_HTML = _.template("<form class=\"form-inline pull-right im-join\">\n<div class=\"btn-group\" data-toggle=\"buttons-radio\">\n    <button data-style=\"INNER\" class=\"btn btn-small <% print(outer ? \"\" : \"active\") %>\">\n    Required\n    </button>\n    <button data-style=\"OUTER\" class=\"btn btn-small <% print(outer ? \"active\" : \"\") %>\">\n    Optional\n    </button>\n</div></form>");
-    ATTR_HTML = _.template("<input type=\"checkbox\" \n    data-path=\"<%= path %>\"\n    <% inQuery ? print(\"checked\") : \"\" %> >\n<span class=\"im-view-option\">\n    <%= name %> (<% print(type.replace(\"java.lang.\", \"\")) %>)\n</span>");
-    return Selectable = (function(_super) {
-
-      __extends(Selectable, _super);
-
-      function Selectable() {
-        this.render = __bind(this.render, this);
-
-        this.setCheckBoxState = __bind(this.setCheckBoxState, this);
-        return Selectable.__super__.constructor.apply(this, arguments);
-      }
-
-      Selectable.prototype.tagName = "dl";
-
-      Selectable.prototype.className = "im-selectable-node";
-
-      Selectable.prototype.initialize = function(query, table, field) {
-        this.query = query;
-        this.table = table;
-        this.field = field;
-        this.path = this.query.root + (this.field ? "." + this.field.name : "");
-        return this.query.on("change:views", this.setCheckBoxState);
-      };
-
-      Selectable.prototype.events = {
-        'click dt': 'toggleFields',
-        'change input[type="checkbox"]': 'changeView'
-      };
-
-      Selectable.prototype.toggleFields = function(e) {
-        return this.$('dd').slideToggle();
-      };
-
-      Selectable.prototype.changeView = function(e) {
-        var $t, path;
-        $t = $(e.target);
-        path = $t.data("path");
-        if ($t.attr("checked")) {
-          return this.query.addToSelect(path);
-        } else {
-          return this.query.removeFromSelect(path);
-        }
-      };
-
-      Selectable.prototype.setCheckBoxState = function(e) {
-        var _this = this;
-        return this.$('dd input').each(function(i, cbx) {
-          var $cbx, path;
-          $cbx = $(cbx);
-          path = $cbx.data("path");
-          return $cbx.attr({
-            checked: _this.query.hasView(path)
-          });
-        });
-      };
-
-      Selectable.prototype.render = function() {
-        var attr, dt, icon, isInView, name, title, _fn, _ref, _ref1,
-          _this = this;
-        this.$el.empty();
-        title = this.make("h4", {}, ((_ref = this.field) != null ? _ref.name : void 0) || this.table.name);
-        dt = this.make("dt", {
-          "class": "im-column-group"
-        }, title);
-        this.$el.append(dt);
-        isInView = _(this.query.views).any(function(v) {
-          return this.path === v.substring(0, v.lastIndexOf("."));
-        });
-        icon = isInView ? "minus" : "plus";
-        $("<i class=\"icon-" + icon + "-sign\"></i>").css({
-          cursor: "pointer"
-        }).appendTo(title);
-        if (isInView && this.path !== this.query.root) {
-          $(JOIN_TOGGLE_HTML({
-            outer: this.query.isOuterJoin(this.path)
-          })).submit(function(e) {
-            var _this = this;
-            return e.preventDefault().css("display", "inline-block".appendTo(title.find(".btn".click(function(e) {
-              var style;
-              e.stopPropagation();
-              style = $(e.target).data("style");
-              return _this.query.setJoinStyle(_this.path, style.button());
-            }))));
-          });
-        }
-        _ref1 = this.table.attributes;
-        _fn = function(attr) {
-          return _this.addAttribute(attr);
-        };
-        for (name in _ref1) {
-          attr = _ref1[name];
-          _fn(attr);
-        }
-        return this;
-      };
-
-      Selectable.prototype.addAttribute = function(a) {
-        var ctx, dd, p;
-        if (a.name !== "id") {
-          dd = this.make("dd");
-          p = "" + this.path + "." + a.name;
-          ctx = {
-            path: p,
-            inQuery: __indexOf.call(this.query.views, p) >= 0
-          };
-          _(ctx).extend(a);
-          return $(dd).append(ATTR_HTML(ctx)).appendTo(this.el);
-        }
-      };
-
-      return Selectable;
-
-    })(Backbone.View);
+    })());
   });
 
   scope("intermine.options", {
@@ -4131,617 +2276,133 @@
     })(Backbone.View);
   });
 
-  scope("intermine.results.formatters", {
-    Manager: function(model, query, $cell) {
-      var id, name, title;
-      id = model.get('id');
-      if (model.has('title') && model.has('name')) {
-        title = model.get('title');
-        name = model.get('name');
-        return {
-          value: "" + title + " " + name,
-          field: "id"
-        };
-      } else {
-        query.service.findById('Manager', id, function(manager) {
-          var display;
-          display = "" + manager.title + " " + manager.name;
-          model.set({
-            title: manager.title,
-            name: manager.name
-          });
-          return $cell.find('.im-cell-link').text(display);
-        });
-        return {
-          value: id,
-          field: "id"
-        };
-      }
-    }
-  });
+  scope("intermine.query.results", function(exporting) {
+    var DropDownColumnSummary, OuterJoinDropDown, SummaryHeading;
+    exporting(OuterJoinDropDown = (function(_super) {
 
-  scope("intermine.results", {
-    getFormatter: function(model, type) {
-      var formatter, t, types, _i, _len;
-      formatter = null;
-      type = type.name || type;
-      types = [type].concat(model.getAncestorsOf(type));
-      for (_i = 0, _len = types.length; _i < _len; _i++) {
-        t = types[_i];
-        formatter || (formatter = intermine.results.formatters[t]);
-      }
-      return formatter;
-    }
-  });
+      __extends(OuterJoinDropDown, _super);
 
-  scope("intermine.results.table", function(exporting) {
-    var CELL_HTML, Cell, HIDDEN_FIELDS, NullCell, SubTable;
-    CELL_HTML = _.template("<input class=\"list-chooser\" type=\"checkbox\" style=\"display: none\" data-obj-id=\"<%= id %>\" \n    <% if (selected) { %>checked <% }; %>\n    data-obj-type=\"<%= type %>\">\n<% if (value == null) { %>\n    <span class=\"null-value\">no value</span>\n<% } else { %>\n    <% if (url != null && url.match(/^http/)) { %>\n      <a class=\"im-cell-link\" href=\"<%= url %>\"><%= value %></a>\n    <% } else { %>\n      <a class=\"im-cell-link\" href=\"<%= base %><%= url %>\"><%= value %></a>\n    <% } %>\n<% } %>\n<% if (field == 'url') { %>\n    <a class=\"im-cell-link external\" href=\"<%= value %>\"><i class=\"icon-globe\"></i>link</a>\n<% } %>");
-    HIDDEN_FIELDS = ["class", "objectId"];
-    exporting(SubTable = (function(_super) {
-
-      __extends(SubTable, _super);
-
-      function SubTable() {
-        return SubTable.__super__.constructor.apply(this, arguments);
+      function OuterJoinDropDown() {
+        return OuterJoinDropDown.__super__.constructor.apply(this, arguments);
       }
 
-      SubTable.prototype.tagName = "td";
+      OuterJoinDropDown.prototype.className = "im-summary-selector";
 
-      SubTable.prototype.className = "im-result-subtable";
+      OuterJoinDropDown.prototype.tagName = 'ul';
 
-      SubTable.prototype.initialize = function(query, cellify, subtable) {
+      OuterJoinDropDown.prototype.initialize = function(path, query) {
+        this.path = path;
+        this.query = query;
+      };
+
+      OuterJoinDropDown.prototype.render = function() {
+        var v, _i, _len, _ref,
+          _this = this;
+        console.log(this.path);
+        _ref = this.query.views;
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          v = _ref[_i];
+          if (v.match(this.path.toString())) {
+            (function(v) {
+              var li;
+              console.log("" + v + ".match(" + (_this.path.toString()) + ") -> " + (v.match(_this.path.toString())));
+              li = $("<li class=\"im-outer-joined-path\"><a href=\"#\"></a></li>");
+              _this.$el.append(li);
+              _this.query.getPathInfo(v).getDisplayName(function(name) {
+                return li.find('a').text(name);
+              });
+              return li.click(function(e) {
+                var summ;
+                e.stopPropagation();
+                e.preventDefault();
+                summ = new intermine.query.results.DropDownColumnSummary(v, _this.query);
+                _this.$el.parent().html(summ.render().el);
+                return _this.remove();
+              });
+            })(v);
+          }
+        }
+        return this;
+      };
+
+      return OuterJoinDropDown;
+
+    })(Backbone.View));
+    exporting(DropDownColumnSummary = (function(_super) {
+
+      __extends(DropDownColumnSummary, _super);
+
+      function DropDownColumnSummary() {
+        return DropDownColumnSummary.__super__.constructor.apply(this, arguments);
+      }
+
+      DropDownColumnSummary.prototype.className = "im-dropdown-summary";
+
+      DropDownColumnSummary.prototype.initialize = function(view, query) {
+        this.view = view;
+        this.query = query;
+      };
+
+      DropDownColumnSummary.prototype.render = function() {
+        var heading, summ;
+        heading = new SummaryHeading(this.query, this.view);
+        heading.render().$el.appendTo(this.el);
+        summ = new intermine.results.ColumnSummary(this.view, this.query);
+        summ.noTitle = true;
+        summ.render().$el.appendTo(this.el);
+        return this;
+      };
+
+      return DropDownColumnSummary;
+
+    })(Backbone.View));
+    return SummaryHeading = (function(_super) {
+
+      __extends(SummaryHeading, _super);
+
+      function SummaryHeading() {
+        return SummaryHeading.__super__.constructor.apply(this, arguments);
+      }
+
+      SummaryHeading.prototype.initialize = function(query, view) {
         var _this = this;
         this.query = query;
-        this.cellify = cellify;
-        this.rows = subtable.rows;
-        this.view = subtable.view;
-        this.column = this.query.getPathInfo(subtable.column);
-        this.query.on('expand:subtables', function(path) {
-          if (path.toString() === _this.column.toString()) {
-            return _this.$('.im-subtable').slideDown();
-          }
-        });
-        return this.query.on('collapse:subtables', function(path) {
-          if (path.toString() === _this.column.toString()) {
-            return _this.$('.im-subtable').slideUp();
-          }
-        });
-      };
-
-      SubTable.prototype.getSummaryText = function() {
-        if (this.column.isCollection()) {
-          return "" + this.rows.length + " " + (this.column.getType().name) + "s";
-        } else {
-          if (this.rows.length === 0) {
-            return "No " + (this.column.getType().name);
-          } else {
-            return "" + this.rows[0][0].value + " (" + (this.rows[0].slice(1).map(function(c) {
-              return c.value;
-            }).join(', ')) + ")";
-          }
-        }
-      };
-
-      SubTable.prototype.render = function() {
-        var colRoot, colStr, icon, row, summary, t, v, _fn, _fn1, _i, _j, _len, _len1, _ref, _ref1,
-          _this = this;
-        icon = this.rows.length > 0 ? '<i class=icon-table></i>' : '<i class=icon-non-existent></i>';
-        summary = $("<span>" + icon + "&nbsp;" + (this.getSummaryText()) + "</span>");
-        summary.addClass('im-subtable-summary').appendTo(this.$el);
-        t = $('<table><thead><tr></tr></thead><tbody></tbody></table>');
-        colRoot = this.column.getType().name;
-        colStr = this.column.toString();
-        if (this.rows.length > 0) {
-          _ref = this.view;
-          _fn = function(v) {
-            var path, th;
-            th = $("<th>\n    <i class=\"" + intermine.css.headerIconRemove + "\"></i>\n    <span></span>\n</th>");
-            th.find('i').click(function(e) {
-              return _this.query.removeFromSelect(v);
-            });
-            path = _this.query.getPathInfo(v);
-            _this.column.getDisplayName(function(colName) {
-              var span, _ref1;
-              span = th.find('span');
-              if ((((_ref1 = path.end) != null ? _ref1.name : void 0) === 'id') && (intermine.results.getFormatter(_this.query.model, path.getParent().getType()) != null)) {
-                path = path.getParent();
-              }
-              return path.getDisplayName(function(pathName) {
-                if (pathName.match(colName)) {
-                  return span.text(pathName.replace(colName, '').replace(/^\s*>?\s*/, ''));
-                } else {
-                  return span.text(pathName.replace(/^[^>]*\s*>\s*/, ''));
-                }
-              });
-            });
-            return t.children('thead').children('tr').append(th);
-          };
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            v = _ref[_i];
-            _fn(v);
-          }
-          _ref1 = this.rows;
-          _fn1 = function(t, row) {
-            var cell, tr, w, _fn2, _k, _len2;
-            tr = $('<tr>');
-            w = _this.$el.width() / _this.view.length;
-            _fn2 = function(tr, cell) {
-              return tr.append((_this.cellify(cell)).render().setWidth(w).el);
+        this.view = view;
+        return this.query.on("got:summary:total", function(path, total, got, filteredTotal) {
+          var available, nts;
+          if (path === _this.view) {
+            nts = function(num) {
+              return intermine.utils.numToString(num, ',', 3);
             };
-            for (_k = 0, _len2 = row.length; _k < _len2; _k++) {
-              cell = row[_k];
-              _fn2(tr, cell);
-            }
-            t.children('tbody').append(tr);
-            return null;
-          };
-          for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-            row = _ref1[_j];
-            _fn1(t, row);
-          }
-        }
-        t.addClass('im-subtable table table-condensed table-striped');
-        this.$el.append(t);
-        summary.css({
-          cursor: 'pointer'
-        }).click(function(e) {
-          console.log(t);
-          e.stopPropagation();
-          if (t.is(':visible')) {
-            _this.query.trigger('subtable:collapsed', _this.column);
-          } else {
-            _this.query.trigger('subtable:expanded', _this.column);
-          }
-          return t.slideToggle();
-        });
-        return this;
-      };
-
-      SubTable.prototype.getUnits = function() {
-        if (this.rows.length = 0) {
-          return this.view.length;
-        } else {
-          return _.reduce(this.rows[0], (function(a, item) {
-            return a + (item.view != null ? item.view.length : 1);
-          }), 0);
-        }
-      };
-
-      SubTable.prototype.setWidth = function(w) {
-        this.$el.css({
-          width: (w * this.view.length) + "px"
-        });
-        this.$('.im-cell-link').css({
-          "max-width": ((w * this.view.length) - 5) + "px"
-        });
-        return this;
-      };
-
-      return SubTable;
-
-    })(Backbone.View));
-    exporting(Cell = (function(_super) {
-
-      __extends(Cell, _super);
-
-      function Cell() {
-        return Cell.__super__.constructor.apply(this, arguments);
-      }
-
-      Cell.prototype.tagName = "td";
-
-      Cell.prototype.className = "im-result-field";
-
-      Cell.prototype.getUnits = function() {
-        return 1;
-      };
-
-      Cell.prototype.events = {
-        'click': 'activateChooser'
-      };
-
-      Cell.prototype.initialize = function() {
-        var _this = this;
-        this.model.on("change:selected", function(model, selected) {
-          _this.$el.toggleClass("active", selected);
-          return _this.$('input').attr({
-            checked: selected
-          });
-        });
-        this.model.on("change:selectable", function(model, selectable) {
-          return _this.$('input').attr({
-            disabled: !selectable
-          });
-        });
-        this.options.query.on("start:list-creation", function() {
-          if (_this.model.get("selectable")) {
-            return _this.$('input').show();
-          }
-        });
-        this.options.query.on("stop:list-creation", function() {
-          _this.$('input').hide();
-          _this.$el.removeClass("active");
-          return _this.model.set("selected", false);
-        });
-        this.options.query.on("start:highlight:node", function(node) {
-          var _ref;
-          if (((_ref = _this.options.node) != null ? _ref.toPathString() : void 0) === node.toPathString()) {
-            return _this.$el.addClass("im-highlight");
-          }
-        });
-        return this.options.query.on("stop:highlight", function() {
-          return _this.$el.removeClass("im-highlight");
-        });
-      };
-
-      Cell.prototype.setupPreviewOverlay = function() {
-        var cellLink, content, id, s, type;
-        content = $("<table class=\"im-item-details table table-condensed table-bordered\">\n<colgroup>\n    <col class=\"im-item-field\"/>\n    <col class=\"im-item-value\"/>\n</colgroup>\n</table>");
-        type = this.model.get('type');
-        id = this.model.get('id');
-        s = this.options.query.service;
-        return cellLink = this.$el.find('.im-cell-link').first().popover({
-          placement: function() {
-            var table;
-            table = cellLink.closest("table");
-            if (cellLink.offset().left + 300 >= table.offset().left + table.width()) {
-              return "left";
-            } else {
-              return "right";
-            }
-          },
-          title: type,
-          trigger: "hover",
-          delay: {
-            show: 500,
-            hide: 100
-          },
-          content: function() {
-            if (!cellLink.data("content")) {
-              s.findById(type, id, function(item) {
-                var field, getLeaves, v, value, values;
-                for (field in item) {
-                  value = item[field];
-                  if (!(value && (__indexOf.call(HIDDEN_FIELDS, field) < 0) && !value['objectId'])) {
-                    continue;
-                  }
-                  v = value + "";
-                  v = v.length > 100 ? v.substring(0, 100) + "..." : v;
-                  content.append("<tr>\n    <td>" + field + "</td>\n    <td>" + v + "</td>\n</tr>");
-                }
-                getLeaves = function(o) {
-                  var leaf, leaves, name, values, x, _i, _len;
-                  leaves = [];
-                  values = (function() {
-                    var _results;
-                    _results = [];
-                    for (name in o) {
-                      leaf = o[name];
-                      if (__indexOf.call(HIDDEN_FIELDS, name) < 0) {
-                        _results.push(leaf);
-                      }
-                    }
-                    return _results;
-                  })();
-                  for (_i = 0, _len = values.length; _i < _len; _i++) {
-                    x = values[_i];
-                    if (x['objectId']) {
-                      leaves = leaves.concat(getLeaves(x));
-                    } else {
-                      leaves.push(x);
-                    }
-                  }
-                  return leaves;
-                };
-                for (field in item) {
-                  value = item[field];
-                  if (!(value && value['objectId'])) {
-                    continue;
-                  }
-                  values = getLeaves(value);
-                  content.append("<tr>\n    <td>" + field + "</td>\n    <td>" + (values.join(', ')) + "</td>\n</tr>");
-                }
-                cellLink.data({
-                  content: content
-                });
-                return cellLink.popover("show");
-              });
-            }
-            return content;
+            available = filteredTotal != null ? filteredTotal : total;
+            _this.$('.im-item-available').text(nts(available));
+            _this.$('.im-item-got').text(got === available ? 'All' : "" + (nts(got)) + " of");
+            return _this.$('.im-item-total').text(filteredTotal != null ? "(filtered from " + (nts(total)) + ")" : "");
           }
         });
       };
 
-      Cell.prototype.render = function() {
-        var data, formatter, id, type;
-        type = this.model.get("type");
-        id = this.model.get("id");
-        if ((this.options.field === 'id') && (formatter = intermine.results.getFormatter(this.options.query.model, type))) {
-          data = formatter(this.model, this.options.query, this.$el);
-        } else {
-          data = {
-            value: this.model.get(this.options.field),
-            field: this.options.field
-          };
-        }
-        this.$el.append(CELL_HTML(_.extend({}, this.model.toJSON(), data))).toggleClass({
-          active: this.model.get("selected")
-        });
-        if (id != null) {
-          this.setupPreviewOverlay();
-        }
-        return this;
-      };
+      SummaryHeading.prototype.template = _.template("<h3>\n    <span class=\"im-item-got\"></span>\n    <span class=\"im-item-available\"></span>\n    <span class=\"im-type-name\"></span>\n    <span class=\"im-attr-name\"></span>\n    <span class=\"im-item-total\"></span>\n</h3>");
 
-      Cell.prototype.setWidth = function(w) {
-        this.$el.css({
-          width: w + "px"
-        });
-        this.$('.im-cell-link').css({
-          "max-width": (w - 5) + "px"
-        });
-        return this;
-      };
-
-      Cell.prototype.activateChooser = function() {
-        if (this.model.get("selectable")) {
-          if (this.$('input').is(':visible')) {
-            return this.model.set({
-              selected: !this.model.get("selected")
-            });
-          }
-        }
-      };
-
-      return Cell;
-
-    })(Backbone.View));
-    return exporting(NullCell = (function(_super) {
-
-      __extends(NullCell, _super);
-
-      function NullCell() {
-        return NullCell.__super__.constructor.apply(this, arguments);
-      }
-
-      NullCell.prototype.setupPreviewOverlay = function() {};
-
-      NullCell.prototype.initialize = function() {
-        this.model = new Backbone.Model({
-          selected: false,
-          selectable: false,
-          value: null,
-          id: null,
-          url: null,
-          base: null,
-          type: null
-        });
-        return NullCell.__super__.initialize.call(this);
-      };
-
-      return NullCell;
-
-    })(Cell));
-  });
-
-  scope("intermine", function(exporting) {
-    var utils;
-    return exporting(utils = (function() {
-
-      function utils() {}
-
-      utils.pluralise = function(word, count) {
-        if (count === 1) {
-          return word;
-        } else if (word.match(/(s|x|ch)$/)) {
-          return word + "es";
-        } else if (word.match(/[^aeiou]y$/)) {
-          return word.replace(/y$/, "ies");
-        } else {
-          return word + "s";
-        }
-      };
-
-      utils.numToString = function(num, sep, every) {
-        var chars, groups, i, len, rets;
-        rets = [];
-        i = 0;
-        chars = (num + "").split("");
-        len = chars.length;
-        groups = _(chars).groupBy(function(c, i) {
-          return Math.floor((len - (i + 1)) / every).toFixed();
-        });
-        while (groups[i]) {
-          rets.unshift(groups[i].join(""));
-          i++;
-        }
-        return rets.join(sep);
-      };
-
-      utils.getParameter = function(params, name) {
-        return _(params).chain().select(function(p) {
-          return p.name === name;
-        }).pluck('value').first().value();
-      };
-
-      utils.modelIsBio = function(model) {
-        return !!(model != null ? model.classes['Gene'] : void 0);
-      };
-
-      utils.getOrganisms = function(query, cb) {
-        var c, n, newView, nodes, onodes, onodes2, orgs, promise, restrictedOrganisms, toRun, v;
-        restrictedOrganisms = (function() {
-          var _i, _len, _ref, _results;
-          _ref = query.constraints;
-          _results = [];
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            c = _ref[_i];
-            if (c.path.match(/(o|O)rganism/)) {
-              _results.push(c.value);
-            }
-          }
-          return _results;
-        })();
-        if (restrictedOrganisms.length) {
-          return cb(restrictedOrganisms);
-        } else {
-          toRun = query.clone();
-          orgs = [];
-          nodes = (function() {
-            var _i, _len, _ref, _results;
-            _ref = toRun.views;
-            _results = [];
-            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-              v = _ref[_i];
-              _results.push(toRun.getPathInfo(v).getParent());
-            }
-            return _results;
-          })();
-          onodes = (function() {
-            var _i, _len, _results;
-            _results = [];
-            for (_i = 0, _len = nodes.length; _i < _len; _i++) {
-              n = nodes[_i];
-              if (n.toPathString() === "Organism" || (n.getType().fields["organism"] != null)) {
-                _results.push(n);
-              }
-            }
-            return _results;
-          })();
-          onodes2 = ((function() {
-            var _i, _len, _results;
-            if (n.toPathString() === "Organism") {
-              return n;
-            } else {
-              _results = [];
-              for (_i = 0, _len = onodes.length; _i < _len; _i++) {
-                n = onodes[_i];
-                _results.push(n.append("organism"));
-              }
-              return _results;
-            }
-          })());
-          newView = (function() {
-            var _i, _len, _results;
-            _results = [];
-            for (_i = 0, _len = onodes2.length; _i < _len; _i++) {
-              n = onodes2[_i];
-              _results.push("" + (n.toPathString()) + ".shortName");
-            }
-            return _results;
-          })();
-          toRun.views = _.uniq(newView);
-          if (toRun.views.length) {
-            toRun.sortOrder = [];
-            promise = toRun.rows(function(rows) {
-              var row, _i, _len;
-              for (_i = 0, _len = rows.length; _i < _len; _i++) {
-                row = rows[_i];
-                orgs = orgs.concat(row);
-              }
-              return cb(_.uniq(orgs));
-            });
-            return promise.fail(function() {
-              return cb(orgs);
-            });
-          } else {
-            return cb(orgs);
-          }
-        }
-      };
-
-      return utils;
-
-    })());
-  });
-
-  scope("intermine.model", function(exporting) {
-    var FPObject, IMObject, NullObject;
-    exporting(IMObject = (function(_super) {
-
-      __extends(IMObject, _super);
-
-      function IMObject() {
-        return IMObject.__super__.constructor.apply(this, arguments);
-      }
-
-      IMObject.prototype.initialize = function(query, obj, field, base) {
-        var m, pathInfo,
+      SummaryHeading.prototype.render = function() {
+        var attr, s, type,
           _this = this;
-        obj.type = obj["class"];
-        obj[field] = obj.value;
-        obj.base = base;
-        obj.selected = false;
-        obj.selectable = true;
-        this.attributes = obj;
-        m = query.service.model;
-        pathInfo = m.getPathInfo(obj.type);
-        query.on("selection:cleared", function() {
-          return _this.set({
-            selectable: true
-          });
+        this.$el.append(this.template());
+        s = this.query.service;
+        type = this.query.getPathInfo(this.view).getParent().getType().name;
+        attr = this.query.getPathInfo(this.view).end.name;
+        s.makeRequest("model/" + type, {}, function(info) {
+          return _this.$('.im-type-name').text(info.name);
         });
-        query.on("common:type:selected", function(type) {
-          var typesAreCompatible;
-          typesAreCompatible = type && (pathInfo.isa(type) || (m.getPathInfo(type).isa(_this.get("type"))));
-          return _this.set({
-            selectable: typesAreCompatible || !type
-          });
+        s.makeRequest("model/" + type + "/" + attr, {}, function(info) {
+          return _this.$('.im-attr-name').text(intermine.utils.pluralise(info.name));
         });
-        return this.on("change:selected", function() {
-          return query.trigger("imo:selected", this.get("type"), this.get("id"), this.get("selected"));
-        });
+        return this;
       };
 
-      IMObject.prototype.merge = function(obj, field) {
-        return this.set(field, obj.value);
-      };
+      return SummaryHeading;
 
-      return IMObject;
-
-    })(Backbone.Model));
-    exporting(NullObject = (function(_super) {
-
-      __extends(NullObject, _super);
-
-      function NullObject() {
-        return NullObject.__super__.constructor.apply(this, arguments);
-      }
-
-      NullObject.prototype.initialize = function(query, field, type) {
-        this.attributes = {};
-        this.set(field, null);
-        this.set('id', null);
-        this.set('type', type);
-        this.set('selected', false);
-        return this.set('selectable', false);
-      };
-
-      NullObject.prototype.merge = function() {};
-
-      return NullObject;
-
-    })(IMObject));
-    return exporting(FPObject = (function(_super) {
-
-      __extends(FPObject, _super);
-
-      function FPObject() {
-        return FPObject.__super__.constructor.apply(this, arguments);
-      }
-
-      FPObject.prototype.initialize = function(query, obj, field) {
-        obj.type = obj["class"];
-        obj[field] = obj.value;
-        obj.selected = false;
-        obj.selectable = false;
-        return this.attributes = obj;
-      };
-
-      return FPObject;
-
-    })(Backbone.Model));
+    })(Backbone.View);
   });
 
   scope("intermine.query.results", function(exporting) {
@@ -4860,6 +2521,327 @@
       return CompactView;
 
     })(DashBoard));
+  });
+
+  scope("intermine.query.tools", function(exporting) {
+    var PANE_HTML, Step, TAB_HTML, ToolBar, Tools, Trail;
+    TAB_HTML = _.template("<li>\n    <a href=\"#<%= ref %>\" data-toggle=\"tab\">\n        <%= title %>\n    </a>\n</li>");
+    PANE_HTML = _.template("<div class=\"tab-pane\" id=\"<%= ref %>\"></div>");
+    exporting(Tools = (function(_super) {
+
+      __extends(Tools, _super);
+
+      function Tools() {
+        return Tools.__super__.constructor.apply(this, arguments);
+      }
+
+      Tools.prototype.className = "im-query-tools";
+
+      Tools.prototype.initialize = function(query) {
+        this.query = query;
+      };
+
+      Tools.prototype.render = function() {
+        var $pane, actions, c, columns, conf, content, filters, tabs, view, _i, _j, _len, _len1;
+        tabs = this.make("ul", {
+          "class": "nav nav-tabs"
+        });
+        conf = [
+          filters = {
+            title: "Filters",
+            ref: "filters",
+            view: intermine.query.filters.Filters
+          }, columns = {
+            title: "Columns",
+            ref: "columns",
+            view: intermine.query.columns.Columns
+          }, actions = {
+            title: "Actions",
+            ref: "actions",
+            view: intermine.query.actions.Actions
+          }
+        ];
+        for (_i = 0, _len = conf.length; _i < _len; _i++) {
+          c = conf[_i];
+          $(tabs).append(TAB_HTML(c));
+        }
+        this.$el.append(tabs);
+        content = this.make("div", {
+          "class": "tab-content"
+        });
+        for (_j = 0, _len1 = conf.length; _j < _len1; _j++) {
+          c = conf[_j];
+          $pane = $(PANE_HTML(c)).appendTo(content);
+          view = new c.view(this.query);
+          $pane.append(view.render().el);
+        }
+        $(content).find('.tab-pane').first().addClass("active");
+        $(tabs).find("a").first().tab('show');
+        this.$el.append(content);
+        return this;
+      };
+
+      return Tools;
+
+    })(Backbone.View));
+    exporting(ToolBar = (function(_super) {
+
+      __extends(ToolBar, _super);
+
+      function ToolBar() {
+        return ToolBar.__super__.constructor.apply(this, arguments);
+      }
+
+      ToolBar.prototype.className = "im-query-actionbar row-fluid";
+
+      ToolBar.prototype.initialize = function(query) {
+        this.query = query;
+      };
+
+      ToolBar.prototype.render = function() {
+        var actions;
+        actions = new intermine.query.actions.ActionBar(this.query);
+        actions.render().$el.appendTo(this.el);
+        return this;
+      };
+
+      return ToolBar;
+
+    })(Backbone.View));
+    Step = (function(_super) {
+
+      __extends(Step, _super);
+
+      function Step() {
+        return Step.__super__.constructor.apply(this, arguments);
+      }
+
+      Step.prototype.className = 'im-step';
+
+      Step.prototype.tagName = 'li';
+
+      Step.prototype.initialize = function(opts) {
+        var _this = this;
+        Step.__super__.initialize.call(this, opts);
+        this.model.on('got:count', function(count) {
+          return _this.$('.im-step-count .count').text(intermine.utils.numToString(count, ',', 3));
+        });
+        this.model.on('is:current', function(isCurrent) {
+          _this.$('.btn').toggleClass('btn-inverse', !isCurrent).attr({
+            disabled: isCurrent
+          });
+          _this.$('.btn-main').text(isCurrent ? "Current State" : "Revert to this State");
+          return _this.$('.btn i').toggleClass('icon-white', !isCurrent);
+        });
+        return this.model.on('remove', function() {
+          return _this.remove();
+        });
+      };
+
+      Step.prototype.events = {
+        'click .icon-info-sign': 'showDetails',
+        'click h4': 'toggleSection',
+        'click .btn': 'revertToThisState'
+      };
+
+      Step.prototype.toggleSection = function(e) {
+        e.stopPropagation();
+        $(e.target).find('i').toggleClass("icon-chevron-right icon-chevron-down");
+        return $(e.target).next().children().toggle();
+      };
+
+      Step.prototype.showDetails = function(e) {
+        e.stopPropagation();
+        return this.$('.im-step-details').toggle();
+      };
+
+      Step.prototype.revertToThisState = function(e) {
+        this.model.trigger('revert', this.model);
+        return this.$('.btn-small').tooltip('hide');
+      };
+
+      Step.prototype.sectionTempl = _.template("<div>\n    <h4>\n        <i class=\"icon-chevron-right\"></i>\n        <%= n %> <%= things %>\n    </h4>\n    <ul></ul>\n</div>");
+
+      Step.prototype.render = function() {
+        var addSection, c, clist, jlist, p, path, ps, q, style, toInfoLabel, toLabel, toPathLabel, toValLabel, v, vlist, _fn, _fn1, _fn2, _i, _j, _len, _len1, _ref, _ref1,
+          _this = this;
+        this.$el.append("<button class=\"btn btn-small im-state-revert\" disabled\n    title=\"Revert to this state\">\n    <i class=icon-undo></i>\n</button>\n<h3>" + (this.model.get('title')) + "</h3>\n<i class=\"icon-info-sign\"></i>\n</div>\n<span class=\"im-step-count\">\n    <span class=\"count\"></span> rows\n</span>\n<div class=\"im-step-details\">\n<div style=\"clear:both\"></div>");
+        q = this.model.get('query');
+        addSection = function(n, things) {
+          return $(_this.sectionTempl({
+            n: n,
+            things: things
+          })).appendTo(_this.$('.im-step-details')).find('ul');
+        };
+        toLabel = function(type, text) {
+          return "<span class=\"label label-" + type + "\">" + text + "</span>";
+        };
+        toPathLabel = _.bind(toLabel, {}, 'path');
+        toInfoLabel = _.bind(toLabel, {}, 'info');
+        toValLabel = _.bind(toLabel, {}, 'value');
+        this.$('.btn-small').tooltip({
+          placement: 'right'
+        });
+        ps = (function() {
+          var _i, _len, _ref, _results;
+          _ref = q.views;
+          _results = [];
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            v = _ref[_i];
+            _results.push(q.getPathInfo(v));
+          }
+          return _results;
+        })();
+        vlist = addSection(ps.length, 'Columns');
+        _fn = function(p) {
+          var li;
+          li = $('<li>');
+          vlist.append(li);
+          return p.getDisplayName(function(name) {
+            return li.append(toPathLabel(name));
+          });
+        };
+        for (_i = 0, _len = ps.length; _i < _len; _i++) {
+          p = ps[_i];
+          _fn(p);
+        }
+        clist = addSection(q.constraints.length, 'Filters');
+        _ref = q.constraints;
+        _fn1 = function(c) {
+          var li;
+          li = $('<li>');
+          clist.append(li);
+          return q.getPathInfo(c.path).getDisplayName(function(name) {
+            li.append(toPathLabel(name));
+            li.append(toInfoLabel(c.op));
+            if (c.value != null) {
+              return li.append(toValLabel(c.value));
+            } else if (c.values != null) {
+              return li.append(toValLabel(c.values.join(', ')));
+            }
+          });
+        };
+        for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
+          c = _ref[_j];
+          _fn1(c);
+        }
+        jlist = addSection(_.size(q.joins), 'Joins');
+        _ref1 = q.joins;
+        _fn2 = function(path, style) {
+          var li;
+          li = $('<li>');
+          jlist.append(li);
+          return q.getPathInfo(path).getDisplayName(function(name) {
+            li.append(toPathLabel(name));
+            return li.append(toInfoLabel(style));
+          });
+        };
+        for (path in _ref1) {
+          style = _ref1[path];
+          _fn2(path, style);
+        }
+        return this;
+      };
+
+      return Step;
+
+    })(Backbone.View);
+    return exporting(Trail = (function(_super) {
+
+      __extends(Trail, _super);
+
+      function Trail() {
+        this.minumaximise = __bind(this.minumaximise, this);
+        return Trail.__super__.constructor.apply(this, arguments);
+      }
+
+      Trail.prototype.className = "im-query-trail";
+
+      Trail.prototype.tagName = "div";
+
+      Trail.prototype.events = {
+        'click a.details': 'minumaximise',
+        'click a.shade': 'toggle'
+      };
+
+      Trail.prototype.toggle = function() {
+        var _this = this;
+        return this.$('.im-step').slideToggle('fast', function() {
+          return _this.$el.toggleClass("toggled");
+        });
+      };
+
+      Trail.prototype.minumaximise = function() {
+        return this.$el.toggleClass("minimised");
+      };
+
+      Trail.prototype.startListening = function() {
+        var _this = this;
+        this.query.on("change:constraints", this.addStep("Changed Filters"));
+        this.query.on("change:views", this.addStep("Changed Columns"));
+        this.query.on('count:is', function(count) {
+          return _this.states.last().trigger('got:count', count);
+        });
+        return this.query.on('undo', function() {
+          var newState;
+          _this.states.remove(_this.states.last());
+          newState = _this.states.last();
+          return newState.trigger('revert', newState);
+        });
+      };
+
+      Trail.prototype.initialize = function(query, display) {
+        var _this = this;
+        this.query = query;
+        this.display = display;
+        this.currentStep = 0;
+        this.states = new Backbone.Collection();
+        this.states.on('add', function(state) {
+          return _this.$('.im-state-list').append(new Step({
+            model: state
+          }).render().el);
+        });
+        this.states.on('add remove', function() {
+          _this.$('.im-trail-summary').text("query history: " + (_this.states.size()) + " states");
+          return _this.$el.toggle(_this.states.size() > 1);
+        });
+        this.states.on('revert', function(state) {
+          var num;
+          _this.query = state.get('query').clone();
+          num = state.get('stepNo');
+          _this.display.loadQuery(_this.query);
+          _this.startListening();
+          _this.states.remove(_this.states.filter(function(s) {
+            return s.get('stepNo') > num;
+          }));
+          return state.trigger('is:current', true);
+        });
+        return this.startListening();
+      };
+
+      Trail.prototype.addStep = function(title) {
+        var _this = this;
+        return function() {
+          _this.states.each(function(state) {
+            return state.trigger('is:current', false);
+          });
+          return _this.states.add({
+            query: _this.query.clone(),
+            title: title,
+            stepNo: _this.currentStep++
+          });
+        };
+      };
+
+      Trail.prototype.render = function() {
+        this.$el.append("<div class=\"btn-group\">\n  <a class=\"btn dropdown-toggle\" data-toggle=\"dropdown\" href=\"#\">\n    <span class=\"im-trail-summary\"></span>\n    <span class=\"caret\"></span>\n  </a>\n  <ul class=\"dropdown-menu im-state-list\">\n  </ul>\n</div>\n<div style=\"clear:both\"></div>");
+        this.addStep('Original State')();
+        return this;
+      };
+
+      return Trail;
+
+    })(Backbone.View));
   });
 
   scope('intermine.messages.results', {
@@ -6304,6 +4286,1970 @@
     })(NumericFacet));
   });
 
+  scope("intermine.messages.filters", {
+    DefineNew: 'Define a new filter',
+    EditOrRemove: 'edit or remove the currently active filters',
+    None: 'No active filters',
+    Heading: "Active Filters"
+  });
+
+  scope("intermine.query.filters", function(exporting) {
+    var Constraints, FACETS, Facets, Filters, SingleColumnConstraints, SingleColumnConstraintsSummary, SingleConstraintAdder;
+    exporting(Filters = (function(_super) {
+
+      __extends(Filters, _super);
+
+      function Filters() {
+        return Filters.__super__.constructor.apply(this, arguments);
+      }
+
+      Filters.prototype.className = "im-query-filters";
+
+      Filters.prototype.initialize = function(query) {
+        this.query = query;
+      };
+
+      Filters.prototype.render = function() {
+        var constraints, facets;
+        constraints = new Constraints(this.query);
+        constraints.render().$el.appendTo(this.el);
+        facets = new Facets(this.query);
+        facets.render().$el.appendTo(this.el);
+        return this;
+      };
+
+      return Filters;
+
+    })(Backbone.View));
+    FACETS = {
+      Gene: [
+        {
+          title: "Pathways",
+          path: "pathways.name"
+        }, {
+          title: "Expression Term",
+          path: "mRNAExpressionResults.mRNAExpressionTerms.name"
+        }, {
+          title: "Ontology Term",
+          path: "ontologyAnnotations.ontologyTerm.name"
+        }, {
+          title: "Protein Domains",
+          path: "proteins.proteinDomains.name"
+        }
+      ]
+    };
+    Facets = (function(_super) {
+
+      __extends(Facets, _super);
+
+      function Facets() {
+        this.render = __bind(this.render, this);
+        return Facets.__super__.constructor.apply(this, arguments);
+      }
+
+      Facets.prototype.className = "im-query-facets";
+
+      Facets.prototype.tagName = "dl";
+
+      Facets.prototype.initialize = function(query) {
+        this.query = query;
+        this.query.on("change:constraints", this.render);
+        return this.query.on("change:joins", this.render);
+      };
+
+      Facets.prototype.render = function() {
+        var cs, f, facets, searcher, simplify, v, _i, _len,
+          _this = this;
+        this.$el.empty();
+        simplify = function(x) {
+          return x.replace(/^[^\.]+\./, "").replace(/\./g, " > ");
+        };
+        facets = (FACETS[this.query.root] || []).concat((function() {
+          var _i, _len, _ref, _results;
+          _ref = this.query.views;
+          _results = [];
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            v = _ref[_i];
+            _results.push({
+              title: simplify(v),
+              path: v
+            });
+          }
+          return _results;
+        }).call(this));
+        if (facets) {
+          searcher = this.make("input", {
+            "class": "input-long",
+            placeholder: "Filter facets..."
+          });
+          $(searcher).appendTo(this.el).keyup(function(e) {
+            var pattern;
+            pattern = new RegExp($(e.target).val(), "i");
+            return _this.query.trigger("filter:facets", pattern);
+          });
+          for (_i = 0, _len = facets.length; _i < _len; _i++) {
+            f = facets[_i];
+            cs = new intermine.results.ColumnSummary(f, this.query);
+            this.$el.append(cs.el);
+            cs.render();
+          }
+        }
+        return this;
+      };
+
+      return Facets;
+
+    })(Backbone.View);
+    Constraints = (function(_super) {
+
+      __extends(Constraints, _super);
+
+      function Constraints() {
+        this.render = __bind(this.render, this);
+        return Constraints.__super__.constructor.apply(this, arguments);
+      }
+
+      Constraints.prototype.className = "im-constraints";
+
+      Constraints.prototype.initialize = function(query) {
+        this.query = query;
+        return this.query.on("change:constraints", this.render);
+      };
+
+      Constraints.prototype.getConstraints = function() {
+        return this.query.constraints;
+      };
+
+      Constraints.prototype.getConAdder = function() {
+        return new intermine.query.ConstraintAdder(this.query);
+      };
+
+      Constraints.prototype.render = function() {
+        var c, conBox, cons, msgs, ul, _fn, _i, _len, _ref,
+          _this = this;
+        cons = this.getConstraints();
+        msgs = intermine.messages.filters;
+        this.$el.empty();
+        this.$el.append(this.make("h3", {}, msgs.Heading));
+        conBox = $('<div class="alert alert-info">');
+        conBox.appendTo(this.el).append(this.make("p", {}, cons.length ? msgs.EditOrRemove : msgs.None)).append(ul = this.make("ul", {}));
+        _fn = function(c) {
+          var con;
+          con = new intermine.query.ActiveConstraint(_this.query, c);
+          return con.render().$el.appendTo($(ul));
+        };
+        for (_i = 0, _len = cons.length; _i < _len; _i++) {
+          c = cons[_i];
+          _fn(c);
+        }
+        if ((_ref = this.getConAdder()) != null) {
+          _ref.render().$el.appendTo(this.el);
+        }
+        return this;
+      };
+
+      Constraints.prototype.events = {
+        click: function(e) {
+          return e.stopPropagation();
+        }
+      };
+
+      return Constraints;
+
+    })(Backbone.View);
+    SingleConstraintAdder = (function(_super) {
+
+      __extends(SingleConstraintAdder, _super);
+
+      function SingleConstraintAdder() {
+        return SingleConstraintAdder.__super__.constructor.apply(this, arguments);
+      }
+
+      SingleConstraintAdder.prototype.initialize = function(query, view) {
+        var _this = this;
+        this.view = view;
+        SingleConstraintAdder.__super__.initialize.call(this, query);
+        return this.query.on('cancel:add-constraint', function() {
+          return _this.$('.btn-primary').attr({
+            disabled: !_this.getTreeRoot().isAttribute()
+          });
+        });
+      };
+
+      SingleConstraintAdder.prototype.initPaths = function() {
+        return [this.view];
+      };
+
+      SingleConstraintAdder.prototype.getTreeRoot = function() {
+        return this.query.getPathInfo(this.view);
+      };
+
+      SingleConstraintAdder.prototype.render = function() {
+        SingleConstraintAdder.__super__.render.call(this);
+        this.$('input').remove();
+        root = this.getTreeRoot();
+        console.log(this.view);
+        if (root.isAttribute()) {
+          this.chosen = root;
+          this.$('button.btn-primary').text(intermine.messages.filters.DefineNew).attr({
+            disabled: false
+          });
+          this.$('button.btn-chooser').remove();
+        }
+        return this;
+      };
+
+      return SingleConstraintAdder;
+
+    })(intermine.query.ConstraintAdder);
+    exporting(SingleColumnConstraints = (function(_super) {
+
+      __extends(SingleColumnConstraints, _super);
+
+      function SingleColumnConstraints() {
+        return SingleColumnConstraints.__super__.constructor.apply(this, arguments);
+      }
+
+      SingleColumnConstraints.prototype.initialize = function(query, view) {
+        this.view = view;
+        return SingleColumnConstraints.__super__.initialize.call(this, query);
+      };
+
+      SingleColumnConstraints.prototype.getConAdder = function() {
+        return new SingleConstraintAdder(this.query, this.view);
+      };
+
+      SingleColumnConstraints.prototype.getConstraints = function() {
+        var c, _i, _len, _ref, _results;
+        _ref = this.query.constraints;
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          c = _ref[_i];
+          if (c.path.match(this.view)) {
+            _results.push(c);
+          }
+        }
+        return _results;
+      };
+
+      return SingleColumnConstraints;
+
+    })(Constraints));
+    return exporting(SingleColumnConstraintsSummary = (function(_super) {
+
+      __extends(SingleColumnConstraintsSummary, _super);
+
+      function SingleColumnConstraintsSummary() {
+        return SingleColumnConstraintsSummary.__super__.constructor.apply(this, arguments);
+      }
+
+      SingleColumnConstraintsSummary.prototype.getConAdder = function() {};
+
+      SingleColumnConstraintsSummary.prototype.render = function() {
+        var cons;
+        SingleColumnConstraintsSummary.__super__.render.call(this);
+        cons = this.getConstraints();
+        if (cons.length < 1) {
+          this.undelegateEvents();
+          this.$el.hide();
+        }
+        return this;
+      };
+
+      return SingleColumnConstraintsSummary;
+
+    })(SingleColumnConstraints));
+  });
+
+  scope("intermine.results.formatters", {
+    Manager: function(model, query, $cell) {
+      var id, name, title;
+      id = model.get('id');
+      if (model.has('title') && model.has('name')) {
+        title = model.get('title');
+        name = model.get('name');
+        return {
+          value: "" + title + " " + name,
+          field: "id"
+        };
+      } else {
+        query.service.findById('Manager', id, function(manager) {
+          var display;
+          display = "" + manager.title + " " + manager.name;
+          model.set({
+            title: manager.title,
+            name: manager.name
+          });
+          return $cell.find('.im-cell-link').text(display);
+        });
+        return {
+          value: id,
+          field: "id"
+        };
+      }
+    }
+  });
+
+  scope("intermine.results", {
+    getFormatter: function(model, type) {
+      var formatter, t, types, _i, _len;
+      formatter = null;
+      type = type.name || type;
+      types = [type].concat(model.getAncestorsOf(type));
+      for (_i = 0, _len = types.length; _i < _len; _i++) {
+        t = types[_i];
+        formatter || (formatter = intermine.results.formatters[t]);
+      }
+      return formatter;
+    }
+  });
+
+  scope("intermine.results.table", function(exporting) {
+    var CELL_HTML, Cell, HIDDEN_FIELDS, NullCell, SubTable;
+    CELL_HTML = _.template("<input class=\"list-chooser\" type=\"checkbox\" style=\"display: none\" data-obj-id=\"<%= id %>\" \n    <% if (selected) { %>checked <% }; %>\n    data-obj-type=\"<%= type %>\">\n<% if (value == null) { %>\n    <span class=\"null-value\">no value</span>\n<% } else { %>\n    <% if (url != null && url.match(/^http/)) { %>\n      <a class=\"im-cell-link\" href=\"<%= url %>\"><%= value %></a>\n    <% } else { %>\n      <a class=\"im-cell-link\" href=\"<%= base %><%= url %>\"><%= value %></a>\n    <% } %>\n<% } %>\n<% if (field == 'url') { %>\n    <a class=\"im-cell-link external\" href=\"<%= value %>\"><i class=\"icon-globe\"></i>link</a>\n<% } %>");
+    HIDDEN_FIELDS = ["class", "objectId"];
+    exporting(SubTable = (function(_super) {
+
+      __extends(SubTable, _super);
+
+      function SubTable() {
+        return SubTable.__super__.constructor.apply(this, arguments);
+      }
+
+      SubTable.prototype.tagName = "td";
+
+      SubTable.prototype.className = "im-result-subtable";
+
+      SubTable.prototype.initialize = function(query, cellify, subtable) {
+        var _this = this;
+        this.query = query;
+        this.cellify = cellify;
+        this.rows = subtable.rows;
+        this.view = subtable.view;
+        this.column = this.query.getPathInfo(subtable.column);
+        this.query.on('expand:subtables', function(path) {
+          if (path.toString() === _this.column.toString()) {
+            return _this.$('.im-subtable').slideDown();
+          }
+        });
+        return this.query.on('collapse:subtables', function(path) {
+          if (path.toString() === _this.column.toString()) {
+            return _this.$('.im-subtable').slideUp();
+          }
+        });
+      };
+
+      SubTable.prototype.getSummaryText = function() {
+        if (this.column.isCollection()) {
+          return "" + this.rows.length + " " + (this.column.getType().name) + "s";
+        } else {
+          if (this.rows.length === 0) {
+            return "No " + (this.column.getType().name);
+          } else {
+            return "" + this.rows[0][0].value + " (" + (this.rows[0].slice(1).map(function(c) {
+              return c.value;
+            }).join(', ')) + ")";
+          }
+        }
+      };
+
+      SubTable.prototype.render = function() {
+        var colRoot, colStr, icon, row, summary, t, v, _fn, _fn1, _i, _j, _len, _len1, _ref, _ref1,
+          _this = this;
+        icon = this.rows.length > 0 ? '<i class=icon-table></i>' : '<i class=icon-non-existent></i>';
+        summary = $("<span>" + icon + "&nbsp;" + (this.getSummaryText()) + "</span>");
+        summary.addClass('im-subtable-summary').appendTo(this.$el);
+        t = $('<table><thead><tr></tr></thead><tbody></tbody></table>');
+        colRoot = this.column.getType().name;
+        colStr = this.column.toString();
+        if (this.rows.length > 0) {
+          _ref = this.view;
+          _fn = function(v) {
+            var path, th;
+            th = $("<th>\n    <i class=\"" + intermine.css.headerIconRemove + "\"></i>\n    <span></span>\n</th>");
+            th.find('i').click(function(e) {
+              return _this.query.removeFromSelect(v);
+            });
+            path = _this.query.getPathInfo(v);
+            _this.column.getDisplayName(function(colName) {
+              var span, _ref1;
+              span = th.find('span');
+              if ((((_ref1 = path.end) != null ? _ref1.name : void 0) === 'id') && (intermine.results.getFormatter(_this.query.model, path.getParent().getType()) != null)) {
+                path = path.getParent();
+              }
+              return path.getDisplayName(function(pathName) {
+                if (pathName.match(colName)) {
+                  return span.text(pathName.replace(colName, '').replace(/^\s*>?\s*/, ''));
+                } else {
+                  return span.text(pathName.replace(/^[^>]*\s*>\s*/, ''));
+                }
+              });
+            });
+            return t.children('thead').children('tr').append(th);
+          };
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            v = _ref[_i];
+            _fn(v);
+          }
+          _ref1 = this.rows;
+          _fn1 = function(t, row) {
+            var cell, tr, w, _fn2, _k, _len2;
+            tr = $('<tr>');
+            w = _this.$el.width() / _this.view.length;
+            _fn2 = function(tr, cell) {
+              return tr.append((_this.cellify(cell)).render().setWidth(w).el);
+            };
+            for (_k = 0, _len2 = row.length; _k < _len2; _k++) {
+              cell = row[_k];
+              _fn2(tr, cell);
+            }
+            t.children('tbody').append(tr);
+            return null;
+          };
+          for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+            row = _ref1[_j];
+            _fn1(t, row);
+          }
+        }
+        t.addClass('im-subtable table table-condensed table-striped');
+        this.$el.append(t);
+        summary.css({
+          cursor: 'pointer'
+        }).click(function(e) {
+          console.log(t);
+          e.stopPropagation();
+          if (t.is(':visible')) {
+            _this.query.trigger('subtable:collapsed', _this.column);
+          } else {
+            _this.query.trigger('subtable:expanded', _this.column);
+          }
+          return t.slideToggle();
+        });
+        return this;
+      };
+
+      SubTable.prototype.getUnits = function() {
+        if (this.rows.length = 0) {
+          return this.view.length;
+        } else {
+          return _.reduce(this.rows[0], (function(a, item) {
+            return a + (item.view != null ? item.view.length : 1);
+          }), 0);
+        }
+      };
+
+      SubTable.prototype.setWidth = function(w) {
+        this.$el.css({
+          width: (w * this.view.length) + "px"
+        });
+        this.$('.im-cell-link').css({
+          "max-width": ((w * this.view.length) - 5) + "px"
+        });
+        return this;
+      };
+
+      return SubTable;
+
+    })(Backbone.View));
+    exporting(Cell = (function(_super) {
+
+      __extends(Cell, _super);
+
+      function Cell() {
+        return Cell.__super__.constructor.apply(this, arguments);
+      }
+
+      Cell.prototype.tagName = "td";
+
+      Cell.prototype.className = "im-result-field";
+
+      Cell.prototype.getUnits = function() {
+        return 1;
+      };
+
+      Cell.prototype.events = {
+        'click': 'activateChooser'
+      };
+
+      Cell.prototype.initialize = function() {
+        var _this = this;
+        this.model.on("change:selected", function(model, selected) {
+          _this.$el.toggleClass("active", selected);
+          return _this.$('input').attr({
+            checked: selected
+          });
+        });
+        this.model.on("change:selectable", function(model, selectable) {
+          return _this.$('input').attr({
+            disabled: !selectable
+          });
+        });
+        this.options.query.on("start:list-creation", function() {
+          if (_this.model.get("selectable")) {
+            return _this.$('input').show();
+          }
+        });
+        this.options.query.on("stop:list-creation", function() {
+          _this.$('input').hide();
+          _this.$el.removeClass("active");
+          return _this.model.set("selected", false);
+        });
+        this.options.query.on("start:highlight:node", function(node) {
+          var _ref;
+          if (((_ref = _this.options.node) != null ? _ref.toPathString() : void 0) === node.toPathString()) {
+            return _this.$el.addClass("im-highlight");
+          }
+        });
+        return this.options.query.on("stop:highlight", function() {
+          return _this.$el.removeClass("im-highlight");
+        });
+      };
+
+      Cell.prototype.setupPreviewOverlay = function() {
+        var cellLink, content, id, s, type;
+        content = $("<table class=\"im-item-details table table-condensed table-bordered\">\n<colgroup>\n    <col class=\"im-item-field\"/>\n    <col class=\"im-item-value\"/>\n</colgroup>\n</table>");
+        type = this.model.get('type');
+        id = this.model.get('id');
+        s = this.options.query.service;
+        return cellLink = this.$el.find('.im-cell-link').first().popover({
+          placement: function() {
+            var table;
+            table = cellLink.closest("table");
+            if (cellLink.offset().left + 300 >= table.offset().left + table.width()) {
+              return "left";
+            } else {
+              return "right";
+            }
+          },
+          title: type,
+          trigger: "hover",
+          delay: {
+            show: 500,
+            hide: 100
+          },
+          content: function() {
+            if (!cellLink.data("content")) {
+              s.findById(type, id, function(item) {
+                var field, getLeaves, v, value, values;
+                for (field in item) {
+                  value = item[field];
+                  if (!(value && (__indexOf.call(HIDDEN_FIELDS, field) < 0) && !value['objectId'])) {
+                    continue;
+                  }
+                  v = value + "";
+                  v = v.length > 100 ? v.substring(0, 100) + "..." : v;
+                  content.append("<tr>\n    <td>" + field + "</td>\n    <td>" + v + "</td>\n</tr>");
+                }
+                getLeaves = function(o) {
+                  var leaf, leaves, name, values, x, _i, _len;
+                  leaves = [];
+                  values = (function() {
+                    var _results;
+                    _results = [];
+                    for (name in o) {
+                      leaf = o[name];
+                      if (__indexOf.call(HIDDEN_FIELDS, name) < 0) {
+                        _results.push(leaf);
+                      }
+                    }
+                    return _results;
+                  })();
+                  for (_i = 0, _len = values.length; _i < _len; _i++) {
+                    x = values[_i];
+                    if (x['objectId']) {
+                      leaves = leaves.concat(getLeaves(x));
+                    } else {
+                      leaves.push(x);
+                    }
+                  }
+                  return leaves;
+                };
+                for (field in item) {
+                  value = item[field];
+                  if (!(value && value['objectId'])) {
+                    continue;
+                  }
+                  values = getLeaves(value);
+                  content.append("<tr>\n    <td>" + field + "</td>\n    <td>" + (values.join(', ')) + "</td>\n</tr>");
+                }
+                cellLink.data({
+                  content: content
+                });
+                return cellLink.popover("show");
+              });
+            }
+            return content;
+          }
+        });
+      };
+
+      Cell.prototype.render = function() {
+        var data, formatter, id, type;
+        type = this.model.get("type");
+        id = this.model.get("id");
+        if ((this.options.field === 'id') && (formatter = intermine.results.getFormatter(this.options.query.model, type))) {
+          data = formatter(this.model, this.options.query, this.$el);
+        } else {
+          data = {
+            value: this.model.get(this.options.field),
+            field: this.options.field
+          };
+        }
+        this.$el.append(CELL_HTML(_.extend({}, this.model.toJSON(), data))).toggleClass({
+          active: this.model.get("selected")
+        });
+        if (id != null) {
+          this.setupPreviewOverlay();
+        }
+        return this;
+      };
+
+      Cell.prototype.setWidth = function(w) {
+        this.$el.css({
+          width: w + "px"
+        });
+        this.$('.im-cell-link').css({
+          "max-width": (w - 5) + "px"
+        });
+        return this;
+      };
+
+      Cell.prototype.activateChooser = function() {
+        if (this.model.get("selectable")) {
+          if (this.$('input').is(':visible')) {
+            return this.model.set({
+              selected: !this.model.get("selected")
+            });
+          }
+        }
+      };
+
+      return Cell;
+
+    })(Backbone.View));
+    return exporting(NullCell = (function(_super) {
+
+      __extends(NullCell, _super);
+
+      function NullCell() {
+        return NullCell.__super__.constructor.apply(this, arguments);
+      }
+
+      NullCell.prototype.setupPreviewOverlay = function() {};
+
+      NullCell.prototype.initialize = function() {
+        this.model = new Backbone.Model({
+          selected: false,
+          selectable: false,
+          value: null,
+          id: null,
+          url: null,
+          base: null,
+          type: null
+        });
+        return NullCell.__super__.initialize.call(this);
+      };
+
+      return NullCell;
+
+    })(Cell));
+  });
+
+  scope("intermine.css", {
+    unsorted: "icon-sort",
+    sortedASC: "icon-sort-up",
+    sortedDESC: "icon-sort-down",
+    headerIcon: "icon-white",
+    headerIconRemove: "icon-remove-sign",
+    headerIconHide: "icon-minus-sign",
+    headerIconFilter: "icon-filter",
+    headerIconSummary: "icon-bar-chart"
+  });
+
+  scope('intermine.snippets.query', {
+    UndoButton: '<button class="btn btn-primary pull-right"><i class="icon-undo"></i> undo</button>'
+  });
+
+  scope('intermine.messages.query', {
+    CountSummary: _.template("<span class=\"im-only-widescreen\">Showing</span>\n<span>\n  <% if (last == 0) { %>\n      All\n  <% } else { %>\n      <%= first %> to <%= last %> of\n  <% } %>\n  <%= count %> <%= roots %>\n</span>")
+  });
+
+  scope("intermine.query.results", function(exporting) {
+    var NUMERIC_TYPES, Page, PageSizer, ResultsTable, Table;
+    NUMERIC_TYPES = ["int", "Integer", "double", "Double", "float", "Float"];
+    Page = (function() {
+
+      function Page(start, size) {
+        this.start = start;
+        this.size = size;
+      }
+
+      Page.prototype.end = function() {
+        return this.start + this.size;
+      };
+
+      return Page;
+
+    })();
+    ResultsTable = (function(_super) {
+
+      __extends(ResultsTable, _super);
+
+      function ResultsTable() {
+        this.addColumnHeaders = __bind(this.addColumnHeaders, this);
+
+        this.handleError = __bind(this.handleError, this);
+
+        this.appendRows = __bind(this.appendRows, this);
+        return ResultsTable.__super__.constructor.apply(this, arguments);
+      }
+
+      ResultsTable.nextDirections = {
+        ASC: "DESC",
+        DESC: "ASC"
+      };
+
+      ResultsTable.prototype.className = "im-results-table table table-striped table-bordered";
+
+      ResultsTable.prototype.tagName = "table";
+
+      ResultsTable.prototype.attributes = {
+        width: "100%",
+        cellpadding: 0,
+        border: 0,
+        cellspacing: 0
+      };
+
+      ResultsTable.prototype.pageSize = 25;
+
+      ResultsTable.prototype.pageStart = 0;
+
+      ResultsTable.prototype.throbber = _.template("<tr class=\"im-table-throbber\">\n    <td colspan=\"<%= colcount %>\">\n        <h2>Requesting Data</h2>\n        <div class=\"progress progress-info progress-striped active\">\n            <div class=\"bar\" style=\"width: 100%\"></div>\n        </div>\n    </td>\n</tr>");
+
+      ResultsTable.prototype.initialize = function(query, getData) {
+        var _this = this;
+        this.query = query;
+        this.getData = getData;
+        this.minimisedCols = {};
+        this.query.on("set:sortorder", function(oes) {
+          _this.lastAction = 'resort';
+          return _this.fill();
+        });
+        return this.query.on("page-size:selected", function(size) {
+          _this.pageSize = size;
+          if (size === 0) {
+            _this.pageStart = 0;
+          }
+          return _this.fill();
+        });
+      };
+
+      ResultsTable.prototype.render = function() {
+        var promise;
+        this.$el.empty();
+        promise = this.fill();
+        return promise.done(this.addColumnHeaders);
+      };
+
+      ResultsTable.prototype.goTo = function(start) {
+        this.pageStart = parseInt(start);
+        return this.fill();
+      };
+
+      ResultsTable.prototype.goToPage = function(page) {
+        this.pageStart = page * this.pageSize;
+        return this.fill();
+      };
+
+      ResultsTable.prototype.fill = function() {
+        var promise, throbber,
+          _this = this;
+        throbber = $(this.throbber({
+          colcount: this.query.views.length
+        }));
+        promise = this.getData(this.pageStart, this.pageSize);
+        promise.then(this.appendRows, this.handleError).always(function() {
+          return throbber.remove();
+        });
+        promise.done(function() {
+          return _this.query.trigger("imtable:change:page", _this.pageStart, _this.pageSize);
+        });
+        return promise;
+      };
+
+      ResultsTable.prototype.handleEmptyTable = function() {
+        var apology,
+          _this = this;
+        apology = $("<tr>\n    <td colspan=\"" + this.query.views.length + "\">\n        <div class=\"im-no-results alert alert-info\">\n            " + (this.query.__changed > 0 ? intermine.snippets.query.UndoButton : '') + "\n            <strong>NO RESULTS</strong>\n            This query returned 0 results.\n            <div style=\"clear:both\"></div>\n        </div>\n    </td>\n</tr>");
+        return apology.appendTo(this.el).find('button').click(function(e) {
+          return _this.query.trigger('undo');
+        });
+      };
+
+      ResultsTable.prototype.appendRows = function(res) {
+        var row, _i, _len, _ref;
+        this.$("tbody > tr").remove();
+        if (res.rows.length === 0) {
+          this.handleEmptyTable();
+        } else {
+          _ref = res.rows;
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            row = _ref[_i];
+            this.appendRow(row);
+          }
+        }
+        return this.query.trigger("table:filled");
+      };
+
+      ResultsTable.prototype.minimisedColumnPlaceholder = _.template("<td class=\"im-minimised-col\" style=\"width:<%= width %>px\">&hellip;</td>");
+
+      ResultsTable.prototype.appendRow = function(row) {
+        var cell, i, k, minWidth, minimised, tr, v, w, _fn, _i, _len,
+          _this = this;
+        tr = $("<tr>");
+        minWidth = 10;
+        minimised = (function() {
+          var _ref, _results;
+          _ref = this.minimisedCols;
+          _results = [];
+          for (k in _ref) {
+            v = _ref[k];
+            if (v) {
+              _results.push(k);
+            }
+          }
+          return _results;
+        }).call(this);
+        w = 1 / (row.length - minimised.length) * (this.$el.width() - (minWidth * minimised.length));
+        _fn = function(cell, i) {
+          if (_this.minimisedCols[i]) {
+            return tr.append(_this.minimisedColumnPlaceholder({
+              width: minWidth
+            }));
+          } else {
+            return tr.append(cell.render().setWidth(w).$el);
+          }
+        };
+        for (i = _i = 0, _len = row.length; _i < _len; i = ++_i) {
+          cell = row[i];
+          _fn(cell, i);
+        }
+        return tr.appendTo(this.el);
+      };
+
+      ResultsTable.prototype.errorTempl = _.template("<div class=\"alert alert-error\">\n    <h2>Oops!</h2>\n    <p><i><%- error %></i></p>\n</div>");
+
+      ResultsTable.prototype.handleError = function(err, time) {
+        var btn, mailto, notice, p;
+        notice = $(this.errorTempl({
+          error: err
+        }));
+        if (time != null) {
+          notice.append("<p>Time: " + time + "</p>");
+        }
+        notice.append("<p>\n    This is most likely related to the query that was just run. If you have\n    time, please send us an email with details of this query to help us diagnose and\n    fix this bug.\n</p>");
+        btn = $('<button class="btn btn-error">');
+        notice.append(btn);
+        p = $('<p style="display:none" class="well">');
+        btn.text('show query');
+        p.text(this.query.toXML());
+        btn.click(function() {
+          return p.slideToggle();
+        });
+        mailto = this.query.service.help + "?" + $.param({
+          subject: "Error running embedded table query",
+          body: "We encountered an error running a query from an\nembedded result table.\n\npage:       " + window.location + "\nservice:    " + this.query.service.root + "\nerror:      " + err + "\ndate-stamp: " + time + "\nquery:      " + (this.query.toXML())
+        }, true);
+        mailto = mailto.replace(/\+/g, '%20');
+        notice.append("<a class=\"btn btn-primary pull-right\" href=\"mailto:" + mailto + "\">\n    Email the help-desk\n</a>");
+        notice.append(p);
+        return this.$el.append(notice);
+      };
+
+      ResultsTable.prototype.columnHeaderTempl = function(ctx) {
+        return _.template("<th>\n    <div class=\"navbar\">\n        <div class=\"im-th-buttons\">\n            <% if (sortable) { %>\n                <div class=\"im-th-button im-col-sort-indicator\" title=\"sort this column\">\n                    <i class=\"icon-sorting " + intermine.css.unsorted + " " + intermine.css.headerIcon + "\"></i>\n                </div>\n            <% }; %>\n            <div class=\"im-th-button im-col-remover\" title=\"remove this column\" data-view=\"<%= view %>\">\n                <i class=\"" + intermine.css.headerIconRemove + " " + intermine.css.headerIcon + "\"></i>\n            </div>\n            <div class=\"im-th-button im-col-minumaximiser\" title=\"Hide column\" data-col-idx=\"<%= i %>\">\n                <i class=\"" + intermine.css.headerIconHide + " " + intermine.css.headerIcon + "\"></i>\n            </div>\n            <div class=\"dropdown im-filter-summary\">\n                <div class=\"im-th-button im-col-filters dropdown-toggle\"\n                     title=\"Filter by values in this column\"\n                     data-toggle=\"dropdown\" data-col-idx=\"<%= i %>\" >\n                    <i class=\"" + intermine.css.headerIconFilter + " " + intermine.css.headerIcon + "\"></i>\n                </div>\n                <div class=\"dropdown-menu\">\n                    <div>Could not ititialise the filter summary.</div>\n                </div>\n            </div>\n            <div class=\"dropdown im-summary\">\n                <div class=\"im-th-button summary-img dropdown-toggle\" title=\"column summary\"\n                    data-toggle=\"dropdown\" data-col-idx=\"<%= i %>\" >\n                    <i class=\"" + intermine.css.headerIconSummary + " " + intermine.css.headerIcon + "\"></i>\n                </div>\n                <div class=\"dropdown-menu\">\n                    <div>Could not ititialise the column summary.</div>\n                </div>\n            </div>\n        </div>\n        <span class=\"im-col-title\"><%- title %></span>\n    </div>\n</th>", ctx);
+      };
+
+      ResultsTable.prototype.buildColumnHeader = function(view, i, title, tr) {
+        var cmd, cmds, direction, expandAll, filterSummary, minumaximiser, path, q, setDirectionClass, sortButton, sortable, th,
+          _this = this;
+        q = this.query;
+        direction = q.getSortDirection(view);
+        sortable = !q.isOuterJoined(view);
+        th = $(this.columnHeaderTempl({
+          title: title,
+          i: i,
+          view: view,
+          sortable: sortable
+        }));
+        tr.append(th);
+        if (_.any(q.constraints, (function(c) {
+          return !!c.path.match(view);
+        }))) {
+          th.addClass('im-has-constraint');
+          th.find('.im-col-filters').attr({
+            title: "" + (_.size(_.filter(q.constraints, function(c) {
+              return !!c.path.match(view);
+            }))) + " active filters"
+          });
+        }
+        th.find('.im-th-button').tooltip({
+          placement: "left"
+        });
+        sortButton = th.find('.icon-sorting');
+        setDirectionClass = function(d) {
+          sortButton.addClass(intermine.css.unsorted);
+          sortButton.removeClass("" + intermine.css.sortedASC + " " + intermine.css.sortedDESC);
+          if (d) {
+            return sortButton.toggleClass("" + intermine.css.unsorted + " " + intermine.css['sorted' + d]);
+          }
+        };
+        setDirectionClass(direction);
+        this.query.on("set:sortorder", function() {
+          var sd;
+          sd = q.getSortDirection(view);
+          return setDirectionClass(sd);
+        });
+        direction = ResultsTable.nextDirections[direction] || "ASC";
+        sortButton.parent().click(function(e) {
+          var $elem;
+          $elem = $(this);
+          q.orderBy([
+            {
+              path: view,
+              direction: direction
+            }
+          ]);
+          return direction = ResultsTable.nextDirections[direction];
+        });
+        minumaximiser = th.find('.im-col-minumaximiser');
+        minumaximiser.click(function(e) {
+          var isMinimised;
+          minumaximiser.find('i').toggleClass("icon-minus-sign icon-plus-sign");
+          isMinimised = _this.minimisedCols[i] = !_this.minimisedCols[i];
+          th.find('.im-col-title').toggle(!isMinimised);
+          return _this.fill();
+        });
+        filterSummary = th.find('.im-col-filters');
+        filterSummary.click(this.showFilterSummary(view)).dropdown();
+        path = q.getPathInfo(view);
+        if (path.isAttribute()) {
+          return th.find('.summary-img').click(this.showColumnSummary(path)).dropdown();
+        } else {
+          th.find('.summary-img').click(this.showOuterJoinedColumnSummaries(path)).dropdown();
+          expandAll = $("<div class=\"im-th-button\" title=\"Expand/Collapse all subtables\">\n    <i class=\"icon-table icon-white\"></i>\n</div>");
+          expandAll.tooltip({
+            placement: 'left'
+          });
+          th.find('.im-th-buttons').prepend(expandAll);
+          cmds = ['expand', 'collapse'];
+          cmd = 0;
+          this.query.on('subtable:expanded', function(node) {
+            if (node.toString().match(path.toString())) {
+              return cmd = 1;
+            }
+          });
+          this.query.on('subtable:collapsed', function(node) {
+            if (node.toString().match(path.toString())) {
+              return cmd = 0;
+            }
+          });
+          return expandAll.click(function(e) {
+            e.stopPropagation();
+            e.preventDefault();
+            _this.query.trigger("" + cmds[cmd] + ":subtables", path);
+            return cmd = (cmd + 1) % 2;
+          });
+        }
+      };
+
+      ResultsTable.prototype.addColumnHeaders = function(result) {
+        var i, promise, q, thead, titles, tr, view, views, _fn, _i, _len,
+          _this = this;
+        thead = $("<thead>");
+        tr = $("<tr>");
+        thead.append(tr);
+        q = this.query;
+        if (result.results.length && _.has(result.results[0][0], 'column')) {
+          views = result.results[0].map(function(row) {
+            return row.column;
+          });
+          promise = new $.Deferred();
+          titles = {};
+          _.each(views, function(v) {
+            var path, _ref;
+            path = q.getPathInfo(v);
+            if ((((_ref = path.end) != null ? _ref.name : void 0) === 'id') && (intermine.results.getFormatter(q.model, path.getParent().getType()) != null)) {
+              path = path.getParent();
+            }
+            return path.getDisplayName(function(name) {
+              titles[v] = name;
+              if (_.size(titles) === views.length) {
+                return promise.resolve(titles);
+              }
+            });
+          });
+          promise.done(function(titles) {
+            var i, v, _i, _len, _results;
+            _results = [];
+            for (i = _i = 0, _len = views.length; _i < _len; i = ++_i) {
+              v = views[i];
+              _results.push(_this.buildColumnHeader(v, i, titles[v], tr));
+            }
+            return _results;
+          });
+        } else {
+          views = q.views;
+          _fn = function(view, i) {
+            var title;
+            title = result.columnHeaders[i].split(' > ').slice(1).join(" > ");
+            return _this.buildColumnHeader(view, i, title, tr);
+          };
+          for (i = _i = 0, _len = views.length; _i < _len; i = ++_i) {
+            view = views[i];
+            _fn(view, i);
+          }
+        }
+        return thead.appendTo(this.el);
+      };
+
+      ResultsTable.prototype.showOuterJoinedColumnSummaries = function(path) {
+        var _this = this;
+        return function(e) {
+          var $el, summ;
+          $el = jQuery(e.target).closest('.summary-img');
+          if (!$el.parent().hasClass('open')) {
+            summ = new intermine.query.results.OuterJoinDropDown(path, _this.query);
+            $el.siblings('.dropdown-menu').html(summ.render().el);
+          }
+          return false;
+        };
+      };
+
+      ResultsTable.prototype.checkHowFarOver = function(e) {
+        var bounds, thb;
+        thb = $(e.target).closest('.im-th-button');
+        bounds = thb.closest('.im-table-container');
+        if ((thb.offset().left + 350) >= (bounds.offset().left + bounds.width())) {
+          return thb.closest('th').addClass('too-far-over');
+        }
+      };
+
+      ResultsTable.prototype.showFilterSummary = function(path) {
+        var _this = this;
+        return function(e) {
+          var $el, summ;
+          _this.checkHowFarOver(e);
+          $el = jQuery(e.target).closest('.im-col-filters');
+          if (!$el.parent().hasClass('open')) {
+            summ = new intermine.query.filters.SingleColumnConstraints(_this.query, path);
+            $el.siblings('.dropdown-menu').html(summ.render().el);
+          }
+          return false;
+        };
+      };
+
+      ResultsTable.prototype.showColumnSummary = function(path) {
+        var _this = this;
+        return function(e) {
+          var $el, summ, view;
+          _this.checkHowFarOver(e);
+          $el = jQuery(e.target).closest('.summary-img');
+          view = path.toString();
+          if (!view) {
+            e.stopPropagation();
+            e.preventDefault();
+          } else if (!$el.parent().hasClass("open")) {
+            summ = new intermine.query.results.DropDownColumnSummary(view, _this.query);
+            $el.siblings('.dropdown-menu').html(summ.render().el);
+          }
+          return false;
+        };
+      };
+
+      return ResultsTable;
+
+    })(Backbone.View);
+    PageSizer = (function(_super) {
+
+      __extends(PageSizer, _super);
+
+      function PageSizer() {
+        return PageSizer.__super__.constructor.apply(this, arguments);
+      }
+
+      PageSizer.prototype.tagName = 'form';
+
+      PageSizer.prototype.className = "im-page-sizer form-horizontal";
+
+      PageSizer.prototype.sizes = [[10], [25], [50], [100], [0, 'All']];
+
+      PageSizer.prototype.initialize = function(query, pageSize) {
+        this.query = query;
+        this.pageSize = pageSize;
+        if (this.pageSize != null) {
+          if (!_.include(this.sizes.map(function(s) {
+            return s[0];
+          }), this.pageSize)) {
+            return this.sizes.unshift([this.pageSize, this.pageSize]);
+          }
+        } else {
+          return this.pageSize = this.sizes[0][0];
+        }
+      };
+
+      PageSizer.prototype.render = function() {
+        var ps, select, _i, _len, _ref,
+          _this = this;
+        this.$el.append("<label>\n    <span class=\"im-only-widescreen\">Rows per page:</span>\n    <select class=\"span1\" title=\"Rows per page\">\n    </select>\n</label>");
+        select = this.$('select');
+        _ref = this.sizes;
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          ps = _ref[_i];
+          select.append(this.make('option', {
+            value: ps[0],
+            selected: ps[0] === this.pageSize
+          }, ps[1] || ps[0]));
+        }
+        select.change(function(e) {
+          return _this.query.trigger("page-size:selected", parseInt(select.val()));
+        });
+        return this;
+      };
+
+      return PageSizer;
+
+    })(Backbone.View);
+    return exporting(Table = (function(_super) {
+
+      __extends(Table, _super);
+
+      function Table() {
+        this.updatePageDisplay = __bind(this.updatePageDisplay, this);
+
+        this.removeColumn = __bind(this.removeColumn, this);
+
+        this.removeOverlay = __bind(this.removeOverlay, this);
+
+        this.overlayTable = __bind(this.overlayTable, this);
+
+        this.getRowData = __bind(this.getRowData, this);
+
+        this.showError = __bind(this.showError, this);
+
+        this.refresh = __bind(this.refresh, this);
+
+        this.onDraw = __bind(this.onDraw, this);
+        return Table.__super__.constructor.apply(this, arguments);
+      }
+
+      Table.prototype.className = "im-table-container";
+
+      Table.prototype.events = {
+        'click .im-col-remover': 'removeColumn',
+        'submit .im-page-form': 'pageFormSubmit',
+        'click .im-pagination-button': 'pageButtonClick'
+      };
+
+      Table.prototype.paginationTempl = _.template("<div class=\"pagination pagination-right\">\n    <ul>\n        <li title=\"Go to start\">\n            <a class=\"im-pagination-button\" data-goto=start>&#x21e4;</a>\n        </li>\n        <li title=\"Go back five pages\">\n            <a class=\"im-pagination-button\" data-goto=fast-rewind>&#x219e;</a>\n        </li>\n        <li title=\"Go to previous page\">\n            <a class=\"im-pagination-button\" data-goto=prev>&larr;</a>\n        </li>\n        <li class=\"im-current-page\">\n            <a data-goto=here  href=\"#\">&hellip;</a>\n            <form class=\"im-page-form input-append form form-horizontal\" style=\"display:none;\">\n            <div class=\"control-group\"></div>\n        </form>\n        </li>\n        <li title=\"Go to next page\">\n            <a class=\"im-pagination-button\" data-goto=next>&rarr;</a>\n        </li>\n        <li title=\"Go forward five pages\">\n            <a class=\"im-pagination-button\" data-goto=fast-forward>&#x21a0;</a>\n        </li>\n        <li title=\"Go to last page\">\n            <a class=\"im-pagination-button\" data-goto=end>&#x21e5;</a>\n        </li>\n    </ul>\n</div>");
+
+      Table.prototype.onDraw = function() {
+        if (this.__selecting) {
+          this.query.trigger("start:list-creation");
+        }
+        return this.drawn = true;
+      };
+
+      Table.prototype.refresh = function() {
+        var _ref;
+        this.query.__changed = (this.query.__changed || 0) + 1;
+        if ((_ref = this.table) != null) {
+          _ref.remove();
+        }
+        this.drawn = false;
+        return this.render();
+      };
+
+      Table.prototype.initialize = function(query, selector) {
+        var _this = this;
+        this.query = query;
+        this.cache = {};
+        this.itemModels = {};
+        this._pipe_factor = 10;
+        this.$parent = jQuery(selector);
+        this.__selecting = false;
+        this.visibleViews = this.query.views.slice();
+        this.query.on("change:views", function() {
+          _this.visibleViews = _this.query.views.slice();
+          return _this.refresh();
+        });
+        this.query.on("start:list-creation", function() {
+          return _this.__selecting = true;
+        });
+        this.query.on("stop:list-creation", function() {
+          return _this.__selecting = false;
+        });
+        this.query.on("change:constraints", this.refresh);
+        this.query.on("change:joins", this.refresh);
+        return this.query.on("table:filled", this.onDraw);
+      };
+
+      Table.prototype.adjustSortOrder = function(params) {
+        var i, noOfSortColumns, viewIndices;
+        viewIndices = (function() {
+          var _i, _ref, _results;
+          _results = [];
+          for (i = _i = 0, _ref = intermine.utils.getParameter(params, "iColumns"); 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+            _results.push(intermine.utils.getParameter(params, "mDataProp_" + i));
+          }
+          return _results;
+        })();
+        noOfSortColumns = intermine.utils.getParameter(params, "iSortingCols");
+        if (noOfSortColumns) {
+          return this.query.orderBy((function() {
+            var _i, _results,
+              _this = this;
+            _results = [];
+            for (i = _i = 0; 0 <= noOfSortColumns ? _i < noOfSortColumns : _i > noOfSortColumns; i = 0 <= noOfSortColumns ? ++_i : --_i) {
+              _results.push((function(i) {
+                var displayed, so;
+                displayed = intermine.utils.getParameter(params, "iSortCol_" + i);
+                so = {
+                  path: _this.query.views[viewIndices[displayed]],
+                  direction: intermine.utils.getParameter(params, "sSortDir_" + i)
+                };
+                return so;
+              })(i));
+            }
+            return _results;
+          }).call(this));
+        }
+      };
+
+      Table.prototype.showError = function(resp) {
+        var data, _ref, _ref1;
+        try {
+          data = JSON.parse(resp.responseText);
+          return (_ref = this.table) != null ? _ref.handleError(data.error, data.executionTime) : void 0;
+        } catch (err) {
+          return (_ref1 = this.table) != null ? _ref1.handleError("Internal error", new Date().toString()) : void 0;
+        }
+      };
+
+      Table.prototype.getRowData = function(start, size) {
+        var end, freshness, isOutOfRange, isStale, page, promise, req,
+          _this = this;
+        end = start + size;
+        isOutOfRange = false;
+        freshness = this.query.getSorting() + this.query.getConstraintXML() + this.query.views.join();
+        isStale = freshness !== this.cache.freshness;
+        if (isStale) {
+          this.cache = {};
+        } else {
+          isOutOfRange = this.cache.lowerBound < 0 || start < this.cache.lowerBound || end > this.cache.upperBound || size <= 0;
+        }
+        promise = new jQuery.Deferred();
+        if (isStale || isOutOfRange) {
+          page = this.getPage(start, size);
+          this.overlayTable();
+          req = this.query[this.fetchMethod](page, function(rows, resultSet) {
+            _this.addRowsToCache(page, resultSet);
+            return _this.cache.freshness = freshness;
+          });
+          req.fail(this.showError);
+          req.done(function() {
+            return promise.resolve(_this.serveResultsFromCache(start, size));
+          });
+          req.always(this.removeOverlay);
+        } else {
+          promise.resolve(this.serveResultsFromCache(start, size));
+        }
+        return promise;
+      };
+
+      Table.prototype.overlayTable = function() {
+        var elOffset, tableOffset,
+          _this = this;
+        if (!(this.table && this.drawn)) {
+          return;
+        }
+        elOffset = this.$el.offset();
+        tableOffset = this.table.$el.offset();
+        jQuery('.im-table-overlay').remove();
+        this.overlay = jQuery(this.make("div", {
+          "class": "im-table-overlay discrete"
+        }));
+        this.overlay.css({
+          top: elOffset.top,
+          left: elOffset.left,
+          width: this.table.$el.outerWidth(true),
+          height: (tableOffset.top - elOffset.top) + this.table.$el.outerHeight()
+        });
+        this.overlay.append(this.make("h1", {}, "Requesting data..."));
+        this.overlay.find("h1").css({
+          top: (this.table.$el.height() / 2) + "px",
+          left: (this.table.$el.width() / 4) + "px"
+        });
+        this.overlay.appendTo('body');
+        return _.delay((function() {
+          return _this.overlay.removeClass("discrete");
+        }), 100);
+      };
+
+      Table.prototype.removeOverlay = function() {
+        var _ref;
+        return (_ref = this.overlay) != null ? _ref.remove() : void 0;
+      };
+
+      Table.prototype.getPage = function(start, size) {
+        var page;
+        page = new Page(start, size);
+        if (!this.cache.lastResult) {
+          page.size *= this._pipe_factor;
+          return page;
+        }
+        if (start < this.cache.lowerBound) {
+          page.start = Math.max(0, start - (size * this._pipe_factor));
+        }
+        if (size > 0) {
+          page.size *= this._pipe_factor;
+        } else {
+          page.size = '';
+        }
+        if (page.size && (page.end() < this.cache.lowerBound)) {
+          if ((this.cache.lowerBound - page.end()) > (page.size * 10)) {
+            this.cache = {};
+            page.size *= 2;
+            return page;
+          } else {
+            page.size = this.cache.lowerBound - page.start;
+          }
+        }
+        if (this.cache.upperBound < page.start) {
+          if ((page.start - this.cache.upperBound) > (page.size * 10)) {
+            this.cache = {};
+            page.size *= 2;
+            page.start = Math.max(0, page.start - (size * this._pipe_factor));
+            return page;
+          }
+          if (page.size) {
+            page.size += page.start - this.cache.upperBound;
+          }
+          page.start = this.cache.upperBound;
+        }
+        return page;
+      };
+
+      Table.prototype.addRowsToCache = function(page, result) {
+        var merged, rows;
+        if (!this.cache.lastResult) {
+          this.cache.lastResult = result;
+          this.cache.lowerBound = result.start;
+          return this.cache.upperBound = page.end();
+        } else {
+          rows = result.results;
+          merged = this.cache.lastResult.results.slice();
+          if (page.start < this.cache.lowerBound) {
+            merged = rows.concat(merged.slice(page.end() - this.cache.lowerBound));
+          }
+          if (this.cache.upperBound < page.end()) {
+            merged = merged.slice(0, page.start - this.cache.lowerBound).concat(rows);
+          }
+          this.cache.lowerBound = Math.min(this.cache.lowerBound, page.start);
+          this.cache.upperBound = Math.max(this.cache.upperBound, page.end());
+          return this.cache.lastResult.results = merged;
+        }
+      };
+
+      Table.prototype.updateSummary = function(start, size, result) {
+        var html, summary;
+        summary = this.$('.im-table-summary');
+        html = intermine.messages.query.CountSummary({
+          first: start + 1,
+          last: size === 0 ? 0 : Math.min(start + size, result.iTotalRecords),
+          count: intermine.utils.numToString(result.iTotalRecords, ",", 3),
+          roots: "rows"
+        });
+        summary.html(html);
+        return this.query.trigger('count:is', result.iTotalRecords);
+      };
+
+      Table.prototype.serveResultsFromCache = function(start, size) {
+        var base, fields, makeCell, result, v,
+          _this = this;
+        base = this.query.service.root.replace(/\/service\/?$/, "");
+        result = jQuery.extend(true, {}, this.cache.lastResult);
+        result.results.splice(0, start - this.cache.lowerBound);
+        if (size > 0) {
+          result.results.splice(size, result.results.length);
+        }
+        this.updateSummary(start, size, result);
+        fields = (function() {
+          var _i, _len, _ref, _results;
+          _ref = result.views;
+          _results = [];
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            v = _ref[_i];
+            _results.push([this.query.getPathInfo(v).getParent(), v.replace(/^.*\./, "")]);
+          }
+          return _results;
+        }).call(this);
+        makeCell = function(obj) {
+          var args, field, model, node, _base, _name;
+          if (_.has(obj, 'rows')) {
+            return new intermine.results.table.SubTable(_this.query, makeCell, obj);
+          } else {
+            node = _this.query.getPathInfo(obj.column).getParent();
+            field = obj.column.replace(/^.*\./, '');
+            model = obj.id != null ? (_base = _this.itemModels)[_name = obj.id] || (_base[_name] = new intermine.model.IMObject(_this.query, obj, field, base)) : !(obj["class"] != null) ? new intermine.model.NullObject(_this.query, field) : new intermine.model.FPObject(_this.query, obj, field, node.getType().name);
+            model.merge(obj, field);
+            args = {
+              model: model,
+              node: node,
+              field: field
+            };
+            args.query = _this.query;
+            return new intermine.results.table.Cell(args);
+          }
+        };
+        result.rows = result.results.map(function(row) {
+          return row.map(function(cell, idx) {
+            var field, imo, _base, _name;
+            if (_.has(cell, 'column')) {
+              return makeCell(cell);
+            } else if ((cell != null ? cell.id : void 0) != null) {
+              field = fields[idx];
+              imo = (_base = _this.itemModels)[_name = cell.id] || (_base[_name] = new intermine.model.IMObject(_this.query, cell, field[1], base));
+              imo.merge(cell, field[1]);
+              return new intermine.results.table.Cell({
+                model: imo,
+                node: field[0],
+                field: field[1],
+                query: _this.query
+              });
+            } else if ((cell != null ? cell.value : void 0) != null) {
+              return new intermine.results.table.Cell({
+                model: new intermine.model.FPObject(_this.query, cell, field[1]),
+                query: _this.query,
+                field: field[1]
+              });
+            } else {
+              return new intermine.results.table.NullCell({
+                query: _this.query
+              });
+            }
+          });
+        });
+        return result;
+      };
+
+      Table.prototype.tableAttrs = {
+        "class": "table table-striped table-bordered",
+        width: "100%",
+        cellpadding: 0,
+        border: 0,
+        cellspacing: 0
+      };
+
+      Table.prototype.render = function() {
+        var tel;
+        this.$el.empty();
+        tel = this.make("table", this.tableAttrs);
+        this.$el.append(tel);
+        jQuery(tel).append("<h2>Building table</h2>\n<div class=\"progress progress-striped active progress-info\">\n    <div class=\"bar\" style=\"width: 100%\"></div>\n</div>");
+        return this.query.service.fetchVersion(this.doRender(tel)).fail(this.onSetupError(tel));
+      };
+
+      Table.prototype.doRender = function(tel) {
+        var _this = this;
+        return function(version) {
+          var path, setupParams;
+          _this.fetchMethod = version >= 10 ? 'tableRows' : 'table';
+          path = "query/results";
+          setupParams = {
+            format: "jsontable",
+            query: _this.query.toXML(),
+            token: _this.query.service.token
+          };
+          _this.$el.appendTo(_this.$parent);
+          _this.query.service.makeRequest(path, setupParams, _this.onSetupSuccess(tel), "POST").fail(_this.onSetupError(tel));
+          return _this;
+        };
+      };
+
+      Table.prototype.removeColumn = function(e) {
+        var $el, unwanted, v, view;
+        e.stopPropagation();
+        e.preventDefault();
+        $el = jQuery(e.target).closest('.im-col-remover');
+        $el.tooltip("hide");
+        view = $el.data("view");
+        unwanted = (function() {
+          var _i, _len, _ref, _results;
+          _ref = this.query.views;
+          _results = [];
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            v = _ref[_i];
+            if (v.match(view)) {
+              _results.push(v);
+            }
+          }
+          return _results;
+        }).call(this);
+        this.query.removeFromSelect(unwanted);
+        return false;
+      };
+
+      Table.prototype.horizontalScroller = "<div class=\"scroll-bar-wrap well\">\n    <div class=\"scroll-bar-containment\">\n        <div class=\"scroll-bar alert-info alert\"></div>\n    </div>\n</div>";
+
+      Table.prototype.onSetupSuccess = function(telem) {
+        var _this = this;
+        return function(result) {
+          var $pagination, $scrollwrapper, $telem, $widgets, currentPageButton, currentPos, pageSizer, reorderer, scrollbar;
+          $telem = jQuery(telem).empty();
+          $widgets = $('<div>').insertBefore(telem);
+          _this.table = new ResultsTable(_this.query, _this.getRowData);
+          _this.table.setElement(telem);
+          if (_this.pageSize != null) {
+            _this.table.pageSize = _this.pageSize;
+          }
+          if (_this.pageStart != null) {
+            _this.table.pageStart = _this.pageStart;
+          }
+          _this.table.render();
+          _this.query.on("imtable:change:page", _this.updatePageDisplay);
+          pageSizer = new PageSizer(_this.query, _this.pageSize);
+          pageSizer.render().$el.appendTo($widgets);
+          $pagination = $(_this.paginationTempl()).appendTo($widgets);
+          $pagination.find('li').tooltip({
+            placement: "left"
+          });
+          $widgets.append("<span class=\"im-table-summary\"></div>");
+          currentPageButton = $pagination.find(".im-current-page a").click(function() {
+            var total;
+            total = _this.cache.lastResult.iTotalRecords;
+            if (_this.table.pageSize >= total) {
+              return false;
+            }
+            currentPageButton.hide();
+            return $pagination.find('form').show();
+          });
+          reorderer = new intermine.query.results.table.ColumnOrderer(_this.query);
+          reorderer.render().$el.appendTo($widgets);
+          if (_this.bar === 'horizontal') {
+            $scrollwrapper = $(_this.horizontalScroller).appendTo($widgets);
+            scrollbar = _this.$('.scroll-bar');
+            currentPos = 0;
+            scrollbar.draggable({
+              axis: "x",
+              containment: "parent",
+              stop: function(event, ui) {
+                scrollbar.removeClass("scrolling");
+                scrollbar.tooltip("hide");
+                return _this.table.goTo(currentPos);
+              },
+              start: function() {
+                return $(this).addClass("scrolling");
+              },
+              drag: function(event, ui) {
+                var left, total;
+                scrollbar.tooltip("show");
+                left = ui.position.left;
+                total = ui.helper.closest('.scroll-bar-wrap').width();
+                return currentPos = _this.cache.lastResult.iTotalRecords * left / total;
+              }
+            });
+            scrollbar.css({
+              position: "absolute"
+            }).parent().css({
+              position: "relative"
+            });
+            scrollbar.tooltip({
+              trigger: "manual",
+              title: function() {
+                return "" + ((currentPos + 1).toFixed()) + " ... " + ((currentPos + _this.table.pageSize).toFixed());
+              }
+            });
+          }
+          return $widgets.append("<div style=\"clear:both\"></div>");
+        };
+      };
+
+      Table.prototype.getCurrentPage = function() {
+        return Math.floor(this.table.pageStart / this.table.pageSize);
+      };
+
+      Table.prototype.getMaxPage = function() {
+        var total;
+        total = this.cache.lastResult.iTotalRecords;
+        return Math.floor(total / this.table.pageSize);
+      };
+
+      Table.prototype.goBack = function(pages) {
+        return this.table.goTo(Math.max(0, this.table.pageStart - (pages * this.table.pageSize)));
+      };
+
+      Table.prototype.goForward = function(pages) {
+        return this.table.goTo(Math.min(this.getMaxPage() * this.table.pageSize, this.table.pageStart + (pages * this.table.pageSize)));
+      };
+
+      Table.prototype.pageButtonClick = function(e) {
+        var $elem;
+        $elem = $(e.target);
+        if (!$elem.parent().is('.active')) {
+          switch ($elem.data("goto")) {
+            case "start":
+              return this.table.goTo(0);
+            case "prev":
+              return this.goBack(1);
+            case "fast-rewind":
+              return this.goBack(5);
+            case "next":
+              return this.goForward(1);
+            case "fast-forward":
+              return this.goForward(5);
+            case "end":
+              return this.table.goTo(this.getMaxPage() * this.table.pageSize);
+          }
+        }
+      };
+
+      Table.prototype.updatePageDisplay = function(start, size) {
+        var buttons, centre, cg, handle, maxPage, overhang, p, pageForm, pageSelector, proportion, scaled, scrollbar, tbl, total, totalWidth, unit, _i, _results;
+        total = this.cache.lastResult.iTotalRecords;
+        if (size === 0) {
+          size = total;
+        }
+        scrollbar = this.$('.scroll-bar-wrap');
+        if (scrollbar.length) {
+          totalWidth = scrollbar.width();
+          proportion = size / total;
+          scrollbar.toggle(size < total);
+          unit = totalWidth / total;
+          scaled = Math.max(totalWidth * proportion, 20);
+          overhang = size - ((total - (size * Math.floor(total / size))) % size);
+          scrollbar.find('.scroll-bar-containment').css({
+            width: totalWidth + (unit * overhang)
+          });
+          handle = scrollbar.find('.scroll-bar').css({
+            width: scaled
+          });
+          handle.animate({
+            left: unit * start
+          });
+        }
+        tbl = this.table;
+        buttons = this.$('.im-pagination-button');
+        buttons.each(function() {
+          var $elem, isActive, li;
+          $elem = $(this);
+          li = $elem.parent();
+          isActive = (function() {
+            switch ($elem.data("goto")) {
+              case "start":
+              case 'prev':
+                return start === 0;
+              case 'fast-rewind':
+                return start === 0;
+              case "next":
+              case 'end':
+                return start + size >= total;
+              case "fast-forward":
+                return start + (5 * size) >= total;
+            }
+          })();
+          return li.toggleClass('active', isActive);
+        });
+        centre = this.$('.im-current-page');
+        centre.find('a').text("p. " + (this.getCurrentPage() + 1));
+        centre.toggleClass("active", size >= total);
+        pageForm = centre.find('form');
+        cg = pageForm.find('.control-group').empty().removeClass('error');
+        maxPage = this.getMaxPage();
+        if (maxPage <= 100) {
+          pageSelector = $('<select>').appendTo(cg);
+          pageSelector.val(this.getCurrentPage());
+          pageSelector.change(function(e) {
+            e.stopPropagation();
+            e.preventDefault();
+            tbl.goToPage(parseInt(pageSelector.val()));
+            centre.find('a').show();
+            return pageForm.hide();
+          });
+          _results = [];
+          for (p = _i = 1; 1 <= maxPage ? _i <= maxPage : _i >= maxPage; p = 1 <= maxPage ? ++_i : --_i) {
+            _results.push(pageSelector.append("<option value=\"" + (p - 1) + "\">p. " + p + "</option>"));
+          }
+          return _results;
+        } else {
+          cg.append("<input type=text placeholder=\"go to page...\">");
+          return cg.append("<button class=\"btn\" type=\"submit\">go</button>");
+        }
+      };
+
+      Table.prototype.pageFormSubmit = function(e) {
+        var centre, destination, inp, newSelectorVal, pageForm;
+        e.stopPropagation();
+        e.preventDefault();
+        pageForm = this.$('.im-page-form');
+        centre = this.$('.im-current-page');
+        inp = pageForm.find('input');
+        if (inp.size()) {
+          destination = inp.val().replace(/\s*/g, "");
+        }
+        if (destination.match(/^\d+$/)) {
+          newSelectorVal = Math.min(this.getMaxPage(), Math.max(parseInt(destination) - 1, 0));
+          this.table.goToPage(newSelectorVal);
+          centre.find('a').show();
+          return pageForm.hide();
+        } else {
+          pageForm.find('.control-group').addClass('error');
+          inp.val('');
+          return inp.attr({
+            placeholder: "1 .. " + (this.getMaxPage())
+          });
+        }
+      };
+
+      Table.prototype.onSetupError = function(telem) {
+        var _this = this;
+        return function(xhr) {
+          var explanation, issue, notice, part, parts;
+          $(telem).empty();
+          console.log("SETUP FAILURE", arguments);
+          notice = _this.make("div", {
+            "class": "alert alert-error"
+          });
+          explanation = "Could not load the data-table. The server may be down, or \nincorrectly configured, or we could be pointed at an invalid URL.";
+          if (xhr != null ? xhr.responseText : void 0) {
+            explanation = (typeof JSON !== "undefined" && JSON !== null ? JSON.parse(xhr.responseText).error : void 0) || explanation;
+            parts = _((function() {
+              var _i, _len, _ref, _results;
+              _ref = explanation.split("\n");
+              _results = [];
+              for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+                part = _ref[_i];
+                if (part != null) {
+                  _results.push(part);
+                }
+              }
+              return _results;
+            })()).groupBy(function(p, i) {
+              return i > 0;
+            });
+            explanation = [
+              _this.make("span", {}, parts[false] + ""), _this.make("ul", {}, (function() {
+                var _i, _len, _ref, _results;
+                _ref = parts[true];
+                _results = [];
+                for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+                  issue = _ref[_i];
+                  _results.push(this.make("li", {}, issue));
+                }
+                return _results;
+              }).call(_this))
+            ];
+          }
+          return $(notice).append(_this.make("a", {
+            "class": "close",
+            "data-dismiss": "alert"
+          }, "close")).append(_this.make("strong", {}, "Ooops...! ")).append(explanation).appendTo(telem);
+        };
+      };
+
+      return Table;
+
+    })(Backbone.View));
+  });
+
+  scope("intermine.query.columns", function(exporting) {
+    var ATTR_HTML, Columns, CurrentColumns, JOIN_TOGGLE_HTML, Selectable;
+    exporting(Columns = (function(_super) {
+
+      __extends(Columns, _super);
+
+      function Columns() {
+        return Columns.__super__.constructor.apply(this, arguments);
+      }
+
+      Columns.prototype.className = "im-query-columns";
+
+      Columns.prototype.initialize = function(query) {
+        this.query = query;
+      };
+
+      Columns.prototype.render = function() {
+        var cls, _fn, _i, _len, _ref,
+          _this = this;
+        _ref = [ColumnAdder, CurrentColumns];
+        _fn = function(cls) {
+          var inst;
+          inst = new cls(_this.query);
+          return _this.$el.append(inst.render().el);
+        };
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          cls = _ref[_i];
+          _fn(cls);
+        }
+        return this;
+      };
+
+      return Columns;
+
+    })(Backbone.View));
+    CurrentColumns = (function(_super) {
+
+      __extends(CurrentColumns, _super);
+
+      function CurrentColumns() {
+        return CurrentColumns.__super__.constructor.apply(this, arguments);
+      }
+
+      CurrentColumns.prototype.className = "node-remover";
+
+      CurrentColumns.prototype.tagName = "dl";
+
+      CurrentColumns.prototype.initialize = function(query) {
+        this.query = query;
+      };
+
+      CurrentColumns.prototype.render = function() {
+        var cd, rootSel, subnodes,
+          _this = this;
+        cd = this.query.service.model.classes[this.query.root];
+        rootSel = new Selectable(this.query, cd);
+        rootSel.render().$el.appendTo(this.el);
+        subnodes = _({}).extend(cd.references, cd.collections);
+        _(subnodes).chain().values().sortBy(function(f) {
+          return f.name;
+        }).each(function(f) {
+          var sel, type;
+          type = _this.query.getPathInfo(f).getEndClass();
+          sel = new Selectable(_this.query, type, f);
+          return sel.render().$el.appendTo(_this.el);
+        });
+        return this;
+      };
+
+      return CurrentColumns;
+
+    })(Backbone.View);
+    JOIN_TOGGLE_HTML = _.template("<form class=\"form-inline pull-right im-join\">\n<div class=\"btn-group\" data-toggle=\"buttons-radio\">\n    <button data-style=\"INNER\" class=\"btn btn-small <% print(outer ? \"\" : \"active\") %>\">\n    Required\n    </button>\n    <button data-style=\"OUTER\" class=\"btn btn-small <% print(outer ? \"active\" : \"\") %>\">\n    Optional\n    </button>\n</div></form>");
+    ATTR_HTML = _.template("<input type=\"checkbox\" \n    data-path=\"<%= path %>\"\n    <% inQuery ? print(\"checked\") : \"\" %> >\n<span class=\"im-view-option\">\n    <%= name %> (<% print(type.replace(\"java.lang.\", \"\")) %>)\n</span>");
+    return Selectable = (function(_super) {
+
+      __extends(Selectable, _super);
+
+      function Selectable() {
+        this.render = __bind(this.render, this);
+
+        this.setCheckBoxState = __bind(this.setCheckBoxState, this);
+        return Selectable.__super__.constructor.apply(this, arguments);
+      }
+
+      Selectable.prototype.tagName = "dl";
+
+      Selectable.prototype.className = "im-selectable-node";
+
+      Selectable.prototype.initialize = function(query, table, field) {
+        this.query = query;
+        this.table = table;
+        this.field = field;
+        this.path = this.query.root + (this.field ? "." + this.field.name : "");
+        return this.query.on("change:views", this.setCheckBoxState);
+      };
+
+      Selectable.prototype.events = {
+        'click dt': 'toggleFields',
+        'change input[type="checkbox"]': 'changeView'
+      };
+
+      Selectable.prototype.toggleFields = function(e) {
+        return this.$('dd').slideToggle();
+      };
+
+      Selectable.prototype.changeView = function(e) {
+        var $t, path;
+        $t = $(e.target);
+        path = $t.data("path");
+        if ($t.attr("checked")) {
+          return this.query.addToSelect(path);
+        } else {
+          return this.query.removeFromSelect(path);
+        }
+      };
+
+      Selectable.prototype.setCheckBoxState = function(e) {
+        var _this = this;
+        return this.$('dd input').each(function(i, cbx) {
+          var $cbx, path;
+          $cbx = $(cbx);
+          path = $cbx.data("path");
+          return $cbx.attr({
+            checked: _this.query.hasView(path)
+          });
+        });
+      };
+
+      Selectable.prototype.render = function() {
+        var attr, dt, icon, isInView, name, title, _fn, _ref, _ref1,
+          _this = this;
+        this.$el.empty();
+        title = this.make("h4", {}, ((_ref = this.field) != null ? _ref.name : void 0) || this.table.name);
+        dt = this.make("dt", {
+          "class": "im-column-group"
+        }, title);
+        this.$el.append(dt);
+        isInView = _(this.query.views).any(function(v) {
+          return this.path === v.substring(0, v.lastIndexOf("."));
+        });
+        icon = isInView ? "minus" : "plus";
+        $("<i class=\"icon-" + icon + "-sign\"></i>").css({
+          cursor: "pointer"
+        }).appendTo(title);
+        if (isInView && this.path !== this.query.root) {
+          $(JOIN_TOGGLE_HTML({
+            outer: this.query.isOuterJoin(this.path)
+          })).submit(function(e) {
+            var _this = this;
+            return e.preventDefault().css("display", "inline-block".appendTo(title.find(".btn".click(function(e) {
+              var style;
+              e.stopPropagation();
+              style = $(e.target).data("style");
+              return _this.query.setJoinStyle(_this.path, style.button());
+            }))));
+          });
+        }
+        _ref1 = this.table.attributes;
+        _fn = function(attr) {
+          return _this.addAttribute(attr);
+        };
+        for (name in _ref1) {
+          attr = _ref1[name];
+          _fn(attr);
+        }
+        return this;
+      };
+
+      Selectable.prototype.addAttribute = function(a) {
+        var ctx, dd, p;
+        if (a.name !== "id") {
+          dd = this.make("dd");
+          p = "" + this.path + "." + a.name;
+          ctx = {
+            path: p,
+            inQuery: __indexOf.call(this.query.views, p) >= 0
+          };
+          _(ctx).extend(a);
+          return $(dd).append(ATTR_HTML(ctx)).appendTo(this.el);
+        }
+      };
+
+      return Selectable;
+
+    })(Backbone.View);
+  });
+
   scope("intermine.conbuilder.messages", {
     ValuePlaceholder: 'David*',
     ExtraPlaceholder: 'Wernham-Hogg',
@@ -6791,6 +6737,94 @@
       return NewConstraint;
 
     })(ActiveConstraint));
+  });
+
+  scope("intermine.model", function(exporting) {
+    var FPObject, IMObject, NullObject;
+    exporting(IMObject = (function(_super) {
+
+      __extends(IMObject, _super);
+
+      function IMObject() {
+        return IMObject.__super__.constructor.apply(this, arguments);
+      }
+
+      IMObject.prototype.initialize = function(query, obj, field, base) {
+        var m, pathInfo,
+          _this = this;
+        obj.type = obj["class"];
+        obj[field] = obj.value;
+        obj.base = base;
+        obj.selected = false;
+        obj.selectable = true;
+        this.attributes = obj;
+        m = query.service.model;
+        pathInfo = m.getPathInfo(obj.type);
+        query.on("selection:cleared", function() {
+          return _this.set({
+            selectable: true
+          });
+        });
+        query.on("common:type:selected", function(type) {
+          var typesAreCompatible;
+          typesAreCompatible = type && (pathInfo.isa(type) || (m.getPathInfo(type).isa(_this.get("type"))));
+          return _this.set({
+            selectable: typesAreCompatible || !type
+          });
+        });
+        return this.on("change:selected", function() {
+          return query.trigger("imo:selected", this.get("type"), this.get("id"), this.get("selected"));
+        });
+      };
+
+      IMObject.prototype.merge = function(obj, field) {
+        return this.set(field, obj.value);
+      };
+
+      return IMObject;
+
+    })(Backbone.Model));
+    exporting(NullObject = (function(_super) {
+
+      __extends(NullObject, _super);
+
+      function NullObject() {
+        return NullObject.__super__.constructor.apply(this, arguments);
+      }
+
+      NullObject.prototype.initialize = function(query, field, type) {
+        this.attributes = {};
+        this.set(field, null);
+        this.set('id', null);
+        this.set('type', type);
+        this.set('selected', false);
+        return this.set('selectable', false);
+      };
+
+      NullObject.prototype.merge = function() {};
+
+      return NullObject;
+
+    })(IMObject));
+    return exporting(FPObject = (function(_super) {
+
+      __extends(FPObject, _super);
+
+      function FPObject() {
+        return FPObject.__super__.constructor.apply(this, arguments);
+      }
+
+      FPObject.prototype.initialize = function(query, obj, field) {
+        obj.type = obj["class"];
+        obj[field] = obj.value;
+        obj.selected = false;
+        obj.selectable = false;
+        return this.attributes = obj;
+      };
+
+      return FPObject;
+
+    })(Backbone.Model));
   });
 
 }).call(this);

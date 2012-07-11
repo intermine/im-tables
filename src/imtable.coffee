@@ -384,6 +384,11 @@ scope "intermine.query.results", (exporting) ->
 
         className: "im-table-container"
 
+        events:
+            'click .im-col-remover': 'removeColumn'
+            'submit .im-page-form': 'pageFormSubmit'
+            'click .im-pagination-button': 'pageButtonClick'
+
         paginationTempl: _.template """
             <div class="pagination pagination-right">
                 <ul>
@@ -398,7 +403,9 @@ scope "intermine.query.results", (exporting) ->
                     </li>
                     <li class="im-current-page">
                         <a data-goto=here  href="#">&hellip;</a>
-                        <form class="input-append form form-horizontal" style="display:none;"><select></select></form>
+                        <form class="im-page-form input-append form form-horizontal" style="display:none;">
+                        <div class="control-group"></div>
+                    </form>
                     </li>
                     <li title="Go to next page">
                         <a class="im-pagination-button" data-goto=next>&rarr;</a>
@@ -718,9 +725,6 @@ scope "intermine.query.results", (exporting) ->
             @query.service.makeRequest(path, setupParams, @onSetupSuccess(tel), "POST").fail @onSetupError(tel)
             this
 
-        events:
-            'click .im-col-remover': 'removeColumn'
-
         removeColumn: (e) =>
             e.stopPropagation()
             e.preventDefault()
@@ -761,16 +765,12 @@ scope "intermine.query.results", (exporting) ->
                 <span class="im-table-summary"></div>
             """
 
-            pageSelector = $pagination.find('select').change =>
-                @table.goToPage pageSelector.val()
-                currentPageButton.show()
-                pageSelector.parent().hide()
             currentPageButton = $pagination.find(".im-current-page a").click =>
                 total = @cache.lastResult.iTotalRecords
                 if @table.pageSize >= total
                     return false
                 currentPageButton.hide()
-                pageSelector.parent().show()
+                $pagination.find('form').show()
 
             reorderer = new intermine.query.results.table.ColumnOrderer(@query)
             reorderer.render().$el.appendTo($widgets)
@@ -801,6 +801,28 @@ scope "intermine.query.results", (exporting) ->
                     title: => "#{(currentPos + 1).toFixed()} ... #{(currentPos + @table.pageSize).toFixed()}"
             $widgets.append """<div style="clear:both"></div>"""
 
+        getCurrentPage: () ->
+            Math.floor @table.pageStart / @table.pageSize
+
+        getMaxPage: () ->
+            total = @cache.lastResult.iTotalRecords
+            Math.floor total / @table.pageSize
+
+        goBack: (pages) -> @table.goTo Math.max 0, @table.pageStart - (pages * @table.pageSize)
+
+        goForward: (pages) ->
+            @table.goTo Math.min @getMaxPage() * @table.pageSize, @table.pageStart + (pages * @table.pageSize)
+
+        pageButtonClick: (e) ->
+            $elem = $(e.target)
+            unless $elem.parent().is('.active') # Here active means "where we are"
+                switch $elem.data("goto")
+                    when "start" then @table.goTo(0)
+                    when "prev" then  @goBack 1
+                    when "fast-rewind" then @goBack 5
+                    when "next" then @goForward 1
+                    when "fast-forward" then @goForward 5
+                    when "end" then @table.goTo @getMaxPage() * @table.pageSize
 
         updatePageDisplay: (start, size) =>
             total = @cache.lastResult.iTotalRecords
@@ -822,54 +844,56 @@ scope "intermine.query.results", (exporting) ->
 
             tbl = @table
             buttons = @$('.im-pagination-button')
-            buttons.filter('.direct').remove()
-            buttons.unbind("click").each ->
-                $elem = $ this
-                whenEnabled = (f) -> () -> f() unless $elem.parent().is('.active')
-                switch $elem.data("goto")
-                    when "start"
-                        $elem.click whenEnabled -> tbl.goTo(0)
-                        $elem.parent().toggleClass "active", start is 0
-                    when "prev"
-                        $elem.click whenEnabled -> tbl.goTo(Math.max(0, start - size))
-                        $elem.parent().toggleClass "active", start is 0
-                    when "fast-rewind"
-                        $elem.click whenEnabled -> tbl.goTo(Math.max(0, start - (5 * size)))
-                        $elem.parent().toggleClass "active", start is 0
-                    when "next"
-                        $elem.click whenEnabled -> tbl.goTo(start + size)
-                        $elem.parent().toggleClass "active", (start + size >= total)
-                    when "fast-forward"
-                        $elem.click whenEnabled -> tbl.goTo(start + (5 * size))
-                        $elem.parent().toggleClass "active", (start + (5 * size) >= total)
-                    when "end"
-                        $elem.click whenEnabled -> tbl.goTo(Math.floor(total / size) * size)
-                        $elem.parent().toggleClass "active", (start + size >= total)
+            buttons.each ->
+                $elem = $(@)
+                li = $elem.parent()
+                isActive = switch $elem.data("goto")
+                    when "start", 'prev' then start is 0
+                    when 'fast-rewind' then start is 0
+                    when "next", 'end' then (start + size >= total)
+                    when "fast-forward" then (start + (5 * size) >= total)
+                li.toggleClass 'active', isActive
+
             centre = @$('.im-current-page')
-            centre.find('a').text("p. #{Math.floor(start / size) + 1}")
+            centre.find('a').text("p. #{@getCurrentPage() + 1}")
             centre.toggleClass "active", size >= total
             pageForm = centre.find('form')
-            pageForm.find('input').remove()
-            pageForm.find('button').remove()
-            pageSelector = pageForm.find('select').empty()
-            maxPage = Math.floor(total / size)
-            pageSelector.val(Math.floor(start / size))
+            cg = pageForm.find('.control-group').empty().removeClass 'error'
+            maxPage = @getMaxPage()
             if maxPage <= 100
-                for p in [0 .. maxPage]
-                    pageSelector.append """
-                        <option value="#{p}">p. #{p + 1}</option>
-                    """
-                pageSelector.show()
-            else
-                pageSelector.hide()
-                inp = $("""<input type=text placeholder="go to page...">""").appendTo(pageForm)
-                pageForm.append("""<button class="btn" type="submit">go</button>""").submit (e) ->
+                pageSelector = $('<select>').appendTo(cg)
+                pageSelector.val @getCurrentPage()
+                pageSelector.change (e) ->
                     e.stopPropagation()
                     e.preventDefault()
-                    newSelectorVal = parseInt(inp.val().replace(/\s*/g, "")) - 1
-                    tbl.goToPage newSelectorVal
+                    tbl.goToPage parseInt pageSelector.val()
                     centre.find('a').show()
                     pageForm.hide()
+                for p in [1 .. maxPage]
+                    pageSelector.append """
+                        <option value="#{p - 1}">p. #{p}</option>
+                    """
+            else
+                cg.append("""<input type=text placeholder="go to page...">""")
+                cg.append("""<button class="btn" type="submit">go</button>""")
+
+        pageFormSubmit: (e) ->
+            e.stopPropagation()
+            e.preventDefault()
+            pageForm = @$('.im-page-form')
+            centre = @$('.im-current-page')
+            inp = pageForm.find('input')
+            if inp.size()
+                destination = inp.val().replace(/\s*/g, "")
+            	if destination.match /^\d+$/
+                    newSelectorVal = Math.min @getMaxPage(), Math.max(parseInt(destination) - 1, 0)
+                    @table.goToPage newSelectorVal
+                    centre.find('a').show()
+                    pageForm.hide()
+            	else
+                    pageForm.find('.control-group').addClass 'error'
+                    inp.val ''
+                    inp.attr placeholder: "1 .. #{ @getMaxPage() }"
 
         onSetupError: (telem) -> (xhr) =>
             $(telem).empty()
