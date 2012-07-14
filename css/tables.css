@@ -1485,6 +1485,27 @@ form.im-join {
     top: 0.5em;
 }
 
+.im-title-part {
+    opacity: 0.9;
+    font-size: 80%;
+    display: inline-block;
+}
+
+.im-title-part:after {
+    content: " >";
+}
+
+.im-title-part:last-child {
+    opacity: 1;
+    font-size: 100%;
+    display: block;
+    margin-top: 0.3em;
+}
+
+.im-title-part:last-child:after {
+    content: ''
+}
+
 .dropdown.open > .im-th-button {
     background: #2c2c2c;
 }

@@ -214,20 +214,26 @@ scope "intermine.query.results", (exporting) ->
                             </div>
                         </div>
                     </div>
-                    <span class="im-col-title"><%- title %></span>
+                    <span class="im-col-title">
+                        <% _.each(titleParts, function(part, idx) { %>
+                            <span class="im-title-part"><%- part %></span>
+                        <% }); %>
+                    </span>
                 </div>
             </th>
         """, ctx
 
         buildColumnHeader: (view, i, title, tr) ->
             q = @query
+            titleParts = title.split ' > '
             direction = q.getSortDirection(view)
             sortable = !q.isOuterJoined(view)
-            th = $ @columnHeaderTempl
-                title: title
-                i: i
-                view: view
-                sortable: sortable
+            th = $ @columnHeaderTempl {title, titleParts, i, view, sortable}
+            #   title: title
+            #   titleParts: titleParts
+            #   i: i
+            #   view: view
+            #   sortable: sortable
                 
             tr.append th
             
