@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Fri Jul 13 2012 16:31:20 GMT-0700 (PDT)
+ * Built at Sat Jul 14 2012 05:30:31 GMT-0700 (PDT)
 */
 
 
@@ -530,7 +530,8 @@
           if ((_ref = this.$pathfinder) != null) {
             _ref.remove();
           }
-          return this.$pathfinder = null;
+          this.$pathfinder = null;
+          return this.query.trigger('editing-constraint');
         } else {
           return console.log("Nothing chosen");
         }
@@ -583,18 +584,13 @@
       };
 
       ConstraintAdder.prototype.render = function() {
-        var approver, browser, input;
-        input = this.make("input", {
-          type: "text",
-          placeholder: this.inputPlaceholder
-        });
-        this.$el.append(input);
+        var approver, browser;
         browser = $("<button type=\"button\" class=\"btn btn-chooser\" data-toggle=\"button\">\n    <i class=\"icon-sitemap\"></i>\n    Browse\n</button>");
         approver = $(this.make('button', {
           type: "button",
           "class": "btn btn-primary",
           disabled: true
-        }, "Add"));
+        }, "Choose"));
         this.$el.append(browser);
         this.$el.append(approver);
         approver.click(this.handleSubmission);
@@ -4287,6 +4283,61 @@
     })(NumericFacet));
   });
 
+  scope('intermine.filters', function(exporting) {
+    var NewFilterDialogue;
+    return exporting(NewFilterDialogue = (function(_super) {
+
+      __extends(NewFilterDialogue, _super);
+
+      function NewFilterDialogue() {
+        return NewFilterDialogue.__super__.constructor.apply(this, arguments);
+      }
+
+      NewFilterDialogue.prototype.tagName = "div";
+
+      NewFilterDialogue.prototype.className = "im-constraint-dialogue modal fade";
+
+      NewFilterDialogue.prototype.html = "<div class=\"modal-header\">\n    <a href=\"#\" class=\"close pull-right im-close\">close</a>\n    <h3>Add New Filter</h3>\n</div>\n<div class=\"modal-body\">\n</div>\n<div class=\"modal-footer\">\n    <button class=\"disabled btn btn-primary pull-right im-add-constraint\">\n        Add Filter\n    </button>\n    <button class=\"btn im-close pull-left\">\n        Cancel\n    </button>\n</div>";
+
+      NewFilterDialogue.prototype.initialize = function(query) {
+        var _this = this;
+        this.query = query;
+        this.query.on('change:constraints', this.closeDialogue, this);
+        return this.query.on('editing-constraint', function() {
+          return _this.$('.im-add-constraint').removeClass('disabled');
+        });
+      };
+
+      NewFilterDialogue.prototype.events = {
+        'click .im-close': 'closeDialogue',
+        'hidden': 'remove',
+        'click .im-add-constraint': 'addConstraint'
+      };
+
+      NewFilterDialogue.prototype.closeDialogue = function(e) {
+        return this.$el.modal('hide');
+      };
+
+      NewFilterDialogue.prototype.openDialogue = function() {
+        return this.$el.modal().modal('show');
+      };
+
+      NewFilterDialogue.prototype.addConstraint = function() {
+        this.$el.modal('hide');
+        return this.$('.im-constraint.new .btn-primary').click();
+      };
+
+      NewFilterDialogue.prototype.render = function() {
+        this.$el.append(this.html);
+        this.$el.find('.modal-body').append(new intermine.query.ConstraintAdder(this.query).render().el);
+        return this;
+      };
+
+      return NewFilterDialogue;
+
+    })(Backbone.View));
+  });
+
   scope("intermine.messages.filters", {
     DefineNew: 'Define a new filter',
     EditOrRemove: 'edit or remove the currently active filters',
@@ -5473,7 +5524,7 @@
 
       Table.prototype.paginationTempl = _.template("<div class=\"pagination pagination-right\">\n    <ul>\n        <li title=\"Go to start\">\n            <a class=\"im-pagination-button\" data-goto=start>&#x21e4;</a>\n        </li>\n        <li title=\"Go back five pages\">\n            <a class=\"im-pagination-button\" data-goto=fast-rewind>&#x219e;</a>\n        </li>\n        <li title=\"Go to previous page\">\n            <a class=\"im-pagination-button\" data-goto=prev>&larr;</a>\n        </li>\n        <li class=\"im-current-page\">\n            <a data-goto=here  href=\"#\">&hellip;</a>\n            <form class=\"im-page-form input-append form form-horizontal\" style=\"display:none;\">\n            <div class=\"control-group\"></div>\n        </form>\n        </li>\n        <li title=\"Go to next page\">\n            <a class=\"im-pagination-button\" data-goto=next>&rarr;</a>\n        </li>\n        <li title=\"Go forward five pages\">\n            <a class=\"im-pagination-button\" data-goto=fast-forward>&#x21a0;</a>\n        </li>\n        <li title=\"Go to last page\">\n            <a class=\"im-pagination-button\" data-goto=end>&#x21e5;</a>\n        </li>\n    </ul>\n</div>");
 
-      Table.prototype.reallyDialogue = "<div class=\"modal fade\">\n    <div class=\"modal-header\">\n        <h3>\n            Are you sure?\n        </h3>\n    </div>\n    <div class=\"modal-body\">\n        <p>\n            You have requested a very large table size. Your\n            browser may struggle to render such a large table,\n            and the page will probably become unresponsive. It\n            will be very difficult for you to read the whole table\n            in the page. We suggest the following alternatives:\n        </p>\n        <ul>\n            <li>\n                <p>\n                    If you are looking for something specific, you can use the\n                    <span class=\"label label-info\">filtering tools</span>\n                    to narrow down the result set. Then you \n                    might be able to fit the items you are interested in in a\n                    single page.\n                </p>\n                <button class=\"btn\">\n                    Add a new filter.\n                </button>\n            </li>\n            <li>\n                <p>\n                    If you want to see all the data, you can page \n                    <span class=\"label label-info\">backwards</span>\n                    and \n                    <span class=\"label label-info\">forwards</span>\n                    through the results.\n                </p>\n                <div class=\"btn-group\">\n                    <a class=\"btn im-alternative-action\" data-event=\"page:backwards\" href=\"#\">back</a>\n                    <a class=\"btn im-alternative-action\" data-event=\"page:forwards\" href=\"#\">forward</a>\n                </div>\n            </li>\n            <li>\n                <p>\n                    If you want to get and save the results, we suggest\n                    <span class=\"label label-info\">downloading</span>\n                    the results in a format that suits you. \n                <p>\n                <button class=\"btn im-alternative-action\" data-event=\"download-menu:open\">\n                    Open the download menu.\n                </buttn>\n            </li>\n        </ul>\n    </div>\n    <div class=\"modal-footer\">\n        <button class=\"btn btn-primary pull-right\">\n            I know what I'm doing.\n        </button>\n        <button class=\"btn pull-left im-alternative-action\">\n            OK, no worries then.\n        </button>\n    </div>\n</div>";
+      Table.prototype.reallyDialogue = "<div class=\"modal fade\">\n    <div class=\"modal-header\">\n        <h3>\n            Are you sure?\n        </h3>\n    </div>\n    <div class=\"modal-body\">\n        <p>\n            You have requested a very large table size. Your\n            browser may struggle to render such a large table,\n            and the page will probably become unresponsive. It\n            will be very difficult for you to read the whole table\n            in the page. We suggest the following alternatives:\n        </p>\n        <ul>\n            <li>\n                <p>\n                    If you are looking for something specific, you can use the\n                    <span class=\"label label-info\">filtering tools</span>\n                    to narrow down the result set. Then you \n                    might be able to fit the items you are interested in in a\n                    single page.\n                </p>\n                <button class=\"btn im-alternative-action\" data-event=\"add-filter-dialogue:please\">\n                    Add a new filter.\n                </button>\n            </li>\n            <li>\n                <p>\n                    If you want to see all the data, you can page \n                    <span class=\"label label-info\">backwards</span>\n                    and \n                    <span class=\"label label-info\">forwards</span>\n                    through the results.\n                </p>\n                <div class=\"btn-group\">\n                    <a class=\"btn im-alternative-action\" data-event=\"page:backwards\" href=\"#\">back</a>\n                    <a class=\"btn im-alternative-action\" data-event=\"page:forwards\" href=\"#\">forward</a>\n                </div>\n            </li>\n            <li>\n                <p>\n                    If you want to get and save the results, we suggest\n                    <span class=\"label label-info\">downloading</span>\n                    the results in a format that suits you. \n                <p>\n                <button class=\"btn im-alternative-action\" data-event=\"download-menu:open\">\n                    Open the download menu.\n                </buttn>\n            </li>\n        </ul>\n    </div>\n    <div class=\"modal-footer\">\n        <button class=\"btn btn-primary pull-right\">\n            I know what I'm doing.\n        </button>\n        <button class=\"btn pull-left im-alternative-action\">\n            OK, no worries then.\n        </button>\n    </div>\n</div>";
 
       Table.prototype.onDraw = function() {
         if (this.__selecting) {
@@ -5520,10 +5571,16 @@
         this.query.on('page:backwards', function() {
           return _this.goBack(1);
         });
-        return this.query.on("page-size:selected", this.handlePageSizeSelection);
+        this.query.on("page-size:selected", this.handlePageSizeSelection);
+        return this.query.on("add-filter-dialogue:please", function() {
+          var dialogue;
+          dialogue = new intermine.filters.NewFilterDialogue(_this.query);
+          _this.$el.append(dialogue.el);
+          return dialogue.render().openDialogue();
+        });
       };
 
-      Table.prototype.pageSizeFeasibilityThreshold = 500;
+      Table.prototype.pageSizeFeasibilityThreshold = 250;
 
       Table.prototype.aboveSizeThreshold = function(size) {
         var total;
@@ -5546,13 +5603,16 @@
             return _this.table.changePageSize(size);
           });
           $really.find('.btn').click(function() {
-            return $really.modal('hide').remove();
+            return $really.modal('hide');
           });
           $really.find('.im-alternative-action').click(function(e) {
             if ($(e.target).data('event')) {
               _this.query.trigger($(e.target).data('event'));
             }
             return _this.query.trigger('page-size:revert', _this.table.pageSize);
+          });
+          $really.on('hidden', function() {
+            return $really.remove();
           });
           return $really.appendTo(this.el).modal().modal('show');
         } else {
@@ -5713,7 +5773,6 @@
           this.cache.lowerBound = result.start;
           return this.cache.upperBound = page.end();
         } else {
-          console.log("ADDING RESULTS FROM: " + page);
           rows = result.results;
           merged = this.cache.lastResult.results.slice();
           if (page.start < this.cache.lowerBound) {
@@ -5724,7 +5783,6 @@
           }
           this.cache.lowerBound = Math.min(this.cache.lowerBound, page.start);
           this.cache.upperBound = this.cache.lowerBound + merged.length;
-          console.log("NEW BOUNDS: " + this.cache.lowerBound + " .. " + this.cache.upperBound);
           return this.cache.lastResult.results = merged;
         }
       };
@@ -5944,7 +6002,11 @@
       };
 
       Table.prototype.getCurrentPage = function() {
-        return Math.floor(this.table.pageStart / this.table.pageSize);
+        if (this.table.pageSize) {
+          return Math.floor(this.table.pageStart / this.table.pageSize);
+        } else {
+          return 0;
+        }
       };
 
       Table.prototype.getMaxPage = function() {

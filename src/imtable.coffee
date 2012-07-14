@@ -448,7 +448,7 @@ scope "intermine.query.results", (exporting) ->
                                 might be able to fit the items you are interested in in a
                                 single page.
                             </p>
-                            <button class="btn">
+                            <button class="btn im-alternative-action" data-event="add-filter-dialogue:please">
                                 Add a new filter.
                             </button>
                         </li>
@@ -522,6 +522,10 @@ scope "intermine.query.results", (exporting) ->
             @query.on 'page:forwards', () => @goForward 1
             @query.on 'page:backwards', () => @goBack 1
             @query.on "page-size:selected", @handlePageSizeSelection
+            @query.on "add-filter-dialogue:please", () =>
+                dialogue = new intermine.filters.NewFilterDialogue(@query)
+                @$el.append dialogue.el
+                dialogue.render().openDialogue()
 
         pageSizeFeasibilityThreshold: 250
 
@@ -547,10 +551,11 @@ scope "intermine.query.results", (exporting) ->
                 $really = $ @reallyDialogue
                 $really.find('.btn-primary').click () =>
                     @table.changePageSize size
-                $really.find('.btn').click () -> $really.modal('hide').remove()
+                $really.find('.btn').click () -> $really.modal('hide')
                 $really.find('.im-alternative-action').click (e) =>
                     @query.trigger($(e.target).data 'event') if $(e.target).data('event')
                     @query.trigger 'page-size:revert', @table.pageSize
+                $really.on 'hidden', () -> $really.remove()
                 $really.appendTo(@el).modal().modal('show')
             else
                 @table.changePageSize size
@@ -710,7 +715,6 @@ scope "intermine.query.results", (exporting) ->
                 @cache.lowerBound = result.start
                 @cache.upperBound = page.end()
             else
-                console.log "ADDING RESULTS FROM: #{ page }"
                 rows = result.results
                 merged = @cache.lastResult.results.slice()
                 # Add rows we don't have to the front
@@ -722,7 +726,6 @@ scope "intermine.query.results", (exporting) ->
 
                 @cache.lowerBound = Math.min @cache.lowerBound, page.start
                 @cache.upperBound = @cache.lowerBound + merged.length #Math.max @cache.upperBound, page.end()
-                console.log "NEW BOUNDS: #{ @cache.lowerBound } .. #{ @cache.upperBound }"
                 @cache.lastResult.results = merged
 
         updateSummary: (start, size, result) ->
@@ -909,7 +912,7 @@ scope "intermine.query.results", (exporting) ->
             $widgets.append """<div style="clear:both"></div>"""
 
         getCurrentPage: () ->
-            Math.floor @table.pageStart / @table.pageSize
+            if @table.pageSize then Math.floor @table.pageStart / @table.pageSize else 0
 
         getMaxPage: () ->
             total = @cache.lastResult.iTotalRecords

@@ -175,7 +175,6 @@ scope "intermine.query", (exporting) ->
             @$el.addClass(@dropDownClasses) if @depth is 0
             @$el.show()
             this
-            
 
     exporting class ConstraintAdder extends Backbone.View
 
@@ -206,6 +205,7 @@ scope "intermine.query", (exporting) ->
                 @$('.btn-primary').attr disabled: true # Only add one constraint at a time...
                 @$pathfinder?.remove()
                 @$pathfinder = null
+                @query.trigger 'editing-constraint'
             else
                 console.log "Nothing chosen"
 
@@ -238,10 +238,6 @@ scope "intermine.query", (exporting) ->
                 @$pathfinder = pathFinder
 
         render: ->
-            input = @make "input",
-                type: "text",
-                placeholder: @inputPlaceholder
-            @$el.append input
             browser = $ """
                     <button type="button" class="btn btn-chooser" data-toggle="button">
                         <i class="icon-sitemap"></i>
@@ -249,7 +245,7 @@ scope "intermine.query", (exporting) ->
                     </button>
                 """
 
-            approver = $ @make 'button', {type: "button", class: "btn btn-primary", disabled: true}, "Add"
+            approver = $ @make 'button', {type: "button", class: "btn btn-primary", disabled: true}, "Choose"
             @$el.append browser
             @$el.append approver
             approver.click @handleSubmission

@@ -935,6 +935,15 @@ td.im-result-subtable .im-subtable {
     position: relative;
 }
 
+.im-constraint-dialogue .typeahead {
+    float: none;
+    position: static;
+}
+
+.im-constraint-dialogue .im-constraint.new .btn-group {
+    display: none;
+}
+
 .im-constraint-adder .dropdown-menu,
 .node-adder .dropdown-menu {
     max-height: 20em;
