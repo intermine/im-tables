@@ -35,6 +35,8 @@ scope "intermine.query.results", (exporting) ->
     class Page
         constructor: (@start, @size) ->
         end: -> @start + @size
+        all: -> !@size
+        toString: () -> "Page(#{ @start}, #{ @size })"
 
     class ResultsTable extends Backbone.View
 
@@ -66,10 +68,11 @@ scope "intermine.query.results", (exporting) ->
             @query.on "set:sortorder", (oes) =>
                 @lastAction = 'resort'
                 @fill()
-            @query.on "page-size:selected", (size) =>
-                @pageSize = size
-                @pageStart = 0 if (size is 0)
-                @fill()
+
+        changePageSize: (newSize) ->
+            @pageSize = newSize
+            @pageStart = 0 if (newSize is 0)
+            @fill()
 
         render: ->
             @$el.empty()
@@ -364,6 +367,7 @@ scope "intermine.query.results", (exporting) ->
                     @sizes.unshift [@pageSize, @pageSize]
             else
                 @pageSize = @sizes[0][0]
+            @query.on 'page-size:revert', (size) => @$('select').val size
 
         render: () ->
             @$el.append """
@@ -420,6 +424,70 @@ scope "intermine.query.results", (exporting) ->
             </div>
         """
 
+        reallyDialogue: """
+            <div class="modal fade">
+                <div class="modal-header">
+                    <h3>
+                        Are you sure?
+                    </h3>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        You have requested a very large table size. Your
+                        browser may struggle to render such a large table,
+                        and the page will probably become unresponsive. It
+                        will be very difficult for you to read the whole table
+                        in the page. We suggest the following alternatives:
+                    </p>
+                    <ul>
+                        <li>
+                            <p>
+                                If you are looking for something specific, you can use the
+                                <span class="label label-info">filtering tools</span>
+                                to narrow down the result set. Then you 
+                                might be able to fit the items you are interested in in a
+                                single page.
+                            </p>
+                            <button class="btn">
+                                Add a new filter.
+                            </button>
+                        </li>
+                        <li>
+                            <p>
+                                If you want to see all the data, you can page 
+                                <span class="label label-info">backwards</span>
+                                and 
+                                <span class="label label-info">forwards</span>
+                                through the results.
+                            </p>
+                            <div class="btn-group">
+                                <a class="btn im-alternative-action" data-event="page:backwards" href="#">back</a>
+                                <a class="btn im-alternative-action" data-event="page:forwards" href="#">forward</a>
+                            </div>
+                        </li>
+                        <li>
+                            <p>
+                                If you want to get and save the results, we suggest
+                                <span class="label label-info">downloading</span>
+                                the results in a format that suits you. 
+                            <p>
+                            <button class="btn im-alternative-action" data-event="download-menu:open">
+                                Open the download menu.
+                            </buttn>
+                        </li>
+                    </ul>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary pull-right">
+                        I know what I'm doing.
+                    </button>
+                    <button class="btn pull-left im-alternative-action">
+                        OK, no worries then.
+                    </button>
+                </div>
+            </div>
+        """
+
         onDraw: =>
             @query.trigger("start:list-creation") if @__selecting
             @drawn = true
@@ -430,6 +498,8 @@ scope "intermine.query.results", (exporting) ->
             @drawn = false
             @render()
 
+        # @param query The query this view is bound to.
+        # @param selector Where to put this table.
         initialize: (@query, selector) ->
             @cache = {}
             @itemModels = {}
@@ -449,13 +519,47 @@ scope "intermine.query.results", (exporting) ->
             @query.on "change:joins", @refresh
             @query.on "table:filled", @onDraw
 
-        ##
-        ## Set the sort order of a query so that it matches the parameters 
-        ## passed from DataTables.
-        ##
-        ## @param params An array of {name: x, value: y} objects passed from DT.
-        ##
-        ##
+            @query.on 'page:forwards', () => @goForward 1
+            @query.on 'page:backwards', () => @goBack 1
+            @query.on "page-size:selected", @handlePageSizeSelection
+
+        pageSizeFeasibilityThreshold: 250
+
+        # Check if the given size could be considered problematic
+        #
+        # A size if problematic if it is above the preset threshold, or if it 
+        # is a request for all results, and we know that the count is large.
+        # @param size The size to assess.
+        aboveSizeThreshold: (size) ->
+            if size >= @pageSizeFeasibilityThreshold
+                return true
+            if size is 0
+                total = @cache.lastResult.iTotalRecords
+                return total >= @pageSizeFeasibilityThreshold
+            return false
+
+        # If the new page size is potentially problematic, then check with the user
+        # first, rolling back if they see sense. Otherwise, change the page size
+        # without user interaction.
+        # @param size the requested page size.
+        handlePageSizeSelection: (size) =>
+            if @aboveSizeThreshold size
+                $really = $ @reallyDialogue
+                $really.find('.btn-primary').click () =>
+                    @table.changePageSize size
+                $really.find('.btn').click () -> $really.modal('hide').remove()
+                $really.find('.im-alternative-action').click (e) =>
+                    @query.trigger($(e.target).data 'event') if $(e.target).data('event')
+                    @query.trigger 'page-size:revert', @table.pageSize
+                $really.appendTo(@el).modal().modal('show')
+            else
+                @table.changePageSize size
+        
+        # Set the sort order of a query so that it matches the parameters 
+        # passed from DataTables.
+        #
+        # @param params An array of {name: x, value: y} objects passed from DT.
+        #
         adjustSortOrder: (params) ->
             viewIndices = for i in [0 .. intermine.utils.getParameter(params, "iColumns")]
                 intermine.utils.getParameter(params, "mDataProp_" + i)
@@ -468,6 +572,8 @@ scope "intermine.query.results", (exporting) ->
                         direction: intermine.utils.getParameter(params, "sSortDir_" + i)
                     so)
 
+        # Take a bad response and present the error somewhere visible to the user.
+        # @param resp An ajax response.
         showError: (resp) =>
             try
                 data = JSON.parse(resp.responseText)
@@ -604,17 +710,19 @@ scope "intermine.query.results", (exporting) ->
                 @cache.lowerBound = result.start
                 @cache.upperBound = page.end()
             else
+                console.log "ADDING RESULTS FROM: #{ page }"
                 rows = result.results
                 merged = @cache.lastResult.results.slice()
                 # Add rows we don't have to the front
                 if page.start < @cache.lowerBound
                     merged = rows.concat merged.slice page.end() - @cache.lowerBound
                 # Add rows we don't have to the end
-                if @cache.upperBound < page.end()
+                if @cache.upperBound < page.end() or page.all()
                     merged = merged.slice(0, (page.start - @cache.lowerBound)).concat(rows)
 
                 @cache.lowerBound = Math.min @cache.lowerBound, page.start
-                @cache.upperBound = Math.max @cache.upperBound, page.end()
+                @cache.upperBound = @cache.lowerBound + merged.length #Math.max @cache.upperBound, page.end()
+                console.log "NEW BOUNDS: #{ @cache.lowerBound } .. #{ @cache.upperBound }"
                 @cache.lastResult.results = merged
 
         updateSummary: (start, size, result) ->
@@ -640,7 +748,6 @@ scope "intermine.query.results", (exporting) ->
             # Splice off the undesired sections.
             result.results.splice(0, start - @cache.lowerBound)
             result.results.splice(size, result.results.length) if (size > 0)
-
 
             @updateSummary start, size, result
 

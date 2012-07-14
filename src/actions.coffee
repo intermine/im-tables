@@ -203,6 +203,7 @@ scope "intermine.query.actions", (exporting) ->
                 galaxyMain: intermine.options.GalaxyMain
                 galaxyAlt: intermine.options.GalaxyMain
             @exportedCols = new Backbone.Collection
+            @query.on 'download-menu:open', @openDialogue, @
             for v in @query.views
                 @exportedCols.add path: @query.getPathInfo v
             @requestInfo.on 'change:allRows', (m, allRows) =>

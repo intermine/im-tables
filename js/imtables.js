@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Thu Jul 12 2012 00:14:01 GMT+0100 (BST)
+ * Built at Fri Jul 13 2012 16:31:20 GMT-0700 (PDT)
 */
 
 
@@ -1069,6 +1069,7 @@
           galaxyAlt: intermine.options.GalaxyMain
         });
         this.exportedCols = new Backbone.Collection;
+        this.query.on('download-menu:open', this.openDialogue, this);
         _ref = this.query.views;
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           v = _ref[_i];
@@ -4654,7 +4655,7 @@
       };
 
       SubTable.prototype.render = function() {
-        var colRoot, colStr, icon, row, summary, t, v, _fn, _fn1, _i, _j, _len, _len1, _ref, _ref1,
+        var appendRow, colRoot, colStr, icon, row, summary, t, v, _fn, _i, _j, _len, _len1, _ref, _ref1,
           _this = this;
         icon = this.rows.length > 0 ? '<i class=icon-table></i>' : '<i class=icon-non-existent></i>';
         summary = $("<span>" + icon + "&nbsp;" + (this.getSummaryText()) + "</span>");
@@ -4691,24 +4692,28 @@
             v = _ref[_i];
             _fn(v);
           }
-          _ref1 = this.rows;
-          _fn1 = function(t, row) {
-            var cell, tr, w, _fn2, _k, _len2;
+          appendRow = function(t, row) {
+            var cell, tr, w, _fn1, _j, _len1;
             tr = $('<tr>');
             w = _this.$el.width() / _this.view.length;
-            _fn2 = function(tr, cell) {
+            _fn1 = function(tr, cell) {
               return tr.append((_this.cellify(cell)).render().setWidth(w).el);
             };
-            for (_k = 0, _len2 = row.length; _k < _len2; _k++) {
-              cell = row[_k];
-              _fn2(tr, cell);
+            for (_j = 0, _len1 = row.length; _j < _len1; _j++) {
+              cell = row[_j];
+              _fn1(tr, cell);
             }
             t.children('tbody').append(tr);
             return null;
           };
-          for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-            row = _ref1[_j];
-            _fn1(t, row);
+          if (this.column.isCollection()) {
+            _ref1 = this.rows;
+            for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+              row = _ref1[_j];
+              appendRow(t, row);
+            }
+          } else {
+            appendRow(t, this.rows[0]);
           }
         }
         t.addClass('im-subtable table table-condensed table-striped');
@@ -4988,6 +4993,14 @@
         return this.start + this.size;
       };
 
+      Page.prototype.all = function() {
+        return !this.size;
+      };
+
+      Page.prototype.toString = function() {
+        return "Page(" + this.start + ", " + this.size + ")";
+      };
+
       return Page;
 
     })();
@@ -5031,17 +5044,18 @@
         this.query = query;
         this.getData = getData;
         this.minimisedCols = {};
-        this.query.on("set:sortorder", function(oes) {
+        return this.query.on("set:sortorder", function(oes) {
           _this.lastAction = 'resort';
           return _this.fill();
         });
-        return this.query.on("page-size:selected", function(size) {
-          _this.pageSize = size;
-          if (size === 0) {
-            _this.pageStart = 0;
-          }
-          return _this.fill();
-        });
+      };
+
+      ResultsTable.prototype.changePageSize = function(newSize) {
+        this.pageSize = newSize;
+        if (newSize === 0) {
+          this.pageStart = 0;
+        }
+        return this.fill();
       };
 
       ResultsTable.prototype.render = function() {
@@ -5385,17 +5399,21 @@
       PageSizer.prototype.sizes = [[10], [25], [50], [100], [0, 'All']];
 
       PageSizer.prototype.initialize = function(query, pageSize) {
+        var _this = this;
         this.query = query;
         this.pageSize = pageSize;
         if (this.pageSize != null) {
           if (!_.include(this.sizes.map(function(s) {
             return s[0];
           }), this.pageSize)) {
-            return this.sizes.unshift([this.pageSize, this.pageSize]);
+            this.sizes.unshift([this.pageSize, this.pageSize]);
           }
         } else {
-          return this.pageSize = this.sizes[0][0];
+          this.pageSize = this.sizes[0][0];
         }
+        return this.query.on('page-size:revert', function(size) {
+          return _this.$('select').val(size);
+        });
       };
 
       PageSizer.prototype.render = function() {
@@ -5437,6 +5455,8 @@
 
         this.showError = __bind(this.showError, this);
 
+        this.handlePageSizeSelection = __bind(this.handlePageSizeSelection, this);
+
         this.refresh = __bind(this.refresh, this);
 
         this.onDraw = __bind(this.onDraw, this);
@@ -5452,6 +5472,8 @@
       };
 
       Table.prototype.paginationTempl = _.template("<div class=\"pagination pagination-right\">\n    <ul>\n        <li title=\"Go to start\">\n            <a class=\"im-pagination-button\" data-goto=start>&#x21e4;</a>\n        </li>\n        <li title=\"Go back five pages\">\n            <a class=\"im-pagination-button\" data-goto=fast-rewind>&#x219e;</a>\n        </li>\n        <li title=\"Go to previous page\">\n            <a class=\"im-pagination-button\" data-goto=prev>&larr;</a>\n        </li>\n        <li class=\"im-current-page\">\n            <a data-goto=here  href=\"#\">&hellip;</a>\n            <form class=\"im-page-form input-append form form-horizontal\" style=\"display:none;\">\n            <div class=\"control-group\"></div>\n        </form>\n        </li>\n        <li title=\"Go to next page\">\n            <a class=\"im-pagination-button\" data-goto=next>&rarr;</a>\n        </li>\n        <li title=\"Go forward five pages\">\n            <a class=\"im-pagination-button\" data-goto=fast-forward>&#x21a0;</a>\n        </li>\n        <li title=\"Go to last page\">\n            <a class=\"im-pagination-button\" data-goto=end>&#x21e5;</a>\n        </li>\n    </ul>\n</div>");
+
+      Table.prototype.reallyDialogue = "<div class=\"modal fade\">\n    <div class=\"modal-header\">\n        <h3>\n            Are you sure?\n        </h3>\n    </div>\n    <div class=\"modal-body\">\n        <p>\n            You have requested a very large table size. Your\n            browser may struggle to render such a large table,\n            and the page will probably become unresponsive. It\n            will be very difficult for you to read the whole table\n            in the page. We suggest the following alternatives:\n        </p>\n        <ul>\n            <li>\n                <p>\n                    If you are looking for something specific, you can use the\n                    <span class=\"label label-info\">filtering tools</span>\n                    to narrow down the result set. Then you \n                    might be able to fit the items you are interested in in a\n                    single page.\n                </p>\n                <button class=\"btn\">\n                    Add a new filter.\n                </button>\n            </li>\n            <li>\n                <p>\n                    If you want to see all the data, you can page \n                    <span class=\"label label-info\">backwards</span>\n                    and \n                    <span class=\"label label-info\">forwards</span>\n                    through the results.\n                </p>\n                <div class=\"btn-group\">\n                    <a class=\"btn im-alternative-action\" data-event=\"page:backwards\" href=\"#\">back</a>\n                    <a class=\"btn im-alternative-action\" data-event=\"page:forwards\" href=\"#\">forward</a>\n                </div>\n            </li>\n            <li>\n                <p>\n                    If you want to get and save the results, we suggest\n                    <span class=\"label label-info\">downloading</span>\n                    the results in a format that suits you. \n                <p>\n                <button class=\"btn im-alternative-action\" data-event=\"download-menu:open\">\n                    Open the download menu.\n                </buttn>\n            </li>\n        </ul>\n    </div>\n    <div class=\"modal-footer\">\n        <button class=\"btn btn-primary pull-right\">\n            I know what I'm doing.\n        </button>\n        <button class=\"btn pull-left im-alternative-action\">\n            OK, no worries then.\n        </button>\n    </div>\n</div>";
 
       Table.prototype.onDraw = function() {
         if (this.__selecting) {
@@ -5491,7 +5513,51 @@
         });
         this.query.on("change:constraints", this.refresh);
         this.query.on("change:joins", this.refresh);
-        return this.query.on("table:filled", this.onDraw);
+        this.query.on("table:filled", this.onDraw);
+        this.query.on('page:forwards', function() {
+          return _this.goForward(1);
+        });
+        this.query.on('page:backwards', function() {
+          return _this.goBack(1);
+        });
+        return this.query.on("page-size:selected", this.handlePageSizeSelection);
+      };
+
+      Table.prototype.pageSizeFeasibilityThreshold = 500;
+
+      Table.prototype.aboveSizeThreshold = function(size) {
+        var total;
+        if (size >= this.pageSizeFeasibilityThreshold) {
+          return true;
+        }
+        if (size === 0) {
+          total = this.cache.lastResult.iTotalRecords;
+          return total >= this.pageSizeFeasibilityThreshold;
+        }
+        return false;
+      };
+
+      Table.prototype.handlePageSizeSelection = function(size) {
+        var $really,
+          _this = this;
+        if (this.aboveSizeThreshold(size)) {
+          $really = $(this.reallyDialogue);
+          $really.find('.btn-primary').click(function() {
+            return _this.table.changePageSize(size);
+          });
+          $really.find('.btn').click(function() {
+            return $really.modal('hide').remove();
+          });
+          $really.find('.im-alternative-action').click(function(e) {
+            if ($(e.target).data('event')) {
+              _this.query.trigger($(e.target).data('event'));
+            }
+            return _this.query.trigger('page-size:revert', _this.table.pageSize);
+          });
+          return $really.appendTo(this.el).modal().modal('show');
+        } else {
+          return this.table.changePageSize(size);
+        }
       };
 
       Table.prototype.adjustSortOrder = function(params) {
@@ -5647,16 +5713,18 @@
           this.cache.lowerBound = result.start;
           return this.cache.upperBound = page.end();
         } else {
+          console.log("ADDING RESULTS FROM: " + page);
           rows = result.results;
           merged = this.cache.lastResult.results.slice();
           if (page.start < this.cache.lowerBound) {
             merged = rows.concat(merged.slice(page.end() - this.cache.lowerBound));
           }
-          if (this.cache.upperBound < page.end()) {
+          if (this.cache.upperBound < page.end() || page.all()) {
             merged = merged.slice(0, page.start - this.cache.lowerBound).concat(rows);
           }
           this.cache.lowerBound = Math.min(this.cache.lowerBound, page.start);
-          this.cache.upperBound = Math.max(this.cache.upperBound, page.end());
+          this.cache.upperBound = this.cache.lowerBound + merged.length;
+          console.log("NEW BOUNDS: " + this.cache.lowerBound + " .. " + this.cache.upperBound);
           return this.cache.lastResult.results = merged;
         }
       };

@@ -100,13 +100,19 @@ scope "intermine.results.table", (exporting) ->
                             else
                                 span.text pathName.replace(/^[^>]*\s*>\s*/, '')
                     t.children('thead').children('tr').append th
-                for row in @rows then do (t, row) =>
+                appendRow = (t, row) =>
                     tr = $ '<tr>'
                     w = @$el.width() / @view.length
                     for cell in row then do (tr, cell) =>
                         tr.append (@cellify cell).render().setWidth(w).el
                     t.children('tbody').append tr
                     null
+
+                if @column.isCollection()
+                    appendRow(t, row) for row in @rows
+                else
+                    appendRow(t, @rows[0]) # Odd hack to fix multiple repeated rows.
+
 
             t.addClass 'im-subtable table table-condensed table-striped'
 
