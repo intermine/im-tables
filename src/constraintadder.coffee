@@ -241,7 +241,7 @@ scope "intermine.query", (exporting) ->
             browser = $ """
                     <button type="button" class="btn btn-chooser" data-toggle="button">
                         <i class="icon-sitemap"></i>
-                        Browse
+                        Browse for column
                     </button>
                 """
 

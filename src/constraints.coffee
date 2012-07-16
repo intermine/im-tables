@@ -62,11 +62,11 @@ scope "intermine.query",  (exporting) ->
             @query.removeConstraint @orig
 
         addIcons: ($label) ->
-            $label.append """<i class="icon-remove-sign"></i>"""
+            $label.append """<a href="#"><i class="icon-remove-sign"></i></a>"""
             if @con.locked
-                $label.append """<i class="icon-lock" title="this constraint is not editable"></i>"""
+                $label.append """<a href="#"><i class="icon-lock" title="this constraint is not editable"></i></a>"""
             else
-                $label.append """<i class="icon-edit"></i>"""
+                $label.append """<a href="#"><i class="icon-edit"></i></a>"""
 
         buttons: [
             {

@@ -31,7 +31,7 @@ task 'build:compile', 'Build project from build/* to js/imtables.js', compile = 
 
 writing = false
 
-neededEarly = ["shiv.coffee", "module.coffee", "constraintadder.coffee"]
+neededEarly = ["shiv.coffee", "module.coffee", "icons.coffee", "options.coffee", "constraintadder.coffee"]
 
 task 'build:concat',
     'Concatenate the source files to a single application script',

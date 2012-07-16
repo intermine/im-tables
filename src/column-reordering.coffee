@@ -81,10 +81,11 @@ scope "intermine.query.results.table", (exporting) ->
             @$('input').remove()
             this
 
-    exporting class ColumnOrderer extends Backbone.View
+    exporting class ColumnsDialogue extends Backbone.View
+        tagName: "div"
+        className: "im-column-dialogue modal fade"
         
         initialize: (@query) ->
-            @query.on "change:sortorder", @initSorting
             @query.on 'column-orderer:selected', (paths) =>
                 for path in paths
                     pstr = path.toString()
@@ -104,43 +105,43 @@ scope "intermine.query.results.table", (exporting) ->
                             moveableView.find('.im-display-name').text name
                         moveableView.appendTo @$ '.im-reordering-container'
 
-        template: _.template """
-            <a class="btn btn-large im-reorderer">
-                <i class="icon-wrench"></i>
-                <span class="im-only-widescreen">Manage</span>
-                Columns
-            </a>
-            <div class="modal fade im-col-order-dialog">
-                <div class="modal-header">
-                    <a class="close" data-dismiss="modal">close</a>
-                    <h3>Manage Columns</a>
-                </div>
-                <div class="modal-body">
-                    <ul class="nav nav-tabs">
-                        <li class="active"><a data-target=".im-reordering" data-toggle="tab">Re-Order Columns</a></li>
-                        <li><a data-target=".im-sorting" data-toggle="tab">Re-Sort Columns</a></li>
-                    </ul>
-                    <div class="tab-content">
-                        <div class="tab-pane fade im-reordering active in">
-                            <div class="node-adder"></div>
-                            <ul class="im-reordering-container well"></ul>
-                        </div>
-                        <div class="tab-pane fade im-sorting">
-                            <ul class="im-sorting-container well"></ul>
-                            <ul class="im-sorting-container-possibilities well"></ul>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <a class="btn btn-cancel">
-                        Cancel
-                    </a>
-                    <a class="btn pull-right btn-primary">
-                        Apply
-                    </a>
-                </div>
-            </div>
-            <div style="clear: both;"></div>
+        html: """
+         <div class="modal-header">
+             <a class="close" data-dismiss="modal">close</a>
+             <h3>Manage Columns</a>
+         </div>
+         <div class="modal-body">
+             <ul class="nav nav-tabs">
+                 <li class="active">
+                     <a data-target=".im-reordering" data-toggle="tab">
+                         Re-Order Columns
+                     </a>
+                 </li>
+                 <li>
+                     <a data-target=".im-sorting" data-toggle="tab">
+                     Re-Sort Columns
+                     </a>
+                 </li>
+             </ul>
+             <div class="tab-content">
+                 <div class="tab-pane fade im-reordering active in">
+                     <div class="node-adder"></div>
+                     <ul class="im-reordering-container well"></ul>
+                 </div>
+                 <div class="tab-pane fade im-sorting">
+                     <ul class="im-sorting-container well"></ul>
+                     <ul class="im-sorting-container-possibilities well"></ul>
+                 </div>
+             </div>
+         </div>
+         <div class="modal-footer">
+             <a class="btn btn-cancel">
+                 Cancel
+             </a>
+             <a class="btn pull-right btn-primary">
+                 Apply
+             </a>
+         </div>
         """
 
         viewTemplate: _.template """
@@ -151,30 +152,26 @@ scope "intermine.query.results.table", (exporting) ->
         """
 
         render: ->
-            @$el.append @template()
-            colContainer = @initOrdering()
-            colContainer.sortable()
+            @$el.append @html
+            @initOrdering()
             @initSorting()
 
             @$('.nav-tabs li a').each (i, e) =>
                 $elem = $(e)
                 $elem.data target: @$($elem.data("target"))
 
-            @$('.modal').modal
-                show: false
             this
 
         events:
-            'click a.im-reorderer': 'showModal'
-            'click .btn-cancel': 'hideModel'
+            'hidden': 'remove'
+            'click .btn-cancel': 'hideModal'
             'click .btn-primary': 'applyChanges'
             'click .nav-tabs li a': 'changeTab'
             'click .im-soe i.im-remove-soe': 'removeSortOrder'
             'click .im-add-soe': 'addSortOrder'
             'click .im-sort-direction': 'sortCol'
 
-        changeTab: (e) ->
-            $(e.target).tab("show")
+        changeTab: (e) -> $(e.target).tab("show")
 
         initOrdering: ->
             colContainer = @$ '.im-reordering-container'
@@ -209,7 +206,7 @@ scope "intermine.query.results.table", (exporting) ->
             nodeAdder = @$ '.node-adder'
             ca = new ColumnAdder(@query)
             nodeAdder.empty().append ca.render().el
-            colContainer
+            colContainer.sortable items: 'li'
 
         sortCol: (e) ->
             $elem = $(e.target).parent()
@@ -304,13 +301,9 @@ scope "intermine.query.results.table", (exporting) ->
                     $(ui.draggable).remove()
                     container.append @makeSortOrderElem path: path, direction: "ASC"
 
-        hideModel: ->
-            @$('.modal').modal('hide')
-            @initOrdering()
-            @initSorting()
+        hideModal: -> @$el.modal 'hide'
 
-        showModal: ->
-            @$('.modal').modal('show')
+        showModal: -> @$el.modal show: true
 
         applyChanges: (e) ->
             if @$('.im-reordering').is('.active')
@@ -332,12 +325,12 @@ scope "intermine.query.results.table", (exporting) ->
                     for v in ojg.getViews()
                         newViews.push(v)
 
-            @$('.modal').modal('hide')
+            @hideModal()
             @query.select(newViews)
 
         changeSorting: (e) ->
             lis = @$('.im-sorting-container li')
             newSO = lis.map( (i, e) -> {path: $(e).data('path'), direction: $(e).data("direction")}).get()
-            @$('.modal').modal('hide')
+            @hideModal()
             @query.orderBy(newSO)
 

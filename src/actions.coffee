@@ -1,17 +1,3 @@
-scope "intermine.options", {
-    GalaxyMain: "http://main.g2.bx.psu.edu",
-}
-
-scope "intermine.icons", {
-    Yes: "icon-star",
-    No: "icon-star-empty",
-    Script: "icon-beaker",
-    Export: "icon-download-alt",
-    Remove: "icon-minus-sign",
-    Add: "icon-plus-sign",
-    Move: "icon-reorder"
-}
-
 scope "intermine.messages.actions", {
     ExportTitle: "Download Results",
     ExportHelp: "Download file containing results to your computer",

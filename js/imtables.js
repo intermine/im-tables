@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Sat Jul 14 2012 16:31:24 GMT-0700 (PDT)
+ * Built at Mon Jul 16 2012 15:37:24 GMT-0700 (PDT)
 */
 
 
@@ -93,6 +93,23 @@
     }
     return ns;
   };
+
+  scope("intermine.icons", {
+    Yes: "icon-star",
+    No: "icon-star-empty",
+    Script: "icon-beaker",
+    Export: "icon-download-alt",
+    Remove: "icon-minus-sign",
+    Add: "icon-plus-sign",
+    Move: "icon-reorder",
+    Filter: "icon-filter",
+    Summary: "icon-bar-chart",
+    Columns: "icon-table"
+  });
+
+  scope("intermine.options", {
+    GalaxyMain: "http://main.g2.bx.psu.edu"
+  });
 
   scope("intermine.query", function(exporting) {
     var Attribute, CONSTRAINT_ADDER_HTML, ConstraintAdder, PATH_HIGHLIGHTER, PATH_LEN_SORTER, PATH_MATCHER, PathChooser, Reference, pathLen, pos;
@@ -585,7 +602,7 @@
 
       ConstraintAdder.prototype.render = function() {
         var approver, browser;
-        browser = $("<button type=\"button\" class=\"btn btn-chooser\" data-toggle=\"button\">\n    <i class=\"icon-sitemap\"></i>\n    Browse\n</button>");
+        browser = $("<button type=\"button\" class=\"btn btn-chooser\" data-toggle=\"button\">\n    <i class=\"icon-sitemap\"></i>\n    Browse for column\n</button>");
         approver = $(this.make('button', {
           type: "button",
           "class": "btn btn-primary",
@@ -732,20 +749,6 @@
       return utils;
 
     })());
-  });
-
-  scope("intermine.options", {
-    GalaxyMain: "http://main.g2.bx.psu.edu"
-  });
-
-  scope("intermine.icons", {
-    Yes: "icon-star",
-    No: "icon-star-empty",
-    Script: "icon-beaker",
-    Export: "icon-download-alt",
-    Remove: "icon-minus-sign",
-    Add: "icon-plus-sign",
-    Move: "icon-reorder"
   });
 
   scope("intermine.messages.actions", {
@@ -2841,12 +2844,67 @@
     })(Backbone.View));
   });
 
+  scope('intermine.query.tools', function(exporting) {
+    var ManagementTools;
+    return exporting(ManagementTools = (function(_super) {
+
+      __extends(ManagementTools, _super);
+
+      function ManagementTools() {
+        return ManagementTools.__super__.constructor.apply(this, arguments);
+      }
+
+      ManagementTools.prototype.initialize = function(query) {
+        this.query = query;
+        return this.query.on("change:constraints", this.checkHasFilters, this);
+      };
+
+      ManagementTools.prototype.checkHasFilters = function() {
+        return this.$('.im-filters').toggleClass("im-has-constraint", this.query.constraints.length > 0);
+      };
+
+      ManagementTools.prototype.tagName = "div";
+
+      ManagementTools.prototype.className = "im-management-tools btn-group";
+
+      ManagementTools.prototype.html = "<button class=\"btn btn-large im-columns\">\n    <i class=\"" + intermine.icons.Columns + "\"></i>\n    Columns\n</button>\n<button class=\"btn btn-large im-filters\">\n    <i class=\"" + intermine.icons.Filter + "\"></i>\n    Filters\n</button>";
+
+      ManagementTools.prototype.events = {
+        'click .im-columns': 'showColumnDialogue',
+        'click .im-filters': 'showFilterDialogue'
+      };
+
+      ManagementTools.prototype.showColumnDialogue = function(e) {
+        var dialogue;
+        dialogue = new intermine.query.results.table.ColumnsDialogue(this.query);
+        this.$el.append(dialogue.el);
+        return dialogue.render().showModal();
+      };
+
+      ManagementTools.prototype.showFilterDialogue = function(e) {
+        var dialogue;
+        dialogue = new intermine.query.filters.FilterManager(this.query);
+        this.$el.append(dialogue.el);
+        return dialogue.render().showModal();
+      };
+
+      ManagementTools.prototype.render = function() {
+        this.$el.append(this.html);
+        this.checkHasFilters();
+        return this;
+      };
+
+      return ManagementTools;
+
+    })(Backbone.View));
+  });
+
   scope('intermine.messages.results', {
     ReorderHelp: 'Drag the columns to reorder them'
   });
 
   scope("intermine.query.results.table", function(exporting) {
-    var ColumnAdder, ColumnOrderer, OuterJoinGroup;
+    var ColumnAdder, ColumnsDialogue, OuterJoinGroup;
     OuterJoinGroup = (function(_super) {
 
       __extends(OuterJoinGroup, _super);
@@ -3022,19 +3080,22 @@
       return ColumnAdder;
 
     })(intermine.query.ConstraintAdder);
-    return exporting(ColumnOrderer = (function(_super) {
+    return exporting(ColumnsDialogue = (function(_super) {
 
-      __extends(ColumnOrderer, _super);
+      __extends(ColumnsDialogue, _super);
 
-      function ColumnOrderer() {
+      function ColumnsDialogue() {
         this.initSorting = __bind(this.initSorting, this);
-        return ColumnOrderer.__super__.constructor.apply(this, arguments);
+        return ColumnsDialogue.__super__.constructor.apply(this, arguments);
       }
 
-      ColumnOrderer.prototype.initialize = function(query) {
+      ColumnsDialogue.prototype.tagName = "div";
+
+      ColumnsDialogue.prototype.className = "im-column-dialogue modal fade";
+
+      ColumnsDialogue.prototype.initialize = function(query) {
         var _this = this;
         this.query = query;
-        this.query.on("change:sortorder", this.initSorting);
         return this.query.on('column-orderer:selected', function(paths) {
           var moveableView, ojg, path, pstr, _i, _len, _results;
           _results = [];
@@ -3064,16 +3125,14 @@
         });
       };
 
-      ColumnOrderer.prototype.template = _.template("<a class=\"btn btn-large im-reorderer\">\n    <i class=\"icon-wrench\"></i>\n    <span class=\"im-only-widescreen\">Manage</span>\n    Columns\n</a>\n<div class=\"modal fade im-col-order-dialog\">\n    <div class=\"modal-header\">\n        <a class=\"close\" data-dismiss=\"modal\">close</a>\n        <h3>Manage Columns</a>\n    </div>\n    <div class=\"modal-body\">\n        <ul class=\"nav nav-tabs\">\n            <li class=\"active\"><a data-target=\".im-reordering\" data-toggle=\"tab\">Re-Order Columns</a></li>\n            <li><a data-target=\".im-sorting\" data-toggle=\"tab\">Re-Sort Columns</a></li>\n        </ul>\n        <div class=\"tab-content\">\n            <div class=\"tab-pane fade im-reordering active in\">\n                <div class=\"node-adder\"></div>\n                <ul class=\"im-reordering-container well\"></ul>\n            </div>\n            <div class=\"tab-pane fade im-sorting\">\n                <ul class=\"im-sorting-container well\"></ul>\n                <ul class=\"im-sorting-container-possibilities well\"></ul>\n            </div>\n        </div>\n    </div>\n    <div class=\"modal-footer\">\n        <a class=\"btn btn-cancel\">\n            Cancel\n        </a>\n        <a class=\"btn pull-right btn-primary\">\n            Apply\n        </a>\n    </div>\n</div>\n<div style=\"clear: both;\"></div>");
+      ColumnsDialogue.prototype.html = "<div class=\"modal-header\">\n    <a class=\"close\" data-dismiss=\"modal\">close</a>\n    <h3>Manage Columns</a>\n</div>\n<div class=\"modal-body\">\n    <ul class=\"nav nav-tabs\">\n        <li class=\"active\">\n            <a data-target=\".im-reordering\" data-toggle=\"tab\">\n                Re-Order Columns\n            </a>\n        </li>\n        <li>\n            <a data-target=\".im-sorting\" data-toggle=\"tab\">\n            Re-Sort Columns\n            </a>\n        </li>\n    </ul>\n    <div class=\"tab-content\">\n        <div class=\"tab-pane fade im-reordering active in\">\n            <div class=\"node-adder\"></div>\n            <ul class=\"im-reordering-container well\"></ul>\n        </div>\n        <div class=\"tab-pane fade im-sorting\">\n            <ul class=\"im-sorting-container well\"></ul>\n            <ul class=\"im-sorting-container-possibilities well\"></ul>\n        </div>\n    </div>\n</div>\n<div class=\"modal-footer\">\n    <a class=\"btn btn-cancel\">\n        Cancel\n    </a>\n    <a class=\"btn pull-right btn-primary\">\n        Apply\n    </a>\n</div>";
 
-      ColumnOrderer.prototype.viewTemplate = _.template("<li class=\"im-reorderable breadcrumb\" data-col-idx=\"<%= idx %>\" data-path=\"<%- path %>\">\n    <i class=\"icon-reorder pull-right\"\"></i>\n    <h4 class=\"im-display-name\"><%- displayName %></span>\n</li>");
+      ColumnsDialogue.prototype.viewTemplate = _.template("<li class=\"im-reorderable breadcrumb\" data-col-idx=\"<%= idx %>\" data-path=\"<%- path %>\">\n    <i class=\"icon-reorder pull-right\"\"></i>\n    <h4 class=\"im-display-name\"><%- displayName %></span>\n</li>");
 
-      ColumnOrderer.prototype.render = function() {
-        var colContainer,
-          _this = this;
-        this.$el.append(this.template());
-        colContainer = this.initOrdering();
-        colContainer.sortable();
+      ColumnsDialogue.prototype.render = function() {
+        var _this = this;
+        this.$el.append(this.html);
+        this.initOrdering();
         this.initSorting();
         this.$('.nav-tabs li a').each(function(i, e) {
           var $elem;
@@ -3082,15 +3141,12 @@
             target: _this.$($elem.data("target"))
           });
         });
-        this.$('.modal').modal({
-          show: false
-        });
         return this;
       };
 
-      ColumnOrderer.prototype.events = {
-        'click a.im-reorderer': 'showModal',
-        'click .btn-cancel': 'hideModel',
+      ColumnsDialogue.prototype.events = {
+        'hidden': 'remove',
+        'click .btn-cancel': 'hideModal',
         'click .btn-primary': 'applyChanges',
         'click .nav-tabs li a': 'changeTab',
         'click .im-soe i.im-remove-soe': 'removeSortOrder',
@@ -3098,11 +3154,11 @@
         'click .im-sort-direction': 'sortCol'
       };
 
-      ColumnOrderer.prototype.changeTab = function(e) {
+      ColumnsDialogue.prototype.changeTab = function(e) {
         return $(e.target).tab("show");
       };
 
-      ColumnOrderer.prototype.initOrdering = function() {
+      ColumnsDialogue.prototype.initOrdering = function() {
         var ca, colContainer, i, nodeAdder, v, _fn, _i, _len, _ref,
           _this = this;
         colContainer = this.$('.im-reordering-container');
@@ -3177,10 +3233,12 @@
         nodeAdder = this.$('.node-adder');
         ca = new ColumnAdder(this.query);
         nodeAdder.empty().append(ca.render().el);
-        return colContainer;
+        return colContainer.sortable({
+          items: 'li'
+        });
       };
 
-      ColumnOrderer.prototype.sortCol = function(e) {
+      ColumnsDialogue.prototype.sortCol = function(e) {
         var $elem, newDirection;
         $elem = $(e.target).parent();
         newDirection = $elem.data("direction") === "ASC" ? "DESC" : "ASC";
@@ -3190,11 +3248,11 @@
         return $(e.target).toggleClass("asc desc");
       };
 
-      ColumnOrderer.prototype.soTemplate = _.template("<li class=\"im-reorderable breadcrumb im-soe\" \n    data-path=\"<%- path %>\" data-direction=\"<%- direction %>\">\n    <% if (direction === 'ASC') { %>\n        <span class=\"im-sort-direction asc\"></span>\n    <% } else { %>\n        <span class=\"im-sort-direction desc\"></span>\n    <% } %>\n    <span class=\"im-path\" title=\"<%- path %>\"><%- path %></span>\n    <i class=\"icon-minus pull-right im-remove-soe\" title=\"Remove this column from the sort order\"></i>\n</li>");
+      ColumnsDialogue.prototype.soTemplate = _.template("<li class=\"im-reorderable breadcrumb im-soe\" \n    data-path=\"<%- path %>\" data-direction=\"<%- direction %>\">\n    <% if (direction === 'ASC') { %>\n        <span class=\"im-sort-direction asc\"></span>\n    <% } else { %>\n        <span class=\"im-sort-direction desc\"></span>\n    <% } %>\n    <span class=\"im-path\" title=\"<%- path %>\"><%- path %></span>\n    <i class=\"icon-minus pull-right im-remove-soe\" title=\"Remove this column from the sort order\"></i>\n</li>");
 
-      ColumnOrderer.prototype.possibleSortOptionTemplate = _.template("<li class=\"im-reorderable breadcrumb\" data-path=\"<%- path %>\">\n    <i class=\"icon-plus pull-right im-add-soe\" title=\"Add this column to the sort order\"></i>\n    <span title=\"<%- path %>\"><%- path %></span>\n</li>");
+      ColumnsDialogue.prototype.possibleSortOptionTemplate = _.template("<li class=\"im-reorderable breadcrumb\" data-path=\"<%- path %>\">\n    <i class=\"icon-plus pull-right im-add-soe\" title=\"Add this column to the sort order\"></i>\n    <span title=\"<%- path %>\"><%- path %></span>\n</li>");
 
-      ColumnOrderer.prototype.removeSortOrder = function(e) {
+      ColumnsDialogue.prototype.removeSortOrder = function(e) {
         var $elem, path, possibilities, psoe,
           _this = this;
         $elem = $(e.target).parent();
@@ -3218,7 +3276,7 @@
         return possibilities.append(psoe);
       };
 
-      ColumnOrderer.prototype.addSortOrder = function(e) {
+      ColumnsDialogue.prototype.addSortOrder = function(e) {
         var $elem, path;
         $elem = $(e.target).parent();
         path = $elem.data("path");
@@ -3230,9 +3288,9 @@
         }));
       };
 
-      ColumnOrderer.prototype.sortingPlaceholder = "<div class=\"placeholder\">\n    Drop columns here.\n</div>";
+      ColumnsDialogue.prototype.sortingPlaceholder = "<div class=\"placeholder\">\n    Drop columns here.\n</div>";
 
-      ColumnOrderer.prototype.makeSortOrderElem = function(so) {
+      ColumnsDialogue.prototype.makeSortOrderElem = function(so) {
         var soe, _ref;
         soe = $(this.soTemplate(so));
         this.query.getPathInfo(so.path).getDisplayName(function(name) {
@@ -3245,7 +3303,7 @@
         return soe;
       };
 
-      ColumnOrderer.prototype.makeSortOption = function(path) {
+      ColumnsDialogue.prototype.makeSortOption = function(path) {
         var option,
           _this = this;
         option = $(this.possibleSortOptionTemplate({
@@ -3259,7 +3317,7 @@
         return option;
       };
 
-      ColumnOrderer.prototype.initSorting = function() {
+      ColumnsDialogue.prototype.initSorting = function() {
         var cn, container, i, n, possibilities, so, v, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref, _ref1, _ref2, _ref3, _ref4,
           _this = this;
         container = this.$('.im-sorting-container');
@@ -3309,17 +3367,17 @@
         });
       };
 
-      ColumnOrderer.prototype.hideModel = function() {
-        this.$('.modal').modal('hide');
-        this.initOrdering();
-        return this.initSorting();
+      ColumnsDialogue.prototype.hideModal = function() {
+        return this.$el.modal('hide');
       };
 
-      ColumnOrderer.prototype.showModal = function() {
-        return this.$('.modal').modal('show');
+      ColumnsDialogue.prototype.showModal = function() {
+        return this.$el.modal({
+          show: true
+        });
       };
 
-      ColumnOrderer.prototype.applyChanges = function(e) {
+      ColumnsDialogue.prototype.applyChanges = function(e) {
         if (this.$('.im-reordering').is('.active')) {
           return this.changeOrder(e);
         } else {
@@ -3327,7 +3385,7 @@
         }
       };
 
-      ColumnOrderer.prototype.changeOrder = function(e) {
+      ColumnsDialogue.prototype.changeOrder = function(e) {
         var lis, newViews, ojg, p, paths, pi, v, _i, _j, _len, _len1, _ref;
         lis = this.$('.im-reordering-container li');
         paths = lis.map(function(i, e) {
@@ -3349,11 +3407,11 @@
             }
           }
         }
-        this.$('.modal').modal('hide');
+        this.hideModal();
         return this.query.select(newViews);
       };
 
-      ColumnOrderer.prototype.changeSorting = function(e) {
+      ColumnsDialogue.prototype.changeSorting = function(e) {
         var lis, newSO;
         lis = this.$('.im-sorting-container li');
         newSO = lis.map(function(i, e) {
@@ -3362,11 +3420,11 @@
             direction: $(e).data("direction")
           };
         }).get();
-        this.$('.modal').modal('hide');
+        this.hideModal();
         return this.query.orderBy(newSO);
       };
 
-      return ColumnOrderer;
+      return ColumnsDialogue;
 
     })(Backbone.View));
   });
@@ -4339,6 +4397,7 @@
   });
 
   scope("intermine.messages.filters", {
+    AddNew: "Add Filter",
     DefineNew: 'Define a new filter',
     EditOrRemove: 'edit or remove the currently active filters',
     None: 'No active filters',
@@ -4346,7 +4405,7 @@
   });
 
   scope("intermine.query.filters", function(exporting) {
-    var Constraints, FACETS, Facets, Filters, SingleColumnConstraints, SingleColumnConstraintsSummary, SingleConstraintAdder;
+    var Constraints, FACETS, Facets, FilterManager, Filters, SingleColumnConstraints, SingleColumnConstraintsSummary, SingleConstraintAdder;
     exporting(Filters = (function(_super) {
 
       __extends(Filters, _super);
@@ -4509,6 +4568,71 @@
       return Constraints;
 
     })(Backbone.View);
+    exporting(FilterManager = (function(_super) {
+
+      __extends(FilterManager, _super);
+
+      function FilterManager() {
+        return FilterManager.__super__.constructor.apply(this, arguments);
+      }
+
+      FilterManager.prototype.className = "im-filter-manager modal fade";
+
+      FilterManager.prototype.tagName = "div";
+
+      FilterManager.prototype.initialize = function(query) {
+        var _this = this;
+        this.query = query;
+        return this.query.on('change:constraints', function() {
+          return _this.hideModal();
+        });
+      };
+
+      FilterManager.prototype.html = "<div class=\"modal-header\">\n    <a href=\"#\" class=\"close im-closer\">close</a>\n    <h3>" + intermine.messages.filters.Heading + "</h3>\n</div>\n<div class=\"modal-body\">\n    <div class=\"alert alert-info\">\n        <p></p>\n        <ul></ul>\n    </div>\n    <button class=\"btn im-closer im-define-new-filter\">\n        " + intermine.messages.filters.DefineNew + "\n    </button>\n</div>";
+
+      FilterManager.prototype.events = {
+        'hidden': 'remove',
+        'click .icon-remove-sign': 'hideModal',
+        'click .im-closer': 'hideModal',
+        'click .im-define-new-filter': 'addNewFilter'
+      };
+
+      FilterManager.prototype.addNewFilter = function(e) {
+        return this.query.trigger('add-filter-dialogue:please');
+      };
+
+      FilterManager.prototype.hideModal = function(e) {
+        this.$el.modal('hide');
+        return $('.modal-backdrop').trigger('click');
+      };
+
+      FilterManager.prototype.showModal = function() {
+        return this.$el.modal().modal('show');
+      };
+
+      FilterManager.prototype.render = function() {
+        var c, cons, msgs, ul, _fn, _i, _len,
+          _this = this;
+        this.$el.append(this.html);
+        cons = this.getConstraints();
+        msgs = intermine.messages.filters;
+        this.$('p').append(cons.length ? msgs.EditOrRemove : msgs.None);
+        ul = this.$('ul');
+        _fn = function(c) {
+          var con;
+          con = new intermine.query.ActiveConstraint(_this.query, c);
+          return con.render().$el.appendTo(ul);
+        };
+        for (_i = 0, _len = cons.length; _i < _len; _i++) {
+          c = cons[_i];
+          _fn(c);
+        }
+        return this;
+      };
+
+      return FilterManager;
+
+    })(Constraints));
     SingleConstraintAdder = (function(_super) {
 
       __extends(SingleConstraintAdder, _super);
@@ -5017,9 +5141,7 @@
     sortedDESC: "icon-sort-down",
     headerIcon: "icon-white",
     headerIconRemove: "icon-remove-sign",
-    headerIconHide: "icon-minus-sign",
-    headerIconFilter: "icon-filter",
-    headerIconSummary: "icon-bar-chart"
+    headerIconHide: "icon-minus-sign"
   });
 
   scope('intermine.snippets.query', {
@@ -5232,7 +5354,7 @@
       };
 
       ResultsTable.prototype.columnHeaderTempl = function(ctx) {
-        return _.template("<th>\n    <div class=\"navbar\">\n        <div class=\"im-th-buttons\">\n            <% if (sortable) { %>\n                <div class=\"im-th-button im-col-sort-indicator\" title=\"sort this column\">\n                    <i class=\"icon-sorting " + intermine.css.unsorted + " " + intermine.css.headerIcon + "\"></i>\n                </div>\n            <% }; %>\n            <div class=\"im-th-button im-col-remover\" title=\"remove this column\" data-view=\"<%= view %>\">\n                <i class=\"" + intermine.css.headerIconRemove + " " + intermine.css.headerIcon + "\"></i>\n            </div>\n            <div class=\"im-th-button im-col-minumaximiser\" title=\"Hide column\" data-col-idx=\"<%= i %>\">\n                <i class=\"" + intermine.css.headerIconHide + " " + intermine.css.headerIcon + "\"></i>\n            </div>\n            <div class=\"dropdown im-filter-summary\">\n                <div class=\"im-th-button im-col-filters dropdown-toggle\"\n                     title=\"Filter by values in this column\"\n                     data-toggle=\"dropdown\" data-col-idx=\"<%= i %>\" >\n                    <i class=\"" + intermine.css.headerIconFilter + " " + intermine.css.headerIcon + "\"></i>\n                </div>\n                <div class=\"dropdown-menu\">\n                    <div>Could not ititialise the filter summary.</div>\n                </div>\n            </div>\n            <div class=\"dropdown im-summary\">\n                <div class=\"im-th-button summary-img dropdown-toggle\" title=\"column summary\"\n                    data-toggle=\"dropdown\" data-col-idx=\"<%= i %>\" >\n                    <i class=\"" + intermine.css.headerIconSummary + " " + intermine.css.headerIcon + "\"></i>\n                </div>\n                <div class=\"dropdown-menu\">\n                    <div>Could not ititialise the column summary.</div>\n                </div>\n            </div>\n        </div>\n        <span class=\"im-col-title\">\n            <% _.each(titleParts, function(part, idx) { %>\n                <span class=\"im-title-part\"><%- part %></span>\n            <% }); %>\n        </span>\n    </div>\n</th>", ctx);
+        return _.template("<th>\n    <div class=\"navbar\">\n        <div class=\"im-th-buttons\">\n            <% if (sortable) { %>\n                <div class=\"im-th-button im-col-sort-indicator\" title=\"sort this column\">\n                    <i class=\"icon-sorting " + intermine.css.unsorted + " " + intermine.css.headerIcon + "\"></i>\n                </div>\n            <% }; %>\n            <div class=\"im-th-button im-col-remover\" title=\"remove this column\" data-view=\"<%= view %>\">\n                <i class=\"" + intermine.css.headerIconRemove + " " + intermine.css.headerIcon + "\"></i>\n            </div>\n            <div class=\"im-th-button im-col-minumaximiser\" title=\"Hide column\" data-col-idx=\"<%= i %>\">\n                <i class=\"" + intermine.css.headerIconHide + " " + intermine.css.headerIcon + "\"></i>\n            </div>\n            <div class=\"dropdown im-filter-summary\">\n                <div class=\"im-th-button im-col-filters dropdown-toggle\"\n                     title=\"Filter by values in this column\"\n                     data-toggle=\"dropdown\" data-col-idx=\"<%= i %>\" >\n                    <i class=\"" + intermine.icons.Filter + " " + intermine.css.headerIcon + "\"></i>\n                </div>\n                <div class=\"dropdown-menu\">\n                    <div>Could not ititialise the filter summary.</div>\n                </div>\n            </div>\n            <div class=\"dropdown im-summary\">\n                <div class=\"im-th-button summary-img dropdown-toggle\" title=\"column summary\"\n                    data-toggle=\"dropdown\" data-col-idx=\"<%= i %>\" >\n                    <i class=\"" + intermine.icons.Summary + " " + intermine.css.headerIcon + "\"></i>\n                </div>\n                <div class=\"dropdown-menu\">\n                    <div>Could not ititialise the column summary.</div>\n                </div>\n            </div>\n        </div>\n        <span class=\"im-col-title\">\n            <% _.each(titleParts, function(part, idx) { %>\n                <span class=\"im-title-part\"><%- part %></span>\n            <% }); %>\n        </span>\n    </div>\n</th>", ctx);
       };
 
       ResultsTable.prototype.buildColumnHeader = function(view, i, title, tr) {
@@ -5933,7 +6055,7 @@
       Table.prototype.onSetupSuccess = function(telem) {
         var _this = this;
         return function(result) {
-          var $pagination, $scrollwrapper, $telem, $widgets, currentPageButton, currentPos, pageSizer, reorderer, scrollbar;
+          var $pagination, $scrollwrapper, $telem, $widgets, currentPageButton, currentPos, managementGroup, pageSizer, scrollbar;
           $telem = jQuery(telem).empty();
           $widgets = $('<div>').insertBefore(telem);
           _this.table = new ResultsTable(_this.query, _this.getRowData);
@@ -5962,8 +6084,8 @@
             currentPageButton.hide();
             return $pagination.find('form').show();
           });
-          reorderer = new intermine.query.results.table.ColumnOrderer(_this.query);
-          reorderer.render().$el.appendTo($widgets);
+          managementGroup = new intermine.query.tools.ManagementTools(_this.query);
+          managementGroup.render().$el.appendTo($widgets);
           if (_this.bar === 'horizontal') {
             $scrollwrapper = $(_this.horizontalScroller).appendTo($widgets);
             scrollbar = _this.$('.scroll-bar');
@@ -6480,11 +6602,11 @@
       };
 
       ActiveConstraint.prototype.addIcons = function($label) {
-        $label.append("<i class=\"icon-remove-sign\"></i>");
+        $label.append("<a href=\"#\"><i class=\"icon-remove-sign\"></i></a>");
         if (this.con.locked) {
-          return $label.append("<i class=\"icon-lock\" title=\"this constraint is not editable\"></i>");
+          return $label.append("<a href=\"#\"><i class=\"icon-lock\" title=\"this constraint is not editable\"></i></a>");
         } else {
-          return $label.append("<i class=\"icon-edit\"></i>");
+          return $label.append("<a href=\"#\"><i class=\"icon-edit\"></i></a>");
         }
       };
 

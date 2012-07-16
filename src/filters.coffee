@@ -1,4 +1,5 @@
 scope "intermine.messages.filters", {
+    AddNew: "Add Filter",
     DefineNew: 'Define a new filter',
     EditOrRemove: 'edit or remove the currently active filters',
     None: 'No active filters',
@@ -20,6 +21,7 @@ scope "intermine.query.filters", (exporting) ->
             facets.render().$el.appendTo @el
 
             this
+
 
     ## TODO: Make this information received from a server side call
     FACETS =
@@ -91,6 +93,58 @@ scope "intermine.query.filters", (exporting) ->
 
         events:
             click: (e) -> e.stopPropagation()
+
+    exporting class FilterManager extends Constraints
+        className: "im-filter-manager modal fade"
+        tagName: "div"
+
+        initialize: (@query) ->
+            @query.on 'change:constraints', () => @hideModal()
+
+        html: """
+           <div class="modal-header">
+               <a href="#" class="close im-closer">close</a>
+               <h3>#{ intermine.messages.filters.Heading }</h3>
+           </div>
+           <div class="modal-body">
+               <div class="alert alert-info">
+                   <p></p>
+                   <ul></ul>
+               </div>
+               <button class="btn im-closer im-define-new-filter">
+                   #{ intermine.messages.filters.DefineNew }
+               </button>
+           </div>
+        """
+
+        events:
+            'hidden': 'remove'
+            'click .icon-remove-sign': 'hideModal'
+            'click .im-closer': 'hideModal'
+            'click .im-define-new-filter': 'addNewFilter'
+
+        addNewFilter: (e) -> @query.trigger 'add-filter-dialogue:please'
+
+        hideModal: (e) ->
+            @$el.modal 'hide'
+            # Horrible, horrible hack, making kittens cry.
+            $('.modal-backdrop').trigger 'click' 
+
+        showModal: () -> @$el.modal().modal('show')
+
+        render: () ->
+            @$el.append @html
+            cons = @getConstraints()
+            msgs = intermine.messages.filters
+
+            @$('p').append if cons.length then msgs.EditOrRemove else msgs.None
+            ul = @$ 'ul'
+
+            for c in cons then do (c) =>
+                con = new intermine.query.ActiveConstraint(@query, c)
+                con.render().$el.appendTo ul
+            
+            @
             
 
     class SingleConstraintAdder extends intermine.query.ConstraintAdder

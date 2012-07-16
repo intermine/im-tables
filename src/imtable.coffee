@@ -5,8 +5,6 @@ scope "intermine.css", {
     headerIcon: "icon-white"
     headerIconRemove: "icon-remove-sign"
     headerIconHide: "icon-minus-sign"
-    headerIconFilter: "icon-filter"
-    headerIconSummary: "icon-bar-chart"
 }
 
 scope 'intermine.snippets.query', {
@@ -198,7 +196,7 @@ scope "intermine.query.results", (exporting) ->
                             <div class="im-th-button im-col-filters dropdown-toggle"
                                  title="Filter by values in this column"
                                  data-toggle="dropdown" data-col-idx="<%= i %>" >
-                                <i class="#{ intermine.css.headerIconFilter } #{ intermine.css.headerIcon }"></i>
+                                <i class="#{ intermine.icons.Filter } #{ intermine.css.headerIcon }"></i>
                             </div>
                             <div class="dropdown-menu">
                                 <div>Could not ititialise the filter summary.</div>
@@ -207,7 +205,7 @@ scope "intermine.query.results", (exporting) ->
                         <div class="dropdown im-summary">
                             <div class="im-th-button summary-img dropdown-toggle" title="column summary"
                                 data-toggle="dropdown" data-col-idx="<%= i %>" >
-                                <i class="#{ intermine.css.headerIconSummary } #{ intermine.css.headerIcon }"></i>
+                                <i class="#{ intermine.icons.Summary } #{ intermine.css.headerIcon }"></i>
                             </div>
                             <div class="dropdown-menu">
                                 <div>Could not ititialise the column summary.</div>
@@ -888,8 +886,9 @@ scope "intermine.query.results", (exporting) ->
                 currentPageButton.hide()
                 $pagination.find('form').show()
 
-            reorderer = new intermine.query.results.table.ColumnOrderer(@query)
-            reorderer.render().$el.appendTo($widgets)
+            managementGroup = new intermine.query.tools.ManagementTools(@query)
+            managementGroup.render().$el.appendTo $widgets
+
 
             if @bar is 'horizontal'
                 $scrollwrapper = $(@horizontalScroller).appendTo($widgets)
