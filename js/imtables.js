@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Mon Jul 16 2012 18:36:41 GMT-0700 (PDT)
+ * Built at Tue Jul 17 2012 11:25:22 GMT-0700 (PDT)
 */
 
 
@@ -2558,6 +2558,57 @@
 
     })(DashBoard));
   });
+
+  jQuery.fn.imWidget = function(arg0, arg1) {
+    var cls, events, properties, query, service, token, type, url, view;
+    if (typeof arg0 === 'string') {
+      view = this.data('widget');
+      if (arg0 === 'option') {
+        switch (arg1) {
+          case 'query':
+            return view.query;
+          case 'service':
+            return view.service;
+          case 'events':
+            return view.queryEvents;
+          case 'type':
+            return this.data('widget-type');
+          case 'properties':
+            return this.data('widget-options');
+          default:
+            throw new Error("Unknown option " + arg1);
+        }
+      } else if (arg0 === 'table') {
+        return view;
+      } else {
+        throw new Error("Unknown method " + arg0);
+      }
+    } else {
+      type = arg0.type, service = arg0.service, url = arg0.url, token = arg0.token, query = arg0.query, events = arg0.events, properties = arg0.properties;
+      if (service == null) {
+        service = new intermine.Service({
+          root: url,
+          token: token
+        });
+      }
+      if (type === 'table') {
+        cls = intermine.query.results.CompactView;
+        view = new cls(service, query, events, properties);
+        this.empty().append(view.$el);
+        view.render();
+      } else if (type === 'dashboard') {
+        cls = intermine.query.results.DashBoard;
+        view = new cls(service, query, events, properties);
+        this.empty().append(view.$el);
+        view.render();
+      } else {
+        console.error("" + type + " widgets are not supported");
+      }
+      this.data('widget-options', properties);
+      this.data('widget-type', type);
+      return this.data('widget', view);
+    }
+  };
 
   scope("intermine.query.tools", function(exporting) {
     var PANE_HTML, Step, TAB_HTML, ToolBar, Tools, Trail;

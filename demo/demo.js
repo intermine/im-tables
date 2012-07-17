@@ -129,27 +129,27 @@ $(function() {
         }
     };
 
-    var displayCls = intermine.query.results.CompactView;
-    var display;
+    var displayType = 'table';
+    var display = $('#table-display');
     var tableProps = {
         pageSize: 10,
         bar: getPageParam('bar', 'horizontal')
     };
 
     var login = function(serviceArgs) {
-        var q = services[serviceArgs].q;
-        var service = new intermine.Service(services[serviceArgs]);
-        var qv = new displayCls(service, q, query_events, tableProps);
+        var token = services[serviceArgs].token;
+        display.imWidget({
+            type: displayType,
+            url: services[serviceArgs].root,
+            token: token,
+            query: services[serviceArgs].q,
+            events: query_events,
+            properties: tableProps
+        });
 
-        $('#table-display').empty();
-        qv.$el.appendTo("#table-display");
+        $('.login-controls').toggleClass("logged-in", !!token);
 
-        console.log(tableProps, qv);
-        qv.render();
-
-        display = qv;
-
-        $('.login-controls').toggleClass("logged-in", !!service.token);
+        var service = display.imWidget('option', 'service');
 
         service.whoami(function(u) {
             $('#logged-in-notice').show().find('a.username').text(u.username);
@@ -173,29 +173,30 @@ $(function() {
         $(this).addClass("active").siblings().removeClass("active");
     });
 
-    var classOf = function(obj) {
-        return obj.constructor.toString().match(/function\s*(\w+)/)[1];
-    };
-
     var changeLayout = function() {
-        if (classOf(display) != displayCls.name) {
-            var service = display.service;
-            var query = display.query;
-            var evts = display.queryEvents;
-            display = new displayCls(service, query, evts, {bar: getPageParam('bar', 'horizontal')});
-            $('#table-display').empty();
-            display.$el.appendTo("#table-display");
-            display.render();
+        if (display.imWidget('option', 'type') != displayType) {
+            var service = display.imWidget('option', 'service');
+            var query = display.imWidget('option', 'query');
+            var evts = display.imWidget('option', 'events');
+            display.imWidget({
+                type: displayType,
+                service: service,
+                query: query,
+                events: evts,
+                properties: {
+                    bar: getPageParam('bar', 'horizontal')
+                }
+            });
         }
     };
 
     $('#select-wide-layout').click(function() {
-        displayCls = intermine.query.results.DashBoard;
+        displayType = 'dashboard';
         changeLayout();
     });
 
     $('#select-compact-layout').click(function() {
-        displayCls = intermine.query.results.CompactView;
+        displayType = 'table';
         changeLayout();
     });
 
