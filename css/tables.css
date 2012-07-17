@@ -605,6 +605,10 @@ table.table thead .sorting_desc_disabled {
     display: inline-block;
 }
 
+.im-export-dialogue form.form input[type="checkbox"] {
+    float: right;
+}
+
 .im-export-dialogue .im-export-options label {
     display: block;
 }

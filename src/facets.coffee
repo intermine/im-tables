@@ -136,7 +136,7 @@ scope "intermine.results", (exporting) ->
 
     exporting class NumericFacet extends FacetView
 
-        events: # A bit heavy handed, admittedly, but otherwise datatables goes a bit mental...
+        events:
             'click': (e) -> e.stopPropagation()
 
         className: "im-numeric-facet"
