@@ -190,6 +190,8 @@ scope "intermine.query.actions", (exporting) ->
                 galaxyAlt: intermine.options.GalaxyMain
             @exportedCols = new Backbone.Collection
             @query.on 'download-menu:open', @openDialogue, @
+            @query.on 'imtable:change:page', (start, size) =>
+                @requestInfo.set start: start, end: start + size
             for v in @query.views
                 @exportedCols.add path: @query.getPathInfo v
             @requestInfo.on 'change:allRows', (m, allRows) =>
@@ -200,11 +202,17 @@ scope "intermine.query.actions", (exporting) ->
                 @$('.im-all-cols').attr checked: allCols
             @requestInfo.on 'change:format', @updateFormatOptions
             @requestInfo.on 'change:start', (m, start) =>
-                @$('.im-first-row').val start
-                @$('.im-row-range-slider').slider 'option', 'values', [start, m.get('end')]
+                $elem = @$('.im-first-row')
+                newVal = "#{start + 1}"
+                if newVal isnt $elem.val()
+                    $elem.val newVal
+                @$('.im-row-range-slider').slider 'option', 'values', [start + 1, m.get('end')]
             @requestInfo.on 'change:end', (m, end) =>
-                @$('.im-last-row').val end
-                @$('.im-row-range-slider').slider 'option', 'values', [m.get('start'), end]
+                $elem = @$('.im-last-row')
+                newVal = "#{end}"
+                if newVal isnt $elem.val()
+                    $elem.val newVal
+                @$('.im-row-range-slider').slider 'option', 'values', [m.get('start') + 1, end]
             @exportedCols.on 'add remove reset', @initCols
 
         html: """
@@ -256,7 +264,7 @@ scope "intermine.query.actions", (exporting) ->
                         <fieldset class="im-row-selection control-group">
                             <label class="control-label">
                                 #{ intermine.messages.actions.FirstRow }
-                                <input type="text" value="0" class="disabled input-mini im-first-row im-range-limit">
+                                <input type="text" value="1" class="disabled input-mini im-first-row im-range-limit">
                             </label>
                             <label class="control-label">
                                 #{ intermine.messages.actions.LastRow }
@@ -324,17 +332,31 @@ scope "intermine.query.actions", (exporting) ->
             input = $(e.target)
             switch e.keyCode
                 when 38 # UP
-                    input.val 1 + parseInt input.val()
-                    input.change()
+                    input.val 1 + parseInt(input.val(), 10)
                 when 40 # DOWN
-                    input.val parseInt(input.val()) - 1
-                    input.change()
+                    input.val parseInt(input.val(), 10) - 1
+            input.change()
 
         changeStart: (e) ->
-            @requestInfo.set start: parseInt @$('.im-first-row').val()
+            if @checkStartAndEnd() # only if valid.
+                @requestInfo.set start: parseInt(@$('.im-first-row').val(), 10) - 1 # Start is 0-based, display is 1-based.
 
         changeEnd: (e) ->
-            @requestInfo.set end: parseInt @$('.im-last-row').val()
+            if @checkStartAndEnd() # only if valid
+                @requestInfo.set end: parseInt(@$('.im-last-row').val(), 10)
+
+        DIGITS: /^\s*\d+\s*$/
+
+        checkStartAndEnd: () ->
+            start = @$('.im-first-row')
+            end = @$('.im-last-row')
+            valA = start.val()
+            valB = end.val()
+            ok = (@DIGITS.test(valA) and parseInt(valA, 10) >= 1) and (@DIGITS.test(valB) and parseInt(valB, 10) <= @count)
+            if @DIGITS.test(valA) and @DIGITS.test(valB)
+                ok = ok and (parseInt(valA, 10) <= parseInt(valB, 10))
+            $('.im-row-selection').toggleClass('error', not ok)
+            return ok
 
         sendToGalaxy: (e) ->
             e.stopPropagation()
@@ -397,8 +419,8 @@ scope "intermine.query.actions", (exporting) ->
             if @requestInfo.get 'columnHeaders'
                 ret += "&columnheaders=1"
             unless @requestInfo.get 'allRows'
-                start = parseInt @$('.im-first-row').val()
-                end = parseInt @$('.im-last-row').val()
+                start = @requestInfo.get 'start'
+                end = @requestInfo.get 'end'
                 ret += "&start=#{ start }"
                 if end isnt @count
                     ret += "&size=#{ end - start }"
@@ -643,7 +665,6 @@ scope "intermine.query.actions", (exporting) ->
             @$el.append @html
             @$('.modal-footer .btn').tooltip()
 
-
             @initFormats()
             @initCols()
             @toggleColSelection()
@@ -663,7 +684,7 @@ scope "intermine.query.actions", (exporting) ->
                     range: true,
                     min: 0,
                     max: c,
-                    values: [0, c],
+                    values: [1, c],
                     step: 1,
                     slide: (e, ui)  => @requestInfo.set start: ui.values[0], end: ui.values[1]
                 @toggleRowSelection()
@@ -763,7 +784,7 @@ scope "intermine.query.actions", (exporting) ->
 
             @query.service.query listQ, (q) =>
                 promise = q.appendToList receiver.val(), (updatedList) =>
-                    @query.trigger "list-update:success", updatedList, updatedList.size - parseInt(targetSize)
+                    @query.trigger "list-update:success", updatedList, updatedList.size - parseInt(targetSize, 10)
                     @stop()
                 promise.fail (xhr, level, message) =>
                     if xhr.responseText
