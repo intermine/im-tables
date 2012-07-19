@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Thu Jul 19 2012 12:43:04 GMT+0100 (BST)
+ * Built at Thu Jul 19 2012 13:31:05 GMT+0100 (BST)
 */
 
 
@@ -2943,7 +2943,7 @@
 
       UniqItems.prototype.model = Item;
 
-      UniqItems.prototype.add = function(items) {
+      UniqItems.prototype.add = function(items, opts) {
         var item, _i, _len, _results;
         items = _(items).isArray() ? items : [items];
         _results = [];
@@ -2953,7 +2953,7 @@
             if (!(this.any(function(i) {
               return i.get("item") === item;
             }))) {
-              _results.push(UniqItems.__super__.add.call(this, new Item(item)));
+              _results.push(UniqItems.__super__.add.call(this, new Item(item, opts)));
             } else {
               _results.push(void 0);
             }
@@ -2962,12 +2962,12 @@
         return _results;
       };
 
-      UniqItems.prototype.remove = function(item) {
+      UniqItems.prototype.remove = function(item, opts) {
         var delenda;
         delenda = this.filter(function(i) {
           return i.get("item") === item;
         });
-        return UniqItems.__super__.remove.call(this, delenda);
+        return UniqItems.__super__.remove.call(this, delenda, opts);
       };
 
       return UniqItems;
@@ -3135,7 +3135,27 @@
       };
 
       ListDialogue.prototype.listNameChanged = function() {
-        return this.usingDefaultName = false;
+        var $target, chosen,
+          _this = this;
+        this.usingDefaultName = false;
+        $target = this.$('.im-list-name');
+        $target.parent().removeClass("error");
+        $target.next().text('');
+        chosen = $target.val();
+        return this.query.service.fetchLists(function(ls) {
+          var l, _i, _len, _results;
+          _results = [];
+          for (_i = 0, _len = ls.length; _i < _len; _i++) {
+            l = ls[_i];
+            if (l.name === chosen) {
+              $target.next().text("This name is already taken");
+              _results.push($target.parent().addClass("error"));
+            } else {
+              _results.push(void 0);
+            }
+          }
+          return _results;
+        });
       };
 
       ListDialogue.prototype.create = function(q) {
@@ -4091,6 +4111,7 @@
         this.tags = new UniqItems();
         this.suggestedTags = new UniqItems();
         this.tags.on("add", this.updateTagBox);
+        this.suggestedTags.on("add", this.updateTagBox);
         this.tags.on("remove", this.updateTagBox);
         return this.initTags();
       };
@@ -4100,13 +4121,29 @@
       };
 
       ListCreator.prototype.newCommonType = function(type) {
-        var $target, text;
+        var $target, copyNo, text, textBase,
+          _this = this;
         ListCreator.__super__.newCommonType.call(this, type);
         text = "List of " + (intermine.utils.pluralise(type));
         $target = this.$('.im-list-name');
         if (this.usingDefaultName) {
-          $target.val(text);
-          this.usingDefaultName = true;
+          copyNo = 1;
+          textBase = text;
+          this.query.service.fetchLists(function(ls) {
+            var l, _i, _len, _ref;
+            _ref = _.sortBy(ls, function(l) {
+              return l.name;
+            });
+            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+              l = _ref[_i];
+              console.log(l.name);
+              if (l.name === text) {
+                text = "" + textBase + " (" + (copyNo++) + ")";
+              }
+            }
+            $target.val(text);
+            return _this.usingDefaultName = true;
+          });
         }
         return this.$('.im-list-type').val(type);
       };
@@ -4117,26 +4154,31 @@
       };
 
       ListCreator.prototype.initTags = function() {
-        var c, now, _fn, _i, _len, _ref,
+        var add, c, now, _fn, _i, _len, _ref,
           _this = this;
         this.tags.reset();
         this.suggestedTags.reset();
+        add = function(tag) {
+          return _this.suggestedTags.add(tag, {
+            silent: true
+          });
+        };
         _ref = this.query.constraints;
         _fn = function(c) {
           var title;
           title = c.title || c.path.replace(/^[^\.]+\./, "");
           if (c.op === "IN") {
-            return _this.suggestedTags.add("source: " + c.value);
+            return add("source: " + c.value, silently);
           } else if (c.op === "=") {
-            return _this.suggestedTags.add("" + title + ": " + c.value);
+            return add("" + title + ": " + c.value);
           } else if (c.op === "<") {
-            return _this.suggestedTags.add("" + title + " below " + c.value);
+            return add("" + title + " below " + c.value);
           } else if (c.op === ">") {
-            return _this.suggestedTags.add("" + title + " above " + c.value);
+            return add("" + title + " above " + c.value);
           } else if (c.type) {
-            return _this.suggestedTags.add("" + title + " is a " + c.type);
+            return add("" + title + " is a " + c.type);
           } else {
-            return _this.suggestedTags.add("" + title + " " + c.op + " " + (c.value || c.values));
+            return add("" + title + " " + c.op + " " + (c.value || c.values));
           }
         };
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
@@ -4144,15 +4186,15 @@
           _fn(c);
         }
         now = new Date();
-        this.suggestedTags.add("month: " + (now.getFullYear()) + "/" + (now.getMonth() + 1));
-        this.suggestedTags.add("year: " + (now.getFullYear()));
-        this.suggestedTags.add("day: " + (now.getFullYear()) + "/" + (now.getMonth() + 1) + "/" + (now.getDate()));
+        add("month: " + (now.getFullYear()) + "-" + (now.getMonth() + 1));
+        add("year: " + (now.getFullYear()));
+        add("day: " + (now.getFullYear()) + "-" + (now.getMonth() + 1) + "-" + (now.getDate()));
         return this.updateTagBox();
       };
 
       ListCreator.prototype.events = _.extend({}, ListDialogue.prototype.events, {
-        'click .label .remove-tag': 'removeTag',
-        'click .label .accept-tag': 'acceptTag',
+        'click .remove-tag': 'removeTag',
+        'click .accept-tag': 'acceptTag',
         'click .im-confirm-tag': 'addTag',
         'click .btn-reset': 'reset',
         'click .control-group h5': 'rollUpNext'
@@ -4232,14 +4274,16 @@
 
       ListCreator.prototype.removeTag = function(e) {
         var tag;
-        tag = $(e.target).siblings('.tag-text').text();
+        tag = $(e.target).closest('.label').find('.tag-text').text();
         this.tags.remove(tag);
+        this.suggestedTags.add(tag);
         return $('.tooltip').remove();
       };
 
       ListCreator.prototype.acceptTag = function(e) {
         var tag;
-        tag = $(e.target).siblings('.tag-text').text();
+        console.log("Accepting", e);
+        tag = $(e.target).closest('.label').find('.tag-text').text();
         $('.tooltip').remove();
         this.suggestedTags.remove(tag);
         return this.tags.add(tag);
@@ -4251,7 +4295,7 @@
         box.empty();
         this.tags.each(function(t) {
           var $li;
-          $li = $("<li title=\"" + (t.escape("item")) + "\">\n    <span class=\"label label-warning\">\n        <i class=\"icon-tag icon-white\"></i>\n        <span class=\"tag-text\">" + (t.escape("item")) + "</span>\n        <i class=\"icon-remove-circle icon-white remove-tag\"></i>\n    </span>\n</li>");
+          $li = $("<li title=\"" + (t.escape("item")) + "\">\n    <span class=\"label label-warning\">\n        <i class=\"icon-tag icon-white\"></i>\n        <span class=\"tag-text\">" + (t.escape("item")) + "</span>\n        <a href=\"#\">\n            <i class=\"icon-remove-circle icon-white remove-tag\"></i>\n        </a>\n    </span>\n</li>");
           return $li.tooltip({
             placement: "top"
           }).appendTo(box);
@@ -4261,7 +4305,7 @@
         box.empty();
         this.suggestedTags.each(function(t) {
           var $li;
-          $li = $("<li title=\"This tag is a suggestion. Click the 'ok' sign to add it\">\n    <span class=\"label\">\n        <i class=\"icon-tag icon-white\"></i>\n        <span class=\"tag-text\">" + (t.escape("item")) + "</span>\n        <i class=\"icon-ok-circle icon-white accept-tag\"></i>\n    </span>\n</li>");
+          $li = $("<li title=\"This tag is a suggestion. Click the 'ok' sign to add it\">\n    <span class=\"label\">\n        <i class=\"icon-tag icon-white\"></i>\n        <span class=\"tag-text\">" + (t.escape("item")) + "</span>\n        <a href=\"#\" class=\"accept-tag\">\n            <i class=\"icon-ok-circle icon-white\"></i>\n        </a>\n    </span>\n</li>");
           return $li.tooltip({
             placement: "top"
           }).appendTo(box);

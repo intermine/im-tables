@@ -61,14 +61,14 @@ scope "intermine.query.actions", (exporting) ->
         model: Item
 
         # Add items is they are non null, not empty strings, and not already in the collection.
-        add: (items) ->
+        add: (items, opts) ->
             items = if _(items).isArray() then items else [items]
             for item in items when item? and "" isnt item
-                super(new Item(item)) unless (@any (i) -> i.get("item") is item)
+                super(new Item(item, opts)) unless (@any (i) -> i.get("item") is item)
                 
-        remove: (item) ->
+        remove: (item, opts) ->
             delenda = @filter (i) -> i.get("item") is item
-            super(delenda)
+            super(delenda, opts)
 
     ILLEGAL_LIST_NAME_CHARS = /[^\w\s\(\):+\.-]/g
 
@@ -157,7 +157,20 @@ scope "intermine.query.actions", (exporting) ->
             e.preventDefault()
             e.stopPropagation()
         
-        listNameChanged: -> @usingDefaultName = false
+        listNameChanged: ->
+            @usingDefaultName = false
+
+            $target = @$ '.im-list-name'
+            $target.parent().removeClass """error"""
+            $target.next().text ''
+            chosen = $target.val()
+
+            @query.service.fetchLists (ls) =>
+                for l in ls
+                    if l.name is chosen
+                        $target.next().text """This name is already taken"""
+                        $target.parent().addClass """error"""
+
 
         create: (q) ->
             throw "Override me!"
@@ -995,6 +1008,7 @@ scope "intermine.query.actions", (exporting) ->
             @tags  = new UniqItems()
             @suggestedTags = new UniqItems()
             @tags.on "add", @updateTagBox
+            @suggestedTags.on "add", @updateTagBox
             @tags.on "remove", @updateTagBox
 
             @initTags()
@@ -1005,9 +1019,18 @@ scope "intermine.query.actions", (exporting) ->
             super(type)
             text = "List of #{intermine.utils.pluralise(type)}"
             $target = @$ '.im-list-name'
+
             if @usingDefaultName
-                $target.val text
-                @usingDefaultName = true
+                copyNo = 1
+                textBase = text
+                @query.service.fetchLists (ls) =>
+
+                    for l in _.sortBy(ls, (l) -> l.name)
+                        if l.name is text
+                            text = "#{textBase} (#{ copyNo++ })"
+
+                    $target.val text
+                    @usingDefaultName = true
 
             @$('.im-list-type').val(type)
 
@@ -1018,30 +1041,31 @@ scope "intermine.query.actions", (exporting) ->
         initTags: ->
             @tags.reset()
             @suggestedTags.reset()
-            for c in @query.constraints then do (c) =>
+            add = (tag) => @suggestedTags.add tag, {silent: true}
+            for c in @query.constraints then do (c) ->
                 title = c.title or c.path.replace(/^[^\.]+\./, "")
                 if c.op is "IN"
-                    @suggestedTags.add "source: #{c.value}"
+                    add "source: #{c.value}", silently
                 else if c.op is "="
-                    @suggestedTags.add "#{title}: #{c.value}"
+                    add "#{title}: #{c.value}"
                 else if c.op is "<"
-                    @suggestedTags.add "#{title} below #{c.value}"
+                    add "#{title} below #{c.value}"
                 else if c.op is ">"
-                    @suggestedTags.add "#{title} above #{c.value}"
+                    add "#{title} above #{c.value}"
                 else if c.type
-                    @suggestedTags.add "#{title} is a #{c.type}"
+                    add "#{title} is a #{c.type}"
                 else
-                    @suggestedTags.add "#{title} #{c.op} #{c.value or c.values}"
+                    add "#{title} #{c.op} #{c.value or c.values}"
 
             now = new Date()
-            @suggestedTags.add "month: #{now.getFullYear()}/#{now.getMonth() + 1}"
-            @suggestedTags.add "year: #{now.getFullYear()}"
-            @suggestedTags.add "day: #{now.getFullYear()}/#{now.getMonth() + 1}/#{now.getDate()}"
+            add "month: #{now.getFullYear()}-#{now.getMonth() + 1}"
+            add "year: #{now.getFullYear()}"
+            add "day: #{now.getFullYear()}-#{now.getMonth() + 1}-#{now.getDate()}"
             @updateTagBox()
         
         events: _.extend({}, ListDialogue::events, {
-            'click .label .remove-tag': 'removeTag'
-            'click .label .accept-tag': 'acceptTag'
+            'click .remove-tag': 'removeTag'
+            'click .accept-tag': 'acceptTag'
             'click .im-confirm-tag': 'addTag'
             'click .btn-reset': 'reset'
             'click .control-group h5': 'rollUpNext'})
@@ -1098,12 +1122,14 @@ scope "intermine.query.actions", (exporting) ->
             @query.trigger "list-creation:failure", message
 
         removeTag: (e) ->
-            tag = $(e.target).siblings('.tag-text').text()
+            tag = $(e.target).closest('.label').find('.tag-text').text()
             @tags.remove(tag)
+            @suggestedTags.add(tag)
             $('.tooltip').remove() # Fix for tooltips that outstay their welcome
 
         acceptTag: (e) ->
-            tag = $(e.target).siblings('.tag-text').text()
+            console.log "Accepting", e
+            tag = $(e.target).closest('.label').find('.tag-text').text()
             $('.tooltip').remove() # Fix for tooltips that outstay their welcome
             @suggestedTags.remove(tag)
             @tags.add(tag)
@@ -1117,7 +1143,9 @@ scope "intermine.query.actions", (exporting) ->
                         <span class="label label-warning">
                             <i class="icon-tag icon-white"></i>
                             <span class="tag-text">#{ t.escape "item" }</span>
-                            <i class="icon-remove-circle icon-white remove-tag"></i>
+                            <a href="#">
+                                <i class="icon-remove-circle icon-white remove-tag"></i>
+                            </a>
                         </span>
                     </li>
                 """
@@ -1132,7 +1160,9 @@ scope "intermine.query.actions", (exporting) ->
                         <span class="label">
                             <i class="icon-tag icon-white"></i>
                             <span class="tag-text">#{ t.escape "item" }</span>
-                            <i class="icon-ok-circle icon-white accept-tag"></i>
+                            <a href="#" class="accept-tag">
+                                <i class="icon-ok-circle icon-white"></i>
+                            </a>
                         </span>
                     </li>
                 """
