@@ -133,7 +133,7 @@ $(function() {
     var display = $('#table-display');
     var tableProps = {
         pageSize: 10,
-        bar: getPageParam('bar', 'horizontal')
+        bar: getPageParam('bar', 'none')
     };
 
     var login = function(serviceArgs) {
@@ -184,7 +184,7 @@ $(function() {
                 query: query,
                 events: evts,
                 properties: {
-                    bar: getPageParam('bar', 'horizontal')
+                    bar: getPageParam('bar', 'none')
                 }
             });
         }

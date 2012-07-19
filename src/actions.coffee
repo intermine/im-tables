@@ -1003,7 +1003,7 @@ scope "intermine.query.actions", (exporting) ->
 
         newCommonType: (type) ->
             super(type)
-            text = "List of #{intermine.utils.pluralise(type)} (#{new Date()})"
+            text = "List of #{intermine.utils.pluralise(type)}"
             $target = @$ '.im-list-name'
             if @usingDefaultName
                 $target.val text
@@ -1032,6 +1032,11 @@ scope "intermine.query.actions", (exporting) ->
                     @suggestedTags.add "#{title} is a #{c.type}"
                 else
                     @suggestedTags.add "#{title} #{c.op} #{c.value or c.values}"
+
+            now = new Date()
+            @suggestedTags.add "month: #{now.getFullYear()}/#{now.getMonth() + 1}"
+            @suggestedTags.add "year: #{now.getFullYear()}"
+            @suggestedTags.add "day: #{now.getFullYear()}/#{now.getMonth() + 1}/#{now.getDate()}"
             @updateTagBox()
         
         events: _.extend({}, ListDialogue::events, {

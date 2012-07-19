@@ -52,14 +52,19 @@ scope "intermine.query",  (exporting) ->
             @removeConstraint()
             if @con.get('op') in intermine.Query.MULTIVALUE_OPS.concat(intermine.Query.NULL_OPS)
                 @con.unset('value')
-            if @con.get('op') in intermine.Query.ATTRIBUTE_OPS.concat(intermine.Query.NULL_OPS)
+            if @con.get('op') in intermine.Query.ATTRIBUTE_VALUE_OPS.concat(intermine.Query.NULL_OPS)
                 @con.unset('values')
-            @query.addConstraint @con.toJSON()
+
+            if (@con.get('op') in intermine.Query.MULTIVALUE_OPS) and @con.get('values').length is 0
+                # we remove one, so trigger that change.
+                @query.trigger "change:constraints"
+            else
+                @query.addConstraint @con.toJSON()
             while (ta = @typeaheads.shift())
                 ta.remove()
 
-        removeConstraint: ->
-            @query.removeConstraint @orig
+        removeConstraint: (silently = true) ->
+            @query.removeConstraint @orig, silently
 
         addIcons: ($label) ->
             $label.append """<a href="#"><i class="icon-remove-sign"></i></a>"""
