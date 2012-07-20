@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Thu Jul 19 2012 13:31:05 GMT+0100 (BST)
+ * Built at Fri Jul 20 2012 17:37:59 GMT+0100 (BST)
 */
 
 
@@ -104,11 +104,13 @@
     Move: "icon-reorder",
     Filter: "icon-filter",
     Summary: "icon-bar-chart",
+    Undo: "icon-undo",
     Columns: "icon-table"
   });
 
   scope("intermine.options", {
-    GalaxyMain: "http://main.g2.bx.psu.edu"
+    GalaxyMain: "http://main.g2.bx.psu.edu",
+    ShowId: false
   });
 
   scope("intermine.query", function(exporting) {
@@ -473,7 +475,9 @@
         _ref = this.attributes;
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           apath = _ref[_i];
-          this.$el.append(new Attribute(this.query, apath, this.depth, this.evts, this.getDisabled, this.multiSelect).render().el);
+          if (intermine.options.ShowId || apath.end.name !== 'id') {
+            this.$el.append(new Attribute(this.query, apath, this.depth, this.evts, this.getDisabled, this.multiSelect).render().el);
+          }
         }
         this.$el.append(PathChooser.DIVIDER);
         _ref1 = this.references;
@@ -858,7 +862,8 @@
 
       Trail.prototype.events = {
         'click a.details': 'minumaximise',
-        'click a.shade': 'toggle'
+        'click a.shade': 'toggle',
+        'click a.im-undo': 'undo'
       };
 
       Trail.prototype.toggle = function() {
@@ -879,12 +884,14 @@
         this.query.on('count:is', function(count) {
           return _this.states.last().trigger('got:count', count);
         });
-        return this.query.on('undo', function() {
-          var newState;
-          _this.states.remove(_this.states.last());
-          newState = _this.states.last();
-          return newState.trigger('revert', newState);
-        });
+        return this.query.on('undo', this.undo, this);
+      };
+
+      Trail.prototype.undo = function() {
+        var newState;
+        this.states.remove(this.states.last());
+        newState = this.states.last();
+        return newState.trigger('revert', newState);
       };
 
       Trail.prototype.initialize = function(query, display) {
@@ -931,7 +938,7 @@
       };
 
       Trail.prototype.render = function() {
-        this.$el.append("<div class=\"btn-group\">\n  <a class=\"btn dropdown-toggle\" data-toggle=\"dropdown\" href=\"#\">\n    <span class=\"im-trail-summary\"></span>\n    <span class=\"caret\"></span>\n  </a>\n  <ul class=\"dropdown-menu im-state-list\">\n  </ul>\n</div>\n<div style=\"clear:both\"></div>");
+        this.$el.append("<div class=\"btn-group\">\n  <a class=\"btn im-undo\" href=\"#\">\n    <i class=\"" + intermine.icons.Undo + "\"></i>\n    Undo\n  </a>\n  <a class=\"btn dropdown-toggle\" data-toggle=\"dropdown\" href=\"#\">\n    <span class=\"caret\"></span>\n  </a>\n  <ul class=\"dropdown-menu im-state-list\">\n  </ul>\n</div>\n<div style=\"clear:both\"></div>");
         this.addStep('Original State')();
         return this;
       };
@@ -955,7 +962,7 @@
   });
 
   scope('intermine.messages.query', {
-    CountSummary: _.template("<span class=\"im-only-widescreen\">Showing</span>\n<span>\n  <% if (last == 0) { %>\n      All\n  <% } else { %>\n      <%= first %> to <%= last %> of\n  <% } %>\n  <%= count %> <%= roots %>\n</span>")
+    CountSummary: _.template("<span class=\"hidden-phone\">\n <span class=\"im-only-widescreen\">Showing</span>\n <span>\n   <% if (last == 0) { %>\n       All\n   <% } else { %>\n       <%= first %> to <%= last %> of\n   <% } %>\n   <%= count %> <span class=\"visible-desktop\"><%= roots %></span>\n </span>\n</span>")
   });
 
   scope("intermine.query.results", function(exporting) {
@@ -1160,7 +1167,7 @@
       };
 
       ResultsTable.prototype.columnHeaderTempl = function(ctx) {
-        return _.template("<th>\n    <div class=\"navbar\">\n        <div class=\"im-th-buttons\">\n            <% if (sortable) { %>\n                <div class=\"im-th-button im-col-sort-indicator\" title=\"sort this column\">\n                    <i class=\"icon-sorting " + intermine.css.unsorted + " " + intermine.css.headerIcon + "\"></i>\n                </div>\n            <% }; %>\n            <div class=\"im-th-button im-col-remover\" title=\"remove this column\" data-view=\"<%= view %>\">\n                <i class=\"" + intermine.css.headerIconRemove + " " + intermine.css.headerIcon + "\"></i>\n            </div>\n            <div class=\"im-th-button im-col-minumaximiser\" title=\"Hide column\" data-col-idx=\"<%= i %>\">\n                <i class=\"" + intermine.css.headerIconHide + " " + intermine.css.headerIcon + "\"></i>\n            </div>\n            <div class=\"dropdown im-filter-summary\">\n                <div class=\"im-th-button im-col-filters dropdown-toggle\"\n                     title=\"Filter by values in this column\"\n                     data-toggle=\"dropdown\" data-col-idx=\"<%= i %>\" >\n                    <i class=\"" + intermine.icons.Filter + " " + intermine.css.headerIcon + "\"></i>\n                </div>\n                <div class=\"dropdown-menu\">\n                    <div>Could not ititialise the filter summary.</div>\n                </div>\n            </div>\n            <div class=\"dropdown im-summary\">\n                <div class=\"im-th-button summary-img dropdown-toggle\" title=\"column summary\"\n                    data-toggle=\"dropdown\" data-col-idx=\"<%= i %>\" >\n                    <i class=\"" + intermine.icons.Summary + " " + intermine.css.headerIcon + "\"></i>\n                </div>\n                <div class=\"dropdown-menu\">\n                    <div>Could not ititialise the column summary.</div>\n                </div>\n            </div>\n        </div>\n        <span class=\"im-col-title\">\n            <% _.each(titleParts, function(part, idx) { %>\n                <span class=\"im-title-part\"><%- part %></span>\n            <% }); %>\n        </span>\n    </div>\n</th>", ctx);
+        return _.template(" \n<th>\n    <div class=\"navbar\">\n        <div class=\"im-th-buttons\">\n            <% if (sortable) { %>\n                <a href=\"#\" class=\"im-th-button im-col-sort-indicator\" title=\"sort this column\">\n                    <i class=\"icon-sorting " + intermine.css.unsorted + " " + intermine.css.headerIcon + "\"></i>\n                </a>\n            <% }; %>\n            <a href=\"#\" class=\"im-th-button im-col-remover\" title=\"remove this column\" data-view=\"<%= view %>\">\n                <i class=\"" + intermine.css.headerIconRemove + " " + intermine.css.headerIcon + "\"></i>\n            </a>\n            <a href=\"#\" class=\"im-th-button im-col-minumaximiser\" title=\"Toggle column\" data-col-idx=\"<%= i %>\">\n                <i class=\"" + intermine.css.headerIconHide + " " + intermine.css.headerIcon + "\"></i>\n            </a>\n            <div class=\"dropdown im-filter-summary\">\n                <a href=\"#\" class=\"im-th-button im-col-filters dropdown-toggle\"\n                     title=\"Filter by values in this column\"\n                     data-toggle=\"dropdown\" data-col-idx=\"<%= i %>\" >\n                    <i class=\"" + intermine.icons.Filter + " " + intermine.css.headerIcon + "\"></i>\n                </a>\n                <div class=\"dropdown-menu\">\n                    <div>Could not ititialise the filter summary.</div>\n                </div>\n            </div>\n            <div class=\"dropdown im-summary\">\n                <a href=\"#\" class=\"im-th-button summary-img dropdown-toggle\" title=\"column summary\"\n                    data-toggle=\"dropdown\" data-col-idx=\"<%= i %>\" >\n                    <i class=\"" + intermine.icons.Summary + " " + intermine.css.headerIcon + "\"></i>\n                </a>\n                <div class=\"dropdown-menu\">\n                    <div>Could not ititialise the column summary.</div>\n                </div>\n            </div>\n        </div>\n        <span class=\"im-col-title\">\n            <% _.each(titleParts, function(part, idx) { %>\n                <span class=\"im-title-part\"><%- part %></span>\n            <% }); %>\n        </span>\n    </div>\n</th>", ctx);
       };
 
       ResultsTable.prototype.buildColumnHeader = function(view, i, title, tr) {
@@ -1232,7 +1239,7 @@
           return th.find('.summary-img').click(this.showColumnSummary(path)).dropdown();
         } else {
           th.find('.summary-img').click(this.showOuterJoinedColumnSummaries(path)).dropdown();
-          expandAll = $("<div class=\"im-th-button\" title=\"Expand/Collapse all subtables\">\n    <i class=\"icon-table icon-white\"></i>\n</div>");
+          expandAll = $("<a href=\"#\" class=\"im-th-button\" title=\"Expand/Collapse all subtables\">\n    <i class=\"icon-table icon-white\"></i>\n</a>");
           expandAll.tooltip({
             placement: 'left'
           });
@@ -1452,7 +1459,7 @@
         'click .im-pagination-button': 'pageButtonClick'
       };
 
-      Table.prototype.paginationTempl = _.template("<div class=\"pagination pagination-right\">\n    <ul>\n        <li title=\"Go to start\">\n            <a class=\"im-pagination-button\" data-goto=start>&#x21e4;</a>\n        </li>\n        <li title=\"Go back five pages\">\n            <a class=\"im-pagination-button\" data-goto=fast-rewind>&#x219e;</a>\n        </li>\n        <li title=\"Go to previous page\">\n            <a class=\"im-pagination-button\" data-goto=prev>&larr;</a>\n        </li>\n        <li class=\"im-current-page\">\n            <a data-goto=here  href=\"#\">&hellip;</a>\n            <form class=\"im-page-form input-append form form-horizontal\" style=\"display:none;\">\n            <div class=\"control-group\"></div>\n        </form>\n        </li>\n        <li title=\"Go to next page\">\n            <a class=\"im-pagination-button\" data-goto=next>&rarr;</a>\n        </li>\n        <li title=\"Go forward five pages\">\n            <a class=\"im-pagination-button\" data-goto=fast-forward>&#x21a0;</a>\n        </li>\n        <li title=\"Go to last page\">\n            <a class=\"im-pagination-button\" data-goto=end>&#x21e5;</a>\n        </li>\n    </ul>\n</div>");
+      Table.prototype.paginationTempl = _.template("<div class=\"pagination pagination-right\">\n    <ul>\n        <li title=\"Go to start\">\n            <a class=\"im-pagination-button\" data-goto=start>&#x21e4;</a>\n        </li>\n        <li title=\"Go back five pages\" class=\"visible-desktop\">\n            <a class=\"im-pagination-button\" data-goto=fast-rewind>&#x219e;</a>\n        </li>\n        <li title=\"Go to previous page\">\n            <a class=\"im-pagination-button\" data-goto=prev>&larr;</a>\n        </li>\n        <li class=\"im-current-page\">\n            <a data-goto=here  href=\"#\">&hellip;</a>\n            <form class=\"im-page-form input-append form form-horizontal\" style=\"display:none;\">\n            <div class=\"control-group\"></div>\n        </form>\n        </li>\n        <li title=\"Go to next page\">\n            <a class=\"im-pagination-button\" data-goto=next>&rarr;</a>\n        </li>\n        <li title=\"Go forward five pages\" class=\"visible-desktop\">\n            <a class=\"im-pagination-button\" data-goto=fast-forward>&#x21a0;</a>\n        </li>\n        <li title=\"Go to last page\">\n            <a class=\"im-pagination-button\" data-goto=end>&#x21e5;</a>\n        </li>\n    </ul>\n</div>");
 
       Table.prototype.reallyDialogue = "<div class=\"modal fade\">\n    <div class=\"modal-header\">\n        <h3>\n            Are you sure?\n        </h3>\n    </div>\n    <div class=\"modal-body\">\n        <p>\n            You have requested a very large table size. Your\n            browser may struggle to render such a large table,\n            and the page will probably become unresponsive. It\n            will be very difficult for you to read the whole table\n            in the page. We suggest the following alternatives:\n        </p>\n        <ul>\n            <li>\n                <p>\n                    If you are looking for something specific, you can use the\n                    <span class=\"label label-info\">filtering tools</span>\n                    to narrow down the result set. Then you \n                    might be able to fit the items you are interested in in a\n                    single page.\n                </p>\n                <button class=\"btn im-alternative-action\" data-event=\"add-filter-dialogue:please\">\n                    Add a new filter.\n                </button>\n            </li>\n            <li>\n                <p>\n                    If you want to see all the data, you can page \n                    <span class=\"label label-info\">backwards</span>\n                    and \n                    <span class=\"label label-info\">forwards</span>\n                    through the results.\n                </p>\n                <div class=\"btn-group\">\n                    <a class=\"btn im-alternative-action\" data-event=\"page:backwards\" href=\"#\">back</a>\n                    <a class=\"btn im-alternative-action\" data-event=\"page:forwards\" href=\"#\">forward</a>\n                </div>\n            </li>\n            <li>\n                <p>\n                    If you want to get and save the results, we suggest\n                    <span class=\"label label-info\">downloading</span>\n                    the results in a format that suits you. \n                <p>\n                <button class=\"btn im-alternative-action\" data-event=\"download-menu:open\">\n                    Open the download menu.\n                </buttn>\n            </li>\n        </ul>\n    </div>\n    <div class=\"modal-footer\">\n        <button class=\"btn btn-primary pull-right\">\n            I know what I'm doing.\n        </button>\n        <button class=\"btn pull-left im-alternative-action\">\n            OK, no worries then.\n        </button>\n    </div>\n</div>";
 
@@ -1608,8 +1615,11 @@
         if (isStale || isOutOfRange) {
           page = this.getPage(start, size);
           this.overlayTable();
-          req = this.query[this.fetchMethod](page, function(rows, resultSet) {
-            _this.addRowsToCache(page, resultSet);
+          req = this.query[this.fetchMethod]({
+            start: page.start,
+            size: page.size
+          }, function(rows, rs) {
+            _this.addRowsToCache(page, rs);
             return _this.cache.freshness = freshness;
           });
           req.fail(this.showError);
@@ -2698,6 +2708,12 @@
     })(SingleColumnConstraints));
   });
 
+  scope('intermine.snippets.actions', {
+    DownloadDialogue: function() {
+      return "<a class=\"btn im-open-dialogue\" href=\"#\">\n    <i class=\"" + intermine.icons.Export + "\"></i>\n    " + intermine.messages.actions.ExportButton + "\n</a>\n<div class=\"modal fade\">\n    <div class=\"modal-header\">\n        <a class=\"close btn-cancel\">close</a>\n        <h2>" + intermine.messages.actions.ExportTitle + "</h2>\n    </div>\n    <div class=\"modal-body\">\n        <form class=\"form\">\n            <div class=\"row-fluid\">\n            <label>\n                <span class=\"span4\">\n                    " + intermine.messages.actions.ExportFormat + "\n                </span>\n                <select class=\"im-export-format input-xlarge span8\">\n                </select>\n            </label>\n            </div>\n            <div class=\"row-fluid\">\n            <label title=\"" + intermine.messages.actions.ColumnsHelp + "\">\n                <span class=\"span4\">\n                    " + intermine.messages.actions.WhichColumns + "\n                </span>\n                <div class=\"im-col-btns radio btn-group pull-right span8\">\n                    <button class=\"btn active im-all-cols span5\">\n                        " + intermine.messages.actions.AllColumns + "\n                    </button>\n                    <button class=\"btn span5\">\n                        " + intermine.messages.actions.SomeColumns + "\n                    </button>\n                </div>\n            </label>\n            <div class=\"im-col-options\">\n                <ul class=\"well im-cols im-can-be-exported-cols\">\n                    <h4>" + intermine.messages.actions.PossibleColumns + "</h4>\n                </ul>\n                <ul class=\"well im-cols im-exported-cols\">\n                    <h4>" + intermine.messages.actions.ExportedColumns + "</h4>\n                </ul>\n                <div style=\"clear:both;\"></div>\n                <div class=\"alert alert-info\">\n                    <button class=\"close\" data-dismiss=\"alert\">×</button>\n                    <strong>ps</strong>\n                    <p>" + intermine.messages.actions.ChangeColumns + "</p>\n                </div>\n            </div>\n            </div>\n            <div class=\"row-fluid\">\n            <label title=\"" + intermine.messages.actions.RowsHelp + "\">\n                <span class=\"span4\">\n                    " + intermine.messages.actions.WhichRows + "\n                    </span>\n                <div class=\"im-row-btns radio span8 btn-group pull-right\" data-toggle=\"buttons-radio\">\n                    <button class=\"btn active im-all-rows span5\">" + intermine.messages.actions.AllRows + "</button>\n                    <button class=\"btn span5\">" + intermine.messages.actions.SomeRows + "</button>\n                </div>\n            </label>\n            <div class=\"form-horizontal\">\n            <fieldset class=\"im-row-selection control-group\">\n                <label class=\"control-label\">\n                    " + intermine.messages.actions.FirstRow + "\n                    <input type=\"text\" value=\"1\" class=\"disabled input-mini im-first-row im-range-limit\">\n                </label>\n                <label class=\"control-label\">\n                    " + intermine.messages.actions.LastRow + "\n                    <input type=\"text\" class=\"disabled input-mini im-last-row im-range-limit\">\n                </label>\n                <div style=\"clear:both\"></div>\n                <div class=\"slider im-row-range-slider\"></div>\n            </fieldset>\n            </div>\n            </div>\n            <div class=\"row-fluid\">\n            <fieldset class=\"im-export-options control-group\">\n            </fieldset>\n            </div>\n        </form>\n    </div>\n    <div class=\"modal-footer\">\n        <button class=\"btn btn-primary pull-right\" title=\"" + intermine.messages.actions.ExportHelp + "\">\n            " + intermine.messages.actions.Export + "\n        </button>\n        <div class=\"btn-group btn-alt pull-right\">\n            <a href=\"#\" class=\"btn btn-galaxy\" title=\"" + intermine.messages.actions.GalaxyHelp + "\">\n                " + intermine.messages.actions.SendToGalaxy + "\n            </a>\n            <a href=\"#\" title=\"" + intermine.messages.actions.GalaxyAlt + "\" \n                class=\"btn dropdown-toggle galaxy-toggle\" data-toggle=\"dropdown\">\n                <span class=\"caret\"></span>\n            </a>\n        </div>\n        <button class=\"btn btn-cancel pull-left\">\n            " + intermine.messages.actions.Cancel + "\n        </button>\n        <form class=\"well form-inline im-galaxy-options\">\n            <label>\n                " + intermine.messages.actions.GalaxyURILabel + "\n                <input type=\"text\" class=\"im-galaxy-uri input-xlarge\" \n                    value=\"" + intermine.options.GalaxyMain + "\">\n            </label>\n            <button type=\"submit\" class=\"btn\">\n                " + intermine.messages.actions.SendToOtherGalaxy + "\n            </button>\n            <div class=\"alert alert-info\">\n                <button class=\"close\" data-dismiss=\"alert\">×</button>\n                <strong>ps</strong>\n                " + intermine.messages.actions.GalaxyAuthExplanation + "\n            </div>\n        </form>\n    </div>\n</div>";
+    }
+  });
+
   scope("intermine.query.columns", function(exporting) {
     var ATTR_HTML, Columns, CurrentColumns, JOIN_TOGGLE_HTML, Selectable;
     exporting(Columns = (function(_super) {
@@ -2899,15 +2915,19 @@
     GalaxyAlt: "Send to a Different Galaxy",
     GalaxyAuthExplanation: "If you have already logged into Galaxy with this browser, then the data\nwill be sent into your active account. Otherwise it will appear in a \ntemporary anonymous account.",
     SendToOtherGalaxy: "Send",
-    AllRows: "All Rows in Result Set",
-    RowsHelp: "Uncheck this box to select a range of rows from the result set",
-    AllColumns: "All columns on table",
-    ColumnsHelp: "Uncheck this box to select different columns for export than those in the table",
+    AllRows: "Whole Result Set",
+    SomeRows: "Specific Range",
+    WhichRows: "Rows to Export",
+    RowsHelp: "Export all rows, or define a range of rows to export.",
+    AllColumns: "Columns On Table",
+    SomeColumns: "Specific Columns",
+    ColumnsHelp: "Export all columns, or choose specific columns to export.",
+    WhichColumns: "Columns to Export",
     FirstRow: "From",
     LastRow: "To",
     ColumnHeaders: "Include Column Headers",
-    PossibleColumns: "Columns You Can Add",
-    ExportedColumns: "Columns To Export",
+    PossibleColumns: "Columns Available to Export",
+    ExportedColumns: "Exported Columns (drag to reorder)",
     ChangeColumns: "You may add any of the columns in the right hand box by clicking on the\nplus sign. You may remove unwanted columns by clicking on the minus signs\nin the left hand box. Note that while adding these columns will not alter your query,\nif you remove all the attributes from an item, then you <b>may change</b> the results\nyou receive.",
     OuterJoinWarning: "This query has outer-joined collections. This means that the number of rows in \nthe table is likely to be different from the number of rows in the exported results.\n<b>You are strongly discouraged from specifying specific ranges for export</b>. If\nyou do specify a certain range, please check that you did in fact get all the \nresults you wanted.",
     IncludedFeatures: "Sequence Features in this Query - <strong>choose at least one</strong>:",
@@ -3211,17 +3231,29 @@
       ExportDialogue.prototype.className = "im-export-dialogue dropdown";
 
       ExportDialogue.prototype.initialize = function(query) {
-        var v, _i, _len, _ref,
+        var allOrSome, v, _i, _len, _ref,
           _this = this;
         this.query = query;
         this.requestInfo = new Backbone.Model({
-          format: 'tab',
+          format: EXPORT_FORMATS[0].extension,
           allRows: true,
           allCols: true,
           start: 0,
           galaxyMain: intermine.options.GalaxyMain,
-          galaxyAlt: intermine.options.GalaxyMain
+          galaxyAlt: intermine.options.GalaxyAlt || intermine.options.GalaxyMain
         });
+        allOrSome = function(all, optSel, btnSel) {
+          var btns, opts;
+          opts = _this.$(optSel);
+          btns = _this.$(btnSel).removeClass('active');
+          if (all) {
+            opts.fadeOut();
+            return btns.first().addClass('active');
+          } else {
+            opts.fadeIn();
+            return btns.last().addClass('active');
+          }
+        };
         this.exportedCols = new Backbone.Collection;
         this.query.on('download-menu:open', this.openDialogue, this);
         this.query.on('imtable:change:page', function(start, size) {
@@ -3238,16 +3270,10 @@
           });
         }
         this.requestInfo.on('change:allRows', function(m, allRows) {
-          _this.$('.im-row-selection').toggle(!allRows);
-          return _this.$('.im-all-rows').attr({
-            checked: allRows
-          });
+          return allOrSome(allRows, '.im-row-selection', '.im-row-btns .btn');
         });
         this.requestInfo.on('change:allCols', function(m, allCols) {
-          _this.$('.im-col-options').toggle(!allCols);
-          return _this.$('.im-all-cols').attr({
-            checked: allCols
-          });
+          return allOrSome(allCols, '.im-col-options', '.im-col-btns .btn');
         });
         this.requestInfo.on('change:format', this.updateFormatOptions);
         this.requestInfo.on('change:start', function(m, start) {
@@ -3257,7 +3283,7 @@
           if (newVal !== $elem.val()) {
             $elem.val(newVal);
           }
-          return _this.$('.im-row-range-slider').slider('option', 'values', [start + 1, m.get('end')]);
+          return _this.$('.im-row-range-slider').slider('option', 'values', [start, m.get('end') - 1]);
         });
         this.requestInfo.on('change:end', function(m, end) {
           var $elem, newVal;
@@ -3266,16 +3292,17 @@
           if (newVal !== $elem.val()) {
             $elem.val(newVal);
           }
-          return _this.$('.im-row-range-slider').slider('option', 'values', [m.get('start') + 1, end]);
+          return _this.$('.im-row-range-slider').slider('option', 'values', [m.get('start'), end - 1]);
+        });
+        this.requestInfo.on("change:format", function(m, format) {
+          return _this.$('.im-export-format').val(format);
         });
         return this.exportedCols.on('add remove reset', this.initCols);
       };
 
-      ExportDialogue.prototype.html = "<a class=\"btn im-open-dialogue\" href=\"#\">\n    <i class=\"" + intermine.icons.Export + "\"></i>\n    " + intermine.messages.actions.ExportButton + "\n</a>\n<div class=\"modal fade\">\n    <div class=\"modal-header\">\n        <a class=\"close btn-cancel\">close</a>\n        <h2>" + intermine.messages.actions.ExportTitle + "</h2>\n    </div>\n    <div class=\"modal-body\">\n        <form class=\"form row-fluid\">\n            <label>\n                <span class=\"span4\">\n                    " + intermine.messages.actions.ExportFormat + "\n                </span>\n                <select class=\"im-export-format input-xlarge span8\">\n                </select>\n            </label>\n            <label title=\"" + intermine.messages.actions.ColumnsHelp + "\">\n                <span class=\"span4\">\n                    " + intermine.messages.actions.AllColumns + "\n                </span>\n                <input type=\"checkbox\" checked class=\"im-all-cols span8\">\n            </label>\n            <div class=\"im-col-options\">\n                <ul class=\"well im-cols im-can-be-exported-cols\">\n                    <h4>" + intermine.messages.actions.PossibleColumns + "</h4>\n                </ul>\n                <ul class=\"well im-cols im-exported-cols\">\n                    <h4>" + intermine.messages.actions.ExportedColumns + "</h4>\n                </ul>\n                <div style=\"clear:both;\"></div>\n                <div class=\"alert alert-info\">\n                    <button class=\"close\" data-dismiss=\"alert\">×</button>\n                    <strong>ps</strong>\n                    <p>" + intermine.messages.actions.ChangeColumns + "</p>\n                </div>\n            </div>\n            <label title=\"" + intermine.messages.actions.RowsHelp + "\">\n                <span class=\"span4\">\n                    " + intermine.messages.actions.AllRows + "\n                 </span>\n                <input type=\"checkbox\" checked class=\"im-all-rows span8\">\n            </label>\n            <div class=\"form-horizontal\">\n            <fieldset class=\"im-row-selection control-group\">\n                <label class=\"control-label\">\n                    " + intermine.messages.actions.FirstRow + "\n                    <input type=\"text\" value=\"1\" class=\"disabled input-mini im-first-row im-range-limit\">\n                </label>\n                <label class=\"control-label\">\n                    " + intermine.messages.actions.LastRow + "\n                    <input type=\"text\" class=\"disabled input-mini im-last-row im-range-limit\">\n                </label>\n                <div style=\"clear:both\"></div>\n                <div class=\"slider im-row-range-slider\"></div>\n            </fieldset>\n            </div>\n            <fieldset class=\"im-export-options control-group\">\n            </fieldset>\n        </form>\n    </div>\n    <div class=\"modal-footer\">\n        <button class=\"btn btn-primary pull-right\" title=\"" + intermine.messages.actions.ExportHelp + "\">\n            " + intermine.messages.actions.Export + "\n        </button>\n        <div class=\"btn-group btn-alt pull-right\">\n            <a href=\"#\" class=\"btn btn-galaxy\" title=\"" + intermine.messages.actions.GalaxyHelp + "\">\n                " + intermine.messages.actions.SendToGalaxy + "\n            </a>\n            <a href=\"#\" title=\"" + intermine.messages.actions.GalaxyAlt + "\" \n                class=\"btn dropdown-toggle galaxy-toggle\" data-toggle=\"dropdown\">\n                <span class=\"caret\"></span>\n            </a>\n        </div>\n        <button class=\"btn btn-cancel pull-left\">\n            " + intermine.messages.actions.Cancel + "\n        </button>\n        <form class=\"well form-inline im-galaxy-options\">\n            <label>\n                " + intermine.messages.actions.GalaxyURILabel + "\n                <input type=\"text\" class=\"im-galaxy-uri input-xlarge\" \n                    value=\"" + intermine.options.GalaxyMain + "\">\n            </label>\n            <button type=\"submit\" class=\"btn\">\n                " + intermine.messages.actions.SendToOtherGalaxy + "\n            </button>\n            <div class=\"alert alert-info\">\n                <button class=\"close\" data-dismiss=\"alert\">×</button>\n                <strong>ps</strong>\n                " + intermine.messages.actions.GalaxyAuthExplanation + "\n            </div>\n        </form>\n    </div>\n</div>";
-
       ExportDialogue.prototype.events = {
-        'change .im-all-cols': 'toggleColSelection',
-        'change .im-all-rows': 'toggleRowSelection',
+        'click .im-col-btns': 'toggleColSelection',
+        'click .im-row-btns': 'toggleRowSelection',
         'click a.im-open-dialogue': 'openDialogue',
         'click .btn-cancel': 'stop',
         'change .im-export-format': 'updateFormat',
@@ -3445,15 +3472,17 @@
       };
 
       ExportDialogue.prototype.toggleColSelection = function(e) {
-        return this.requestInfo.set({
-          allCols: this.$('.im-all-cols').is(':checked')
+        this.requestInfo.set({
+          allCols: !this.requestInfo.get('allCols')
         });
+        return false;
       };
 
       ExportDialogue.prototype.toggleRowSelection = function(e) {
-        return this.requestInfo.set({
-          allRows: this.$('.im-all-rows').is(':checked')
+        this.requestInfo.set({
+          allRows: !this.requestInfo.get('allRows')
         });
+        return false;
       };
 
       ExportDialogue.prototype.openDialogue = function(e) {
@@ -3509,11 +3538,11 @@
         switch (format) {
           case 'tab':
           case 'csv':
-            opts.append("<label>\n    <span class=\"span4\">\n        " + intermine.messages.actions.ColumnHeaders + "\n    </span>\n    <input type=\"checkbox\" class=\"im-column-headers span8\">\n</label>");
-            return opts.find('.im-column-headers').attr({
-              checked: !!requestInfo.get('columnHeaders')
-            }).change(function(e) {
-              return requestInfo.set('columnHeaders', $(this).is(':checked'));
+            opts.append("<label>\n    <span class=\"span4\">\n        " + intermine.messages.actions.ColumnHeaders + "\n    </span>\n    <span class=\"span8\">\n        <input type=\"checkbox\" class=\"im-column-headers pull-right\">\n    </span>\n</label>");
+            return opts.find('.im-column-headers').toggleClass('active', !!requestInfo.get('columnHeaders')).click(function(e) {
+              var btn;
+              btn = $(this);
+              return requestInfo.set('columnHeaders', btn.is('.active'));
             });
           case 'bed':
             chrPref = $("<label>\n    <span class=\"span4\">\n        " + intermine.messages.actions.ChrPrefix + "\n    </span>\n    <input type=\"checkbox\" class=\"span8\">\n    <div style=\"clear:both\"></div>\n</label>");
@@ -3546,7 +3575,7 @@
           path = col.get('path');
           li = $('<li>');
           path.getDisplayName(function(name) {
-            li.append("<span class=\"label " + (col.get('included') ? 'label-success' : '') + "\">\n    <a href=\"#\">\n        <i class=\"" + (col.get('included') ? intermine.icons.Yes : intermine.icons.No) + "\"></i>\n        " + name + "\n    </a>\n</span>");
+            li.append("<span class=\"label " + (col.get('included') ? 'label-included' : 'label-available') + "\">\n    <a href=\"#\">\n        <i class=\"" + (col.get('included') ? intermine.icons.Yes : intermine.icons.No) + "\"></i>\n        " + name + "\n    </a>\n</span>");
             return li.find('a').click(function() {
               _this.fastaFeatures.each(function(other) {
                 return other.set({
@@ -3560,7 +3589,7 @@
           });
           col.on('change:included', function() {
             li.find('i').toggleClass("" + intermine.icons.Yes + " " + intermine.icons.No);
-            return li.find('span').toggleClass("label-success");
+            return li.find('span').toggleClass("label-success label-available");
           });
           return li.appendTo(seqFeatCols);
         });
@@ -3595,7 +3624,7 @@
           path = col.get('path');
           li = $('<li>');
           path.getDisplayName(function(name) {
-            li.append("<span class=\"label label-success\">\n    <a href=\"#\">\n        <i class=\"" + (col.get('included') ? intermine.icons.Yes : intermine.icons.No) + "\"></i>\n        " + name + "\n    </a>\n</span>");
+            li.append("<span class=\"label label-included\">\n    <a href=\"#\">\n        <i class=\"" + (col.get('included') ? intermine.icons.Yes : intermine.icons.No) + "\"></i>\n        " + name + "\n    </a>\n</span>");
             return li.find('a').click(function() {
               return col.set({
                 included: !col.get('included')
@@ -3605,7 +3634,7 @@
           col.on('change:included', function() {
             console.log("Changed");
             li.find('i').toggleClass("" + intermine.icons.Yes + " " + intermine.icons.No);
-            return li.find('span').toggleClass("label-success label-default");
+            return li.find('span').toggleClass("label-included label-available");
           });
           return li.appendTo(seqFeatCols);
         });
@@ -3652,7 +3681,7 @@
             col: col
           }).appendTo(cols);
           return path.getDisplayName(function(name) {
-            li.append("<div class=\"label label-success\">\n    <i class=\"" + intermine.icons.Move + " im-move pull-right\"></i>\n    <a href=\"#\"><i class=\"" + intermine.icons.Remove + "\"></i></a>\n    " + name + "\n</div>");
+            li.append("<div class=\"label label-included\">\n    <i class=\"" + intermine.icons.Move + " im-move pull-right\"></i>\n    <a href=\"#\"><i class=\"" + intermine.icons.Remove + "\"></i></a>\n    " + name + "\n</div>");
             return li.find('a').click(function() {
               _this.exportedCols.remove(col);
               return emphasise(maybes);
@@ -3691,7 +3720,7 @@
               li.appendTo(maybes);
               _results1.push((function(cn, li) {
                 return cn.getDisplayName(function(name) {
-                  li.append("<div class=\"label\">\n    <a href=\"#\"><i class=\"" + intermine.icons.Add + "\"></i></a>\n    " + name + "\n</div>");
+                  li.append("<div class=\"label label-available\">\n    <a href=\"#\"><i class=\"" + intermine.icons.Add + "\"></i></a>\n    " + name + "\n</div>");
                   return li.find('a').click(function(e) {
                     _this.exportedCols.add({
                       path: cn
@@ -3717,7 +3746,7 @@
       };
 
       ExportDialogue.prototype.initFormats = function() {
-        var format, formatToOpt, select, _i, _j, _len, _len1, _results;
+        var format, formatToOpt, select, _i, _j, _len, _len1;
         select = this.$('.im-export-format');
         formatToOpt = function(format) {
           return "<option value=\"" + format.extension + "\">\n    " + format.name + "\n</option>";
@@ -3727,21 +3756,19 @@
           select.append(formatToOpt(format));
         }
         if (intermine.utils.modelIsBio(this.query.service.model)) {
-          _results = [];
           for (_j = 0, _len1 = BIO_FORMATS.length; _j < _len1; _j++) {
             format = BIO_FORMATS[_j];
-            _results.push(select.append(formatToOpt(format)));
+            select.append(formatToOpt(format));
           }
-          return _results;
         }
+        return select.val(this.requestInfo.get('format'));
       };
 
       ExportDialogue.prototype.render = function() {
-        this.$el.append(this.html);
+        this.$el.append(intermine.snippets.actions.DownloadDialogue());
         this.$('.modal-footer .btn').tooltip();
         this.initFormats();
         this.initCols();
-        this.toggleColSelection();
         this.updateFormatOptions();
         this.warnOfOuterJoinedCollections();
         this.makeSlider();
@@ -3757,20 +3784,19 @@
           _this.requestInfo.set({
             end: c
           });
-          sl = _this.$('.slider').slider({
+          return sl = _this.$('.slider').slider({
             range: true,
             min: 0,
-            max: c,
-            values: [1, c],
+            max: c - 1,
+            values: [0, c - 1],
             step: 1,
             slide: function(e, ui) {
               return _this.requestInfo.set({
                 start: ui.values[0],
-                end: ui.values[1]
+                end: ui.values[1] + 1
               });
             }
           });
-          return _this.toggleRowSelection();
         });
       };
 
@@ -4121,10 +4147,12 @@
       };
 
       ListCreator.prototype.newCommonType = function(type) {
-        var $target, copyNo, text, textBase,
+        var $target, copyNo, dateStr, now, text, textBase,
           _this = this;
         ListCreator.__super__.newCommonType.call(this, type);
-        text = "List of " + (intermine.utils.pluralise(type));
+        now = new Date();
+        dateStr = ("" + now).replace(/\s\d\d:\d\d:\d\d\s.*$/, '');
+        text = "" + type + " list " + dateStr;
         $target = this.$('.im-list-name');
         if (this.usingDefaultName) {
           copyNo = 1;
@@ -4136,7 +4164,6 @@
             });
             for (_i = 0, _len = _ref.length; _i < _len; _i++) {
               l = _ref[_i];
-              console.log(l.name);
               if (l.name === text) {
                 text = "" + textBase + " (" + (copyNo++) + ")";
               }
@@ -5248,23 +5275,25 @@
 
       OuterJoinGroup.prototype.className = 'im-reorderable breadcrumb';
 
-      OuterJoinGroup.prototype.initialize = function(query, ojg, views, indices) {
+      OuterJoinGroup.prototype.initialize = function(query, newView) {
         var paths, v;
         this.query = query;
-        this.ojg = ojg;
-        this.indices = indices;
+        this.newView = newView;
+        this.ojg = this.newView.get('path');
         paths = (function() {
-          var _i, _len, _results;
+          var _i, _len, _ref, _results;
+          _ref = this.newView.get('paths');
           _results = [];
-          for (_i = 0, _len = views.length; _i < _len; _i++) {
-            v = views[_i];
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            v = _ref[_i];
             _results.push(this.query.getPathInfo(v));
           }
           return _results;
         }).call(this);
-        return this.nodes = _.groupBy(paths, function(p) {
+        this.nodes = _.groupBy(paths, function(p) {
           return p.getParent().toString();
         });
+        return this.newView.on('destroy', this.remove, this);
       };
 
       OuterJoinGroup.prototype.getViews = function() {
@@ -5292,15 +5321,20 @@
       };
 
       OuterJoinGroup.prototype.render = function() {
-        var h4, key, ul, _fn, _i, _len, _ref,
+        var h4, key, rem, ul, _fn, _i, _len, _ref,
           _this = this;
         this.$el.append('<i class="icon-reorder pull-right"></i>');
+        this.$el.append("<a href=\"#\" class=\"pull-left im-col-remover\" title=\"Remove these columns\">\n    <i class=\"" + intermine.icons.Remove + "\"></i>\n</a>");
+        rem = this.$('.im-col-remover').tooltip().click(function(e) {
+          e.stopPropagation();
+          rem.tooltip('hide');
+          return _this.newView.destroy();
+        });
         h4 = $('<h4>');
         this.$el.append(h4);
         this.ojg.getDisplayName(function(name) {
           return h4.text(name);
         });
-        this.$el.data('indices', this.indices);
         this.$el.data('path', this.ojg.toString());
         ul = $('<ul>');
         _ref = _.sortBy(_.keys(this.nodes), function(k) {
@@ -5314,11 +5348,17 @@
             p = paths[_j];
             _results.push((function(p) {
               var li;
-              li = $('<li class="im-outer-joined-path">');
+              li = $("<li class=\"im-outer-joined-path\">\n    <a href=\"#\"><i class=\"" + intermine.icons.Remove + "\"></i></a>\n    <span></span>\n</li>");
               ul.append(li);
+              li.find('a').click(function(e) {
+                e.stopPropagation();
+                return _this.newView.set({
+                  paths: _.without(_this.newView.get('paths'), p.toString())
+                });
+              });
               return p.getDisplayName(function(name) {
                 return _this.ojg.getDisplayName(function(ojname) {
-                  return li.text(name.replace(ojname, '').replace(/^\s*>?\s*/, ''));
+                  return li.find('span').text(name.replace(ojname, '').replace(/^\s*>?\s*/, ''));
                 });
               });
             })(p));
@@ -5427,29 +5467,33 @@
       ColumnsDialogue.prototype.initialize = function(query) {
         var _this = this;
         this.query = query;
+        this.newView = new Backbone.Collection();
+        this.newView.on('add remove change', this.drawOrder, this);
+        this.newView.on('destroy', function(nv) {
+          return _this.newView.remove(nv);
+        });
         return this.query.on('column-orderer:selected', function(paths) {
-          var moveableView, ojg, path, pstr, _i, _len, _results;
+          var ojg, ojgs, path, pstr, _i, _len, _results;
           _results = [];
           for (_i = 0, _len = paths.length; _i < _len; _i++) {
             path = paths[_i];
             pstr = path.toString();
             if (_this.query.isOuterJoined(pstr)) {
-              ojg = _.last(_.sortBy(_.filter(_.values(_this.ojgs), function(ojg) {
-                return !!pstr.match(ojg.ojg.toString());
-              }), function(ojg) {
-                return ojg.ojg.descriptors.length;
-              }));
-              _results.push(ojg.addPath(pstr));
-            } else {
-              moveableView = $(_this.viewTemplate({
-                path: pstr,
-                displayName: pstr,
-                idx: ''
-              }));
-              path.getDisplayName(function(name) {
-                return moveableView.find('.im-display-name').text(name);
+              ojgs = _this.newView.filter(function(nv) {
+                return nv.get('isOuterJoined');
+              }).filter(function(nv) {
+                return !!pstr.match(nv.get('path').toString());
               });
-              _results.push(moveableView.appendTo(_this.$('.im-reordering-container')));
+              ojg = _.last(_.sortBy(ojgs, function(nv) {
+                return nv.get('path').descriptors.length;
+              }));
+              ojg.get('paths').push(pstr);
+              _results.push(_this.newView.trigger('change'));
+            } else {
+              _results.push(_this.newView.add({
+                path: _this.query.getPathInfo(pstr),
+                paths: [pstr]
+              }));
             }
           }
           return _results;
@@ -5458,7 +5502,7 @@
 
       ColumnsDialogue.prototype.html = "<div class=\"modal-header\">\n    <a class=\"close\" data-dismiss=\"modal\">close</a>\n    <h3>Manage Columns</a>\n</div>\n<div class=\"modal-body\">\n    <ul class=\"nav nav-tabs\">\n        <li class=\"active\">\n            <a data-target=\".im-reordering\" data-toggle=\"tab\">\n                Re-Order Columns\n            </a>\n        </li>\n        <li>\n            <a data-target=\".im-sorting\" data-toggle=\"tab\">\n            Re-Sort Columns\n            </a>\n        </li>\n    </ul>\n    <div class=\"tab-content\">\n        <div class=\"tab-pane fade im-reordering active in\">\n            <div class=\"node-adder\"></div>\n            <ul class=\"im-reordering-container well\"></ul>\n        </div>\n        <div class=\"tab-pane fade im-sorting\">\n            <ul class=\"im-sorting-container well\"></ul>\n            <ul class=\"im-sorting-container-possibilities well\"></ul>\n        </div>\n    </div>\n</div>\n<div class=\"modal-footer\">\n    <a class=\"btn btn-cancel\">\n        Cancel\n    </a>\n    <a class=\"btn pull-right btn-primary\">\n        Apply\n    </a>\n</div>";
 
-      ColumnsDialogue.prototype.viewTemplate = _.template("<li class=\"im-reorderable breadcrumb\" data-col-idx=\"<%= idx %>\" data-path=\"<%- path %>\">\n    <i class=\"icon-reorder pull-right\"\"></i>\n    <h4 class=\"im-display-name\"><%- displayName %></span>\n</li>");
+      ColumnsDialogue.prototype.viewTemplate = _.template("<li class=\"im-reorderable breadcrumb\" data-path=\"<%- path %>\">\n    <i class=\"icon-reorder pull-right\"\"></i>\n    <a class=\"pull-left im-col-remover\" title=\"Remove this column\" href=\"#\">\n        <i class=\"" + intermine.icons.Remove + "\"></i>\n    </a>\n    <h4 class=\"im-display-name\"><%- displayName %></span>\n</li>");
 
       ColumnsDialogue.prototype.render = function() {
         var _this = this;
@@ -5480,9 +5524,10 @@
         'click .btn-cancel': 'hideModal',
         'click .btn-primary': 'applyChanges',
         'click .nav-tabs li a': 'changeTab',
-        'click .im-soe i.im-remove-soe': 'removeSortOrder',
+        'click .im-soe .im-remove-soe': 'removeSortOrder',
         'click .im-add-soe': 'addSortOrder',
-        'click .im-sort-direction': 'sortCol'
+        'click .im-sort-direction': 'sortCol',
+        'sortupdate .im-reordering-container': 'updateOrder'
       };
 
       ColumnsDialogue.prototype.changeTab = function(e) {
@@ -5490,7 +5535,52 @@
       };
 
       ColumnsDialogue.prototype.initOrdering = function() {
-        var ca, colContainer, i, nodeAdder, v, _fn, _i, _len, _ref,
+        var isOuterJoined, node, oj, ojStr, path, paths, v, _i, _len, _ref;
+        this.newView.reset();
+        this.ojgs = {};
+        _ref = this.query.views;
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          v = _ref[_i];
+          path = this.query.getPathInfo(v);
+          paths = [v];
+          isOuterJoined = this.query.isOuterJoined(v);
+          if (isOuterJoined) {
+            oj = this.query.joins[path.toString()] === 'OUTER' ? path : null;
+            node = path;
+            while (!(node != null ? node.isRoot() : void 0)) {
+              node = node.getParent();
+              oj = this.query.joins[node.toString()] === 'OUTER' ? node : oj;
+            }
+            ojStr = oj.toString();
+            if (!this.ojgs[ojStr]) {
+              paths = this.query.views.filter(function(v) {
+                return v.match(ojStr);
+              });
+              path = oj;
+              this.newView.add({
+                path: path,
+                paths: paths,
+                isOuterJoined: isOuterJoined
+              }, {
+                silent: true
+              });
+              this.ojgs[ojStr] = this.newView.last();
+            }
+          } else {
+            this.newView.add({
+              path: path,
+              paths: paths,
+              isOuterJoined: isOuterJoined
+            }, {
+              silent: true
+            });
+          }
+        }
+        return this.drawOrder();
+      };
+
+      ColumnsDialogue.prototype.drawOrder = function() {
+        var ca, colContainer, nodeAdder,
           _this = this;
         colContainer = this.$('.im-reordering-container');
         colContainer.empty();
@@ -5498,75 +5588,50 @@
           title: intermine.messages.results.ReorderHelp,
           placement: 'top'
         });
-        this.ojgs = {};
-        _ref = this.query.views;
-        _fn = function(v, i) {
-          var indices, moveableView, oj, ojStr, ojg, pi, vandi, views, x;
-          if (_this.query.isOuterJoined(v)) {
-            pi = _this.query.getPathInfo(v);
-            oj = _this.query.joins[pi.toString()] === 'OUTER' ? pi : null;
-            while (!(pi != null ? pi.isRoot() : void 0)) {
-              pi = pi.getParent();
-              oj = _this.query.joins[pi.toString()] === 'OUTER' ? pi : oj;
-            }
-            ojStr = oj.toString();
-            if (!_this.ojgs[ojStr]) {
-              vandi = (function() {
-                var _j, _len1, _ref1, _results;
-                _ref1 = this.query.views;
-                _results = [];
-                for (i = _j = 0, _len1 = _ref1.length; _j < _len1; i = ++_j) {
-                  v = _ref1[i];
-                  if (v.match(ojStr)) {
-                    _results.push([v, i]);
-                  }
-                }
-                return _results;
-              }).call(_this);
-              views = (function() {
-                var _j, _len1, _results;
-                _results = [];
-                for (_j = 0, _len1 = vandi.length; _j < _len1; _j++) {
-                  x = vandi[_j];
-                  _results.push(x[0]);
-                }
-                return _results;
-              })();
-              indices = (function() {
-                var _j, _len1, _results;
-                _results = [];
-                for (_j = 0, _len1 = vandi.length; _j < _len1; _j++) {
-                  x = vandi[_j];
-                  _results.push(x[1]);
-                }
-                return _results;
-              })();
-              ojg = new OuterJoinGroup(_this.query, oj, views, indices);
-              _this.ojgs[ojStr] = ojg;
-              moveableView = ojg.render().el;
-            }
+        this.newView.each(function(newView, i) {
+          var moveableView, ojg, path, rem;
+          if (newView.get('isOuterJoined')) {
+            ojg = new OuterJoinGroup(_this.query, newView);
+            moveableView = ojg.render().el;
           } else {
+            path = newView.get('path');
             moveableView = $(_this.viewTemplate({
-              idx: i,
-              displayName: v,
-              path: v
+              displayName: path,
+              path: path
             }));
-            _this.query.getPathInfo(v).getDisplayName(function(name) {
+            rem = moveableView.find('.im-col-remover').tooltip().click(function(e) {
+              rem.tooltip('hide');
+              moveableView.remove();
+              newView.destroy();
+              return e.stopPropagation();
+            });
+            path.getDisplayName(function(name) {
               return moveableView.find('.im-display-name').text(name);
             });
           }
           return colContainer.append(moveableView);
-        };
-        for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
-          v = _ref[i];
-          _fn(v, i);
-        }
+        });
         nodeAdder = this.$('.node-adder');
         ca = new ColumnAdder(this.query);
         nodeAdder.empty().append(ca.render().el);
         return colContainer.sortable({
           items: 'li'
         });
+      };
+
+      ColumnsDialogue.prototype.updateOrder = function(e, ui) {
+        var lis, newView, paths,
+          _this = this;
+        lis = this.$('.im-reordering-container li');
+        paths = lis.map(function(i, e) {
+          return $(e).data('path');
+        }).get();
+        newView = paths.map(function(p) {
+          return _this.newView.find(function(nv) {
+            return p === nv.get('path').toString();
+          });
+        });
+        return this.newView.reset(newView);
       };
 
       ColumnsDialogue.prototype.sortCol = function(e) {
@@ -5579,15 +5644,16 @@
         return $(e.target).toggleClass("asc desc");
       };
 
-      ColumnsDialogue.prototype.soTemplate = _.template("<li class=\"im-reorderable breadcrumb im-soe\" \n    data-path=\"<%- path %>\" data-direction=\"<%- direction %>\">\n    <% if (direction === 'ASC') { %>\n        <span class=\"im-sort-direction asc\"></span>\n    <% } else { %>\n        <span class=\"im-sort-direction desc\"></span>\n    <% } %>\n    <span class=\"im-path\" title=\"<%- path %>\"><%- path %></span>\n    <i class=\"icon-minus pull-right im-remove-soe\" title=\"Remove this column from the sort order\"></i>\n</li>");
+      ColumnsDialogue.prototype.soTemplate = _.template("<li class=\"im-reorderable breadcrumb im-soe\" data-path=\"<%- path %>\" data-direction=\"<%- direction %>\">\n    <i class=\"icon-reorder pull-right\"></i>\n    <a class=\"pull-right im-remove-soe\" href=\"#\">\n        <i class=\"icon-minus\" title=\"Remove this column from the sort order\"></i>\n    </a>\n    <a class=\"pull-left im-sort-direction <% if (direction === 'ASC') { %>asc<% } else { %>desc<% } %>\" href=\"#\"></a>\n    <span class=\"im-path\" title=\"<%- path %>\"><%- path %></span>\n</li>");
 
-      ColumnsDialogue.prototype.possibleSortOptionTemplate = _.template("<li class=\"im-reorderable breadcrumb\" data-path=\"<%- path %>\">\n    <i class=\"icon-plus pull-right im-add-soe\" title=\"Add this column to the sort order\"></i>\n    <span title=\"<%- path %>\"><%- path %></span>\n</li>");
+      ColumnsDialogue.prototype.possibleSortOptionTemplate = _.template("<li class=\"breadcrumb\" data-path=\"<%- path %>\">\n    <i class=\"icon-reorder pull-right\"></i>\n    <a class=\"pull-right im-add-soe\" title=\"Add this column to the sort order\" href=\"#\">\n        <i class=\"icon-plus\"></i>\n    </a>\n    <span title=\"<%- path %>\"><%- path %></span>\n</li>");
 
       ColumnsDialogue.prototype.removeSortOrder = function(e) {
         var $elem, path, possibilities, psoe,
           _this = this;
-        $elem = $(e.target).parent();
+        $elem = $(e.target).closest('.im-soe');
         path = $elem.data("path");
+        $('.tooltip').remove();
         $elem.find('.im-remove-soe').tooltip("hide");
         $elem.remove();
         possibilities = this.$('.im-sorting-container-possibilities');
@@ -5609,7 +5675,7 @@
 
       ColumnsDialogue.prototype.addSortOrder = function(e) {
         var $elem, path;
-        $elem = $(e.target).parent();
+        $elem = $(e.target).closest('.breadcrumb');
         path = $elem.data("path");
         $elem.find('.im-add-soe').tooltip('hide');
         $elem.remove();
@@ -5717,27 +5783,10 @@
       };
 
       ColumnsDialogue.prototype.changeOrder = function(e) {
-        var lis, newViews, ojg, p, paths, pi, v, _i, _j, _len, _len1, _ref;
-        lis = this.$('.im-reordering-container li');
-        paths = lis.map(function(i, e) {
-          return $(e).data('path');
-        }).get();
-        newViews = [];
-        for (_i = 0, _len = paths.length; _i < _len; _i++) {
-          p = paths[_i];
-          pi = this.query.getPathInfo(p);
-          if (pi.isAttribute()) {
-            newViews.push(p);
-          } else {
-            console.log(p, this.ojgs);
-            ojg = this.ojgs[p];
-            _ref = ojg.getViews();
-            for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
-              v = _ref[_j];
-              newViews.push(v);
-            }
-          }
-        }
+        var newViews;
+        newViews = _.flatten(this.newView.map(function(v) {
+          return v.get('paths');
+        }));
         this.hideModal();
         return this.query.select(newViews);
       };
@@ -6695,7 +6744,7 @@
 
       ManagementTools.prototype.className = "im-management-tools btn-group";
 
-      ManagementTools.prototype.html = "<button class=\"btn btn-large im-columns\">\n    <i class=\"" + intermine.icons.Columns + "\"></i>\n    Columns\n</button>\n<button class=\"btn btn-large im-filters\">\n    <i class=\"" + intermine.icons.Filter + "\"></i>\n    Filters\n</button>";
+      ManagementTools.prototype.html = "<button class=\"btn btn-large im-columns\">\n    <i class=\"" + intermine.icons.Columns + "\"></i>\n    <span class=\"im-only-widescreen\">Manage </span>\n    <span class=\"hidden-tablet\">Columns</span>\n</button>\n<button class=\"btn btn-large im-filters\">\n    <i class=\"" + intermine.icons.Filter + "\"></i>\n    <span class=\"im-only-widescreen\">Manage </span>\n    <span class=\"hidden-tablet\">Filters</span>\n</button>";
 
       ManagementTools.prototype.events = {
         'click .im-columns': 'showColumnDialogue',
@@ -6802,10 +6851,10 @@
       };
 
       ActiveConstraint.prototype.editConstraint = function(e) {
-        var ta, _ref, _ref1, _ref2, _results;
+        var silently, ta, _ref, _ref1, _ref2, _results;
         e.stopPropagation();
         e.preventDefault();
-        this.removeConstraint();
+        this.removeConstraint(e, silently = true);
         if (_ref = this.con.get('op'), __indexOf.call(intermine.Query.MULTIVALUE_OPS.concat(intermine.Query.NULL_OPS), _ref) >= 0) {
           this.con.unset('value');
         }
@@ -6824,9 +6873,9 @@
         return _results;
       };
 
-      ActiveConstraint.prototype.removeConstraint = function(silently) {
+      ActiveConstraint.prototype.removeConstraint = function(e, silently) {
         if (silently == null) {
-          silently = true;
+          silently = false;
         }
         return this.query.removeConstraint(this.orig, silently);
       };

@@ -8,6 +8,7 @@ scope "intermine.icons", {
     Move: "icon-reorder",
     Filter: "icon-filter",
     Summary: "icon-bar-chart",
+    Undo: "icon-undo",
     Columns: "icon-table"
 }
 

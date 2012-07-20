@@ -8,9 +8,11 @@ scope "intermine.query.results.table", (exporting) ->
         tagName: 'li'
         className: 'im-reorderable breadcrumb'
 
-        initialize: (@query, @ojg, views, @indices) ->
-            paths = (@query.getPathInfo(v) for v in views)
+        initialize: (@query, @newView) ->
+            @ojg = @newView.get('path')
+            paths = (@query.getPathInfo(v) for v in @newView.get('paths'))
             @nodes = _.groupBy(paths, (p) -> p.getParent().toString())
+            @newView.on 'destroy', @remove, @
 
         getViews: () ->
             ret = []
@@ -22,20 +24,37 @@ scope "intermine.query.results.table", (exporting) ->
 
         render: () ->
             @$el.append '<i class="icon-reorder pull-right"></i>'
+            @$el.append """
+                <a href="#" class="pull-left im-col-remover" title="Remove these columns">
+                    <i class="#{ intermine.icons.Remove }"></i>
+                </a>
+            """
+            rem = @$('.im-col-remover').tooltip().click (e) =>
+                e.stopPropagation()
+                rem.tooltip('hide')
+                @newView.destroy()
             h4 = $ '<h4>'
             @$el.append h4
             @ojg.getDisplayName (name) -> h4.text name
-            @$el.data 'indices', @indices
             @$el.data 'path', @ojg.toString()
             ul = $ '<ul>'
             for key in _.sortBy(_.keys(@nodes), (k) -> k.length) then do (key) =>
                 paths = @nodes[key]
                 for p in paths then do (p) =>
-                    li = $ '<li class="im-outer-joined-path">'
+                    li = $ """
+                        <li class="im-outer-joined-path">
+                            <a href="#"><i class="#{intermine.icons.Remove}"></i></a>
+                            <span></span>
+                        </li>
+                    """
                     ul.append li
+                    li.find('a').click (e) =>
+                        e.stopPropagation()
+                        @newView.set paths: _.without @newView.get('paths'), p.toString()
+
                     p.getDisplayName (name) =>
                         @ojg.getDisplayName (ojname) ->
-                            li.text name.replace(ojname, '').replace(/^\s*>?\s*/, '')
+                            li.find('span').text name.replace(ojname, '').replace(/^\s*>?\s*/, '')
             @$el.append ul
             this
 
@@ -86,24 +105,20 @@ scope "intermine.query.results.table", (exporting) ->
         className: "im-column-dialogue modal fade"
         
         initialize: (@query) ->
+            @newView = new Backbone.Collection()
+            @newView.on 'add remove change', @drawOrder, @
+            @newView.on 'destroy', (nv) => @newView.remove(nv)
             @query.on 'column-orderer:selected', (paths) =>
                 for path in paths
                     pstr = path.toString()
                     if @query.isOuterJoined(pstr)
-                        ojg = _.last(
-                            _.sortBy(
-                                _.filter(
-                                    _.values(@ojgs),
-                                    (ojg) -> !!pstr.match(ojg.ojg.toString())
-                                ),
-                                (ojg) -> ojg.ojg.descriptors.length
-                            ))
-                        ojg.addPath(pstr)
+                        ojgs = @newView.filter( (nv) -> nv.get('isOuterJoined') )
+                                       .filter( (nv) -> !!pstr.match(nv.get('path').toString()) )
+                        ojg = _.last(_.sortBy(ojgs, (nv) -> nv.get('path').descriptors.length))
+                        ojg.get('paths').push(pstr)
+                        @newView.trigger 'change'
                     else
-                        moveableView = $ @viewTemplate path: pstr, displayName: pstr, idx: ''
-                        path.getDisplayName (name) ->
-                            moveableView.find('.im-display-name').text name
-                        moveableView.appendTo @$ '.im-reordering-container'
+                        @newView.add {path: @query.getPathInfo(pstr), paths: [pstr]}
 
         html: """
          <div class="modal-header">
@@ -145,8 +160,11 @@ scope "intermine.query.results.table", (exporting) ->
         """
 
         viewTemplate: _.template """
-            <li class="im-reorderable breadcrumb" data-col-idx="<%= idx %>" data-path="<%- path %>">
+            <li class="im-reorderable breadcrumb" data-path="<%- path %>">
                 <i class="icon-reorder pull-right""></i>
+                <a class="pull-left im-col-remover" title="Remove this column" href="#">
+                    <i class="#{ intermine.icons.Remove }"></i>
+                </a>
                 <h4 class="im-display-name"><%- displayName %></span>
             </li>
         """
@@ -167,46 +185,71 @@ scope "intermine.query.results.table", (exporting) ->
             'click .btn-cancel': 'hideModal'
             'click .btn-primary': 'applyChanges'
             'click .nav-tabs li a': 'changeTab'
-            'click .im-soe i.im-remove-soe': 'removeSortOrder'
+            'click .im-soe .im-remove-soe': 'removeSortOrder'
             'click .im-add-soe': 'addSortOrder'
             'click .im-sort-direction': 'sortCol'
+            'sortupdate .im-reordering-container': 'updateOrder'
 
         changeTab: (e) -> $(e.target).tab("show")
 
         initOrdering: ->
+            @newView.reset()
+            @ojgs = {}
+            for v in @query.views
+                path = @query.getPathInfo v
+                paths = [v]
+                isOuterJoined = @query.isOuterJoined v
+                if isOuterJoined
+                    # Find oj closest to root
+                    oj = if @query.joins[path.toString()] is 'OUTER' then path else null
+                    node = path
+                    while !node?.isRoot()
+                        node = node.getParent()
+                        oj = if @query.joins[node.toString()] is 'OUTER' then node else oj
+                    ojStr = oj.toString()
+                    unless @ojgs[ojStr] # Done this one already
+                        paths = @query.views.filter((v) -> v.match(ojStr))
+                        path = oj
+                        @newView.add {path, paths, isOuterJoined}, {silent: true}
+                        @ojgs[ojStr] = @newView.last()
+                
+                else
+                    @newView.add {path, paths, isOuterJoined}, {silent: true}
+            @drawOrder()
+
+        drawOrder: ->
             colContainer = @$ '.im-reordering-container'
             colContainer.empty()
             colContainer.tooltip
                 title: intermine.messages.results.ReorderHelp
                 placement: 'top'
 
-            @ojgs = {}
-            for v, i in @query.views then do (v, i) =>
-                if @query.isOuterJoined(v)
-                    # find oj closest to root
-                    pi = @query.getPathInfo(v)
-                    oj = if @query.joins[pi.toString()] is 'OUTER' then pi else null
-                    while !pi?.isRoot()
-                        pi = pi.getParent()
-                        oj = if @query.joins[pi.toString()] is 'OUTER' then pi else oj
-                    ojStr = oj.toString()
-                    unless @ojgs[ojStr] # done this already.
-                        vandi = ([v, i] for v, i in @query.views when (v.match(ojStr)))
-                        views = (x[0] for x in vandi)
-                        indices = (x[1] for x in vandi)
-                        ojg = new OuterJoinGroup(@query, oj, views, indices)
-                        @ojgs[ojStr] = ojg
-                        moveableView = ojg.render().el
+            @newView.each (newView, i) =>
+                if newView.get 'isOuterJoined'
+                    ojg = new OuterJoinGroup(@query, newView)
+                    moveableView = ojg.render().el
                 else
-                    moveableView = $ @viewTemplate(idx: i, displayName: v, path: v)
-                    @query.getPathInfo(v).getDisplayName (name) ->
-                        moveableView.find('.im-display-name').text name
+                    path = newView.get('path')
+                    moveableView = $ @viewTemplate displayName: path, path: path
+                    rem = moveableView.find('.im-col-remover').tooltip().click (e) ->
+                        rem.tooltip('hide')
+                        moveableView.remove()
+                        newView.destroy()
+                        e.stopPropagation()
+                    path.getDisplayName (name) -> moveableView.find('.im-display-name').text(name)
 
                 colContainer.append moveableView
+
             nodeAdder = @$ '.node-adder'
             ca = new ColumnAdder(@query)
             nodeAdder.empty().append ca.render().el
             colContainer.sortable items: 'li'
+
+        updateOrder: (e, ui) ->
+            lis = @$('.im-reordering-container li')
+            paths = lis.map( (i, e) -> $(e).data('path')).get()
+            newView = paths.map( (p) => @newView.find( (nv) -> p is nv.get('path').toString() ))
+            @newView.reset( newView )
 
         sortCol: (e) ->
             $elem = $(e.target).parent()
@@ -215,28 +258,30 @@ scope "intermine.query.results.table", (exporting) ->
             $(e.target).toggleClass "asc desc"
 
         soTemplate: _.template """
-            <li class="im-reorderable breadcrumb im-soe" 
-                data-path="<%- path %>" data-direction="<%- direction %>">
-                <% if (direction === 'ASC') { %>
-                    <span class="im-sort-direction asc"></span>
-                <% } else { %>
-                    <span class="im-sort-direction desc"></span>
-                <% } %>
+            <li class="im-reorderable breadcrumb im-soe" data-path="<%- path %>" data-direction="<%- direction %>">
+                <i class="icon-reorder pull-right"></i>
+                <a class="pull-right im-remove-soe" href="#">
+                    <i class="icon-minus" title="Remove this column from the sort order"></i>
+                </a>
+                <a class="pull-left im-sort-direction <% if (direction === 'ASC') { %>asc<% } else { %>desc<% } %>" href="#"></a>
                 <span class="im-path" title="<%- path %>"><%- path %></span>
-                <i class="icon-minus pull-right im-remove-soe" title="Remove this column from the sort order"></i>
             </li>
         """
 
         possibleSortOptionTemplate: _.template """
-            <li class="im-reorderable breadcrumb" data-path="<%- path %>">
-                <i class="icon-plus pull-right im-add-soe" title="Add this column to the sort order"></i>
+            <li class="breadcrumb" data-path="<%- path %>">
+                <i class="icon-reorder pull-right"></i>
+                <a class="pull-right im-add-soe" title="Add this column to the sort order" href="#">
+                    <i class="icon-plus"></i>
+                </a>
                 <span title="<%- path %>"><%- path %></span>
             </li>
         """
 
         removeSortOrder: (e) ->
-            $elem = $(e.target).parent()
+            $elem = $(e.target).closest('.im-soe')
             path = $elem.data "path"
+            $('.tooltip').remove()
             $elem.find('.im-remove-soe').tooltip("hide")
             $elem.remove()
             possibilities = @$ '.im-sorting-container-possibilities'
@@ -250,7 +295,7 @@ scope "intermine.query.results.table", (exporting) ->
             possibilities.append psoe
 
         addSortOrder: (e) ->
-            $elem = $(e.target).parent()
+            $elem = $(e.target).closest('.breadcrumb')
             path = $elem.data "path"
             $elem.find('.im-add-soe').tooltip('hide')
             $elem.remove()
@@ -312,19 +357,7 @@ scope "intermine.query.results.table", (exporting) ->
                 @changeSorting(e)
 
         changeOrder: (e) ->
-            lis = @$('.im-reordering-container li')
-            paths = lis.map( (i, e) -> $(e).data('path')).get()
-            newViews = []
-            for p in paths
-                pi = @query.getPathInfo(p)
-                if pi.isAttribute()
-                    newViews.push p
-                else
-                    console.log(p, @ojgs)
-                    ojg = @ojgs[p]
-                    for v in ojg.getViews()
-                        newViews.push(v)
-
+            newViews = _.flatten @newView.map (v) -> v.get 'paths'
             @hideModal()
             @query.select(newViews)
 

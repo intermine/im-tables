@@ -71,9 +71,29 @@
   opacity: 1;
 }
 
+[class^="icon-"]:hover {
+    font-size: 110%;
+    text-decoration: none;
+}
+
 .btn .modal {
    cursor: normal;
 }
+
+.modal .icon-reorder {
+    cursor: move;
+}
+
+.bootstrap .label-op,
+.bootstrap .label-included {
+    background-color: #5cb35d;
+}
+
+.bootstrap .label-path,
+.bootstrap .label-available {
+    background-color: #08c;
+}
+
 
 .im-query-display .modal.fade.in,
 .modal.fade.in {
@@ -517,6 +537,10 @@ table.table {
     background-color: #eee;
 }
 
+.im-sorting .well .ui-draggable-dragging {
+    z-index: 1010;
+}
+
 .im-management-tools {
     float: left;
     display: inline;
@@ -530,7 +554,7 @@ table.table {
 
 .im-table-container .btn.im-has-constraint i,
 .im-table-container th.im-has-constraint .im-col-filters {
-    color: #08c;
+    color: #5cb35d;
 }
 
 th .im-col-summary.navbar {
@@ -585,6 +609,7 @@ table.table thead .sorting_desc_disabled {
     background-color: #2c2c2c;
 }
 
+
 .im-col-order-dialog > .modal-body {
     max-height: 500px;
 }
@@ -603,6 +628,10 @@ table.table thead .sorting_desc_disabled {
 
 .im-export-dialogue .im-checkables {
     display: inline-block;
+}
+
+.im-export-dialogue form.form .row-fluid {
+    margin-bottom: 1em;
 }
 
 .im-export-dialogue form.form input[type="checkbox"] {
@@ -766,7 +795,7 @@ ul.im-cols h4 {
 
 .im-query-display tr > th.too-far-over .im-th-buttons .dropdown-menu,
 .im-query-display tr > th:last-child .im-th-buttons .dropdown-menu {
-    left: -25em;
+    left: -25.4em;
 }
 
 .im-query-display tr > th.too-far-over .im-th-buttons .dropdown-menu::after,
@@ -829,6 +858,10 @@ ul.im-cols h4 {
 }
 
 .im-con-overview .breadcrumb {
+    width: 95%;
+}
+
+.dropdown-menu .im-con-overview .breadcrumb {
     width: 90%;
 }
 
@@ -894,6 +927,7 @@ td.im-result-subtable .im-subtable {
     width: 40%;
 }
 
+.im-query-display .im-management-tools select.im-ops,
 .im-query-display .im-constraints select.im-ops {
     display: inline-block;
     float: left;
@@ -909,7 +943,8 @@ td.im-result-subtable .im-subtable {
     top: -1.3em;
 }
 
-
+.im-query-display .im-management-tools select.im-value-options,
+.im-query-display .im-management-tools input.im-value-options,
 .im-query-display .im-constraints select.im-value-options,
 .im-query-display .im-constraints input.im-value-options,
 .im-value-options.btn-group {
@@ -1317,6 +1352,17 @@ input.im-constraint-adder {
     float: right;
 }
 
+.im-constraint .im-con-overview a {
+    clear: none;
+    padding: 3px 0;
+    display: inline-block;
+}
+
+.dropdown-menu .im-constraint .im-con-overview a {
+    position: relative;
+    right: 5px;
+}
+
 .im-constraint-edit a {
     display: none;
 }
@@ -1483,13 +1529,13 @@ form.im-join {
 
 .im-table-container > .table > thead > tr > th {
     height: 100%;
+    padding: 2px 4px 2px 6px;
 }
 
 .im-th-buttons {
     float: right;
     max-width: 1em;
     display: block;
-    margin-bottom: 0.2em;
 }
 
 .im-query-results .table thead th {
@@ -1528,20 +1574,28 @@ form.im-join {
 }
 
 .im-th-button {
-    display: inline-block;
+    height: 1em;
+    width: 1em;
+    display: block;
     float: right;
-    margin-bottom: -4px;
+    margin: 1px;
     color: white;
     padding: 0px 1px 0px 1px;
     font-family: serif;
     vertical-align: top;
+    text-align: center;
+    border: 1px solid transparent;
 }
 
-.im-th-button [class^="icon-"]:before {
-    cursor: pointer;
+/* Position the icons in the centre of their box, more or less */
+.im-th-button i {
+    z-index: 900; /* Otherwise can be overlayed by the empty portion of the title span */
+    position: relative;
+    top: -3px;
 }
 
-.im-col-remover {
+.modal-body .im-col-remover {
+    margin-right: 5px;
 }
 
 /* .im-col-remover:after {
@@ -1777,6 +1831,9 @@ td > .im-no-results {
     .im-code-gen .modal {
         left: 40%;
     }
+    .im-only-widescreen {
+        display: none;
+    }
 }
 
 @media screen and (max-width: 900px) {
@@ -1787,14 +1844,24 @@ td > .im-no-results {
         width: 95% !important;
     }
 
-    .im-only-widescreen {
-        display: none;
-    }
 
     .im-code-gen .modal {
         left: 45%;
     }
 }
+
+@media screen and (max-width: 767px) {
+    .visible-desktop {
+        display: none ! important;
+    }
+}
+
+@media screen and (max-width: 700px) {
+    .hidden-tablet {
+        display: none !important;
+    }
+}
+
 
 @media screen and (max-width: 550px) {
 
@@ -1804,8 +1871,14 @@ td > .im-no-results {
         width: 400px;
         left: 68%;
     }
+    .hidden-phone {
+        display: none;
+    }
 }
 
+@media screen and (max-width: 480px) {
+
+}
 
 
 

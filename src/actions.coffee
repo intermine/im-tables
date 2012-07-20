@@ -15,15 +15,19 @@ scope "intermine.messages.actions", {
             temporary anonymous account.
         """
     SendToOtherGalaxy: "Send",
-    AllRows: "All Rows in Result Set",
-    RowsHelp: "Uncheck this box to select a range of rows from the result set",
-    AllColumns: "All columns on table",
-    ColumnsHelp: "Uncheck this box to select different columns for export than those in the table",
+    AllRows: "Whole Result Set"
+    SomeRows: "Specific Range",
+    WhichRows: "Rows to Export",
+    RowsHelp: "Export all rows, or define a range of rows to export.",
+    AllColumns: "Columns On Table",
+    SomeColumns: "Specific Columns",
+    ColumnsHelp: "Export all columns, or choose specific columns to export.",
+    WhichColumns: "Columns to Export"
     FirstRow: "From",
     LastRow: "To",
     ColumnHeaders: "Include Column Headers",
-    PossibleColumns: "Columns You Can Add",
-    ExportedColumns: "Columns To Export",
+    PossibleColumns: "Columns Available to Export",
+    ExportedColumns: "Exported Columns (drag to reorder)",
     ChangeColumns: """
             You may add any of the columns in the right hand box by clicking on the
             plus sign. You may remove unwanted columns by clicking on the minus signs
@@ -195,12 +199,23 @@ scope "intermine.query.actions", (exporting) ->
 
         initialize: (@query) ->
             @requestInfo = new Backbone.Model
-                format: 'tab'
+                format: EXPORT_FORMATS[0].extension
                 allRows: true
                 allCols: true
                 start: 0
                 galaxyMain: intermine.options.GalaxyMain
-                galaxyAlt: intermine.options.GalaxyMain
+                galaxyAlt: (intermine.options.GalaxyAlt || intermine.options.GalaxyMain)
+
+            allOrSome = (all, optSel, btnSel) =>
+                opts = @$(optSel)
+                btns = @$(btnSel).removeClass 'active'
+                if all
+                    opts.fadeOut()
+                    btns.first().addClass 'active'
+                else
+                    opts.fadeIn()
+                    btns.last().addClass 'active'
+
             @exportedCols = new Backbone.Collection
             @query.on 'download-menu:open', @openDialogue, @
             @query.on 'imtable:change:page', (start, size) =>
@@ -208,127 +223,28 @@ scope "intermine.query.actions", (exporting) ->
             for v in @query.views
                 @exportedCols.add path: @query.getPathInfo v
             @requestInfo.on 'change:allRows', (m, allRows) =>
-                @$('.im-row-selection').toggle not allRows
-                @$('.im-all-rows').attr checked: allRows
+                allOrSome(allRows, '.im-row-selection', '.im-row-btns .btn')
             @requestInfo.on 'change:allCols', (m, allCols) =>
-                @$('.im-col-options').toggle not allCols
-                @$('.im-all-cols').attr checked: allCols
+                allOrSome(allCols, '.im-col-options', '.im-col-btns .btn')
             @requestInfo.on 'change:format', @updateFormatOptions
             @requestInfo.on 'change:start', (m, start) =>
                 $elem = @$('.im-first-row')
                 newVal = "#{start + 1}"
                 if newVal isnt $elem.val()
                     $elem.val newVal
-                @$('.im-row-range-slider').slider 'option', 'values', [start + 1, m.get('end')]
+                @$('.im-row-range-slider').slider 'option', 'values', [start, m.get('end') - 1 ]
             @requestInfo.on 'change:end', (m, end) =>
                 $elem = @$('.im-last-row')
                 newVal = "#{end}"
                 if newVal isnt $elem.val()
                     $elem.val newVal
-                @$('.im-row-range-slider').slider 'option', 'values', [m.get('start') + 1, end]
+                @$('.im-row-range-slider').slider 'option', 'values', [m.get('start'), end - 1 ]
+            @requestInfo.on "change:format", (m, format) => @$('.im-export-format').val format
             @exportedCols.on 'add remove reset', @initCols
 
-        html: """
-            <a class="btn im-open-dialogue" href="#">
-                <i class="#{ intermine.icons.Export }"></i>
-                #{ intermine.messages.actions.ExportButton }
-            </a>
-            <div class="modal fade">
-                <div class="modal-header">
-                    <a class="close btn-cancel">close</a>
-                    <h2>#{ intermine.messages.actions.ExportTitle }</h2>
-                </div>
-                <div class="modal-body">
-                    <form class="form row-fluid">
-                        <label>
-                            <span class="span4">
-                                #{ intermine.messages.actions.ExportFormat }
-                            </span>
-                            <select class="im-export-format input-xlarge span8">
-                            </select>
-                        </label>
-                        <label title="#{ intermine.messages.actions.ColumnsHelp }">
-                            <span class="span4">
-                                #{ intermine.messages.actions.AllColumns }
-                            </span>
-                            <input type="checkbox" checked class="im-all-cols span8">
-                        </label>
-                        <div class="im-col-options">
-                            <ul class="well im-cols im-can-be-exported-cols">
-                                <h4>#{ intermine.messages.actions.PossibleColumns }</h4>
-                            </ul>
-                            <ul class="well im-cols im-exported-cols">
-                                <h4>#{ intermine.messages.actions.ExportedColumns }</h4>
-                            </ul>
-                            <div style="clear:both;"></div>
-                            <div class="alert alert-info">
-                                <button class="close" data-dismiss="alert">×</button>
-                                <strong>ps</strong>
-                                <p>#{ intermine.messages.actions.ChangeColumns }</p>
-                            </div>
-                        </div>
-                        <label title="#{ intermine.messages.actions.RowsHelp }">
-                            <span class="span4">
-                                #{ intermine.messages.actions.AllRows }
-                             </span>
-                            <input type="checkbox" checked class="im-all-rows span8">
-                        </label>
-                        <div class="form-horizontal">
-                        <fieldset class="im-row-selection control-group">
-                            <label class="control-label">
-                                #{ intermine.messages.actions.FirstRow }
-                                <input type="text" value="1" class="disabled input-mini im-first-row im-range-limit">
-                            </label>
-                            <label class="control-label">
-                                #{ intermine.messages.actions.LastRow }
-                                <input type="text" class="disabled input-mini im-last-row im-range-limit">
-                            </label>
-                            <div style="clear:both"></div>
-                            <div class="slider im-row-range-slider"></div>
-                        </fieldset>
-                        </div>
-                        <fieldset class="im-export-options control-group">
-                        </fieldset>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-primary pull-right" title="#{ intermine.messages.actions.ExportHelp }">
-                        #{ intermine.messages.actions.Export }
-                    </button>
-                    <div class="btn-group btn-alt pull-right">
-                        <a href="#" class="btn btn-galaxy" title="#{intermine.messages.actions.GalaxyHelp}">
-                            #{ intermine.messages.actions.SendToGalaxy }
-                        </a>
-                        <a href="#" title="#{intermine.messages.actions.GalaxyAlt}" 
-                            class="btn dropdown-toggle galaxy-toggle" data-toggle="dropdown">
-                            <span class="caret"></span>
-                        </a>
-                    </div>
-                    <button class="btn btn-cancel pull-left">
-                        #{ intermine.messages.actions.Cancel }
-                    </button>
-                    <form class="well form-inline im-galaxy-options">
-                        <label>
-                            #{ intermine.messages.actions.GalaxyURILabel }
-                            <input type="text" class="im-galaxy-uri input-xlarge" 
-                                value="#{ intermine.options.GalaxyMain }">
-                        </label>
-                        <button type="submit" class="btn">
-                            #{ intermine.messages.actions.SendToOtherGalaxy }
-                        </button>
-                        <div class="alert alert-info">
-                            <button class="close" data-dismiss="alert">×</button>
-                            <strong>ps</strong>
-                            #{ intermine.messages.actions.GalaxyAuthExplanation }
-                        </div>
-                    </form>
-                </div>
-            </div>
-        """
-
         events:
-            'change .im-all-cols': 'toggleColSelection'
-            'change .im-all-rows': 'toggleRowSelection'
+            'click .im-col-btns': 'toggleColSelection'
+            'click .im-row-btns': 'toggleRowSelection'
             'click a.im-open-dialogue': 'openDialogue'
             'click .btn-cancel': 'stop'
             'change .im-export-format': 'updateFormat'
@@ -439,9 +355,9 @@ scope "intermine.query.actions", (exporting) ->
                     ret += "&size=#{ end - start }"
             ret
 
-        toggleColSelection: (e) -> @requestInfo.set allCols: @$('.im-all-cols').is ':checked'
+        toggleColSelection: (e) -> @requestInfo.set allCols: !@requestInfo.get('allCols'); false
 
-        toggleRowSelection: (e) -> @requestInfo.set allRows: @$('.im-all-rows').is ':checked'
+        toggleRowSelection: (e) -> @requestInfo.set allRows: !@requestInfo.get('allRows'); false
 
         openDialogue: (e) -> @$('.modal').modal('show')
 
@@ -479,11 +395,15 @@ scope "intermine.query.actions", (exporting) ->
                             <span class="span4">
                                 #{ intermine.messages.actions.ColumnHeaders }
                             </span>
-                            <input type="checkbox" class="im-column-headers span8">
+                            <span class="span8">
+                                <input type="checkbox" class="im-column-headers pull-right">
+                            </span>
                         </label>
                     """
-                    opts.find('.im-column-headers').attr(checked: !!requestInfo.get('columnHeaders')).change (e) ->
-                        requestInfo.set 'columnHeaders', $(@).is ':checked'
+                    opts.find('.im-column-headers').toggleClass('active', !!requestInfo.get('columnHeaders')).click (e) ->
+                        btn = $ @
+                        requestInfo.set 'columnHeaders', btn.is '.active'
+
                 when 'bed'
                     chrPref = $ """
                         <label>
@@ -520,7 +440,7 @@ scope "intermine.query.actions", (exporting) ->
                 li = $ '<li>'
                 path.getDisplayName (name) =>
                     li.append """
-                        <span class="label #{if col.get('included') then 'label-success' else ''}">
+                        <span class="label #{if col.get('included') then 'label-included' else 'label-available'}">
                             <a href="#">
                                 <i class="#{ if col.get('included') then intermine.icons.Yes else intermine.icons.No }"></i>
                                 #{ name }
@@ -533,7 +453,7 @@ scope "intermine.query.actions", (exporting) ->
                         
                 col.on 'change:included', () ->
                     li.find('i').toggleClass "#{intermine.icons.Yes} #{intermine.icons.No}"
-                    li.find('span').toggleClass "label-success"
+                    li.find('span').toggleClass "label-success label-available"
                 li.appendTo seqFeatCols
 
             included = true
@@ -570,7 +490,7 @@ scope "intermine.query.actions", (exporting) ->
                 li = $ '<li>'
                 path.getDisplayName (name) ->
                     li.append """
-                        <span class="label label-success">
+                        <span class="label label-included">
                             <a href="#">
                                 <i class="#{ if col.get('included') then intermine.icons.Yes else intermine.icons.No }"></i>
                                 #{ name }
@@ -582,7 +502,7 @@ scope "intermine.query.actions", (exporting) ->
                 col.on 'change:included', () ->
                     console.log "Changed"
                     li.find('i').toggleClass "#{intermine.icons.Yes} #{intermine.icons.No}"
-                    li.find('span').toggleClass "label-success label-default"
+                    li.find('span').toggleClass "label-included label-available"
                 li.appendTo seqFeatCols
             @seqFeatures.on 'change:included', () =>
                 atLeastOneIncluded = @seqFeatures.any( (col) -> col.get('included') )
@@ -616,7 +536,7 @@ scope "intermine.query.actions", (exporting) ->
                 li.data(col: col).appendTo cols
                 path.getDisplayName (name) =>
                     li.append """
-                        <div class="label label-success">
+                        <div class="label label-included">
                             <i class="#{intermine.icons.Move} im-move pull-right"></i>
                             <a href="#"><i class="#{intermine.icons.Remove}"></i></a>
                             #{ name }
@@ -640,7 +560,7 @@ scope "intermine.query.actions", (exporting) ->
                     do (cn, li) =>
                         cn.getDisplayName (name) =>
                             li.append """
-                                <div class="label">
+                                <div class="label label-available">
                                     <a href="#"><i class="#{intermine.icons.Add}"></i></a>
                                     #{ name }
                                 </div>
@@ -673,14 +593,19 @@ scope "intermine.query.actions", (exporting) ->
                 for format in BIO_FORMATS
                     select.append formatToOpt format
 
+            select.val @requestInfo.get('format')
+
         render: () ->
 
-            @$el.append @html
+            @$el.append intermine.snippets.actions.DownloadDialogue()
             @$('.modal-footer .btn').tooltip()
+
+            # grrr, for some reason the radio-button plug in doesn't work here,
+            # as it registers each click twice! So we have to do it ourselves.
+            # @$('.radio .btn').click @toggleButtonState
 
             @initFormats()
             @initCols()
-            @toggleColSelection()
             @updateFormatOptions()
             @warnOfOuterJoinedCollections()
             @makeSlider()
@@ -696,11 +621,10 @@ scope "intermine.query.actions", (exporting) ->
                 sl = @$('.slider').slider
                     range: true,
                     min: 0,
-                    max: c,
-                    values: [1, c],
+                    max: c - 1,
+                    values: [0, c - 1],
                     step: 1,
-                    slide: (e, ui)  => @requestInfo.set start: ui.values[0], end: ui.values[1]
-                @toggleRowSelection()
+                    slide: (e, ui)  => @requestInfo.set start: ui.values[0], end: ui.values[1] + 1
 
 
     exporting class ListAppender extends ListDialogue
@@ -1017,7 +941,11 @@ scope "intermine.query.actions", (exporting) ->
 
         newCommonType: (type) ->
             super(type)
-            text = "List of #{intermine.utils.pluralise(type)}"
+            now = new Date()
+            dateStr = "#{ now }".replace(/\s\d\d:\d\d:\d\d\s.*$/, '')
+            
+            text = "#{ type } list #{ dateStr }"
+            
             $target = @$ '.im-list-name'
 
             if @usingDefaultName

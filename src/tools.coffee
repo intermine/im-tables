@@ -176,6 +176,7 @@ scope "intermine.query.tools", (exporting) ->
         events:
             'click a.details': 'minumaximise'
             'click a.shade': 'toggle'
+            'click a.im-undo': 'undo'
 
         toggle: () ->
             @$('.im-step').slideToggle 'fast', () => @$el.toggleClass "toggled"
@@ -187,10 +188,12 @@ scope "intermine.query.tools", (exporting) ->
             @query.on "change:constraints", @addStep "Changed Filters"
             @query.on "change:views", @addStep "Changed Columns"
             @query.on 'count:is', (count) => @states.last().trigger 'got:count', count
-            @query.on 'undo', () =>
-                @states.remove(@states.last())
-                newState = @states.last()
-                newState.trigger 'revert', newState
+            @query.on 'undo', @undo, @
+            
+        undo: () ->
+            @states.remove(@states.last())
+            newState = @states.last()
+            newState.trigger 'revert', newState
 
         initialize: (@query, @display) ->
             @currentStep = 0
@@ -218,8 +221,11 @@ scope "intermine.query.tools", (exporting) ->
         render: () ->
             @$el.append """
                 <div class="btn-group">
+                  <a class="btn im-undo" href="#">
+                    <i class="#{ intermine.icons.Undo }"></i>
+                    Undo
+                  </a>
                   <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
-                    <span class="im-trail-summary"></span>
                     <span class="caret"></span>
                   </a>
                   <ul class="dropdown-menu im-state-list">

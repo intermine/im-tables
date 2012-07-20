@@ -14,11 +14,13 @@ scope 'intermine.query.tools', (exporting) ->
         html: """
             <button class="btn btn-large im-columns">
                 <i class="#{ intermine.icons.Columns }"></i>
-                Columns
+                <span class="im-only-widescreen">Manage </span>
+                <span class="hidden-tablet">Columns</span>
             </button>
             <button class="btn btn-large im-filters">
                 <i class="#{ intermine.icons.Filter }"></i>
-                Filters
+                <span class="im-only-widescreen">Manage </span>
+                <span class="hidden-tablet">Filters</span>
             </button>
         """
 

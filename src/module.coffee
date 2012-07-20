@@ -26,5 +26,8 @@ scope = (path, code = (() ->), overwrite = false) ->
                 ns[ name ] = value
     return ns
 
+# Export this out for others to use.
+scope "intermine", {scope: scope}
+
 
 

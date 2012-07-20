@@ -14,6 +14,7 @@ scope 'intermine.snippets.query', {
 scope 'intermine.messages.query', {
     # A function of the form ({count: i, first: i, last: i, roots: str}) -> str
     CountSummary: _.template """
+         <span class="hidden-phone">
           <span class="im-only-widescreen">Showing</span>
           <span>
             <% if (last == 0) { %>
@@ -21,8 +22,9 @@ scope 'intermine.messages.query', {
             <% } else { %>
                 <%= first %> to <%= last %> of
             <% } %>
-            <%= count %> <%= roots %>
+            <%= count %> <span class="visible-desktop"><%= roots %></span>
           </span>
+         </span>
         """
 }
 
@@ -177,36 +179,38 @@ scope "intermine.query.results", (exporting) ->
             @$el.append notice
             
 
-        columnHeaderTempl: (ctx) -> _.template """
+        # Needs to be compiled as late as possible to take the configured message and css values,
+        # hence presented as a closure rather than a precompiled template.
+        columnHeaderTempl: (ctx) -> _.template """ 
             <th>
                 <div class="navbar">
                     <div class="im-th-buttons">
                         <% if (sortable) { %>
-                            <div class="im-th-button im-col-sort-indicator" title="sort this column">
+                            <a href="#" class="im-th-button im-col-sort-indicator" title="sort this column">
                                 <i class="icon-sorting #{intermine.css.unsorted} #{ intermine.css.headerIcon }"></i>
-                            </div>
+                            </a>
                         <% }; %>
-                        <div class="im-th-button im-col-remover" title="remove this column" data-view="<%= view %>">
+                        <a href="#" class="im-th-button im-col-remover" title="remove this column" data-view="<%= view %>">
                             <i class="#{ intermine.css.headerIconRemove } #{ intermine.css.headerIcon }"></i>
-                        </div>
-                        <div class="im-th-button im-col-minumaximiser" title="Hide column" data-col-idx="<%= i %>">
+                        </a>
+                        <a href="#" class="im-th-button im-col-minumaximiser" title="Toggle column" data-col-idx="<%= i %>">
                             <i class="#{ intermine.css.headerIconHide } #{ intermine.css.headerIcon }"></i>
-                        </div>
+                        </a>
                         <div class="dropdown im-filter-summary">
-                            <div class="im-th-button im-col-filters dropdown-toggle"
+                            <a href="#" class="im-th-button im-col-filters dropdown-toggle"
                                  title="Filter by values in this column"
                                  data-toggle="dropdown" data-col-idx="<%= i %>" >
                                 <i class="#{ intermine.icons.Filter } #{ intermine.css.headerIcon }"></i>
-                            </div>
+                            </a>
                             <div class="dropdown-menu">
                                 <div>Could not ititialise the filter summary.</div>
                             </div>
                         </div>
                         <div class="dropdown im-summary">
-                            <div class="im-th-button summary-img dropdown-toggle" title="column summary"
+                            <a href="#" class="im-th-button summary-img dropdown-toggle" title="column summary"
                                 data-toggle="dropdown" data-col-idx="<%= i %>" >
                                 <i class="#{ intermine.icons.Summary } #{ intermine.css.headerIcon }"></i>
-                            </div>
+                            </a>
                             <div class="dropdown-menu">
                                 <div>Could not ititialise the column summary.</div>
                             </div>
@@ -227,11 +231,6 @@ scope "intermine.query.results", (exporting) ->
             direction = q.getSortDirection(view)
             sortable = !q.isOuterJoined(view)
             th = $ @columnHeaderTempl {title, titleParts, i, view, sortable}
-            #   title: title
-            #   titleParts: titleParts
-            #   i: i
-            #   view: view
-            #   sortable: sortable
                 
             tr.append th
             
@@ -274,9 +273,9 @@ scope "intermine.query.results", (exporting) ->
                 th.find('.summary-img').click(@showColumnSummary(path)).dropdown()
             else
                 th.find('.summary-img').click(@showOuterJoinedColumnSummaries(path)).dropdown()
-                expandAll = $ """<div class="im-th-button" title="Expand/Collapse all subtables">
+                expandAll = $ """<a href="#" class="im-th-button" title="Expand/Collapse all subtables">
                     <i class="icon-table icon-white"></i>
-                </div>"""
+                </a>"""
                 expandAll.tooltip placement: 'left'
                 th.find('.im-th-buttons').prepend expandAll
                 cmds = ['expand', 'collapse']
@@ -403,7 +402,7 @@ scope "intermine.query.results", (exporting) ->
                     <li title="Go to start">
                         <a class="im-pagination-button" data-goto=start>&#x21e4;</a>
                     </li>
-                    <li title="Go back five pages">
+                    <li title="Go back five pages" class="visible-desktop">
                         <a class="im-pagination-button" data-goto=fast-rewind>&#x219e;</a>
                     </li>
                     <li title="Go to previous page">
@@ -418,7 +417,7 @@ scope "intermine.query.results", (exporting) ->
                     <li title="Go to next page">
                         <a class="im-pagination-button" data-goto=next>&rarr;</a>
                     </li>
-                    <li title="Go forward five pages">
+                    <li title="Go forward five pages" class="visible-desktop">
                         <a class="im-pagination-button" data-goto=fast-forward>&#x21a0;</a>
                     </li>
                     <li title="Go to last page">
@@ -625,8 +624,8 @@ scope "intermine.query.results", (exporting) ->
                 page = @getPage start, size
                 @overlayTable()
 
-                req = @query[@fetchMethod] page, (rows, resultSet) =>
-                    @addRowsToCache page, resultSet
+                req = @query[@fetchMethod] {start: page.start, size: page.size}, (rows, rs) =>
+                    @addRowsToCache page, rs
                     @cache.freshness = freshness
                 req.fail @showError
                 req.done () => promise.resolve @serveResultsFromCache start, size

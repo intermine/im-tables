@@ -49,7 +49,7 @@ scope "intermine.query",  (exporting) ->
         editConstraint: (e) ->
             e.stopPropagation()
             e.preventDefault()
-            @removeConstraint()
+            @removeConstraint(e, silently = true)
             if @con.get('op') in intermine.Query.MULTIVALUE_OPS.concat(intermine.Query.NULL_OPS)
                 @con.unset('value')
             if @con.get('op') in intermine.Query.ATTRIBUTE_VALUE_OPS.concat(intermine.Query.NULL_OPS)
@@ -63,7 +63,7 @@ scope "intermine.query",  (exporting) ->
             while (ta = @typeaheads.shift())
                 ta.remove()
 
-        removeConstraint: (silently = true) ->
+        removeConstraint: (e, silently = false) ->
             @query.removeConstraint @orig, silently
 
         addIcons: ($label) ->
@@ -156,7 +156,7 @@ scope "intermine.query",  (exporting) ->
                         </button>
                     """
                 button.appendTo grp
-                button.click (e) =>
+                button.click (e) => # For some reason the buttons plugin isn't working, grrr
                     wasActive = button.is '.active'
                     grp.find('button').removeClass 'active'
                     unless wasActive

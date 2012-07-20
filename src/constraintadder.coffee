@@ -165,7 +165,8 @@ scope "intermine.query", (exporting) ->
         render: () ->
             cd = @path.getEndClass()
             for apath in @attributes
-                @$el.append(new Attribute(@query, apath, @depth, @evts, @getDisabled, @multiSelect).render().el)
+                if intermine.options.ShowId or apath.end.name isnt 'id'
+                    @$el.append(new Attribute(@query, apath, @depth, @evts, @getDisabled, @multiSelect).render().el)
             @$el.append PathChooser.DIVIDER
             for rpath in @references
                 @$el.append(new Reference(@query, rpath, @depth, @evts, @getDisabled, @multiSelect, @canSelectRefs).render().el)
