@@ -27,7 +27,7 @@ scope = (path, code = (() ->), overwrite = false) ->
     return ns
 
 # Export this out for others to use.
-scope "intermine", {scope: scope}
+scope "intermine", {scope: scope}, true
 
 
 

@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Fri Jul 20 2012 17:37:59 GMT+0100 (BST)
+ * Built at Fri Jul 20 2012 19:19:57 GMT+0100 (BST)
 */
 
 
@@ -93,6 +93,10 @@
     }
     return ns;
   };
+
+  scope("intermine", {
+    scope: scope
+  }, true);
 
   scope("intermine.icons", {
     Yes: "icon-star",
@@ -5262,7 +5266,7 @@
   });
 
   scope("intermine.query.results.table", function(exporting) {
-    var ColumnAdder, ColumnsDialogue, OuterJoinGroup;
+    var ColumnAdder, ColumnsDialogue, NewViewNodes, OuterJoinGroup, ViewNode;
     OuterJoinGroup = (function(_super) {
 
       __extends(OuterJoinGroup, _super);
@@ -5276,48 +5280,10 @@
       OuterJoinGroup.prototype.className = 'im-reorderable breadcrumb';
 
       OuterJoinGroup.prototype.initialize = function(query, newView) {
-        var paths, v;
         this.query = query;
         this.newView = newView;
-        this.ojg = this.newView.get('path');
-        paths = (function() {
-          var _i, _len, _ref, _results;
-          _ref = this.newView.get('paths');
-          _results = [];
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            v = _ref[_i];
-            _results.push(this.query.getPathInfo(v));
-          }
-          return _results;
-        }).call(this);
-        this.nodes = _.groupBy(paths, function(p) {
-          return p.getParent().toString();
-        });
+        console.log(this.newView);
         return this.newView.on('destroy', this.remove, this);
-      };
-
-      OuterJoinGroup.prototype.getViews = function() {
-        var key, ret, _fn, _i, _len, _ref,
-          _this = this;
-        ret = [];
-        _ref = _.sortBy(_.keys(this.nodes), function(k) {
-          return k.length;
-        });
-        _fn = function(key) {
-          var node, p, _j, _len1, _results;
-          node = _this.nodes[key];
-          _results = [];
-          for (_j = 0, _len1 = node.length; _j < _len1; _j++) {
-            p = node[_j];
-            _results.push(ret.push(p.toString()));
-          }
-          return _results;
-        };
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          key = _ref[_i];
-          _fn(key);
-        }
-        return ret;
       };
 
       OuterJoinGroup.prototype.render = function() {
@@ -5332,17 +5298,17 @@
         });
         h4 = $('<h4>');
         this.$el.append(h4);
-        this.ojg.getDisplayName(function(name) {
+        this.newView.get('path').getDisplayName(function(name) {
           return h4.text(name);
         });
-        this.$el.data('path', this.ojg.toString());
+        this.$el.data('path', this.newView.get('path').toString());
         ul = $('<ul>');
-        _ref = _.sortBy(_.keys(this.nodes), function(k) {
+        _ref = _.sortBy(_.keys(this.newView.nodes), function(k) {
           return k.length;
         });
         _fn = function(key) {
           var p, paths, _j, _len1, _results;
-          paths = _this.nodes[key];
+          paths = _this.newView.nodes[key];
           _results = [];
           for (_j = 0, _len1 = paths.length; _j < _len1; _j++) {
             p = paths[_j];
@@ -5353,11 +5319,11 @@
               li.find('a').click(function(e) {
                 e.stopPropagation();
                 return _this.newView.set({
-                  paths: _.without(_this.newView.get('paths'), p.toString())
+                  paths: _.without(_this.newView.get('paths'), p)
                 });
               });
               return p.getDisplayName(function(name) {
-                return _this.ojg.getDisplayName(function(ojname) {
+                return _this.newView.get('path').getDisplayName(function(ojname) {
                   return li.find('span').text(name.replace(ojname, '').replace(/^\s*>?\s*/, ''));
                 });
               });
@@ -5371,18 +5337,6 @@
         }
         this.$el.append(ul);
         return this;
-      };
-
-      OuterJoinGroup.prototype.addPath = function(path) {
-        var node, pi;
-        pi = this.query.getPathInfo(path);
-        node = this.nodes[pi.getParent().toString()];
-        if (node == null) {
-          node = this.nodes[pi.getParent().toString()] = [];
-        }
-        node.push(pi);
-        this.$el.empty();
-        return this.render();
       };
 
       return OuterJoinGroup;
@@ -5451,6 +5405,78 @@
       return ColumnAdder;
 
     })(intermine.query.ConstraintAdder);
+    ViewNode = (function(_super) {
+
+      __extends(ViewNode, _super);
+
+      function ViewNode() {
+        return ViewNode.__super__.constructor.apply(this, arguments);
+      }
+
+      ViewNode.prototype.initialize = function() {
+        console.log("Initializing");
+        if (this.get('isOuterJoined')) {
+          return this.nodes = _.groupBy(this.get('paths'), function(p) {
+            return p.getParent().toString();
+          });
+        }
+      };
+
+      ViewNode.prototype.addPath = function(path) {
+        var node;
+        node = this.nodes[path.getParent().toString()];
+        if (node == null) {
+          node = this.nodes[path.getParent().toString()] = [];
+        }
+        node.push(path);
+        this.trigger("change");
+        return this.trigger("change:paths");
+      };
+
+      ViewNode.prototype.getViews = function() {
+        var key, ret, _fn, _i, _len, _ref,
+          _this = this;
+        if (this.get('isOuterJoined')) {
+          ret = [];
+          _ref = _.sortBy(_.keys(this.nodes), function(k) {
+            return k.length;
+          });
+          _fn = function(key) {
+            var node, p, _j, _len1, _results;
+            node = _this.nodes[key];
+            _results = [];
+            for (_j = 0, _len1 = node.length; _j < _len1; _j++) {
+              p = node[_j];
+              _results.push(ret.push(p.toString()));
+            }
+            return _results;
+          };
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            key = _ref[_i];
+            _fn(key);
+          }
+        } else {
+          ret = [this.get('path').toString()];
+        }
+        return ret;
+      };
+
+      return ViewNode;
+
+    })(Backbone.Model);
+    NewViewNodes = (function(_super) {
+
+      __extends(NewViewNodes, _super);
+
+      function NewViewNodes() {
+        return NewViewNodes.__super__.constructor.apply(this, arguments);
+      }
+
+      NewViewNodes.prototype.model = ViewNode;
+
+      return NewViewNodes;
+
+    })(Backbone.Collection);
     return exporting(ColumnsDialogue = (function(_super) {
 
       __extends(ColumnsDialogue, _super);
@@ -5467,7 +5493,7 @@
       ColumnsDialogue.prototype.initialize = function(query) {
         var _this = this;
         this.query = query;
-        this.newView = new Backbone.Collection();
+        this.newView = new NewViewNodes();
         this.newView.on('add remove change', this.drawOrder, this);
         this.newView.on('destroy', function(nv) {
           return _this.newView.remove(nv);
@@ -5487,12 +5513,10 @@
               ojg = _.last(_.sortBy(ojgs, function(nv) {
                 return nv.get('path').descriptors.length;
               }));
-              ojg.get('paths').push(pstr);
-              _results.push(_this.newView.trigger('change'));
+              _results.push(ojg.addPath(_this.query.getPathInfo(pstr)));
             } else {
               _results.push(_this.newView.add({
-                path: _this.query.getPathInfo(pstr),
-                paths: [pstr]
+                path: _this.query.getPathInfo(pstr)
               }));
             }
           }
@@ -5535,14 +5559,14 @@
       };
 
       ColumnsDialogue.prototype.initOrdering = function() {
-        var isOuterJoined, node, oj, ojStr, path, paths, v, _i, _len, _ref;
+        var isOuterJoined, node, oj, ojStr, path, paths, v, _i, _len, _ref,
+          _this = this;
         this.newView.reset();
         this.ojgs = {};
         _ref = this.query.views;
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           v = _ref[_i];
           path = this.query.getPathInfo(v);
-          paths = [v];
           isOuterJoined = this.query.isOuterJoined(v);
           if (isOuterJoined) {
             oj = this.query.joins[path.toString()] === 'OUTER' ? path : null;
@@ -5555,6 +5579,8 @@
             if (!this.ojgs[ojStr]) {
               paths = this.query.views.filter(function(v) {
                 return v.match(ojStr);
+              }).map(function(v) {
+                return _this.query.getPathInfo(v);
               });
               path = oj;
               this.newView.add({
@@ -5569,7 +5595,6 @@
           } else {
             this.newView.add({
               path: path,
-              paths: paths,
               isOuterJoined: isOuterJoined
             }, {
               silent: true
@@ -5785,7 +5810,7 @@
       ColumnsDialogue.prototype.changeOrder = function(e) {
         var newViews;
         newViews = _.flatten(this.newView.map(function(v) {
-          return v.get('paths');
+          return v.getViews();
         }));
         this.hideModal();
         return this.query.select(newViews);
@@ -6111,7 +6136,8 @@
         hh = h * 0.7;
         max = _.max(_.pluck(items, "count"));
         w = this.$el.closest(':visible').width() * 0.95;
-        acceptableGap = w / 15;
+        acceptableGap = Math.max(w / 15, ("" + items[0].max).split("").length * 5 * 1.5);
+        console.log(acceptableGap, max);
         p = this.paper;
         gap = 0;
         topMargin = h * 0.1;

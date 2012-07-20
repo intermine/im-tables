@@ -9,18 +9,7 @@ scope "intermine.query.results.table", (exporting) ->
         className: 'im-reorderable breadcrumb'
 
         initialize: (@query, @newView) ->
-            @ojg = @newView.get('path')
-            paths = (@query.getPathInfo(v) for v in @newView.get('paths'))
-            @nodes = _.groupBy(paths, (p) -> p.getParent().toString())
             @newView.on 'destroy', @remove, @
-
-        getViews: () ->
-            ret = []
-            for key in _.sortBy(_.keys(@nodes), (k) -> k.length) then do (key) =>
-                node = @nodes[key]
-                for p in node
-                    ret.push p.toString()
-            ret
 
         render: () ->
             @$el.append '<i class="icon-reorder pull-right"></i>'
@@ -35,11 +24,11 @@ scope "intermine.query.results.table", (exporting) ->
                 @newView.destroy()
             h4 = $ '<h4>'
             @$el.append h4
-            @ojg.getDisplayName (name) -> h4.text name
-            @$el.data 'path', @ojg.toString()
+            @newView.get('path').getDisplayName (name) -> h4.text name
+            @$el.data 'path', @newView.get('path').toString()
             ul = $ '<ul>'
-            for key in _.sortBy(_.keys(@nodes), (k) -> k.length) then do (key) =>
-                paths = @nodes[key]
+            for key in _.sortBy(_.keys(@newView.nodes), (k) -> k.length) then do (key) =>
+                paths = @newView.nodes[key]
                 for p in paths then do (p) =>
                     li = $ """
                         <li class="im-outer-joined-path">
@@ -50,22 +39,14 @@ scope "intermine.query.results.table", (exporting) ->
                     ul.append li
                     li.find('a').click (e) =>
                         e.stopPropagation()
-                        @newView.set paths: _.without @newView.get('paths'), p.toString()
+                        @newView.set paths: _.without @newView.get('paths'), p
 
                     p.getDisplayName (name) =>
-                        @ojg.getDisplayName (ojname) ->
+                        @newView.get('path').getDisplayName (ojname) ->
                             li.find('span').text name.replace(ojname, '').replace(/^\s*>?\s*/, '')
             @$el.append ul
             this
 
-        addPath: (path) ->
-            pi = @query.getPathInfo(path)
-            node = @nodes[pi.getParent().toString()]
-            unless node?
-                node = @nodes[pi.getParent().toString()] = []
-            node.push pi
-            @$el.empty()
-            @render()
 
     class ColumnAdder extends intermine.query.ConstraintAdder
         className: "form node-adder btn-group"
@@ -100,12 +81,40 @@ scope "intermine.query.results.table", (exporting) ->
             @$('input').remove()
             this
 
+    class ViewNode extends Backbone.Model
+
+        initialize: ->
+            if @get 'isOuterJoined'
+                @nodes =  _.groupBy @get('paths'), (p) -> p.getParent().toString()
+            
+        addPath: (path) ->
+            node = @nodes[path.getParent().toString()]
+            unless node?
+                node = @nodes[path.getParent().toString()] = []
+            node.push path
+            @trigger "change"
+            @trigger "change:paths"
+
+        getViews: () ->
+            if @get 'isOuterJoined'
+                ret = []
+                for key in _.sortBy(_.keys(@nodes), (k) -> k.length) then do (key) =>
+                    node = @nodes[key]
+                    for p in node
+                        ret.push p.toString()
+            else
+                ret = [@get('path').toString()]
+            ret
+
+    class NewViewNodes extends Backbone.Collection
+        model: ViewNode
+
     exporting class ColumnsDialogue extends Backbone.View
         tagName: "div"
         className: "im-column-dialogue modal fade"
         
         initialize: (@query) ->
-            @newView = new Backbone.Collection()
+            @newView = new NewViewNodes()
             @newView.on 'add remove change', @drawOrder, @
             @newView.on 'destroy', (nv) => @newView.remove(nv)
             @query.on 'column-orderer:selected', (paths) =>
@@ -115,10 +124,9 @@ scope "intermine.query.results.table", (exporting) ->
                         ojgs = @newView.filter( (nv) -> nv.get('isOuterJoined') )
                                        .filter( (nv) -> !!pstr.match(nv.get('path').toString()) )
                         ojg = _.last(_.sortBy(ojgs, (nv) -> nv.get('path').descriptors.length))
-                        ojg.get('paths').push(pstr)
-                        @newView.trigger 'change'
+                        ojg.addPath(@query.getPathInfo(pstr))
                     else
-                        @newView.add {path: @query.getPathInfo(pstr), paths: [pstr]}
+                        @newView.add {path: @query.getPathInfo(pstr)}
 
         html: """
          <div class="modal-header">
@@ -197,7 +205,6 @@ scope "intermine.query.results.table", (exporting) ->
             @ojgs = {}
             for v in @query.views
                 path = @query.getPathInfo v
-                paths = [v]
                 isOuterJoined = @query.isOuterJoined v
                 if isOuterJoined
                     # Find oj closest to root
@@ -208,13 +215,13 @@ scope "intermine.query.results.table", (exporting) ->
                         oj = if @query.joins[node.toString()] is 'OUTER' then node else oj
                     ojStr = oj.toString()
                     unless @ojgs[ojStr] # Done this one already
-                        paths = @query.views.filter((v) -> v.match(ojStr))
+                        paths = @query.views.filter((v) -> v.match(ojStr)).map((v) => @query.getPathInfo(v))
                         path = oj
                         @newView.add {path, paths, isOuterJoined}, {silent: true}
                         @ojgs[ojStr] = @newView.last()
                 
                 else
-                    @newView.add {path, paths, isOuterJoined}, {silent: true}
+                    @newView.add {path, isOuterJoined}, {silent: true}
             @drawOrder()
 
         drawOrder: ->
@@ -357,7 +364,7 @@ scope "intermine.query.results.table", (exporting) ->
                 @changeSorting(e)
 
         changeOrder: (e) ->
-            newViews = _.flatten @newView.map (v) -> v.get 'paths'
+            newViews = _.flatten @newView.map (v) -> v.getViews()
             @hideModal()
             @query.select(newViews)
 

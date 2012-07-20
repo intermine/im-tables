@@ -239,8 +239,10 @@ scope "intermine.results", (exporting) ->
             h = 75
             hh = h * 0.7
             max = _.max _.pluck items, "count"
+            
             w = @$el.closest(':visible').width() * 0.95
-            acceptableGap = w / 15
+            acceptableGap = Math.max (w / 15), "#{items[0].max}".split("").length * 5 * 1.5
+            console.log acceptableGap, max
             p = @paper
             gap = 0
             topMargin = h * 0.1
