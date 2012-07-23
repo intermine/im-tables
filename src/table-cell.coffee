@@ -38,10 +38,15 @@ scope "intermine.results.table", (exporting) ->
                 <span class="null-value">no value</span>
             <% } else { %>
                 <% if (url != null && url.match(/^http/)) { %>
-                  <a class="im-cell-link" href="<%= url %>"><%= value %></a>
+                  <a class="im-cell-link" href="<%= url %>">
+                    <% if (!url.match(window.location.origin)) { %>
+                        <i class="icon-globe"></i>
+                    <% } %>
                 <% } else { %>
-                  <a class="im-cell-link" href="<%= base %><%= url %>"><%= value %></a>
+                  <a class="im-cell-link" href="<%= base %><%= url %>">
                 <% } %>
+                    <%- value %>
+                </a>
             <% } %>
             <% if (field == 'url') { %>
                 <a class="im-cell-link external" href="<%= value %>"><i class="icon-globe"></i>link</a>
