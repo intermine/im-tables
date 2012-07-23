@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Mon Jul 23 2012 16:18:21 GMT+0100 (BST)
+ * Built at Mon Jul 23 2012 17:24:27 GMT+0100 (BST)
 */
 
 
@@ -6110,16 +6110,27 @@
         canvas = this.make("div");
         $(this.container).append(canvas);
         this.paper = Raphael(canvas, this.$el.width(), 75);
+        this.throbber = $("<div class=\"progress progress-info progress-striped active\">\n    <div class=\"bar\" style=\"width:100%\"></div>\n</div>");
+        this.throbber.appendTo(this.el);
         promise = this.query.summarise(this.facet.path, this.handleSummary);
         promise.fail(this.remove);
         return this;
       };
 
-      NumericFacet.prototype.handleSummary = function(items) {
-        var summary;
+      NumericFacet.prototype.handleSummary = function(items, total) {
+        var hasMore, hf, summary;
+        this.throbber.remove();
         summary = items[0];
         if (summary.item != null) {
-          return this.$el.empty().append(intermine.snippets.facets.OnlyOne(summary));
+          if (items.length > 1) {
+            hasMore = items.length < this.limit ? false : total > this.limit;
+            this.paper.remove();
+            hf = new HistoFacet(this.query, this.facet, items, hasMore, "");
+            this.$el.append(hf.el);
+            return hf.render();
+          } else {
+            return this.$el.empty().append(intermine.snippets.facets.OnlyOne(summary));
+          }
         }
         this.mean = parseFloat(summary.average);
         this.dev = parseFloat(summary.stdev);

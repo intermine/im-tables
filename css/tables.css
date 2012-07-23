@@ -1642,7 +1642,7 @@ form tr.active {
     background: #D9EDF7;
 }
 
-.im-item-table > table > tbody > tr.active > td {
+.im-query-display .im-item-table > table > tbody > tr.active > td {
     background-color: transparent;
 }
 
@@ -1728,7 +1728,8 @@ path.disabled {
 }
 
 path.selected {
-    fill: #c9aad4;
+    fill: #5cb35d;
+    stroke: #5cb35d;
 }
 
 path.yaxis {

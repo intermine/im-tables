@@ -149,14 +149,30 @@ scope "intermine.results", (exporting) ->
             canvas = @make "div"
             $(@container).append canvas
             @paper = Raphael(canvas, @$el.width(), 75)
+            @throbber = $ """
+                <div class="progress progress-info progress-striped active">
+                    <div class="bar" style="width:100%"></div>
+                </div>
+            """
+            @throbber.appendTo @el
             promise = @query.summarise @facet.path, @handleSummary
             promise.fail @remove
             this
 
-        handleSummary: (items) =>
+        handleSummary: (items, total) =>
+            @throbber.remove()
             summary = items[0]
-            if summary.item? # Dealing with the single value edge case here...
-                return @$el.empty().append intermine.snippets.facets.OnlyOne(summary)
+            if summary.item?
+                if items.length > 1
+                    # A numerical column configured to present as a string column.
+                    hasMore = if items.length < @limit then false else (total > @limit)
+                    @paper.remove()
+                    hf = new HistoFacet @query, @facet, items, hasMore, ""
+                    @$el.append hf.el
+                    return hf.render()
+                else
+                    # Dealing with the single value edge case here...
+                    return @$el.empty().append intermine.snippets.facets.OnlyOne(summary)
             @mean = parseFloat(summary.average)
             @dev = parseFloat(summary.stdev)
             @max = summary.max
