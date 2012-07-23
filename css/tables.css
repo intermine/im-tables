@@ -463,6 +463,10 @@
     margin-left: 0.5em;
 }
 
+.modal.im-page-size-sanity-check .modal-body ul li {
+    margin-bottom: 1em;
+}
+
 .im-query-results .im-page-sizer select {
     height: 34px; /* Sorry about the hard-coding - but this is required to match bootstrap */
 }
@@ -713,6 +717,7 @@ ul.im-cols {
     width: 40%;
     height: 15em;
     overflow-y: auto;
+    overflow-x: hidden;
     position: relative;
 }
 

@@ -19,10 +19,11 @@ scope "intermine.messages.actions", {
     SomeRows: "Specific Range",
     WhichRows: "Rows to Export",
     RowsHelp: "Export all rows, or define a range of rows to export.",
-    AllColumns: "Columns On Table",
-    SomeColumns: "Specific Columns",
+    AllColumns: "All Current Columns",
+    SomeColumns: "Choose Columns",
     ColumnsHelp: "Export all columns, or choose specific columns to export.",
-    WhichColumns: "Columns to Export"
+    WhichColumns: "Columns to Export",
+    ResetColumns: "Reset Columns.",
     FirstRow: "From",
     LastRow: "To",
     ColumnHeaders: "Include Column Headers",
@@ -243,6 +244,7 @@ scope "intermine.query.actions", (exporting) ->
             @exportedCols.on 'add remove reset', @initCols
 
         events:
+            'click .im-reset-cols': 'resetCols'
             'click .im-col-btns': 'toggleColSelection'
             'click .im-row-btns': 'toggleRowSelection'
             'click a.im-open-dialogue': 'openDialogue'
@@ -373,6 +375,12 @@ scope "intermine.query.actions", (exporting) ->
                 start: 0
                 end: @count
 
+            @resetCols()
+
+        resetCols: (e) ->
+            e?.stopPropagation()
+            e?.preventDefault()
+            @$('.im-reset-cols').addClass 'disabled'
             @exportedCols.reset @query.views.map (v) => path: @query.getPathInfo v
 
         updateFormat: (e) -> @requestInfo.set format: @$('.im-export-format').val()
@@ -537,18 +545,20 @@ scope "intermine.query.actions", (exporting) ->
                     li.append """
                         <div class="label label-included">
                             <i class="#{intermine.icons.Move} im-move pull-right"></i>
-                            <a href="#"><i class="#{intermine.icons.Remove}"></i></a>
                             #{ name }
                         </div>
                     """
                     li.find('a').click () => li.slideUp 'fast', () =>
+                        @$('.im-reset-cols').removeClass('disabled')
                         @exportedCols.remove col
                         emphasise maybes
 
             cols.sortable
                 items: 'li'
+                axis: 'y'
                 placeholder: 'ui-state-highlight'
                 update: (e, ui) =>
+                    @$('.im-reset-cols').removeClass('disabled')
                     @exportedCols.reset(cols.find('li').map( (i, elem) -> $(elem).data('col') ).get(), silent: true)
 
             maybes = @$ '.im-can-be-exported-cols'
@@ -556,6 +566,7 @@ scope "intermine.query.actions", (exporting) ->
                 for cn in n.getChildNodes() when cn.isAttribute() and not @exportedCols.any((col) -> col.get('path').toString() is cn.toString())
                     if intermine.options.ShowId or cn.end.name isnt "id"
                         li = $ """<li></li>"""
+                        li.data(col: new Backbone.Model(col: cn))
                         li.appendTo maybes
                         do (cn, li) =>
                             cn.getDisplayName (name) =>
@@ -566,6 +577,7 @@ scope "intermine.query.actions", (exporting) ->
                                     </div>
                                 """
                                 li.find('a').click (e) => li.slideUp 'fast', () =>
+                                    @$('.im-reset-cols').removeClass('disabled')
                                     @exportedCols.add path: cn
                                     emphasise cols
 
@@ -944,21 +956,43 @@ scope "intermine.query.actions", (exporting) ->
             now = new Date()
             dateStr = "#{ now }".replace(/\s\d\d:\d\d:\d\d\s.*$/, '')
             
-            text = "#{ type } list #{ dateStr }"
+            text = "#{ type } list - #{ dateStr }"
             
             $target = @$ '.im-list-name'
 
             if @usingDefaultName
                 copyNo = 1
                 textBase = text
+                $target.val text
                 @query.service.fetchLists (ls) =>
 
                     for l in _.sortBy(ls, (l) -> l.name)
                         if l.name is text
                             text = "#{textBase} (#{ copyNo++ })"
+                            $target.val text
 
-                    $target.val text
                     @usingDefaultName = true
+                cd = @query.service.model.classes[type]
+                # The following is much too specific and should be configurable...
+                # TODO: refactor this out into general logic 
+                # and make it work with selections for all objects.
+                if cd.fields['organism']?
+                    ids = _.keys(@types)
+                    if ids?.length
+                        oq =
+                            select: 'organism.shortName',
+                            from: type,
+                            where:
+                                id: _.keys(@types)
+
+                        @query.service.query oq, (orgQuery) ->
+                            orgQuery.count (c) ->
+                                if c is 1
+                                    orgQuery.rows (rs) ->
+                                        newVal = "#{ type } list for #{ rs[0][0] } - #{ dateStr }"
+                                        textBase = newVal
+                                        $target.val newVal
+
 
             @$('.im-list-type').val(type)
 

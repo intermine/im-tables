@@ -362,7 +362,7 @@ scope "intermine.query.results", (exporting) ->
 
         tagName: 'form'
         className: "im-page-sizer form-horizontal"
-        sizes: [[10], [25], [50], [100], [0, 'All']]
+        sizes: [[10], [25], [50], [100], [250]] # [0, 'All']]
 
         initialize: (@query, @pageSize) ->
             if @pageSize?
@@ -428,7 +428,7 @@ scope "intermine.query.results", (exporting) ->
         """
 
         reallyDialogue: """
-            <div class="modal fade">
+            <div class="modal fade im-page-size-sanity-check">
                 <div class="modal-header">
                     <h3>
                         Are you sure?
@@ -452,20 +452,33 @@ scope "intermine.query.results", (exporting) ->
                                 single page.
                             </p>
                             <button class="btn im-alternative-action" data-event="add-filter-dialogue:please">
+                                <i class="#{ intermine.icons.Filter }"></i>
                                 Add a new filter.
                             </button>
                         </li>
                         <li>
                             <p>
                                 If you want to see all the data, you can page 
-                                <span class="label label-info">backwards</span>
+                                <span class="label label-info">
+                                    <i class="icon-chevron-left"></i>
+                                    backwards
+                                </span>
                                 and 
-                                <span class="label label-info">forwards</span>
+                                <span class="label label-info">
+                                    forwards
+                                    <i class="icon-chevron-right"></i>
+                                </span>
                                 through the results.
                             </p>
                             <div class="btn-group">
-                                <a class="btn im-alternative-action" data-event="page:backwards" href="#">back</a>
-                                <a class="btn im-alternative-action" data-event="page:forwards" href="#">forward</a>
+                                <a class="btn im-alternative-action" data-event="page:backwards" href="#">
+                                    <i class="icon-chevron-left"></i>
+                                    go one page back
+                                </a>
+                                <a class="btn im-alternative-action" data-event="page:forwards" href="#">
+                                    go one page forward
+                                    <i class="icon-chevron-right"></i>
+                                </a>
                             </div>
                         </li>
                         <li>
@@ -475,6 +488,7 @@ scope "intermine.query.results", (exporting) ->
                                 the results in a format that suits you. 
                             <p>
                             <button class="btn im-alternative-action" data-event="download-menu:open">
+                                <i class="#{ intermine.icons.Export }"></i>
                                 Open the download menu.
                             </buttn>
                         </li>

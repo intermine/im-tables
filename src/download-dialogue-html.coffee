@@ -26,7 +26,7 @@ scope 'intermine.snippets.actions', {
                             #{ intermine.messages.actions.WhichColumns }
                         </span>
                         <div class="im-col-btns radio btn-group pull-right span8">
-                            <button class="btn active im-all-cols span5">
+                            <button class="btn active im-all-cols span6">
                                 #{ intermine.messages.actions.AllColumns }
                             </button>
                             <button class="btn span5">
@@ -42,11 +42,10 @@ scope 'intermine.snippets.actions', {
                             <h4>#{ intermine.messages.actions.ExportedColumns }</h4>
                         </ul>
                         <div style="clear:both;"></div>
-                        <div class="alert alert-info">
-                            <button class="close" data-dismiss="alert">×</button>
-                            <strong>ps</strong>
-                            <p>#{ intermine.messages.actions.ChangeColumns }</p>
-                        </div>
+                        <button class="im-reset-cols btn disabled">
+                            <i class="#{ intermine.icons.Undo }"></i>
+                            #{ intermine.messages.actions.ResetColumns }
+                        </button>
                     </div>
                     </div>
                     <div class="row-fluid">
@@ -55,7 +54,7 @@ scope 'intermine.snippets.actions', {
                             #{ intermine.messages.actions.WhichRows }
                             </span>
                         <div class="im-row-btns radio span8 btn-group pull-right" data-toggle="buttons-radio">
-                            <button class="btn active im-all-rows span5">#{ intermine.messages.actions.AllRows }</button>
+                            <button class="btn active im-all-rows span6">#{ intermine.messages.actions.AllRows }</button>
                             <button class="btn span5">#{ intermine.messages.actions.SomeRows }</button>
                         </div>
                     </label>
