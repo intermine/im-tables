@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Mon Jul 23 2012 09:42:44 GMT+0100 (BST)
+ * Built at Mon Jul 23 2012 10:23:23 GMT+0100 (BST)
 */
 
 
@@ -3543,10 +3543,10 @@
           case 'tab':
           case 'csv':
             opts.append("<label>\n    <span class=\"span4\">\n        " + intermine.messages.actions.ColumnHeaders + "\n    </span>\n    <span class=\"span8\">\n        <input type=\"checkbox\" class=\"im-column-headers pull-right\">\n    </span>\n</label>");
-            return opts.find('.im-column-headers').toggleClass('active', !!requestInfo.get('columnHeaders')).click(function(e) {
-              var btn;
-              btn = $(this);
-              return requestInfo.set('columnHeaders', btn.is('.active'));
+            return opts.find('.im-column-headers').change(function(e) {
+              return requestInfo.set({
+                columnHeaders: $(this).is(':checked')
+              });
             });
           case 'bed':
             chrPref = $("<label>\n    <span class=\"span4\">\n        " + intermine.messages.actions.ChrPrefix + "\n    </span>\n    <input type=\"checkbox\" class=\"span8\">\n    <div style=\"clear:both\"></div>\n</label>");

@@ -400,9 +400,8 @@ scope "intermine.query.actions", (exporting) ->
                             </span>
                         </label>
                     """
-                    opts.find('.im-column-headers').toggleClass('active', !!requestInfo.get('columnHeaders')).click (e) ->
-                        btn = $ @
-                        requestInfo.set 'columnHeaders', btn.is '.active'
+                    opts.find('.im-column-headers').change (e) ->
+                        requestInfo.set columnHeaders: $(@).is ':checked'
 
                 when 'bed'
                     chrPref = $ """
