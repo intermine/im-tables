@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Mon Jul 23 2012 10:23:23 GMT+0100 (BST)
+ * Built at Mon Jul 23 2012 10:36:13 GMT+0100 (BST)
 */
 
 
@@ -3687,8 +3687,10 @@
           return path.getDisplayName(function(name) {
             li.append("<div class=\"label label-included\">\n    <i class=\"" + intermine.icons.Move + " im-move pull-right\"></i>\n    <a href=\"#\"><i class=\"" + intermine.icons.Remove + "\"></i></a>\n    " + name + "\n</div>");
             return li.find('a').click(function() {
-              _this.exportedCols.remove(col);
-              return emphasise(maybes);
+              return li.slideUp('fast', function() {
+                _this.exportedCols.remove(col);
+                return emphasise(maybes);
+              });
             });
           });
         });
@@ -3715,24 +3717,29 @@
             _results1 = [];
             for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
               cn = _ref1[_j];
-              if (!(cn.isAttribute() && !this.exportedCols.any(function(path) {
-                return path.toString() === cn.toString();
-              }))) {
-                continue;
-              }
-              li = $("<li></li>");
-              li.appendTo(maybes);
-              _results1.push((function(cn, li) {
-                return cn.getDisplayName(function(name) {
-                  li.append("<div class=\"label label-available\">\n    <a href=\"#\"><i class=\"" + intermine.icons.Add + "\"></i></a>\n    " + name + "\n</div>");
-                  return li.find('a').click(function(e) {
-                    _this.exportedCols.add({
-                      path: cn
+              if (cn.isAttribute() && !this.exportedCols.any(function(col) {
+                return col.get('path').toString() === cn.toString();
+              })) {
+                if (intermine.options.ShowId || cn.end.name !== "id") {
+                  li = $("<li></li>");
+                  li.appendTo(maybes);
+                  _results1.push((function(cn, li) {
+                    return cn.getDisplayName(function(name) {
+                      li.append("<div class=\"label label-available\">\n    <a href=\"#\"><i class=\"" + intermine.icons.Add + "\"></i></a>\n    " + name + "\n</div>");
+                      return li.find('a').click(function(e) {
+                        return li.slideUp('fast', function() {
+                          _this.exportedCols.add({
+                            path: cn
+                          });
+                          return emphasise(cols);
+                        });
+                      });
                     });
-                    return emphasise(cols);
-                  });
-                });
-              })(cn, li));
+                  })(cn, li));
+                } else {
+                  _results1.push(void 0);
+                }
+              }
             }
             return _results1;
           }).call(this));

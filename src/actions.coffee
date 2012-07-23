@@ -541,7 +541,7 @@ scope "intermine.query.actions", (exporting) ->
                             #{ name }
                         </div>
                     """
-                    li.find('a').click () =>
+                    li.find('a').click () => li.slideUp 'fast', () =>
                         @exportedCols.remove col
                         emphasise maybes
 
@@ -553,20 +553,21 @@ scope "intermine.query.actions", (exporting) ->
 
             maybes = @$ '.im-can-be-exported-cols'
             for n in @query.getQueryNodes()
-                for cn in n.getChildNodes() when cn.isAttribute() and not @exportedCols.any((path) -> path.toString() is cn.toString())
-                    li = $ """<li></li>"""
-                    li.appendTo maybes
-                    do (cn, li) =>
-                        cn.getDisplayName (name) =>
-                            li.append """
-                                <div class="label label-available">
-                                    <a href="#"><i class="#{intermine.icons.Add}"></i></a>
-                                    #{ name }
-                                </div>
-                            """
-                            li.find('a').click (e) =>
-                                @exportedCols.add path: cn
-                                emphasise cols
+                for cn in n.getChildNodes() when cn.isAttribute() and not @exportedCols.any((col) -> col.get('path').toString() is cn.toString())
+                    if intermine.options.ShowId or cn.end.name isnt "id"
+                        li = $ """<li></li>"""
+                        li.appendTo maybes
+                        do (cn, li) =>
+                            cn.getDisplayName (name) =>
+                                li.append """
+                                    <div class="label label-available">
+                                        <a href="#"><i class="#{intermine.icons.Add}"></i></a>
+                                        #{ name }
+                                    </div>
+                                """
+                                li.find('a').click (e) => li.slideUp 'fast', () =>
+                                    @exportedCols.add path: cn
+                                    emphasise cols
 
         warnOfOuterJoinedCollections: () ->
             if _.any(@query.joins, (s, p) => (s is 'OUTER') and @query.canHaveMultipleValues(p))
