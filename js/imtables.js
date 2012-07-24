@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Tue Jul 24 2012 15:49:58 GMT+0100 (BST)
+ * Built at Tue Jul 24 2012 16:04:50 GMT+0100 (BST)
 */
 
 
@@ -7044,10 +7044,29 @@
         return _results;
       };
 
+      ActiveConstraint.prototype.valid = function() {
+        var op;
+        if (!this.con.has('op')) {
+          return false;
+        }
+        op = this.con.get('op');
+        if (__indexOf.call(intermine.Query.ATTRIBUTE_VALUE_OPS.concat(intermine.Query.REFERENCE_OPS), op) >= 0) {
+          return this.con.has('value');
+        }
+        if (__indexOf.call(intermine.Query.MULTIVALUE_OPS, op) >= 0) {
+          return this.con.has('values');
+        }
+        return true;
+      };
+
       ActiveConstraint.prototype.editConstraint = function(e) {
         var silently, ta, _ref, _ref1, _ref2, _results;
         e.stopPropagation();
         e.preventDefault();
+        if (!this.valid()) {
+          this.$el.addClass('error');
+          return false;
+        }
         this.removeConstraint(e, silently = true);
         if (_ref = this.con.get('op'), __indexOf.call(intermine.Query.MULTIVALUE_OPS.concat(intermine.Query.NULL_OPS), _ref) >= 0) {
           this.con.unset('value');

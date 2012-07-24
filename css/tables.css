@@ -1026,8 +1026,8 @@ td.im-result-subtable .im-subtable {
     float: right;
 }
 
-.im-constraint-dialogue .im-constraint.new.error .btn-group,
-.im-constraint-dialogue .im-constraint.new.error input {
+.im-query-display .im-constraint.new.error fieldset .btn-group,
+.im-query-display .im-constraint.new.error fieldset input {
     border-color: #953b39;
     -webkit-box-shadow: 0 0 6px #d59392;
     -moz-box-shadow: 0 0 6px #d59392;

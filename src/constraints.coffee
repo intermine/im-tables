@@ -46,9 +46,24 @@ scope "intermine.query",  (exporting) ->
             while (ta = @typeaheads.shift())
                 ta.remove()
 
+        valid: () ->
+            unless @con.has('op')
+                return false
+            op = @con.get('op')
+            if op in intermine.Query.ATTRIBUTE_VALUE_OPS.concat(intermine.Query.REFERENCE_OPS)
+                return @con.has('value')
+            if op in intermine.Query.MULTIVALUE_OPS
+                return @con.has('values')
+            return true
+
         editConstraint: (e) ->
             e.stopPropagation()
             e.preventDefault()
+
+            if not @valid()
+                @$el.addClass 'error'
+                return false
+
             @removeConstraint(e, silently = true)
             if @con.get('op') in intermine.Query.MULTIVALUE_OPS.concat(intermine.Query.NULL_OPS)
                 @con.unset('value')
