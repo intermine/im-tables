@@ -152,7 +152,7 @@ scope "intermine.query.filters", (exporting) ->
         initialize: (query, @view) ->
             super(query)
             @query.on 'cancel:add-constraint', => # Reset add button to appropriate state.
-                @$('.btn-primary').attr disabled: !@getTreeRoot().isAttribute()
+                @$('.btn-primary').toggle @getTreeRoot().isAttribute()
 
         initPaths: -> [@view]
 

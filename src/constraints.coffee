@@ -2,7 +2,8 @@ scope "intermine.conbuilder.messages", {
     ValuePlaceholder: 'David*',
     ExtraPlaceholder: 'Wernham-Hogg',
     ExtraLabel: 'within',
-    IsA: 'is a'
+    IsA: 'is a',
+    CantEditConstraint: 'No value selected. Please enter a value.'
 }
 
 scope "intermine.query",  (exporting) ->
@@ -148,6 +149,12 @@ scope "intermine.query",  (exporting) ->
             fs = $("""<fieldset class="im-constraint-options"></fieldset>""").appendTo @el
             @drawOperatorSelector(fs)
             @drawValueOptions()
+            @$el.append """
+                <div class="alert alert-error span10">
+                    <i class="icon-warning-sign"></i>
+                    #{ intermine.conbuilder.messages.CantEditConstraint }
+                </div>
+            """
             @addButtons()
             this
 

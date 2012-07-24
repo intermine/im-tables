@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Tue Jul 24 2012 16:04:50 GMT+0100 (BST)
+ * Built at Tue Jul 24 2012 17:06:52 GMT+0100 (BST)
 */
 
 
@@ -588,7 +588,7 @@
           };
           this.newCon = new intermine.query.NewConstraint(this.query, con);
           this.newCon.render().$el.insertAfter(this.el);
-          this.$('.btn-primary').fadeOut('slow');
+          this.$('.btn-primary').fadeOut('fast');
           if ((_ref = this.$pathfinder) != null) {
             _ref.remove();
           }
@@ -2710,9 +2710,7 @@
         this.view = view;
         SingleConstraintAdder.__super__.initialize.call(this, query);
         return this.query.on('cancel:add-constraint', function() {
-          return _this.$('.btn-primary').attr({
-            disabled: !_this.getTreeRoot().isAttribute()
-          });
+          return _this.$('.btn-primary').toggle(_this.getTreeRoot().isAttribute());
         });
       };
 
@@ -6974,7 +6972,8 @@
     ValuePlaceholder: 'David*',
     ExtraPlaceholder: 'Wernham-Hogg',
     ExtraLabel: 'within',
-    IsA: 'is a'
+    IsA: 'is a',
+    CantEditConstraint: 'No value selected. Please enter a value.'
   });
 
   scope("intermine.query", function(exporting) {
@@ -7181,6 +7180,7 @@
         fs = $("<fieldset class=\"im-constraint-options\"></fieldset>").appendTo(this.el);
         this.drawOperatorSelector(fs);
         this.drawValueOptions();
+        this.$el.append("<div class=\"alert alert-error span10\">\n    <i class=\"icon-warning-sign\"></i>\n    " + intermine.conbuilder.messages.CantEditConstraint + "\n</div>");
         this.addButtons();
         return this;
       };

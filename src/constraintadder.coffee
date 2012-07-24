@@ -232,7 +232,7 @@ scope "intermine.query", (exporting) ->
 
                 @newCon = new intermine.query.NewConstraint(@query, con)
                 @newCon.render().$el.insertAfter @el
-                @$('.btn-primary').fadeOut('slow') # Only add one constraint at a time...
+                @$('.btn-primary').fadeOut('fast') # Only add one constraint at a time...
                 @$pathfinder?.remove()
                 @$pathfinder = null
                 @query.trigger 'editing-constraint'
