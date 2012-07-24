@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Tue Jul 24 2012 12:44:40 GMT+0100 (BST)
+ * Built at Tue Jul 24 2012 13:32:30 GMT+0100 (BST)
 */
 
 
@@ -2323,7 +2323,6 @@
             };
             available = filteredTotal != null ? filteredTotal : total;
             _this.$('.im-item-available').text(nts(available));
-            _this.$('.im-item-got').text(got === available ? 'All' : "" + (nts(got)) + " of");
             return _this.$('.im-item-total').text(filteredTotal != null ? "(filtered from " + (nts(total)) + ")" : "");
           }
         });
@@ -4871,7 +4870,7 @@
           placement: function() {
             var table;
             table = cellLink.closest("table");
-            if (cellLink.offset().left + 300 >= table.offset().left + table.width()) {
+            if (cellLink.offset().left + +cellLink.width() + 300 >= table.offset().left + table.width()) {
               return "left";
             } else {
               return "right";

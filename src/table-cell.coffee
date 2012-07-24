@@ -187,7 +187,7 @@ scope "intermine.results.table", (exporting) ->
             cellLink = @$el.find('.im-cell-link').first().popover
                 placement: ->
                     table = cellLink.closest "table"
-                    if cellLink.offset().left + 300 >= table.offset().left + table.width()
+                    if cellLink.offset().left + + cellLink.width() + 300 >= table.offset().left + table.width()
                         return "left"
                     else
                         return "right"
