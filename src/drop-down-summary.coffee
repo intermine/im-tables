@@ -7,9 +7,18 @@ scope "intermine.query.results", (exporting) ->
         initialize: (@path, @query) ->
 
         render: ->
-            console.log @path
-            for v in @query.views when v.match(@path.toString()) then do (v) =>
-                console.log "#{v}.match(#{@path.toString()}) -> #{  v.match(@path.toString()) }"
+            vs = []
+            if @path.isAttribute()
+                parent = @path.getParent()
+                as = (name for name, a of parent.getEndClass().attributes)
+                unless intermine.options.ShowId
+                    as = _.without as, 'id'
+                vs = as.map (name) -> parent.append(name).toString()
+
+            else
+                vs = (v for v in @query.views when v.match(@path.toString()))
+
+            for v in vs then do (v) =>
                 li = $ """<li class="im-outer-joined-path"><a href="#"></a></li>"""
                 @$el.append li
                 @query.getPathInfo(v).getDisplayName (name) -> li.find('a').text name

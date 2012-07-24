@@ -261,7 +261,9 @@ scope "intermine.query.results.table", (exporting) ->
                         moveableView.remove()
                         newView.destroy()
                         e.stopPropagation()
-                    path.getDisplayName (name) -> moveableView.find('.im-display-name').text(name)
+                    isFormatted = path.isAttribute and (path.end?.name is 'id') and intermine.results.getFormatter(@query.model, path.getParent().getType())?
+                    toShow = if isFormatted then path.getParent() else path
+                    toShow.getDisplayName (name) -> moveableView.find('.im-display-name').text(name)
 
                 colContainer.append moveableView
 

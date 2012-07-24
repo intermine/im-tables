@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Tue Jul 24 2012 13:32:30 GMT+0100 (BST)
+ * Built at Tue Jul 24 2012 15:28:20 GMT+0100 (BST)
 */
 
 
@@ -1207,10 +1207,11 @@
       };
 
       ResultsTable.prototype.buildColumnHeader = function(view, i, title, tr) {
-        var cmd, cmds, direction, expandAll, filterSummary, minumaximiser, path, q, setDirectionClass, sortButton, sortable, th, titleParts,
+        var cmd, cmds, direction, expandAll, filterSummary, isFormatted, minumaximiser, path, q, setDirectionClass, sortButton, sortable, summariser, th, titleParts,
           _this = this;
         q = this.query;
         titleParts = title.split(' > ');
+        path = q.getPathInfo(view);
         direction = q.getSortDirection(view);
         sortable = !q.isOuterJoined(view);
         th = $(this.columnHeaderTempl({
@@ -1268,13 +1269,18 @@
           th.find('.im-col-title').toggle(!isMinimised);
           return _this.fill();
         });
+        isFormatted = path.isAttribute() && (path.end.name === 'id') && (intermine.results.getFormatter(q.model, path.getParent().getType()) != null);
         filterSummary = th.find('.im-col-filters');
-        filterSummary.click(this.showFilterSummary(view)).dropdown();
-        path = q.getPathInfo(view);
+        filterSummary.click(this.showFilterSummary(isFormatted ? path.getParent().toString() : view)).dropdown();
+        summariser = th.find('.summary-img');
         if (path.isAttribute()) {
-          return th.find('.summary-img').click(this.showColumnSummary(path)).dropdown();
+          if (isFormatted) {
+            return summariser.click(this.showOuterJoinedColumnSummaries(path)).dropdown();
+          } else {
+            return summariser.click(this.showColumnSummary(path)).dropdown();
+          }
         } else {
-          th.find('.summary-img').click(this.showOuterJoinedColumnSummaries(path)).dropdown();
+          summariser.click(this.showOuterJoinedColumnSummaries(path)).dropdown();
           expandAll = $("<a href=\"#\" class=\"im-th-button\" title=\"Expand/Collapse all subtables\">\n    <i class=\"icon-table icon-white\"></i>\n</a>");
           expandAll.tooltip({
             placement: 'left'
@@ -2243,31 +2249,60 @@
       };
 
       OuterJoinDropDown.prototype.render = function() {
-        var v, _i, _len, _ref,
+        var a, as, name, parent, v, vs, _fn, _i, _len,
           _this = this;
-        console.log(this.path);
-        _ref = this.query.views;
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          v = _ref[_i];
-          if (v.match(this.path.toString())) {
-            (function(v) {
-              var li;
-              console.log("" + v + ".match(" + (_this.path.toString()) + ") -> " + (v.match(_this.path.toString())));
-              li = $("<li class=\"im-outer-joined-path\"><a href=\"#\"></a></li>");
-              _this.$el.append(li);
-              _this.query.getPathInfo(v).getDisplayName(function(name) {
-                return li.find('a').text(name);
-              });
-              return li.click(function(e) {
-                var summ;
-                e.stopPropagation();
-                e.preventDefault();
-                summ = new intermine.query.results.DropDownColumnSummary(v, _this.query);
-                _this.$el.parent().html(summ.render().el);
-                return _this.remove();
-              });
-            })(v);
+        vs = [];
+        if (this.path.isAttribute()) {
+          parent = this.path.getParent();
+          as = (function() {
+            var _ref, _results;
+            _ref = parent.getEndClass().attributes;
+            _results = [];
+            for (name in _ref) {
+              a = _ref[name];
+              _results.push(name);
+            }
+            return _results;
+          })();
+          if (!intermine.options.ShowId) {
+            as = _.without(as, 'id');
           }
+          vs = as.map(function(name) {
+            return parent.append(name).toString();
+          });
+        } else {
+          vs = (function() {
+            var _i, _len, _ref, _results;
+            _ref = this.query.views;
+            _results = [];
+            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+              v = _ref[_i];
+              if (v.match(this.path.toString())) {
+                _results.push(v);
+              }
+            }
+            return _results;
+          }).call(this);
+        }
+        _fn = function(v) {
+          var li;
+          li = $("<li class=\"im-outer-joined-path\"><a href=\"#\"></a></li>");
+          _this.$el.append(li);
+          _this.query.getPathInfo(v).getDisplayName(function(name) {
+            return li.find('a').text(name);
+          });
+          return li.click(function(e) {
+            var summ;
+            e.stopPropagation();
+            e.preventDefault();
+            summ = new intermine.query.results.DropDownColumnSummary(v, _this.query);
+            _this.$el.parent().html(summ.render().el);
+            return _this.remove();
+          });
+        };
+        for (_i = 0, _len = vs.length; _i < _len; _i++) {
+          v = vs[_i];
+          _fn(v);
         }
         return this;
       };
@@ -5714,7 +5749,7 @@
           placement: 'top'
         });
         this.newView.each(function(newView, i) {
-          var moveableView, ojg, path, rem;
+          var isFormatted, moveableView, ojg, path, rem, toShow, _ref;
           if (newView.get('isOuterJoined')) {
             ojg = new OuterJoinGroup(_this.query, newView);
             moveableView = ojg.render().el;
@@ -5727,7 +5762,9 @@
               newView.destroy();
               return e.stopPropagation();
             });
-            path.getDisplayName(function(name) {
+            isFormatted = path.isAttribute && (((_ref = path.end) != null ? _ref.name : void 0) === 'id') && (intermine.results.getFormatter(_this.query.model, path.getParent().getType()) != null);
+            toShow = isFormatted ? path.getParent() : path;
+            toShow.getDisplayName(function(name) {
               return moveableView.find('.im-display-name').text(name);
             });
           }

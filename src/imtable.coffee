@@ -228,6 +228,8 @@ scope "intermine.query.results", (exporting) ->
         buildColumnHeader: (view, i, title, tr) ->
             q = @query
             titleParts = title.split ' > '
+            path = q.getPathInfo view
+
             direction = q.getSortDirection(view)
             sortable = !q.isOuterJoined(view)
             th = $ @columnHeaderTempl {title, titleParts, i, view, sortable}
@@ -266,13 +268,20 @@ scope "intermine.query.results", (exporting) ->
                 isMinimised = @minimisedCols[i] = !@minimisedCols[i]
                 th.find('.im-col-title').toggle(!isMinimised)
                 @fill()
+
+            isFormatted = path.isAttribute() and (path.end.name is 'id') and intermine.results.getFormatter(q.model, path.getParent().getType())?
+
             filterSummary = th.find('.im-col-filters')
-            filterSummary.click(@showFilterSummary(view)).dropdown()
-            path = q.getPathInfo view
+            filterSummary.click(@showFilterSummary(if isFormatted then path.getParent().toString() else view)).dropdown()
+            summariser = th.find('.summary-img')
+
             if path.isAttribute()
-                th.find('.summary-img').click(@showColumnSummary(path)).dropdown()
+                if isFormatted
+                    summariser.click(@showOuterJoinedColumnSummaries(path)).dropdown()
+                else
+                    summariser.click(@showColumnSummary(path)).dropdown()
             else
-                th.find('.summary-img').click(@showOuterJoinedColumnSummaries(path)).dropdown()
+                summariser.click(@showOuterJoinedColumnSummaries(path)).dropdown()
                 expandAll = $ """<a href="#" class="im-th-button" title="Expand/Collapse all subtables">
                     <i class="icon-table icon-white"></i>
                 </a>"""
