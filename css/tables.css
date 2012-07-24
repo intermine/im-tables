@@ -97,6 +97,9 @@
     background-color: #08c;
 }
 
+.bootstrap .label-available a i {
+    color: #2cd52e;
+}
 
 .im-query-display .modal.fade.in,
 .modal.fade.in {
