@@ -51,6 +51,9 @@
   -moz-background-clip: padding-box;
   background-clip: padding-box;
 }
+.bootstrap .modal-body {
+    max-height: 700px;
+}
 .modal.fade {
   -webkit-transition: opacity .3s linear, top .3s ease-out;
   -moz-transition: opacity .3s linear, top .3s ease-out;
@@ -626,6 +629,16 @@ table.table thead .sorting_desc_disabled {
     max-width: 80%;
 }
 
+.im-reordering-container li.im-reorderable.new,
+.im-reordering-container li.im-outer-joined-path.new {
+    border: 1px solid #e3d19f;
+    background-color: #fff3d3;
+    background-image: none;
+}
+.im-reordering-container li.im-outer-joined-path.new {
+    border-top: none;
+}
+
 .im-export-dialogue .modal .modal-body {
     max-height: 500px;
 }
@@ -1013,6 +1026,11 @@ td.im-result-subtable .im-subtable {
 
 .im-query-actionbar .im-action::after {
     clear: both;
+}
+
+.node-adder .btn-primary,
+.im-constraint-adder .btn-primary {
+    display: none;
 }
 
 .im-action > form > .btn-group {
@@ -1556,7 +1574,7 @@ form.im-join {
 .im-title-part {
     opacity: 0.9;
     font-size: 80%;
-    display: inline-block;
+    display: inline;
 }
 
 .im-title-part:after {
@@ -1882,9 +1900,49 @@ td > .im-no-results {
     }
 }
 
-@media screen and (max-width: 480px) {
-
+@media screen and (max-height: 1000px) {
+    .bootstrap .modal-body {
+        max-height: 600px;
+    }
+    .im-query-display .modal.fade.in, .modal.fade.in {
+        top: 35%;
+    }
+}
+@media screen and (max-height: 900px) {
+    .bootstrap .modal-body {
+        max-height: 500px;
+    }
 }
 
+@media screen and (max-height: 800px) {
+    .bootstrap .modal-body {
+        max-height: 400px;
+    }
+    .im-query-display .modal.fade.in, .modal.fade.in {
+        top: 42%;
+    }
+}
+@media screen and (max-height: 700px) {
+    .bootstrap .modal-body {
+        max-height: 350px;
+    }
+}
+@media screen and (max-height: 600px) {
+    .bootstrap .modal-body {
+        max-height: 300px;
+    }
+    .im-query-display .modal.fade.in, .modal.fade.in {
+        top: 48%;
+    }
+}
+
+@media screen and (max-height: 500px) {
+    .bootstrap .modal-body {
+        max-height: 275px;
+    }
+    .im-query-display .modal.fade.in, .modal.fade.in {
+        top: 52%;
+    }
+}
 
 

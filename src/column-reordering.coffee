@@ -2,6 +2,11 @@ scope 'intermine.messages.results', {
     ReorderHelp: 'Drag the columns to reorder them'
 }
 
+scope 'intermine.messages.columns', {
+    OrderTitle: 'Add / Remove / Re-Arrange Columns',
+    SortTitle: 'Define Sort-Order'
+}
+
 scope "intermine.query.results.table", (exporting) ->
 
     class OuterJoinGroup extends Backbone.View
@@ -41,9 +46,11 @@ scope "intermine.query.results.table", (exporting) ->
                         e.stopPropagation()
                         @newView.set paths: _.without @newView.get('paths'), p
 
+                    li.toggleClass 'new', !!@newView.newPaths[p.toString()]
                     p.getDisplayName (name) =>
                         @newView.get('path').getDisplayName (ojname) ->
-                            li.find('span').text name.replace(ojname, '').replace(/^\s*>?\s*/, '')
+                            li.find('span')
+                              .text(name.replace(ojname, '').replace(/^\s*>?\s*/, ''))
             @$el.append ul
             this
 
@@ -56,8 +63,15 @@ scope "intermine.query.results.table", (exporting) ->
             @chosen = []
 
         handleChoice: (path) =>
-            @chosen.push(path) unless _.include(@chosen, path)
-            @$('.btn-primary').attr disabled: false
+            if _.include @chosen, path
+                @chosen = _.without @chosen, path
+            else
+                @chosen.push(path)
+
+            if @chosen.length > 0
+                @$('.btn-primary').fadeIn('slow')
+            else
+                @$('.btn-primary').fadeOut('slow')
 
         handleSubmission: (e) =>
             e.preventDefault()
@@ -69,7 +83,7 @@ scope "intermine.query.results.table", (exporting) ->
             super()
             @chosen = []
             @$('.btn-chooser').button('reset')
-            @$('.btn-primary').attr disabled: true
+            @$('.btn-primary').fadeOut('slow')
 
         refsOK: false
         multiSelect: true
@@ -84,14 +98,18 @@ scope "intermine.query.results.table", (exporting) ->
     class ViewNode extends Backbone.Model
 
         initialize: ->
+            @newPaths = {}
             if @get 'isOuterJoined'
                 @nodes =  _.groupBy @get('paths'), (p) -> p.getParent().toString()
+            unless @has 'isNew'
+                @set isNew: false
             
         addPath: (path) ->
             node = @nodes[path.getParent().toString()]
             unless node?
                 node = @nodes[path.getParent().toString()] = []
             node.push path
+            @newPaths[path.toString()] = true
             @trigger "change"
             @trigger "change:paths"
 
@@ -126,7 +144,7 @@ scope "intermine.query.results.table", (exporting) ->
                         ojg = _.last(_.sortBy(ojgs, (nv) -> nv.get('path').descriptors.length))
                         ojg.addPath(@query.getPathInfo(pstr))
                     else
-                        @newView.add {path: @query.getPathInfo(pstr)}
+                        @newView.add {path: @query.getPathInfo(pstr), isNew: true}
 
         html: """
          <div class="modal-header">
@@ -137,12 +155,12 @@ scope "intermine.query.results.table", (exporting) ->
              <ul class="nav nav-tabs">
                  <li class="active">
                      <a data-target=".im-reordering" data-toggle="tab">
-                         Re-Order Columns
+                         #{ intermine.messages.columns.OrderTitle }
                      </a>
                  </li>
                  <li>
                      <a data-target=".im-sorting" data-toggle="tab">
-                     Re-Sort Columns
+                         #{ intermine.messages.columns.SortTitle }
                      </a>
                  </li>
              </ul>
@@ -168,12 +186,12 @@ scope "intermine.query.results.table", (exporting) ->
         """
 
         viewTemplate: _.template """
-            <li class="im-reorderable breadcrumb" data-path="<%- path %>">
+            <li class="im-reorderable breadcrumb<% if (isNew) {%> new<% } %>" data-path="<%- path %>">
                 <i class="icon-reorder pull-right""></i>
                 <a class="pull-left im-col-remover" title="Remove this column" href="#">
                     <i class="#{ intermine.icons.Remove }"></i>
                 </a>
-                <h4 class="im-display-name"><%- displayName %></span>
+                <h4 class="im-display-name"><%- path %></span>
             </li>
         """
 
@@ -237,7 +255,7 @@ scope "intermine.query.results.table", (exporting) ->
                     moveableView = ojg.render().el
                 else
                     path = newView.get('path')
-                    moveableView = $ @viewTemplate displayName: path, path: path
+                    moveableView = $ @viewTemplate newView.toJSON()
                     rem = moveableView.find('.im-col-remover').tooltip().click (e) ->
                         rem.tooltip('hide')
                         moveableView.remove()
@@ -250,7 +268,7 @@ scope "intermine.query.results.table", (exporting) ->
             nodeAdder = @$ '.node-adder'
             ca = new ColumnAdder(@query)
             nodeAdder.empty().append ca.render().el
-            colContainer.sortable items: 'li'
+            colContainer.sortable items: 'li.im-reorderable'
 
         updateOrder: (e, ui) ->
             lis = @$('.im-reordering-container li')

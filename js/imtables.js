@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Mon Jul 23 2012 17:24:27 GMT+0100 (BST)
+ * Built at Tue Jul 24 2012 12:44:40 GMT+0100 (BST)
 */
 
 
@@ -118,7 +118,7 @@
   });
 
   scope("intermine.query", function(exporting) {
-    var Attribute, CONSTRAINT_ADDER_HTML, ConstraintAdder, PATH_HIGHLIGHTER, PATH_LEN_SORTER, PATH_MATCHER, PathChooser, Reference, pathLen, pos;
+    var Attribute, CONSTRAINT_ADDER_HTML, ConstraintAdder, PATH_HIGHLIGHTER, PATH_LEN_SORTER, PATH_MATCHER, PathChooser, Reference, ReverseReference, pathLen, pos;
     pos = function(substr) {
       return _.memoize(function(str) {
         return str.toLowerCase().indexOf(substr);
@@ -280,9 +280,7 @@
         this.path.getDisplayName(function(name) {
           var a;
           _this.displayName = name;
-          if (_this.depth !== 0) {
-            name = name.replace(/^.*\s*>/, '');
-          }
+          name = name.replace(/^.*\s*>/, '');
           a = $(_this.template({
             name: name,
             path: _this.path,
@@ -295,9 +293,15 @@
       };
 
       Attribute.prototype.addedLiContent = function(a) {
-        return a.tooltip({
-          placement: 'bottom'
-        }).appendTo(this.el);
+        if (intermine.options.ShowId) {
+          return a.tooltip({
+            placement: 'bottom'
+          }).appendTo(this.el);
+        } else {
+          return a.attr({
+            title: ""
+          });
+        }
       };
 
       return Attribute;
@@ -383,6 +387,31 @@
       return Reference;
 
     })(Attribute);
+    ReverseReference = (function(_super) {
+
+      __extends(ReverseReference, _super);
+
+      function ReverseReference() {
+        return ReverseReference.__super__.constructor.apply(this, arguments);
+      }
+
+      ReverseReference.prototype.template = _.template("<a href=\"#\">\n  <i class=\"icon-retweet im-has-fields\"></i>\n  <span><%- name %></span>\n</a>");
+
+      ReverseReference.prototype.toggleFields = function() {};
+
+      ReverseReference.prototype.handleClick = function() {};
+
+      ReverseReference.prototype.render = function() {
+        ReverseReference.__super__.render.call(this);
+        this.$el.attr({
+          title: "Refers back to " + (this.path.getParent().getParent())
+        }).tooltip();
+        return this;
+      };
+
+      return ReverseReference;
+
+    })(Reference);
     PathChooser = (function(_super) {
 
       __extends(PathChooser, _super);
@@ -474,7 +503,7 @@
       PathChooser.DIVIDER = "<li class=\"divider\"></li>";
 
       PathChooser.prototype.render = function() {
-        var apath, cd, cpath, rpath, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2;
+        var apath, cd, isLoop, ref, rpath, _i, _j, _len, _len1, _ref, _ref1;
         cd = this.path.getEndClass();
         _ref = this.attributes;
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
@@ -484,15 +513,25 @@
           }
         }
         this.$el.append(PathChooser.DIVIDER);
-        _ref1 = this.references;
+        _ref1 = this.references.concat(this.collections);
         for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
           rpath = _ref1[_j];
-          this.$el.append(new Reference(this.query, rpath, this.depth, this.evts, this.getDisabled, this.multiSelect, this.canSelectRefs).render().el);
-        }
-        _ref2 = this.collections;
-        for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
-          cpath = _ref2[_k];
-          this.$el.append(new Reference(this.query, cpath, this.depth, this.evts, this.getDisabled, this.multiSelect, this.canSelectRefs).render().el);
+          isLoop = false;
+          if ((rpath.end.reverseReference != null) && this.path.isReference()) {
+            if (this.path.getParent().isa(rpath.end.referencedType)) {
+              if (this.path.end.name === rpath.end.reverseReference) {
+                isLoop = true;
+              }
+            }
+          }
+          if (isLoop) {
+            ref = new ReverseReference(this.query, rpath, this.depth, this.evts, (function() {
+              return true;
+            }), this.multiSelect, this.canSelectRefs);
+          } else {
+            ref = new Reference(this.query, rpath, this.depth, this.evts, this.getDisabled, this.multiSelect, this.canSelectRefs);
+          }
+          this.$el.append(ref.render().el);
         }
         if (this.depth === 0) {
           this.$el.addClass(this.dropDownClasses);
@@ -549,9 +588,7 @@
           };
           ac = new intermine.query.NewConstraint(this.query, con);
           ac.render().$el.insertAfter(this.el);
-          this.$('.btn-primary').attr({
-            disabled: true
-          });
+          this.$('.btn-primary').fadeOut('slow');
           if ((_ref = this.$pathfinder) != null) {
             _ref.remove();
           }
@@ -565,14 +602,10 @@
       ConstraintAdder.prototype.handleChoice = function(path, isNewChoice) {
         if (isNewChoice) {
           this.chosen = path;
-          return this.$('.btn-primary').attr({
-            disabled: false
-          });
+          return this.$('.btn-primary').fadeIn('slow');
         } else {
           this.chosen = null;
-          return this.$('.btn-primary').attr({
-            disabled: true
-          });
+          return this.$('.btn-primary').fadeOut('slow');
         }
       };
 
@@ -613,8 +646,7 @@
         browser = $("<button type=\"button\" class=\"btn btn-chooser\" data-toggle=\"button\">\n    <i class=\"icon-sitemap\"></i>\n    Browse for column\n</button>");
         approver = $(this.make('button', {
           type: "button",
-          "class": "btn btn-primary",
-          disabled: true
+          "class": "btn btn-primary"
         }, "Choose"));
         this.$el.append(browser);
         this.$el.append(approver);
@@ -5320,6 +5352,11 @@
     ReorderHelp: 'Drag the columns to reorder them'
   });
 
+  scope('intermine.messages.columns', {
+    OrderTitle: 'Add / Remove / Re-Arrange Columns',
+    SortTitle: 'Define Sort-Order'
+  });
+
   scope("intermine.query.results.table", function(exporting) {
     var ColumnAdder, ColumnsDialogue, NewViewNodes, OuterJoinGroup, ViewNode;
     OuterJoinGroup = (function(_super) {
@@ -5376,6 +5413,7 @@
                   paths: _.without(_this.newView.get('paths'), p)
                 });
               });
+              li.toggleClass('new', !!_this.newView.newPaths[p.toString()]);
               return p.getDisplayName(function(name) {
                 return _this.newView.get('path').getDisplayName(function(ojname) {
                   return li.find('span').text(name.replace(ojname, '').replace(/^\s*>?\s*/, ''));
@@ -5417,12 +5455,16 @@
       };
 
       ColumnAdder.prototype.handleChoice = function(path) {
-        if (!_.include(this.chosen, path)) {
+        if (_.include(this.chosen, path)) {
+          this.chosen = _.without(this.chosen, path);
+        } else {
           this.chosen.push(path);
         }
-        return this.$('.btn-primary').attr({
-          disabled: false
-        });
+        if (this.chosen.length > 0) {
+          return this.$('.btn-primary').fadeIn('slow');
+        } else {
+          return this.$('.btn-primary').fadeOut('slow');
+        }
       };
 
       ColumnAdder.prototype.handleSubmission = function(e) {
@@ -5436,9 +5478,7 @@
         ColumnAdder.__super__.reset.call(this);
         this.chosen = [];
         this.$('.btn-chooser').button('reset');
-        return this.$('.btn-primary').attr({
-          disabled: true
-        });
+        return this.$('.btn-primary').fadeOut('slow');
       };
 
       ColumnAdder.prototype.refsOK = false;
@@ -5468,9 +5508,15 @@
       }
 
       ViewNode.prototype.initialize = function() {
+        this.newPaths = {};
         if (this.get('isOuterJoined')) {
-          return this.nodes = _.groupBy(this.get('paths'), function(p) {
+          this.nodes = _.groupBy(this.get('paths'), function(p) {
             return p.getParent().toString();
+          });
+        }
+        if (!this.has('isNew')) {
+          return this.set({
+            isNew: false
           });
         }
       };
@@ -5482,6 +5528,7 @@
           node = this.nodes[path.getParent().toString()] = [];
         }
         node.push(path);
+        this.newPaths[path.toString()] = true;
         this.trigger("change");
         return this.trigger("change:paths");
       };
@@ -5569,7 +5616,8 @@
               _results.push(ojg.addPath(_this.query.getPathInfo(pstr)));
             } else {
               _results.push(_this.newView.add({
-                path: _this.query.getPathInfo(pstr)
+                path: _this.query.getPathInfo(pstr),
+                isNew: true
               }));
             }
           }
@@ -5577,9 +5625,9 @@
         });
       };
 
-      ColumnsDialogue.prototype.html = "<div class=\"modal-header\">\n    <a class=\"close\" data-dismiss=\"modal\">close</a>\n    <h3>Manage Columns</a>\n</div>\n<div class=\"modal-body\">\n    <ul class=\"nav nav-tabs\">\n        <li class=\"active\">\n            <a data-target=\".im-reordering\" data-toggle=\"tab\">\n                Re-Order Columns\n            </a>\n        </li>\n        <li>\n            <a data-target=\".im-sorting\" data-toggle=\"tab\">\n            Re-Sort Columns\n            </a>\n        </li>\n    </ul>\n    <div class=\"tab-content\">\n        <div class=\"tab-pane fade im-reordering active in\">\n            <div class=\"node-adder\"></div>\n            <ul class=\"im-reordering-container well\"></ul>\n        </div>\n        <div class=\"tab-pane fade im-sorting\">\n            <ul class=\"im-sorting-container well\"></ul>\n            <ul class=\"im-sorting-container-possibilities well\"></ul>\n        </div>\n    </div>\n</div>\n<div class=\"modal-footer\">\n    <a class=\"btn btn-cancel\">\n        Cancel\n    </a>\n    <a class=\"btn pull-right btn-primary\">\n        Apply\n    </a>\n</div>";
+      ColumnsDialogue.prototype.html = "<div class=\"modal-header\">\n    <a class=\"close\" data-dismiss=\"modal\">close</a>\n    <h3>Manage Columns</a>\n</div>\n<div class=\"modal-body\">\n    <ul class=\"nav nav-tabs\">\n        <li class=\"active\">\n            <a data-target=\".im-reordering\" data-toggle=\"tab\">\n                " + intermine.messages.columns.OrderTitle + "\n            </a>\n        </li>\n        <li>\n            <a data-target=\".im-sorting\" data-toggle=\"tab\">\n                " + intermine.messages.columns.SortTitle + "\n            </a>\n        </li>\n    </ul>\n    <div class=\"tab-content\">\n        <div class=\"tab-pane fade im-reordering active in\">\n            <div class=\"node-adder\"></div>\n            <ul class=\"im-reordering-container well\"></ul>\n        </div>\n        <div class=\"tab-pane fade im-sorting\">\n            <ul class=\"im-sorting-container well\"></ul>\n            <ul class=\"im-sorting-container-possibilities well\"></ul>\n        </div>\n    </div>\n</div>\n<div class=\"modal-footer\">\n    <a class=\"btn btn-cancel\">\n        Cancel\n    </a>\n    <a class=\"btn pull-right btn-primary\">\n        Apply\n    </a>\n</div>";
 
-      ColumnsDialogue.prototype.viewTemplate = _.template("<li class=\"im-reorderable breadcrumb\" data-path=\"<%- path %>\">\n    <i class=\"icon-reorder pull-right\"\"></i>\n    <a class=\"pull-left im-col-remover\" title=\"Remove this column\" href=\"#\">\n        <i class=\"" + intermine.icons.Remove + "\"></i>\n    </a>\n    <h4 class=\"im-display-name\"><%- displayName %></span>\n</li>");
+      ColumnsDialogue.prototype.viewTemplate = _.template("<li class=\"im-reorderable breadcrumb<% if (isNew) {%> new<% } %>\" data-path=\"<%- path %>\">\n    <i class=\"icon-reorder pull-right\"\"></i>\n    <a class=\"pull-left im-col-remover\" title=\"Remove this column\" href=\"#\">\n        <i class=\"" + intermine.icons.Remove + "\"></i>\n    </a>\n    <h4 class=\"im-display-name\"><%- path %></span>\n</li>");
 
       ColumnsDialogue.prototype.render = function() {
         var _this = this;
@@ -5673,10 +5721,7 @@
             moveableView = ojg.render().el;
           } else {
             path = newView.get('path');
-            moveableView = $(_this.viewTemplate({
-              displayName: path,
-              path: path
-            }));
+            moveableView = $(_this.viewTemplate(newView.toJSON()));
             rem = moveableView.find('.im-col-remover').tooltip().click(function(e) {
               rem.tooltip('hide');
               moveableView.remove();
@@ -5693,7 +5738,7 @@
         ca = new ColumnAdder(this.query);
         nodeAdder.empty().append(ca.render().el);
         return colContainer.sortable({
-          items: 'li'
+          items: 'li.im-reorderable'
         });
       };
 

@@ -83,14 +83,17 @@ scope "intermine.query", (exporting) ->
             @$el.addClass('disabled') if disabled
             @path.getDisplayName (name) =>
                 @displayName = name
-                name = name.replace(/^.*\s*>/, '') unless @depth is 0
+                name = name.replace(/^.*\s*>/, '') # unless @depth is 0
                 a = $ @template name: name, path: @path, type: @path.getType()
                 a.appendTo(@el)
                 @addedLiContent(a)
             this
 
         addedLiContent: (a) ->
-            a.tooltip(placement: 'bottom').appendTo @el
+            if intermine.options.ShowId
+                a.tooltip(placement: 'bottom').appendTo @el
+            else
+                a.attr title: ""
 
     class Reference extends Attribute
 
@@ -141,6 +144,24 @@ scope "intermine.query", (exporting) ->
             if _.any(@query.views, (v) => v.match(@path.toString()))
                 @openSubFinder()
 
+    class ReverseReference extends Reference
+
+        template: _.template """<a href="#">
+              <i class="icon-retweet im-has-fields"></i>
+              <span><%- name %></span>
+            </a>
+            """
+
+        toggleFields: () -> # no-op
+
+        handleClick: () -> # no-op
+
+        render: () ->
+            super()
+            @$el.attr(title: "Refers back to #{ @path.getParent().getParent() }").tooltip()
+            this
+
+
     class PathChooser extends Backbone.View
         tagName: 'ul'
         dropDownClasses: 'typeahead dropdown-menu'
@@ -168,10 +189,18 @@ scope "intermine.query", (exporting) ->
                 if intermine.options.ShowId or apath.end.name isnt 'id'
                     @$el.append(new Attribute(@query, apath, @depth, @evts, @getDisabled, @multiSelect).render().el)
             @$el.append PathChooser.DIVIDER
-            for rpath in @references
-                @$el.append(new Reference(@query, rpath, @depth, @evts, @getDisabled, @multiSelect, @canSelectRefs).render().el)
-            for cpath in @collections
-                @$el.append(new Reference(@query, cpath, @depth, @evts, @getDisabled, @multiSelect, @canSelectRefs).render().el)
+            for rpath in @references.concat(@collections)
+                isLoop = false
+                if rpath.end.reverseReference? and @path.isReference()
+                    if @path.getParent().isa rpath.end.referencedType
+                        if @path.end.name is rpath.end.reverseReference
+                            isLoop = true
+
+                if isLoop
+                    ref = new ReverseReference(@query, rpath, @depth, @evts, (() -> true), @multiSelect, @canSelectRefs)
+                else
+                    ref = new Reference(@query, rpath, @depth, @evts, @getDisabled, @multiSelect, @canSelectRefs)
+                @$el.append ref.render().el
 
             @$el.addClass(@dropDownClasses) if @depth is 0
             @$el.show()
@@ -203,7 +232,7 @@ scope "intermine.query", (exporting) ->
 
                 ac = new intermine.query.NewConstraint(@query, con)
                 ac.render().$el.insertAfter @el
-                @$('.btn-primary').attr disabled: true # Only add one constraint at a time...
+                @$('.btn-primary').fadeOut('slow') # Only add one constraint at a time...
                 @$pathfinder?.remove()
                 @$pathfinder = null
                 @query.trigger 'editing-constraint'
@@ -213,10 +242,10 @@ scope "intermine.query", (exporting) ->
         handleChoice: (path, isNewChoice) =>
             if isNewChoice
                 @chosen = path
-                @$('.btn-primary').attr disabled: false
+                @$('.btn-primary').fadeIn('slow')
             else
                 @chosen = null
-                @$('.btn-primary').attr disabled: true
+                @$('.btn-primary').fadeOut('slow')
 
         isDisabled: (path) -> false
 
@@ -246,7 +275,7 @@ scope "intermine.query", (exporting) ->
                     </button>
                 """
 
-            approver = $ @make 'button', {type: "button", class: "btn btn-primary", disabled: true}, "Choose"
+            approver = $ @make 'button', {type: "button", class: "btn btn-primary"}, "Choose"
             @$el.append browser
             @$el.append approver
             approver.click @handleSubmission
