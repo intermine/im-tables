@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Tue Jul 24 2012 17:06:52 GMT+0100 (BST)
+ * Built at Tue Jul 24 2012 18:22:57 GMT+0100 (BST)
 */
 
 
@@ -4713,7 +4713,7 @@
 
   scope("intermine.results.table", function(exporting) {
     var CELL_HTML, Cell, HIDDEN_FIELDS, NullCell, SubTable;
-    CELL_HTML = _.template("<input class=\"list-chooser\" type=\"checkbox\" style=\"display: none\" data-obj-id=\"<%= id %>\" \n    <% if (selected) { %>checked <% }; %>\n    data-obj-type=\"<%= type %>\">\n<% if (value == null) { %>\n    <span class=\"null-value\">no value</span>\n<% } else { %>\n    <% if (url != null && url.match(/^http/)) { %>\n      <a class=\"im-cell-link\" href=\"<%= url %>\">\n        <% if (!url.match(window.location.origin)) { %>\n            <i class=\"icon-globe\"></i>\n        <% } %>\n    <% } else { %>\n      <a class=\"im-cell-link\" href=\"<%= base %><%= url %>\">\n    <% } %>\n        <%- value %>\n    </a>\n<% } %>\n<% if (field == 'url') { %>\n    <a class=\"im-cell-link external\" href=\"<%= value %>\"><i class=\"icon-globe\"></i>link</a>\n<% } %>");
+    CELL_HTML = _.template("<input class=\"list-chooser\" type=\"checkbox\" style=\"display: none\" data-obj-id=\"<%= id %>\" \n    <% if (selected) { %>checked <% }; %>\n    data-obj-type=\"<%= _type %>\">\n<% if (value == null) { %>\n    <span class=\"null-value\">no value</span>\n<% } else { %>\n    <% if (url != null && url.match(/^http/)) { %>\n      <a class=\"im-cell-link\" href=\"<%= url %>\">\n        <% if (!url.match(window.location.origin)) { %>\n            <i class=\"icon-globe\"></i>\n        <% } %>\n    <% } else { %>\n      <a class=\"im-cell-link\" href=\"<%= base %><%= url %>\">\n    <% } %>\n        <%- value %>\n    </a>\n<% } %>\n<% if (field == 'url') { %>\n    <a class=\"im-cell-link external\" href=\"<%= value %>\"><i class=\"icon-globe\"></i>link</a>\n<% } %>");
     HIDDEN_FIELDS = ["class", "objectId"];
     exporting(SubTable = (function(_super) {
 
@@ -4919,7 +4919,7 @@
       Cell.prototype.setupPreviewOverlay = function() {
         var cellLink, content, id, s, type;
         content = $("<table class=\"im-item-details table table-condensed table-bordered\">\n<colgroup>\n    <col class=\"im-item-field\"/>\n    <col class=\"im-item-value\"/>\n</colgroup>\n</table>");
-        type = this.model.get('type');
+        type = this.model.get('_type');
         id = this.model.get('id');
         s = this.options.query.service;
         return cellLink = this.$el.find('.im-cell-link').first().popover({
@@ -4996,7 +4996,7 @@
 
       Cell.prototype.render = function() {
         var data, formatter, id, type;
-        type = this.model.get("type");
+        type = this.model.get("_type");
         id = this.model.get("id");
         if ((this.options.field === 'id') && (formatter = intermine.results.getFormatter(this.options.query.model, type))) {
           data = formatter(this.model, this.options.query, this.$el);
@@ -5056,7 +5056,7 @@
           id: null,
           url: null,
           base: null,
-          type: null
+          _type: null
         });
         return NullCell.__super__.initialize.call(this);
       };
@@ -5210,14 +5210,14 @@
       IMObject.prototype.initialize = function(query, obj, field, base) {
         var m, pathInfo,
           _this = this;
-        obj.type = obj["class"];
+        obj._type = obj["class"];
         obj[field] = obj.value;
         obj.base = base;
         obj.selected = false;
         obj.selectable = true;
         this.attributes = obj;
         m = query.service.model;
-        pathInfo = m.getPathInfo(obj.type);
+        pathInfo = m.getPathInfo(obj._type);
         query.on("selection:cleared", function() {
           return _this.set({
             selectable: true
@@ -5225,13 +5225,13 @@
         });
         query.on("common:type:selected", function(type) {
           var typesAreCompatible;
-          typesAreCompatible = type && (pathInfo.isa(type) || (m.getPathInfo(type).isa(_this.get("type"))));
+          typesAreCompatible = type && (pathInfo.isa(type) || (m.getPathInfo(type).isa(_this.get("_type"))));
           return _this.set({
             selectable: typesAreCompatible || !type
           });
         });
         return this.on("change:selected", function() {
-          return query.trigger("imo:selected", this.get("type"), this.get("id"), this.get("selected"));
+          return query.trigger("imo:selected", this.get("_type"), this.get("id"), this.get("selected"));
         });
       };
 
@@ -5273,7 +5273,7 @@
       }
 
       FPObject.prototype.initialize = function(query, obj, field) {
-        obj.type = obj["class"];
+        obj._type = obj["class"];
         obj[field] = obj.value;
         obj.selected = false;
         obj.selectable = false;

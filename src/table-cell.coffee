@@ -33,7 +33,7 @@ scope "intermine.results.table", (exporting) ->
     CELL_HTML = _.template """
             <input class="list-chooser" type="checkbox" style="display: none" data-obj-id="<%= id %>" 
                 <% if (selected) { %>checked <% }; %>
-                data-obj-type="<%= type %>">
+                data-obj-type="<%= _type %>">
             <% if (value == null) { %>
                 <span class="null-value">no value</span>
             <% } else { %>
@@ -181,7 +181,7 @@ scope "intermine.results.table", (exporting) ->
                 </colgroup>
                 </table>
             """
-            type = @model.get 'type'
+            type = @model.get '_type'
             id = @model.get 'id'
             s = @options.query.service
             cellLink = @$el.find('.im-cell-link').first().popover
@@ -231,7 +231,7 @@ scope "intermine.results.table", (exporting) ->
                     return content
 
         render: ->
-            type = @model.get "type"
+            type = @model.get "_type"
             id = @model.get "id"
             # only id cells are subject to special format rules.
             if (@options.field is 'id') and (formatter = intermine.results.getFormatter(@options.query.model, type))
@@ -262,7 +262,7 @@ scope "intermine.results.table", (exporting) ->
                 id: null
                 url: null
                 base: null
-                type: null
+                _type: null
             super()
 
 
