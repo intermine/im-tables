@@ -1015,8 +1015,23 @@ td.im-result-subtable .im-subtable {
     position: static;
 }
 
-.im-constraint-dialogue .im-constraint.new .btn-group {
+.im-constraint-dialogue .im-constraint.new .im-con-buttons {
     display: none;
+}
+
+.im-constraint-dialogue .im-constraint.new .im-ops {
+    float: left;
+}
+.im-constraint-dialogue .im-constraint.new input {
+    float: right;
+}
+
+.im-constraint-dialogue .im-constraint.new.error .btn-group,
+.im-constraint-dialogue .im-constraint.new.error input {
+    border-color: #953b39;
+    -webkit-box-shadow: 0 0 6px #d59392;
+    -moz-box-shadow: 0 0 6px #d59392;
+    box-shadow: 0 0 6px #d59392;
 }
 
 .im-constraint-adder .dropdown-menu,

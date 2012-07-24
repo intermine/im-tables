@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Tue Jul 24 2012 15:28:20 GMT+0100 (BST)
+ * Built at Tue Jul 24 2012 15:49:58 GMT+0100 (BST)
 */
 
 
@@ -579,15 +579,15 @@
       };
 
       ConstraintAdder.prototype.handleSubmission = function(e) {
-        var ac, con, _ref;
+        var con, _ref;
         e.preventDefault();
         e.stopPropagation();
         if (this.chosen != null) {
           con = {
             path: this.chosen.toString()
           };
-          ac = new intermine.query.NewConstraint(this.query, con);
-          ac.render().$el.insertAfter(this.el);
+          this.newCon = new intermine.query.NewConstraint(this.query, con);
+          this.newCon.render().$el.insertAfter(this.el);
           this.$('.btn-primary').fadeOut('slow');
           if ((_ref = this.$pathfinder) != null) {
             _ref.remove();
@@ -638,6 +638,24 @@
             top: this.$el.height()
           });
           return this.$pathfinder = pathFinder;
+        }
+      };
+
+      ConstraintAdder.prototype.isValid = function() {
+        var _ref, _ref1;
+        if (this.newCon != null) {
+          if (!this.newCon.con.has('op')) {
+            return false;
+          }
+          if (_ref = this.newCon.con.get('op'), __indexOf.call(intermine.Query.ATTRIBUTE_VALUE_OPS.concat(intermine.Query.REFERENCE_OPS), _ref) >= 0) {
+            return this.newCon.con.has('value');
+          }
+          if (_ref1 = this.newCon.con.get('op'), __indexOf.call(intermine.Query.MULTIVALUE_OPS, _ref1) >= 0) {
+            return this.newCon.con.has('values');
+          }
+          return true;
+        } else {
+          return false;
         }
       };
 
@@ -2214,13 +2232,18 @@
       };
 
       NewFilterDialogue.prototype.addConstraint = function() {
-        this.$el.modal('hide');
-        return this.$('.im-constraint.new .btn-primary').click();
+        if (this.conAdder.isValid()) {
+          this.$el.modal('hide');
+          return this.$('.im-constraint.new .btn-primary').click();
+        } else {
+          return this.$('.im-constraint.new').addClass('error');
+        }
       };
 
       NewFilterDialogue.prototype.render = function() {
         this.$el.append(this.html);
-        this.$el.find('.modal-body').append(new intermine.query.ConstraintAdder(this.query).render().el);
+        this.conAdder = new intermine.query.ConstraintAdder(this.query);
+        this.$el.find('.modal-body').append(this.conAdder.render().el);
         return this;
       };
 
@@ -7072,7 +7095,7 @@
 
       ActiveConstraint.prototype.addButtons = function() {
         var btns, c, t, _fn, _i, _len, _ref, _ref1;
-        btns = $("<div class=\"btn-group\">\n</div>");
+        btns = $("<div class=\"btn-group im-con-buttons\">\n</div>");
         _ref = this.buttons;
         _fn = function() {
           return btns.append("<button class=\"" + c + "\">" + t + "</button>");

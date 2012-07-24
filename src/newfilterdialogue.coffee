@@ -36,11 +36,15 @@ scope 'intermine.filters', (exporting) ->
         openDialogue: () -> @$el.modal().modal('show')
 
         addConstraint: () ->
-            @$el.modal('hide')
-            @$('.im-constraint.new .btn-primary').click()
+            if @conAdder.isValid()
+                @$el.modal('hide')
+                @$('.im-constraint.new .btn-primary').click()
+            else
+                @$('.im-constraint.new').addClass('error')
 
         render: () ->
             @$el.append @html
-            @$el.find('.modal-body').append new intermine.query.ConstraintAdder(@query).render().el
+            @conAdder = new intermine.query.ConstraintAdder(@query)
+            @$el.find('.modal-body').append @conAdder.render().el
             this
             

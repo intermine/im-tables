@@ -230,8 +230,8 @@ scope "intermine.query", (exporting) ->
                 con =
                     path: @chosen.toString()
 
-                ac = new intermine.query.NewConstraint(@query, con)
-                ac.render().$el.insertAfter @el
+                @newCon = new intermine.query.NewConstraint(@query, con)
+                @newCon.render().$el.insertAfter @el
                 @$('.btn-primary').fadeOut('slow') # Only add one constraint at a time...
                 @$pathfinder?.remove()
                 @$pathfinder = null
@@ -266,6 +266,18 @@ scope "intermine.query", (exporting) ->
                 pathFinder.render().$el.appendTo(@el).show()
                 pathFinder.$el.css top: @$el.height()
                 @$pathfinder = pathFinder
+
+        isValid: () ->
+            if @newCon?
+                if not @newCon.con.has('op')
+                    return false
+                if @newCon.con.get('op') in intermine.Query.ATTRIBUTE_VALUE_OPS.concat(intermine.Query.REFERENCE_OPS)
+                    return @newCon.con.has('value')
+                if @newCon.con.get('op') in intermine.Query.MULTIVALUE_OPS
+                    return @newCon.con.has('values')
+                return true
+            else
+                return false
 
         render: ->
             browser = $ """

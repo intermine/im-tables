@@ -86,7 +86,7 @@ scope "intermine.query",  (exporting) ->
 
         addButtons: ->
             btns = $ """
-                <div class="btn-group">
+                <div class="btn-group im-con-buttons">
                 </div>
             """
             for {text: t, class: c} in @buttons then do ->
