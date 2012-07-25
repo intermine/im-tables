@@ -865,7 +865,11 @@ ul.im-cols h4 {
     position: relative;
     display: block;
     max-height: 20em;
-    overflow: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+.im-dropdown-summary .im-item-table .im-item-col {
+    width: 210px;
 }
 .im-dropdown-summary .im-item-table .im-facet-surrogate {
     padding: 0.5em;
