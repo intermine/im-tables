@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Wed Jul 25 2012 13:56:29 GMT+0100 (BST)
+ * Built at Wed Jul 25 2012 14:25:15 GMT+0100 (BST)
 */
 
 
@@ -6305,7 +6305,6 @@
         max = _.max(_.pluck(items, "count"));
         w = this.$el.closest(':visible').width() * 0.95;
         acceptableGap = Math.max(w / 15, ("" + items[0].max).split("").length * 5 * 1.5);
-        console.log(acceptableGap, max);
         p = this.paper;
         gap = 0;
         topMargin = h * 0.1;
@@ -6437,7 +6436,7 @@
         return PieFacet.__super__.constructor.apply(this, arguments);
       }
 
-      PieFacet.prototype.className = 'im-grouped-facet im-facet';
+      PieFacet.prototype.className = 'im-grouped-facet im-pie-facet im-facet';
 
       PieFacet.prototype.chartHeight = 100;
 
@@ -6521,7 +6520,6 @@
         if (!this.facet.ignoreTitle) {
           newCon.title = this.facet.title;
         }
-        console.log(newCon);
         return this.query.addConstraint(newCon);
       };
 
@@ -6703,7 +6701,6 @@
             surrogate = $("<div class=\"im-facet-surrogate " + (above ? 'above' : 'below') + "\">\n    <i class=\"icon-caret-" + (above ? 'up' : 'down') + "\"></i>\n    " + (_this.item.get('item')) + ": " + (_this.item.get('count')) + "\n</div>");
             itemTable = _this.$el.closest('.im-item-table').append(surrogate);
             newTop = above ? itemTable.offset().top + itemTable.scrollTop() : itemTable.scrollTop() + itemTable.offset().top + itemTable.outerHeight() - surrogate.outerHeight();
-            console.log(newTop);
             return surrogate.offset({
               top: newTop
             });
@@ -6758,6 +6755,8 @@
       function HistoFacet() {
         return HistoFacet.__super__.constructor.apply(this, arguments);
       }
+
+      HistoFacet.prototype.className = 'im-grouped-facet im-facet';
 
       HistoFacet.prototype.chartHeight = 50;
 

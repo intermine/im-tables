@@ -260,7 +260,6 @@ scope "intermine.results", (exporting) ->
             
             w = @$el.closest(':visible').width() * 0.95
             acceptableGap = Math.max (w / 15), "#{items[0].max}".split("").length * 5 * 1.5
-            console.log acceptableGap, max
             p = @paper
             gap = 0
             topMargin = h * 0.1
@@ -329,7 +328,7 @@ scope "intermine.results", (exporting) ->
 
 
     exporting class PieFacet extends Backbone.View
-        className: 'im-grouped-facet im-facet'
+        className: 'im-grouped-facet im-pie-facet im-facet'
 
         chartHeight: 100
 
@@ -372,7 +371,6 @@ scope "intermine.results", (exporting) ->
                 newCon.op = "ONE OF"
                 newCon.values = vals
             newCon.title = @facet.title unless @facet.ignoreTitle
-            console.log newCon
             @query.addConstraint newCon
 
         render: -> @addChart().addControls()
@@ -519,7 +517,6 @@ scope "intermine.results", (exporting) ->
                         itemTable.offset().top + itemTable.scrollTop()
                     else
                         itemTable.scrollTop() + itemTable.offset().top + itemTable.outerHeight() - surrogate.outerHeight()
-                    console.log newTop
                     surrogate.offset top: newTop
 
             @item.on 'unhover', =>
@@ -562,6 +559,8 @@ scope "intermine.results", (exporting) ->
             @item.set "selected", @$('input').is ':checked'
 
     exporting class HistoFacet extends PieFacet
+
+        className: 'im-grouped-facet im-facet'
 
         chartHeight: 50
 
