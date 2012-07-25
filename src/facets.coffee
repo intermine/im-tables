@@ -469,9 +469,9 @@ scope "intermine.results", (exporting) ->
             this
 
         columnHeaders: """
-            <th class="im-selector-col"></th>
-            <th class="im-item-col">Item</th>
-            <th class="im-count-col">Count</th>
+            <th class="im-item-selector"></th>
+            <th class="im-item-value">Item</th>
+            <th class="im-item-count">Count</th>
             <th class="im-prop-count"></th>
         """
 
@@ -566,9 +566,9 @@ scope "intermine.results", (exporting) ->
         chartHeight: 50
 
         columnHeaders: """
-            <th></th>
-            <th>Item</th>
-            <th>Count</th>
+            <th class="im-item-selector"></th>
+            <th class="im-item-value">Item</th>
+            <th class="im-item-count">Count</th>
         """
         
         addChart: ->

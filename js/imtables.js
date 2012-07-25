@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Wed Jul 25 2012 13:11:21 GMT+0100 (BST)
+ * Built at Wed Jul 25 2012 13:56:29 GMT+0100 (BST)
 */
 
 
@@ -6641,7 +6641,7 @@
         return this;
       };
 
-      PieFacet.prototype.columnHeaders = "<th class=\"im-selector-col\"></th>\n<th class=\"im-item-col\">Item</th>\n<th class=\"im-count-col\">Count</th>\n<th class=\"im-prop-count\"></th>";
+      PieFacet.prototype.columnHeaders = "<th class=\"im-item-selector\"></th>\n<th class=\"im-item-value\">Item</th>\n<th class=\"im-item-count\">Count</th>\n<th class=\"im-prop-count\"></th>";
 
       PieFacet.prototype.makeRow = function(item) {
         var row;
@@ -6761,7 +6761,7 @@
 
       HistoFacet.prototype.chartHeight = 50;
 
-      HistoFacet.prototype.columnHeaders = "<th></th>\n<th>Item</th>\n<th>Count</th>";
+      HistoFacet.prototype.columnHeaders = "<th class=\"im-item-selector\"></th>\n<th class=\"im-item-value\">Item</th>\n<th class=\"im-item-count\">Count</th>";
 
       HistoFacet.prototype.addChart = function() {
         var baseline, chart, f, gap, h, hh, leftMargin, max, p, stepWidth, tick, topMargin, w, yaxis, _fn, _fn1, _i, _j,
