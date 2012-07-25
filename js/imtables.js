@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Tue Jul 24 2012 18:22:57 GMT+0100 (BST)
+ * Built at Wed Jul 25 2012 13:11:21 GMT+0100 (BST)
 */
 
 
@@ -6202,6 +6202,8 @@
 
       NumericFacet.prototype.className = "im-numeric-facet";
 
+      NumericFacet.prototype.chartHeight = 50;
+
       NumericFacet.prototype.render = function() {
         var canvas, promise;
         NumericFacet.__super__.render.call(this);
@@ -6211,7 +6213,7 @@
         this.$el.append(this.container);
         canvas = this.make("div");
         $(this.container).append(canvas);
-        this.paper = Raphael(canvas, this.$el.width(), 75);
+        this.paper = Raphael(canvas, this.$el.width(), this.chartHeight);
         this.throbber = $("<div class=\"progress progress-info progress-striped active\">\n    <div class=\"bar\" style=\"width:100%\"></div>\n</div>");
         this.throbber.appendTo(this.el);
         promise = this.query.summarise(this.facet.path, this.handleSummary);
@@ -6298,7 +6300,7 @@
       NumericFacet.prototype.drawChart = function(items) {
         var acceptableGap, baseLine, curX, fixity, gap, h, hh, i, item, lastX, leftMargin, max, p, stepWidth, tick, topMargin, val, w, xtick, yaxis, _fn, _fn1, _fn2, _i, _j, _k, _l, _len, _len1, _ref, _ref1,
           _this = this;
-        h = 75;
+        h = this.chartHeight;
         hh = h * 0.7;
         max = _.max(_.pluck(items, "count"));
         w = this.$el.closest(':visible').width() * 0.95;
@@ -6374,7 +6376,7 @@
         }
         sections = ((this.max - this.min) / this.dev).toFixed();
         w = this.$el.width();
-        h = 75;
+        h = this.chartHeight;
         nc = NormalCurve(w / 2, w / sections);
         factor = h / nc(w / 2);
         invert = function(x) {
@@ -6436,6 +6438,8 @@
       }
 
       PieFacet.prototype.className = 'im-grouped-facet im-facet';
+
+      PieFacet.prototype.chartHeight = 100;
 
       PieFacet.prototype.initialize = function(query, facet, items, hasMore, filterTerm) {
         var _ref,
@@ -6535,7 +6539,7 @@
         })) {
           return this;
         }
-        h = 100;
+        h = this.chartHeight;
         w = this.$el.closest(':visible').width();
         r = h * 0.8 / 2;
         chart = this.make("div");
@@ -6559,6 +6563,16 @@
           cmd = "M" + cx + "," + cy + " v-" + r + " a" + r + "," + r + " 0 " + arc + ",1 " + dx + "," + dy + " z";
           path = _this.paper.path(cmd);
           item.set("path", path);
+          path.click(function() {
+            return item.set({
+              selected: !item.get('selected')
+            });
+          });
+          path.hover((function() {
+            return item.trigger('hover');
+          }), (function() {
+            return item.trigger('unhover');
+          }));
           path.rotate(degs, cx, cy);
           textRads = (Raphael.rad(degs)) + (rads / 2);
           textdy = -(r * 0.6 * Math.cos(textRads));
@@ -6650,6 +6664,22 @@
 
       FacetRow.prototype.className = "im-facet-row";
 
+      FacetRow.prototype.isBelow = function() {
+        var parent;
+        parent = this.$el.closest('.im-item-table');
+        return this.$el.offset().top + this.$el.outerHeight() > parent.offset().top + parent.outerHeight();
+      };
+
+      FacetRow.prototype.isAbove = function() {
+        var parent;
+        parent = this.$el.closest('.im-item-table');
+        return this.$el.offset().top < parent.offset().top;
+      };
+
+      FacetRow.prototype.isVisible = function() {
+        return !(this.isAbove() || this.isBelow());
+      };
+
       FacetRow.prototype.initialize = function(item, items) {
         var _this = this;
         this.item = item;
@@ -6664,6 +6694,27 @@
           if (isSelected !== _this.$('input').attr("checked")) {
             return _this.$('input').attr("checked", isSelected);
           }
+        });
+        this.item.on('hover', function() {
+          var above, itemTable, newTop, surrogate;
+          _this.$el.addClass('hover');
+          if (!_this.isVisible()) {
+            above = _this.isAbove();
+            surrogate = $("<div class=\"im-facet-surrogate " + (above ? 'above' : 'below') + "\">\n    <i class=\"icon-caret-" + (above ? 'up' : 'down') + "\"></i>\n    " + (_this.item.get('item')) + ": " + (_this.item.get('count')) + "\n</div>");
+            itemTable = _this.$el.closest('.im-item-table').append(surrogate);
+            newTop = above ? itemTable.offset().top + itemTable.scrollTop() : itemTable.scrollTop() + itemTable.offset().top + itemTable.outerHeight() - surrogate.outerHeight();
+            console.log(newTop);
+            return surrogate.offset({
+              top: newTop
+            });
+          }
+        });
+        this.item.on('unhover', function() {
+          var s;
+          _this.$el.removeClass('hover');
+          return s = _this.$el.closest('.im-item-table').find('.im-facet-surrogate').fadeOut('fast', function() {
+            return s.remove();
+          });
         });
         return this.item.on("change:visibility", function() {
           return _this.$el.toggle(_this.item.get("visibility"));
@@ -6708,12 +6759,14 @@
         return HistoFacet.__super__.constructor.apply(this, arguments);
       }
 
+      HistoFacet.prototype.chartHeight = 50;
+
       HistoFacet.prototype.columnHeaders = "<th></th>\n<th>Item</th>\n<th>Count</th>";
 
       HistoFacet.prototype.addChart = function() {
         var baseline, chart, f, gap, h, hh, leftMargin, max, p, stepWidth, tick, topMargin, w, yaxis, _fn, _fn1, _i, _j,
           _this = this;
-        h = 75;
+        h = this.chartHeight;
         hh = h * 0.8;
         w = this.$el.closest(':visible').width() * 0.95;
         f = this.items.first();
@@ -6767,6 +6820,16 @@
           prop = item.get("count") / max;
           pathCmd = "M" + (i * stepWidth + leftMargin) + "," + baseline + " v-" + (hh * prop) + " h" + (stepWidth - gap) + " v" + (hh * prop) + " z";
           path = _this.paper.path(pathCmd);
+          path.click(function() {
+            return item.set({
+              selected: !item.get('selected')
+            });
+          });
+          path.hover((function() {
+            return item.trigger('hover');
+          }), (function() {
+            return item.trigger('unhover');
+          }));
           return item.set("path", path);
         });
         return this;

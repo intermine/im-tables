@@ -632,6 +632,8 @@ table.table thead .sorting_desc_disabled {
     max-width: 80%;
 }
 
+.im-item-table .im-facet-row.hover,
+.im-dropdown-summary .im-item-table .im-facet-surrogate,
 .im-reordering-container li.im-reorderable.new,
 .im-reordering-container li.im-outer-joined-path.new {
     border: 1px solid #e3d19f;
@@ -860,9 +862,16 @@ ul.im-cols h4 {
 }
 
 .im-dropdown-summary .im-item-table {
+    position: relative;
     display: block;
     max-height: 20em;
     overflow: auto;
+}
+.im-dropdown-summary .im-item-table .im-facet-surrogate {
+    padding: 0.5em;
+    font-size: 100%;
+    position: absolute;
+    left: 15%;
 }
 
 .im-constraints form.im-constraint {
@@ -1692,6 +1701,7 @@ form tr.active {
     background: #D9EDF7;
 }
 
+.im-query-display .im-item-table > table > tbody > tr.hover > td,
 .im-query-display .im-item-table > table > tbody > tr.active > td {
     background-color: transparent;
 }

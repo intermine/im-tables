@@ -141,6 +141,8 @@ scope "intermine.results", (exporting) ->
 
         className: "im-numeric-facet"
 
+        chartHeight: 50
+
         render: ->
             super()
             @container = @make "div"
@@ -148,7 +150,7 @@ scope "intermine.results", (exporting) ->
             @$el.append(@container)
             canvas = @make "div"
             $(@container).append canvas
-            @paper = Raphael(canvas, @$el.width(), 75)
+            @paper = Raphael(canvas, @$el.width(), @chartHeight)
             @throbber = $ """
                 <div class="progress progress-info progress-striped active">
                     <div class="bar" style="width:100%"></div>
@@ -252,7 +254,7 @@ scope "intermine.results", (exporting) ->
 
 
         drawChart: (items) =>
-            h = 75
+            h = @chartHeight
             hh = h * 0.7
             max = _.max _.pluck items, "count"
             
@@ -306,7 +308,7 @@ scope "intermine.results", (exporting) ->
                 return
             sections = ((@max - @min) / @dev).toFixed()
             w = @$el.width()
-            h = 75
+            h = @chartHeight
             nc = NormalCurve(w / 2, w / sections)
             factor = h / nc(w / 2)
             invert = (x) -> h - x + 2
@@ -328,6 +330,9 @@ scope "intermine.results", (exporting) ->
 
     exporting class PieFacet extends Backbone.View
         className: 'im-grouped-facet im-facet'
+
+        chartHeight: 100
+
         initialize: (@query, @facet, items, @hasMore, @filterTerm) ->
             @items = new Backbone.Collection(items)
             @items.each (item) -> item.set "visibility", true
@@ -376,7 +381,7 @@ scope "intermine.results", (exporting) ->
 
         addChart: ->
             return this if @items.all (i) -> i.get("count") is 1
-            h = 100
+            h = @chartHeight
             w = @$el.closest(':visible').width()
             r = h * 0.8 / 2
             chart = @make "div"
@@ -398,6 +403,8 @@ scope "intermine.results", (exporting) ->
                 cmd = "M#{cx},#{cy} v-#{r} a#{r},#{r} 0 #{arc},1 #{dx},#{dy} z"
                 path = @paper.path cmd
                 item.set "path", path
+                path.click () -> item.set selected: not item.get('selected')
+                path.hover (() -> item.trigger 'hover'), (() -> item.trigger 'unhover')
                 path.rotate degs, cx, cy
                 textRads = (Raphael.rad degs) + (rads / 2)
                 textdy = -(r * 0.6 * Math.cos textRads)
@@ -478,6 +485,16 @@ scope "intermine.results", (exporting) ->
         tagName: "tr"
         className: "im-facet-row"
 
+        isBelow: () ->
+            parent = @$el.closest '.im-item-table'
+            @$el.offset().top + @$el.outerHeight() > parent.offset().top + parent.outerHeight()
+
+        isAbove: () ->
+            parent = @$el.closest '.im-item-table'
+            @$el.offset().top < parent.offset().top
+
+        isVisible: () -> not (@isAbove() or @isBelow())
+
         initialize: (@item, @items) ->
             @item.on "change:selected", =>
                 isSelected = @item.get "selected"
@@ -486,6 +503,29 @@ scope "intermine.results", (exporting) ->
                 @$el.toggleClass "active", isSelected
                 if isSelected isnt @$('input').attr("checked")
                     @$('input').attr "checked", isSelected
+
+            @item.on 'hover', =>
+                @$el.addClass 'hover'
+                unless @isVisible()
+                    above = @isAbove()
+                    surrogate = $ """
+                        <div class="im-facet-surrogate #{ if above then 'above' else 'below'}">
+                            <i class="icon-caret-#{ if above then 'up' else 'down' }"></i>
+                            #{ @item.get('item') }: #{ @item.get('count') }
+                        </div>
+                    """
+                    itemTable = @$el.closest('.im-item-table').append surrogate
+                    newTop = if above
+                        itemTable.offset().top + itemTable.scrollTop()
+                    else
+                        itemTable.scrollTop() + itemTable.offset().top + itemTable.outerHeight() - surrogate.outerHeight()
+                    console.log newTop
+                    surrogate.offset top: newTop
+
+            @item.on 'unhover', =>
+                @$el.removeClass 'hover'
+                s = @$el.closest('.im-item-table').find('.im-facet-surrogate').fadeOut 'fast', () ->
+                    s.remove()
 
             @item.on "change:visibility", => @$el.toggle @item.get "visibility"
 
@@ -523,6 +563,8 @@ scope "intermine.results", (exporting) ->
 
     exporting class HistoFacet extends PieFacet
 
+        chartHeight: 50
+
         columnHeaders: """
             <th></th>
             <th>Item</th>
@@ -530,7 +572,7 @@ scope "intermine.results", (exporting) ->
         """
         
         addChart: ->
-            h = 75
+            h = @chartHeight
             hh = h * 0.8
             w = @$el.closest(':visible').width() * 0.95
             f = @items.first()
@@ -567,6 +609,9 @@ scope "intermine.results", (exporting) ->
                 prop = item.get("count") / max
                 pathCmd = "M#{i * stepWidth + leftMargin},#{baseline} v-#{hh * prop} h#{stepWidth - gap} v#{hh * prop} z"
                 path = @paper.path pathCmd
+                path.click () -> item.set selected: not item.get('selected')
+                path.hover (() -> item.trigger 'hover'), (() -> item.trigger 'unhover')
+
                 item.set "path", path
 
             this
