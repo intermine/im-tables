@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Wed Jul 25 2012 14:25:15 GMT+0100 (BST)
+ * Built at Thu Jul 26 2012 10:37:33 GMT+0100 (BST)
 */
 
 
@@ -6603,7 +6603,11 @@
       PieFacet.prototype.addControls = function() {
         var $grp, $valFilter, facet, xs,
           _this = this;
-        $grp = $("<form class=\"form form-horizontal\">\n    <div class=\"input-prepend\">\n        <span class=\"add-on\"><i class=\"icon-refresh\"></i></span><input type=\"text\" class=\"input-medium search-query filter-values\" placeholder=\"Filter values\">\n    </div>\n    <div class=\"im-item-table\">\n        <table class=\"table table-condensed\">\n            <thead>\n                <tr>" + this.columnHeaders + "</tr>\n            </thead>\n            <tbody class=\"scrollable\"></tbody>\n        </table>\n    </div>\n</form>").appendTo(this.el);
+        $grp = $("<form class=\"form form-horizontal\">\n    <div class=\"input-prepend\">\n        <span class=\"add-on\"><i class=\"icon-refresh\"></i></span><input type=\"text\" class=\"input-medium search-query filter-values\" placeholder=\"Filter values\">\n    </div>\n    <div class=\"im-item-table\">\n        <table class=\"table table-condensed\">\n            <colgroup>\n                " + (this.colClasses.map(function(cl) {
+          return "<col class=" + cl + ">";
+        }).join('')) + "\n            </colgroup>\n            <thead>\n                <tr>" + (this.columnHeaders.map(function(h) {
+          return "<th>" + h + "</th>";
+        }).join('')) + "</tr>\n            </thead>\n            <tbody class=\"scrollable\"></tbody>\n        </table>\n    </div>\n</form>").appendTo(this.el);
         $grp.button();
         this.items.each(function(item) {
           var r;
@@ -6639,7 +6643,9 @@
         return this;
       };
 
-      PieFacet.prototype.columnHeaders = "<th class=\"im-item-selector\"></th>\n<th class=\"im-item-value\">Item</th>\n<th class=\"im-item-count\">Count</th>\n<th class=\"im-prop-count\"></th>";
+      PieFacet.prototype.colClasses = ["im-item-selector", "im-item-value", "im-item-count", "im-prop-count"];
+
+      PieFacet.prototype.columnHeaders = [' ', 'Item', 'Count', ' '];
 
       PieFacet.prototype.makeRow = function(item) {
         var row;
@@ -6760,7 +6766,9 @@
 
       HistoFacet.prototype.chartHeight = 50;
 
-      HistoFacet.prototype.columnHeaders = "<th class=\"im-item-selector\"></th>\n<th class=\"im-item-value\">Item</th>\n<th class=\"im-item-count\">Count</th>";
+      HistoFacet.prototype.colClasses = ["im-item-selector", "im-item-value", "im-item-count"];
+
+      HistoFacet.prototype.columnHeaders = [' ', 'Item', 'Count'];
 
       HistoFacet.prototype.addChart = function() {
         var baseline, chart, f, gap, h, hh, leftMargin, max, p, stepWidth, tick, topMargin, w, yaxis, _fn, _fn1, _i, _j,

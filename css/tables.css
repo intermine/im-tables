@@ -834,7 +834,6 @@ ul.im-cols h4 {
 
 .im-dropdown-summary .im-item-table table,
 .im-column-summary .im-facet table {
-    table-layout: fixed;
     margin: 0 1em 0 1em;
     width: 95%;
 }
@@ -846,35 +845,27 @@ ul.im-cols h4 {
     overflow-y: auto;
     overflow-x: hidden;
 }
-.im-dropdown-summary .im-item-table th.im-item-selector {
+.im-dropdown-summary .im-item-table .im-item-selector {
     width: 7.5%;
 }
 
-.im-dropdown-summary .im-pie-facet .im-item-table th.im-item-selector {
+.im-dropdown-summary .im-pie-facet .im-item-table .im-item-selector {
     width: 15%;
-}
-
-.im-dropdown-summary .im-item-table th.im-item-value {
-    width: 67.5%;
 }
 
 .im-dropdown-summary .im-item-table td.im-item-col {
     white-space: normal;
 }
 
-.im-dropdown-summary .im-pie-facet .im-item-table th.im-item-value {
-    width: 55%;
-}
-
-.im-dropdown-summary .im-item-table th.im-item-count {
+.im-dropdown-summary .im-item-table .im-item-count {
     width: 20%;
 }
 
-.im-dropdown-summary  .im-pie-facet .im-item-table th.im-item-count {
+.im-dropdown-summary  .im-pie-facet .im-item-table .im-item-count {
     width: 12.5%;
 }
 
-.im-dropdown-summary .im-item-table th.im-prop-count {
+.im-dropdown-summary .im-item-table .im-prop-count {
     width: 17.5%;
 }
 

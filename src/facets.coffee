@@ -431,8 +431,11 @@ scope "intermine.results", (exporting) ->
                 </div>
                 <div class="im-item-table">
                     <table class="table table-condensed">
+                        <colgroup>
+                            #{ @colClasses.map( (cl) -> "<col class=#{cl}>").join('') }
+                        </colgroup>
                         <thead>
-                            <tr>#{ @columnHeaders }</tr>
+                            <tr>#{ @columnHeaders.map( (h) -> "<th>#{ h }</th>" ).join('') }</tr>
                         </thead>
                         <tbody class="scrollable"></tbody>
                     </table>
@@ -466,12 +469,9 @@ scope "intermine.results", (exporting) ->
 
             this
 
-        columnHeaders: """
-            <th class="im-item-selector"></th>
-            <th class="im-item-value">Item</th>
-            <th class="im-item-count">Count</th>
-            <th class="im-prop-count"></th>
-        """
+        colClasses: ["im-item-selector", "im-item-value", "im-item-count", "im-prop-count"]
+
+        columnHeaders: [' ', 'Item', 'Count', ' ']
 
         makeRow: (item) ->
             row = new FacetRow(item, @items)
@@ -564,11 +564,9 @@ scope "intermine.results", (exporting) ->
 
         chartHeight: 50
 
-        columnHeaders: """
-            <th class="im-item-selector"></th>
-            <th class="im-item-value">Item</th>
-            <th class="im-item-count">Count</th>
-        """
+        colClasses: ["im-item-selector", "im-item-value", "im-item-count"]
+
+        columnHeaders: [' ', 'Item', 'Count']
         
         addChart: ->
             h = @chartHeight
