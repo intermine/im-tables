@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Thu Jul 26 2012 10:37:33 GMT+0100 (BST)
+ * Built at Thu Jul 26 2012 13:39:20 GMT+0100 (BST)
 */
 
 
@@ -6205,13 +6205,18 @@
       NumericFacet.prototype.chartHeight = 50;
 
       NumericFacet.prototype.render = function() {
-        var canvas, promise;
+        var canvas, promise,
+          _this = this;
         NumericFacet.__super__.render.call(this);
+        this.range = new Backbone.Model();
         this.container = this.make("div", {
           "class": "facet-content im-facet"
         });
         this.$el.append(this.container);
         canvas = this.make("div");
+        this.canvas = $(canvas).mouseout(function() {
+          return _this._selecting_paths_ = false;
+        });
         $(this.container).append(canvas);
         this.paper = Raphael(canvas, this.$el.width(), this.chartHeight);
         this.throbber = $("<div class=\"progress progress-info progress-striped active\">\n    <div class=\"bar\" style=\"width:100%\"></div>\n</div>");
@@ -6254,10 +6259,54 @@
       };
 
       NumericFacet.prototype.drawSlider = function() {
-        var $slider, step, _ref,
+        var $slider, idx, prop, round, step, _fn, _ref, _ref1,
           _this = this;
         $(this.container).append("<label>Range:</label>\n<input type=\"text\" class=\"im-range-min input\" value=\"" + this.min + "\">\n<span>...</span>\n<input type=\"text\" class=\"im-range-max input\" value=\"" + this.max + "\">\n<button class=\"btn btn-primary disabled\">Apply</button>\n<button class=\"btn btn-cancel disabled\">Reset</button>\n<div class=\"slider\"></div>");
         step = (_ref = this.query.getType(this.facet.path)) === "int" || _ref === "Integer" ? 1 : 0.1;
+        this.round = round = function(x) {
+          if (step === 1) {
+            return Math.round(x);
+          } else {
+            return x;
+          }
+        };
+        _ref1 = {
+          min: 0,
+          max: 1
+        };
+        _fn = function(prop, idx) {
+          return _this.range.on("change:" + prop, function(m, val) {
+            val = round(val);
+            _this.$("input.im-range-" + prop).val("" + val);
+            if ($slider.slider('values', idx) !== val) {
+              return $slider.slider('values', idx, val);
+            }
+          });
+        };
+        for (prop in _ref1) {
+          idx = _ref1[prop];
+          _fn(prop, idx);
+        }
+        this.range.on('change', function() {
+          var changed, _ref2, _results;
+          changed = _this.range.has('min') && _this.range.has('max') && (_this.range.get('min') > _this.min || _this.range.get('max') < _this.max);
+          _this.$('.btn').toggleClass("disabled", !changed);
+          _ref2 = {
+            min: 0,
+            max: 1
+          };
+          _results = [];
+          for (prop in _ref2) {
+            idx = _ref2[prop];
+            if (!_this.range.has(prop)) {
+              $slider.slider('values', idx, _this[prop]);
+              _results.push(_this.$("input.im-range-" + prop).val("" + _this[prop]));
+            } else {
+              _results.push(void 0);
+            }
+          }
+          return _results;
+        });
         $slider = this.$('.slider').slider({
           range: true,
           min: this.min,
@@ -6265,19 +6314,26 @@
           values: [this.min, this.max],
           step: step,
           slide: function(e, ui) {
-            var changed;
-            changed = ui.values[0] > _this.min || ui.values[1] < _this.max;
-            _this.$('.btn').toggleClass("disabled", !changed);
-            _this.$('input.im-range-min').val(ui.values[0]);
-            return _this.$('input.im-range-max').val(ui.values[1]);
+            return _this.range.set({
+              min: ui.values[0],
+              max: ui.values[1]
+            });
           }
         });
+        this.query.on('range:selected', function(from, upto) {
+          if (_this.range.has('min')) {
+            from = Math.min(from, _this.range.get('min'));
+          }
+          if (_this.range.has('min')) {
+            upto = Math.max(upto, _this.range.get('max'));
+          }
+          return _this.range.set({
+            min: round(from),
+            max: round(upto)
+          });
+        });
         this.$('.btn-cancel').click(function() {
-          $slider.slider('values', 0, _this.min);
-          $slider.slider('values', 1, _this.max);
-          _this.$('input.im-range-min').val(_this.min);
-          _this.$('input.im-range-max').val(_this.max);
-          return _this.$('.btn').addClass("disabled");
+          return _this.range.clear();
         });
         return this.$('.btn-primary').click(function() {
           _this.query.constraints = _(_this.query.constraints).filter(function(c) {
@@ -6287,18 +6343,71 @@
             {
               path: _this.facet.path,
               op: ">=",
-              value: _this.$('input.im-range-min').val()
+              value: _this.range.get('min')
             }, {
               path: _this.facet.path,
               op: "<=",
-              value: _this.$('input.im-range-max').val()
+              value: _this.range.get('max')
             }
           ]);
         });
       };
 
+      NumericFacet.prototype.moveRubberBand = function(x) {
+        var newWidth, oldWidth, oldX;
+        if (this.rubberBand.attr('x') === x && this.rubberBand.attr('width') === 0) {
+          this.rubberBand.dragDir = null;
+        }
+        if ((this.rubberBand != null) && (!(this.rubberBand.dragDir != null) || this.rubberBand.dragDir === 'right')) {
+          newWidth = x - this.rubberBand.attr('x');
+          if (newWidth <= 0) {
+            this.rubberBand.dragDir = null;
+          } else {
+            if (this.rubberBand.attr('x') < x) {
+              this.rubberBand.dragDir = 'right';
+              this.rubberBand.attr({
+                width: newWidth
+              });
+            }
+            if (this.rubberBand.attr('x') > x && this.rubberBand.dragDir === 'right') {
+              this.rubberBand.attr({
+                width: newWidth
+              });
+            }
+          }
+        }
+        if ((this.rubberBand != null) && (!(this.rubberBand.dragDir != null) || this.rubberBand.dragDir === 'left')) {
+          if (this.rubberBand.attr('x') > x) {
+            this.rubberBand.dragDir = 'left';
+            oldWidth = this.rubberBand.attr('width');
+            oldX = this.rubberBand.attr('x');
+            newWidth = oldWidth + (oldX - x);
+            if (newWidth > 0) {
+              this.rubberBand.attr({
+                x: x,
+                width: newWidth
+              });
+            }
+          }
+          if (this.rubberBand.attr('x') < x && this.rubberBand.dragDir === 'left') {
+            oldWidth = this.rubberBand.attr('width');
+            oldX = this.rubberBand.attr('x');
+            newWidth = oldWidth - (x - oldX);
+            if (newWidth >= 0) {
+              this.rubberBand.attr({
+                x: x,
+                width: newWidth
+              });
+            }
+          }
+          if (newWidth < 0) {
+            return this.rubberBand.dragDir = null;
+          }
+        }
+      };
+
       NumericFacet.prototype.drawChart = function(items) {
-        var acceptableGap, baseLine, curX, fixity, gap, h, hh, i, item, lastX, leftMargin, max, p, stepWidth, tick, topMargin, val, w, xtick, yaxis, _fn, _fn1, _fn2, _i, _j, _k, _l, _len, _len1, _ref, _ref1,
+        var acceptableGap, baseLine, curX, drawSelection, fixity, gap, h, hh, i, item, lastX, leftMargin, max, p, stepWidth, tick, topMargin, val, valForX, w, xForVal, xtick, yaxis, _fn, _fn1, _fn2, _i, _j, _k, _l, _len, _len1, _ref, _ref1,
           _this = this;
         h = this.chartHeight;
         hh = h * 0.7;
@@ -6321,6 +6430,80 @@
         }
         yaxis = this.paper.path("M" + (leftMargin - 4) + ", " + baseLine + " v-" + hh);
         yaxis.node.setAttribute("class", "yaxis");
+        this.rubberBand = null;
+        this.selection = null;
+        this.canvas.mousedown(function(e) {
+          var x;
+          x = e.offsetX;
+          _this.rubberBand = p.rect(x, 0, 10, h, 0);
+          return _this.rubberBand.attr({
+            fill: 'transparent',
+            'stroke-dasharray': '.'
+          });
+        });
+        this.canvas.mousemove(function(e) {
+          var x;
+          x = e.offsetX;
+          if (_this.rubberBand != null) {
+            return _this.moveRubberBand(x);
+          }
+        });
+        valForX = function(x) {
+          var conversionRate;
+          if (x <= leftMargin) {
+            return _this.min;
+          }
+          if (x >= w) {
+            return _this.max;
+          }
+          conversionRate = (_this.max - _this.min) / (w - leftMargin);
+          return _this.min + (conversionRate * x);
+        };
+        xForVal = function(val) {
+          var conversionRate;
+          if (val === _this.min) {
+            return leftMargin;
+          }
+          if (val === _this.max) {
+            return w;
+          }
+          conversionRate = (w - leftMargin) / (_this.max - _this.min);
+          return leftMargin + (conversionRate * (val - _this.min));
+        };
+        drawSelection = function(x, width) {
+          var _ref;
+          if ((_ref = _this.selection) != null) {
+            _ref.remove();
+          }
+          _this.selection = p.rect(x, 0, width, h);
+          return _this.selection.node.setAttribute('class', 'rubberband-selection');
+        };
+        this.canvas.mouseup(function(e) {
+          var min;
+          if (_this.rubberBand != null) {
+            min = valForX(_this.rubberBand.attr('x'));
+            max = valForX(_this.rubberBand.attr('x') + _this.rubberBand.attr('width'));
+            _this.range.set({
+              min: _this.round(min),
+              max: _this.round(max)
+            });
+            _this.rubberBand.remove();
+          }
+          return _this.rubberBand = null;
+        });
+        this.range.on('change', function() {
+          var width, x, _ref;
+          if (_this.range.has('min') && _this.range.has('max')) {
+            x = xForVal(_this.range.get('min'));
+            width = xForVal(_this.range.get('max')) - x;
+            return drawSelection(x, width);
+          } else {
+            if ((_ref = _this.selection) != null) {
+              _ref.remove();
+            }
+            return _this.selection = null;
+          }
+        });
         _ref = [0, 5, 10];
         _fn1 = function(tick) {
           var t, val, ypos;
@@ -6343,10 +6526,16 @@
           _fn1(tick);
         }
         _fn2 = function(item, i) {
-          var path, pathCmd, prop;
+          var from, path, pathCmd, prop, upto, width;
           prop = item.count / max;
           pathCmd = "M" + ((item.bucket - 1) * stepWidth + leftMargin) + "," + baseLine + " v-" + (hh * prop) + " h" + (stepWidth - gap) + " v" + (hh * prop) + " z";
-          return path = _this.paper.path(pathCmd);
+          path = _this.paper.path(pathCmd);
+          width = (item.max - item.min) / item.buckets;
+          from = item.min + ((item.bucket - 1) * width);
+          upto = item.min + ((item.bucket - 0) * width);
+          return path.click(function() {
+            return _this.query.trigger('range:selected', from, upto);
+          });
         };
         for (i = _k = 0, _len1 = items.length; _k < _len1; i = ++_k) {
           item = items[i];
@@ -6365,6 +6554,8 @@
         }
         return this;
       };
+
+      NumericFacet.prototype._selecting_paths_ = false;
 
       NumericFacet.prototype.drawCurve = function() {
         var drawDivider, f, factor, getPathCmd, h, invert, nc, pathCmd, points, scale, sections, stdevs, w, x, xs, _i, _j, _ref, _results, _results1,
@@ -6691,7 +6882,7 @@
         this.item.on("change:selected", function() {
           var isSelected;
           isSelected = _this.item.get("selected");
-          if (_this.item.get("path")) {
+          if (_this.item.has("path")) {
             item.get("path").node.setAttribute("class", isSelected ? "selected" : "");
           }
           _this.$el.toggleClass("active", isSelected);

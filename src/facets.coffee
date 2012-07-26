@@ -145,10 +145,12 @@ scope "intermine.results", (exporting) ->
 
         render: ->
             super()
+            @range = new Backbone.Model()
             @container = @make "div"
                 class: "facet-content im-facet"
             @$el.append(@container)
             canvas = @make "div"
+            @canvas = $(canvas).mouseout () => @_selecting_paths_ = false
             $(@container).append canvas
             @paper = Raphael(canvas, @$el.width(), @chartHeight)
             @throbber = $ """
@@ -219,23 +221,32 @@ scope "intermine.results", (exporting) ->
                 <div class="slider"></div>
                 """
             step = if @query.getType(@facet.path) in ["int", "Integer"] then 1 else 0.1
+            @round = round = (x) -> if step is 1 then Math.round(x) else x
+            for prop, idx of {min: 0, max: 1} then do (prop, idx) =>
+                @range.on "change:#{prop}", (m, val) =>
+                    val = round(val)
+                    @$("input.im-range-#{prop}").val "#{ val }"
+                    if $slider.slider('values', idx) isnt val
+                        $slider.slider('values', idx, val)
+            @range.on 'change', () =>
+                changed = @range.has('min') and @range.has('max') and (@range.get('min') > @min or @range.get('max') < @max)
+                @$('.btn').toggleClass "disabled", !changed
+                for prop, idx of {min: 0, max: 1}
+                    unless @range.has(prop)
+                        $slider.slider('values', idx, @[prop])
+                        @$("input.im-range-#{prop}").val "#{ @[prop] }"
             $slider = @$('.slider').slider
                 range: true
                 min: @min
                 max: @max
                 values: [@min, @max]
                 step: step
-                slide: (e, ui) =>
-                    changed = ui.values[0] > @min or ui.values[1] < @max
-                    @$('.btn').toggleClass "disabled", !changed
-                    @$('input.im-range-min').val ui.values[0]
-                    @$('input.im-range-max').val ui.values[1]
-            @$('.btn-cancel').click =>
-                $slider.slider 'values', 0, @min
-                $slider.slider 'values', 1, @max
-                @$('input.im-range-min').val @min
-                @$('input.im-range-max').val @max
-                @$('.btn').addClass "disabled"
+                slide: (e, ui) => @range.set min: ui.values[0], max: ui.values[1]
+            @query.on 'range:selected', (from, upto) =>
+                from = Math.min(from, @range.get('min')) if @range.has('min')
+                upto = Math.max(upto, @range.get('max')) if @range.has('min')
+                @range.set min: round(from), max: round(upto)
+            @$('.btn-cancel').click => @range.clear()
             @$('.btn-primary').click =>
                 @query.constraints = _(@query.constraints).filter (c) =>
                     c.path != @facet.path
@@ -243,15 +254,42 @@ scope "intermine.results", (exporting) ->
                     {
                         path: @facet.path
                         op: ">="
-                        value: @$('input.im-range-min').val()
+                        value: @range.get('min')
                     },
                     {
                         path: @facet.path
                         op: "<="
-                        value: @$('input.im-range-max').val()
+                        value: @range.get('max')
                     }
                 ]
 
+        moveRubberBand: (x) ->
+            if @rubberBand.attr('x') is x and @rubberBand.attr('width') is 0
+                @rubberBand.dragDir = null
+            if @rubberBand? and (not @rubberBand.dragDir? or @rubberBand.dragDir is 'right')
+                newWidth = x - @rubberBand.attr('x')
+                if newWidth <= 0
+                    @rubberBand.dragDir = null
+                else
+                    if @rubberBand.attr('x') < x
+                        @rubberBand.dragDir = 'right'
+                        @rubberBand.attr width: newWidth
+                    if @rubberBand.attr('x') > x and @rubberBand.dragDir is 'right'
+                        @rubberBand.attr width: newWidth
+            if @rubberBand? and (not @rubberBand.dragDir? or @rubberBand.dragDir is 'left')
+                if @rubberBand.attr('x') > x
+                    @rubberBand.dragDir = 'left'
+                    oldWidth = @rubberBand.attr('width')
+                    oldX = @rubberBand.attr('x')
+                    newWidth = oldWidth + (oldX - x)
+                    @rubberBand.attr(x: x, width: newWidth) if newWidth > 0
+                if @rubberBand.attr('x') < x and @rubberBand.dragDir is 'left'
+                    oldWidth = @rubberBand.attr('width')
+                    oldX = @rubberBand.attr('x')
+                    newWidth = oldWidth - (x - oldX)
+                    @rubberBand.attr(x: x, width: newWidth) if newWidth >= 0
+                if newWidth < 0
+                    @rubberBand.dragDir = null
 
         drawChart: (items) =>
             h = @chartHeight
@@ -273,6 +311,57 @@ scope "intermine.results", (exporting) ->
 
             yaxis = @paper.path "M#{leftMargin - 4}, #{baseLine} v-#{hh}"
             yaxis.node.setAttribute "class", "yaxis"
+
+            @rubberBand = null
+            @selection = null
+
+            @canvas.mousedown (e) =>
+                x = e.offsetX
+                @rubberBand = p.rect(x, 0, 10, h, 0)
+                @rubberBand.attr fill: 'transparent', 'stroke-dasharray': '.'
+
+            @canvas.mousemove (e) =>
+                x = e.offsetX
+                if @rubberBand?
+                    @moveRubberBand(x)
+
+            valForX = (x) =>
+                if x <= leftMargin
+                    return @min
+                if x >= w
+                    return @max
+                conversionRate = (@max - @min) / (w - leftMargin)
+                return @min + (conversionRate * x)
+
+            xForVal = (val) =>
+                if val is @min
+                    return leftMargin
+                if val is @max
+                    return w
+                conversionRate = (w - leftMargin) / (@max - @min)
+                return leftMargin + (conversionRate * (val - @min))
+
+            drawSelection = (x, width) =>
+                @selection?.remove()
+                @selection = p.rect(x, 0, width, h)
+                @selection.node.setAttribute 'class', 'rubberband-selection'
+
+            @canvas.mouseup (e) =>
+                if @rubberBand?
+                    min = valForX(@rubberBand.attr('x'))
+                    max = valForX(@rubberBand.attr('x') + @rubberBand.attr('width'))
+                    @range.set min: @round(min), max: @round(max)
+                    @rubberBand.remove()
+                @rubberBand = null
+
+            @range.on 'change', () =>
+                if @range.has('min') and @range.has('max')
+                    x = xForVal(@range.get('min'))
+                    width = xForVal(@range.get('max')) - x
+                    drawSelection(x, width)
+                else
+                    @selection?.remove()
+                    @selection = null
             
             for tick in [0, 5, 10] then do (tick) =>
                 ypos = baseLine - (hh / 10 * tick)
@@ -288,6 +377,11 @@ scope "intermine.results", (exporting) ->
                 prop = item.count / max
                 pathCmd = "M#{(item.bucket - 1) * stepWidth + leftMargin},#{baseLine} v-#{hh * prop} h#{stepWidth - gap} v#{hh * prop} z"
                 path = @paper.path pathCmd
+                width = (item.max - item.min) / item.buckets
+                from = item.min + ((item.bucket - 1) * width)
+                upto = item.min + ((item.bucket - 0) * width)
+                path.click () =>
+                    @query.trigger 'range:selected', from, upto
 
             item = items[0]
             fixity = if item.max - item.min > 5 then 0 else 2
@@ -300,6 +394,8 @@ scope "intermine.results", (exporting) ->
                     @paper.text(curX, baseLine + 5, val.toFixed(fixity))
 
             this
+
+        _selecting_paths_: false
 
         drawCurve: () =>
             if @max is @min
@@ -496,7 +592,7 @@ scope "intermine.results", (exporting) ->
         initialize: (@item, @items) ->
             @item.on "change:selected", =>
                 isSelected = @item.get "selected"
-                if @item.get "path"
+                if @item.has "path"
                     item.get("path").node.setAttribute "class", if isSelected then "selected" else ""
                 @$el.toggleClass "active", isSelected
                 if isSelected isnt @$('input').attr("checked")

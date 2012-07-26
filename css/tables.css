@@ -1797,6 +1797,12 @@ path.selected {
     stroke: #5cb35d;
 }
 
+rect.rubberband-selection {
+    fill: #5cb35d;
+    stroke: #5cb35d;
+    opacity: 0.3;
+}
+
 path.yaxis {
     stroke: #555;
     stroke-width: 1px;
