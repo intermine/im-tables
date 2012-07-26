@@ -1007,7 +1007,7 @@ scope "intermine.query.actions", (exporting) ->
             for c in @query.constraints then do (c) ->
                 title = c.title or c.path.replace(/^[^\.]+\./, "")
                 if c.op is "IN"
-                    add "source: #{c.value}", silently
+                    add "source: #{c.value}"
                 else if c.op is "="
                     add "#{title}: #{c.value}"
                 else if c.op is "<"

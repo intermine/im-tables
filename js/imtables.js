@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Thu Jul 26 2012 13:39:20 GMT+0100 (BST)
+ * Built at Thu Jul 26 2012 13:58:39 GMT+0100 (BST)
 */
 
 
@@ -6262,7 +6262,7 @@
         var $slider, idx, prop, round, step, _fn, _ref, _ref1,
           _this = this;
         $(this.container).append("<label>Range:</label>\n<input type=\"text\" class=\"im-range-min input\" value=\"" + this.min + "\">\n<span>...</span>\n<input type=\"text\" class=\"im-range-max input\" value=\"" + this.max + "\">\n<button class=\"btn btn-primary disabled\">Apply</button>\n<button class=\"btn btn-cancel disabled\">Reset</button>\n<div class=\"slider\"></div>");
-        step = (_ref = this.query.getType(this.facet.path)) === "int" || _ref === "Integer" ? 1 : 0.1;
+        this.step = step = (_ref = this.query.getType(this.facet.path)) === "int" || _ref === "Integer" ? 1 : 0.1;
         this.round = round = function(x) {
           if (step === 1) {
             return Math.round(x);
@@ -6445,8 +6445,9 @@
           var x;
           x = e.offsetX;
           if (_this.rubberBand != null) {
-            return _this.moveRubberBand(x);
+            _this.moveRubberBand(x);
           }
+          return true;
         });
         valForX = function(x) {
           var conversionRate;
@@ -6457,7 +6458,7 @@
             return _this.max;
           }
           conversionRate = (_this.max - _this.min) / (w - leftMargin);
-          return _this.min + (conversionRate * x);
+          return _this.min + (conversionRate * (x - leftMargin));
         };
         xForVal = function(val) {
           var conversionRate;
@@ -6481,15 +6482,18 @@
         this.canvas.mouseup(function(e) {
           var min;
           if (_this.rubberBand != null) {
-            min = valForX(_this.rubberBand.attr('x'));
-            max = valForX(_this.rubberBand.attr('x') + _this.rubberBand.attr('width'));
-            _this.range.set({
-              min: _this.round(min),
-              max: _this.round(max)
-            });
+            min = _this.round(valForX(_this.rubberBand.attr('x')));
+            max = _this.round(valForX(_this.rubberBand.attr('x') + _this.rubberBand.attr('width')));
+            if (max - min >= _this.step) {
+              _this.range.set({
+                min: min,
+                max: max
+              });
+            }
             _this.rubberBand.remove();
           }
-          return _this.rubberBand = null;
+          _this.rubberBand = null;
+          return true;
         });
         this.range.on('change', function() {
           var width, x, _ref;
@@ -6533,7 +6537,9 @@
           width = (item.max - item.min) / item.buckets;
           from = item.min + ((item.bucket - 1) * width);
           upto = item.min + ((item.bucket - 0) * width);
-          return path.click(function() {
+          return path.click(function(e) {
+            console.log("Clicked!");
+            e.stopPropagation();
             return _this.query.trigger('range:selected', from, upto);
           });
         };

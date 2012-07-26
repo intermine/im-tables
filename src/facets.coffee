@@ -220,7 +220,7 @@ scope "intermine.results", (exporting) ->
                 <button class="btn btn-cancel disabled">Reset</button>
                 <div class="slider"></div>
                 """
-            step = if @query.getType(@facet.path) in ["int", "Integer"] then 1 else 0.1
+            @step = step = if @query.getType(@facet.path) in ["int", "Integer"] then 1 else 0.1
             @round = round = (x) -> if step is 1 then Math.round(x) else x
             for prop, idx of {min: 0, max: 1} then do (prop, idx) =>
                 @range.on "change:#{prop}", (m, val) =>
@@ -324,6 +324,7 @@ scope "intermine.results", (exporting) ->
                 x = e.offsetX
                 if @rubberBand?
                     @moveRubberBand(x)
+                true
 
             valForX = (x) =>
                 if x <= leftMargin
@@ -331,7 +332,7 @@ scope "intermine.results", (exporting) ->
                 if x >= w
                     return @max
                 conversionRate = (@max - @min) / (w - leftMargin)
-                return @min + (conversionRate * x)
+                return @min + (conversionRate * (x - leftMargin))
 
             xForVal = (val) =>
                 if val is @min
@@ -348,12 +349,13 @@ scope "intermine.results", (exporting) ->
 
             @canvas.mouseup (e) =>
                 if @rubberBand?
-                    min = valForX(@rubberBand.attr('x'))
-                    max = valForX(@rubberBand.attr('x') + @rubberBand.attr('width'))
-                    @range.set min: @round(min), max: @round(max)
+                    min = @round(valForX(@rubberBand.attr('x')))
+                    max = @round(valForX(@rubberBand.attr('x') + @rubberBand.attr('width')))
+                    if max - min >= @step
+                        @range.set min: min, max: max
                     @rubberBand.remove()
                 @rubberBand = null
-
+                true
             @range.on 'change', () =>
                 if @range.has('min') and @range.has('max')
                     x = xForVal(@range.get('min'))
@@ -380,7 +382,9 @@ scope "intermine.results", (exporting) ->
                 width = (item.max - item.min) / item.buckets
                 from = item.min + ((item.bucket - 1) * width)
                 upto = item.min + ((item.bucket - 0) * width)
-                path.click () =>
+                path.click (e) =>
+                    console.log "Clicked!"
+                    e.stopPropagation()
                     @query.trigger 'range:selected', from, upto
 
             item = items[0]
