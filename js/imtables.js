@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Thu Jul 26 2012 13:58:39 GMT+0100 (BST)
+ * Built at Mon Jul 30 2012 11:12:07 GMT+0100 (BST)
 */
 
 
@@ -1382,7 +1382,8 @@
           $el = jQuery(e.target).closest('.summary-img');
           if (!$el.parent().hasClass('open')) {
             summ = new intermine.query.results.OuterJoinDropDown(path, _this.query);
-            $el.siblings('.dropdown-menu').html(summ.render().el);
+            $el.siblings('.dropdown-menu').html(summ.el);
+            summ.render();
           }
           return false;
         };
@@ -2307,27 +2308,35 @@
             return _results;
           }).call(this);
         }
-        _fn = function(v) {
-          var li;
-          li = $("<li class=\"im-outer-joined-path\"><a href=\"#\"></a></li>");
-          _this.$el.append(li);
-          _this.query.getPathInfo(v).getDisplayName(function(name) {
-            return li.find('a').text(name);
-          });
-          return li.click(function(e) {
-            var summ;
-            e.stopPropagation();
-            e.preventDefault();
-            summ = new intermine.query.results.DropDownColumnSummary(v, _this.query);
-            _this.$el.parent().html(summ.render().el);
-            return _this.remove();
-          });
-        };
-        for (_i = 0, _len = vs.length; _i < _len; _i++) {
-          v = vs[_i];
-          _fn(v);
+        if (vs.length === 1) {
+          this.showPathSummary(vs[0]);
+        } else {
+          _fn = function(v) {
+            var li;
+            li = $("<li class=\"im-outer-joined-path\"><a href=\"#\"></a></li>");
+            _this.$el.append(li);
+            _this.query.getPathInfo(v).getDisplayName(function(name) {
+              return li.find('a').text(name);
+            });
+            return li.click(function(e) {
+              e.stopPropagation();
+              e.preventDefault();
+              return _this.showPathSummary(v);
+            });
+          };
+          for (_i = 0, _len = vs.length; _i < _len; _i++) {
+            v = vs[_i];
+            _fn(v);
+          }
         }
         return this;
+      };
+
+      OuterJoinDropDown.prototype.showPathSummary = function(v) {
+        var summ;
+        summ = new intermine.query.results.DropDownColumnSummary(v, this.query);
+        this.$el.parent().html(summ.render().el);
+        return this.remove();
       };
 
       return OuterJoinDropDown;
@@ -4341,7 +4350,7 @@
           var title;
           title = c.title || c.path.replace(/^[^\.]+\./, "");
           if (c.op === "IN") {
-            return add("source: " + c.value, silently);
+            return add("source: " + c.value);
           } else if (c.op === "=") {
             return add("" + title + ": " + c.value);
           } else if (c.op === "<") {
@@ -6436,6 +6445,7 @@
           var x;
           x = e.offsetX;
           _this.rubberBand = p.rect(x, 0, 10, h, 0);
+          _this.rubberBand.startTime = new Date().getTime();
           return _this.rubberBand.attr({
             fill: 'transparent',
             'stroke-dasharray': '.'
@@ -6480,15 +6490,26 @@
           return _this.selection.node.setAttribute('class', 'rubberband-selection');
         };
         this.canvas.mouseup(function(e) {
-          var min;
+          var min, now, x;
           if (_this.rubberBand != null) {
-            min = _this.round(valForX(_this.rubberBand.attr('x')));
-            max = _this.round(valForX(_this.rubberBand.attr('x') + _this.rubberBand.attr('width')));
-            if (max - min >= _this.step) {
+            now = new Date().getTime();
+            if (now - _this.rubberBand.startTime < 100) {
+              x = _this.rubberBand.attr('x');
+              min = _this.round(valForX(x - (x % stepWidth)));
+              max = _this.round(valForX((x + stepWidth) - (x % stepWidth)));
               _this.range.set({
                 min: min,
                 max: max
               });
+            } else {
+              min = _this.round(valForX(_this.rubberBand.attr('x')));
+              max = _this.round(valForX(_this.rubberBand.attr('x') + _this.rubberBand.attr('width')));
+              if (max - min >= _this.step) {
+                _this.range.set({
+                  min: min,
+                  max: max
+                });
+              }
             }
             _this.rubberBand.remove();
           }
@@ -6530,18 +6551,10 @@
           _fn1(tick);
         }
         _fn2 = function(item, i) {
-          var from, path, pathCmd, prop, upto, width;
+          var path, pathCmd, prop;
           prop = item.count / max;
           pathCmd = "M" + ((item.bucket - 1) * stepWidth + leftMargin) + "," + baseLine + " v-" + (hh * prop) + " h" + (stepWidth - gap) + " v" + (hh * prop) + " z";
-          path = _this.paper.path(pathCmd);
-          width = (item.max - item.min) / item.buckets;
-          from = item.min + ((item.bucket - 1) * width);
-          upto = item.min + ((item.bucket - 0) * width);
-          return path.click(function(e) {
-            console.log("Clicked!");
-            e.stopPropagation();
-            return _this.query.trigger('range:selected', from, upto);
-          });
+          return path = _this.paper.path(pathCmd);
         };
         for (i = _k = 0, _len1 = items.length; _k < _len1; i = ++_k) {
           item = items[i];

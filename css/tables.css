@@ -813,12 +813,14 @@ ul.im-cols h4 {
 
 .im-query-display tr > th.too-far-over .im-th-buttons .dropdown-menu,
 .im-query-display tr > th:last-child .im-th-buttons .dropdown-menu {
-    left: -25.4em;
+    left: -325px;
 }
 
 .im-query-display tr > th.too-far-over .im-th-buttons .dropdown-menu::after,
+.im-query-display tr > th:last-child .im-th-buttons .dropdown-menu::after,
+.im-query-display tr > th.too-far-over .im-th-buttons .dropdown-menu::before,
 .im-query-display tr > th:last-child .im-th-buttons .dropdown-menu::before {
-    left: 326px;
+    left: 325px;
 }
 
 .im-filter {

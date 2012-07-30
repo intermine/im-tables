@@ -318,6 +318,7 @@ scope "intermine.results", (exporting) ->
             @canvas.mousedown (e) =>
                 x = e.offsetX
                 @rubberBand = p.rect(x, 0, 10, h, 0)
+                @rubberBand.startTime = new Date().getTime()
                 @rubberBand.attr fill: 'transparent', 'stroke-dasharray': '.'
 
             @canvas.mousemove (e) =>
@@ -349,10 +350,17 @@ scope "intermine.results", (exporting) ->
 
             @canvas.mouseup (e) =>
                 if @rubberBand?
-                    min = @round(valForX(@rubberBand.attr('x')))
-                    max = @round(valForX(@rubberBand.attr('x') + @rubberBand.attr('width')))
-                    if max - min >= @step
+                    now = new Date().getTime()
+                    if now - @rubberBand.startTime < 100 # A click then
+                        x = @rubberBand.attr('x')
+                        min = @round valForX x - (x % stepWidth)
+                        max = @round valForX (x + stepWidth) - (x % stepWidth)
                         @range.set min: min, max: max
+                    else
+                        min = @round(valForX(@rubberBand.attr('x')))
+                        max = @round(valForX(@rubberBand.attr('x') + @rubberBand.attr('width')))
+                        if max - min >= @step
+                            @range.set min: min, max: max
                     @rubberBand.remove()
                 @rubberBand = null
                 true
@@ -379,13 +387,6 @@ scope "intermine.results", (exporting) ->
                 prop = item.count / max
                 pathCmd = "M#{(item.bucket - 1) * stepWidth + leftMargin},#{baseLine} v-#{hh * prop} h#{stepWidth - gap} v#{hh * prop} z"
                 path = @paper.path pathCmd
-                width = (item.max - item.min) / item.buckets
-                from = item.min + ((item.bucket - 1) * width)
-                upto = item.min + ((item.bucket - 0) * width)
-                path.click (e) =>
-                    console.log "Clicked!"
-                    e.stopPropagation()
-                    @query.trigger 'range:selected', from, upto
 
             item = items[0]
             fixity = if item.max - item.min > 5 then 0 else 2

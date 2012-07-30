@@ -334,7 +334,8 @@ scope "intermine.query.results", (exporting) ->
             $el = jQuery(e.target).closest '.summary-img'
             unless $el.parent().hasClass 'open'
                 summ = new intermine.query.results.OuterJoinDropDown(path, @query)
-                $el.siblings('.dropdown-menu').html(summ.render().el)
+                $el.siblings('.dropdown-menu').html(summ.el)
+                summ.render()
 
             false
 

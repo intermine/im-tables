@@ -18,17 +18,23 @@ scope "intermine.query.results", (exporting) ->
             else
                 vs = (v for v in @query.views when v.match(@path.toString()))
 
-            for v in vs then do (v) =>
-                li = $ """<li class="im-outer-joined-path"><a href="#"></a></li>"""
-                @$el.append li
-                @query.getPathInfo(v).getDisplayName (name) -> li.find('a').text name
-                li.click (e) =>
-                    e.stopPropagation()
-                    e.preventDefault()
-                    summ = new intermine.query.results.DropDownColumnSummary(v, @query)
-                    @$el.parent().html(summ.render().el)
-                    @remove()
+            if vs.length is 1
+                @showPathSummary(vs[0])
+            else
+                for v in vs then do (v) =>
+                    li = $ """<li class="im-outer-joined-path"><a href="#"></a></li>"""
+                    @$el.append li
+                    @query.getPathInfo(v).getDisplayName (name) -> li.find('a').text name
+                    li.click (e) =>
+                        e.stopPropagation()
+                        e.preventDefault()
+                        @showPathSummary(v)
             this
+
+        showPathSummary: (v) ->
+            summ = new intermine.query.results.DropDownColumnSummary(v, @query)
+            @$el.parent().html(summ.render().el)
+            @remove()
 
     exporting class DropDownColumnSummary extends Backbone.View
         className: "im-dropdown-summary"
