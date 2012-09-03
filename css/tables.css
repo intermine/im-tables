@@ -1,6 +1,7 @@
 .modal-open .dropdown-menu {
   z-index: 2050;
 }
+
 .modal-open .dropdown.open {
   *z-index: 2050;
 }
@@ -784,7 +785,7 @@ ul.im-cols h4 {
 
 .im-summary.dropdown {
     display: inline-block;
-    float: right;
+    float: left;
 }
 
 .im-dropdown-summary h3 {
@@ -1600,23 +1601,29 @@ form.im-join {
 
 .im-table-container > .table > thead > tr > th {
     height: 100%;
-    padding: 2px 4px 2px 6px;
+    padding: 4px 4px 0px 6px;
 }
 
 .im-th-buttons {
-    float: right;
-    max-width: 1em;
-    display: block;
+    float: left;
+    max-height: 1em;
+    display: inline-block;
+    width: 100%;
 }
 
 .im-query-results .table thead th {
     vertical-align: top;
+    line-height: 14px;
+}
+
+.im-query-results .table thead th .navbar {
+    min-height: 5em;
+    margin-bottom: 0px;
 }
 
 .im-col-title {
-    padding: 0.5em;
+    padding: 0.6em;
     position: relative;
-    top: 0.5em;
 }
 
 .im-title-part {
@@ -1631,9 +1638,9 @@ form.im-join {
 
 .im-title-part:last-child {
     opacity: 1;
-    font-size: 100%;
+    font-size: 105%;
     display: block;
-    margin-top: 0.3em;
+    margin-top: 0.6em;
 }
 
 .im-title-part:last-child:after {
@@ -1645,10 +1652,10 @@ form.im-join {
 }
 
 .im-th-button {
-    height: 1em;
-    width: 1em;
-    display: block;
-    float: right;
+    height: 0.7em;
+    width: 0.9em;
+    display: inline-block;
+    float: left;
     margin: 1px;
     color: white;
     padding: 0px 1px 0px 1px;
