@@ -238,7 +238,7 @@ scope "intermine.results.table", (exporting) ->
                 data = formatter(@model, @options.query, @$el)
             else
                 data = {value: @model.get(@options.field), field: @options.field}
-            @$el.append(CELL_HTML _.extend {}, @model.toJSON(), data).toggleClass(active: @model.get "selected")
+            @$el.append(CELL_HTML _.extend {'_type': ''}, @model.toJSON(), data).toggleClass(active: @model.get "selected")
             @setupPreviewOverlay() if id?
             this
 

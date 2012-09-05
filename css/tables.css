@@ -1605,9 +1605,9 @@ form.im-join {
 }
 
 .im-th-buttons {
-    float: left;
+    min-width: 4em;
     max-height: 1em;
-    display: inline-block;
+    display: block;
     width: 100%;
 }
 
@@ -1627,8 +1627,12 @@ form.im-join {
 }
 
 .im-title-part {
-    opacity: 0.9;
+    opacity: 0.9; /* Can be set to 0 to hide for hover reveal */
     font-size: 80%;
+    display: none;
+}
+
+.im-col-title:hover .im-title-part {
     display: inline;
 }
 
@@ -1636,6 +1640,7 @@ form.im-join {
     content: " >";
 }
 
+.im-col-title:hover .im-title-part:last-child,
 .im-title-part:last-child {
     opacity: 1;
     font-size: 105%;

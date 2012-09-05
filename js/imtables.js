@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Mon Jul 30 2012 11:12:07 GMT+0100 (BST)
+ * Built at Wed Sep 05 2012 12:35:40 GMT+0100 (BST)
 */
 
 
@@ -114,7 +114,8 @@
 
   scope("intermine.options", {
     GalaxyMain: "http://main.g2.bx.psu.edu",
-    ShowId: false
+    ShowId: false,
+    TableWidgets: ['Pagination', 'PageSizer', 'TableSummary', 'ManagementTools', 'ScrollBar']
   });
 
   scope("intermine.query", function(exporting) {
@@ -1221,7 +1222,7 @@
       };
 
       ResultsTable.prototype.columnHeaderTempl = function(ctx) {
-        return _.template(" \n<th>\n    <div class=\"navbar\">\n        <div class=\"im-th-buttons\">\n            <% if (sortable) { %>\n                <a href=\"#\" class=\"im-th-button im-col-sort-indicator\" title=\"sort this column\">\n                    <i class=\"icon-sorting " + intermine.css.unsorted + " " + intermine.css.headerIcon + "\"></i>\n                </a>\n            <% }; %>\n            <a href=\"#\" class=\"im-th-button im-col-remover\" title=\"remove this column\" data-view=\"<%= view %>\">\n                <i class=\"" + intermine.css.headerIconRemove + " " + intermine.css.headerIcon + "\"></i>\n            </a>\n            <a href=\"#\" class=\"im-th-button im-col-minumaximiser\" title=\"Toggle column\" data-col-idx=\"<%= i %>\">\n                <i class=\"" + intermine.css.headerIconHide + " " + intermine.css.headerIcon + "\"></i>\n            </a>\n            <div class=\"dropdown im-filter-summary\">\n                <a href=\"#\" class=\"im-th-button im-col-filters dropdown-toggle\"\n                     title=\"Filter by values in this column\"\n                     data-toggle=\"dropdown\" data-col-idx=\"<%= i %>\" >\n                    <i class=\"" + intermine.icons.Filter + " " + intermine.css.headerIcon + "\"></i>\n                </a>\n                <div class=\"dropdown-menu\">\n                    <div>Could not ititialise the filter summary.</div>\n                </div>\n            </div>\n            <div class=\"dropdown im-summary\">\n                <a href=\"#\" class=\"im-th-button summary-img dropdown-toggle\" title=\"column summary\"\n                    data-toggle=\"dropdown\" data-col-idx=\"<%= i %>\" >\n                    <i class=\"" + intermine.icons.Summary + " " + intermine.css.headerIcon + "\"></i>\n                </a>\n                <div class=\"dropdown-menu\">\n                    <div>Could not ititialise the column summary.</div>\n                </div>\n            </div>\n        </div>\n        <span class=\"im-col-title\">\n            <% _.each(titleParts, function(part, idx) { %>\n                <span class=\"im-title-part\"><%- part %></span>\n            <% }); %>\n        </span>\n    </div>\n</th>", ctx);
+        return _.template(" \n<th>\n    <div class=\"navbar\">\n        <div class=\"im-th-buttons\">\n            <% if (sortable) { %>\n                <a href=\"#\" class=\"im-th-button im-col-sort-indicator\" title=\"sort this column\">\n                    <i class=\"icon-sorting " + intermine.css.unsorted + " " + intermine.css.headerIcon + "\"></i>\n                </a>\n            <% }; %>\n            <a href=\"#\" class=\"im-th-button im-col-remover\" title=\"remove this column\" data-view=\"<%= view %>\">\n                <i class=\"" + intermine.css.headerIconRemove + " " + intermine.css.headerIcon + "\"></i>\n            </a>\n            <a href=\"#\" class=\"im-th-button im-col-minumaximiser\" title=\"Toggle column\" data-col-idx=\"<%= i %>\">\n                <i class=\"" + intermine.css.headerIconHide + " " + intermine.css.headerIcon + "\"></i>\n            </a>\n            <div class=\"dropdown im-filter-summary\">\n                <a href=\"#\" class=\"im-th-button im-col-filters dropdown-toggle\"\n                     title=\"Filter by values in this column\"\n                     data-toggle=\"dropdown\" data-col-idx=\"<%= i %>\" >\n                    <i class=\"" + intermine.icons.Filter + " " + intermine.css.headerIcon + "\"></i>\n                </a>\n                <div class=\"dropdown-menu\">\n                    <div>Could not ititialise the filter summary.</div>\n                </div>\n            </div>\n            <div class=\"dropdown im-summary\">\n                <a href=\"#\" class=\"im-th-button summary-img dropdown-toggle\" title=\"column summary\"\n                    data-toggle=\"dropdown\" data-col-idx=\"<%= i %>\" >\n                    <i class=\"" + intermine.icons.Summary + " " + intermine.css.headerIcon + "\"></i>\n                </a>\n                <div class=\"dropdown-menu\">\n                    <div>Could not ititialise the column summary.</div>\n                </div>\n            </div>\n        </div>\n        <div style=\"clear:both\"></div>\n        <span class=\"im-col-title\">\n            <% _.each(titleParts, function(part, idx) { %>\n                <span class=\"im-title-part\"><%- part %></span>\n            <% }); %>\n        </span>\n    </div>\n</th>", ctx);
       };
 
       ResultsTable.prototype.buildColumnHeader = function(view, i, title, tr) {
@@ -1929,10 +1930,84 @@
 
       Table.prototype.horizontalScroller = "<div class=\"scroll-bar-wrap well\">\n    <div class=\"scroll-bar-containment\">\n        <div class=\"scroll-bar alert-info alert\"></div>\n    </div>\n</div>";
 
+      Table.prototype.placePagination = function($widgets) {
+        var $pagination, currentPageButton,
+          _this = this;
+        $pagination = $(this.paginationTempl()).appendTo($widgets);
+        $pagination.find('li').tooltip({
+          placement: "left"
+        });
+        return currentPageButton = $pagination.find(".im-current-page a").click(function() {
+          var total;
+          total = _this.cache.lastResult.iTotalRecords;
+          if (_this.table.pageSize >= total) {
+            return false;
+          }
+          currentPageButton.hide();
+          return $pagination.find('form').show();
+        });
+      };
+
+      Table.prototype.placePageSizer = function($widgets) {
+        var pageSizer;
+        pageSizer = new PageSizer(this.query, this.pageSize);
+        return pageSizer.render().$el.appendTo($widgets);
+      };
+
+      Table.prototype.placeManagementTools = function($widgets) {
+        var managementGroup;
+        managementGroup = new intermine.query.tools.ManagementTools(this.query);
+        return managementGroup.render().$el.appendTo($widgets);
+      };
+
+      Table.prototype.placeScrollBar = function($widgets) {
+        var $scrollwrapper, currentPos, scrollbar,
+          _this = this;
+        if (this.bar === 'horizontal') {
+          $scrollwrapper = $(this.horizontalScroller).appendTo($widgets);
+          scrollbar = this.$('.scroll-bar');
+          currentPos = 0;
+          scrollbar.draggable({
+            axis: "x",
+            containment: "parent",
+            stop: function(event, ui) {
+              scrollbar.removeClass("scrolling");
+              scrollbar.tooltip("hide");
+              return _this.table.goTo(currentPos);
+            },
+            start: function() {
+              return $(this).addClass("scrolling");
+            },
+            drag: function(event, ui) {
+              var left, total;
+              scrollbar.tooltip("show");
+              left = ui.position.left;
+              total = ui.helper.closest('.scroll-bar-wrap').width();
+              return currentPos = _this.cache.lastResult.iTotalRecords * left / total;
+            }
+          });
+          scrollbar.css({
+            position: "absolute"
+          }).parent().css({
+            position: "relative"
+          });
+          return scrollbar.tooltip({
+            trigger: "manual",
+            title: function() {
+              return "" + ((currentPos + 1).toFixed()) + " ... " + ((currentPos + _this.table.pageSize).toFixed());
+            }
+          });
+        }
+      };
+
+      Table.prototype.placeTableSummary = function($widgets) {
+        return $widgets.append("<span class=\"im-table-summary\"></div>");
+      };
+
       Table.prototype.onSetupSuccess = function(telem) {
         var _this = this;
         return function(result) {
-          var $pagination, $scrollwrapper, $telem, $widgets, currentPageButton, currentPos, managementGroup, pageSizer, scrollbar;
+          var $telem, $widgets, component, method, _i, _len, _ref;
           $telem = jQuery(telem).empty();
           $widgets = $('<div>').insertBefore(telem);
           _this.table = new ResultsTable(_this.query, _this.getRowData);
@@ -1945,58 +2020,14 @@
           }
           _this.table.render();
           _this.query.on("imtable:change:page", _this.updatePageDisplay);
-          pageSizer = new PageSizer(_this.query, _this.pageSize);
-          pageSizer.render().$el.appendTo($widgets);
-          $pagination = $(_this.paginationTempl()).appendTo($widgets);
-          $pagination.find('li').tooltip({
-            placement: "left"
-          });
-          $widgets.append("<span class=\"im-table-summary\"></div>");
-          currentPageButton = $pagination.find(".im-current-page a").click(function() {
-            var total;
-            total = _this.cache.lastResult.iTotalRecords;
-            if (_this.table.pageSize >= total) {
-              return false;
+          _ref = intermine.options.TableWidgets;
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            component = _ref[_i];
+            if (!(("place" + component) in _this)) {
+              continue;
             }
-            currentPageButton.hide();
-            return $pagination.find('form').show();
-          });
-          managementGroup = new intermine.query.tools.ManagementTools(_this.query);
-          managementGroup.render().$el.appendTo($widgets);
-          if (_this.bar === 'horizontal') {
-            $scrollwrapper = $(_this.horizontalScroller).appendTo($widgets);
-            scrollbar = _this.$('.scroll-bar');
-            currentPos = 0;
-            scrollbar.draggable({
-              axis: "x",
-              containment: "parent",
-              stop: function(event, ui) {
-                scrollbar.removeClass("scrolling");
-                scrollbar.tooltip("hide");
-                return _this.table.goTo(currentPos);
-              },
-              start: function() {
-                return $(this).addClass("scrolling");
-              },
-              drag: function(event, ui) {
-                var left, total;
-                scrollbar.tooltip("show");
-                left = ui.position.left;
-                total = ui.helper.closest('.scroll-bar-wrap').width();
-                return currentPos = _this.cache.lastResult.iTotalRecords * left / total;
-              }
-            });
-            scrollbar.css({
-              position: "absolute"
-            }).parent().css({
-              position: "relative"
-            });
-            scrollbar.tooltip({
-              trigger: "manual",
-              title: function() {
-                return "" + ((currentPos + 1).toFixed()) + " ... " + ((currentPos + _this.table.pageSize).toFixed());
-              }
-            });
+            method = "place" + component;
+            _this[method]($widgets);
           }
           return $widgets.append("<div style=\"clear:both\"></div>");
         };
@@ -5015,7 +5046,9 @@
             field: this.options.field
           };
         }
-        this.$el.append(CELL_HTML(_.extend({}, this.model.toJSON(), data))).toggleClass({
+        this.$el.append(CELL_HTML(_.extend({
+          '_type': ''
+        }, this.model.toJSON(), data))).toggleClass({
           active: this.model.get("selected")
         });
         if (id != null) {

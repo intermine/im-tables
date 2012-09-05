@@ -216,6 +216,7 @@ scope "intermine.query.results", (exporting) ->
                             </div>
                         </div>
                     </div>
+                    <div style="clear:both"></div>
                     <span class="im-col-title">
                         <% _.each(titleParts, function(part, idx) { %>
                             <span class="im-title-part"><%- part %></span>
@@ -880,28 +881,9 @@ scope "intermine.query.results", (exporting) ->
             </div>
         """
 
-        onSetupSuccess: (telem) -> (result) =>
-            $telem = jQuery(telem).empty()
-            $widgets = $('<div>').insertBefore(telem)
-
-            @table = new ResultsTable @query, @getRowData
-            @table.setElement telem
-            @table.pageSize = @pageSize if @pageSize?
-            @table.pageStart = @pageStart if @pageStart?
-            @table.render()
-            @query.on "imtable:change:page", @updatePageDisplay
-
-
-            pageSizer = new PageSizer(@query, @pageSize)
-            pageSizer.render().$el.appendTo $widgets
-
+        placePagination: ($widgets) ->
             $pagination = $(@paginationTempl()).appendTo($widgets)
             $pagination.find('li').tooltip(placement: "left")
-
-            $widgets.append """
-                <span class="im-table-summary"></div>
-            """
-
             currentPageButton = $pagination.find(".im-current-page a").click =>
                 total = @cache.lastResult.iTotalRecords
                 if @table.pageSize >= total
@@ -909,10 +891,15 @@ scope "intermine.query.results", (exporting) ->
                 currentPageButton.hide()
                 $pagination.find('form').show()
 
+        placePageSizer: ($widgets) ->
+            pageSizer = new PageSizer(@query, @pageSize)
+            pageSizer.render().$el.appendTo $widgets
+
+        placeManagementTools: ($widgets) ->
             managementGroup = new intermine.query.tools.ManagementTools(@query)
             managementGroup.render().$el.appendTo $widgets
 
-
+        placeScrollBar: ($widgets) ->
             if @bar is 'horizontal'
                 $scrollwrapper = $(@horizontalScroller).appendTo($widgets)
                 scrollbar = @$ '.scroll-bar'
@@ -937,6 +924,27 @@ scope "intermine.query.results", (exporting) ->
                 scrollbar.tooltip
                     trigger: "manual"
                     title: => "#{(currentPos + 1).toFixed()} ... #{(currentPos + @table.pageSize).toFixed()}"
+
+        placeTableSummary: ($widgets) ->
+            $widgets.append """
+                <span class="im-table-summary"></div>
+            """
+
+        onSetupSuccess: (telem) -> (result) =>
+            $telem = jQuery(telem).empty()
+            $widgets = $('<div>').insertBefore(telem)
+
+            @table = new ResultsTable @query, @getRowData
+            @table.setElement telem
+            @table.pageSize = @pageSize if @pageSize?
+            @table.pageStart = @pageStart if @pageStart?
+            @table.render()
+            @query.on "imtable:change:page", @updatePageDisplay
+
+            for component in intermine.options.TableWidgets when "place#{ component }" of @
+                method = "place#{ component }"
+                @[ method ]( $widgets )
+
             $widgets.append """<div style="clear:both"></div>"""
 
         getCurrentPage: () ->
