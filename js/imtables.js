@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Wed Sep 05 2012 12:35:40 GMT+0100 (BST)
+ * Built at Thu Oct 04 2012 15:38:52 GMT+0100 (BST)
 */
 
 
@@ -3507,10 +3507,10 @@
       };
 
       ExportDialogue.prototype.doGalaxy = function(galaxy) {
-        var c, format, qLists, uri,
+        var c, endpoint, format, qLists,
           _this = this;
         console.log("Sending to " + galaxy);
-        uri = this.getExportURI();
+        endpoint = "" + this.query.service.root + "query/results";
         format = this.requestInfo.get('format');
         qLists = (function() {
           var _i, _len, _ref, _results;
@@ -3525,14 +3525,22 @@
           return _results;
         }).call(this);
         return intermine.utils.getOrganisms(this.query, function(orgs) {
-          return openWindowWithPost("" + galaxy + "/tool_runner", "Upload", {
+          var k, params, v, _ref;
+          params = {
             tool_id: 'flymine',
             organism: orgs.join(', '),
-            URL: uri,
+            URL: endpoint,
+            URL_method: "post",
             name: "" + (orgs.length === 1 ? orgs[0] + ' ' : '') + _this.query.root + " data",
             data_type: format === 'tab' ? 'tabular' : format,
             info: "" + _this.query.root + " data from " + _this.query.service.root + ".\nUploaded from " + (window.location.toString().replace(/\?.*/, '')) + ".\n" + (qLists.length ? ' source: ' + lists.join(', ') : '') + "\n" + (orgs.length ? ' organisms: ' + orgs.join(', ') : '')
-          });
+          };
+          _ref = _this.getExportParams();
+          for (k in _ref) {
+            v = _ref[k];
+            params[k] = v;
+          }
+          return openWindowWithPost("" + galaxy + "/tool_runner", "Upload", params);
         });
       };
 
@@ -3547,11 +3555,14 @@
       };
 
       ExportDialogue.prototype["export"] = function(e) {
-        return window.open(this.getExportURI());
+        var params;
+        params = this.getExportParams();
+        console.log(params);
+        return openWindowWithPost("" + this.query.service.root + "query/results", "Export", params);
       };
 
-      ExportDialogue.prototype.getExportURI = function() {
-        var columns, f, idAttr, isIncluded, q, toPath, uri;
+      ExportDialogue.prototype.getExportQuery = function() {
+        var columns, f, featuresToPaths, idAttr, isIncluded, q, toPath;
         q = this.query.clone();
         f = this.requestInfo.get('format');
         toPath = function(col) {
@@ -3563,13 +3574,16 @@
         isIncluded = function(col) {
           return col.get('included');
         };
+        featuresToPaths = function(features) {
+          return features.filter(isIncluded).map(_.compose(idAttr, toPath));
+        };
         columns = (function() {
           switch (f) {
             case 'bed':
             case 'gff3':
-              return this.seqFeatures.filter(isIncluded).map(_.compose(idAttr, toPath));
+              return featuresToPaths(this.seqFeatures);
             case 'fasta':
-              return this.fastaFeatures.filter(isIncluded).map(_.compose(idAttr, toPath));
+              return featuresToPaths(this.fastaFeatures);
             default:
               if (!this.requestInfo.get('allCols')) {
                 return this.exportedCols.map(toPath);
@@ -3582,6 +3596,32 @@
         if ((__indexOf.call(_.pluck(BIO_FORMATS, 'extension'), f) >= 0)) {
           q.orderBy([]);
         }
+        return q;
+      };
+
+      ExportDialogue.prototype.getExportParams = function() {
+        var end, params;
+        params = {
+          "query": this.getExportQuery().toXML(),
+          "format": this.requestInfo.get('format'),
+          "token": this.query.service.token
+        };
+        if (this.requestInfo.get('columnHeaders')) {
+          params.columnheaders = "1";
+        }
+        if (!this.requestInfo.get('allRows')) {
+          params.start = this.requestInfo.get('start');
+          end = this.requestInfo.get('end');
+          if (end !== this.count) {
+            params.size = end - start;
+          }
+        }
+        return params;
+      };
+
+      ExportDialogue.prototype.getExportURI = function() {
+        var q, uri;
+        q = this.getExportQuery();
         uri = q.getExportURI(this.requestInfo.get('format'));
         uri += this.getExtraOptions();
         return uri;
@@ -4106,11 +4146,13 @@
 
     })(ListDialogue));
     openWindowWithPost = function(uri, name, params) {
-      var form, value, w;
+      var form, input, value, w;
       form = $("<form method=\"POST\" action=\"" + uri + "\" target=\"" + name + "\">");
       for (name in params) {
         value = params[name];
-        form.append("<input name=\"" + name + "\" value=\"" + value + "\" type=\"hidden\">");
+        input = $("<input name=\"" + name + "\" type=\"hidden\">");
+        form.append(input);
+        input.val(value);
       }
       form.appendTo('body');
       w = window.open("someNonExistantPathToSomeWhere", name);

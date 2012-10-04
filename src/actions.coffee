@@ -301,14 +301,15 @@ scope "intermine.query.actions", (exporting) ->
 
         doGalaxy: (galaxy) ->
             console.log "Sending to #{ galaxy }"
-            uri = @getExportURI()
+            endpoint = "#{ @query.service.root }query/results"
             format = @requestInfo.get 'format'
             qLists = (c.value for c in @query when c.op is 'IN')
             intermine.utils.getOrganisms @query, (orgs) =>
-                openWindowWithPost "#{ galaxy }/tool_runner", "Upload",
+                params =
                     tool_id: 'flymine' # name of tool within galaxy that does uploads.
                     organism: orgs.join(', ')
-                    URL: uri
+                    URL: endpoint
+                    URL_method: "post"
                     name: "#{ if orgs.length is 1 then orgs[0] + ' ' else ''}#{ @query.root } data"
                     data_type: if format is 'tab' then 'tabular' else format
                     info: """
@@ -317,6 +318,9 @@ scope "intermine.query.actions", (exporting) ->
                         #{ if qLists.length then ' source: ' + lists.join(', ') else '' }
                         #{ if orgs.length then ' organisms: ' + orgs.join(', ') else '' }
                     """
+                for k, v of @getExportParams()
+                    params[k] = v
+                openWindowWithPost "#{ galaxy }/tool_runner", "Upload", params
 
         changeGalaxyURI: (e) ->
             @requestInfo.set galaxyAlt: @$('.im-galaxy-uri').val()
@@ -324,23 +328,44 @@ scope "intermine.query.actions", (exporting) ->
         toggleGalaxyOptions: (e) ->
             @$('.im-galaxy-options').slideToggle('fast')
 
-        export: (e) -> window.open @getExportURI()
+        export: (e) -> openWindowWithPost "#{ @query.service.root }query/results", "Export", @getExportParams()
 
-        getExportURI: () ->
+        getExportQuery: () ->
             q = @query.clone()
             f = @requestInfo.get 'format'
             toPath = (col) -> col.get 'path'
             idAttr = (path) -> path.append 'id'
             isIncluded = (col) -> col.get 'included'
+            featuresToPaths = (features) -> features.filter(isIncluded).map(_.compose idAttr, toPath)
             columns = switch f
                 when 'bed', 'gff3'
-                    @seqFeatures.filter(isIncluded).map _.compose idAttr, toPath
+                    featuresToPaths @seqFeatures
                 when 'fasta'
-                    @fastaFeatures.filter(isIncluded).map _.compose idAttr, toPath
+                    featuresToPaths @fastaFeatures
                 else
                     @exportedCols.map(toPath) unless @requestInfo.get('allCols')
             q.select columns if columns?
             q.orderBy([]) if (f in _.pluck BIO_FORMATS, 'extension')
+            return q
+
+        getExportParams: () ->
+            params =
+                "query": @getExportQuery().toXML()
+                "format": @requestInfo.get('format')
+                "token": @query.service.token
+
+            if @requestInfo.get 'columnHeaders'
+                params.columnheaders = "1"
+            unless @requestInfo.get 'allRows'
+
+                params.start = @requestInfo.get 'start'
+                end = @requestInfo.get 'end'
+                if end isnt @count
+                    params.size = end - start
+            return params
+
+        getExportURI: () ->
+            q = @getExportQuery()
             uri = q.getExportURI @requestInfo.get 'format'
             uri += @getExtraOptions()
             return uri
@@ -765,7 +790,9 @@ scope "intermine.query.actions", (exporting) ->
         form = $ """<form method="POST" action="#{ uri }" target="#{ name }">"""
 
         for name, value of params
-            form.append """<input name="#{ name }" value="#{ value }" type="hidden">"""
+            input = $("""<input name="#{ name }" type="hidden">""")
+            form.append(input)
+            input.val(value)
         form.appendTo 'body'
         w = window.open("someNonExistantPathToSomeWhere", name)
         form.submit()
