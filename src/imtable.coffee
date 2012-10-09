@@ -219,7 +219,9 @@ scope "intermine.query.results", (exporting) ->
                     <div style="clear:both"></div>
                     <span class="im-col-title">
                         <% _.each(titleParts, function(part, idx) { %>
-                            <span class="im-title-part"><%- part %></span>
+                            <% var penult = "" %>
+                            <% if (idx > 0 && idx == titleParts.length - 2) penult = "im-penult" %>
+                            <span class="im-title-part <%- penult %>"><%- part %></span>
                         <% }); %>
                     </span>
                 </div>
