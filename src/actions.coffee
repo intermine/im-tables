@@ -301,7 +301,7 @@ scope "intermine.query.actions", (exporting) ->
 
         doGalaxy: (galaxy) ->
             console.log "Sending to #{ galaxy }"
-            endpoint = "#{ @query.service.root }query/results"
+            endpoint = @getExportEndPoint()
             format = @requestInfo.get 'format'
             qLists = (c.value for c in @query when c.op is 'IN')
             intermine.utils.getOrganisms @query, (orgs) =>
@@ -328,7 +328,12 @@ scope "intermine.query.actions", (exporting) ->
         toggleGalaxyOptions: (e) ->
             @$('.im-galaxy-options').slideToggle('fast')
 
-        export: (e) -> openWindowWithPost "#{ @query.service.root }query/results", "Export", @getExportParams()
+        getExportEndPoint: () ->
+            format = @requestInfo.get 'format'
+            suffix = if format in intermine.Query.BIO_FORMATS then "/#{format}" else ""
+            return "#{ @query.service.root }query/results#{ suffix }"
+
+        export: (e) -> openWindowWithPost @getExportEndPoint(), "Export", @getExportParams()
 
         getExportQuery: () ->
             q = @query.clone()
