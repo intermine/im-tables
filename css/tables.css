@@ -1632,7 +1632,7 @@ form.im-join {
     display: none;
 }
 
-.im-col-title:hover .im-title-part {
+.im-col-title:hover .im-title-part, .im-title-part.im-penult {
     display: inline;
 }
 

@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Thu Oct 04 2012 15:38:52 GMT+0100 (BST)
+ * Built at Tue Oct 09 2012 16:27:46 GMT+0100 (BST)
 */
 
 
@@ -1222,7 +1222,7 @@
       };
 
       ResultsTable.prototype.columnHeaderTempl = function(ctx) {
-        return _.template(" \n<th>\n    <div class=\"navbar\">\n        <div class=\"im-th-buttons\">\n            <% if (sortable) { %>\n                <a href=\"#\" class=\"im-th-button im-col-sort-indicator\" title=\"sort this column\">\n                    <i class=\"icon-sorting " + intermine.css.unsorted + " " + intermine.css.headerIcon + "\"></i>\n                </a>\n            <% }; %>\n            <a href=\"#\" class=\"im-th-button im-col-remover\" title=\"remove this column\" data-view=\"<%= view %>\">\n                <i class=\"" + intermine.css.headerIconRemove + " " + intermine.css.headerIcon + "\"></i>\n            </a>\n            <a href=\"#\" class=\"im-th-button im-col-minumaximiser\" title=\"Toggle column\" data-col-idx=\"<%= i %>\">\n                <i class=\"" + intermine.css.headerIconHide + " " + intermine.css.headerIcon + "\"></i>\n            </a>\n            <div class=\"dropdown im-filter-summary\">\n                <a href=\"#\" class=\"im-th-button im-col-filters dropdown-toggle\"\n                     title=\"Filter by values in this column\"\n                     data-toggle=\"dropdown\" data-col-idx=\"<%= i %>\" >\n                    <i class=\"" + intermine.icons.Filter + " " + intermine.css.headerIcon + "\"></i>\n                </a>\n                <div class=\"dropdown-menu\">\n                    <div>Could not ititialise the filter summary.</div>\n                </div>\n            </div>\n            <div class=\"dropdown im-summary\">\n                <a href=\"#\" class=\"im-th-button summary-img dropdown-toggle\" title=\"column summary\"\n                    data-toggle=\"dropdown\" data-col-idx=\"<%= i %>\" >\n                    <i class=\"" + intermine.icons.Summary + " " + intermine.css.headerIcon + "\"></i>\n                </a>\n                <div class=\"dropdown-menu\">\n                    <div>Could not ititialise the column summary.</div>\n                </div>\n            </div>\n        </div>\n        <div style=\"clear:both\"></div>\n        <span class=\"im-col-title\">\n            <% _.each(titleParts, function(part, idx) { %>\n                <span class=\"im-title-part\"><%- part %></span>\n            <% }); %>\n        </span>\n    </div>\n</th>", ctx);
+        return _.template(" \n<th>\n    <div class=\"navbar\">\n        <div class=\"im-th-buttons\">\n            <% if (sortable) { %>\n                <a href=\"#\" class=\"im-th-button im-col-sort-indicator\" title=\"sort this column\">\n                    <i class=\"icon-sorting " + intermine.css.unsorted + " " + intermine.css.headerIcon + "\"></i>\n                </a>\n            <% }; %>\n            <a href=\"#\" class=\"im-th-button im-col-remover\" title=\"remove this column\" data-view=\"<%= view %>\">\n                <i class=\"" + intermine.css.headerIconRemove + " " + intermine.css.headerIcon + "\"></i>\n            </a>\n            <a href=\"#\" class=\"im-th-button im-col-minumaximiser\" title=\"Toggle column\" data-col-idx=\"<%= i %>\">\n                <i class=\"" + intermine.css.headerIconHide + " " + intermine.css.headerIcon + "\"></i>\n            </a>\n            <div class=\"dropdown im-filter-summary\">\n                <a href=\"#\" class=\"im-th-button im-col-filters dropdown-toggle\"\n                     title=\"Filter by values in this column\"\n                     data-toggle=\"dropdown\" data-col-idx=\"<%= i %>\" >\n                    <i class=\"" + intermine.icons.Filter + " " + intermine.css.headerIcon + "\"></i>\n                </a>\n                <div class=\"dropdown-menu\">\n                    <div>Could not ititialise the filter summary.</div>\n                </div>\n            </div>\n            <div class=\"dropdown im-summary\">\n                <a href=\"#\" class=\"im-th-button summary-img dropdown-toggle\" title=\"column summary\"\n                    data-toggle=\"dropdown\" data-col-idx=\"<%= i %>\" >\n                    <i class=\"" + intermine.icons.Summary + " " + intermine.css.headerIcon + "\"></i>\n                </a>\n                <div class=\"dropdown-menu\">\n                    <div>Could not ititialise the column summary.</div>\n                </div>\n            </div>\n        </div>\n        <div style=\"clear:both\"></div>\n        <span class=\"im-col-title\">\n            <% _.each(titleParts, function(part, idx) { %>\n                <% var penult = \"\" %>\n                <% if (idx > 0 && idx == titleParts.length - 2) penult = \"im-penult\" %>\n                <span class=\"im-title-part <%- penult %>\"><%- part %></span>\n            <% }); %>\n        </span>\n    </div>\n</th>", ctx);
       };
 
       ResultsTable.prototype.buildColumnHeader = function(view, i, title, tr) {
@@ -3510,7 +3510,7 @@
         var c, endpoint, format, qLists,
           _this = this;
         console.log("Sending to " + galaxy);
-        endpoint = "" + this.query.service.root + "query/results";
+        endpoint = this.getExportEndPoint();
         format = this.requestInfo.get('format');
         qLists = (function() {
           var _i, _len, _ref, _results;
@@ -3554,11 +3554,15 @@
         return this.$('.im-galaxy-options').slideToggle('fast');
       };
 
+      ExportDialogue.prototype.getExportEndPoint = function() {
+        var format, suffix;
+        format = this.requestInfo.get('format');
+        suffix = __indexOf.call(intermine.Query.BIO_FORMATS, format) >= 0 ? "/" + format : "";
+        return "" + this.query.service.root + "query/results" + suffix;
+      };
+
       ExportDialogue.prototype["export"] = function(e) {
-        var params;
-        params = this.getExportParams();
-        console.log(params);
-        return openWindowWithPost("" + this.query.service.root + "query/results", "Export", params);
+        return openWindowWithPost(this.getExportEndPoint(), "Export", this.getExportParams());
       };
 
       ExportDialogue.prototype.getExportQuery = function() {
