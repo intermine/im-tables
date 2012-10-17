@@ -45,6 +45,7 @@ scope "intermine.messages.actions", {
         """
     IncludedFeatures: "Sequence Features in this Query - <strong>choose at least one</strong>:"
     FastaFeatures: "Features with Sequences in this Query - <strong>select one</strong>:"
+    FastaExtension: "Extension (eg: 100/100bp/5kbp/0.5mbp):"
     NoSuitableColumns: """
             There are no columns of a suitable type for this format.
         """
@@ -459,6 +460,33 @@ scope "intermine.query.actions", (exporting) ->
                     @addSeqFeatureSelector()
                 when 'fasta'
                     @addFastaFeatureSelector()
+                    @addFastaExtensionInput()
+
+        addFastaExtensionInput: () ->
+            opts = @$ '.im-export-options'
+            requestInfo = @requestInfo
+            l = $ """
+                <label>
+                    <span class="span4">
+                        #{ intermine.messages.actions.FastaExtension }
+                    </span>
+                    <input type="text" class="span8">
+                </label>
+            """
+            input = l.find('input')
+            l.appendTo opts
+            @fastaFeatures.on 'change:included', (col, isIncluded) ->
+                canHaveExtension = isIncluded and col.get('path').isa('SequenceFeature')
+                input.attr disabled: !canHaveExtension
+                if canHaveExtension
+                    requestInfo.set extension: input.val()
+                else
+                    requestInfo.unset 'extension'
+            input.change (e) ->
+                if input.val()?
+                    requestInfo.set extension: input.val()
+                else
+                    requestInfo.unset 'extension'
 
         addFastaFeatureSelector: () ->
             opts = @$('.im-export-options')
@@ -782,7 +810,7 @@ scope "intermine.query.actions", (exporting) ->
                     , value: l.name, "data-type": l.type, "data-size": l.size
                     , "#{l.name} (#{l.size} #{intermine.utils.pluralise(l.type, l.size)})"
 
-                @$('.im-receiving-list').append(ls.filter( (l) -> !l.hasTag("im:public")).map toOpt)
+                @$('.im-receiving-list').append(ls.filter((l) -> l.authorized).map toOpt)
                 @onlyShowCompatibleOptions()
             this
 

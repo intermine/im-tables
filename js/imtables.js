@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Tue Oct 09 2012 16:27:46 GMT+0100 (BST)
+ * Built at Wed Oct 17 2012 13:30:23 GMT+0100 (BST)
 */
 
 
@@ -3064,6 +3064,7 @@
     OuterJoinWarning: "This query has outer-joined collections. This means that the number of rows in \nthe table is likely to be different from the number of rows in the exported results.\n<b>You are strongly discouraged from specifying specific ranges for export</b>. If\nyou do specify a certain range, please check that you did in fact get all the \nresults you wanted.",
     IncludedFeatures: "Sequence Features in this Query - <strong>choose at least one</strong>:",
     FastaFeatures: "Features with Sequences in this Query - <strong>select one</strong>:",
+    FastaExtension: "Extension (eg: 100/100bp/5kbp/0.5mbp):",
     NoSuitableColumns: "There are no columns of a suitable type for this format.",
     ChrPrefix: "Prefix \"chr\" to the chromosome identifier as per UCSC convention (eg: chr2)"
   });
@@ -3746,8 +3747,41 @@
           case 'gff3':
             return this.addSeqFeatureSelector();
           case 'fasta':
-            return this.addFastaFeatureSelector();
+            this.addFastaFeatureSelector();
+            return this.addFastaExtensionInput();
         }
+      };
+
+      ExportDialogue.prototype.addFastaExtensionInput = function() {
+        var input, l, opts, requestInfo;
+        opts = this.$('.im-export-options');
+        requestInfo = this.requestInfo;
+        l = $("<label>\n    <span class=\"span4\">\n        " + intermine.messages.actions.FastaExtension + "\n    </span>\n    <input type=\"text\" class=\"span8\">\n</label>");
+        input = l.find('input');
+        l.appendTo(opts);
+        this.fastaFeatures.on('change:included', function(col, isIncluded) {
+          var canHaveExtension;
+          canHaveExtension = isIncluded && col.get('path').isa('SequenceFeature');
+          input.attr({
+            disabled: !canHaveExtension
+          });
+          if (canHaveExtension) {
+            return requestInfo.set({
+              extension: input.val()
+            });
+          } else {
+            return requestInfo.unset('extension');
+          }
+        });
+        return input.change(function(e) {
+          if (input.val() != null) {
+            return requestInfo.set({
+              extension: input.val()
+            });
+          } else {
+            return requestInfo.unset('extension');
+          }
+        });
       };
 
       ExportDialogue.prototype.addFastaFeatureSelector = function() {
@@ -4134,7 +4168,7 @@
             }, "" + l.name + " (" + l.size + " " + (intermine.utils.pluralise(l.type, l.size)) + ")");
           };
           _this.$('.im-receiving-list').append(ls.filter(function(l) {
-            return !l.hasTag("im:public");
+            return l.authorized;
           }).map(toOpt));
           return _this.onlyShowCompatibleOptions();
         });
