@@ -355,16 +355,14 @@ scope "intermine.query.actions", (exporting) ->
             return q
 
         getExportParams: () ->
-            params =
-                "query": @getExportQuery().toXML()
-                "format": @requestInfo.get('format')
-                "token": @query.service.token
+            params = @requestInfo.toJSON()
+            params.query = @getExportQuery().toXML()
+            params.token = @query.service.token
 
             if @requestInfo.get 'columnHeaders'
                 params.columnheaders = "1"
             unless @requestInfo.get 'allRows'
-
-                params.start = @requestInfo.get 'start'
+                start = params.start = @requestInfo.get('start')
                 end = @requestInfo.get 'end'
                 if end isnt @count
                     params.size = end - start

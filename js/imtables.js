@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Wed Oct 17 2012 13:30:23 GMT+0100 (BST)
+ * Built at Mon Oct 22 2012 12:11:36 GMT+0100 (BST)
 */
 
 
@@ -3605,17 +3605,15 @@
       };
 
       ExportDialogue.prototype.getExportParams = function() {
-        var end, params;
-        params = {
-          "query": this.getExportQuery().toXML(),
-          "format": this.requestInfo.get('format'),
-          "token": this.query.service.token
-        };
+        var end, params, start;
+        params = this.requestInfo.toJSON();
+        params.query = this.getExportQuery().toXML();
+        params.token = this.query.service.token;
         if (this.requestInfo.get('columnHeaders')) {
           params.columnheaders = "1";
         }
         if (!this.requestInfo.get('allRows')) {
-          params.start = this.requestInfo.get('start');
+          start = params.start = this.requestInfo.get('start');
           end = this.requestInfo.get('end');
           if (end !== this.count) {
             params.size = end - start;
