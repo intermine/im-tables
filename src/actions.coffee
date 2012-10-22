@@ -1286,7 +1286,11 @@ scope "intermine.query.actions", (exporting) ->
                 li = $ """<li></li>"""
                 ul.append li
                 countQuery = @query.clone()
-                countQuery.select [node.append("id").toPathString()]
+                try
+                    countQuery.select [node.append("id").toPathString()]
+                catch err
+                    return
+
                 countQuery.orderBy []
 
                 li.click => @openDialogue(node.getType().name, countQuery)

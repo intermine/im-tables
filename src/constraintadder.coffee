@@ -254,17 +254,18 @@ scope "intermine.query", (exporting) ->
         refsOK: true
         multiSelect: false
         reset: () ->
-            @$pathfinder.remove()
+            @$pathfinder?.remove()
             @$pathfinder = null
 
         showTree: (e) =>
             if @$pathfinder?
                 @reset()
             else
-                root = @getTreeRoot()
-                pathFinder = new PathChooser(@query, root, 0, @handleChoice, @isDisabled, @refsOK, @multiSelect)
-                pathFinder.render().$el.appendTo(@el).show()
-                pathFinder.$el.css top: @$el.height()
+                treeRoot = @getTreeRoot()
+                pathFinder = new PathChooser(@query, treeRoot, 0, @handleChoice, @isDisabled, @refsOK, @multiSelect)
+                pathFinder.render()
+                @$el.append(pathFinder.el)
+                pathFinder.$el.show().css top: @$el.height()
                 @$pathfinder = pathFinder
 
         isValid: () ->

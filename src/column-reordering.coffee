@@ -67,23 +67,26 @@ scope "intermine.query.results.table", (exporting) ->
                 @chosen = _.without @chosen, path
             else
                 @chosen.push(path)
-
-            if @chosen.length > 0
-                @$('.btn-primary').fadeIn('slow')
-            else
-                @$('.btn-primary').fadeOut('slow')
+            @applyChanges()
+            $b = @$('.btn-chooser')
+            $b.button('toggle') if $b.is('.active')
 
         handleSubmission: (e) =>
             e.preventDefault()
             e.stopPropagation()
+            @applyChanges()
+
+        applyChanges: () ->
             @query.trigger 'column-orderer:selected', @chosen
             @reset()
 
         reset: () ->
             super()
             @chosen = []
-            @$('.btn-chooser').button('reset')
-            @$('.btn-primary').fadeOut('slow')
+            # Ugliness ahead...
+            #$b = @$('.btn-chooser')
+            #$b.button('toggle') if $b.is('.active')
+            #@$('.btn-primary').fadeOut('slow')
 
         refsOK: false
         multiSelect: true
@@ -241,6 +244,7 @@ scope "intermine.query.results.table", (exporting) ->
                 else
                     @newView.add {path, isOuterJoined}, {silent: true}
             @drawOrder()
+            @drawSelector()
 
         drawOrder: ->
             colContainer = @$ '.im-reordering-container'
@@ -266,11 +270,12 @@ scope "intermine.query.results.table", (exporting) ->
                     toShow.getDisplayName (name) -> moveableView.find('.im-display-name').text(name)
 
                 colContainer.append moveableView
+            colContainer.sortable items: 'li.im-reorderable'
 
+        drawSelector: ->
             nodeAdder = @$ '.node-adder'
             ca = new ColumnAdder(@query)
             nodeAdder.empty().append ca.render().el
-            colContainer.sortable items: 'li.im-reorderable'
 
         updateOrder: (e, ui) ->
             lis = @$('.im-reordering-container li')

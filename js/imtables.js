@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Mon Oct 22 2012 12:11:36 GMT+0100 (BST)
+ * Built at Mon Oct 22 2012 18:03:22 GMT+0100 (BST)
 */
 
 
@@ -623,19 +623,23 @@
       ConstraintAdder.prototype.multiSelect = false;
 
       ConstraintAdder.prototype.reset = function() {
-        this.$pathfinder.remove();
+        var _ref;
+        if ((_ref = this.$pathfinder) != null) {
+          _ref.remove();
+        }
         return this.$pathfinder = null;
       };
 
       ConstraintAdder.prototype.showTree = function(e) {
-        var pathFinder;
+        var pathFinder, treeRoot;
         if (this.$pathfinder != null) {
           return this.reset();
         } else {
-          root = this.getTreeRoot();
-          pathFinder = new PathChooser(this.query, root, 0, this.handleChoice, this.isDisabled, this.refsOK, this.multiSelect);
-          pathFinder.render().$el.appendTo(this.el).show();
-          pathFinder.$el.css({
+          treeRoot = this.getTreeRoot();
+          pathFinder = new PathChooser(this.query, treeRoot, 0, this.handleChoice, this.isDisabled, this.refsOK, this.multiSelect);
+          pathFinder.render();
+          this.$el.append(pathFinder.el);
+          pathFinder.$el.show().css({
             top: this.$el.height()
           });
           return this.$pathfinder = pathFinder;
@@ -4725,7 +4729,11 @@
           li = $("<li></li>");
           ul.append(li);
           countQuery = _this.query.clone();
-          countQuery.select([node.append("id").toPathString()]);
+          try {
+            countQuery.select([node.append("id").toPathString()]);
+          } catch (err) {
+            return;
+          }
           countQuery.orderBy([]);
           li.click(function() {
             return _this.openDialogue(node.getType().name, countQuery);
@@ -5397,12 +5405,13 @@
         obj[field] = obj.value;
         obj.selected = false;
         obj.selectable = false;
+        obj.base = '';
         return this.attributes = obj;
       };
 
       return FPObject;
 
-    })(Backbone.Model));
+    })(NullObject));
   });
 
   scope("intermine.query.results", function(exporting) {
@@ -5630,30 +5639,33 @@
       };
 
       ColumnAdder.prototype.handleChoice = function(path) {
+        var $b;
         if (_.include(this.chosen, path)) {
           this.chosen = _.without(this.chosen, path);
         } else {
           this.chosen.push(path);
         }
-        if (this.chosen.length > 0) {
-          return this.$('.btn-primary').fadeIn('slow');
-        } else {
-          return this.$('.btn-primary').fadeOut('slow');
+        this.applyChanges();
+        $b = this.$('.btn-chooser');
+        if ($b.is('.active')) {
+          return $b.button('toggle');
         }
       };
 
       ColumnAdder.prototype.handleSubmission = function(e) {
         e.preventDefault();
         e.stopPropagation();
+        return this.applyChanges();
+      };
+
+      ColumnAdder.prototype.applyChanges = function() {
         this.query.trigger('column-orderer:selected', this.chosen);
         return this.reset();
       };
 
       ColumnAdder.prototype.reset = function() {
         ColumnAdder.__super__.reset.call(this);
-        this.chosen = [];
-        this.$('.btn-chooser').button('reset');
-        return this.$('.btn-primary').fadeOut('slow');
+        return this.chosen = [];
       };
 
       ColumnAdder.prototype.refsOK = false;
@@ -5877,11 +5889,12 @@
             });
           }
         }
-        return this.drawOrder();
+        this.drawOrder();
+        return this.drawSelector();
       };
 
       ColumnsDialogue.prototype.drawOrder = function() {
-        var ca, colContainer, nodeAdder,
+        var colContainer,
           _this = this;
         colContainer = this.$('.im-reordering-container');
         colContainer.empty();
@@ -5911,12 +5924,16 @@
           }
           return colContainer.append(moveableView);
         });
-        nodeAdder = this.$('.node-adder');
-        ca = new ColumnAdder(this.query);
-        nodeAdder.empty().append(ca.render().el);
         return colContainer.sortable({
           items: 'li.im-reorderable'
         });
+      };
+
+      ColumnsDialogue.prototype.drawSelector = function() {
+        var ca, nodeAdder;
+        nodeAdder = this.$('.node-adder');
+        ca = new ColumnAdder(this.query);
+        return nodeAdder.empty().append(ca.render().el);
       };
 
       ColumnsDialogue.prototype.updateOrder = function(e, ui) {

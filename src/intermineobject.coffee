@@ -32,12 +32,13 @@ scope "intermine.model", (exporting) ->
 
         merge: () ->
         
-    exporting class FPObject extends Backbone.Model
+    exporting class FPObject extends NullObject
         initialize: (query, obj, field) ->
             obj._type = obj.class
             obj[field] = obj.value
             obj.selected = false
             obj.selectable = false
+            obj.base = ''
             @attributes = obj
 
 
