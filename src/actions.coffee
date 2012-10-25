@@ -2,13 +2,19 @@ scope "intermine.messages.actions", {
     ExportTitle: "Download Results",
     ExportHelp: "Download file containing results to your computer",
     ExportButton: "Download",
+    ExportLong: "Download to your computer",
     ExportFormat: "Format",
     Cancel: "Cancel",
     Export: "Download",
-    SendToGalaxy: "Send to Galaxy Main",
+    SendToGalaxy: "Send to Galaxy for further analysis",
+    MyGalaxy: "Send to your Galaxy",
+    ForgetGalaxy: "Clear this galaxy URL",
     GalaxyHelp: "Start a file upload job within Galaxy",
-    GalaxyURILabel: "Your Galaxy URI:",
-    GalaxyAlt: "Send to a Different Galaxy",
+    GalaxyURILabel: "Galaxy Location:",
+    GalaxyAlt: "Send to a specific Galaxy",
+    SaveGalaxyURL: "Make this my default Galaxy",
+    WhatIsGalaxy: "What is Galaxy?",
+    WhatIsGalaxyURL: "http://wiki.g2.bx.psu.edu/",
     GalaxyAuthExplanation: """
             If you have already logged into Galaxy with this browser, then the data
             will be sent into your active account. Otherwise it will appear in a 
@@ -21,6 +27,10 @@ scope "intermine.messages.actions", {
     RowsHelp: "Export all rows, or define a range of rows to export.",
     AllColumns: "All Current Columns",
     SomeColumns: "Choose Columns",
+    CompressResults: "Compress results",
+    NoCompression: "No compression",
+    GZIPCompression: "GZIP",
+    ZIPCompression: "ZIP",
     ColumnsHelp: "Export all columns, or choose specific columns to export.",
     WhichColumns: "Columns to Export",
     ResetColumns: "Reset Columns.",
@@ -205,8 +215,18 @@ scope "intermine.query.actions", (exporting) ->
                 allRows: true
                 allCols: true
                 start: 0
-                galaxyMain: intermine.options.GalaxyMain
-                galaxyAlt: (intermine.options.GalaxyAlt || intermine.options.GalaxyMain)
+                compress: "no"
+                galaxy: intermine.options.GalaxyMain
+
+            @query.service.whoami (user) =>
+                if user.hasPreferences and (myGalaxy = user.preferences['galaxy-url'])
+                    @requestInfo.set galaxy: myGalaxy
+
+            @requestInfo.on "change:galaxy", (m, uri) =>
+                input = @$('input.im-galaxy-uri')
+                currentVal = input.val()
+                input.val(uri) unless currentVal is uri
+                @$('.im-galaxy-save-url').attr disabled: uri is intermine.options.GalaxyMain
 
             allOrSome = (all, optSel, btnSel) =>
                 opts = @$(optSel)
@@ -251,14 +271,20 @@ scope "intermine.query.actions", (exporting) ->
             'click a.im-open-dialogue': 'openDialogue'
             'click .btn-cancel': 'stop'
             'change .im-export-format': 'updateFormat'
-            'click button.btn-primary': 'export'
-            'click .galaxy-toggle': 'toggleGalaxyOptions'
+            'click .im-download': 'export'
             'change .im-galaxy-uri': 'changeGalaxyURI'
-            'click .btn-galaxy': 'sendToGalaxy'
-            'submit .im-galaxy-options': 'sendToAltGalaxy'
+            'click .im-send-to-galaxy': 'sendToGalaxy'
+            'click .im-forget-galaxy': 'forgetGalaxy'
             'change .im-first-row': 'changeStart'
             'change .im-last-row': 'changeEnd'
             'keyup .im-range-limit': 'keyPressOnLimit'
+
+        forgetGalaxy: (e) ->
+            @query.service
+                .whoami()
+                .pipe( (user) => console.log(user); user.clearPreference('galaxy-url'))
+                .done( () => @requestInfo.set galaxy: intermine.options.GalaxyMain )
+            return false
 
         keyPressOnLimit: (e) ->
             input = $(e.target)
@@ -293,12 +319,14 @@ scope "intermine.query.actions", (exporting) ->
         sendToGalaxy: (e) ->
             e.stopPropagation()
             e.preventDefault()
-            @doGalaxy @requestInfo.get('galaxyMain')
+            uri = @requestInfo.get 'galaxy'
+            @doGalaxy uri
+            if @$('.im-galaxy-save-url').is(':checked') and uri isnt intermine.options.GalaxyMain
+                @saveGalaxyPreference uri
 
-        sendToAltGalaxy: (e) ->
-            e.stopPropagation()
-            e.preventDefault()
-            @doGalaxy @requestInfo.get('galaxyAlt')
+        saveGalaxyPreference: (uri) -> @query.service.whoami (user) ->
+            if user.hasPreferences and user.preferences['galaxy-url'] isnt uri
+                user.setPreference 'galaxy-url', uri
 
         doGalaxy: (galaxy) ->
             console.log "Sending to #{ galaxy }"
@@ -323,11 +351,7 @@ scope "intermine.query.actions", (exporting) ->
                     params[k] = v
                 openWindowWithPost "#{ galaxy }/tool_runner", "Upload", params
 
-        changeGalaxyURI: (e) ->
-            @requestInfo.set galaxyAlt: @$('.im-galaxy-uri').val()
-
-        toggleGalaxyOptions: (e) ->
-            @$('.im-galaxy-options').slideToggle('fast')
+        changeGalaxyURI: (e) -> @requestInfo.set galaxy: @$('.im-galaxy-uri').val()
 
         getExportEndPoint: () ->
             format = @requestInfo.get 'format'
@@ -366,6 +390,7 @@ scope "intermine.query.actions", (exporting) ->
                 end = @requestInfo.get 'end'
                 if end isnt @count
                     params.size = end - start
+            console.log params
             return params
 
         getExportURI: () ->
@@ -668,9 +693,10 @@ scope "intermine.query.actions", (exporting) ->
             @$el.append intermine.snippets.actions.DownloadDialogue()
             @$('.modal-footer .btn').tooltip()
 
-            # grrr, for some reason the radio-button plug in doesn't work here,
-            # as it registers each click twice! So we have to do it ourselves.
-            # @$('.radio .btn').click @toggleButtonState
+            # This really ought to live in events...
+            for val in ["no", "gzip", "zip"] then do (val) =>
+                @$(".im-#{val}-compression").click (e) =>
+                    @requestInfo.set compress: val
 
             @initFormats()
             @initCols()

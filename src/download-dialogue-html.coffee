@@ -4,7 +4,7 @@ scope 'intermine.snippets.actions', {
             <i class="#{ intermine.icons.Export }"></i>
             #{ intermine.messages.actions.ExportButton }
         </a>
-        <div class="modal fade">
+        <div class="modal fade" style="overflow-x:visible;overflow-y:visible">
             <div class="modal-header">
                 <a class="close btn-cancel">close</a>
                 <h2>#{ intermine.messages.actions.ExportTitle }</h2>
@@ -59,57 +59,85 @@ scope 'intermine.snippets.actions', {
                         </div>
                     </label>
                     <div class="form-horizontal">
-                    <fieldset class="im-row-selection control-group">
-                        <label class="control-label">
-                            #{ intermine.messages.actions.FirstRow }
-                            <input type="text" value="1" class="disabled input-mini im-first-row im-range-limit">
+                        <fieldset class="im-row-selection control-group">
+                            <label class="control-label">
+                                #{ intermine.messages.actions.FirstRow }
+                                <input type="text" value="1" class="disabled input-mini im-first-row im-range-limit">
+                            </label>
+                            <label class="control-label">
+                                #{ intermine.messages.actions.LastRow }
+                                <input type="text" class="disabled input-mini im-last-row im-range-limit">
+                            </label>
+                            <div style="clear:both"></div>
+                            <div class="slider im-row-range-slider"></div>
+                        </fieldset>
+                    </div>
+                    </div>
+                    <fieldset class="control-group">
+                        <label>
+                            <span class="span4">
+                                #{ intermine.messages.actions.CompressResults }
+                            </span>
+                            <div class="span8 im-compression-opts radio btn-group pull-right" data-toggle="buttons-radio">
+                                    <button class="btn active im-no-compression span7">
+                                        #{ intermine.messages.actions.NoCompression }
+                                    </button>
+                                    <button class="btn im-gzip-compression span2">
+                                        #{ intermine.messages.actions.GZIPCompression }
+                                    </button>
+                                    <button class="btn im-zip-compression span2">
+                                        #{ intermine.messages.actions.ZIPCompression }
+                                    </button>
+                            </div>
                         </label>
-                        <label class="control-label">
-                            #{ intermine.messages.actions.LastRow }
-                            <input type="text" class="disabled input-mini im-last-row im-range-limit">
-                        </label>
-                        <div style="clear:both"></div>
-                        <div class="slider im-row-range-slider"></div>
                     </fieldset>
-                    </div>
-                    </div>
                     <div class="row-fluid">
                     <fieldset class="im-export-options control-group">
                     </fieldset>
                     </div>
                 </form>
             </div>
-            <div class="modal-footer">
-                <button class="btn btn-primary pull-right" title="#{ intermine.messages.actions.ExportHelp }">
-                    #{ intermine.messages.actions.Export }
-                </button>
-                <div class="btn-group btn-alt pull-right">
-                    <a href="#" class="btn btn-galaxy" title="#{intermine.messages.actions.GalaxyHelp}">
-                        #{ intermine.messages.actions.SendToGalaxy }
-                    </a>
-                    <a href="#" title="#{intermine.messages.actions.GalaxyAlt}" 
-                        class="btn dropdown-toggle galaxy-toggle" data-toggle="dropdown">
+            <div class="modal-footer" style="overflow-x:visible;overflow-y:visible">
+                <div class="btn-group pull-right">
+                    <button class="btn btn-primary im-download pull-right" title="#{ intermine.messages.actions.ExportHelp }">
+                        #{ intermine.messages.actions.Export }
+                    </button>
+                    <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
                         <span class="caret"></span>
-                    </a>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a href="#" class="im-download" title="#{ intermine.messages.actions.ExportHelp }">
+                                #{ intermine.messages.actions.ExportLong }
+                            </a>
+                        </li>
+                        <li class="divider"></li>
+                        <li>
+                            <a href="#" class="im-send-to-galaxy">
+                                #{ intermine.messages.actions.SendToGalaxy }
+                            </a>
+                            <form class="form form-compact well">
+                                <label>
+                                    #{ intermine.messages.actions.GalaxyURILabel }
+                                    <input class="im-galaxy-uri" type="text" value="#{ intermine.options.GalaxyMain }">
+                                </label>
+                                <label>
+                                    #{ intermine.messages.actions.SaveGalaxyURL }
+                                    <input type="checkbox" disabled checked class="im-galaxy-save-url">
+                                </label>
+                            </form>
+                        </li>
+                        <li>
+                            <a target="blank" href="#{ intermine.messages.actions.WhatIsGalaxyURL }">
+                                <i class="icon icon-question-sign"></i>
+                                #{ intermine.messages.actions.WhatIsGalaxy }
+                            </a>
+                        </li>
+                    </ul>
                 </div>
                 <button class="btn btn-cancel pull-left">
                     #{ intermine.messages.actions.Cancel }
                 </button>
-                <form class="well form-inline im-galaxy-options">
-                    <label>
-                        #{ intermine.messages.actions.GalaxyURILabel }
-                        <input type="text" class="im-galaxy-uri input-xlarge" 
-                            value="#{ intermine.options.GalaxyMain }">
-                    </label>
-                    <button type="submit" class="btn">
-                        #{ intermine.messages.actions.SendToOtherGalaxy }
-                    </button>
-                    <div class="alert alert-info">
-                        <button class="close" data-dismiss="alert">×</button>
-                        <strong>ps</strong>
-                        #{ intermine.messages.actions.GalaxyAuthExplanation }
-                    </div>
-                </form>
             </div>
         </div>
     """
