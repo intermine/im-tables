@@ -278,6 +278,13 @@ scope "intermine.query.actions", (exporting) ->
             'change .im-first-row': 'changeStart'
             'change .im-last-row': 'changeEnd'
             'keyup .im-range-limit': 'keyPressOnLimit'
+            'submit form': 'dontReallySubmitForm'
+
+        dontReallySubmitForm: (e) ->
+            # Hack to fix bug in struts webapp
+            e.preventDefault()
+            e.stopPropagation()
+            return false # seriously, don't
 
         forgetGalaxy: (e) ->
             @query.service

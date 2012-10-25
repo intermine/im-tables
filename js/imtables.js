@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Thu Oct 25 2012 17:29:50 GMT+0100 (BST)
+ * Built at Thu Oct 25 2012 18:15:55 GMT+0100 (BST)
 */
 
 
@@ -3479,7 +3479,14 @@
         'click .im-forget-galaxy': 'forgetGalaxy',
         'change .im-first-row': 'changeStart',
         'change .im-last-row': 'changeEnd',
-        'keyup .im-range-limit': 'keyPressOnLimit'
+        'keyup .im-range-limit': 'keyPressOnLimit',
+        'submit form': 'dontReallySubmitForm'
+      };
+
+      ExportDialogue.prototype.dontReallySubmitForm = function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
       };
 
       ExportDialogue.prototype.forgetGalaxy = function(e) {
