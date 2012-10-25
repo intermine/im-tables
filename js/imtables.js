@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Thu Oct 25 2012 19:23:27 GMT+0100 (BST)
+ * Built at Thu Oct 25 2012 19:50:52 GMT+0100 (BST)
 */
 
 
@@ -4271,7 +4271,7 @@
     })(ListDialogue));
     openWindowWithPost = function(uri, name, params) {
       var form, input, k, v, w;
-      form = $("<form method=\"POST\" action=\"" + uri + "\" target=\"" + name + "\">");
+      form = $("<form method=\"POST\" action=\"" + uri + "\" target=\"" + name + (new Date().getTime()) + "\">");
       for (k in params) {
         v = params[k];
         input = $("<input name=\"" + k + "\" type=\"hidden\">");

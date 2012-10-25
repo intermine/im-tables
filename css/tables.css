@@ -673,6 +673,7 @@ table.table thead .sorting_desc_disabled {
     font-weight: bold;
     font-family: monospace;
     max-width: 30em;
+    overflow: auto;
 }
 
 .bootstrap .label a {

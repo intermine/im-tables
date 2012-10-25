@@ -865,7 +865,7 @@ scope "intermine.query.actions", (exporting) ->
 
     openWindowWithPost = (uri, name, params) ->
 
-        form = $ """<form method="POST" action="#{ uri }" target="#{ name }">"""
+        form = $ """<form method="POST" action="#{ uri }" target="#{ name }#{ new Date().getTime() }">"""
 
         for k, v of params
             input = $("""<input name="#{ k }" type="hidden">""")
