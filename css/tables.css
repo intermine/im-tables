@@ -664,6 +664,17 @@ table.table thead .sorting_desc_disabled {
     clear: both;
 }
 
+.im-perma-link {
+    margin-right: 1em;
+    margin-left: 1em;
+}
+
+.im-perma-link-content {
+    font-weight: bold;
+    font-family: monospace;
+    max-width: 30em;
+}
+
 .bootstrap .label a {
     color: white;
 }

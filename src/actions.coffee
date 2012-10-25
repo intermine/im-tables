@@ -31,6 +31,8 @@ scope "intermine.messages.actions", {
     NoCompression: "No compression",
     GZIPCompression: "GZIP",
     ZIPCompression: "ZIP",
+    ResultsPermaLink: "Perma-link to results",
+    ResultsPermaLinkTitle: "Get a permanent URL for these results",
     ColumnsHelp: "Export all columns, or choose specific columns to export.",
     WhichColumns: "Columns to Export",
     ResetColumns: "Reset Columns.",
@@ -279,6 +281,14 @@ scope "intermine.query.actions", (exporting) ->
             'change .im-last-row': 'changeEnd'
             'keyup .im-range-limit': 'keyPressOnLimit'
             'submit form': 'dontReallySubmitForm'
+            'click .im-perma-link': 'buildPermaLink'
+
+        buildPermaLink: (e) ->
+            endpoint = @getExportEndPoint()
+            params = @getExportParams()
+            url = endpoint + "?" + $.param(params, true)
+            $a = $('<a>').text(url).attr href: url
+            @$('.im-perma-link-content').empty().append($a)
 
         dontReallySubmitForm: (e) ->
             # Hack to fix bug in struts webapp
@@ -389,6 +399,10 @@ scope "intermine.query.actions", (exporting) ->
             params = @requestInfo.toJSON()
             params.query = @getExportQuery().toXML()
             params.token = @query.service.token
+
+            # Clean up params we don't need to send
+            delete params.galaxy
+            delete params.compress if params.compress is 'no'
 
             if @requestInfo.get 'columnHeaders'
                 params.columnheaders = "1"
@@ -853,10 +867,10 @@ scope "intermine.query.actions", (exporting) ->
 
         form = $ """<form method="POST" action="#{ uri }" target="#{ name }">"""
 
-        for name, value of params
-            input = $("""<input name="#{ name }" type="hidden">""")
+        for k, v of params
+            input = $("""<input name="#{ k }" type="hidden">""")
             form.append(input)
-            input.val(value)
+            input.val(v)
         form.appendTo 'body'
         w = window.open("someNonExistantPathToSomeWhere", name)
         form.submit()

@@ -100,6 +100,7 @@ scope 'intermine.snippets.actions', {
             <div class="modal-footer" style="overflow-x:visible;overflow-y:visible">
                 <div class="btn-group pull-right">
                     <button class="btn btn-primary im-download pull-right" title="#{ intermine.messages.actions.ExportHelp }">
+                        <i class="icon #{ intermine.icons.Export }"></i>
                         #{ intermine.messages.actions.Export }
                     </button>
                     <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
@@ -132,6 +133,18 @@ scope 'intermine.snippets.actions', {
                                 <i class="icon icon-question-sign"></i>
                                 #{ intermine.messages.actions.WhatIsGalaxy }
                             </a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="btn-group pull-right">
+                    <a class="btn im-perma-link dropdown-toggle" data-toggle="dropdown"
+                       title="#{ intermine.messages.actions.ResultsPermaLinkTitle }">
+                        <i class="icon icon-link"></i>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <div class="well im-perma-link-content">
+                            </div>
                         </li>
                     </ul>
                 </div>
