@@ -402,6 +402,9 @@ scope "intermine.query.actions", (exporting) ->
 
             # Clean up params we don't need to send
             delete params.galaxy
+            delete params.allRows
+            delete params.allCols
+            delete params.end
             delete params.compress if params.compress is 'no'
 
             if @requestInfo.get 'columnHeaders'

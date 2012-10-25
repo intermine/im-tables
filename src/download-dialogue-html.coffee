@@ -137,10 +137,10 @@ scope 'intermine.snippets.actions', {
                     </ul>
                 </div>
                 <div class="btn-group pull-right">
-                    <a class="btn im-perma-link dropdown-toggle" data-toggle="dropdown"
+                    <button class="btn im-perma-link dropdown-toggle" data-toggle="dropdown"
                        title="#{ intermine.messages.actions.ResultsPermaLinkTitle }">
                         <i class="icon icon-link"></i>
-                    </a>
+                    </button>
                     <ul class="dropdown-menu">
                         <li>
                             <div class="well im-perma-link-content">
