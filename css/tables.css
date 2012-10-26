@@ -1085,6 +1085,10 @@ td.im-result-subtable .im-subtable {
     min-width: 36em;
 }
 
+.im-constraint-adder .dropdown-menu li.im-rootclass {
+    font-weight: bold;
+}
+
 .im-query-actionbar .im-action::after {
     clear: both;
 }

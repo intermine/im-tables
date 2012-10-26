@@ -19,7 +19,14 @@ scope "intermine.messages.actions", {
             If you have already logged into Galaxy with this browser, then the data
             will be sent into your active account. Otherwise it will appear in a 
             temporary anonymous account.
-        """
+        """,
+    IsPrivateData: """
+        This link provides access to data stored in your private lists. In order to do so
+        it uses the API access token provided on initialisation. If this is your permanent
+        API token you should be as careful of this link as you would of the data is provides
+        access to. If this is just a 24 hour access token, then you will need to replace it
+        once it becomes invalid.
+    """,
     SendToOtherGalaxy: "Send",
     AllRows: "Whole Result Set"
     SomeRows: "Specific Range",
@@ -32,7 +39,8 @@ scope "intermine.messages.actions", {
     GZIPCompression: "GZIP",
     ZIPCompression: "ZIP",
     ResultsPermaLink: "Perma-link to results",
-    ResultsPermaLinkTitle: "Get a permanent URL for these results",
+    ResultsPermaLinkTitle: "Get a permanent URL for these results, suitable for your own use",
+    ResultsPermaLinkShareTitle: "Get a permanent URL for these results, suitable for sharing with others",
     ColumnsHelp: "Export all columns, or choose specific columns to export.",
     WhichColumns: "Columns to Export",
     ResetColumns: "Reset Columns.",
@@ -224,6 +232,8 @@ scope "intermine.query.actions", (exporting) ->
                 if user.hasPreferences and (myGalaxy = user.preferences['galaxy-url'])
                     @requestInfo.set galaxy: myGalaxy
 
+            @query.service.fetchVersion (v) => @$('.im-ws-v12').remove() if v < 12
+
             @requestInfo.on "change:galaxy", (m, uri) =>
                 input = @$('input.im-galaxy-uri')
                 currentVal = input.val()
@@ -282,10 +292,18 @@ scope "intermine.query.actions", (exporting) ->
             'keyup .im-range-limit': 'keyPressOnLimit'
             'submit form': 'dontReallySubmitForm'
             'click .im-perma-link': 'buildPermaLink'
+            'click .im-perma-link-share': 'buildSharableLink'
+
+        buildSharableLink: (e) ->
+            # TODO!!
+            @$('.im-perma-link-share-content').text("TODO")
 
         buildPermaLink: (e) ->
             endpoint = @getExportEndPoint()
             params = @getExportParams()
+            isPrivate = intermine.utils.requiresAuthentication(@query)
+            @$('.im-private-query').toggle(isPrivate)
+            delete params.token unless isPrivate
             url = endpoint + "?" + $.param(params, true)
             $a = $('<a>').text(url).attr href: url
             @$('.im-perma-link-content').empty().append($a)

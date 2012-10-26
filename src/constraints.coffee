@@ -227,6 +227,8 @@ scope "intermine.query",  (exporting) ->
                 if selectables.length is 0
                     $lists.attr disabled: true
                     $lists.append 'No lists of this type available'
+                else
+                    @con.set value: $lists.val()
             $lists.change (e) => @con.set value: $lists.val()
 
         drawLoopOpts: (fs) ->

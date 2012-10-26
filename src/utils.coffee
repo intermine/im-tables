@@ -35,6 +35,8 @@ scope "intermine", (exporting) ->
 
         @modelIsBio = (model) -> !!model?.classes['Gene']
 
+        @requiresAuthentication = (q) -> _.any q.constraints, (c) -> c.op in ['NOT IN', 'IN']
+
         @getOrganisms = (query, cb) ->
             restrictedOrganisms = (c.value for c in query.constraints when c.path.match(/(o|O)rganism/))
             if restrictedOrganisms.length

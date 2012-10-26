@@ -127,7 +127,7 @@ scope "intermine.query.filters", (exporting) ->
 
         hideModal: (e) ->
             @$el.modal 'hide'
-            # Horrible, horrible hack, making kittens cry.
+            # Horrible, horrible hackity hack, making kittens cry.
             $('.modal-backdrop').trigger 'click'
 
         showModal: () -> @$el.modal().modal('show')

@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Thu Oct 25 2012 19:58:34 GMT+0100 (BST)
+ * Built at Fri Oct 26 2012 13:22:56 GMT+0100 (BST)
 */
 
 
@@ -119,7 +119,7 @@
   });
 
   scope("intermine.query", function(exporting) {
-    var Attribute, CONSTRAINT_ADDER_HTML, ConstraintAdder, PATH_HIGHLIGHTER, PATH_LEN_SORTER, PATH_MATCHER, PathChooser, Reference, ReverseReference, pathLen, pos;
+    var Attribute, CONSTRAINT_ADDER_HTML, ConstraintAdder, PATH_HIGHLIGHTER, PATH_LEN_SORTER, PATH_MATCHER, PathChooser, Reference, ReverseReference, RootClass, pathLen, pos;
     pos = function(substr) {
       return _.memoize(function(str) {
         return str.toLowerCase().indexOf(substr);
@@ -308,6 +308,31 @@
       return Attribute;
 
     })(Backbone.View);
+    RootClass = (function(_super) {
+
+      __extends(RootClass, _super);
+
+      function RootClass() {
+        return RootClass.__super__.constructor.apply(this, arguments);
+      }
+
+      RootClass.prototype.className = 'im-rootclass';
+
+      RootClass.prototype.initialize = function(query, cd, evts, multiSelect) {
+        this.query = query;
+        this.cd = cd;
+        this.evts = evts;
+        this.multiSelect = multiSelect;
+        return RootClass.__super__.initialize.call(this, this.query, this.query.getPathInfo(this.cd.name), 0, this.evts, (function() {
+          return false;
+        }), this.multiSelect);
+      };
+
+      RootClass.prototype.template = _.template("<a href=\"#\">\n  <i class=\"icon-stop\"></i>\n  <span><%- name %></span>\n</a>");
+
+      return RootClass;
+
+    })(Attribute);
     Reference = (function(_super) {
 
       __extends(Reference, _super);
@@ -506,6 +531,9 @@
       PathChooser.prototype.render = function() {
         var apath, cd, isLoop, ref, rpath, _i, _j, _len, _len1, _ref, _ref1;
         cd = this.path.getEndClass();
+        if (this.depth === 0 && this.canSelectRefs) {
+          this.$el.append(new RootClass(this.query, cd, this.evts, this.multiSelect).render().el);
+        }
         _ref = this.attributes;
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           apath = _ref[_i];
@@ -2845,7 +2873,7 @@
 
   scope('intermine.snippets.actions', {
     DownloadDialogue: function() {
-      return "<a class=\"btn im-open-dialogue\" href=\"#\">\n    <i class=\"" + intermine.icons.Export + "\"></i>\n    " + intermine.messages.actions.ExportButton + "\n</a>\n<div class=\"modal fade\" style=\"overflow-x:visible;overflow-y:visible\">\n    <div class=\"modal-header\">\n        <a class=\"close btn-cancel\">close</a>\n        <h2>" + intermine.messages.actions.ExportTitle + "</h2>\n    </div>\n    <div class=\"modal-body\">\n        <form class=\"form\">\n            <div class=\"row-fluid\">\n            <label>\n                <span class=\"span4\">\n                    " + intermine.messages.actions.ExportFormat + "\n                </span>\n                <select class=\"im-export-format input-xlarge span8\">\n                </select>\n            </label>\n            </div>\n            <div class=\"row-fluid\">\n            <label title=\"" + intermine.messages.actions.ColumnsHelp + "\">\n                <span class=\"span4\">\n                    " + intermine.messages.actions.WhichColumns + "\n                </span>\n                <div class=\"im-col-btns radio btn-group pull-right span8\">\n                    <button class=\"btn active im-all-cols span6\">\n                        " + intermine.messages.actions.AllColumns + "\n                    </button>\n                    <button class=\"btn span5\">\n                        " + intermine.messages.actions.SomeColumns + "\n                    </button>\n                </div>\n            </label>\n            <div class=\"im-col-options\">\n                <ul class=\"well im-cols im-can-be-exported-cols\">\n                    <h4>" + intermine.messages.actions.PossibleColumns + "</h4>\n                </ul>\n                <ul class=\"well im-cols im-exported-cols\">\n                    <h4>" + intermine.messages.actions.ExportedColumns + "</h4>\n                </ul>\n                <div style=\"clear:both;\"></div>\n                <button class=\"im-reset-cols btn disabled\">\n                    <i class=\"" + intermine.icons.Undo + "\"></i>\n                    " + intermine.messages.actions.ResetColumns + "\n                </button>\n            </div>\n            </div>\n            <div class=\"row-fluid\">\n            <label title=\"" + intermine.messages.actions.RowsHelp + "\">\n                <span class=\"span4\">\n                    " + intermine.messages.actions.WhichRows + "\n                    </span>\n                <div class=\"im-row-btns radio span8 btn-group pull-right\" data-toggle=\"buttons-radio\">\n                    <button class=\"btn active im-all-rows span6\">" + intermine.messages.actions.AllRows + "</button>\n                    <button class=\"btn span5\">" + intermine.messages.actions.SomeRows + "</button>\n                </div>\n            </label>\n            <div class=\"form-horizontal\">\n                <fieldset class=\"im-row-selection control-group\">\n                    <label class=\"control-label\">\n                        " + intermine.messages.actions.FirstRow + "\n                        <input type=\"text\" value=\"1\" class=\"disabled input-mini im-first-row im-range-limit\">\n                    </label>\n                    <label class=\"control-label\">\n                        " + intermine.messages.actions.LastRow + "\n                        <input type=\"text\" class=\"disabled input-mini im-last-row im-range-limit\">\n                    </label>\n                    <div style=\"clear:both\"></div>\n                    <div class=\"slider im-row-range-slider\"></div>\n                </fieldset>\n            </div>\n            </div>\n            <fieldset class=\"control-group\">\n                <label>\n                    <span class=\"span4\">\n                        " + intermine.messages.actions.CompressResults + "\n                    </span>\n                    <div class=\"span8 im-compression-opts radio btn-group pull-right\" data-toggle=\"buttons-radio\">\n                            <button class=\"btn active im-no-compression span7\">\n                                " + intermine.messages.actions.NoCompression + "\n                            </button>\n                            <button class=\"btn im-gzip-compression span2\">\n                                " + intermine.messages.actions.GZIPCompression + "\n                            </button>\n                            <button class=\"btn im-zip-compression span2\">\n                                " + intermine.messages.actions.ZIPCompression + "\n                            </button>\n                    </div>\n                </label>\n            </fieldset>\n            <div class=\"row-fluid\">\n            <fieldset class=\"im-export-options control-group\">\n            </fieldset>\n            </div>\n        </form>\n    </div>\n    <div class=\"modal-footer\" style=\"overflow-x:visible;overflow-y:visible\">\n        <div class=\"btn-group pull-right\">\n            <button class=\"btn btn-primary im-download pull-right\" title=\"" + intermine.messages.actions.ExportHelp + "\">\n                <i class=\"icon " + intermine.icons.Export + "\"></i>\n                " + intermine.messages.actions.Export + "\n            </button>\n            <button class=\"btn btn-primary dropdown-toggle\" data-toggle=\"dropdown\">\n                <span class=\"caret\"></span>\n            </button>\n            <ul class=\"dropdown-menu\">\n                <li>\n                    <a href=\"#\" class=\"im-download\" title=\"" + intermine.messages.actions.ExportHelp + "\">\n                        " + intermine.messages.actions.ExportLong + "\n                    </a>\n                </li>\n                <li class=\"divider\"></li>\n                <li>\n                    <a href=\"#\" class=\"im-send-to-galaxy\">\n                        " + intermine.messages.actions.SendToGalaxy + "\n                    </a>\n                    <form class=\"form form-compact well\">\n                        <label>\n                            " + intermine.messages.actions.GalaxyURILabel + "\n                            <input class=\"im-galaxy-uri\" type=\"text\" value=\"" + intermine.options.GalaxyMain + "\">\n                        </label>\n                        <label>\n                            " + intermine.messages.actions.SaveGalaxyURL + "\n                            <input type=\"checkbox\" disabled checked class=\"im-galaxy-save-url\">\n                        </label>\n                    </form>\n                </li>\n                <li>\n                    <a target=\"blank\" href=\"" + intermine.messages.actions.WhatIsGalaxyURL + "\">\n                        <i class=\"icon icon-question-sign\"></i>\n                        " + intermine.messages.actions.WhatIsGalaxy + "\n                    </a>\n                </li>\n            </ul>\n        </div>\n        <div class=\"btn-group pull-right\">\n            <button class=\"btn im-perma-link dropdown-toggle\" data-toggle=\"dropdown\"\n               title=\"" + intermine.messages.actions.ResultsPermaLinkTitle + "\">\n                <i class=\"icon icon-link\"></i>\n            </button>\n            <ul class=\"dropdown-menu\">\n                <li>\n                    <div class=\"well im-perma-link-content\">\n                    </div>\n                </li>\n            </ul>\n        </div>\n        <button class=\"btn btn-cancel pull-left\">\n            " + intermine.messages.actions.Cancel + "\n        </button>\n    </div>\n</div>";
+      return "<a class=\"btn im-open-dialogue\" href=\"#\">\n    <i class=\"" + intermine.icons.Export + "\"></i>\n    " + intermine.messages.actions.ExportButton + "\n</a>\n<div class=\"modal fade\" style=\"overflow-x:visible;overflow-y:visible\">\n    <div class=\"modal-header\">\n        <a class=\"close btn-cancel\">close</a>\n        <h2>" + intermine.messages.actions.ExportTitle + "</h2>\n    </div>\n    <div class=\"modal-body\">\n        <form class=\"form\">\n            <div class=\"row-fluid\">\n            <label>\n                <span class=\"span4\">\n                    " + intermine.messages.actions.ExportFormat + "\n                </span>\n                <select class=\"im-export-format input-xlarge span8\">\n                </select>\n            </label>\n            </div>\n            <div class=\"row-fluid\">\n            <label title=\"" + intermine.messages.actions.ColumnsHelp + "\">\n                <span class=\"span4\">\n                    " + intermine.messages.actions.WhichColumns + "\n                </span>\n                <div class=\"im-col-btns radio btn-group pull-right span8\">\n                    <button class=\"btn active im-all-cols span6\">\n                        " + intermine.messages.actions.AllColumns + "\n                    </button>\n                    <button class=\"btn span5\">\n                        " + intermine.messages.actions.SomeColumns + "\n                    </button>\n                </div>\n            </label>\n            <div class=\"im-col-options\">\n                <ul class=\"well im-cols im-can-be-exported-cols\">\n                    <h4>" + intermine.messages.actions.PossibleColumns + "</h4>\n                </ul>\n                <ul class=\"well im-cols im-exported-cols\">\n                    <h4>" + intermine.messages.actions.ExportedColumns + "</h4>\n                </ul>\n                <div style=\"clear:both;\"></div>\n                <button class=\"im-reset-cols btn disabled\">\n                    <i class=\"" + intermine.icons.Undo + "\"></i>\n                    " + intermine.messages.actions.ResetColumns + "\n                </button>\n            </div>\n            </div>\n            <div class=\"row-fluid\">\n            <label title=\"" + intermine.messages.actions.RowsHelp + "\">\n                <span class=\"span4\">\n                    " + intermine.messages.actions.WhichRows + "\n                    </span>\n                <div class=\"im-row-btns radio span8 btn-group pull-right\" data-toggle=\"buttons-radio\">\n                    <button class=\"btn active im-all-rows span6\">" + intermine.messages.actions.AllRows + "</button>\n                    <button class=\"btn span5\">" + intermine.messages.actions.SomeRows + "</button>\n                </div>\n            </label>\n            <div class=\"form-horizontal\">\n                <fieldset class=\"im-row-selection control-group\">\n                    <label class=\"control-label\">\n                        " + intermine.messages.actions.FirstRow + "\n                        <input type=\"text\" value=\"1\" class=\"disabled input-mini im-first-row im-range-limit\">\n                    </label>\n                    <label class=\"control-label\">\n                        " + intermine.messages.actions.LastRow + "\n                        <input type=\"text\" class=\"disabled input-mini im-last-row im-range-limit\">\n                    </label>\n                    <div style=\"clear:both\"></div>\n                    <div class=\"slider im-row-range-slider\"></div>\n                </fieldset>\n            </div>\n            </div>\n            <fieldset class=\"control-group\">\n                <label>\n                    <span class=\"span4\">\n                        " + intermine.messages.actions.CompressResults + "\n                    </span>\n                    <div class=\"span8 im-compression-opts radio btn-group pull-right\" data-toggle=\"buttons-radio\">\n                            <button class=\"btn active im-no-compression span7\">\n                                " + intermine.messages.actions.NoCompression + "\n                            </button>\n                            <button class=\"btn im-gzip-compression span2\">\n                                " + intermine.messages.actions.GZIPCompression + "\n                            </button>\n                            <button class=\"btn im-zip-compression span2\">\n                                " + intermine.messages.actions.ZIPCompression + "\n                            </button>\n                    </div>\n                </label>\n            </fieldset>\n            <div class=\"row-fluid\">\n            <fieldset class=\"im-export-options control-group\">\n            </fieldset>\n            </div>\n        </form>\n    </div>\n    <div class=\"modal-footer\" style=\"overflow-x:visible;overflow-y:visible\">\n        <div class=\"btn-group pull-right\">\n            <button class=\"btn btn-primary im-download pull-right\" title=\"" + intermine.messages.actions.ExportHelp + "\">\n                <i class=\"icon " + intermine.icons.Export + "\"></i>\n                " + intermine.messages.actions.Export + "\n            </button>\n            <button class=\"btn btn-primary dropdown-toggle\" data-toggle=\"dropdown\">\n                <span class=\"caret\"></span>\n            </button>\n            <ul class=\"dropdown-menu\">\n                <li>\n                    <a href=\"#\" class=\"im-download\" title=\"" + intermine.messages.actions.ExportHelp + "\">\n                        " + intermine.messages.actions.ExportLong + "\n                    </a>\n                </li>\n                <li class=\"divider\"></li>\n                <li>\n                    <a href=\"#\" class=\"im-send-to-galaxy\">\n                        " + intermine.messages.actions.SendToGalaxy + "\n                    </a>\n                    <form class=\"form form-compact well\">\n                        <label>\n                            " + intermine.messages.actions.GalaxyURILabel + "\n                            <input class=\"im-galaxy-uri\" type=\"text\" value=\"" + intermine.options.GalaxyMain + "\">\n                        </label>\n                        <label>\n                            " + intermine.messages.actions.SaveGalaxyURL + "\n                            <input type=\"checkbox\" disabled checked class=\"im-galaxy-save-url\">\n                        </label>\n                    </form>\n                </li>\n                <li>\n                    <a target=\"blank\" href=\"" + intermine.messages.actions.WhatIsGalaxyURL + "\">\n                        <i class=\"icon icon-question-sign\"></i>\n                        " + intermine.messages.actions.WhatIsGalaxy + "\n                    </a>\n                </li>\n            </ul>\n        </div>\n        <div class=\"btn-group pull-right\">\n            <button class=\"btn im-perma-link dropdown-toggle\" data-toggle=\"dropdown\"\n               title=\"" + intermine.messages.actions.ResultsPermaLinkTitle + "\">\n                <i class=\"icon icon-link\"></i>\n            </button>\n            <ul class=\"dropdown-menu\">\n                <li>\n                    <div class=\"well im-perma-link-content\">\n                    </div>\n                    <div class=\"alert alert-block im-private-query\">\n                        <button type=\"button\" class=\"close\" data-dismiss=\"alert\">×</button>\n                        <h4>nb:</h4>\n                        " + intermine.messages.actions.IsPrivateData + "\n                    </div>\n                </li>\n            </ul>\n        </div>\n        <div class=\"btn-group pull-right im-ws-v12\">\n            <button class=\"btn im-perma-link-share dropdown-toggle\" data-toggle=\"dropdown\"\n               title=\"" + intermine.messages.actions.ResultsPermaLinkShareTitle + "\">\n                <i class=\"icon icon-group\"></i>\n            </button>\n            <ul class=\"dropdown-menu\">\n                <li>\n                    <div class=\"well im-perma-link-share-content\">\n                    </div>\n                </li>\n            </ul>\n        </div>\n        <button class=\"btn btn-cancel pull-left\">\n            " + intermine.messages.actions.Cancel + "\n        </button>\n    </div>\n</div>";
     }
   });
 
@@ -3055,6 +3083,7 @@
     WhatIsGalaxy: "What is Galaxy?",
     WhatIsGalaxyURL: "http://wiki.g2.bx.psu.edu/",
     GalaxyAuthExplanation: "If you have already logged into Galaxy with this browser, then the data\nwill be sent into your active account. Otherwise it will appear in a \ntemporary anonymous account.",
+    IsPrivateData: "This link provides access to data stored in your private lists. In order to do so\nit uses the API access token provided on initialisation. If this is your permanent\nAPI token you should be as careful of this link as you would of the data is provides\naccess to. If this is just a 24 hour access token, then you will need to replace it\nonce it becomes invalid.",
     SendToOtherGalaxy: "Send",
     AllRows: "Whole Result Set",
     SomeRows: "Specific Range",
@@ -3067,7 +3096,8 @@
     GZIPCompression: "GZIP",
     ZIPCompression: "ZIP",
     ResultsPermaLink: "Perma-link to results",
-    ResultsPermaLinkTitle: "Get a permanent URL for these results",
+    ResultsPermaLinkTitle: "Get a permanent URL for these results, suitable for your own use",
+    ResultsPermaLinkShareTitle: "Get a permanent URL for these results, suitable for sharing with others",
     ColumnsHelp: "Export all columns, or choose specific columns to export.",
     WhichColumns: "Columns to Export",
     ResetColumns: "Reset Columns.",
@@ -3399,6 +3429,11 @@
             });
           }
         });
+        this.query.service.fetchVersion(function(v) {
+          if (v < 12) {
+            return _this.$('.im-ws-v12').remove();
+          }
+        });
         this.requestInfo.on("change:galaxy", function(m, uri) {
           var currentVal, input;
           input = _this.$('input.im-galaxy-uri');
@@ -3483,13 +3518,23 @@
         'change .im-last-row': 'changeEnd',
         'keyup .im-range-limit': 'keyPressOnLimit',
         'submit form': 'dontReallySubmitForm',
-        'click .im-perma-link': 'buildPermaLink'
+        'click .im-perma-link': 'buildPermaLink',
+        'click .im-perma-link-share': 'buildSharableLink'
+      };
+
+      ExportDialogue.prototype.buildSharableLink = function(e) {
+        return this.$('.im-perma-link-share-content').text("TODO");
       };
 
       ExportDialogue.prototype.buildPermaLink = function(e) {
-        var $a, endpoint, params, url;
+        var $a, endpoint, isPrivate, params, url;
         endpoint = this.getExportEndPoint();
         params = this.getExportParams();
+        isPrivate = intermine.utils.requiresAuthentication(this.query);
+        this.$('.im-private-query').toggle(isPrivate);
+        if (!isPrivate) {
+          delete params.token;
+        }
         url = endpoint + "?" + $.param(params, true);
         $a = $('<a>').text(url).attr({
           href: url
@@ -5323,6 +5368,13 @@
 
       utils.modelIsBio = function(model) {
         return !!(model != null ? model.classes['Gene'] : void 0);
+      };
+
+      utils.requiresAuthentication = function(q) {
+        return _.any(q.constraints, function(c) {
+          var _ref;
+          return (_ref = c.op) === 'NOT IN' || _ref === 'IN';
+        });
       };
 
       utils.getOrganisms = function(query, cb) {
@@ -7794,6 +7846,10 @@
               disabled: true
             });
             return $lists.append('No lists of this type available');
+          } else {
+            return _this.con.set({
+              value: $lists.val()
+            });
           }
         });
         return $lists.change(function(e) {

@@ -95,6 +95,19 @@ scope "intermine.query", (exporting) ->
             else
                 a.attr title: ""
 
+    class RootClass extends Attribute
+
+        className: 'im-rootclass'
+
+        initialize: (@query, @cd, @evts, @multiSelect) ->
+            super(@query, @query.getPathInfo(@cd.name), 0, @evts, (() -> false), @multiSelect)
+
+        template: _.template """<a href="#">
+              <i class="icon-stop"></i>
+              <span><%- name %></span>
+            </a>
+            """
+
     class Reference extends Attribute
 
         initialize: (@query, @path, @depth, @evts, @getDisabled, @multiSelect, @isSelectable) ->
@@ -185,6 +198,8 @@ scope "intermine.query", (exporting) ->
 
         render: () ->
             cd = @path.getEndClass()
+            if @depth is 0 and @canSelectRefs # then show the root class
+                @$el.append new RootClass(@query, cd, @evts, @multiSelect).render().el
             for apath in @attributes
                 if intermine.options.ShowId or apath.end.name isnt 'id'
                     @$el.append(new Attribute(@query, apath, @depth, @evts, @getDisabled, @multiSelect).render().el)
@@ -270,6 +285,7 @@ scope "intermine.query", (exporting) ->
 
         isValid: () ->
             if @newCon?
+                #console.log(@newCon.con.toJSON())
                 if not @newCon.con.has('op')
                     return false
                 if @newCon.con.get('op') in intermine.Query.ATTRIBUTE_VALUE_OPS.concat(intermine.Query.REFERENCE_OPS)

@@ -145,6 +145,23 @@ scope 'intermine.snippets.actions', {
                         <li>
                             <div class="well im-perma-link-content">
                             </div>
+                            <div class="alert alert-block im-private-query">
+                                <button type="button" class="close" data-dismiss="alert">×</button>
+                                <h4>nb:</h4>
+                                #{ intermine.messages.actions.IsPrivateData }
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="btn-group pull-right im-ws-v12">
+                    <button class="btn im-perma-link-share dropdown-toggle" data-toggle="dropdown"
+                       title="#{ intermine.messages.actions.ResultsPermaLinkShareTitle }">
+                        <i class="icon icon-group"></i>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <div class="well im-perma-link-share-content">
+                            </div>
                         </li>
                     </ul>
                 </div>
