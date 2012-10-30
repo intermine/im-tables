@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Fri Oct 26 2012 13:22:56 GMT+0100 (BST)
+ * Built at Tue Oct 30 2012 13:27:18 GMT+0000 (GMT)
 */
 
 
@@ -4851,31 +4851,45 @@
       };
 
       ListManager.prototype.updateTypeOptions = function() {
-        var node, ul, _fn, _i, _len, _ref,
+        var node, ul, viewNodes, _fn, _i, _len,
           _this = this;
         ul = this.$('.im-type-options');
         ul.find("li").remove();
-        _ref = this.query.getViewNodes();
+        viewNodes = this.query.getViewNodes();
         _fn = function(node) {
-          var colNos, countQuery, i, li, v;
+          var colNos, countQuery, i, inCons, li, missingNode, ns, unselected, v, _j, _len1;
           li = $("<li></li>");
           ul.append(li);
           countQuery = _this.query.clone();
           try {
             countQuery.select([node.append("id").toPathString()]);
           } catch (err) {
+            console.error(err);
             return;
+          }
+          unselected = viewNodes.filter(function(n) {
+            return n !== node;
+          });
+          for (_j = 0, _len1 = unselected.length; _j < _len1; _j++) {
+            missingNode = unselected[_j];
+            ns = missingNode.toPathString();
+            inCons = _.any(_this.query.constraints, function(c) {
+              return c.path.substring(0, ns.length) === ns;
+            });
+            if (!(inCons || _this.query.isOuterJoined(missingNode))) {
+              countQuery.addConstraint([missingNode.append("id"), "IS NOT NULL"]);
+            }
           }
           countQuery.orderBy([]);
           li.click(function() {
             return _this.openDialogue(node.getType().name, countQuery);
           });
           colNos = (function() {
-            var _j, _len1, _ref1, _results;
-            _ref1 = this.query.views;
+            var _k, _len2, _ref, _results;
+            _ref = this.query.views;
             _results = [];
-            for (i = _j = 0, _len1 = _ref1.length; _j < _len1; i = ++_j) {
-              v = _ref1[i];
+            for (i = _k = 0, _len2 = _ref.length; _k < _len2; i = ++_k) {
+              v = _ref[i];
               if (this.query.getPathInfo(v).getParent().toPathString() === node.toPathString()) {
                 _results.push(i + 1);
               }
@@ -4908,8 +4922,8 @@
             return li.append("<a href=\"#\">\n    " + quantifier + " " + typeName + " from " + col + " " + (colNos.join(", ")) + "\n</a>");
           });
         };
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          node = _ref[_i];
+        for (_i = 0, _len = viewNodes.length; _i < _len; _i++) {
+          node = viewNodes[_i];
           _fn(node);
         }
         return ul.append("<li class=\"im-pick-and-choose\">\n    <a href=\"#\">Choose individual items from the table</a>\n</li>");

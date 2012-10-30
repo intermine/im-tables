@@ -1350,14 +1350,25 @@ scope "intermine.query.actions", (exporting) ->
             ul = @$ '.im-type-options'
             ul.find("li").remove()
 
-            for node in @query.getViewNodes() then do (node) =>
+            viewNodes = @query.getViewNodes()
+
+            for node in viewNodes then do (node) =>
                 li = $ """<li></li>"""
                 ul.append li
                 countQuery = @query.clone()
                 try
                     countQuery.select [node.append("id").toPathString()]
                 catch err
+                    console.error(err)
                     return
+
+                unselected = viewNodes.filter (n) -> n isnt node
+
+                for missingNode in unselected
+                    ns = missingNode.toPathString()
+                    inCons = _.any @query.constraints, (c) -> c.path.substring(0, ns.length) is ns
+                    unless (inCons or @query.isOuterJoined(missingNode))
+                        countQuery.addConstraint( [missingNode.append("id"), "IS NOT NULL"] )
 
                 countQuery.orderBy []
 
