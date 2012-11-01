@@ -6,9 +6,9 @@ scope "intermine.messages.filters", {
     Heading: "Active Filters"
 }
 
-scope "intermine.query.filters", (exporting) ->
+do ->
 
-    exporting class Filters extends Backbone.View
+    class Filters extends Backbone.View
         className: "im-query-filters"
 
         initialize: (@query) ->
@@ -94,7 +94,7 @@ scope "intermine.query.filters", (exporting) ->
         events:
             click: (e) -> e.stopPropagation()
 
-    exporting class FilterManager extends Constraints
+    class FilterManager extends Constraints
         className: "im-filter-manager modal fade"
         tagName: "div"
 
@@ -169,14 +169,14 @@ scope "intermine.query.filters", (exporting) ->
                 @$('button.btn-chooser').remove()
             this
     
-    exporting class SingleColumnConstraints extends Constraints
+    class SingleColumnConstraints extends Constraints
         initialize: (query, @view) -> super(query)
 
         getConAdder: -> new SingleConstraintAdder(@query, @view)
 
         getConstraints: -> c for c in @query.constraints when (c.path.match @view)
 
-    exporting class SingleColumnConstraintsSummary extends SingleColumnConstraints
+    class SingleColumnConstraintsSummary extends SingleColumnConstraints
         getConAdder: ->
 
         render: ->
@@ -188,7 +188,4 @@ scope "intermine.query.filters", (exporting) ->
             this
 
     
-        
-
-
-
+    scope "intermine.query.filters", {SingleColumnConstraintsSummary, SingleColumnConstraints, Filters, FilterManager}

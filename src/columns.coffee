@@ -1,16 +1,25 @@
-scope "intermine.query.columns", (exporting) ->
+do ->
 
-    exporting class Columns extends Backbone.View
-        className: "im-query-columns"
+    JOIN_TOGGLE_HTML = _.template """
+        <form class="form-inline pull-right im-join">
+        <div class="btn-group" data-toggle="buttons-radio">
+            <button data-style="INNER" class="btn btn-small <% print(outer ? "" : "active") %>">
+            Required
+            </button>
+            <button data-style="OUTER" class="btn btn-small <% print(outer ? "active" : "") %>">
+            Optional
+            </button>
+        </div></form>
+    """
 
-        initialize: (@query) ->
-
-        render: ->
-            for cls in [ColumnAdder, CurrentColumns] then do (cls) =>
-                inst = new cls(@query)
-                @$el.append inst.render().el
-
-            this
+    ATTR_HTML = _.template """
+        <input type="checkbox" 
+            data-path="<%= path %>"
+            <% inQuery ? print("checked") : "" %> >
+        <span class="im-view-option">
+            <%= name %> (<% print(type.replace("java.lang.", "")) %>)
+        </span>
+    """
 
     class CurrentColumns extends Backbone.View
         className: "node-remover" # TODO- change this to be a more descriptive, scoped class name
@@ -34,37 +43,6 @@ scope "intermine.query.columns", (exporting) ->
                         sel.render().$el.appendTo @el
 
             this
-
-    #exporting class ColumnAdder extends intermine.query.ConstraintAdder
-    #    className: "form node-adder input-append"
-    #
-    #    handleSubmission: (e) =>
-    #        e.preventDefault()
-    #        e.stopPropagation()
-    #        newPath = @$('input').val()
-    #        @query.addToSelect newPath
-
-    JOIN_TOGGLE_HTML = _.template """
-        <form class="form-inline pull-right im-join">
-        <div class="btn-group" data-toggle="buttons-radio">
-            <button data-style="INNER" class="btn btn-small <% print(outer ? "" : "active") %>">
-            Required
-            </button>
-            <button data-style="OUTER" class="btn btn-small <% print(outer ? "active" : "") %>">
-            Optional
-            </button>
-        </div></form>
-    """
-
-    ATTR_HTML = _.template """
-        <input type="checkbox" 
-            data-path="<%= path %>"
-            <% inQuery ? print("checked") : "" %> >
-        <span class="im-view-option">
-            <%= name %> (<% print(type.replace("java.lang.", "")) %>)
-        </span>
-    """
-
 
     class Selectable extends Backbone.View
         tagName: "dl"
@@ -134,3 +112,15 @@ scope "intermine.query.columns", (exporting) ->
                 $(dd).append(ATTR_HTML(ctx))
                     .appendTo(@el)
 
+    class Columns extends Backbone.View
+        className: "im-query-columns"
+
+        initialize: (@query) ->
+
+        render: ->
+            for cls in [ColumnAdder, CurrentColumns] then do (cls) =>
+                inst = new cls(@query)
+                @$el.append inst.render().el
+            this
+
+    scope "intermine.query.columns", {Columns}

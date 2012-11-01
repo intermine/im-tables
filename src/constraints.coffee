@@ -6,11 +6,11 @@ scope "intermine.conbuilder.messages", {
     CantEditConstraint: 'No value selected. Please enter a value.'
 }
 
-scope "intermine.query",  (exporting) ->
+do ->
 
     PATH_SEGMENT_DIVIDER = "&rarr;"
 
-    exporting class ActiveConstraint extends Backbone.View
+    class ActiveConstraint extends Backbone.View
         tagName: "form"
         className: "form-inline im-constraint row-fluid"
         
@@ -319,7 +319,7 @@ scope "intermine.query",  (exporting) ->
             if currentOp in intermine.Query.TERNARY_OPS
                 @drawExtraOpts(fs)
 
-    exporting class NewConstraint extends ActiveConstraint
+    class NewConstraint extends ActiveConstraint
 
         initialize: (q, c) ->
             super q, c
@@ -341,3 +341,4 @@ scope "intermine.query",  (exporting) ->
             @query.trigger "cancel:add-constraint"
             @remove()
 
+    scope "intermine.query", {ActiveConstraint, NewConstraint}

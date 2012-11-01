@@ -11,23 +11,20 @@ stope = (f) -> (e) ->
     e.preventDefault()
     f(e)
 
-scope = (path, code = (() ->), overwrite = false) ->
+scope = (path, code = {}, overwrite = false) ->
     parts = path.split "."
     ns = root
     for part in parts
-        ns = if ns[part] then ns[part] else (ns[part] = {})
-    exporting = (cls) -> ns[cls.name] = cls
-    if _.isFunction code
-        code(exporting)
-    else
-        for name, value of code
-            # Update but do not overwrite values.
-            if overwrite or not ns[name]?
-                ns[ name ] = value
+        ns = if ns[part]? then ns[part] else (ns[part] = {})
+
+    for name, value of code
+        # Update but do not overwrite values.
+        if overwrite or not ns[name]?
+            ns[ name ] = value
     return ns
 
 # Export this out for others to use.
-scope "intermine", {scope: scope}, true
+scope "intermine", {scope}, true
 
 
 

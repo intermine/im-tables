@@ -5,7 +5,7 @@ scope 'intermine.snippets.facets', {
             </div>
         """
 }
-scope "intermine.results", (exporting) ->
+do ->
 
     ##----------------
     ## Returns a fn to calculate a point Z(x), 
@@ -34,7 +34,7 @@ scope "intermine.results", (exporting) ->
         </dd>
     """
 
-    exporting class ColumnSummary extends Backbone.View
+    class ColumnSummary extends Backbone.View
         tagName: 'div'
         className: "im-column-summary"
         initialize: (facet, @query) ->
@@ -61,7 +61,7 @@ scope "intermine.results", (exporting) ->
             fac.render()
             this
 
-    exporting class FacetView extends Backbone.View
+    class FacetView extends Backbone.View
         tagName: "dl"
         initialize: (@query, @facet, @limit, @noTitle) ->
             @query.on "change:constraints", @render
@@ -75,7 +75,7 @@ scope "intermine.results", (exporting) ->
                     @$dt.find('i').first().toggleClass 'icon-chevron-right icon-chevron-down'
             this
 
-    exporting class FrequencyFacet extends FacetView
+    class FrequencyFacet extends FacetView
         render: (filterTerm = "") ->
             return if @rendering
             @rendering = true
@@ -134,7 +134,7 @@ scope "intermine.results", (exporting) ->
             $dd
 
 
-    exporting class NumericFacet extends FacetView
+    class NumericFacet extends FacetView
 
         events:
             'click': (e) -> e.stopPropagation()
@@ -428,7 +428,7 @@ scope "intermine.results", (exporting) ->
                 drawDivider x for x in xs when ( 0 <= x <= w )
 
 
-    exporting class PieFacet extends Backbone.View
+    class PieFacet extends Backbone.View
         className: 'im-grouped-facet im-pie-facet im-facet'
 
         chartHeight: 100
@@ -579,7 +579,7 @@ scope "intermine.results", (exporting) ->
             row.render().$el
             
 
-    exporting class FacetRow extends Backbone.View
+    class FacetRow extends Backbone.View
 
         tagName: "tr"
         className: "im-facet-row"
@@ -659,7 +659,7 @@ scope "intermine.results", (exporting) ->
             e.stopPropagation()
             @item.set "selected", @$('input').is ':checked'
 
-    exporting class HistoFacet extends PieFacet
+    class HistoFacet extends PieFacet
 
         className: 'im-grouped-facet im-facet'
 
@@ -715,7 +715,7 @@ scope "intermine.results", (exporting) ->
             this
 
 
-    exporting class BooleanFacet extends NumericFacet
+    class BooleanFacet extends NumericFacet
         handleSummary: (items) =>
             t = _(items).find (i) -> i.item is true
             f = _(items).find (i) -> i.item is false
@@ -810,5 +810,13 @@ scope "intermine.results", (exporting) ->
             c.find('.im-trues').click handleTheTruth(@tpath)
             c.find('.im-falses').click handleTheTruth(@fpath)
 
-
-
+    scope "intermine.results", {
+        ColumnSummary,
+        FacetView,
+        FrequencyFacet,
+        NumericFacet,
+        PieFacet,
+        FacetRow,
+        HistoFacet,
+        BooleanFacet
+    }

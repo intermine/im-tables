@@ -1,6 +1,6 @@
-scope 'intermine.filters', (exporting) ->
+do ->
 
-    exporting class NewFilterDialogue extends Backbone.View
+    class NewFilterDialogue extends Backbone.View
         tagName: "div"
         className: "im-constraint-dialogue modal fade"
 
@@ -48,3 +48,4 @@ scope 'intermine.filters', (exporting) ->
             @$el.find('.modal-body').append @conAdder.render().el
             this
             
+    scope 'intermine.filters', {NewFilterDialogue}

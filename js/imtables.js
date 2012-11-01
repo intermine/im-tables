@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Tue Oct 30 2012 13:27:18 GMT+0000 (GMT)
+ * Built at Thu Nov 01 2012 18:59:50 GMT+0000 (GMT)
 */
 
 
@@ -65,9 +65,9 @@
   };
 
   scope = function(path, code, overwrite) {
-    var exporting, name, ns, part, parts, value, _i, _len;
+    var name, ns, part, parts, value, _i, _len;
     if (code == null) {
-      code = (function() {});
+      code = {};
     }
     if (overwrite == null) {
       overwrite = false;
@@ -76,19 +76,12 @@
     ns = root;
     for (_i = 0, _len = parts.length; _i < _len; _i++) {
       part = parts[_i];
-      ns = ns[part] ? ns[part] : (ns[part] = {});
+      ns = ns[part] != null ? ns[part] : (ns[part] = {});
     }
-    exporting = function(cls) {
-      return ns[cls.name] = cls;
-    };
-    if (_.isFunction(code)) {
-      code(exporting);
-    } else {
-      for (name in code) {
-        value = code[name];
-        if (overwrite || !(ns[name] != null)) {
-          ns[name] = value;
-        }
+    for (name in code) {
+      value = code[name];
+      if (overwrite || !(ns[name] != null)) {
+        ns[name] = value;
       }
     }
     return ns;
@@ -118,7 +111,7 @@
     TableWidgets: ['Pagination', 'PageSizer', 'TableSummary', 'ManagementTools', 'ScrollBar']
   });
 
-  scope("intermine.query", function(exporting) {
+  (function() {
     var Attribute, CONSTRAINT_ADDER_HTML, ConstraintAdder, PATH_HIGHLIGHTER, PATH_LEN_SORTER, PATH_MATCHER, PathChooser, Reference, ReverseReference, RootClass, pathLen, pos;
     pos = function(substr) {
       return _.memoize(function(str) {
@@ -128,7 +121,8 @@
     pathLen = _.memoize(function(str) {
       return str.split(".").length;
     });
-    exporting(PATH_LEN_SORTER = function(items) {
+    CONSTRAINT_ADDER_HTML = "<input type=\"text\" placeholder=\"Add a new filter\" class=\"im-constraint-adder span9\">\n<button disabled class=\"btn span2\" type=\"submit\">\n    Filter\n</button>";
+    PATH_LEN_SORTER = function(items) {
       var getPos;
       getPos = pos(this.query.toLowerCase());
       items.sort(function(a, b) {
@@ -139,8 +133,8 @@
         }
       });
       return items;
-    });
-    exporting(PATH_MATCHER = function(item) {
+    };
+    PATH_MATCHER = function(item) {
       var lci, term, terms;
       lci = item.toLowerCase();
       terms = (function() {
@@ -158,8 +152,8 @@
       return item && _.all(terms, function(t) {
         return lci.match(t);
       });
-    });
-    exporting(PATH_HIGHLIGHTER = function(item) {
+    };
+    PATH_HIGHLIGHTER = function(item) {
       var term, terms, _i, _len;
       terms = this.query.toLowerCase().split(/\s+/);
       for (_i = 0, _len = terms.length; _i < _len; _i++) {
@@ -171,8 +165,7 @@
         }
       }
       return item.replace(/>/g, "strong>");
-    });
-    CONSTRAINT_ADDER_HTML = "<input type=\"text\" placeholder=\"Add a new filter\" class=\"im-constraint-adder span9\">\n<button disabled class=\"btn span2\" type=\"submit\">\n    Filter\n</button>";
+    };
     Attribute = (function(_super) {
 
       __extends(Attribute, _super);
@@ -572,7 +565,7 @@
       return PathChooser;
 
     })(Backbone.View);
-    return exporting(ConstraintAdder = (function(_super) {
+    ConstraintAdder = (function(_super) {
 
       __extends(ConstraintAdder, _super);
 
@@ -708,14 +701,20 @@
 
       return ConstraintAdder;
 
-    })(Backbone.View));
-  });
+    })(Backbone.View);
+    return scope("intermine.query", {
+      PATH_LEN_SORTER: PATH_LEN_SORTER,
+      PATH_MATCHER: PATH_MATCHER,
+      PATH_HIGHLIGHTER: PATH_HIGHLIGHTER,
+      ConstraintAdder: ConstraintAdder
+    });
+  })();
 
-  scope("intermine.query.tools", function(exporting) {
+  (function() {
     var PANE_HTML, Step, TAB_HTML, ToolBar, Tools, Trail;
     TAB_HTML = _.template("<li>\n    <a href=\"#<%= ref %>\" data-toggle=\"tab\">\n        <%= title %>\n    </a>\n</li>");
     PANE_HTML = _.template("<div class=\"tab-pane\" id=\"<%= ref %>\"></div>");
-    exporting(Tools = (function(_super) {
+    Tools = (function(_super) {
 
       __extends(Tools, _super);
 
@@ -771,8 +770,8 @@
 
       return Tools;
 
-    })(Backbone.View));
-    exporting(ToolBar = (function(_super) {
+    })(Backbone.View);
+    ToolBar = (function(_super) {
 
       __extends(ToolBar, _super);
 
@@ -795,7 +794,7 @@
 
       return ToolBar;
 
-    })(Backbone.View));
+    })(Backbone.View);
     Step = (function(_super) {
 
       __extends(Step, _super);
@@ -934,7 +933,7 @@
       return Step;
 
     })(Backbone.View);
-    return exporting(Trail = (function(_super) {
+    Trail = (function(_super) {
 
       __extends(Trail, _super);
 
@@ -1032,8 +1031,13 @@
 
       return Trail;
 
-    })(Backbone.View));
-  });
+    })(Backbone.View);
+    return scope("intermine.query.tools", {
+      Tools: Tools,
+      ToolBar: ToolBar,
+      Trail: Trail
+    });
+  })();
 
   scope("intermine.css", {
     unsorted: "icon-sort",
@@ -1052,7 +1056,7 @@
     CountSummary: _.template("<span class=\"hidden-phone\">\n <span class=\"im-only-widescreen\">Showing</span>\n <span>\n   <% if (last == 0) { %>\n       All\n   <% } else { %>\n       <%= first %> to <%= last %> of\n   <% } %>\n   <%= count %> <span class=\"visible-desktop\"><%= roots %></span>\n </span>\n</span>")
   });
 
-  scope("intermine.query.results", function(exporting) {
+  (function() {
     var NUMERIC_TYPES, Page, PageSizer, ResultsTable, Table;
     NUMERIC_TYPES = ["int", "Integer", "double", "Double", "float", "Float"];
     Page = (function() {
@@ -1520,7 +1524,7 @@
       return PageSizer;
 
     })(Backbone.View);
-    return exporting(Table = (function(_super) {
+    Table = (function(_super) {
 
       __extends(Table, _super);
 
@@ -2253,12 +2257,15 @@
 
       return Table;
 
-    })(Backbone.View));
-  });
+    })(Backbone.View);
+    return scope("intermine.query.results", {
+      Table: Table
+    });
+  })();
 
-  scope('intermine.filters', function(exporting) {
+  (function() {
     var NewFilterDialogue;
-    return exporting(NewFilterDialogue = (function(_super) {
+    NewFilterDialogue = (function(_super) {
 
       __extends(NewFilterDialogue, _super);
 
@@ -2313,12 +2320,15 @@
 
       return NewFilterDialogue;
 
-    })(Backbone.View));
-  });
+    })(Backbone.View);
+    return scope('intermine.filters', {
+      NewFilterDialogue: NewFilterDialogue
+    });
+  })();
 
-  scope("intermine.query.results", function(exporting) {
+  (function() {
     var DropDownColumnSummary, OuterJoinDropDown, SummaryHeading;
-    exporting(OuterJoinDropDown = (function(_super) {
+    OuterJoinDropDown = (function(_super) {
 
       __extends(OuterJoinDropDown, _super);
 
@@ -2404,8 +2414,8 @@
 
       return OuterJoinDropDown;
 
-    })(Backbone.View));
-    exporting(DropDownColumnSummary = (function(_super) {
+    })(Backbone.View);
+    DropDownColumnSummary = (function(_super) {
 
       __extends(DropDownColumnSummary, _super);
 
@@ -2432,8 +2442,8 @@
 
       return DropDownColumnSummary;
 
-    })(Backbone.View));
-    return SummaryHeading = (function(_super) {
+    })(Backbone.View);
+    SummaryHeading = (function(_super) {
 
       __extends(SummaryHeading, _super);
 
@@ -2479,10 +2489,14 @@
       return SummaryHeading;
 
     })(Backbone.View);
-  });
+    return scope("intermine.query.results", {
+      OuterJoinDropDown: OuterJoinDropDown,
+      DropDownColumnSummary: DropDownColumnSummary
+    });
+  })();
 
   jQuery.fn.imWidget = function(arg0, arg1) {
-    var cls, events, properties, query, service, token, type, url, view;
+    var cls, error, events, properties, query, service, token, type, url, view;
     if (typeof arg0 === 'string') {
       view = this.data('widget');
       if (arg0 === 'option') {
@@ -2506,29 +2520,33 @@
         throw new Error("Unknown method " + arg0);
       }
     } else {
-      type = arg0.type, service = arg0.service, url = arg0.url, token = arg0.token, query = arg0.query, events = arg0.events, properties = arg0.properties;
+      type = arg0.type, service = arg0.service, url = arg0.url, token = arg0.token, query = arg0.query, events = arg0.events, properties = arg0.properties, error = arg0.error;
       if (service == null) {
         service = new intermine.Service({
           root: url,
           token: token
         });
       }
+      if (error != null) {
+        service.errorHandler = error;
+      }
       if (type === 'table') {
         cls = intermine.query.results.CompactView;
         view = new cls(service, query, events, properties);
-        this.empty().append(view.$el);
+        this.empty().append(view.el);
         view.render();
       } else if (type === 'dashboard') {
         cls = intermine.query.results.DashBoard;
         view = new cls(service, query, events, properties);
-        this.empty().append(view.$el);
+        this.empty().append(view.el);
         view.render();
       } else {
         console.error("" + type + " widgets are not supported");
       }
       this.data('widget-options', properties);
       this.data('widget-type', type);
-      return this.data('widget', view);
+      this.data('widget', view);
+      return this.data('widget');
     }
   };
 
@@ -2540,9 +2558,9 @@
     Heading: "Active Filters"
   });
 
-  scope("intermine.query.filters", function(exporting) {
+  (function() {
     var Constraints, FACETS, Facets, FilterManager, Filters, SingleColumnConstraints, SingleColumnConstraintsSummary, SingleConstraintAdder;
-    exporting(Filters = (function(_super) {
+    Filters = (function(_super) {
 
       __extends(Filters, _super);
 
@@ -2567,7 +2585,7 @@
 
       return Filters;
 
-    })(Backbone.View));
+    })(Backbone.View);
     FACETS = {
       Gene: [
         {
@@ -2704,7 +2722,7 @@
       return Constraints;
 
     })(Backbone.View);
-    exporting(FilterManager = (function(_super) {
+    FilterManager = (function(_super) {
 
       __extends(FilterManager, _super);
 
@@ -2768,7 +2786,7 @@
 
       return FilterManager;
 
-    })(Constraints));
+    })(Constraints);
     SingleConstraintAdder = (function(_super) {
 
       __extends(SingleConstraintAdder, _super);
@@ -2812,7 +2830,7 @@
       return SingleConstraintAdder;
 
     })(intermine.query.ConstraintAdder);
-    exporting(SingleColumnConstraints = (function(_super) {
+    SingleColumnConstraints = (function(_super) {
 
       __extends(SingleColumnConstraints, _super);
 
@@ -2844,8 +2862,8 @@
 
       return SingleColumnConstraints;
 
-    })(Constraints));
-    return exporting(SingleColumnConstraintsSummary = (function(_super) {
+    })(Constraints);
+    SingleColumnConstraintsSummary = (function(_super) {
 
       __extends(SingleColumnConstraintsSummary, _super);
 
@@ -2868,8 +2886,14 @@
 
       return SingleColumnConstraintsSummary;
 
-    })(SingleColumnConstraints));
-  });
+    })(SingleColumnConstraints);
+    return scope("intermine.query.filters", {
+      SingleColumnConstraintsSummary: SingleColumnConstraintsSummary,
+      SingleColumnConstraints: SingleColumnConstraints,
+      Filters: Filters,
+      FilterManager: FilterManager
+    });
+  })();
 
   scope('intermine.snippets.actions', {
     DownloadDialogue: function() {
@@ -2877,41 +2901,10 @@
     }
   });
 
-  scope("intermine.query.columns", function(exporting) {
+  (function() {
     var ATTR_HTML, Columns, CurrentColumns, JOIN_TOGGLE_HTML, Selectable;
-    exporting(Columns = (function(_super) {
-
-      __extends(Columns, _super);
-
-      function Columns() {
-        return Columns.__super__.constructor.apply(this, arguments);
-      }
-
-      Columns.prototype.className = "im-query-columns";
-
-      Columns.prototype.initialize = function(query) {
-        this.query = query;
-      };
-
-      Columns.prototype.render = function() {
-        var cls, _fn, _i, _len, _ref,
-          _this = this;
-        _ref = [ColumnAdder, CurrentColumns];
-        _fn = function(cls) {
-          var inst;
-          inst = new cls(_this.query);
-          return _this.$el.append(inst.render().el);
-        };
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          cls = _ref[_i];
-          _fn(cls);
-        }
-        return this;
-      };
-
-      return Columns;
-
-    })(Backbone.View));
+    JOIN_TOGGLE_HTML = _.template("<form class=\"form-inline pull-right im-join\">\n<div class=\"btn-group\" data-toggle=\"buttons-radio\">\n    <button data-style=\"INNER\" class=\"btn btn-small <% print(outer ? \"\" : \"active\") %>\">\n    Required\n    </button>\n    <button data-style=\"OUTER\" class=\"btn btn-small <% print(outer ? \"active\" : \"\") %>\">\n    Optional\n    </button>\n</div></form>");
+    ATTR_HTML = _.template("<input type=\"checkbox\" \n    data-path=\"<%= path %>\"\n    <% inQuery ? print(\"checked\") : \"\" %> >\n<span class=\"im-view-option\">\n    <%= name %> (<% print(type.replace(\"java.lang.\", \"\")) %>)\n</span>");
     CurrentColumns = (function(_super) {
 
       __extends(CurrentColumns, _super);
@@ -2949,9 +2942,7 @@
       return CurrentColumns;
 
     })(Backbone.View);
-    JOIN_TOGGLE_HTML = _.template("<form class=\"form-inline pull-right im-join\">\n<div class=\"btn-group\" data-toggle=\"buttons-radio\">\n    <button data-style=\"INNER\" class=\"btn btn-small <% print(outer ? \"\" : \"active\") %>\">\n    Required\n    </button>\n    <button data-style=\"OUTER\" class=\"btn btn-small <% print(outer ? \"active\" : \"\") %>\">\n    Optional\n    </button>\n</div></form>");
-    ATTR_HTML = _.template("<input type=\"checkbox\" \n    data-path=\"<%= path %>\"\n    <% inQuery ? print(\"checked\") : \"\" %> >\n<span class=\"im-view-option\">\n    <%= name %> (<% print(type.replace(\"java.lang.\", \"\")) %>)\n</span>");
-    return Selectable = (function(_super) {
+    Selectable = (function(_super) {
 
       __extends(Selectable, _super);
 
@@ -3063,7 +3054,43 @@
       return Selectable;
 
     })(Backbone.View);
-  });
+    Columns = (function(_super) {
+
+      __extends(Columns, _super);
+
+      function Columns() {
+        return Columns.__super__.constructor.apply(this, arguments);
+      }
+
+      Columns.prototype.className = "im-query-columns";
+
+      Columns.prototype.initialize = function(query) {
+        this.query = query;
+      };
+
+      Columns.prototype.render = function() {
+        var cls, _fn, _i, _len, _ref,
+          _this = this;
+        _ref = [ColumnAdder, CurrentColumns];
+        _fn = function(cls) {
+          var inst;
+          inst = new cls(_this.query);
+          return _this.$el.append(inst.render().el);
+        };
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          cls = _ref[_i];
+          _fn(cls);
+        }
+        return this;
+      };
+
+      return Columns;
+
+    })(Backbone.View);
+    return scope("intermine.query.columns", {
+      Columns: Columns
+    });
+  })();
 
   scope("intermine.messages.actions", {
     ExportTitle: "Download Results",
@@ -3115,7 +3142,7 @@
     ChrPrefix: "Prefix \"chr\" to the chromosome identifier as per UCSC convention (eg: chr2)"
   });
 
-  scope("intermine.query.actions", function(exporting) {
+  (function() {
     var ActionBar, Actions, BIO_FORMATS, CODE_GEN_LANGS, CodeGenerator, EXPORT_FORMATS, ExportDialogue, ILLEGAL_LIST_NAME_CHARS, Item, ListAppender, ListCreator, ListDialogue, ListManager, UniqItems, openWindowWithPost;
     Item = (function(_super) {
 
@@ -3173,7 +3200,7 @@
 
     })(Backbone.Collection);
     ILLEGAL_LIST_NAME_CHARS = /[^\w\s\(\):+\.-]/g;
-    exporting(Actions = (function(_super) {
+    Actions = (function(_super) {
 
       __extends(Actions, _super);
 
@@ -3208,8 +3235,8 @@
 
       return Actions;
 
-    })(Backbone.View));
-    exporting(ActionBar = (function(_super) {
+    })(Backbone.View);
+    ActionBar = (function(_super) {
 
       __extends(ActionBar, _super);
 
@@ -3225,7 +3252,7 @@
 
       return ActionBar;
 
-    })(Actions));
+    })(Actions);
     ListDialogue = (function(_super) {
 
       __extends(ListDialogue, _super);
@@ -4175,7 +4202,7 @@
       return ExportDialogue;
 
     })(Backbone.View);
-    exporting(ListAppender = (function(_super) {
+    ListAppender = (function(_super) {
 
       __extends(ListAppender, _super);
 
@@ -4316,7 +4343,7 @@
 
       return ListAppender;
 
-    })(ListDialogue));
+    })(ListDialogue);
     openWindowWithPost = function(uri, name, params) {
       var form, input, k, v, w;
       form = $("<form method=\"POST\" action=\"" + uri + "\" target=\"" + name + (new Date().getTime()) + "\">");
@@ -4481,7 +4508,7 @@
       return CodeGenerator;
 
     })(Backbone.View);
-    exporting(ListCreator = (function(_super) {
+    ListCreator = (function(_super) {
 
       __extends(ListCreator, _super);
 
@@ -4793,8 +4820,8 @@
 
       return ListCreator;
 
-    })(ListDialogue));
-    return ListManager = (function(_super) {
+    })(ListDialogue);
+    ListManager = (function(_super) {
 
       __extends(ListManager, _super);
 
@@ -4938,7 +4965,13 @@
       return ListManager;
 
     })(Backbone.View);
-  });
+    return scope("intermine.query.actions", {
+      Actions: Actions,
+      ActionBar: ActionBar,
+      ListCreator: ListCreator,
+      ListAppender: ListAppender
+    });
+  })();
 
   scope("intermine.results.formatters", {
     Manager: function(model, query, $cell) {
@@ -4983,11 +5016,11 @@
     }
   });
 
-  scope("intermine.results.table", function(exporting) {
+  (function() {
     var CELL_HTML, Cell, HIDDEN_FIELDS, NullCell, SubTable;
     CELL_HTML = _.template("<input class=\"list-chooser\" type=\"checkbox\" style=\"display: none\" data-obj-id=\"<%= id %>\" \n    <% if (selected) { %>checked <% }; %>\n    data-obj-type=\"<%= _type %>\">\n<% if (value == null) { %>\n    <span class=\"null-value\">no value</span>\n<% } else { %>\n    <% if (url != null && url.match(/^http/)) { %>\n      <a class=\"im-cell-link\" href=\"<%= url %>\">\n        <% if (!url.match(window.location.origin)) { %>\n            <i class=\"icon-globe\"></i>\n        <% } %>\n    <% } else { %>\n      <a class=\"im-cell-link\" href=\"<%= base %><%= url %>\">\n    <% } %>\n        <%- value %>\n    </a>\n<% } %>\n<% if (field == 'url') { %>\n    <a class=\"im-cell-link external\" href=\"<%= value %>\"><i class=\"icon-globe\"></i>link</a>\n<% } %>");
     HIDDEN_FIELDS = ["class", "objectId"];
-    exporting(SubTable = (function(_super) {
+    SubTable = (function(_super) {
 
       __extends(SubTable, _super);
 
@@ -5133,8 +5166,8 @@
 
       return SubTable;
 
-    })(Backbone.View));
-    exporting(Cell = (function(_super) {
+    })(Backbone.View);
+    Cell = (function(_super) {
 
       __extends(Cell, _super);
 
@@ -5311,8 +5344,8 @@
 
       return Cell;
 
-    })(Backbone.View));
-    return exporting(NullCell = (function(_super) {
+    })(Backbone.View);
+    NullCell = (function(_super) {
 
       __extends(NullCell, _super);
 
@@ -5337,150 +5370,150 @@
 
       return NullCell;
 
-    })(Cell));
-  });
+    })(Cell);
+    return scope("intermine.results.table", {
+      NullCell: NullCell,
+      SubTable: SubTable,
+      Cell: Cell
+    });
+  })();
 
-  scope("intermine", function(exporting) {
-    var utils;
-    return exporting(utils = (function() {
-
-      function utils() {}
-
-      utils.pluralise = function(word, count) {
-        if (count === 1) {
-          return word;
-        } else if (word.match(/(s|x|ch)$/)) {
-          return word + "es";
-        } else if (word.match(/[^aeiou]y$/)) {
-          return word.replace(/y$/, "ies");
-        } else {
-          return word + "s";
+  (function() {
+    var getOrganisms, getParameter, modelIsBio, numToString, pluralise, requiresAuthentication;
+    pluralise = function(word, count) {
+      if (count === 1) {
+        return word;
+      } else if (word.match(/(s|x|ch)$/)) {
+        return word + "es";
+      } else if (word.match(/[^aeiou]y$/)) {
+        return word.replace(/y$/, "ies");
+      } else {
+        return word + "s";
+      }
+    };
+    numToString = function(num, sep, every) {
+      var chars, groups, i, len, rets;
+      rets = [];
+      i = 0;
+      chars = (num + "").split("");
+      len = chars.length;
+      groups = _(chars).groupBy(function(c, i) {
+        return Math.floor((len - (i + 1)) / every).toFixed();
+      });
+      while (groups[i]) {
+        rets.unshift(groups[i].join(""));
+        i++;
+      }
+      return rets.join(sep);
+    };
+    getParameter = function(params, name) {
+      return _(params).chain().select(function(p) {
+        return p.name === name;
+      }).pluck('value').first().value();
+    };
+    modelIsBio = function(model) {
+      return !!(model != null ? model.classes['Gene'] : void 0);
+    };
+    requiresAuthentication = function(q) {
+      return _.any(q.constraints, function(c) {
+        var _ref;
+        return (_ref = c.op) === 'NOT IN' || _ref === 'IN';
+      });
+    };
+    getOrganisms = function(query, cb) {
+      var c, n, newView, nodes, onodes, onodes2, orgs, promise, restrictedOrganisms, toRun, v;
+      restrictedOrganisms = (function() {
+        var _i, _len, _ref, _results;
+        _ref = query.constraints;
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          c = _ref[_i];
+          if (c.path.match(/(o|O)rganism/)) {
+            _results.push(c.value);
+          }
         }
-      };
-
-      utils.numToString = function(num, sep, every) {
-        var chars, groups, i, len, rets;
-        rets = [];
-        i = 0;
-        chars = (num + "").split("");
-        len = chars.length;
-        groups = _(chars).groupBy(function(c, i) {
-          return Math.floor((len - (i + 1)) / every).toFixed();
-        });
-        while (groups[i]) {
-          rets.unshift(groups[i].join(""));
-          i++;
-        }
-        return rets.join(sep);
-      };
-
-      utils.getParameter = function(params, name) {
-        return _(params).chain().select(function(p) {
-          return p.name === name;
-        }).pluck('value').first().value();
-      };
-
-      utils.modelIsBio = function(model) {
-        return !!(model != null ? model.classes['Gene'] : void 0);
-      };
-
-      utils.requiresAuthentication = function(q) {
-        return _.any(q.constraints, function(c) {
-          var _ref;
-          return (_ref = c.op) === 'NOT IN' || _ref === 'IN';
-        });
-      };
-
-      utils.getOrganisms = function(query, cb) {
-        var c, n, newView, nodes, onodes, onodes2, orgs, promise, restrictedOrganisms, toRun, v;
-        restrictedOrganisms = (function() {
+        return _results;
+      })();
+      if (restrictedOrganisms.length) {
+        return cb(restrictedOrganisms);
+      } else {
+        toRun = query.clone();
+        orgs = [];
+        nodes = (function() {
           var _i, _len, _ref, _results;
-          _ref = query.constraints;
+          _ref = toRun.views;
           _results = [];
           for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            c = _ref[_i];
-            if (c.path.match(/(o|O)rganism/)) {
-              _results.push(c.value);
+            v = _ref[_i];
+            _results.push(toRun.getPathInfo(v).getParent());
+          }
+          return _results;
+        })();
+        onodes = (function() {
+          var _i, _len, _results;
+          _results = [];
+          for (_i = 0, _len = nodes.length; _i < _len; _i++) {
+            n = nodes[_i];
+            if (n.toPathString() === "Organism" || (n.getType().fields["organism"] != null)) {
+              _results.push(n);
             }
           }
           return _results;
         })();
-        if (restrictedOrganisms.length) {
-          return cb(restrictedOrganisms);
-        } else {
-          toRun = query.clone();
-          orgs = [];
-          nodes = (function() {
-            var _i, _len, _ref, _results;
-            _ref = toRun.views;
-            _results = [];
-            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-              v = _ref[_i];
-              _results.push(toRun.getPathInfo(v).getParent());
-            }
-            return _results;
-          })();
-          onodes = (function() {
-            var _i, _len, _results;
-            _results = [];
-            for (_i = 0, _len = nodes.length; _i < _len; _i++) {
-              n = nodes[_i];
-              if (n.toPathString() === "Organism" || (n.getType().fields["organism"] != null)) {
-                _results.push(n);
-              }
-            }
-            return _results;
-          })();
-          onodes2 = ((function() {
-            var _i, _len, _results;
-            if (n.toPathString() === "Organism") {
-              return n;
-            } else {
-              _results = [];
-              for (_i = 0, _len = onodes.length; _i < _len; _i++) {
-                n = onodes[_i];
-                _results.push(n.append("organism"));
-              }
-              return _results;
-            }
-          })());
-          newView = (function() {
-            var _i, _len, _results;
-            _results = [];
-            for (_i = 0, _len = onodes2.length; _i < _len; _i++) {
-              n = onodes2[_i];
-              _results.push("" + (n.toPathString()) + ".shortName");
-            }
-            return _results;
-          })();
-          toRun.views = _.uniq(newView);
-          if (toRun.views.length) {
-            toRun.sortOrder = [];
-            promise = toRun.rows(function(rows) {
-              var row, _i, _len;
-              for (_i = 0, _len = rows.length; _i < _len; _i++) {
-                row = rows[_i];
-                orgs = orgs.concat(row);
-              }
-              return cb(_.uniq(orgs));
-            });
-            return promise.fail(function() {
-              return cb(orgs);
-            });
+        onodes2 = ((function() {
+          var _i, _len, _results;
+          if (n.toPathString() === "Organism") {
+            return n;
           } else {
-            return cb(orgs);
+            _results = [];
+            for (_i = 0, _len = onodes.length; _i < _len; _i++) {
+              n = onodes[_i];
+              _results.push(n.append("organism"));
+            }
+            return _results;
           }
+        })());
+        newView = (function() {
+          var _i, _len, _results;
+          _results = [];
+          for (_i = 0, _len = onodes2.length; _i < _len; _i++) {
+            n = onodes2[_i];
+            _results.push("" + (n.toPathString()) + ".shortName");
+          }
+          return _results;
+        })();
+        toRun.views = _.uniq(newView);
+        if (toRun.views.length) {
+          toRun.sortOrder = [];
+          promise = toRun.rows(function(rows) {
+            var row, _i, _len;
+            for (_i = 0, _len = rows.length; _i < _len; _i++) {
+              row = rows[_i];
+              orgs = orgs.concat(row);
+            }
+            return cb(_.uniq(orgs));
+          });
+          return promise.fail(function() {
+            return cb(orgs);
+          });
+        } else {
+          return cb(orgs);
         }
-      };
+      }
+    };
+    return scope("intermine.utils", {
+      getOrganisms: getOrganisms,
+      requiresAuthentication: requiresAuthentication,
+      modelIsBio: modelIsBio,
+      getParameter: getParameter,
+      numToString: numToString,
+      pluralise: pluralise
+    });
+  })();
 
-      return utils;
-
-    })());
-  });
-
-  scope("intermine.model", function(exporting) {
+  (function() {
     var FPObject, IMObject, NullObject;
-    exporting(IMObject = (function(_super) {
+    IMObject = (function(_super) {
 
       __extends(IMObject, _super);
 
@@ -5522,8 +5555,8 @@
 
       return IMObject;
 
-    })(Backbone.Model));
-    exporting(NullObject = (function(_super) {
+    })(Backbone.Model);
+    NullObject = (function(_super) {
 
       __extends(NullObject, _super);
 
@@ -5544,8 +5577,8 @@
 
       return NullObject;
 
-    })(IMObject));
-    return exporting(FPObject = (function(_super) {
+    })(IMObject);
+    FPObject = (function(_super) {
 
       __extends(FPObject, _super);
 
@@ -5564,12 +5597,17 @@
 
       return FPObject;
 
-    })(NullObject));
-  });
+    })(NullObject);
+    return scope("intermine.model", {
+      IMObject: IMObject,
+      NullObject: NullObject,
+      FPObject: FPObject
+    });
+  })();
 
-  scope("intermine.query.results", function(exporting) {
+  (function() {
     var CompactView, DashBoard;
-    exporting(DashBoard = (function(_super) {
+    DashBoard = (function(_super) {
 
       __extends(DashBoard, _super);
 
@@ -5662,8 +5700,8 @@
 
       return DashBoard;
 
-    })(Backbone.View));
-    return exporting(CompactView = (function(_super) {
+    })(Backbone.View);
+    CompactView = (function(_super) {
 
       __extends(CompactView, _super);
 
@@ -5682,8 +5720,12 @@
 
       return CompactView;
 
-    })(DashBoard));
-  });
+    })(DashBoard);
+    return scope("intermine.query.results", {
+      DashBoard: DashBoard,
+      CompactView: CompactView
+    });
+  })();
 
   scope('intermine.messages.results', {
     ReorderHelp: 'Drag the columns to reorder them'
@@ -5694,7 +5736,7 @@
     SortTitle: 'Define Sort-Order'
   });
 
-  scope("intermine.query.results.table", function(exporting) {
+  (function() {
     var ColumnAdder, ColumnsDialogue, NewViewNodes, OuterJoinGroup, ViewNode;
     OuterJoinGroup = (function(_super) {
 
@@ -5917,7 +5959,7 @@
       return NewViewNodes;
 
     })(Backbone.Collection);
-    return exporting(ColumnsDialogue = (function(_super) {
+    ColumnsDialogue = (function(_super) {
 
       __extends(ColumnsDialogue, _super);
 
@@ -6276,14 +6318,17 @@
 
       return ColumnsDialogue;
 
-    })(Backbone.View));
-  });
+    })(Backbone.View);
+    return scope("intermine.query.results.table", {
+      ColumnsDialogue: ColumnsDialogue
+    });
+  })();
 
   scope('intermine.snippets.facets', {
     OnlyOne: _.template("<div class=\"alert alert-info im-all-same\">\n    All <%= count %> values are the same: <strong><%= item %></strong>\n</div>")
   });
 
-  scope("intermine.results", function(exporting) {
+  (function() {
     var BooleanFacet, ColumnSummary, FACET_TEMPLATE, FACET_TITLE, FacetRow, FacetView, FrequencyFacet, HistoFacet, MORE_FACETS_HTML, NormalCurve, NumericFacet, PieFacet;
     NormalCurve = function(mean, stdev) {
       return function(x) {
@@ -6295,7 +6340,7 @@
     MORE_FACETS_HTML = "<i class=\"icon-plus-sign pull-right\" title=\"Showing top ten. Click to see all values\"></i>";
     FACET_TITLE = _.template("<dt><i class=\"icon-chevron-right\"></i><%= title %></dt>");
     FACET_TEMPLATE = _.template("<dd>\n    <a href=#>\n        <b class=\"im-facet-count pull-right\">\n            (<%= count %>)\n        </b>\n        <%= item %>\n    </a>\n</dd>");
-    exporting(ColumnSummary = (function(_super) {
+    ColumnSummary = (function(_super) {
 
       __extends(ColumnSummary, _super);
 
@@ -6338,8 +6383,8 @@
 
       return ColumnSummary;
 
-    })(Backbone.View));
-    exporting(FacetView = (function(_super) {
+    })(Backbone.View);
+    FacetView = (function(_super) {
 
       __extends(FacetView, _super);
 
@@ -6373,8 +6418,8 @@
 
       return FacetView;
 
-    })(Backbone.View));
-    exporting(FrequencyFacet = (function(_super) {
+    })(Backbone.View);
+    FrequencyFacet = (function(_super) {
 
       __extends(FrequencyFacet, _super);
 
@@ -6466,8 +6511,8 @@
 
       return FrequencyFacet;
 
-    })(FacetView));
-    exporting(NumericFacet = (function(_super) {
+    })(FacetView);
+    NumericFacet = (function(_super) {
 
       __extends(NumericFacet, _super);
 
@@ -6918,8 +6963,8 @@
 
       return NumericFacet;
 
-    })(FacetView));
-    exporting(PieFacet = (function(_super) {
+    })(FacetView);
+    PieFacet = (function(_super) {
 
       __extends(PieFacet, _super);
 
@@ -7146,8 +7191,8 @@
 
       return PieFacet;
 
-    })(Backbone.View));
-    exporting(FacetRow = (function(_super) {
+    })(Backbone.View);
+    FacetRow = (function(_super) {
 
       __extends(FacetRow, _super);
 
@@ -7244,8 +7289,8 @@
 
       return FacetRow;
 
-    })(Backbone.View));
-    exporting(HistoFacet = (function(_super) {
+    })(Backbone.View);
+    HistoFacet = (function(_super) {
 
       __extends(HistoFacet, _super);
 
@@ -7335,8 +7380,8 @@
 
       return HistoFacet;
 
-    })(PieFacet));
-    return exporting(BooleanFacet = (function(_super) {
+    })(PieFacet);
+    BooleanFacet = (function(_super) {
 
       __extends(BooleanFacet, _super);
 
@@ -7471,12 +7516,22 @@
 
       return BooleanFacet;
 
-    })(NumericFacet));
-  });
+    })(NumericFacet);
+    return scope("intermine.results", {
+      ColumnSummary: ColumnSummary,
+      FacetView: FacetView,
+      FrequencyFacet: FrequencyFacet,
+      NumericFacet: NumericFacet,
+      PieFacet: PieFacet,
+      FacetRow: FacetRow,
+      HistoFacet: HistoFacet,
+      BooleanFacet: BooleanFacet
+    });
+  })();
 
-  scope('intermine.query.tools', function(exporting) {
+  (function() {
     var ManagementTools;
-    return exporting(ManagementTools = (function(_super) {
+    ManagementTools = (function(_super) {
 
       __extends(ManagementTools, _super);
 
@@ -7526,8 +7581,11 @@
 
       return ManagementTools;
 
-    })(Backbone.View));
-  });
+    })(Backbone.View);
+    return scope('intermine.query.tools', {
+      ManagementTools: ManagementTools
+    });
+  })();
 
   scope("intermine.conbuilder.messages", {
     ValuePlaceholder: 'David*',
@@ -7537,10 +7595,10 @@
     CantEditConstraint: 'No value selected. Please enter a value.'
   });
 
-  scope("intermine.query", function(exporting) {
+  (function() {
     var ActiveConstraint, NewConstraint, PATH_SEGMENT_DIVIDER;
     PATH_SEGMENT_DIVIDER = "&rarr;";
-    exporting(ActiveConstraint = (function(_super) {
+    ActiveConstraint = (function(_super) {
 
       __extends(ActiveConstraint, _super);
 
@@ -8006,8 +8064,8 @@
 
       return ActiveConstraint;
 
-    })(Backbone.View));
-    return exporting(NewConstraint = (function(_super) {
+    })(Backbone.View);
+    NewConstraint = (function(_super) {
 
       __extends(NewConstraint, _super);
 
@@ -8047,7 +8105,11 @@
 
       return NewConstraint;
 
-    })(ActiveConstraint));
-  });
+    })(ActiveConstraint);
+    return scope("intermine.query", {
+      ActiveConstraint: ActiveConstraint,
+      NewConstraint: NewConstraint
+    });
+  })();
 
 }).call(this);

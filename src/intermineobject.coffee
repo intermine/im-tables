@@ -1,6 +1,6 @@
-scope "intermine.model", (exporting) ->
+do ->
     
-    exporting class IMObject extends Backbone.Model
+    class IMObject extends Backbone.Model
 
         initialize: (query, obj, field, base) ->
             obj._type = obj.class
@@ -20,7 +20,7 @@ scope "intermine.model", (exporting) ->
 
         merge: (obj, field) -> @set field, obj.value
 
-    exporting class NullObject extends IMObject
+    class NullObject extends IMObject
         
         initialize: (query, field, type) ->
             @attributes = {}
@@ -32,7 +32,7 @@ scope "intermine.model", (exporting) ->
 
         merge: () ->
         
-    exporting class FPObject extends NullObject
+    class FPObject extends NullObject
         initialize: (query, obj, field) ->
             obj._type = obj.class
             obj[field] = obj.value
@@ -41,5 +41,5 @@ scope "intermine.model", (exporting) ->
             obj.base = ''
             @attributes = obj
 
-
+    scope "intermine.model", {IMObject, NullObject, FPObject}
 

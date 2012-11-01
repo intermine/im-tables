@@ -1,6 +1,5 @@
-scope 'intermine.query.tools', (exporting) ->
-
-    exporting class ManagementTools extends Backbone.View
+do ->
+    class ManagementTools extends Backbone.View
 
         initialize: (@query) ->
             @query.on "change:constraints", @checkHasFilters, @
@@ -43,3 +42,5 @@ scope 'intermine.query.tools', (exporting) ->
             @$el.append @html
             @checkHasFilters()
             this
+
+    scope 'intermine.query.tools', {ManagementTools}

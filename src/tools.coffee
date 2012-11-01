@@ -1,4 +1,4 @@
-scope "intermine.query.tools", (exporting) ->
+do ->
 
     ## Define stuff...
 
@@ -14,7 +14,7 @@ scope "intermine.query.tools", (exporting) ->
         <div class="tab-pane" id="<%= ref %>"></div>
     """
 
-    exporting class Tools extends Backbone.View
+    class Tools extends Backbone.View
         className: "im-query-tools"
 
         initialize: (@query) ->
@@ -56,7 +56,7 @@ scope "intermine.query.tools", (exporting) ->
 
             this
 
-    exporting class ToolBar extends Backbone.View
+    class ToolBar extends Backbone.View
 
         className: "im-query-actionbar row-fluid"
 
@@ -168,7 +168,7 @@ scope "intermine.query.tools", (exporting) ->
 
             this
 
-    exporting class Trail extends Backbone.View
+    class Trail extends Backbone.View
         
         className: "im-query-trail"
         tagName: "div"
@@ -236,3 +236,4 @@ scope "intermine.query.tools", (exporting) ->
             @addStep('Original State')()
             this
 
+    scope "intermine.query.tools", {Tools, ToolBar, Trail}

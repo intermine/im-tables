@@ -1,6 +1,5 @@
-scope "intermine.query.results", (exporting) ->
-
-    exporting class OuterJoinDropDown extends Backbone.View
+do ->
+    class OuterJoinDropDown extends Backbone.View
         className: "im-summary-selector"
         tagName: 'ul'
 
@@ -36,7 +35,7 @@ scope "intermine.query.results", (exporting) ->
             @$el.parent().html(summ.render().el)
             @remove()
 
-    exporting class DropDownColumnSummary extends Backbone.View
+    class DropDownColumnSummary extends Backbone.View
         className: "im-dropdown-summary"
 
         initialize: (@view, @query) ->
@@ -85,6 +84,5 @@ scope "intermine.query.results", (exporting) ->
                 @$('.im-attr-name').text intermine.utils.pluralise(info.name)
 
             this
-
-
         
+    scope "intermine.query.results", {OuterJoinDropDown, DropDownColumnSummary}

@@ -1,6 +1,6 @@
-scope "intermine.query.results", (exporting) ->
+do ->
 
-    exporting class DashBoard extends Backbone.View
+    class DashBoard extends Backbone.View
         tagName: "div"
         className: "query-display row-fluid"
 
@@ -55,7 +55,7 @@ scope "intermine.query.results", (exporting) ->
             trail = new intermine.query.tools.Trail(q, @)
             trail.render().$el.prependTo @el
 
-    exporting class CompactView extends DashBoard
+    class CompactView extends DashBoard
 
         className: "im-query-display compact"
 
@@ -65,5 +65,4 @@ scope "intermine.query.results", (exporting) ->
             @toolbar = new intermine.query.tools.ToolBar(q)
             @toolbar.render().$el.insertBefore @main
 
-
-
+    scope "intermine.query.results", {DashBoard, CompactView}

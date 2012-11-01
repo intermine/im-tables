@@ -74,7 +74,7 @@ scope "intermine.messages.actions", {
         """
 }
 
-scope "intermine.query.actions", (exporting) ->
+do ->
 
    # Model for representing something with one major field
     class Item extends Backbone.Model
@@ -98,7 +98,8 @@ scope "intermine.query.actions", (exporting) ->
 
     ILLEGAL_LIST_NAME_CHARS = /[^\w\s\(\):+\.-]/g
 
-    exporting class Actions extends Backbone.View
+
+    class Actions extends Backbone.View
 
         className: "im-query-actions row-fluid"
         tagName: "ul"
@@ -114,7 +115,7 @@ scope "intermine.query.actions", (exporting) ->
 
             this
 
-    exporting class ActionBar extends Actions
+    class ActionBar extends Actions
         extraClass: "im-action"
         actionClasses: ->
             [ListManager, CodeGenerator, ExportDialogue] #Exporters]
@@ -763,7 +764,7 @@ scope "intermine.query.actions", (exporting) ->
                     slide: (e, ui)  => @requestInfo.set start: ui.values[0], end: ui.values[1] + 1
 
 
-    exporting class ListAppender extends ListDialogue
+    class ListAppender extends ListDialogue
 
         html: """
             <div class="modal fade">
@@ -1011,7 +1012,7 @@ scope "intermine.query.actions", (exporting) ->
             $m = @$ '.modal'
             $m.find('linenums li').slideDown()
 
-    exporting class ListCreator extends ListDialogue
+    class ListCreator extends ListDialogue
 
         html: """
             <div class="modal fade im-list-creation-dialogue">
@@ -1404,3 +1405,5 @@ scope "intermine.query.actions", (exporting) ->
             @$el.append @html
             @updateTypeOptions()
             this
+
+    scope "intermine.query.actions", {Actions, ActionBar, ListCreator, ListAppender}

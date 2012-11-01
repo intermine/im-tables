@@ -27,7 +27,7 @@ scope "intermine.results", {
         return formatter
 }
 
-scope "intermine.results.table", (exporting) ->
+do ->
 
     # </div>
     CELL_HTML = _.template """
@@ -55,7 +55,7 @@ scope "intermine.results.table", (exporting) ->
 
     HIDDEN_FIELDS = ["class", "objectId"]
 
-    exporting class SubTable extends Backbone.View
+    class SubTable extends Backbone.View
         tagName: "td"
         className: "im-result-subtable"
         
@@ -145,7 +145,7 @@ scope "intermine.results.table", (exporting) ->
             @$('.im-cell-link').css "max-width": ((w * @view.length) - 5) + "px"
             this
 
-    exporting class Cell extends Backbone.View
+    class Cell extends Backbone.View
         tagName: "td"
         className: "im-result-field"
 
@@ -251,7 +251,7 @@ scope "intermine.results.table", (exporting) ->
             if @model.get "selectable"
                 @model.set selected: !@model.get("selected") if @$('input').is ':visible'
 
-    exporting class NullCell extends Cell
+    class NullCell extends Cell
         setupPreviewOverlay: ->
 
         initialize: ->
@@ -265,5 +265,5 @@ scope "intermine.results.table", (exporting) ->
                 _type: null
             super()
 
-
+    scope "intermine.results.table", {NullCell, SubTable, Cell}
 

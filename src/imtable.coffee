@@ -28,7 +28,7 @@ scope 'intermine.messages.query', {
         """
 }
 
-scope "intermine.query.results", (exporting) ->
+do ->
 
     NUMERIC_TYPES = ["int", "Integer", "double", "Double", "float", "Float"]
 
@@ -400,7 +400,7 @@ scope "intermine.query.results", (exporting) ->
                 @query.trigger "page-size:selected", parseInt(select.val())
             this
 
-    exporting class Table extends Backbone.View
+    class Table extends Backbone.View
 
         className: "im-table-container"
 
@@ -1064,4 +1064,6 @@ scope "intermine.query.results", (exporting) ->
                      .append(@make("strong", {}, "Ooops...! "))
                      .append(explanation)
                      .appendTo(telem)
+
+    scope "intermine.query.results", {Table}
 

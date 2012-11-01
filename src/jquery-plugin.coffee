@@ -15,17 +15,18 @@ jQuery.fn.imWidget = (arg0, arg1) ->
         else
             throw new Error("Unknown method #{arg0}")
     else
-        {type, service, url, token, query, events, properties} = arg0
+        {type, service, url, token, query, events, properties, error} = arg0
         service ?= new intermine.Service root: url, token: token
+        service.errorHandler = error if error?
         if type is 'table'
             cls = intermine.query.results.CompactView
             view = new cls service, query, events, properties
-            @empty().append view.$el
+            @empty().append view.el
             view.render()
         else if type is 'dashboard'
             cls = intermine.query.results.DashBoard
             view = new cls service, query, events, properties
-            @empty().append view.$el
+            @empty().append view.el
             view.render()
         else
             console.error "#{ type } widgets are not supported"
@@ -33,6 +34,7 @@ jQuery.fn.imWidget = (arg0, arg1) ->
         @data 'widget-options', properties
         @data 'widget-type', type
         @data 'widget', view
+        @data 'widget'
 
 
 

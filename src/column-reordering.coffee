@@ -7,7 +7,7 @@ scope 'intermine.messages.columns', {
     SortTitle: 'Define Sort-Order'
 }
 
-scope "intermine.query.results.table", (exporting) ->
+do ->
 
     class OuterJoinGroup extends Backbone.View
         tagName: 'li'
@@ -130,7 +130,7 @@ scope "intermine.query.results.table", (exporting) ->
     class NewViewNodes extends Backbone.Collection
         model: ViewNode
 
-    exporting class ColumnsDialogue extends Backbone.View
+    class ColumnsDialogue extends Backbone.View
         tagName: "div"
         className: "im-column-dialogue modal fade"
         
@@ -398,4 +398,6 @@ scope "intermine.query.results.table", (exporting) ->
             newSO = lis.map( (i, e) -> {path: $(e).data('path'), direction: $(e).data("direction")}).get()
             @hideModal()
             @query.orderBy(newSO)
+
+    scope "intermine.query.results.table", {ColumnsDialogue}
 
