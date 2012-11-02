@@ -867,7 +867,7 @@ do ->
                 query: @query.toXML()
                 token: @query.service.token
             @$el.appendTo @$parent
-            @query.service.makeRequest(path, setupParams, @onSetupSuccess(tel), "POST").fail @onSetupError(tel)
+            @query.service.makeRequest(path, setupParams, null, "POST").then @onSetupSuccess(tel), @onSetupError(tel)
             this
 
         removeColumn: (e) =>
@@ -1053,12 +1053,20 @@ do ->
             console.log "SETUP FAILURE", arguments
             notice = @make "div", {class: "alert alert-error"}
             explanation = """
-                Could not load the data-table. The server may be down, or 
-                incorrectly configured, or we could be pointed at an invalid URL.
+                Could not load the data-table.
+                    The server may be down, or 
+                    incorrectly configured, or 
+                    we could be pointed at an invalid URL.
             """
 
             if xhr?.responseText
-                explanation = JSON?.parse(xhr.responseText).error or explanation
+                try
+                    parsed = JSON?.parse(xhr.responseText).error or explanation
+                    explanation = parsed
+                catch e
+                    explanation += "\n What we do know is that the server did not return a valid JSON response."
+                    (console.error || console.log)?(xhr.responseText)
+
                 parts = _(part for part in explanation.split("\n") when part?).groupBy (p, i) -> i > 0
                 explanation = [
                     @make("span", {}, parts[false] + ""),
