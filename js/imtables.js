@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Fri Nov 02 2012 13:51:12 GMT+0000 (GMT)
+ * Built at Fri Nov 02 2012 14:31:19 GMT+0000 (GMT)
 */
 
 
@@ -1942,7 +1942,7 @@
             token: _this.query.service.token
           };
           _this.$el.appendTo(_this.$parent);
-          _this.query.service.makeRequest(path, setupParams, _this.onSetupSuccess(tel), "POST").fail(_this.onSetupError(tel));
+          _this.query.service.makeRequest(path, setupParams, null, "POST").then(_this.onSetupSuccess(tel), _this.onSetupError(tel));
           return _this;
         };
       };
@@ -2218,15 +2218,23 @@
       Table.prototype.onSetupError = function(telem) {
         var _this = this;
         return function(xhr) {
-          var explanation, issue, notice, part, parts;
+          var explanation, issue, notice, parsed, part, parts, _base;
           $(telem).empty();
           console.log("SETUP FAILURE", arguments);
           notice = _this.make("div", {
             "class": "alert alert-error"
           });
-          explanation = "Could not load the data-table. The server may be down, or \nincorrectly configured, or we could be pointed at an invalid URL.";
+          explanation = "Could not load the data-table.\n    The server may be down, or \n    incorrectly configured, or \n    we could be pointed at an invalid URL.";
           if (xhr != null ? xhr.responseText : void 0) {
-            explanation = (typeof JSON !== "undefined" && JSON !== null ? JSON.parse(xhr.responseText).error : void 0) || explanation;
+            try {
+              parsed = (typeof JSON !== "undefined" && JSON !== null ? JSON.parse(xhr.responseText).error : void 0) || explanation;
+              explanation = parsed;
+            } catch (e) {
+              explanation += "\n What we do know is that the server did not return a valid JSON response.";
+              if (typeof (_base = console.error || console.log) === "function") {
+                _base(xhr.responseText);
+              }
+            }
             parts = _((function() {
               var _i, _len, _ref, _results;
               _ref = explanation.split("\n");
