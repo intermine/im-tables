@@ -7,7 +7,7 @@
  * Copyright 2012, Alex Kalderimis
  * Released under the LGPL license.
  * 
- * Built at Thu Nov 01 2012 18:59:50 GMT+0000 (GMT)
+ * Built at Fri Nov 02 2012 13:51:12 GMT+0000 (GMT)
 */
 
 
@@ -1375,10 +1375,16 @@
           });
           promise = new $.Deferred();
           titles = {};
-          _.each(views, function(v) {
-            var path, _ref;
+          _.each(views, function(v, idx) {
+            var path, subView, _ref, _ref1;
             path = q.getPathInfo(v);
-            if ((((_ref = path.end) != null ? _ref.name : void 0) === 'id') && (intermine.results.getFormatter(q.model, path.getParent().getType()) != null)) {
+            if ((path.isRoot() || path.isReference()) && ((_ref = result.results[0][idx]) != null ? _ref.view : void 0)) {
+              subView = result.results[0][idx].view[0];
+              if (q.isOuterJoined(subView)) {
+                path = q.getPathInfo(q.getOuterJoin(subView));
+              }
+            }
+            if ((((_ref1 = path.end) != null ? _ref1.name : void 0) === 'id') && (intermine.results.getFormatter(q.model, path.getParent().getType()) != null)) {
               path = path.getParent();
             }
             return path.getDisplayName(function(name) {
@@ -5052,11 +5058,13 @@
       };
 
       SubTable.prototype.getSummaryText = function() {
+        var level;
         if (this.column.isCollection()) {
           return "" + this.rows.length + " " + (this.column.getType().name) + "s";
         } else {
           if (this.rows.length === 0) {
-            return "No " + (this.column.getType().name);
+            level = this.query.isOuterJoined(this.view[0]) ? this.query.getPathInfo(this.query.getOuterJoin(this.view[0])) : this.column;
+            return "No " + (level.getType().name);
           } else {
             return "" + this.rows[0][0].value + " (" + (this.rows[0].slice(1).map(function(c) {
               return c.value;
