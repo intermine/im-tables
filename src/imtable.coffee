@@ -313,8 +313,13 @@ do ->
                 views = result.results[0].map (row) -> row.column
                 promise = new $.Deferred()
                 titles = {}
-                _.each views, (v) ->
+                _.each views, (v, idx) ->
                     path = q.getPathInfo(v)
+                    if (path.isRoot() or path.isReference()) and result.results[0][idx]?.view
+                        subView = result.results[0][idx].view[0]
+                        if q.isOuterJoined(subView)
+                            path = q.getPathInfo(q.getOuterJoin(subView))
+
                     if (path.end?.name is 'id') and intermine.results.getFormatter(q.model, path.getParent().getType())?
                         path = path.getParent()
                     path.getDisplayName (name) ->

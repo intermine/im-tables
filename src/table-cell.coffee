@@ -58,7 +58,7 @@ do ->
     class SubTable extends Backbone.View
         tagName: "td"
         className: "im-result-subtable"
-        
+
         initialize: (@query, @cellify, subtable) ->
             @rows = subtable.rows
             @view = subtable.view
@@ -76,7 +76,12 @@ do ->
             else
                 # Single collapsed reference.
                 if @rows.length is 0
-                    """No #{ @column.getType().name }"""
+                    # find the outer join:
+                    level = if @query.isOuterJoined(@view[0])
+                        @query.getPathInfo(@query.getOuterJoin(@view[0]))
+                    else
+                        @column
+                    """No #{ level.getType().name }"""
                 else
                     """#{@rows[0][0].value} (#{@rows[0][1 ..].map((c) -> c.value).join(', ')})"""
 
