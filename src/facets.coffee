@@ -5,6 +5,22 @@ scope 'intermine.snippets.facets', {
             </div>
         """
 }
+
+# Hack to fix tooltip positioning for SVG.
+# This should continue to work with future versions,
+# as it basically just makes the positioning alogrithm
+# compatible with SVG. I know this is fixed in bootstrap 2.3.0+,
+# but there is no programmatic version of bootstrap available.
+oldPos = $.fn.tooltip.Constructor.prototype.getPosition
+$.fn.tooltip.Constructor.prototype.getPosition = ->
+  ret = oldPos.apply(@, arguments)
+  el = @$element[0]
+  if (not ret.width and not ret.height and 'http://www.w3.org/2000/svg' is el.namespaceURI)
+    {width, height} = (el.getBoundingClientRect?() ? el.getBBox())
+    return $.extend ret, {width, height}
+  else
+    return ret
+
 do ->
 
     ##----------------
@@ -16,6 +32,8 @@ do ->
         (x) ->
             a = x - mean
             Math.exp(-(a * a) / (2 * stdev * stdev)) / (Math.sqrt(2 * Math.PI) * stdev)
+
+    Int = (x) -> parseInt(x, 10)
 
     MORE_FACETS_HTML = """
         <i class="icon-plus-sign pull-right" title="Showing top ten. Click to see all values"></i>
@@ -49,12 +67,10 @@ do ->
 
         render: =>
             attrType = @query.getPathInfo(@facet.path).getType()
-            if attrType in intermine.Model.NUMERIC_TYPES
-                clazz = NumericFacet
-                #else if attrType in intermine.Model.BOOLEAN_TYPES
-                #clazz = BooleanFacet
+            clazz = if attrType in intermine.Model.NUMERIC_TYPES
+              NumericFacet
             else
-                clazz = FrequencyFacet
+              FrequencyFacet
             initialLimit = 400 # items
             fac = new clazz(@query, @facet, initialLimit, @noTitle)
             @$el.append fac.el
@@ -87,41 +103,44 @@ do ->
                 </div>
             """
             $progress.appendTo @el
-            promise = @query.filterSummary @facet.path, filterTerm, @limit, (items, total, filteredTotal) =>
-                @query.trigger "got:summary:total", @facet.path, total, items.length, filteredTotal
-                $progress.remove()
-                @$dt?.append " (#{total})"
-                hasMore = if items.length < @limit then false else (total > @limit)
-                if hasMore
-                    more = $(MORE_FACETS_HTML).appendTo(@$dt)
-                                        .tooltip( {placement: "left"} )
-                                        .click (e) =>
-                        e.stopPropagation()
-                        got = @$('dd').length
-                        show = @$('dd').first().is ':visible'
-                        @query.summarise @facet.path, (items) =>
-                            (@addItem item).toggle(show) for item in items[got..]
-                        more.tooltip('hide').remove()
+            getSummary = @query.filterSummary @facet.path, filterTerm, @limit
+            getSummary.fail @remove
+            getSummary.done (results, stats, count) =>
+              @query.trigger 'got:summary:total', @facet.path, stats.uniqueValues, results.length, count
+              $progress.remove()
+              @$dt?.append " (#{stats.uniqueValues})"
+              hasMore = if results.length < @limit then false else (stats.uniqueValues > @limit)
+              if hasMore
+                more = $(MORE_FACETS_HTML).appendTo(@$dt).tooltip( placement: 'left' ).click (e) =>
+                  e.stopPropagation()
+                  e.preventDefault()
+                  got = @$('dd').length()
+                  areVisible = @$('dd').first().is ':visible'
+                  @query.summarise @facet.path, (items) =>
+                    @addItem(item).toggle(areVisible) for item in items[got..]
+                    more.tooltip('hide').remove()
+              
+              summaryView = if stats.uniqueValues <= 1
+                @$el.empty()
+                if stats.uniqueValues then (intermine.snippets.facets.OnlyOne results[0]) else "No results"
+              else
+                Vizualization = @getVizualization(stats)
+                new Vizualization(@query, @facet, results, hasMore, filterTerm)
 
-                if total <= 12 and not @query.canHaveMultipleValues @facet.path
-                    pf = new PieFacet(@query, @facet, items, hasMore, filterTerm)
-                    @$el.append pf.el
-                    pf.render()
-                else
-                    hf = new HistoFacet(@query, @facet, items, hasMore, filterTerm)
-                    @$el.append hf.el
-                    hf.render()
+              # The facets need appending before rendering so that they calculate their
+              # dimensions correctly.
+              @$el.append if summaryView.el then summaryView.el else summaryView
+              summaryView.render?()
 
-                if total <= 1
-                    @$el.empty()
-                    if total is 1
-                        @$el.append intermine.snippets.facets.OnlyOne items[0]
-                    else
-                        @$el.append("No results")
-
-                @rendering = false
-            promise.fail @remove
-            this
+              @rendering = false
+        
+        getVizualization: (stats) ->
+          unless @query.canHaveMultipleValues @facet.path
+            if @query.getType(@facet.path) in intermine.Model.BOOLEAN_TYPES
+              return BooleanFacet
+            else if stats.uniqueValues <= intermine.options.MAX_PIE_SLICES
+              return PieFacet
+          return HistoFacet
 
         addItem: (item) =>
             $dd = $(FACET_TEMPLATE(item)).appendTo @el
@@ -133,26 +152,78 @@ do ->
                     value: item.item
             $dd
 
+    class NumericRange extends Backbone.Model
+
+      _defaults: {}
+
+      setLimits: (limits) ->
+        @_defaults = limits
+
+      get: (prop) ->
+        ret = null
+        if @has(prop)
+          ret = super(prop)
+        else if prop of @_defaults
+          ret = @_defaults[prop]
+        ret
+
+      set: (name, value) ->
+        if _.isString(name) and (name of @_defaults)
+          meth = if name is 'min' then 'max' else 'min'
+          super(name, Math[meth](@_defaults[name], value))
+        else
+          super(arguments...)
+
+      isNotAll: ->
+        {min, max} = @toJSON()
+        (min? and min isnt @_defaults.min) or (max? and max isnt @_defaults.max)
 
     class NumericFacet extends FacetView
 
         events:
             'click': (e) -> e.stopPropagation()
+            'keyup input.im-range-val': 'incRangeVal'
 
         className: "im-numeric-facet"
 
-        chartHeight: 50
+        chartHeight: 70
+        leftMargin: 25
+
+        xForVal: (val) =>
+            if val is @min
+                return @leftMargin
+            if val is @max
+                return @w
+            conversionRate = (@w - @leftMargin) / (@max - @min)
+            return @leftMargin + (conversionRate * (val - @min))
+
+        valForX: (x) =>
+            if x <= @leftMargin
+                return @min
+            if x >= @w
+                return @max
+            conversionRate = (@max - @min) / (@w - @leftMargin)
+            return @min + (conversionRate * (x - @leftMargin))
+
+        shouldDrawBox: -> @range.isNotAll()
 
         render: ->
             super()
-            @range = new Backbone.Model()
+            @range = new NumericRange()
+            @range.on 'change', =>
+                if @shouldDrawBox()
+                    x = @xForVal(@range.get('min'))
+                    width = @xForVal(@range.get('max')) - x
+                    @drawSelection(x, width)
+                else
+                    @selection?.remove()
+                    @selection = null
             @container = @make "div"
                 class: "facet-content im-facet"
             @$el.append(@container)
-            canvas = @make "div"
-            @canvas = $(canvas).mouseout () => @_selecting_paths_ = false
-            $(@container).append canvas
-            @paper = Raphael(canvas, @$el.width(), @chartHeight)
+            @canvas = @make "div"
+            $(@canvas).mouseout => @_selecting_paths_ = false
+            $(@container).append @canvas
             @throbber = $ """
                 <div class="progress progress-info progress-striped active">
                     <div class="bar" style="width:100%"></div>
@@ -166,6 +237,7 @@ do ->
         handleSummary: (items, total) =>
             @throbber.remove()
             summary = items[0]
+            @w = @$el.closest(':visible').width() * 0.95
             if summary.item?
                 if items.length > 1
                     # A numerical column configured to present as a string column.
@@ -179,12 +251,16 @@ do ->
                     return @$el.empty().append intermine.snippets.facets.OnlyOne(summary)
             @mean = parseFloat(summary.average)
             @dev = parseFloat(summary.stdev)
+            @range.setLimits(summary)
             @max = summary.max
             @min = summary.min
+            @step = step = if @query.getType(@facet.path) in ["int", "Integer"] then 1 else 0.1
+            @round = (x) -> if step is 1 then Math.round(x) else x
             if summary.count?
-                @drawChart(items)
+              @stepWidth = (@w - (@leftMargin + 1)) / items[0].buckets
+              @drawChart(items)
             else
-                @drawCurve()
+              @drawCurve()
             @drawStats()
             @drawSlider()
 
@@ -210,21 +286,31 @@ do ->
                 </table>
             """
 
+        incRangeVal: (e) ->
+          $input = $(e.target)
+          prop = $input.data 'var'
+          current = now = (@range.get(prop) ? @[prop])
+          switch e.keyCode
+            when 40 then now--
+            when 38 then now++
+
+          @range.set(prop, now) unless now is current
+
         drawSlider: =>
             $(@container).append """
+                <div class="btn-group pull-right">
+                  <button class="btn btn-primary disabled">Apply</button>
+                  <button class="btn btn-cancel disabled">Reset</button>
+                </div>
                 <label>Range:</label>
-                <input type="text" class="im-range-min input" value="#{@min}">
+                <input type="text" data-var="min" class="im-range-min input im-range-val" value="#{@min}">
                 <span>...</span>
-                <input type="text" class="im-range-max input" value="#{@max}">
-                <button class="btn btn-primary disabled">Apply</button>
-                <button class="btn btn-cancel disabled">Reset</button>
+                <input type="text" data-var="max" class="im-range-max input im-range-val" value="#{@max}">
                 <div class="slider"></div>
-                """
-            @step = step = if @query.getType(@facet.path) in ["int", "Integer"] then 1 else 0.1
-            @round = round = (x) -> if step is 1 then Math.round(x) else x
+              """
             for prop, idx of {min: 0, max: 1} then do (prop, idx) =>
                 @range.on "change:#{prop}", (m, val) =>
-                    val = round(val)
+                    val = @round(val)
                     @$("input.im-range-#{prop}").val "#{ val }"
                     if $slider.slider('values', idx) isnt val
                         $slider.slider('values', idx, val)
@@ -240,12 +326,12 @@ do ->
                 min: @min
                 max: @max
                 values: [@min, @max]
-                step: step
+                step: @step
                 slide: (e, ui) => @range.set min: ui.values[0], max: ui.values[1]
             @query.on 'range:selected', (from, upto) =>
                 from = Math.min(from, @range.get('min')) if @range.has('min')
                 upto = Math.max(upto, @range.get('max')) if @range.has('min')
-                @range.set min: round(from), max: round(upto)
+                @range.set min: @round(from), max: @round(upto)
             @$('.btn-cancel').click => @range.clear()
             @$('.btn-primary').click =>
                 @query.constraints = _(@query.constraints).filter (c) =>
@@ -263,116 +349,87 @@ do ->
                     }
                 ]
 
-        moveRubberBand: (x) ->
-            if @rubberBand.attr('x') is x and @rubberBand.attr('width') is 0
-                @rubberBand.dragDir = null
-            if @rubberBand? and (not @rubberBand.dragDir? or @rubberBand.dragDir is 'right')
-                newWidth = x - @rubberBand.attr('x')
-                if newWidth <= 0
-                    @rubberBand.dragDir = null
-                else
-                    if @rubberBand.attr('x') < x
-                        @rubberBand.dragDir = 'right'
-                        @rubberBand.attr width: newWidth
-                    if @rubberBand.attr('x') > x and @rubberBand.dragDir is 'right'
-                        @rubberBand.attr width: newWidth
-            if @rubberBand? and (not @rubberBand.dragDir? or @rubberBand.dragDir is 'left')
-                if @rubberBand.attr('x') > x
-                    @rubberBand.dragDir = 'left'
-                    oldWidth = @rubberBand.attr('width')
-                    oldX = @rubberBand.attr('x')
-                    newWidth = oldWidth + (oldX - x)
-                    @rubberBand.attr(x: x, width: newWidth) if newWidth > 0
-                if @rubberBand.attr('x') < x and @rubberBand.dragDir is 'left'
-                    oldWidth = @rubberBand.attr('width')
-                    oldX = @rubberBand.attr('x')
-                    newWidth = oldWidth - (x - oldX)
-                    @rubberBand.attr(x: x, width: newWidth) if newWidth >= 0
-                if newWidth < 0
-                    @rubberBand.dragDir = null
-
         drawChart: (items) =>
+          if d3?
+            @_drawD3Chart(items)
+          else if Raphael?
+            @_drawRaphaelChart(items)
+          # Boo-hoo, can't draw a pretty chart.
+
+        _drawD3Chart: (items) ->
+          bottomMargin = 18
+          rightMargin = 14
+          n = items[0].buckets + 1
+          console.log items
+          h = @chartHeight
+          most = d3.max items, (d) -> d.count
+          x = d3.scale.linear().domain([1, n]).range([@leftMargin, @w - rightMargin])
+          y = d3.scale.linear().domain([0, most]).rangeRound([0, h - bottomMargin])
+          # Replace our hack with a d3 scale.
+          @xForVal = d3.scale.linear().domain([@min, @max]).range([@leftMargin, @w - rightMargin])
+          xToVal = d3.scale.linear().domain([1, n]).range([@min, @max])
+          val = (x) => @round xToVal x
+          @paper = chart = d3.select(@canvas).append('svg')
+            .attr('class', 'chart')
+            .attr('width', @w)
+            .attr('height', h)
+
+          chart.selectAll('rect')
+            .data(items)
+            .enter().append('rect')
+              .attr('x', (d, i) -> x(d.bucket) - 0.5)
+              .attr('y', h - bottomMargin)
+              .attr('width', (d) -> x(d.bucket + 1) - x(d.bucket))
+              .attr('height', 0)
+              .on('click', (d, i) => @range.set min: val(d.bucket), max: val(d.bucket + 1))
+              .each (d, i) ->
+                title = "#{ val d.bucket } >= x < #{ val (d.bucket + 1)}: #{ d.count } items"
+                $(@).tooltip {title}
+
+          rects = chart.selectAll('rect').data(items)
+            .transition()
+            .duration(intermine.options.D3.Transition.Duration)
+            .ease(intermine.options.D3.Transition.Easing)
+            .attr('y', (d) -> h - bottomMargin - y(d.count) - 0.5)
+            .attr('height', (d) -> y d.count)
+
+          chart.append('line')
+            .attr('x1', 0)
+            .attr('x2', @w)
+            .attr('y1', h - bottomMargin - .5)
+            .attr('y2', h - bottomMargin - .5)
+            .style('stroke', '#000')
+
+          axis = chart.append('svg:g')
+
+          axis.selectAll('line').data(x.ticks(n))
+            .enter().append('svg:line')
+              .attr('x1', x).attr('x2', x)
+              .attr('y1', h - (bottomMargin * 0.75)).attr('y2', h - bottomMargin)
+              .attr('stroke', 'gray')
+              .attr('text-anchor', 'start')
+
+          this
+
+        _drawRaphaelChart: (items) ->
+            @paper = Raphael(@canvas, @$el.width(), @chartHeight)
             h = @chartHeight
             hh = h * 0.7
             max = _.max _.pluck items, "count"
             
-            w = @$el.closest(':visible').width() * 0.95
-            acceptableGap = Math.max (w / 15), "#{items[0].max}".split("").length * 5 * 1.5
+            acceptableGap = Math.max (@w / 15), "#{items[0].max}".split("").length * 5 * 1.5
             p = @paper
             gap = 0
             topMargin = h * 0.1
-            leftMargin = 20
-            stepWidth = (w - (leftMargin + 1)) / items[0].buckets
             baseLine = hh + topMargin
 
-            for tick in [0 .. 10] then do (tick) ->
-                line = p.path "M#{leftMargin - 4},#{baseLine - (hh / 10 * tick)} h#{w - gap}"
+            for tick in [0 .. 10] then do (tick) =>
+                line = p.path "M#{@leftMargin - 4},#{baseLine - (hh / 10 * tick)} h#{@w - gap}"
                 line.node.setAttribute "class", "tickline"
 
-            yaxis = @paper.path "M#{leftMargin - 4}, #{baseLine} v-#{hh}"
+            yaxis = @paper.path "M#{@leftMargin - 4}, #{baseLine} v-#{hh}"
             yaxis.node.setAttribute "class", "yaxis"
 
-            @rubberBand = null
-            @selection = null
-
-            @canvas.mousedown (e) =>
-                x = e.offsetX
-                @rubberBand = p.rect(x, 0, 10, h, 0)
-                @rubberBand.startTime = new Date().getTime()
-                @rubberBand.attr fill: 'transparent', 'stroke-dasharray': '.'
-
-            @canvas.mousemove (e) =>
-                x = e.offsetX
-                if @rubberBand?
-                    @moveRubberBand(x)
-                true
-
-            valForX = (x) =>
-                if x <= leftMargin
-                    return @min
-                if x >= w
-                    return @max
-                conversionRate = (@max - @min) / (w - leftMargin)
-                return @min + (conversionRate * (x - leftMargin))
-
-            xForVal = (val) =>
-                if val is @min
-                    return leftMargin
-                if val is @max
-                    return w
-                conversionRate = (w - leftMargin) / (@max - @min)
-                return leftMargin + (conversionRate * (val - @min))
-
-            drawSelection = (x, width) =>
-                @selection?.remove()
-                @selection = p.rect(x, 0, width, h)
-                @selection.node.setAttribute 'class', 'rubberband-selection'
-
-            @canvas.mouseup (e) =>
-                if @rubberBand?
-                    now = new Date().getTime()
-                    if now - @rubberBand.startTime < 100 # A click then
-                        x = @rubberBand.attr('x')
-                        min = @round valForX x - (x % stepWidth)
-                        max = @round valForX (x + stepWidth) - (x % stepWidth)
-                        @range.set min: min, max: max
-                    else
-                        min = @round(valForX(@rubberBand.attr('x')))
-                        max = @round(valForX(@rubberBand.attr('x') + @rubberBand.attr('width')))
-                        if max - min >= @step
-                            @range.set min: min, max: max
-                    @rubberBand.remove()
-                @rubberBand = null
-                true
-            @range.on 'change', () =>
-                if @range.has('min') and @range.has('max')
-                    x = xForVal(@range.get('min'))
-                    width = xForVal(@range.get('max')) - x
-                    drawSelection(x, width)
-                else
-                    @selection?.remove()
-                    @selection = null
-            
             for tick in [0, 5, 10] then do (tick) =>
                 ypos = baseLine - (hh / 10 * tick)
                 val = max / 10 * tick
@@ -385,20 +442,38 @@ do ->
 
             for item, i in items then do (item, i) =>
                 prop = item.count / max
-                pathCmd = "M#{(item.bucket - 1) * stepWidth + leftMargin},#{baseLine} v-#{hh * prop} h#{stepWidth - gap} v#{hh * prop} z"
+                pathCmd = "M#{(item.bucket - 1) * stepWidth + @leftMargin},#{baseLine} v-#{hh * prop} h#{stepWidth - gap} v#{hh * prop} z"
                 path = @paper.path pathCmd
 
             item = items[0]
             fixity = if item.max - item.min > 5 then 0 else 2
             lastX = 0
             for xtick in [0 .. item.buckets]
-                curX = xtick * stepWidth + leftMargin
+                curX = xtick * stepWidth + @leftMargin
                 if lastX is 0 or curX - lastX >= acceptableGap or xtick is item.buckets
                     lastX = curX
                     val = item.min + (xtick * ((item.max - item.min) / item.buckets))
                     @paper.text(curX, baseLine + 5, val.toFixed(fixity))
 
             this
+
+        drawSelection: (x, width) =>
+          @selection?.remove()
+          if (x <= 0) and (width >= @w)
+            return # Nothing to do.
+
+          if d3?
+            @selection = @paper.append('svg:rect')
+              .attr('x', x)
+              .attr('y', 0)
+              .attr('width', width)
+              .attr('height', @chartHeight)
+              .attr('class', 'rubberband-selection')
+          else if Raphael?
+            @selection = @paper.rect(x, 0, width, @chartHeight)
+            @selection.node.setAttribute 'class', 'rubberband-selection'
+          else
+            console.error("Cannot draw selection without SVG lib")
 
         _selecting_paths_: false
 
@@ -479,6 +554,86 @@ do ->
         @GREEKS = "αβγδεζηθικλμνξορστυφχψω".split("")
 
         addChart: ->
+          if d3?
+            @_drawD3Chart()
+          else if Raphael?
+            @_drawRaphaelChart()
+          # Boo-hoo, can't draw a pretty chart.
+
+        _drawD3Chart: ->
+          h = @chartHeight
+          w = @$el.closest(':visible').width()
+          r = h * 0.4
+          ir = h * 0.1
+          donut = d3.layout.pie().value (d) -> d.get 'count'
+          paint = d3.scale.category20()
+          colour = (d, i) ->
+            paint i
+
+          elem = @make "div"
+          @$el.append elem
+          chart = d3.select(elem).append('svg')
+            .attr('class', 'chart')
+            .attr('height', h)
+            .attr('width', w)
+          arc = d3.svg.arc()
+            .startAngle( (d) -> d.startAngle )
+            .endAngle( (d) -> d.endAngle )
+            .innerRadius((d) -> if d.data.get('selected') then ir + 5 else ir)
+            .outerRadius((d) -> if d.data.get('selected') then r + 5 else r)
+
+          arc_group = chart.append('svg:g')
+            .attr('class', 'arc')
+            .attr('transform', "translate(#{ w / 2},#{h / 2})")
+          centre_group = chart.append('svg:g')
+            .attr('class', 'center_group')
+            .attr('transform', "translate(#{ w / 2},#{h / 2})")
+          label_group = chart.append("svg:g")
+            .attr("class", "label_group")
+            .attr("transform", "translate(#{w/2},#{h/2})")
+
+          whiteCircle = centre_group.append("svg:circle")
+            .attr("fill", "white")
+            .attr("r", ir)
+
+          getTween = (d, i) ->
+            j = d3.interpolate({startAngle: 0, endAngle: 0}, d)
+            (t) -> arc j t
+          
+          paths = arc_group.selectAll('path').data(donut @items.models)
+          paths.enter().append('svg:path')
+            .attr('class', 'donut-arc')
+            .attr('stroke', 'white')
+            .attr('stroke-width', 0.5)
+            .attr('fill', colour)
+            .on('click', (d, i) -> d.data.set selected: not d.data.get 'selected')
+            .on('mouseover', (d, i) -> d.data.trigger 'hover')
+            .on('mouseout', (d, i) -> d.data.trigger 'unhover')
+            .transition()
+              .duration(intermine.options.D3.Transition.Duration)
+              .attrTween('d', getTween)
+
+          total = @items.reduce ((sum, m) -> sum + m.get 'count'), 0
+          percent = (d) -> (d.data.get('count') / total * 100).toFixed(1)
+
+          paths.each (d, i) ->
+            title = "#{ d.data.get 'item' }: #{ percent d }%"
+            placement = if (d.endAngle + d.startAngle) / 2 > Math.PI then 'left' else 'right'
+            $(@).tooltip {title, placement}
+          paths.transition()
+            .duration(intermine.options.D3.Transition.Duration)
+            .ease(intermine.options.D3.Transition.Easing)
+            .attrTween("d", getTween)
+
+          @items.on 'change:selected', =>
+            paths.data(donut @items.models).attr('d', arc)
+            paths.transition()
+              .duration(intermine.options.D3.Transition.Duration)
+              .ease(intermine.options.D3.Transition.Easing)
+
+          this
+
+        @_drawRaphaelChart: ->
             return this if @items.all (i) -> i.get("count") is 1
             h = @chartHeight
             w = @$el.closest(':visible').width()
@@ -524,12 +679,16 @@ do ->
             t.toFront() for t in texts
             this
 
+        filterControls: """
+          <div class="input-prepend">
+              <span class="add-on"><i class="icon-refresh"></i></span><input type="text" class="input-medium search-query filter-values" placeholder="Filter values">
+          </div>
+        """
+
         addControls: ->
             $grp = $("""
             <form class="form form-horizontal">
-                <div class="input-prepend">
-                    <span class="add-on"><i class="icon-refresh"></i></span><input type="text" class="input-medium search-query filter-values" placeholder="Filter values">
-                </div>
+                #{ @filterControls }
                 <div class="im-item-table">
                     <table class="table table-condensed">
                         <colgroup>
@@ -548,13 +707,23 @@ do ->
                 $grp.find('tbody').append r
             $grp.append """
                 <div class="im-filter btn-group">
-                    <button type="submit" class="btn btn-primary" disabled>Filter</button>
-                    <button class="btn btn-cancel" disabled>Reset</button>
-                    <button class="btn btn-toggle-selection"></button>
+                  #{ @buttons }
                 </div>
             """
+
+            @initFilter()
+
+            this
+
+        buttons: """
+          <button type="submit" class="btn btn-primary" disabled>Filter</button>
+          <button class="btn btn-cancel" disabled>Reset</button>
+          <button class="btn btn-toggle-selection"></button>
+        """
+
+        initFilter: ->
             xs = @items
-            $valFilter = $grp.find(".filter-values")
+            $valFilter = @$ '.filter-values'
             if @filterTerm
                 $valFilter.val @filterTerm
             facet = @
@@ -568,11 +737,9 @@ do ->
                 $(@).next().val(facet.filterTerm)
                 xs.each (x) -> x.set "visibility", true
 
-            this
+        colClasses: ["im-item-selector", "im-item-value", "im-item-count"]
 
-        colClasses: ["im-item-selector", "im-item-value", "im-item-count", "im-prop-count"]
-
-        columnHeaders: [' ', 'Item', 'Count', ' ']
+        columnHeaders: [' ', 'Item', 'Count']
 
         makeRow: (item) ->
             row = new FacetRow(item, @items)
@@ -632,13 +799,15 @@ do ->
             'change input': 'handleChange'
 
         render: ->
-            percent = (parseInt(@item.get("count")) / @items.maxCount * 100).toFixed()
+            percent = (parseInt(@item.get("count")) / @items.maxCount * 100).toFixed(1)
             @$el.append """
                 <td class="im-selector-col">
                     <span>#{ ((@item.get "symbol") || "") }</span>
                     <input type="checkbox">
                 </td>
-                <td class="im-item-col">#{@item.get "item"}</td>
+                <td class="im-item-col">
+                  #{@item.get("item") ? '<span class=null-value>NO VALUE</span>' }
+                </td>
                 <td class="im-count-col">
                     <div class="im-facet-bar" style="width:#{percent}%">
                         #{@item.get "count"}
@@ -664,12 +833,75 @@ do ->
         className: 'im-grouped-facet im-facet'
 
         chartHeight: 50
+        leftMargin: 25
 
         colClasses: ["im-item-selector", "im-item-value", "im-item-count"]
 
         columnHeaders: [' ', 'Item', 'Count']
         
         addChart: ->
+          if d3?
+            @_drawD3Chart()
+          else if Raphael?
+            @_drawRaphaelChart()
+          # Boo-hoo, can't draw a pretty chart.
+
+        _drawD3Chart: ->
+          return this if @items.all (i) -> 1 is i.get 'count'
+          data = @items.models
+          w = @$el.closest(':visible').width() * 0.95
+          n = data.length
+          itemW = (w - @leftMargin) / data.length
+          h = @chartHeight
+          f = @items.first()
+          max = f.get "count"
+          x = d3.scale.linear().domain([0, n]).range([@leftMargin, w])
+          y = d3.scale.linear().domain([0, max]).rangeRound([0, h])
+          chart = @make "div"
+          @$el.append chart
+          chart = d3.select(chart).append('svg')
+            .attr('class', 'chart')
+            .attr('width', w)
+            .attr('height', h)
+
+          rectClass = if n > w / 4 then 'squashed' else 'bar'
+          rects = chart.selectAll('rect')
+          rects.data(data)
+            .enter().append('rect')
+              .attr('class', rectClass)
+              .attr('width', itemW)
+              .attr('y', h) # Correct value set in transition
+              .attr('height', 0) # Correct value set in transition
+              .attr('x', (d, i) -> x(i) - 0.5)
+              .on('click', (d, i) -> d.set selected: not d.get 'selected')
+              .on('mouseover', (d, i) -> d.trigger 'hover')
+              .on('mouseout', (d, i) -> d.trigger 'unhover')
+
+          # Animate their entry
+          chart.selectAll('rect').data(@items.models).transition()
+            .duration(intermine.options.D3.Transition.Duration)
+            .ease(intermine.options.D3.Transition.Easing)
+            .attr('y', (d) -> h - y(d.get 'count') - 0.5)
+            .attr('height', (d) -> y d.get 'count')
+            .each (d, i) -> $(@).tooltip title: "#{ d.get 'item' }: #{ d.get 'count' }"
+
+          chart.append('line')
+            .attr('x1', 0)
+            .attr('x2', w)
+            .attr('y1', h - .5)
+            .attr('y2', h - .5)
+            .style('stroke', '#000')
+          
+          @items.on 'change:selected', =>
+            chart.selectAll('rect').data(@items.models).transition()
+              .duration(intermine.options.D3.Transition.Duration)
+              .ease(intermine.options.D3.Transition.Easing)
+              .attr('class', (d) -> rectClass + (if d.get('selected') then '-selected' else ''))
+
+          this
+
+
+        _drawRaphaelChart: ->
             h = @chartHeight
             hh = h * 0.8
             w = @$el.closest(':visible').width() * 0.95
@@ -715,100 +947,22 @@ do ->
             this
 
 
-    class BooleanFacet extends NumericFacet
-        handleSummary: (items) =>
-            t = _(items).find (i) -> i.item is true
-            f = _(items).find (i) -> i.item is false
-            n = _(items).find (i) -> i.item is null
-            total = (t?.count or 0) + (f?.count or 0) + (n?.count or 0)
-            @drawChart total, (f?.count or 0)
-            @drawControls total, (f?.count or 0)
+    class BooleanFacet extends PieFacet
 
-        drawChart: (total, subtotal) =>
-            h = 75
-            w = @$el.closest(':visible').width()
-            r = h * 0.8 / 2
-            cx = w / 2
-            cy = h / 2
+      initialize: ->
+        super(arguments...)
+        if @items.length is 2
+          @items.on 'change:selected', (quello, selected) =>
+            @items.each (questo) -> questo.set(selected: false) if (selected and questo isnt quello)
 
-            fprop = subtotal / total
-            tprop = 1 - fprop
+      filterControls: ''
 
-            if fprop is 0 or fprop is 1
-                @paper.circle cx, cy, r
-                t = @paper.text cx, cy, (if fprop is 1 then "false" else "true") + " (#{total})"
-                t.attr
-                    "font-size": "16px"
-                return this
+      initFilter: ->
 
-            degs = 0
-
-            texts = (for prop, i in [fprop, tprop] then do (prop, i) =>
-                rads = 2 * Math.PI * prop
-                arc = if 0.5 < prop < 1 then 1 else 0
-                dy = r + (-r * Math.cos rads)
-                dx = r * Math.sin rads
-                cmd = "M#{cx},#{cy} v-#{r} a#{r},#{r} 0 #{arc},1 #{dx},#{dy} z"
-                path = @paper.path cmd
-                if i is 0 then @fpath = path else @tpath = path
-                path.rotate degs, cx, cy
-                textRads = (Raphael.rad degs) + (rads / 2)
-                textdy = -(r * 1.1 * Math.cos textRads)
-                textdx = r * 1.1 * Math.sin textRads
-                num = if i is 0 then subtotal else total - subtotal
-                t = @paper.text cx, cy, """#{if i is 0 then "false" else "true"} (#{num})"""
-                t.attr
-                    "font-size": "12px"
-                    "text-anchor": if textdx > 0 then "start" else "end"
-                t.translate textdx, textdy
-                # Lord knows why?? - not needed if in absolute...
-                if $.browser.webkit
-                    t.translate 0, -(r * 1.5) unless @$el.offsetParent().filter( -> $(@).css("position") is "absolute").length
-                degs += 360 * prop
-                t
-            )
-            t.toFront for t in texts
-            this
-
-        drawControls: (total, trues) =>
-            return this unless @fpath and @tpath
-
-            c = $(@container).append """
-            <form class="form-inline">
-                <div class="btn-group" data-toggle="buttons-radio">
-                    <a href="#" class="btn im-trues">True</a>
-                    <a href="#" class="btn im-falses">False</a>
-                </div>
-                <div class="pull-right im-filter">
-                    <button class="btn btn-primary disabled">Filter</button>
-                    <button class="btn btn-cancel disabled">Reset</button>
-                </div>
-            </form>
-            """
-
-            c.find('.btn-group').button()
-             .find('.btn').click (e) => c.find('.im-filter .btn').removeClass "disabled"
-                
-            # TODO: move all this into events.
-            c.find('.btn-cancel').click (e) =>
-                @tpath.node.setAttribute("class", "trues")
-                @fpath.node.setAttribute("class", "falses")
-                c.find('.im-filter .btn').addClass "disabled"
-                c.find('.btn').removeClass "active"
-            c.find('.btn-primary').click (e) =>
-                @query.addConstraint
-                    path: @facet.path
-                    op: '='
-                    value: if c.find('.im-trues').is('.active') then "true" else "false"
-
-            handleTheTruth = (selPath) => (e) =>
-                @tpath.node.setAttribute("class", "")
-                @fpath.node.setAttribute("class", "")
-                selPath.node.setAttribute("class", "selected")
-                $(e.target).button 'toggle'
-                
-            c.find('.im-trues').click handleTheTruth(@tpath)
-            c.find('.im-falses').click handleTheTruth(@fpath)
+      buttons: """
+        <button type="submit" class="btn btn-primary" disabled>Filter</button>
+        <button class="btn btn-cancel" disabled>Reset</button>
+      """
 
     scope "intermine.results", {
         ColumnSummary,
