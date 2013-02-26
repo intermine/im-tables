@@ -150,7 +150,7 @@ do ->
             @drawOperatorSelector(fs)
             @drawValueOptions()
             @$el.append """
-                <div class="alert alert-error span10">
+                <div class="alert alert-error span10 hidden">
                     <i class="icon-warning-sign"></i>
                     #{ intermine.conbuilder.messages.CantEditConstraint }
                 </div>
