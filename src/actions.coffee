@@ -63,7 +63,7 @@ scope "intermine.messages.actions", {
             you do specify a certain range, please check that you did in fact get all the 
             results you wanted.
         """
-    IncludedFeatures: "Sequence Features in this Query - <strong>choose at least one</strong>:"
+    IncludedFeatures: "Exportable parts of this Query - <strong>choose at least one</strong>:"
     FastaFeatures: "Features with Sequences in this Query - <strong>select one</strong>:"
     FastaExtension: "Extension (eg: 100/100bp/5kbp/0.5mbp):"
     NoSuitableColumns: """
@@ -119,6 +119,32 @@ do ->
         extraClass: "im-action"
         actionClasses: ->
             [ListManager, CodeGenerator, ExportDialogue] #Exporters]
+
+    class SelectableNode extends Backbone.View
+      tagName: 'li'
+      className: 'im-selectable-node'
+
+      initialize: ->
+        @model.on 'change:included', @render
+
+      events:
+        'click a': 'toggleIncluded'
+
+      toggleIncluded: ->
+        @model.set included: !@model.get('included')
+
+      render: =>
+        {path, included} = @model.toJSON()
+        iconClass = if included then intermine.icons.Yes else intermine.icons.No
+        labelClass = if included then 'label-included' else 'label-available'
+        path.getDisplayName (name) => @$el.empty().append """
+          <span class="label #{ labelClass }">
+              <a href="#">
+                  <i class="#{ iconClass }"></i> #{ name }
+              </a>
+          </span>
+        """
+        @
 
     class ListDialogue extends Backbone.View
         tagName: "li"
@@ -267,13 +293,13 @@ do ->
                 newVal = "#{start + 1}"
                 if newVal isnt $elem.val()
                     $elem.val newVal
-                @$('.im-row-range-slider').slider 'option', 'values', [start, m.get('end') - 1 ]
+                @$slider?.slider 'option', 'values', [start, m.get('end') - 1 ]
             @requestInfo.on 'change:end', (m, end) =>
                 $elem = @$('.im-last-row')
                 newVal = "#{end}"
                 if newVal isnt $elem.val()
                     $elem.val newVal
-                @$('.im-row-range-slider').slider 'option', 'values', [m.get('start'), end - 1 ]
+                @$slider?.slider 'option', 'values', [m.get('start'), end - 1 ]
             @requestInfo.on "change:format", (m, format) => @$('.im-export-format').val format
             @exportedCols.on 'add remove reset', @initCols
 
@@ -564,28 +590,14 @@ do ->
                 </label>
             """
             l.appendTo opts
-            seqFeatCols = $ '<ul class="well span8 im-sequence-features">'
+            cols = $ '<ul class="well span8 im-sequence-features">'
             @fastaFeatures = new Backbone.Collection
-            @fastaFeatures.on 'add', (col) =>
-                path = col.get 'path'
-                li = $ '<li>'
-                path.getDisplayName (name) =>
-                    li.append """
-                        <span class="label #{if col.get('included') then 'label-included' else 'label-available'}">
-                            <a href="#">
-                                <i class="#{ if col.get('included') then intermine.icons.Yes else intermine.icons.No }"></i>
-                                #{ name }
-                            </a>
-                        </span>
-                    """
-                    li.find('a').click () =>
-                        @fastaFeatures.each((other) -> other.set included: false)
-                        col.set included: true
-                        
-                col.on 'change:included', () ->
-                    li.find('i').toggleClass "#{intermine.icons.Yes} #{intermine.icons.No}"
-                    li.find('span').toggleClass "label-success label-available"
-                li.appendTo seqFeatCols
+            @fastaFeatures.on 'add', (col) -> new SelectableNode(model: col).render().$el.appendTo cols
+            @fastaFeatures.on 'change:included', (questo, incl) =>
+              @fastaFeatures.each((quello) -> quello.set(included: false) unless questo is quello) if incl
+            @fastaFeatures.on 'change:included', =>
+              c = @fastaFeatures.reduce ((sum, col) -> sum + if col.get('included') then 1 else 0), 0
+              l.toggleClass 'error', c < 1
 
             included = true
             for node in @query.getViewNodes()
@@ -594,14 +606,14 @@ do ->
                     included = false
 
             if @fastaFeatures.isEmpty()
-                seqFeatCols.append """
+                cols.append """
                     <li>
                         <span class="label label-important">
                         #{ intermine.messages.actions.NoSuitableColumns}
                         </span>
                     </li>
                 """
-            seqFeatCols.appendTo l
+            cols.appendTo l
 
 
         addSeqFeatureSelector: () ->
@@ -610,48 +622,34 @@ do ->
                 <label>
                     <span class="span4 control-label">
                         #{ intermine.messages.actions.IncludedFeatures }
+                        <span class="im-selected-seqf-count">0</span> selected.
                     </span>
                 </label>
             """
             l.appendTo opts
-            seqFeatCols = $ '<ul class="well span8 im-sequence-features">'
+            cols = $ '<ul class="well span8 im-sequence-features">'
             @seqFeatures = new Backbone.Collection
-            @seqFeatures.on 'add', (col) =>
-                path = col.get 'path'
-                li = $ '<li>'
-                path.getDisplayName (name) ->
-                    li.append """
-                        <span class="label label-included">
-                            <a href="#">
-                                <i class="#{ if col.get('included') then intermine.icons.Yes else intermine.icons.No }"></i>
-                                #{ name }
-                            </a>
-                        </span>
-                    """
-                    li.find('a').click () ->
-                        col.set included: !col.get('included')
-                col.on 'change:included', () ->
-                    console.log "Changed"
-                    li.find('i').toggleClass "#{intermine.icons.Yes} #{intermine.icons.No}"
-                    li.find('span').toggleClass "label-included label-available"
-                li.appendTo seqFeatCols
-            @seqFeatures.on 'change:included', () =>
-                atLeastOneIncluded = @seqFeatures.any( (col) -> col.get('included') )
-                console.log "Go at least one: #{atLeastOneIncluded}"
-                l.toggleClass "error", not atLeastOneIncluded
 
-            for node in @query.getViewNodes()
-                if node.isa 'SequenceFeature'
-                    @seqFeatures.add path: node, included: true
+            checkSelection = =>
+              c = @seqFeatures.reduce ((sum, col) -> sum + if col.get('included') then 1 else 0), 0
+              @$('.im-selected-seqf-count').text c
+              l.toggleClass 'error', c < 1
+
+            @seqFeatures.on 'change:included', checkSelection
+            @seqFeatures.on 'add', (col) -> new SelectableNode(model: col).render().$el.appendTo cols
+            @seqFeatures.on 'add', checkSelection
+
+            for node in @query.getViewNodes() when node.isa 'SequenceFeature'
+               @seqFeatures.add path: node, included: true
             if @seqFeatures.isEmpty()
-                seqFeatCols.append """
-                    <li>
-                        <span class="label label-important">
-                        #{ intermine.messages.actions.NoSuitableColumns}
-                        </span>
-                    </li>
+                cols.append """
+                  <li>
+                      <span class="label label-important">
+                      #{ intermine.messages.actions.NoSuitableColumns}
+                      </span>
+                  </li>
                 """
-            seqFeatCols.appendTo l
+            cols.appendTo l
 
         initCols: () =>
             @$('.im-cols li').remove()
@@ -725,7 +723,7 @@ do ->
 
             for format in EXPORT_FORMATS
                 select.append formatToOpt format
-            if intermine.utils.modelIsBio @query.service.model
+            if intermine.utils.modelIsBio @query.model
                 for format in BIO_FORMATS
                     select.append formatToOpt format
 
@@ -753,15 +751,15 @@ do ->
 
         makeSlider: () ->
             @query.count (c) =>
-                @count = c
-                @requestInfo.set end: c
-                sl = @$('.slider').slider
-                    range: true,
-                    min: 0,
-                    max: c - 1,
-                    values: [0, c - 1],
-                    step: 1,
-                    slide: (e, ui)  => @requestInfo.set start: ui.values[0], end: ui.values[1] + 1
+              @count = c
+              @requestInfo.set end: c
+              @$slider = @$('.slider').slider
+                range: true,
+                min: 0,
+                max: c - 1,
+                values: [0, c - 1],
+                step: 1,
+                slide: (e, ui)  => @requestInfo.set start: ui.values[0], end: ui.values[1] + 1
 
 
     class ListAppender extends ListDialogue
