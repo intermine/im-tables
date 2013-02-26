@@ -30,7 +30,7 @@ $(function() {
           root: "beta.flymine.org/beta",
           token: "M1n3x2ydw4icj140pbBcffIgR4Q",
           q: {
-              select: ["*", "proteins.name", "exons.primaryIdentifier"], 
+              select: ["*", "chromosomeLocation.start", "proteins.name", "exons.primaryIdentifier"], 
               from: "Gene", 
               where: {
                   length: {lt: 8000},
@@ -41,7 +41,7 @@ $(function() {
         },
         TestModel: {
           help: 'alex@intermine.org',
-          root: "localhost:8080/intermine-test",
+          root: "localhost/intermine-test",
           token: "test-user-token",
           q: {
               select: ["*", "age"],
