@@ -21,7 +21,7 @@ jQuery.fn.imWidget = (arg0, arg1) ->
         if type is 'table'
             cls = intermine.query.results.CompactView
             view = new cls service, query, events, properties
-            @empty().append view.el
+            @empty().addClass('bootstrap').append view.el
             view.render()
         else if type is 'dashboard'
             cls = intermine.query.results.DashBoard
