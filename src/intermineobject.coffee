@@ -9,11 +9,10 @@ do ->
             obj.selected = false
             obj.selectable = true
             @attributes = obj
-            m = query.service.model
-            pathInfo = m.getPathInfo(obj._type)
+            pathInfo = query.model.getPathInfo(obj._type)
             query.on "selection:cleared", => @set selectable: true
             query.on "common:type:selected", (type) =>
-                typesAreCompatible = type and (pathInfo.isa(type) or (m.getPathInfo(type).isa(@get("_type"))))
+                typesAreCompatible = type and (pathInfo.isa(type) or (query.model.getPathInfo(type).isa(@get("_type"))))
                 @set selectable: (typesAreCompatible or !type)
             @on "change:selected", ->
                 query.trigger "imo:selected", @get("_type"), @get("id"), @get("selected")
