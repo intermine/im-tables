@@ -3,28 +3,120 @@
 #
 # Defining a formatter means that this function will be used to display data
 # rather than the standard id being shown.
+
+# TODO: move these into own class files
+
+ChrLocFormatter = (model) ->
+  id = model.get 'id'
+  @$el.addClass 'chromosome-location'
+  unless (model.has('start') and model.has('end') and model.has('chr'))
+    model._formatter_promise ?= @options.query.service.findById 'Location', id
+    model._formatter_promise.done (loc) ->
+      model.set start: loc.start, end: loc.end, chr: loc.locatedOn.primaryIdentifier
+  
+  {start, end, chr} = model.toJSON()
+  "#{chr}:#{start}-#{end}"
+
+ChrLocFormatter.replaces = ['start', 'end', 'strand', 'locatedOn.primaryIdentifier']
+
+SequenceFormatter = (model) ->
+  id = model.get 'id'
+  @$el.addClass 'dna-sequence'
+  unless model.has('residues')
+    model._formatter_promise ?= @options.query.service.findById 'Sequence', id
+    model._formatter_promise.done (seq) -> model.set seq
+  
+  sequence = model.get( 'residues' ) || ''
+  lines = []
+
+  while sequence.length > 0
+    line = sequence.slice 0, 80
+    rest = sequence.slice 80
+    lines.push line
+    sequence = rest
+
+  lines.join("\n")
+
+PublicationFormatter = (model) ->
+  id = model.get 'id'
+  @$el.addClass 'publication'
+  unless model.has('title') and model.has('firstAuthor') and model.has('year')
+    model._formatter_promise ?= @options.query.service.findById 'Publication', id
+    model._formatter_promise.done (pub) -> model.set pub
+
+  {title, firstAuthor, year} = model.toJSON()
+  "#{title} (#{firstAuthor}, #{year})"
+
+PublicationFormatter.replaces = [ 'title', 'firstAuthor', 'year' ]
+
 scope "intermine.results.formatters", {
-    Manager: (model, query, $cell) ->
-        id = model.get 'id'
-        if (model.has('title') and model.has('name'))
-            title = model.get 'title'
-            name = model.get 'name'
-            return {value: "#{title} #{name}", field: "id"}
-        else
-            query.service.findById 'Manager', id, (manager) ->
-                display = "#{ manager.title } #{ manager.name }"
-                model.set title: manager.title, name: manager.name
-                $cell.find('.im-cell-link').text display
-            return {value: id, field: "id"}
+    Manager: (model) ->
+      id = model.get 'id'
+      unless (model.has('title') and model.has('name'))
+        model._formatter_promise ?= @options.query.service.findById 'Manager', id
+        model._formatter_promise.done (manager) -> model.set manager
+      
+      data = _.defaults model.toJSON(), {title: '', name: ''}
+
+      _.template "<%- title %> <%- name %>", data
+
+    Sequence: SequenceFormatter
+    Location: ChrLocFormatter
+    Publication: PublicationFormatter
+
+    Organism: (model, query, $cell) ->
+      id = model.get 'id'
+      @$el.addClass 'organism'
+      templ = _.template """
+        <span class="name"><%- shortName %></span>
+      """
+      unless (model.has('shortName') and model.has('taxonId'))
+        model._formatter_promise ?= @options.query.service.findById 'Organism', id
+        model._formatter_promise.done (org) ->
+          model.set org
+
+      data = _.extend {shortName: ''}, model.toJSON()
+      templ data
+
+}
+
+scope "intermine.results.formatsets", {
+  testmodel: { 'Manager.name': true },
+  genomic: {
+    'Location.*': true,
+    'Organism.name': true,
+    'Publication.title': true,
+    'Sequence.residues': true
+  }
 }
 
 scope "intermine.results", {
     getFormatter:   (model, type) ->
         formatter = null
+        unless type?
+          [model, type] = [model.model, model.getParent()?.getType()]
         type = type.name or type
         types = [type].concat model.getAncestorsOf(type)
         formatter or= intermine.results.formatters[t] for t in types
         return formatter
+
+    shouldFormat: (path, formatSet) ->
+      return false unless path.isAttribute()
+      model = path.model
+      formatSet ?= model.name
+      cd = path.getParent().getType()
+      fieldName = path.end.name
+      formatterAvailable = intermine.results.getFormatter(path.model, cd)?
+
+      return false unless formatterAvailable
+      return true if fieldName is 'id'
+      ancestors = [cd.name].concat path.model.getAncestorsOf cd.name
+      formats = intermine.results.formatsets[formatSet] ? {}
+      
+      for a in ancestors
+        return true if (formats["#{a}.*"] or formats["#{ a }.#{fieldName}"])
+      return false
+
 }
 
 do ->
@@ -59,7 +151,10 @@ do ->
         tagName: "td"
         className: "im-result-subtable"
 
-        initialize: (@query, @cellify, subtable) ->
+        initialize: -> #(@query, @cellify, subtable) ->
+            @query = @options.query
+            @cellify = @options.cellify
+            subtable = @options.subtable
             @rows = subtable.rows
             @view = subtable.view
             @column = @query.getPathInfo(subtable.column)
@@ -102,7 +197,7 @@ do ->
                     path = @query.getPathInfo(v)
                     @column.getDisplayName (colName) =>
                         span = th.find('span')
-                        if (path.end?.name is 'id') and intermine.results.getFormatter(@query.model, path.getParent().getType())?
+                        if intermine.results.shouldFormat(path)
                             path = path.getParent()
                         path.getDisplayName (pathName) ->
                             if pathName.match(colName)
@@ -129,7 +224,6 @@ do ->
             @$el.append t
 
             summary.css(cursor: 'pointer').click (e) =>
-                console.log t
                 e.stopPropagation()
                 if t.is(':visible')
                     @query.trigger 'subtable:collapsed', @column
@@ -146,8 +240,8 @@ do ->
                 _.reduce(@rows[0], ((a, item) -> a + if item.view? then item.view.length else 1), 0)
 
         setWidth: (w) ->
-            @$el.css width: (w * @view.length) + "px"
-            @$('.im-cell-link').css "max-width": ((w * @view.length) - 5) + "px"
+            # @$el.css width: (w * @view.length) + "px"
+            # @$('.im-cell-link').css "max-width": ((w * @view.length) - 5) + "px"
             this
 
     class Cell extends Backbone.View
@@ -155,6 +249,8 @@ do ->
         className: "im-result-field"
 
         getUnits: () -> 1
+
+        formatter: (model) -> model.escape @options.field
 
         events:
             'click': 'activateChooser'
@@ -165,6 +261,7 @@ do ->
                 @$('input').attr checked: selected
             @model.on "change:selectable", (model, selectable) =>
                 @$('input').attr disabled: !selectable
+            @model.on 'change', @updateValue
             @options.query.on "start:list-creation", =>
                 @$('input').show() if @model.get "selectable"
             @options.query.on "stop:list-creation", =>
@@ -176,6 +273,10 @@ do ->
                 if @options.node?.toPathString() is node.toPathString()
                     @$el.addClass "im-highlight"
             @options.query.on "stop:highlight", => @$el.removeClass "im-highlight"
+
+            field = @options.field
+            path = @options.node.append field
+            @$el.addClass 'im-type-' + path.getType().toLowerCase()
 
         setupPreviewOverlay: () ->
             content = $ """
@@ -235,22 +336,31 @@ do ->
 
                     return content
 
+
+        updateValue: => @$('.im-cell-link').html @formatter(@model)
+
         render: ->
-            type = @model.get "_type"
             id = @model.get "id"
-            # only id cells are subject to special format rules.
-            if (@options.field is 'id') and (formatter = intermine.results.getFormatter(@options.query.model, type))
-                data = formatter(@model, @options.query, @$el)
-            else
-                data = {value: @model.get(@options.field), field: @options.field}
-            @$el.append(CELL_HTML _.extend {'_type': ''}, @model.toJSON(), data).toggleClass(active: @model.get "selected")
+            field = @options.field
+            data =
+              value: @model.get field
+              field: field
+
+            _.defaults data, @model.toJSON(), {'_type': ''}
+            html = CELL_HTML data
+
+            @$el.append(html)
+                .toggleClass(active: @model.get "selected")
+
+            @updateValue()
+
             @setupPreviewOverlay() if id?
             this
 
         setWidth: (w) ->
-            @$el.css width: w + "px"
-            @$('.im-cell-link').css "max-width": (w - 5) + "px"
-            this
+          #@$el.css width: w + "px"
+          #  @$('.im-cell-link').css "max-width": (w - 5) + "px"
+          this
 
         activateChooser: ->
             if @model.get "selectable"

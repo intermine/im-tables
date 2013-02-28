@@ -1,10 +1,11 @@
-scope "intermine.css", {
+scope 'intermine.css', {
     unsorted: "icon-sort",
     sortedASC: "icon-sort-up",
     sortedDESC: "icon-sort-down",
     headerIcon: "icon-white"
     headerIconRemove: "icon-remove-sign"
     headerIconHide: "icon-minus-sign"
+    headerIconReveal: 'icon-plus-sign'
 }
 
 scope 'intermine.snippets.query', {
@@ -31,6 +32,7 @@ scope 'intermine.messages.query', {
 do ->
 
     NUMERIC_TYPES = ["int", "Integer", "double", "Double", "float", "Float"]
+
 
     class Page
         constructor: (@start, @size) ->
@@ -68,6 +70,10 @@ do ->
             @query.on "set:sortorder", (oes) =>
                 @lastAction = 'resort'
                 @fill()
+            @query.on 'columnvis:toggle', (view) =>
+              @minimisedCols[view] = not @minimisedCols[view]
+              @trigger 'change:minimisedCols', _.extend {}, @minimisedCols
+              @fill()
 
         changePageSize: (newSize) ->
             @pageSize = newSize
@@ -127,15 +133,32 @@ do ->
 
         appendRow: (row) ->
             tr = $ "<tr>"
+            tr.appendTo @el
             minWidth = 10
             minimised = (k for k, v of @minimisedCols when v)
             w = 1 / (row.length - minimised.length) * (@$el.width() - (minWidth * minimised.length))
+            replacedBy = {}
             for cell, i in row then do (cell, i) =>
-                if @minimisedCols[i]
-                    tr.append(@minimisedColumnPlaceholder(width: minWidth))
-                else
-                    tr.append(cell.render().setWidth(w).$el)
-            tr.appendTo @el
+              {node, field} = cell.options
+              cell.path = path = if field? then node.append(field) else node
+              if intermine.results.shouldFormat path
+                replacedBy[cell.options.node.toString()] ?= cell
+                cell.formatter = intermine.results.getFormatter path
+                if cell.formatter.replaces?
+                  for replaced in cell.formatter.replaces
+                    replacedBy["#{ cell.options.node }.#{ replaced }"] ?= cell
+
+            for cell, i in row then do (cell, i) =>
+              path = cell.path
+              other = (replacedBy[path.toString()] or replacedBy[cell.options.node.toString()])
+              if other and cell isnt other
+                return
+
+              if @minimisedCols[ path.toString() ]
+                tr.append @minimisedColumnPlaceholder width: minWidth
+              else
+                tr.append cell.el
+                cell.render().setWidth w
 
         errorTempl: _.template """
             <div class="alert alert-error">
@@ -179,202 +202,54 @@ do ->
             @$el.append notice
             
 
-        # Needs to be compiled as late as possible to take the configured message and css values,
-        # hence presented as a closure rather than a precompiled template.
-        columnHeaderTempl: (ctx) -> _.template """ 
-            <th>
-                <div class="navbar">
-                    <div class="im-th-buttons">
-                        <% if (sortable) { %>
-                            <a href="#" class="im-th-button im-col-sort-indicator" title="sort this column">
-                                <i class="icon-sorting #{intermine.css.unsorted} #{ intermine.css.headerIcon }"></i>
-                            </a>
-                        <% }; %>
-                        <a href="#" class="im-th-button im-col-remover" title="remove this column" data-view="<%= view %>">
-                            <i class="#{ intermine.css.headerIconRemove } #{ intermine.css.headerIcon }"></i>
-                        </a>
-                        <a href="#" class="im-th-button im-col-minumaximiser" title="Toggle column" data-col-idx="<%= i %>">
-                            <i class="#{ intermine.css.headerIconHide } #{ intermine.css.headerIcon }"></i>
-                        </a>
-                        <div class="dropdown im-filter-summary">
-                            <a href="#" class="im-th-button im-col-filters dropdown-toggle"
-                                 title="Filter by values in this column"
-                                 data-toggle="dropdown" data-col-idx="<%= i %>" >
-                                <i class="#{ intermine.icons.Filter } #{ intermine.css.headerIcon }"></i>
-                            </a>
-                            <div class="dropdown-menu">
-                                <div>Could not ititialise the filter summary.</div>
-                            </div>
-                        </div>
-                        <div class="dropdown im-summary">
-                            <a href="#" class="im-th-button summary-img dropdown-toggle" title="column summary"
-                                data-toggle="dropdown" data-col-idx="<%= i %>" >
-                                <i class="#{ intermine.icons.Summary } #{ intermine.css.headerIcon }"></i>
-                            </a>
-                            <div class="dropdown-menu">
-                                <div>Could not ititialise the column summary.</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div style="clear:both"></div>
-                    <span class="im-col-title">
-                        <% _.each(titleParts, function(part, idx) { %>
-                            <% var penult = "" %>
-                            <% if (idx > 0 && idx == titleParts.length - 2) penult = "im-penult" %>
-                            <span class="im-title-part <%- penult %>"><%- part %></span>
-                        <% }); %>
-                    </span>
-                </div>
-            </th>
-        """, ctx
+        buildColumnHeader: (path, tr) -> #view, i, title, tr) ->
+          header = new intermine.query.results.ColumnHeader(@query, path)
+          header.render().$el.appendTo tr
 
-        buildColumnHeader: (view, i, title, tr) ->
-            q = @query
-            titleParts = title.split ' > '
-            path = q.getPathInfo view
-
-            direction = q.getSortDirection(view)
-            sortable = !q.isOuterJoined(view)
-            th = $ @columnHeaderTempl {title, titleParts, i, view, sortable}
-                
-            tr.append th
-            
-            if _.any q.constraints, ((c) -> !!c.path.match(view))
-                th.addClass 'im-has-constraint'
-                th.find('.im-col-filters').attr title: """#{ _.size(_.filter(q.constraints, (c) -> !!c.path.match(view))) } active filters"""
-            th.find('.im-th-button').tooltip(placement: "left")
-            sortButton = th.find('.icon-sorting')
-            setDirectionClass = (d) ->
-                sortButton.addClass(intermine.css.unsorted)
-                sortButton.removeClass("#{ intermine.css.sortedASC } #{ intermine.css.sortedDESC }")
-                if d
-                    sortButton.toggleClass("#{ intermine.css.unsorted } #{ intermine.css['sorted' + d] }")
-
-            setDirectionClass(direction)
-            @query.on "set:sortorder", ->
-                sd = q.getSortDirection(view)
-                setDirectionClass(sd)
-
-            direction = (ResultsTable.nextDirections[ direction ] or "ASC")
-            sortButton.parent().click (e) ->
-                $elem = $ this
-                #if e.shiftKey # allow multiple orders?
-                #    q.addOrSetSortOrder
-                #        path: view
-                #        direction: direction
-                #else
-                q.orderBy([{path: view, direction: direction}])
-                direction = ResultsTable.nextDirections[ direction ]
-            minumaximiser = th.find('.im-col-minumaximiser')
-            minumaximiser.click (e) =>
-                minumaximiser.find('i').toggleClass("icon-minus-sign icon-plus-sign")
-                isMinimised = @minimisedCols[i] = !@minimisedCols[i]
-                th.find('.im-col-title').toggle(!isMinimised)
-                @fill()
-
-            isFormatted = path.isAttribute() and (path.end.name is 'id') and intermine.results.getFormatter(q.model, path.getParent().getType())?
-
-            filterSummary = th.find('.im-col-filters')
-            filterSummary.click(@showFilterSummary(if isFormatted then path.getParent().toString() else view)).dropdown()
-            summariser = th.find('.summary-img')
-
-            if path.isAttribute()
-                if isFormatted
-                    summariser.click(@showOuterJoinedColumnSummaries(path)).dropdown()
-                else
-                    summariser.click(@showColumnSummary(path)).dropdown()
-            else
-                summariser.click(@showOuterJoinedColumnSummaries(path)).dropdown()
-                expandAll = $ """<a href="#" class="im-th-button" title="Expand/Collapse all subtables">
-                    <i class="icon-table icon-white"></i>
-                </a>"""
-                expandAll.tooltip placement: 'left'
-                th.find('.im-th-buttons').prepend expandAll
-                cmds = ['expand', 'collapse']
-                cmd = 0
-                @query.on 'subtable:expanded', (node) ->
-                    if node.toString().match path.toString()
-                        cmd = 1
-                @query.on 'subtable:collapsed', (node) ->
-                    if node.toString().match path.toString()
-                        cmd = 0
-                expandAll.click (e) =>
-                    e.stopPropagation()
-                    e.preventDefault()
-                    @query.trigger "#{cmds[cmd]}:subtables", path
-                    cmd = (cmd + 1) % 2
-
+        # Read the result returned from the service, and add headers for 
+        # the columns it represents to the table.
         addColumnHeaders: (result) =>
+            {get, invoke} = intermine.funcutils
             thead = $ "<thead>"
             tr = $ "<tr>"
             thead.append tr
             q = @query
             if result.results.length and _.has(result.results[0][0], 'column')
-                views = result.results[0].map (row) -> row.column
-                promise = new $.Deferred()
-                titles = {}
-                _.each views, (v, idx) ->
+                views = result.results[0].map get('column')
+                paths = views.map (v, idx) ->
                     path = q.getPathInfo(v)
-                    if (path.isRoot() or path.isReference()) and result.results[0][idx]?.view
-                        subView = result.results[0][idx].view[0]
-                        if q.isOuterJoined(subView)
-                            path = q.getPathInfo(q.getOuterJoin(subView))
+                    if (path.isRoot() or path.isReference()) and subView = result.results[0][idx]?.view
+                        first = subView[0]
+                        if q.isOuterJoined(first)
+                            path = q.getPathInfo(q.getOuterJoin(first))
+                    return path
+                replacedBy = {}
+                for p in paths
+                  if intermine.results.shouldFormat p
+                    replacedBy[p.getParent().toString()] ?= p
+                    formatter = intermine.results.getFormatter p
+                    if formatter.replaces?
+                      for r in formatter.replaces
+                        replacedBy["#{ p.getParent() }.#{ r }"] ?= p
 
-                    if (path.end?.name is 'id') and intermine.results.getFormatter(q.model, path.getParent().getType())?
-                        path = path.getParent()
-                    path.getDisplayName (name) ->
-                        titles[v] = name
-                        if _.size(titles) is views.length
-                            promise.resolve titles
-                promise.done (titles) =>
-                    for v, i in views
-                        @buildColumnHeader v, i, titles[v], tr
+
+                paths = paths.filter (p) ->
+                  replacer = (replacedBy[p.toString()] ? replacedBy[p.getParent().toString()])
+                  not (replacer and p isnt replacer)
+
+                @buildColumnHeader p, tr for p in paths
+
+                # $.when.apply($, paths.map invoke('getDisplayName'))
+                #    .fail((err) => console.error(err); @buildColumnHeader v, i, v, tr for v, i in views)
+                #    .done => @buildColumnHeader views[idx], idx, name, tr for name, idx in names)
+                        
             else
                 views = q.views
                 for view, i in views then do (view, i) =>
                     title = result.columnHeaders[i].split(' > ').slice(1).join(" > ")
                     @buildColumnHeader view, i, title, tr
-
                     
             thead.appendTo @el
-
-        showOuterJoinedColumnSummaries: (path) -> (e) =>
-            $el = jQuery(e.target).closest '.summary-img'
-            unless $el.parent().hasClass 'open'
-                summ = new intermine.query.results.OuterJoinDropDown(path, @query)
-                $el.siblings('.dropdown-menu').html(summ.el)
-                summ.render()
-
-            false
-
-        checkHowFarOver: (e) ->
-            thb = $(e.target).closest '.im-th-button'
-            bounds = thb.closest '.im-table-container'
-            if (thb.offset().left + 350) >= (bounds.offset().left + bounds.width())
-                thb.closest('th').addClass 'too-far-over'
-
-        showFilterSummary: (path) -> (e) =>
-            @checkHowFarOver(e)
-            $el = jQuery(e.target).closest '.im-col-filters'
-            unless $el.parent().hasClass 'open'
-                summ = new intermine.query.filters.SingleColumnConstraints(@query, path)
-                $el.siblings('.dropdown-menu').html(summ.render().el)
-
-            false
-
-        showColumnSummary: (path) -> (e) =>
-            @checkHowFarOver(e)
-            $el = jQuery(e.target).closest '.summary-img'
-
-            view = path.toString()
-            unless view
-                e.stopPropagation()
-                e.preventDefault()
-            else unless $el.parent().hasClass "open"
-                summ = new intermine.query.results.DropDownColumnSummary(view, @query)
-                $el.siblings('.dropdown-menu').html(summ.render().el)
-
-            false
 
     class PageSizer extends Backbone.View
 
@@ -394,7 +269,7 @@ do ->
             @$el.append """
                 <label>
                     <span class="im-only-widescreen">Rows per page:</span>
-                    <select class="span1" title="Rows per page">
+                    <select class="span" title="Rows per page">
                     </select>
                 </label>
             """
@@ -410,7 +285,6 @@ do ->
         className: "im-table-container"
 
         events:
-            'click .im-col-remover': 'removeColumn'
             'submit .im-page-form': 'pageFormSubmit'
             'click .im-pagination-button': 'pageButtonClick'
 
@@ -626,8 +500,6 @@ do ->
         ## Function for buffering data for a request. Each request fetches a page of
         ## pipe_factor * size, and if subsequent requests request data within this range, then
         ##
-        ## This function is used as a callback to the datatables server data method.
-        ##
         ## @param src URL passed from DataTables. Ignored.
         ## @param param list of {name: x, value: y} objects passed from DataTables
         ## @param callback fn of signature: resultSet -> ().
@@ -656,11 +528,12 @@ do ->
                 page = @getPage start, size
                 @overlayTable()
 
-                req = @query[@fetchMethod] {start: page.start, size: page.size}, (rows, rs) =>
+                req = @query[@fetchMethod] {start: page.start, size: page.size}
+                req.fail @showError
+                req.done (rows, rs) =>
                     @addRowsToCache page, rs
                     @cache.freshness = freshness
-                req.fail @showError
-                req.done () => promise.resolve @serveResultsFromCache start, size
+                    promise.resolve @serveResultsFromCache start, size
                 req.always @removeOverlay
             else
                 promise.resolve @serveResultsFromCache start, size
@@ -795,21 +668,28 @@ do ->
 
             makeCell = (obj) =>
                 if _.has(obj, 'rows')
-                    return new intermine.results.table.SubTable(@query, makeCell, obj)
+                  console.log obj
+                  node = @query.getPathInfo obj.column
+                  return new intermine.results.table.SubTable
+                    query: @query
+                    cellify: makeCell
+                    subtable: obj
+                    node: node
                 else
-                    node = @query.getPathInfo(obj.column).getParent()
-                    field = obj.column.replace(/^.*\./, '')
-                    model = if obj.id?
-                        @itemModels[obj.id] or= (new intermine.model.IMObject(@query, obj, field, base))
-                    else if not obj.class?
-                        new intermine.model.NullObject @query, field
-                    else
-                        new intermine.model.FPObject(@query, obj, field, node.getType().name)
-                    model.merge obj, field
-                    args = {model, node, field}
-                    args.query = @query
-                    return new intermine.results.table.Cell(args)
+                  node = @query.getPathInfo(obj.column).getParent()
+                  field = obj.column.replace(/^.*\./, '')
+                  model = if obj.id?
+                      @itemModels[obj.id] or= (new intermine.model.IMObject(@query, obj, field, base))
+                  else if not obj.class?
+                      new intermine.model.NullObject @query, field
+                  else
+                      new intermine.model.FPObject(@query, obj, field, node.getType().name)
+                  model.merge obj, field
+                  args = {model, node, field}
+                  args.query = @query
+                  return new intermine.results.table.Cell(args)
 
+            # When all mines support tablerows, this hack can be removed. TODO
             result.rows = result.results.map (row) =>
                 (row).map (cell, idx) =>
                     if _.has(cell, 'column') # dealing with new-style tableRows here.
@@ -867,18 +747,8 @@ do ->
                 query: @query.toXML()
                 token: @query.service.token
             @$el.appendTo @$parent
-            @query.service.makeRequest(path, setupParams, null, "POST").then @onSetupSuccess(tel), @onSetupError(tel)
+            @query.service.post(path, setupParams).then @onSetupSuccess(tel), @onSetupError(tel)
             this
-
-        removeColumn: (e) =>
-            e.stopPropagation()
-            e.preventDefault()
-            $el = jQuery(e.target).closest '.im-col-remover'
-            $el.tooltip("hide")
-            view = $el.data "view"
-            unwanted = (v for v in @query.views when (v.match(view)))
-            @query.removeFromSelect unwanted
-            false
 
         horizontalScroller: """
             <div class="scroll-bar-wrap well">
@@ -901,10 +771,6 @@ do ->
         placePageSizer: ($widgets) ->
             pageSizer = new PageSizer(@query, @pageSize)
             pageSizer.render().$el.appendTo $widgets
-
-        placeManagementTools: ($widgets) ->
-            managementGroup = new intermine.query.tools.ManagementTools(@query)
-            managementGroup.render().$el.appendTo $widgets
 
         placeScrollBar: ($widgets) ->
             if @bar is 'horizontal'
