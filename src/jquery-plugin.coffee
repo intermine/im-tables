@@ -16,6 +16,14 @@ jQuery.fn.imWidget = (arg0, arg1) ->
             throw new Error("Unknown method #{arg0}")
     else
         {type, service, url, token, query, events, properties, error} = arg0
+        if not jQuery.browser.msie and not d3?
+          # Can be loaded late, as only needed for summaries, which the
+          # user will have to click on.
+          intermine.cdn.load 'd3'
+        if not prettyPrint?
+          intermine.cdn.load 'prettify'
+
+          
         service ?= new intermine.Service root: url, token: token
         service.errorHandler = error if error?
         if type is 'table'

@@ -56,7 +56,8 @@ task 'build:concat',
 
 writingDeps = false
 
-otherDeps = ["lib/d3.v3.min.js", "lib/google-code-prettify/prettify.js", "lib/jquery-ui-1.10.1.custom.js"]
+otherDeps = ["lib/jquery-ui-1.10.1.custom.js"]
+# "lib/d3.v3.min.js", 
 
 task 'build:deps', 'concatenate dependencies', builddeps = (cb) ->
     console.log "Building deps"
@@ -74,7 +75,7 @@ task 'build:deps', 'concatenate dependencies', builddeps = (cb) ->
         process = (texts) ->
             console.log "Writing deps"
             fs.writeFile 'js/deps.js', texts.join('\n\n'), 'utf8', (err) ->
-                writing = false
+                writingDeps = false
                 throw err if err
                 cont cb
 
