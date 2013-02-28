@@ -963,6 +963,8 @@ do ->
         """, {langs: CODE_GEN_LANGS})
 
         initialize: (@query) ->
+          @model = new Backbone.Model
+          @model.on 'set:lang', @displayLang
 
         render: =>
             @$el.append @html
@@ -970,7 +972,7 @@ do ->
 
         events:
             'click .im-show-comments': 'showComments'
-            'click .dropdown-menu a': 'getAndShowCode'
+            'click .dropdown-menu a': 'setLang'
             'click .btn-action': 'doMainAction'
 
         showComments: (e) =>
@@ -1004,31 +1006,33 @@ do ->
 
           return buffer.join("\n")
 
-        getAndShowCode: (e) =>
-            $t = $ e.target
-            $m = @$ '.modal'
+        alreadyDone = jQuery.Deferred -> @resolve(true)
 
-            @lang = $t.data('lang') or @lang
-            $m.find('h3 .im-code-lang').text @lang
-            @$('a .im-code-lang').text @lang
-            if @lang is 'xml'
-                # Add back otherwise unnescessary line-breaks
-                xml = breakAndIndent @query.toXML()
-                formatted = prettyPrintOne(_.escape(xml), 'xml')
-                $m.find('pre').html formatted
-                $m.modal 'show'
-            else
-                $m.find('.btn-save').attr href: @query.getCodeURI @lang
-                @query.fetchCode @lang, (code) =>
-                  ext = if @lang is 'js' then 'html' else @lang
-                  code = _.escape code
-                  formatted = prettyPrintOne(code, ext)
-                  $m.find('pre').html formatted
-                  $m.modal 'show'
-                  #prettyPrint ->
+        setLang: (e) ->
+          $t = $ e.target
+          @model.set {lang: $t.data('lang') or @model.get('lang')}, {silent: true}
+          @model.trigger 'set:lang'
+
+        displayLang: =>
+          $m    = @$ '.modal'
+          lang  = @model.get('lang')
+
+          ext   = if lang is 'js'  then 'html' else lang
+          href  = if lang is 'xml' then '#'    else @query.getCodeURI lang
+          code  = if lang is 'xml' then breakAndIndent(@query.toXML()) else @query.fetchCode lang
+          ready = if prettyPrintOne? then alreadyDone else intermine.cdn.load 'prettify'
+
+          @$('a .im-code-lang').text lang
+          @$('.modal h3 .im-code-lang').text lang
+          @$('.modal .btn-save').attr href: @query.getCodeURI @lang
+
+          jQuery.when(code, ready).then (code) ->
+            formatted = prettyPrintOne(_.escape(code), ext)
+            $m.find('pre').html formatted
+            $m.modal 'show'
 
         doMainAction: (e) =>
-            if @lang then @getAndShowCode(e) else $(e.target).next().dropdown 'toggle'
+            if @model.has('lang') then @displayLang() else $(e.target).next().dropdown 'toggle'
 
         compact: =>
             $m = @$ '.modal'
