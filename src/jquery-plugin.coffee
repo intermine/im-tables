@@ -20,9 +20,6 @@ jQuery.fn.imWidget = (arg0, arg1) ->
           # Can be loaded late, as only needed for summaries, which the
           # user will have to click on.
           intermine.cdn.load 'd3'
-        if not prettyPrint?
-          intermine.cdn.load 'prettify'
-
           
         service ?= new intermine.Service root: url, token: token
         service.errorHandler = error if error?
