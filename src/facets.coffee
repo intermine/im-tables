@@ -52,21 +52,22 @@ do ->
         </dd>
     """
 
+    # A bit of a nothing class - should be removed and replaced
+    # with a factory function. TODO.
     class ColumnSummary extends Backbone.View
         tagName: 'div'
         className: "im-column-summary"
-        initialize: (facet, @query) ->
-            if _(facet).isString()
-                @facet =
-                    path: facet
-                    title: facet.replace(/^[^\.]+\./, "").replace(/\./g, " > ")
-                    ignoreTitle: true
+        initialize: (@query, facet) ->
+            if facet.path
+              @facet = facet
             else
-                @facet = facet
-
+              @facet =
+                path: (@query.getPathInfo facet)
+                title: facet.toString().replace(/^[^\.]+\./, "").replace(/\./g, " > ")
+                ignoreTitle: true
 
         render: =>
-            attrType = @query.getPathInfo(@facet.path).getType()
+            attrType = @facet.path.getType()
             clazz = if attrType in intermine.Model.NUMERIC_TYPES
               NumericFacet
             else
@@ -183,6 +184,27 @@ do ->
         events:
             'click': (e) -> e.stopPropagation()
             'keyup input.im-range-val': 'incRangeVal'
+            'click .btn-primary': 'changeConstraints'
+            'click .btn-cancel': 'clearRange'
+
+        clearRange: -> @range.clear()
+
+        changeConstraints: ->
+          @query.constraints = _(@query.constraints).filter (c) => c.path != @facet.path.toString()
+          newConstraints = [
+              {
+                  path: @facet.path
+                  op: ">="
+                  value: @range.get('min')
+              },
+              {
+                  path: @facet.path
+                  op: "<="
+                  value: @range.get('max')
+              }
+          ]
+
+          @query.addConstraints newConstraints
 
         className: "im-numeric-facet"
 
@@ -328,32 +350,10 @@ do ->
                 values: [@min, @max]
                 step: @step
                 slide: (e, ui) => @range.set min: ui.values[0], max: ui.values[1]
-            @query.on 'range:selected', (from, upto) =>
-                from = Math.min(from, @range.get('min')) if @range.has('min')
-                upto = Math.max(upto, @range.get('max')) if @range.has('min')
-                @range.set min: @round(from), max: @round(upto)
-            @$('.btn-cancel').click => @range.clear()
-            @$('.btn-primary').click =>
-                @query.constraints = _(@query.constraints).filter (c) =>
-                    c.path != @facet.path
-                @query.addConstraints [
-                    {
-                        path: @facet.path
-                        op: ">="
-                        value: @range.get('min')
-                    },
-                    {
-                        path: @facet.path
-                        op: "<="
-                        value: @range.get('max')
-                    }
-                ]
 
         drawChart: (items) =>
           if d3?
             @_drawD3Chart(items)
-          else if Raphael?
-            @_drawRaphaelChart(items)
           # Boo-hoo, can't draw a pretty chart.
 
         _drawD3Chart: (items) ->
@@ -411,51 +411,6 @@ do ->
 
           this
 
-        _drawRaphaelChart: (items) ->
-            @paper = Raphael(@canvas, @$el.width(), @chartHeight)
-            h = @chartHeight
-            hh = h * 0.7
-            max = _.max _.pluck items, "count"
-            
-            acceptableGap = Math.max (@w / 15), "#{items[0].max}".split("").length * 5 * 1.5
-            p = @paper
-            gap = 0
-            topMargin = h * 0.1
-            baseLine = hh + topMargin
-
-            for tick in [0 .. 10] then do (tick) =>
-                line = p.path "M#{@leftMargin - 4},#{baseLine - (hh / 10 * tick)} h#{@w - gap}"
-                line.node.setAttribute "class", "tickline"
-
-            yaxis = @paper.path "M#{@leftMargin - 4}, #{baseLine} v-#{hh}"
-            yaxis.node.setAttribute "class", "yaxis"
-
-            for tick in [0, 5, 10] then do (tick) =>
-                ypos = baseLine - (hh / 10 * tick)
-                val = max / 10 * tick
-                t = @paper.text(leftMargin - 6, ypos, val.toFixed()).attr
-                    "text-anchor": "end"
-                    "font-size": "10px"
-                # Lord knows why?? Firefox does not need this... not needed in absolute...
-                if $.browser.webkit
-                    t.translate 0, -ypos unless @$el.offsetParent().filter( -> $(@).css("position") is "absolute").length
-
-            for item, i in items then do (item, i) =>
-                prop = item.count / max
-                pathCmd = "M#{(item.bucket - 1) * stepWidth + @leftMargin},#{baseLine} v-#{hh * prop} h#{stepWidth - gap} v#{hh * prop} z"
-                path = @paper.path pathCmd
-
-            item = items[0]
-            fixity = if item.max - item.min > 5 then 0 else 2
-            lastX = 0
-            for xtick in [0 .. item.buckets]
-                curX = xtick * stepWidth + @leftMargin
-                if lastX is 0 or curX - lastX >= acceptableGap or xtick is item.buckets
-                    lastX = curX
-                    val = item.min + (xtick * ((item.max - item.min) / item.buckets))
-                    @paper.text(curX, baseLine + 5, val.toFixed(fixity))
-
-            this
 
         drawSelection: (x, width) =>
           @selection?.remove()
@@ -469,9 +424,6 @@ do ->
               .attr('width', width)
               .attr('height', @chartHeight)
               .attr('class', 'rubberband-selection')
-          else if Raphael?
-            @selection = @paper.rect(x, 0, width, @chartHeight)
-            @selection.node.setAttribute 'class', 'rubberband-selection'
           else
             console.error("Cannot draw selection without SVG lib")
 
@@ -556,8 +508,6 @@ do ->
         addChart: ->
           if d3?
             @_drawD3Chart()
-          else if Raphael?
-            @_drawRaphaelChart()
           # Boo-hoo, can't draw a pretty chart.
 
         _drawD3Chart: ->
@@ -632,52 +582,6 @@ do ->
               .ease(intermine.options.D3.Transition.Easing)
 
           this
-
-        @_drawRaphaelChart: ->
-            return this if @items.all (i) -> i.get("count") is 1
-            h = @chartHeight
-            w = @$el.closest(':visible').width()
-            r = h * 0.8 / 2
-            chart = @make "div"
-            @$el.append chart
-            @paper = Raphael chart, w, h
-            cx = w / 2
-            cy = h / 2
-
-            total = @items.reduce ((a, b) -> a + b.get "count"), 0
-            degs = 0
-            i = 0
-            texts = @items.map (item) =>
-                prop = item.get("count") / total
-                item.set "percent", prop * 100
-                rads = 2 * Math.PI * prop
-                arc = if prop > 0.5 then 1 else 0
-                dy = r + (-r * Math.cos rads)
-                dx = r * Math.sin rads
-                cmd = "M#{cx},#{cy} v-#{r} a#{r},#{r} 0 #{arc},1 #{dx},#{dy} z"
-                path = @paper.path cmd
-                item.set "path", path
-                path.click () -> item.set selected: not item.get('selected')
-                path.hover (() -> item.trigger 'hover'), (() -> item.trigger 'unhover')
-                path.rotate degs, cx, cy
-                textRads = (Raphael.rad degs) + (rads / 2)
-                textdy = -(r * 0.6 * Math.cos textRads)
-                textdx = r * 0.6 * Math.sin textRads
-                item.set "symbol", PieFacet.GREEKS[i++]
-                t = @paper.text cx, cy, item.get "symbol" #item.get "item"
-                t.attr
-                    "font-size": "14px"
-                    "text-anchor": if textdx > 0 then "start" else "end"
-                t.translate textdx, textdy
-                # Lord knows why?? - not needed if in absolute...
-                if $.browser.webkit
-                    t.translate 0, -(r * 1.5) unless @$el.offsetParent().filter( -> $(@).css("position") is "absolute").length
-                t.node.setAttribute "class", "pie-label"
-                degs += 360 * prop
-                t
-
-            t.toFront() for t in texts
-            this
 
         filterControls: """
           <div class="input-prepend">
@@ -842,8 +746,6 @@ do ->
         addChart: ->
           if d3?
             @_drawD3Chart()
-          else if Raphael?
-            @_drawRaphaelChart()
           # Boo-hoo, can't draw a pretty chart.
 
         _drawD3Chart: ->
@@ -899,53 +801,6 @@ do ->
               .attr('class', (d) -> rectClass + (if d.get('selected') then '-selected' else ''))
 
           this
-
-
-        _drawRaphaelChart: ->
-            h = @chartHeight
-            hh = h * 0.8
-            w = @$el.closest(':visible').width() * 0.95
-            f = @items.first()
-            max = f.get "count"
-            return this if @items.all (i) -> i.get("count") is 1
-            chart = @make "div"
-            @$el.append chart
-            p = @paper = Raphael chart, w, h
-            gap = w * 0.01
-            topMargin = h * 0.1
-            leftMargin = 30
-            stepWidth = (w - (leftMargin + 1)) / @items.size()
-            baseline = hh + topMargin
-
-            for tick in [0 .. 10] then do (tick) ->
-                line = p.path "M#{leftMargin - 4},#{baseline -  (hh / 10 *  tick)} h#{w - gap}"
-                line.node.setAttribute "class", "tickline"
-
-            yaxis = @paper.path "M#{leftMargin - 4},#{baseline} v-#{hh}"
-            yaxis.node.setAttribute "class", "yaxis"
-            for tick in [0 .. 10] then do (tick) =>
-                ypos = baseline - (hh / 10 * tick)
-                val = max / 10 * tick
-                unless val % 1
-                    t = @paper.text(leftMargin - 6, ypos, val.toFixed()).attr
-                        "text-anchor": "end"
-                        "font-size": "10px"
-                    # Lord knows why?? Firefox does not need this... not needed in absolute...
-                    if $.browser.webkit
-                        t.translate 0, -ypos unless @$el.offsetParent().filter( -> $(@).css("position") is "absolute").length
-
-
-            @items.each (item, i) =>
-                prop = item.get("count") / max
-                pathCmd = "M#{i * stepWidth + leftMargin},#{baseline} v-#{hh * prop} h#{stepWidth - gap} v#{hh * prop} z"
-                path = @paper.path pathCmd
-                path.click () -> item.set selected: not item.get('selected')
-                path.hover (() -> item.trigger 'hover'), (() -> item.trigger 'unhover')
-
-                item.set "path", path
-
-            this
-
 
     class BooleanFacet extends PieFacet
 
