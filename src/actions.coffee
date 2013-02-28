@@ -163,7 +163,7 @@ do ->
                 types = _(@types).values()
                 
                 if types.length > 0
-                    m = @query.service.model
+                    m = @query.model
                     commonType = m.findCommonTypeOfMultipleClasses(types)
                     @newCommonType(commonType) unless commonType is @commonType
                 @selectionChanged()
@@ -979,6 +979,31 @@ do ->
             else
                 @expand()
 
+        # Rather naive (but generally effective) method of
+        # prettifying the otherwise compressed XML.
+        breakAndIndent = (xml) ->
+          lines = xml.split /></
+          indentLevel = 1
+          buffer = []
+          for line in lines
+            unless />$/.test line
+              line = line + '>'
+            unless /^</.test line
+              line = '<' + line
+
+            isClosing = /^<\/\w+\s*>/.test(line)
+            isOneLiner = /\/>$/.test(line) or (not isClosing and /<\/\w+>$/.test(line))
+            isOpening = not (isOneLiner or isClosing)
+
+            indentLevel-- if isClosing
+
+            indent = new Array(indentLevel).join('  ')
+            buffer.push indent + line
+            
+            indentLevel++ if isOpening
+
+          return buffer.join("\n")
+
         getAndShowCode: (e) =>
             $t = $ e.target
             $m = @$ '.modal'
@@ -987,16 +1012,20 @@ do ->
             $m.find('h3 .im-code-lang').text @lang
             @$('a .im-code-lang').text @lang
             if @lang is 'xml'
-                xml = @query.toXML().replace(/></g, ">\n<")
-                $m.find('pre').text xml
+                # Add back otherwise unnescessary line-breaks
+                xml = breakAndIndent @query.toXML()
+                formatted = prettyPrintOne(_.escape(xml), 'xml')
+                $m.find('pre').html formatted
                 $m.modal 'show'
-                prettyPrint ->
             else
                 $m.find('.btn-save').attr href: @query.getCodeURI @lang
                 @query.fetchCode @lang, (code) =>
-                    $m.find('pre').text code
-                    $m.modal 'show'
-                    prettyPrint ->
+                  ext = if @lang is 'js' then 'html' else @lang
+                  code = _.escape code
+                  formatted = prettyPrintOne(code, ext)
+                  $m.find('pre').html formatted
+                  $m.modal 'show'
+                  #prettyPrint ->
 
         doMainAction: (e) =>
             if @lang then @getAndShowCode(e) else $(e.target).next().dropdown 'toggle'
@@ -1097,7 +1126,7 @@ do ->
                             $target.val text
 
                     @usingDefaultName = true
-                cd = @query.service.model.classes[type]
+                cd = @query.model.classes[type]
                 # The following is much too specific and should be configurable...
                 # TODO: refactor this out into general logic 
                 # and make it work with selections for all objects.
