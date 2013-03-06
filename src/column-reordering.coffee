@@ -4,7 +4,24 @@ scope 'intermine.messages.results', {
 
 scope 'intermine.messages.columns', {
     OrderTitle: 'Add / Remove / Re-Arrange Columns',
-    SortTitle: 'Define Sort-Order'
+    SortTitle: 'Define Sort-Order',
+    OnlyColsInView: 'Only show columns in the table:',
+    SortingHelpTitle: 'What Columns Can I Sort by?',
+    SortingHelpContent: """
+      A table can be sorted by any of the attributes of the objects
+      which are in the output columns or constrained by a filter, so
+      long as they haven't been declared to be optional parts of the
+      query. So if you are displaying <span class="label path">Gene > Name</span>
+      and <span class="label path">Gene > Exons > Symbol</span>, and also
+      <span class="label path">Gene > Proteins > Name</span> if the gene
+      has any proteins (ie. the proteins part of the query is optional), then
+      you can sort by any of the attributes attached to
+      <span class="label path available">Gene</span>
+      or <span class="label path available">Gene > Exons</span>,
+      whether or not you have selected them for output, but you could not sort by
+      any of the attributes of <span class="label path available">Gene > Proteins</span>,
+      since these items may not be present in the results.
+    """
 }
 
 do ->
@@ -135,116 +152,163 @@ do ->
         className: "im-column-dialogue modal fade"
         
         initialize: (@query) ->
-            @newView = new NewViewNodes()
-            @newView.on 'add remove change', @drawOrder, @
-            @newView.on 'destroy', (nv) => @newView.remove(nv)
-            @query.on 'column-orderer:selected', (paths) =>
-                for path in paths
-                    pstr = path.toString()
-                    if @query.isOuterJoined(pstr)
-                        ojgs = @newView.filter( (nv) -> nv.get('isOuterJoined') )
-                                       .filter( (nv) -> !!pstr.match(nv.get('path').toString()) )
-                        ojg = _.last(_.sortBy(ojgs, (nv) -> nv.get('path').descriptors.length))
-                        ojg.addPath(@query.getPathInfo(pstr))
-                    else
-                        @newView.add {path: @query.getPathInfo(pstr), isNew: true}
+          @sortOpts = new Backbone.Model
+          @sortOrder = new intermine.columns.collections.SortOrder
+          @sortPossibles = new intermine.columns.collections.PossibleOrderElements
+          @newView = new NewViewNodes()
+
+          @sortOrder.on 'add', @addSortElement
+          @sortPossibles.on 'add', @addPossibleSortElement
+
+          @sortOpts.on 'change:onlyInView', (m, only) =>
+            @sortPossibles.each (m) -> m.trigger 'only-in-view', only
+          @sortOpts.on 'change:filterTerm', (m, re) =>
+            @sortPossibles.each (m) -> m.trigger 'filter', re
+
+          @newView.on 'add remove change', @drawOrder, @
+          @newView.on 'destroy', (nv) => @newView.remove(nv)
+          @query.on 'column-orderer:selected', (paths) =>
+            for path in paths
+              pstr = path.toString()
+              if @query.isOuterJoined(pstr)
+                ojgs = @newView.filter( (nv) -> nv.get('isOuterJoined') )
+                               .filter( (nv) -> !!pstr.match(nv.get('path').toString()) )
+                ojg = _.last(_.sortBy(ojgs, (nv) -> nv.get('path').descriptors.length))
+                ojg.addPath(@query.getPathInfo(pstr))
+              else
+                @newView.add {path: @query.getPathInfo(pstr), isNew: true}
 
         html: """
          <div class="modal-header">
-             <a class="close" data-dismiss="modal">close</a>
-             <h3>Manage Columns</a>
+           <a class="close" data-dismiss="modal">close</a>
+           <h3>Manage Columns</a>
          </div>
          <div class="modal-body">
-             <ul class="nav nav-tabs">
-                 <li class="active">
-                     <a data-target=".im-reordering" data-toggle="tab">
-                         #{ intermine.messages.columns.OrderTitle }
-                     </a>
-                 </li>
-                 <li>
-                     <a data-target=".im-sorting" data-toggle="tab">
-                         #{ intermine.messages.columns.SortTitle }
-                     </a>
-                 </li>
-             </ul>
-             <div class="tab-content">
-                 <div class="tab-pane fade im-reordering active in">
-                     <div class="node-adder"></div>
-                     <ul class="im-reordering-container well"></ul>
-                 </div>
-                 <div class="tab-pane fade im-sorting">
-                     <ul class="im-sorting-container well"></ul>
-                     <ul class="im-sorting-container-possibilities well"></ul>
-                 </div>
+           <ul class="nav nav-tabs">
+             <li class="active">
+               <a data-target=".im-reordering" data-toggle="tab">
+                 #{ intermine.messages.columns.OrderTitle }
+               </a>
+             </li>
+             <li>
+               <a data-target=".im-sorting" data-toggle="tab">
+                 #{ intermine.messages.columns.SortTitle }
+               </a>
+             </li>
+           </ul>
+           <div class="tab-content">
+             <div class="tab-pane fade im-reordering active in">
+               <div class="node-adder"></div>
+               <ul class="im-reordering-container well"></ul>
              </div>
+             <div class="tab-pane fade im-sorting">
+               <ul class="im-sorting-container well"></ul>
+               <form class="form-search">
+                <i class="#{ intermine.icons.Help } pull-right im-sorting-help"></i>
+                <div class="input-prepend">
+                  <span class="add-on">filter</span>
+                  <input type="text" class="search-query im-sortables-filter">
+                </div>
+                <label class="im-only-in-view">
+                  #{ intermine.messages.columns.OnlyColsInView }
+                  <input class="im-only-in-view" type="checkbox" checked>
+                </label>
+               </form>
+               <ul class="im-sorting-container-possibilities well"></ul>
+             </div>
+           </div>
          </div>
          <div class="modal-footer">
-             <a class="btn btn-cancel">
-                 Cancel
-             </a>
-             <a class="btn pull-right btn-primary">
-                 Apply
-             </a>
+           <a class="btn btn-cancel">
+             Cancel
+           </a>
+           <a class="btn pull-right btn-primary">
+             Apply
+           </a>
          </div>
         """
 
         viewTemplate: _.template """
-            <li class="im-reorderable breadcrumb<% if (isNew) {%> new<% } %>" data-path="<%- path %>">
-                <i class="icon-reorder pull-right""></i>
-                <a class="pull-left im-col-remover" title="Remove this column" href="#">
-                    <i class="#{ intermine.icons.Remove }"></i>
-                </a>
-                <h4 class="im-display-name"><%- path %></span>
-            </li>
+          <li class="im-reorderable breadcrumb<% if (isNew) {%> new<% } %>"
+              data-path="<%- path %>">
+            <i class="icon-reorder pull-right""></i>
+            <a class="pull-left im-col-remover" title="Remove this column" href="#">
+              <i class="#{ intermine.icons.Remove }"></i>
+            </a>
+            <h4 class="im-display-name"><%- path %></span>
+          </li>
         """
 
         render: ->
-            @$el.append @html
-            @initOrdering()
-            @initSorting()
+          @$el.append @html
+          @initOrdering()
+          @initSorting()
 
-            @$('.nav-tabs li a').each (i, e) =>
-                $elem = $(e)
-                $elem.data target: @$($elem.data("target"))
+          @sortOpts.set onlyInView: true
+          @$('i.im-sorting-help').popover
+            placement: (popover) ->
+              $(popover).addClass 'bootstrap'
+              'left'
+            trigger: 'hover'
+            html: true
+            title: intermine.messages.columns.SortingHelpTitle
+            content: intermine.messages.columns.SortingHelpContent
 
-            this
+          @$('.nav-tabs li a').each (i, e) =>
+              $elem = $(e)
+              $elem.data target: @$($elem.data("target"))
+
+          this
 
         events:
             'hidden': 'remove'
             'click .btn-cancel': 'hideModal'
             'click .btn-primary': 'applyChanges'
             'click .nav-tabs li a': 'changeTab'
-            'click .im-soe .im-remove-soe': 'removeSortOrder'
-            'click .im-add-soe': 'addSortOrder'
-            'click .im-sort-direction': 'sortCol'
+            'change input.im-only-in-view': 'onlyShowOptionsInView'
+            'change .im-sortables-filter': 'filterSortables'
+            'keyup .im-sortables-filter': 'filterSortables'
             'sortupdate .im-reordering-container': 'updateOrder'
+
+        getFilterTerm: (e) ->
+          $input = $ e.currentTarget
+          term = $input.val()
+          return unless term
+          pattern = term.split(/\s+/).join('.*')
+          new RegExp(pattern, 'i')
+
+        filterSortables: (e) ->
+          @sortOpts.set filterTerm: @getFilterTerm e
+
+        onlyShowOptionsInView: (e) ->
+          @sortOpts.set onlyInView: $(e.currentTarget).is ':checked'
 
         changeTab: (e) -> $(e.target).tab("show")
 
         initOrdering: ->
-            @newView.reset()
-            @ojgs = {}
-            for v in @query.views
-                path = @query.getPathInfo v
-                isOuterJoined = @query.isOuterJoined v
-                if isOuterJoined
-                    # Find oj closest to root
-                    oj = if @query.joins[path.toString()] is 'OUTER' then path else null
-                    node = path
-                    while !node?.isRoot()
-                        node = node.getParent()
-                        oj = if @query.joins[node.toString()] is 'OUTER' then node else oj
-                    ojStr = oj.toString()
-                    unless @ojgs[ojStr] # Done this one already
-                        paths = @query.views.filter((v) -> v.match(ojStr)).map((v) => @query.getPathInfo(v))
-                        path = oj
-                        @newView.add {path, paths, isOuterJoined}, {silent: true}
-                        @ojgs[ojStr] = @newView.last()
-                
-                else
-                    @newView.add {path, isOuterJoined}, {silent: true}
-            @drawOrder()
-            @drawSelector()
+          @newView.reset()
+          @ojgs = {}
+          for v in @query.views
+            path = @query.getPathInfo v
+            isOuterJoined = @query.isOuterJoined v
+            if isOuterJoined
+               # Find oj closest to root
+               oj = if @query.joins[path.toString()] is 'OUTER' then path else null
+               node = path
+               while !node?.isRoot()
+                 node = node.getParent()
+                 oj = if @query.joins[node.toString()] is 'OUTER' then node else oj
+               ojStr = oj.toString()
+               unless @ojgs[ojStr] # Done this one already
+                 paths = (@query.getPathInfo v for v in @query.views when v.match ojStr)
+                 path = oj
+                 @newView.add {path, paths, isOuterJoined}, {silent: true}
+                 @ojgs[ojStr] = @newView.last()
+            
+            else
+              @newView.add {path, isOuterJoined}, {silent: true}
+          @drawOrder()
+          @drawSelector()
 
         drawOrder: ->
             colContainer = @$ '.im-reordering-container'
@@ -283,55 +347,6 @@ do ->
             newView = paths.map( (p) => @newView.find( (nv) -> p is nv.get('path').toString() ))
             @newView.reset( newView )
 
-        sortCol: (e) ->
-            $elem = $(e.target).parent()
-            newDirection = if $elem.data("direction") is "ASC" then "DESC" else "ASC"
-            $elem.data direction: newDirection
-            $(e.target).toggleClass "asc desc"
-
-        soTemplate: _.template """
-            <li class="im-reorderable breadcrumb im-soe" data-path="<%- path %>" data-direction="<%- direction %>">
-                <i class="icon-reorder pull-right"></i>
-                <a class="pull-right im-remove-soe" href="#">
-                    <i class="icon-minus" title="Remove this column from the sort order"></i>
-                </a>
-                <a class="pull-left im-sort-direction <% if (direction === 'ASC') { %>asc<% } else { %>desc<% } %>" href="#"></a>
-                <span class="im-path" title="<%- path %>"><%- path %></span>
-            </li>
-        """
-
-        possibleSortOptionTemplate: _.template """
-            <li class="breadcrumb" data-path="<%- path %>">
-                <i class="icon-reorder pull-right"></i>
-                <a class="pull-right im-add-soe" title="Add this column to the sort order" href="#">
-                    <i class="icon-plus"></i>
-                </a>
-                <span title="<%- path %>"><%- path %></span>
-            </li>
-        """
-
-        removeSortOrder: (e) ->
-            $elem = $(e.target).closest('.im-soe')
-            path = $elem.data "path"
-            $('.tooltip').remove()
-            $elem.find('.im-remove-soe').tooltip("hide")
-            $elem.remove()
-            possibilities = @$ '.im-sorting-container-possibilities'
-            psoe = $ @possibleSortOptionTemplate path: path
-            do (psoe) => @query.getPathInfo(path).getDisplayName (name) ->
-                psoe.find('span').text name
-            psoe.draggable
-                revert: "invalid"
-                revertDuration: 100
-            psoe.find(".im-add-soe").tooltip()
-            possibilities.append psoe
-
-        addSortOrder: (e) ->
-            $elem = $(e.target).closest('.breadcrumb')
-            path = $elem.data "path"
-            $elem.find('.im-add-soe').tooltip('hide')
-            $elem.remove()
-            @$('.im-sorting-container').append @makeSortOrderElem path: path, direction: "ASC"
 
         sortingPlaceholder: """
             <div class="placeholder">
@@ -339,44 +354,59 @@ do ->
             </div>
         """
 
-        makeSortOrderElem: (so) ->
-            soe = $ @soTemplate so
-            @query.getPathInfo(so.path).getDisplayName (name) -> soe.find('.im-path').text name
-            soe.addClass("numeric") if @query.getPathInfo(so.path).getType() in intermine.Model.NUMERIC_TYPES
-            soe.find('.im-remove-soe').tooltip()
-            soe
+        makeSortOrderElem: (model) ->
+          soe = new intermine.columns.views.OrderElement {model}
+          soe.render().el
 
-        makeSortOption: (path) ->
-            option = $ @possibleSortOptionTemplate path: path
-            do (option) => @query.getPathInfo(path).getDisplayName (name) ->
-                option.find('span').text name
-            return option
+        makeSortOption: (model) ->
+          option = new intermine.columns.views.PossibleOrderElement {model, @sortOrder}
+          option.render().el
 
-        initSorting: =>
-            container = @$ '.im-sorting-container'
-            container.empty().append(@sortingPlaceholder)
-            for so, i in (@query.sortOrder or [])
-                container.append @makeSortOrderElem(so)
+        initSorting: ->
+          container = @$('.im-sorting-container').empty().append(@sortingPlaceholder)
+          @$('.im-sorting-container-possibilities').empty()
 
-            possibilities = @$ '.im-sorting-container-possibilities'
-            possibilities.empty()
-            for v in @query.views when not @query.getSortDirection(v) and not @query.isOuterJoined(v)
-                possibilities.append @makeSortOption v
+          container.sortable().droppable
+            drop: (event, ui) -> $(ui.draggable).trigger 'dropped'
 
-            for n in @query.getQueryNodes() when not @query.isOuterJoined n.toPathString()
-                for cn in n.getChildNodes() when cn.isAttribute() and cn.toPathString() not in @query.views
-                    possibilities.append @makeSortOption cn.toPathString()
+          @buildSortOrder()
+          @buildPossibleSortOrder()
 
-            possibilities.find("li").draggable
-                revert: "invalid"
-                revertDuration: 100
-            possibilities.find(".im-add-soe").tooltip()
+        buildSortOrder: ->
+          @sortOrder.reset []
 
-            container.sortable().droppable
-                drop: (event, ui) =>
-                    path = $(ui.draggable).data("path")
-                    $(ui.draggable).remove()
-                    container.append @makeSortOrderElem path: path, direction: "ASC"
+          for so, i in (@query.sortOrder or [])
+            {path, direction} = so
+            @sortOrder.add new intermine.columns.SortOrder
+              path: @query.getPathInfo path
+              direction: direction
+
+        buildPossibleSortOrder: ->
+          @sortPossibles.reset []
+
+          isSorted = (v) => @query.getSortDirection v
+          isOuter = (v) => @query.isOuterJoined v
+          inView = (v) => "#{ v }" in @query.views
+
+          test0 = (path) -> not isSorted(path) and not isOuter(path)
+          test1 = (p) -> p.isAttribute() and not inView(p) and not isSorted(p)
+
+          for path in @query.views when test0 path
+            @sortPossibles.add {path, @query}
+
+          for n in @query.getQueryNodes() when not isOuter n
+            for path in n.getChildNodes() when test1 path
+              @sortPossibles.add {path, @query}
+        
+        addSortElement: (m) =>
+          container = @$ '.im-sorting-container'
+          elem = @makeSortOrderElem m
+          container.append elem
+
+        addPossibleSortElement: (m) =>
+          possibilities = @$ '.im-sorting-container-possibilities'
+          elem = @makeSortOption m
+          possibilities.append elem
 
         hideModal: -> @$el.modal 'hide'
 
