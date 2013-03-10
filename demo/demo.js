@@ -175,6 +175,9 @@ $(function() {
     };
 
     var login = function(serviceArgs) {
+        $('.entry-points li').each(function() {
+          $(this).toggleClass("active", $(this).text() === serviceArgs);
+        });
         var token = services[serviceArgs].token;
         display.imWidget({
             type: displayType,
@@ -203,8 +206,6 @@ $(function() {
         var text = $(this).text();
         if (services[text]) {
             login($(this).text());
-            $('.entry-points li').removeClass("active");
-            $(this).addClass("active");
         }
     });
 
@@ -239,6 +240,6 @@ $(function() {
         changeLayout();
     });
 
-    login("TestModel");
+    login("Preview");
     
 });
