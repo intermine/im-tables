@@ -16,3 +16,12 @@ unless Array::indexOf? # Not present in ie8
 # In case $ is not jQuery, treat it as such in the lexical scope of this library.
 $ = jQuery
 
+# Temporary fix for the lack of make in recent backbone
+
+unless Backbone.View::make?
+  Backbone.View::make = (elemName, attrs) ->
+    el = document.createElement(elemName)
+    if attrs.class?
+      $(el).addClass(attrs.class)
+    el
+
