@@ -14,11 +14,13 @@
     "email": "alex@intermine.org",
     "twitter": "alexkalderimis"
   },
+  "homepage": "http://www.intermine.org",
   "license": "LGPL",
   "repository": {
     "type": "git",
     "url": "git://github.com/alexkalderimis/im-tables.git"
   },
+  "contributors": [],
   "engines": {
     "node": ">= 0.8.0"
   },

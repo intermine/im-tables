@@ -2,7 +2,7 @@
 fs     = require 'fs'
 Q      = require 'q'
 _      = require 'underscore'
-{IM}   = require './intermine.spec'
+IM     = require './package.json'
 
 BLACKLIST = [
   'html', 'body', '.modal', '.modal-backdrop', '.modal-header', '.modal-footer',
@@ -13,11 +13,12 @@ prefix = require('prefix-css-node').prefixer '.bootstrap', BLACKLIST
 
 header = """
   ###
-   * InterMine Results Tables Library v#{IM.VERSION}
-   * http://www.intermine.org
+   * InterMine Results Tables Library v#{IM.version}
+   * web: #{ IM.homepage }
+   * repo: #{ IM.repository.url }
    *
-   * Copyright 2012, Alex Kalderimis and InterMine
-   * Released under the LGPL license.
+   * Copyright 2012, 2013, #{ IM.author.name } and InterMine
+   * Released under the #{ IM.license } license.
    * 
    * Built at #{new Date()}
   ###
