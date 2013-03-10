@@ -123,6 +123,11 @@ task 'mkdir:out', 'Make the output directory', promiserToNode (makeOut = makeDir
 writingDeps = false
 
 otherDeps = ['lib/js/jquery-ui-1.10.1.custom.js']
+deps = [
+  'lib/js/jquery-ui-1.10.1.custom.js',
+  'components/bootstrap/docs/assets/js/bootstrap.js'
+]
+
 
 DEPS = 'build:deps'
 DEPS_DESC = 'concatenate dependencies'
@@ -135,14 +140,19 @@ task DEPS, DEPS_DESC, builddeps = promiserToNode ->
   writeOut = writer 'js/deps.js'
   writingDeps = true
   stop = -> writingDeps = false
+  wanted = (name) ->
+    /bootstrap-\w+\.js$/.test(name) and not /(scrollspy|collapse)/.test(name)
 
   makeOut()
-    .then(-> deepRead dirName)
-    .then((found) -> otherDeps.concat _.flatten found)
-    .then((fileNames) -> Q.all( read(f, 'utf8') for f in fileNames))
+    .then(-> Q.all( read(f, 'utf8') for f in deps))
     .then((fileContents) -> fileContents.join('\n\n'))
     .then(writeOut)
     .then(stop)
+  # .then(-> deepRead dirName)
+  # .then(_.flatten)
+  # .then((maybes) -> maybes.filter wanted)
+  # .then((found) -> _.union otherDeps, found)
+  # .then((fileNames) -> Q.all( read(f, 'utf8') for f in fileNames))
 
 cleaning = false
 
