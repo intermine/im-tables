@@ -27,16 +27,17 @@ do ->
 
         render: ->
           @$el.addClass intermine.options.StylePrefix
-          promise = @service.query @query, (q) =>
-            @tools = $ @make 'div', class: 'clearfix'
+          promise = @service.query @query
+          
+          promise.done (q) =>
+            @tools = $ """<div class="clearfix">"""
             @$el.append @tools
-            @main = $ @make "div", {class: @TABLE_CLASSES}
+            @main = $ """<div class="#{ @TABLE_CLASSES }">"""
             @$el.append @main
 
             @renderQueryManagement(q)
             @renderTools(q)
             @loadQuery(q)
-
 
           promise.fail (xhr, err, msg) =>
             @$el.append """
@@ -45,6 +46,7 @@ do ->
                 <p>Unable to construct query: #{msg}</p>
               </div>
             """
+
           this
 
         renderTools: (q) ->
@@ -66,7 +68,7 @@ do ->
         TABLE_CLASSES: "im-query-results"
 
         renderTools: (q) ->
-            @toolbar = new intermine.query.tools.ToolBar(q)
-            @tools.append @toolbar.render().el
+          @toolbar = new intermine.query.tools.ToolBar(q)
+          @tools.append @toolbar.render().el
 
     scope "intermine.query.results", {DashBoard, CompactView}
