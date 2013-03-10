@@ -1,5 +1,8 @@
-do ->
+scope 'intermine.messages.constraints',
+  BrowseForColumn: 'Browse for Column'
 
+do ->
+  
     pos = (substr) -> _.memoize (str) -> str.toLowerCase().indexOf substr
     pathLen = _.memoize (str) -> str.split(".").length
 
@@ -298,11 +301,11 @@ do ->
 
         render: ->
             browser = $ """
-                    <button type="button" class="btn btn-chooser" data-toggle="button">
-                        <i class="icon-sitemap"></i>
-                        Browse for column
-                    </button>
-                """
+              <button type="button" class="btn btn-chooser" data-toggle="button">
+                <i class="icon-sitemap"></i>
+                <span>#{ intermine.messages.constraints.BrowseForColumn }</span>
+              </button>
+            """
 
             approver = $ @make 'button', {type: "button", class: "btn btn-primary"}, "Choose"
             @$el.append browser

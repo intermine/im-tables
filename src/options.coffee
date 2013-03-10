@@ -1,5 +1,8 @@
 scope "intermine.options",
+    NUM_SEPARATOR: ',',
+    NUM_CHUNK_SIZE: 3,
     MAX_PIE_SLICES: 15,
+    StylePrefix: 'bootstrap'
     GalaxyMain: "http://main.g2.bx.psu.edu"
     ShowId: false
     TableWidgets: ['Pagination', 'PageSizer', 'TableSummary', 'ManagementTools', 'ScrollBar']
@@ -16,29 +19,51 @@ scope "intermine.options",
       Transition:
         Easing: 'elastic'
         Duration: 750
+    preview:
+      count:
+        'http://localhost/intermine-test/service/':
+          Department: [ 'employees' ]
+          Company: [
+            'departments',
+            {label: 'employees', query: {select: '*', from: 'Employee', where: {'department.company.id': '{{ID}}'}} }
+          ]
+
+        'http://beta.flymine.org/beta/service/':
+          Organism: [
+            {label: 'Genes', query: {select: '*', from: 'Gene', where: {'organism.id': '{{ID}}'}} }
+          ],
+          Gene: [
+            'pathways', 'proteins', 'publications', 'transcripts', 'homologues'
+          ]
+
 
 do ->
-  doLoad = (server, resource) ->
+  parallel = (promises) -> jQuery.when.apply(jQuery, promises)
+
+  loader = (server) -> (resource) ->
     if /\.css$/.test resource
       link = jQuery('<link type="text/css" rel="stylesheet">')
       link.appendTo('head').attr href: server + resource
       return jQuery.Deferred -> @resolve()
     else
-      return jQuery.ajax
+      fetch = jQuery.ajax
         url: server + resource
         cache: true
         dataType: 'script'
+      # script loaded, but possibly not executed: hang off a bit
+      return fetch.then -> jQuery.Deferred -> _.delay @resolve, 50, true
 
   scope 'intermine.cdn',
 
     load: (ident) ->
       {server, resources} = intermine.options.CDN
       conf = resources[ident]
+      load = loader server
       if not conf
         jQuery.Deferred -> @reject "No resource is configured for #{ ident }"
       else if _.isArray(conf)
-        doLoad(server, r) for r in conf
+        parallel conf.map load
       else
-        doLoad(server, conf)
+        load conf
 
 

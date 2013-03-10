@@ -50,16 +50,21 @@ do ->
 
 do ->
 
+  placement = intermine.utils.addStylePrefix 'top'
+
   class OrderElement extends Backbone.View
 
+    tagName: 'li'
+
+    className: 'im-reorderable im-soe'
+
     TEMPLATE = _.template """
-      <i class="icon-reorder pull-right"></i>
-      <a class="pull-right im-remove-soe" href="#">
-        <i class="icon-minus" title="Remove this column from the sort order"></i>
-      </a>
-      <a class="pull-left im-sort-direction <%= direction.toLowerCase() %>" href="#">
-      </a>
-      <span class="im-path" title="<%- path %>"><%- path %></span>
+      <div>
+        <span class="im-sort-direction <%= direction.toLowerCase() %>"></span>
+        <i class="icon-minus im-remove-soe" title="Remove this column from the sort order"></i>
+        <span class="im-path" title="<%- path %>"><%- path %></span>
+        <i class="icon-reorder pull-right"></i>
+      </div>
     """
 
     initialize: ->
@@ -71,9 +76,7 @@ do ->
       'click .im-sort-direction': 'changeDirection'
       'click .im-remove-soe': 'deorder'
 
-    deorder: ->
-      @options.possibles.add path: @model.get('path')
-      @model.destroy()
+    deorder: -> @model.destroy()
 
     changeDirection: ->
       direction = if @model.get('direction') is 'ASC' then 'DESC' else 'ASC'
@@ -84,9 +87,6 @@ do ->
       @$('.im-remove-soe').tooltip 'hide'
       super()
 
-    tagName: 'li'
-
-    className: 'im-reorderable breadcrumb im-soe'
 
     render: ->
 
@@ -94,7 +94,7 @@ do ->
 
       @$el.append TEMPLATE @model.toJSON()
 
-      @$('.im-remove-soe').tooltip()
+      @$('.im-remove-soe').tooltip {placement}
 
       @model.get('path').getDisplayName().done (name) => @$('.im-path').text name
 
@@ -104,15 +104,17 @@ do ->
 
     tagName: 'li'
 
-    className: 'breadcrumb'
+    className: 'im-soe'
 
     TEMPLATE = _.template """
-      <i class="icon-reorder pull-right"></i>
-      <a class="pull-right im-add-soe"
-         title="#{ intermine.messages.columns.AddThisColumn }" href="#">
-        <i class="icon-plus"></i>
-      </a>
-      <span title="<%- path %>"><%- path %></span>
+      <div>
+        <a href="#" class="im-add-soe"
+           title="#{ intermine.messages.columns.AddThisColumn }" >
+          <i class="icon-plus"></i>
+          <span title="<%- path %>"><%- path %></span>
+        </a>
+        <i class="icon-reorder pull-right"></i>
+      </div>
     """
 
     events:
@@ -154,7 +156,7 @@ do ->
         revert: 'invalid'
         revertDuration: 100
 
-      @$(".im-add-soe").tooltip()
+      @$(".im-add-soe").tooltip {placement}
 
       this
 

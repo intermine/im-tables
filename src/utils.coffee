@@ -1,4 +1,4 @@
-do ->
+do ($ = jQuery) ->
 
     # Simple tree-walker
     walk = (obj, f) ->
@@ -22,6 +22,10 @@ do ->
         else
           dup[k] = copy v
       dup
+
+    getContainer = (el) -> el.closest '.' + intermine.options.StylePrefix
+
+    addStylePrefix = (x) -> (elem) -> $(elem).addClass(intermine.options.StylePrefix); x
 
     ##
     # Very naïve English word pluralisation algorithm
@@ -82,8 +86,22 @@ do ->
             else
                 cb orgs
 
+
+    class ItemView extends Backbone.View
+
+      render: ->
+
+        if @template?
+          @$el.html @template @model.toJSON()
+        
+        @trigger 'rendered'
+
+        this
+
+    scope 'intermine.views', {ItemView}
+
     scope "intermine.utils", {
       copy, walk, getOrganisms, requiresAuthentication, modelIsBio,
-      getParameter, numToString, pluralise
+      getParameter, numToString, pluralise, addStylePrefix, getContainer
     }
             

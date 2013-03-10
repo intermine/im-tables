@@ -6,6 +6,7 @@ do ->
 
         initialize: (service, @query, @queryEvents, @tableProperties) ->
             console.log @tableProperties
+            @columnHeaders = new Backbone.Collection
             @events ?= {}
             if _(service).isString()
                 @service = new intermine.Service root: service
@@ -18,32 +19,33 @@ do ->
         TABLE_CLASSES: "span9 im-query-results"
 
         loadQuery: (q) ->
-            @main.empty()
-            @toolbar?.remove()
-            @table = new intermine.query.results.Table(q, @main)
-            @table[k] = v for k, v of @tableProperties
-            @table.render()
-            @renderTools(q)
-            q.on evt, cb for evt, cb of @queryEvents
+          @main.empty()
+          @table = new intermine.query.results.Table(q, @main, @columnHeaders)
+          @table[k] = v for k, v of @tableProperties
+          @table.render()
+          q.on evt, cb for evt, cb of @queryEvents
 
         render: ->
-            @$el.addClass "bootstrap"
-            promise = @service.query @query, (q) =>
-                @main = $ @make "div", {class: @TABLE_CLASSES}
-                @$el.append @main
-                @loadQuery(q)
+          @$el.addClass intermine.options.StylePrefix
+          promise = @service.query @query, (q) =>
+            @tools = $ @make 'div', class: 'clearfix'
+            @$el.append @tools
+            @main = $ @make "div", {class: @TABLE_CLASSES}
+            @$el.append @main
 
-                @renderTrail(q)
+            @renderQueryManagement(q)
+            @renderTools(q)
+            @loadQuery(q)
 
 
-            promise.fail (xhr, err, msg) =>
-                @$el.append """
-                    <div class="alert alert-error">
-                        <h1>#{err}</h1>
-                        <p>Unable to construct query: #{msg}</p>
-                    </div>
-                """
-            this
+          promise.fail (xhr, err, msg) =>
+            @$el.append """
+              <div class="alert alert-error">
+                <h1>#{err}</h1>
+                <p>Unable to construct query: #{msg}</p>
+              </div>
+            """
+          this
 
         renderTools: (q) ->
             tools = @make "div", {class: "span3 im-query-toolbox"}
@@ -51,9 +53,11 @@ do ->
             @toolbar = new intermine.query.tools.Tools(q)
             @toolbar.render().$el.appendTo tools
 
-        renderTrail: (q) ->
-            trail = new intermine.query.tools.Trail(q, @)
-            trail.render().$el.prependTo @el
+        renderQueryManagement: (q) ->
+          managementGroup = new intermine.query.tools.ManagementTools(q, @columnHeaders)
+          managementGroup.render().$el.appendTo @tools
+          trail = new intermine.query.tools.Trail(q, @)
+          trail.render().$el.appendTo managementGroup.el
 
     class CompactView extends DashBoard
 
@@ -63,6 +67,6 @@ do ->
 
         renderTools: (q) ->
             @toolbar = new intermine.query.tools.ToolBar(q)
-            @toolbar.render().$el.insertBefore @main
+            @tools.append @toolbar.render().el
 
     scope "intermine.query.results", {DashBoard, CompactView}

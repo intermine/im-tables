@@ -374,6 +374,8 @@ do ->
             .attr('width', @w)
             .attr('height', h)
 
+          container = @canvas
+
           chart.selectAll('rect')
             .data(items)
             .enter().append('rect')
@@ -384,7 +386,7 @@ do ->
               .on('click', (d, i) => @range.set min: val(d.bucket), max: val(d.bucket + 1))
               .each (d, i) ->
                 title = "#{ val d.bucket } >= x < #{ val (d.bucket + 1)}: #{ d.count } items"
-                $(@).tooltip {title}
+                $(@).tooltip {title, container}
 
           rects = chart.selectAll('rect').data(items)
             .transition()
@@ -569,7 +571,7 @@ do ->
           paths.each (d, i) ->
             title = "#{ d.data.get 'item' }: #{ percent d }%"
             placement = if (d.endAngle + d.startAngle) / 2 > Math.PI then 'left' else 'right'
-            $(@).tooltip {title, placement}
+            $(@).tooltip {title, placement, container: elem}
           paths.transition()
             .duration(intermine.options.D3.Transition.Duration)
             .ease(intermine.options.D3.Transition.Easing)
@@ -585,7 +587,7 @@ do ->
 
         filterControls: """
           <div class="input-prepend">
-              <span class="add-on"><i class="icon-refresh"></i></span><input type="text" class="input-medium search-query filter-values" placeholder="Filter values">
+              <span class="add-on"><i class="icon-refresh"></i></span><input type="text" class="input-medium  filter-values" placeholder="Filter values">
           </div>
         """
 
@@ -785,7 +787,6 @@ do ->
             .ease(intermine.options.D3.Transition.Easing)
             .attr('y', (d) -> h - y(d.get 'count') - 0.5)
             .attr('height', (d) -> y d.get 'count')
-            .each (d, i) -> $(@).tooltip title: "#{ d.get 'item' }: #{ d.get 'count' }"
 
           chart.append('line')
             .attr('x1', 0)

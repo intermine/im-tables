@@ -14,6 +14,8 @@ do ->
         tagName: "form"
         className: "form-inline im-constraint row-fluid"
         
+        BASIC_OPS = intermine.Query.ATTRIBUTE_VALUE_OPS.concat intermine.Query.NULL_OPS
+
         initialize: (@query, @orig) ->
             @typeaheads = []
             @path = @query.getPathInfo @orig.path
@@ -26,7 +28,7 @@ do ->
             else if @con.has('values')
                 @ops = intermine.Query.ATTRIBUTE_OPS
             else
-                @ops = intermine.Query.ATTRIBUTE_VALUE_OPS.concat(intermine.Query.NULL_OPS)
+                @ops = BASIC_OPS
 
         events:
             'change .im-ops': 'drawValueOptions'
@@ -117,7 +119,8 @@ do ->
             else
                 @con.get('value') or @con.get('type')
 
-        toLabel: (content, type) -> $ """<span class="label label-#{type}">#{content}</span>"""
+        toLabel = (content, type) ->
+          $ """<span class="label label-#{type}">#{content}</span>"""
 
         fillConSummaryLabel: () ->
             @label.empty()
@@ -125,38 +128,40 @@ do ->
             ul = $('<ul class="breadcrumb">').appendTo @label
 
             if @con.has 'title'
-                ul.append @toLabel @con.get('title'), 'path'
+                ul.append toLabel @con.get('title'), 'path'
             else
-                sp = @toLabel @path, 'path'
+                sp = toLabel @path, 'path'
                 do (sp) => @path.getDisplayName (name) -> sp.text name
                 ul.append(sp)
             if (op = @getTitleOp())
-                ul.append @toLabel op, 'op'
+                ul.append toLabel op, 'op'
             unless @con.get('op') in intermine.Query.NULL_OPS
                 if (val = @getTitleVal())
-                    ul.append @toLabel val, 'value'
+                    ul.append toLabel val, 'value'
                 if @con.has 'extraValue'
                     ul.append intermine.conbuilder.messages.ExtraLabel
-                    ul.append @toLabel @con.get('extraValue'), 'extra'
+                    ul.append toLabel @con.get('extraValue'), 'extra'
+
+        CON_OPTS = """<fieldset class="im-constraint-options"></fieldset>"""
 
         render: ->
-            @label = $ """
-                <label class="im-con-overview">
-                </label>
-            """
-            @fillConSummaryLabel()
-            @$el.append @label
-            fs = $("""<fieldset class="im-constraint-options"></fieldset>""").appendTo @el
-            @drawOperatorSelector(fs)
-            @drawValueOptions()
-            @$el.append """
-                <div class="alert alert-error span10 hidden">
-                    <i class="icon-warning-sign"></i>
-                    #{ intermine.conbuilder.messages.CantEditConstraint }
-                </div>
-            """
-            @addButtons()
-            this
+          @label = $ """
+            <label class="im-con-overview">
+            </label>
+          """
+          @fillConSummaryLabel()
+          @$el.append @label
+          fs = $(CON_OPTS).appendTo @el
+          @drawOperatorSelector(fs)
+          @drawValueOptions()
+          @$el.append """
+            <div class="alert alert-error span10 im-hidden">
+              <i class="icon-warning-sign"></i>
+              #{ intermine.conbuilder.messages.CantEditConstraint }
+            </div>
+          """
+          @addButtons()
+          this
 
         drawOperatorSelector: (fs) ->
             current = @con.get 'op'

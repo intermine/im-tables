@@ -1,26 +1,30 @@
 do ->
     class ManagementTools extends Backbone.View
 
-        initialize: (@query) ->
+        initialize: (@query, @columnHeaders) ->
             @query.on "change:constraints", @checkHasFilters, @
 
         checkHasFilters: () ->
-            @$('.im-filters').toggleClass "im-has-constraint", @query.constraints.length > 0
+          count = @query.constraints.length
+          @$('.im-filters').toggleClass "im-has-constraint", count > 0
+          @$('.im-filters .im-action').text if count > 0 then count else 'Add '
 
         tagName: "div"
-        className: "im-management-tools btn-group"
+        className: "im-management-tools"
 
         html: """
-            <button class="btn btn-large im-columns">
+          <div class="btn-group"> 
+            <button class="btn im-columns">
                 <i class="#{ intermine.icons.Columns }"></i>
                 <span class="im-only-widescreen">Manage </span>
                 <span class="hidden-tablet">Columns</span>
             </button>
-            <button class="btn btn-large im-filters">
+            <button class="btn im-filters">
                 <i class="#{ intermine.icons.Filter }"></i>
-                <span class="im-only-widescreen">Manage </span>
-                <span class="hidden-tablet">Filters</span>
+                <span class="hidden-phone im-action">Manage </span>
+                <span class="hidden-phone">Filters</span>
             </button>
+          </div>
         """
 
         events:
@@ -28,7 +32,7 @@ do ->
             'click .im-filters': 'showFilterDialogue'
 
         showColumnDialogue: (e) ->
-            dialogue = new intermine.query.results.table.ColumnsDialogue(@query)
+            dialogue = new intermine.query.results.table.ColumnsDialogue(@query, @columnHeaders)
             @$el.append dialogue.el
             dialogue.render().showModal()
 
@@ -36,7 +40,6 @@ do ->
             dialogue = new intermine.query.filters.FilterManager(@query)
             @$el.append dialogue.el
             dialogue.render().showModal()
-
 
         render: () ->
             @$el.append @html

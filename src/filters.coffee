@@ -6,6 +6,10 @@ scope "intermine.messages.filters", {
     Heading: "Active Filters"
 }
 
+scope "intermine.css", {
+  FilterBoxClass: 'well' # alert alert-info
+}
+
 do ->
 
     class Filters extends Backbone.View
@@ -78,7 +82,7 @@ do ->
 
             @$el.empty()
             @$el.append(@make "h3", {}, msgs.Heading)
-            conBox = $ '<div class="alert alert-info">'
+            conBox = $ """<div class="#{ intermine.css.FilterBoxClass }">"""
             conBox.appendTo(@el)
               .append(@make "p",  {}, if cons.length then msgs.EditOrRemove else msgs.None)
               .append(ul = @make "ul", {})
@@ -107,7 +111,7 @@ do ->
                <h3>#{ intermine.messages.filters.Heading }</h3>
            </div>
            <div class="modal-body">
-               <div class="alert alert-info">
+               <div class="#{ intermine.css.FilterBoxClass }">
                    <p></p>
                    <ul></ul>
                </div>
@@ -130,7 +134,7 @@ do ->
             # Horrible, horrible hackity hack, making kittens cry.
             $('.modal-backdrop').trigger 'click'
 
-        showModal: () -> @$el.modal().modal('show')
+        showModal: () -> @$el.modal().modal 'show' 
 
         render: () ->
             @$el.append @html

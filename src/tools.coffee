@@ -1,6 +1,8 @@
 do ->
 
-    ## Define stuff...
+    # When underscore 1.4.4 is widely available, this can be replaced by
+    # _.partial, but better to use our own for now.
+    curry = intermine.funcutils.curry
 
     TAB_HTML = _.template """
         <li>
@@ -56,17 +58,22 @@ do ->
 
             this
 
+    # This is a ridiculous class that must be killed. TODO: delete this class.
     class ToolBar extends Backbone.View
 
-        className: "im-query-actionbar row-fluid"
+      className: "im-query-actionbar"
 
-        initialize: (@query) ->
+      initialize: (@query) ->
 
-        render: ->
-            actions = new intermine.query.actions.ActionBar(@query)
-            actions.render().$el.appendTo @el
+      render: ->
+        actions = new intermine.query.actions.ActionBar(@query)
+        console.log "Created an action bar"
+        try
+          actions.render().$el.appendTo @el
+        catch e
+          console.error "Failed to set up toolbar because: #{ e.message }", e.stack
 
-            this
+        this
 
     class Step extends Backbone.View
 
@@ -112,6 +119,14 @@ do ->
                     <ul></ul>
                 </div>
             """
+
+        toLabel = (type, text) ->
+          """<span class="label label-#{ type }">#{ text }</span>"""
+
+        toPathLabel = curry toLabel, 'path'
+        toInfoLabel = curry toLabel, 'info'
+        toValLabel  = curry toLabel, 'value'
+
         render: () ->
             @$el.append """
                     <button class="btn btn-small im-state-revert" disabled
@@ -132,12 +147,7 @@ do ->
             addSection = (n, things) =>
                 $(@sectionTempl n: n, things: things).appendTo(@$('.im-step-details')).find('ul')
 
-            toLabel = (type, text) -> """<span class="label label-#{ type }">#{ text }</span>"""
-            toPathLabel = _.bind(toLabel, {}, 'path')
-            toInfoLabel = _.bind(toLabel, {}, 'info')
-            toValLabel  = _.bind(toLabel, {}, 'value')
-
-            @$('.btn-small').tooltip(placement: 'right')
+            @$('.btn-small').tooltip placement: 'right'
 
             ps = (q.getPathInfo(v) for v in q.views)
             vlist = addSection(ps.length, 'Columns')
