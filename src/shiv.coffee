@@ -21,7 +21,7 @@ $ = jQuery
 unless Backbone.View::make?
   Backbone.View::make = (elemName, attrs) ->
     el = document.createElement(elemName)
-    if attrs.class?
+    if attrs?.class?
       $(el).addClass(attrs.class)
     el
 
