@@ -97,10 +97,10 @@ do ->
               else
                 @newView.add {path: @query.getPathInfo(pstr), isNew: true}
 
-        html: intermine.columns.snippets.ColumnsDialogue
+        html: -> intermine.columns.snippets.ColumnsDialogue
 
         render: ->
-          @$el.append @html
+          @$el.append @html()
           @initOrdering()
           @initSorting()
 
