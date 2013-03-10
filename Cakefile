@@ -9,7 +9,7 @@ BLACKLIST = [
   '.modal-body', '.modal-form', '.tooltip', '.tooltip-inner', '.popover', '.popover-title'
 ]
 
-prefix = require('prefix-css-node').prefixer '.bootstrap', BLACKLIST
+prefix = require('prefix-css-node')#.prefixer '.bootstrap', BLACKLIST
 
 header = """
   ###
@@ -30,6 +30,15 @@ BOOTSTRAP_COMP = "components/bootstrap/component.json"
 read = Q.nfbind fs.readFile
 write = Q.nfbind fs.writeFile
 readdir = Q.nfbind fs.readdir
+mkdir = Q.nfbind fs.mkdir
+exists = (path) ->
+  def = Q.defer()
+  fs.exists path, (itDoes) ->
+    if itDoes
+      def.resolve(true)
+    else
+      def.reject(false)
+  def.promise
 
 writer = (fname) -> (data, enc = 'utf8') -> write fname, data, enc
 
@@ -46,13 +55,13 @@ DEFAULT_ERR_HANDLER = (err) -> console.error err
 promiserToNode = (promiser) -> (cb) ->
     done = promiser()
     cb ?= DEFAULT_ERR_HANDLER
-    done.then( -> cont cb).fail(cb)
+    done.then( -> cont cb).done()
 
 task 'copyright', 'Show the copyright header', ->
     console.log header
 
 task 'build:compile', 'Build project from build/* to js/imtables.js', compile = (cb) ->
-    console.log "Compiling #{IM.NAME} (#{IM.VERSION}) to /js"
+    console.log "Compiling #{IM.name} (#{IM.version}) to /js"
     exec 'coffee --compile --join js/imtables.js build/', (err, stdout, stderr) ->
         if err
             console.log "Compilation failed:", stdout + stderr
@@ -92,9 +101,9 @@ CONCAT_DESC = 'Concatenate source files to a single application script'
 CONCAT = 'build:concat'
 
 task CONCAT, CONCAT_DESC, concat = promiserToNode ->
+  return Q.reject('writing') if writing
   console.log "Building source file"
   writeOut = writer 'build/build.coffee'
-  return Q.reject('writing') if writing
 
   writing = true
   Q.all([Q.all(deepRead(n) for n in neededEarly), deepRead('src')])
@@ -105,36 +114,35 @@ task CONCAT, CONCAT_DESC, concat = promiserToNode ->
     .then(writeOut)
     .then -> writing = false
 
+makeDirectory = (name) -> () -> exists(name).fail (err) ->
+    console.log "Making #{ name }"
+    mkdir name
+
+task 'mkdir:out', 'Make the output directory', promiserToNode (makeOut = makeDirectory 'js')
+
 writingDeps = false
 
 otherDeps = ['lib/js/jquery-ui-1.10.1.custom.js']
-#['lib/jquery-ui-1.10.1.custom.min.js']
-# "lib/d3.v3.min.js", 
 
 DEPS = 'build:deps'
 DEPS_DESC = 'concatenate dependencies'
 
-task DEPS, DEPS_DESC, builddeps = (cb) ->
-    console.log "Building deps"
-    dirName = "components/bootstrap/docs/assets/js"
-    unless writingDeps
-        writingDeps = true
-        fs.readdir dirName, (err, files) ->
-            throw err if err
-            wanted = ("#{ dirName }/#{f}" for f in files when f.match(/\.js$/) and not f.match(/(scrollspy|collapse|html5)/))
-            wanted = otherDeps.concat wanted
-            console.log wanted
-            depContents = new Array remaining = wanted.length
-            for f, i in wanted then do (f, i) ->
-                fs.readFile f, "utf8", (err, fileContents) ->
-                    depContents[i] = fileContents
-                    process(depContents) if --remaining is 0
-        process = (texts) ->
-            console.log "Writing deps"
-            fs.writeFile 'js/deps.js', texts.join('\n\n'), 'utf8', (err) ->
-                writingDeps = false
-                throw err if err
-                cont cb
+task DEPS, DEPS_DESC, builddeps = promiserToNode ->
+  return Q.reject('writing') if writingDeps
+
+  console.log "Building deps"
+  dirName = "components/bootstrap/docs/assets/js"
+  writeOut = writer 'js/deps.js'
+  writingDeps = true
+  stop = -> writingDeps = false
+
+  makeOut()
+    .then(-> deepRead dirName)
+    .then((found) -> otherDeps.concat _.flatten found)
+    .then((fileNames) -> Q.all( read(f, 'utf8') for f in fileNames))
+    .then((fileContents) -> fileContents.join('\n\n'))
+    .then(writeOut)
+    .then(stop)
 
 cleaning = false
 
