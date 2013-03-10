@@ -35,14 +35,14 @@ do ->
         pageSize: 25
         pageStart: 0
         throbber: _.template """
-            <tr class="im-table-throbber">
-                <td colspan="<%= colcount %>">
-                    <h2>Requesting Data</h2>
-                    <div class="progress progress-info progress-striped active">
-                        <div class="bar" style="width: 100%"></div>
-                    </div>
-                </td>
-            </tr>
+          <tr class="im-table-throbber">
+            <td colspan="<%= colcount %>">
+              <h2>Requesting Data</h2>
+              <div class="progress progress-info progress-striped active">
+                <div class="bar" style="width: 100%"></div>
+              </div>
+            </td>
+          </tr>
         """
 
         initialize: (@query, @getData, @columnHeaders) ->
@@ -213,10 +213,10 @@ do ->
             thead.append tr
 
             if result.results.length and _.has(result.results[0][0], 'column')
-                views = result.results[0].map get('column')
-                @getEffectiveView views, result.results[0]
+              views = result.results[0].map get('column')
+              @getEffectiveView views, result.results[0]
             else
-                @getEffectiveView @query.views
+              @getEffectiveView @query.views
 
             @columnHeaders.each (model) =>
               @buildColumnHeader model.get('path'), tr
