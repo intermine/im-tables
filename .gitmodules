@@ -1,9 +1,3 @@
-[submodule "lib/imjs"]
-	path = lib/imjs
-	url = git://github.com/alexkalderimis/imjs.git
 [submodule "demo/lib/notifications"]
 	path = demo/lib/notifications
 	url = git://github.com/alexkalderimis/backbone.js-growl-notifications.git
-[submodule "lib/bootstrap"]
-	path = lib/bootstrap
-	url = git://github.com/twitter/bootstrap.git
