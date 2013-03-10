@@ -18,7 +18,7 @@ $(function() {
             root: "www.flymine.org/query", 
             token: "21k3D5x5B8pdd8T9yeY24fG8th2",
             q: {
-                select: ["symbol", "organism.name", "chromosome.primaryIdentifier", "chromosomeLocation.start"], 
+                select: ["symbol", "organism.name", "chromosomeLocation.start"], 
                 from: "Gene", 
                 where: {
                 //    Gene: {IN: "an awesome list"}, 
@@ -26,13 +26,46 @@ $(function() {
                 }
             }
         },
+        Pubs: {
+          root: "www.flymine.org/query",
+          q: {
+              select: [
+                "publications.title",
+                "publications.bioEntities.symbol",
+                "publications.bioEntities.organism.name",
+                "publications.bioEntities.chromosomeLocation.end", 
+              ], 
+              from: "Gene", 
+              where: {
+                  'publications.bioEntities': {isa: 'Gene'},
+                  symbol: 'ATP*',
+                  length: {lt: 8000},
+                  "pathways.name": ["Metabolic pathways", "Gene Expression", "Transcription", "mRNA Processing"],
+                  "publications.bioEntities.symbol": 'eve' 
+              }
+              , joins: ['publications.bioEntities']
+              , aliases: {
+                'Gene.publications.bioEntities': 'Genes'
+              }
+          }
+        },
         Preview: {
           root: "beta.flymine.org/beta",
           token: "M1n3x2ydw4icj140pbBcffIgR4Q",
           q: {
-              select: ["*", "chromosomeLocation.start", "proteins.name", "exons.primaryIdentifier"], 
+              select: [
+                "symbol",
+                "organism.name",
+                "chromosomeLocation.locatedOn.primaryIdentifier", 
+                "chromosomeLocation.start", 
+                "chromosomeLocation.end", 
+                "proteins.name", 
+                "exons.primaryIdentifier"
+              ], 
               from: "Gene", 
               where: {
+                  // Aesthetic - means we can render the type correctly.
+                  'chromosomeLocation.locatedOn': {isa: 'Chromosome'}, 
                   length: {lt: 8000},
                   "pathways.name": ["Metabolic pathways", "Gene Expression", "Transcription", "mRNA Processing"],
                   "chromosome.primaryIdentifier": "2L"
@@ -41,7 +74,7 @@ $(function() {
         },
         TestModel: {
           help: 'alex@intermine.org',
-          root: "localhost/intermine-test",
+          root: window.location.host + "/intermine-test",
           token: "test-user-token",
           q: {
               select: ["*", "age"],
@@ -58,12 +91,11 @@ $(function() {
           root: "localhost:8080/intermine-test",
           token: "test-user-token",
           q: {
-              select: ['name', 'company.name', 'employees.name', 'employees.age', 'employees.end', 'employees.address.address', 'rejectedEmployee.name' ],
+              select: ['name', 'company.name', 'employees.name', 'employees.age', 'employees.end', 'employees.address.address' ],
               from: "Department",
-              joins: ['employees', 'rejectedEmployee'],
+              joins: ['employees'],
               where: [
-                  ["employees.age", "lt", 50 ],
-                  ["employees.age", "gt", 40 ]
+                  ["employees.age", "lt", 50 ]
               ]
           }
         },
@@ -71,7 +103,13 @@ $(function() {
           root: "localhost:8080/intermine-test",
           token: "test-user-token",
           q: {
-              select: ['name', 'CEO.name', 'departments.name', 'departments.employees.name', 'departments.employees.age', 'departments.employees.address.address', 'secretarys.name'],
+              select: [
+                'name',
+                'CEO.name',
+                'departments.name',
+                'departments.manager.name',
+                'departments.employees.name', 'departments.employees.age', 'departments.employees.address.address',
+                'secretarys.name'],
               from: "Company",
               joins: ['departments', 'departments.employees', 'departments.employees.address', 'secretarys'],
               where: [
@@ -151,12 +189,13 @@ $(function() {
 
         var service = display.imWidget('option', 'service');
 
-        service.whoami(function(u) {
-            $('#logged-in-notice').show().find('a.username').text(u.username);
-        }).fail(function() {$('#logged-in-notice').hide()});
-        service.fetchVersion(function(v) {
-            $('.v9').toggleClass('unsupported', (v < 9));
-        }).fail(function() {$('.v9').addClass('unsupported');});
+        service.whoami()
+          .done(function(u) {$('#logged-in-notice').show().find('a.username').text(u.username);})
+          .fail(function() {$('#logged-in-notice').hide()});
+
+        service.fetchVersion()
+          .done(function(v) {$('.v9').toggleClass('unsupported', (v < 9))})
+          .fail(function() {$('.v9').addClass('unsupported');});
 
     };
 

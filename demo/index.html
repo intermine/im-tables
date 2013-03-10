@@ -2,29 +2,32 @@
 <html>
   <head>
       <meta http-equiv="Content-Type" content="text/html;charset=ISO-8859-1" />
-    <link href="http://cdn.intermine.org/css/bootstrap/2.0.4-prefixed-no-icons/css/bootstrap.css" rel="stylesheet">
-    <link href="http://cdn.intermine.org/css/font-awesome/css/font-awesome.css" rel="stylesheet">
+      <!-- <link href="http://cdn.intermine.org/css/bootstrap/2.0.4-prefixed-no-icons/css/bootstrap.css" rel="stylesheet"> -->
+    <link href="../css/bootstrap-2.3.0-no-icons-prefixed.css" rel="stylesheet">
+    <link href="http://cdn.intermine.org/css/font-awesome/3.0.2/css/font-awesome.css" rel="stylesheet">
+     <!--[if lt IE 9]>
+     <script src="http://cdn.intermine.org/js/html5shiv/r29/html5.js"></script>
+     <![endif]-->
+
+    <!--[if IE 7]>
+        <link rel="stylesheet" href="http://cdn.intermine.org/css/font-awesome/3.0.2/css/font-awesome-ie7.min.css">
+    <![endif]-->
     <!-- <link href="../css/bootstrap.css" rel="stylesheet"> -->
 
     <!-- Core dependencies -->
-    <script src="../lib/underscore-min.js"></script>
-    <!-- <script src="../lib/jquery-1.7.js"></script> -->
+    <script src="http://cdn.intermine.org/js/underscore.js/latest/underscore-min.js"></script>
     <script src="../components/jquery/jquery.js"></script>
+    <!-- <script src="../components/backbone/backbone-min.js"></script> -->
     <script src="../lib/backbone.js"></script>
 
     <!-- jQuery style -->
     <link rel="stylesheet" type="text/css" href="../lib/css/bootstrap/jquery-ui.css">
 
-    <!-- Google Prettify -->
-    <link href="../lib/google-code-prettify/prettify.css" type="text/css" rel="stylesheet"/>
-
     <!-- Concatted deps -->
-    <script src="http://d3js.org/d3.v3.min.js"></script>
     <script type="text/javascript" src="../js/deps.js"></script>
     <!-- im code -->
-    <!-- <script type="text/javascript" src="http://cdn.intermine.org/js/intermine/imjs/latest/imjs.js"></script> -->
-    <!-- <script type="text/javascript" src="http://squirrel.sysbiol.private.cam.ac.uk/cdn/js/intermine/imjs/latest/imjs.js"></script> -->
-    <script type="text/javascript" src="http://cdn.intermine.org/js/intermine/imjs/latest/im.js"></script>
+    <!-- <script type="text/javascript" src="http://cdn.intermine.org/js/intermine/imjs/latest/im.js"></script> -->
+    <script type="text/javascript" src="http://squirrel/imjs/js/im.js"></script>
 
     <!-- Tables -->
     <script charset="UTF-8" type="text/javascript" src="../js/imtables.js"></script>
@@ -48,11 +51,13 @@
             <a class="brand" href="#">Results Tables Demo</a>
             <div class="nav-collapse">
                 <ul class="nav entry-points">
-                    <li><a href="#">Production</a></li>
                     <li><a href="#">Preview</a></li>
+                    <li><a href="#">Production</a></li>
+                    <li><a href="#">Pubs</a></li>
                     <li class="active"><a href="#">TestModel</a></li>
                     <li class="visible-desktop"><a href="#">OJC</a></li>
                     <li class="hidden-tablet"><a href="#">DeepOJC</a></li>
+                    <!--
                     <li class="dropdown visible-desktop">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                             Layout
@@ -64,6 +69,7 @@
                             <li><a id="select-minimal-layout" href="#">Minimal</a></li>
                         </ul>
                     </li>
+                    -->
                 </ul>
                 <ul id="login-status" class='nav pull-right secondary-nav v9'>
                     <li id="logged-in" class="pull-right login-controls">
@@ -138,13 +144,15 @@
 
   </body>
 
-  <style>
+  <!--
         @import url(http://fonts.googleapis.com/css?family=Telex);
         @import url(http://fonts.googleapis.com/css?family=Oxygen);
-
-        body, input, select, label, form, p, span {
+        body, input, select, label, form, p, span, .bootstrap {
             font-family: 'Oxygen', "Helvetica", sans-serif;
         }
+  -->
+
+  <style>
         body {
             padding-top: 44px;
         }
