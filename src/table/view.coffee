@@ -13,7 +13,6 @@ do ->
 
     NUMERIC_TYPES = ["int", "Integer", "double", "Double", "float", "Float"]
 
-
     class Page
         constructor: (@start, @size) ->
         end: -> @start + @size
@@ -28,10 +27,10 @@ do ->
         className: "im-results-table table table-striped table-bordered"
         tagName: "table"
         attributes:
-            width: "100%"
-            cellpadding: 0
-            border: 0
-            cellspacing: 0
+          width: "100%"
+          cellpadding: 0
+          border: 0
+          cellspacing: 0
         pageSize: 25
         pageStart: 0
         throbber: _.template """
