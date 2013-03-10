@@ -7,7 +7,7 @@ do ->
     class ColumnAdder extends intermine.query.ConstraintAdder
         className: "form node-adder btn-group"
 
-        initialize: (query) ->
+        initialize: (query, @newView) ->
             super(query)
             @chosen = []
 
@@ -26,8 +26,8 @@ do ->
             @applyChanges()
 
         applyChanges: () ->
-            @query.trigger 'column-orderer:selected', @chosen
-            @reset()
+          @newView.addPaths @chosen
+          @reset()
 
         refsOK: false
         multiSelect: true
@@ -47,6 +47,8 @@ do ->
             @set isNew: false
           unless @has 'replaces'
             @set replaces: []
+          unless @has 'isFormatted'
+            @set isFormatted: intermine.results.shouldFormat @get('path')
             
         addPath: (path) ->
           # using concat instead of push means we trigger 'change'
@@ -54,12 +56,52 @@ do ->
 
         getViews: -> if @get('replaces').length then @get('replaces') else [ @get('path') ]
 
+        isAbove: (path, query) ->
+          base = @get('path')
+          if base.isAttribute()
+            false
+          if path.toString().indexOf(base.toString()) isnt 0
+            false
+          else if @get('isFormatted') and intermine.results.shouldFormat path
+            myformatter = intermine.results.getFormatter base.append('id')
+            theirformatter = intermine.results.getFormatter path
+            myformatter is theirformatter
+          else if path.containsCollection() and query.isOuterJoined(path)
+            true
+          else
+            false
+
     class NewViewNodes extends Backbone.Collection
         model: ViewNode
 
         close: ->
           @off()
           @each (vn) -> vn.off(); vn.destroy()
+
+        lengthOfPath = (vn) -> vn.get('path').allDescriptors().length
+
+        initialize: (_, @options) ->
+
+        addPaths: (paths) ->
+          for path in paths
+            group = @getGroup path
+            if group?
+              group.addPath path
+            else
+              @add {path: path, isNew: true}
+
+        getGroup: (path) ->
+          q = @options.query
+          matches = @filter (vn) -> vn.isAbove(path, q)
+          bestMatch = _.last _.sortBy matches, lengthOfPath
+          return bestMatch
+
+        close: ->
+          @each (m) ->
+            m.destroy()
+            m.off()
+          @reset()
+          @off()
 
     class ColumnsDialogue extends Backbone.View
         tagName: "div"
@@ -70,7 +112,7 @@ do ->
           @sortOpts = new Backbone.Model
           @sortOrder = new intermine.columns.collections.SortOrder
           @sortPossibles = new intermine.columns.collections.PossibleOrderElements
-          @newView = new NewViewNodes()
+          @newView = new NewViewNodes [], {@query}
 
           @sortOrder.on 'add', @addSortElement
           @sortPossibles.on 'add', @addPossibleSortElement
@@ -86,16 +128,6 @@ do ->
           @newView.on 'add remove change', @drawOrder, @
           @newView.on 'destroy', (nv) => @newView.remove(nv)
 
-          @query.on 'column-orderer:selected', (paths) =>
-            for path in paths
-              pstr = path.toString()
-              if @query.isOuterJoined(pstr)
-                ojgs = @newView.filter( (nv) -> nv.get('isOuterJoined') )
-                               .filter( (nv) -> !!pstr.match(nv.get('path').toString()) )
-                ojg = _.last(_.sortBy(ojgs, (nv) -> nv.get('path').descriptors.length))
-                ojg.addPath(@query.getPathInfo(pstr))
-              else
-                @newView.add {path: @query.getPathInfo(pstr), isNew: true}
 
         html: -> intermine.columns.snippets.ColumnsDialogue
 
@@ -160,7 +192,6 @@ do ->
 
         initOrdering: ->
           @newView.reset(model.toJSON() for model in @columnHeaders.models)
-          console.log @columnHeaders, @newView
           @drawOrder()
           @drawSelector()
 
@@ -184,7 +215,7 @@ do ->
 
         drawSelector: ->
             nodeAdder = @$ '.node-adder'
-            ca = new ColumnAdder(@query)
+            ca = new ColumnAdder(@query, @newView)
             nodeAdder.empty().append ca.render().el
 
         updateOrder: (e, ui) ->
