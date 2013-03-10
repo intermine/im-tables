@@ -19,9 +19,20 @@ $ = jQuery
 # Temporary fix for the lack of make in recent backbone
 
 unless Backbone.View::make?
-  Backbone.View::make = (elemName, attrs) ->
+  Backbone.View::make = (elemName, attrs, content) ->
     el = document.createElement(elemName)
-    if attrs?.class?
-      $(el).addClass(attrs.class)
+    $el = $(el)
+    if attrs?
+      for name, value of attrs
+        if name is 'class'
+          $el.addClass(value)
+        else
+          $el.attr name, value
+    if content?
+      if _.isArray(content)
+        $el.append(x) for x in content
+      else
+        $el.append content
+
     el
 
