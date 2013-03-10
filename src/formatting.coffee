@@ -17,7 +17,9 @@ ChrLocFormatter = (model) ->
   {start, end, chr} = model.toJSON()
   "#{chr}:#{start}-#{end}"
 
-ChrLocFormatter.replaces = ['start', 'end', 'strand', 'locatedOn.primaryIdentifier']
+ChrLocFormatter.replaces = [
+  'locatedOn.primaryIdentifier', 'start', 'end', 'strand'
+]
 
 SequenceFormatter = (model) ->
   id = model.get 'id'

@@ -27,17 +27,17 @@ do ->
           </a>
         <% }; %>
         <a href="#" class="im-th-button im-col-remover"
-           title="remove this column" data-view="<%= view %>">
+           title="remove this column">
           <i class="<%- css_remove %> <%- css_header %>"></i>
         </a>
         <a href="#" class="im-th-button im-col-minumaximiser"
-           title="Toggle column" data-col-idx="<%= i %>">
+           title="Toggle column">
           <i class="<%- css_hide %> <%- css_header %>"></i>
         </a>
         <span class="dropdown im-filter-summary">
           <a href="#" class="im-th-button im-col-filters dropdown-toggle"
              title=""
-             data-toggle="dropdown" data-col-idx="<%= i %>" >
+             data-toggle="dropdown" >
             <i class="<%- css_filter %> <%- css_header %>"></i>
           </a>
           <div class="dropdown-menu">
@@ -46,7 +46,7 @@ do ->
         </span>
         <span class="dropdown im-summary">
           <a href="#" class="im-th-button summary-img dropdown-toggle" title="column summary"
-            data-toggle="dropdown" data-col-idx="<%= i %>" >
+            data-toggle="dropdown" >
             <i class="<%- css_summary %> <%- css_header %>"></i>
           </a>
           <div class="dropdown-menu">
@@ -56,7 +56,7 @@ do ->
       </div>
       <div style="clear:both"></div>
       <div class="im-col-title">
-        <%- view %>
+        <%- path %>
       </div>
     </div>
   """
@@ -80,17 +80,14 @@ do ->
 
     className: 'im-column-th'
 
-    initialize: (@query, @path) ->
+    initialize: ->
+      @query = @options.query
       # Store this, as it will be needed several times.
-      @view = @path.toString()
-      isFormatted = intermine.results.shouldFormat @path
+      @view = @model.get('path').toString()
+      if @model.get('replaces').length is 1 and @model.get('isFormatted')
+        @view = @model.get('replaces')[0].toString()
 
-      @model = new Backbone.Model
-        view: @view
-        i: @query.views.indexOf @view
-        isFormatted: isFormatted
-
-      @namePromise = (if isFormatted then @path.getParent() else @path).getDisplayName()
+      @namePromise = @model.get('path').getDisplayName()
       @namePromise.done (name) => @model.set {name}
 
       @updateModel()
@@ -132,7 +129,7 @@ do ->
 
       @$('.dropdown .dropdown-toggle').dropdown()
 
-      unless @path.isAttribute()
+      if not @model.get('path').isAttribute() and @query.isOuterJoined(@view)
         @addExpander()
 
       this
@@ -140,7 +137,7 @@ do ->
 
     updateModel: =>
       @model.set
-        direction: @query.getSortDirection @view
+        direction: @query.getSortDirection(@model.get('replaces')[0] ? @view)
         sortable: not @query.isOuterJoined @view
         conCount: (_.size _.filter @query.constraints, (c) => !!c.path.match @view)
 
@@ -195,12 +192,7 @@ do ->
       @checkHowFarOver if e? then $(e.currentTarget) else @$el
 
       unless @$(selector).hasClass 'open'
-        path = if not @path.isAttribute() or @model.get 'isFormatted'
-          @path.getParent()
-        else
-          @path
-
-        summary = new View(@query, @path)
+        summary = new View(@query, @model.get('path'))
         $menu = @$ selector + ' .dropdown-menu'
         # Must append before render so that dimensions can be calculated.
         $menu.html summary.el
@@ -209,10 +201,10 @@ do ->
       false
   
     showColumnSummary: (e) =>
-      cls = if not @path.isAttribute() or @model.get 'isFormatted'
-        intermine.query.results.OuterJoinDropDown
-      else
+      cls = if @model.get('path').isAttribute()
         intermine.query.results.DropDownColumnSummary
+      else
+        intermine.query.results.OuterJoinDropDown
 
       @showSummary('.im-summary', cls) e
 
@@ -236,7 +228,10 @@ do ->
       e?.stopPropagation()
       currentDirection = @model.get('direction')
       direction = NEXT_DIRECTION_OF[ currentDirection ] ? 'ASC'
-      @query.orderBy [ {@path, direction} ]
+      if @model.get('replaces').length is 0
+        @query.orderBy [ {path: @view, direction} ]
+      else
+        @query.orderBy ( {path, direction} for path in @model.get('replaces') )
 
     addExpander: ->
       expandAll = $ """

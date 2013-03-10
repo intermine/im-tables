@@ -50,9 +50,7 @@ do ->
         placement: @placement
         container: @el
 
-      isFormatted = path.isAttribute and (path.end?.name is 'id') and intermine.results.getFormatter(path.model, path.getParent().getType())?
-      toShow = if (isFormatted or @model.get('replaces').length) then path.getParent() else path
-      toShow.getDisplayName().done (name) => @$('.im-display-name').text name
+      path.getDisplayName().done (name) => @$('.im-display-name').text name
 
       ul = @$('.im-sub-views')
 

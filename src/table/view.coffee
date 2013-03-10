@@ -171,37 +171,46 @@ do ->
             @$el.append notice
             
 
-        buildColumnHeader: (path, tr) -> #view, i, title, tr) ->
-          header = new intermine.query.results.ColumnHeader(@query, path)
+        buildColumnHeader: (model, tr) -> #view, i, title, tr) ->
+          header = new intermine.query.results.ColumnHeader {model, @query}
           header.render().$el.appendTo tr
 
-        getEffectiveView: (view, row) ->
+        getEffectiveView: (row) ->
           q = @query
           replacedBy = {}
           @columnHeaders.reset()
 
-          paths = for v, idx in view
-            path = q.getPathInfo(v)
-            if (not path.isAttribute()) and subCell = row?[idx]?.view?[0]
-              if q.isOuterJoined(subCell)
-                path = q.getPathInfo(q.getOuterJoin(subCell))
-                replacedBy[subp] = path for subp in row[idx].view
-            path
+          # Create the columns
+          cols = for cell in row
+            path = q.getPathInfo cell.column
+            replaces = if cell.view? # subtable off this cell.
+              (q.getPathInfo(v) for v in q.views when v.indexOf(cell.column) is 0)
+            else
+              []
+            {path, replaces}
 
-          for p in paths when intermine.results.shouldFormat p
-            replacedBy[p.getParent().toString()] ?= p
+          # Build the replacement information.
+          for col in cols when col.path.isAttribute() and intermine.results.shouldFormat col.path
+            p = col.path
+            col.isFormatted = true
+            replacedBy[p.getParent()] ?= col
             formatter = intermine.results.getFormatter p
             for r in (formatter.replaces ? [])
-              replacedBy["#{ p.getParent() }.#{ r }"] ?= p
+              subPath = "#{ p.getParent() }.#{ r }"
+              replacedBy[subPath] ?= col
+              col.replaces.push q.getPathInfo subPath if subPath in q.views
 
-          isReplaced = (p) ->
-            replacer = replacedBy[p] ? (if p.isAttribute() then replacedBy[p.getParent()])
-            replacer and p isnt replacer
+          isReplaced = (col) ->
+            p = col.path
+            replacer = replacedBy[p]
+            replacer ?= replacedBy[p.getParent()] if p.isAttribute() and p.end.name is 'id'
+            replacer and col isnt replacer
 
-          for path in paths when not isReplaced(path)
-            replaces = (q.getPathInfo(k) for k, v of replacedBy when v is path and k in q.views)
-            model = new Backbone.Model {path, replaces}
-            @columnHeaders.add model
+          for col in cols when not isReplaced col
+            if col.isFormatted
+              col.replaces.push col.path unless col.path in col.replaces
+              col.path = col.path.getParent()
+            @columnHeaders.add col
 
         # Read the result returned from the service, and add headers for 
         # the columns it represents to the table.
@@ -211,14 +220,11 @@ do ->
             tr    = $ "<tr>"
             thead.append tr
 
-            if result.results.length and _.has(result.results[0][0], 'column')
-              views = result.results[0].map get('column')
-              @getEffectiveView views, result.results[0]
-            else
-              @getEffectiveView @query.views
+            firstRow = result.results[0]
+            @getEffectiveView(firstRow)
 
             @columnHeaders.each (model) =>
-              @buildColumnHeader model.get('path'), tr
+              @buildColumnHeader model, tr
                     
             thead.appendTo @el
 

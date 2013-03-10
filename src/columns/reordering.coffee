@@ -258,7 +258,7 @@ do ->
 
           for so, i in (@query.sortOrder or [])
             {path, direction} = so
-            @sortOrder.add new intermine.columns.SortOrder
+            @sortOrder.add
               path: @query.getPathInfo path
               direction: direction
 
