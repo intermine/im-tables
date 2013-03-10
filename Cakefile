@@ -1,21 +1,51 @@
 {exec} = require "child_process"
 fs     = require 'fs'
-{IM}     = require './intermine.spec'
+Q      = require 'q'
+_      = require 'underscore'
+{IM}   = require './intermine.spec'
+
+BLACKLIST = [
+  'html', 'body', '.modal', '.modal-backdrop', '.modal-header', '.modal-footer',
+  '.modal-body', '.modal-form', '.tooltip', '.tooltip-inner', '.popover', '.popover-title'
+]
+
+prefix = require('prefix-css-node').prefixer '.bootstrap', BLACKLIST
 
 header = """
   ###
    * InterMine Results Tables Library v#{IM.VERSION}
    * http://www.intermine.org
    *
-   * Copyright 2012, Alex Kalderimis
+   * Copyright 2012, Alex Kalderimis and InterMine
    * Released under the LGPL license.
    * 
    * Built at #{new Date()}
   ###
 """
 
-cont = (cb) ->
-    cb() if typeof cb is 'function'
+BOOTSTRAP_CSS = "components/bootstrap/docs/assets/css/bootstrap.css"
+BOOTSTRAP_COMP = "components/bootstrap/component.json"
+
+read = Q.nfbind fs.readFile
+write = Q.nfbind fs.writeFile
+readdir = Q.nfbind fs.readdir
+
+writer = (fname) -> (data, enc = 'utf8') -> write fname, data, enc
+
+deepRead = (name) ->
+  if fs.statSync(name).isDirectory()
+    readdir(name).then (files) -> Q.all( deepRead "#{ name }/#{ f }" for f in files )
+  else
+    Q name
+
+cont = (cb) -> cb() if typeof cb is 'function'
+
+DEFAULT_ERR_HANDLER = (err) -> console.error err
+
+promiserToNode = (promiser) -> (cb) ->
+    done = promiser()
+    cb ?= DEFAULT_ERR_HANDLER
+    done.then( -> cont cb).fail(cb)
 
 task 'copyright', 'Show the copyright header', ->
     console.log header
@@ -29,44 +59,70 @@ task 'build:compile', 'Build project from build/* to js/imtables.js', compile = 
         else
             cont cb
 
+task 'prefix-css', 'Build a prefixed css file', prefixulate = promiserToNode ->
+  console.log "Prefixing css..."
+  read(BOOTSTRAP_COMP, 'utf8').then(JSON.parse).get('version').then (v) ->
+    writeOut =  writer "css/bootstrap-#{ v }-prefixed.css"
+    read(BOOTSTRAP_CSS, 'utf8').then(prefix).then(writeOut)
+
+task 'wrap:bb', promiserToNode ->
+  readingBB = read 'components/backbone/backbone.js', 'utf8'
+  readingUS = read 'components/underscore/underscore.js', 'utf8'
+  readingWrapper = read 'lib/backbone-wrapper.js', 'utf8'
+
+  Q.all([readingUS, readingBB, readingWrapper]).then ([us, bb, wrapper]) ->
+    [left, right] = wrapper.split 'LIBRARIES'
+    wrapped = left + us + "\n\n" + bb + right
+    write 'lib/backbone-wrapped.js', wrapped, 'utf8'
+
 writing = false
 
-neededEarly = ["shiv.coffee", "module.coffee", "icons.coffee", "options.coffee", "constraintadder.coffee"]
+neededEarly = [
+  "src/shiv.coffee",
+  "src/module.coffee",
+  "src/utils.coffee",
+  "src/options.coffee",
+  "src/icons.coffee",
+  "src/messages",
+  "src/constraintadder.coffee"
+]
 
-task 'build:concat',
-    'Concatenate the source files to a single application script',
-    concat = (cb) ->
-        console.log "Building source file"
-        unless writing
-            writing = true
-            fs.readdir 'src', (err, files) ->
-                appContents = new Array remaining = files.length
-                throw err if err
-                files = neededEarly.concat (f for f in files when f not in neededEarly)
-                for f, i in files then do (f, i) ->
-                    fs.readFile "src/#{f}", 'utf8', (err, fileContents) ->
-                        appContents[i] = fileContents
-                        process(appContents) if --remaining is 0
-        process = (texts) ->
-            console.log "Writing build"
-            fs.writeFile 'build/build.coffee', header + "\n\n" + texts.join('\n\n'), 'utf8', (err) ->
-                writing = false
-                throw err if err
-                cont cb
+CONCAT_DESC = 'Concatenate source files to a single application script'
+CONCAT = 'build:concat'
+
+task CONCAT, CONCAT_DESC, concat = promiserToNode ->
+  console.log "Building source file"
+  writeOut = writer 'build/build.coffee'
+  return Q.reject('writing') if writing
+
+  writing = true
+  Q.all([Q.all(deepRead(n) for n in neededEarly), deepRead('src')])
+    .then((nested) -> (_.flatten names for names in nested))
+    .then(([priorities, rest]) -> _.union priorities, rest)
+    .then((fileNames) -> Q.all( read(f, 'utf8') for f in fileNames ))
+    .then((contents) -> "#{ header }\n\n#{ contents.join('\n\n') }")
+    .then(writeOut)
+    .then -> writing = false
 
 writingDeps = false
 
-otherDeps = ["lib/jquery-ui-1.10.1.custom.js"]
+otherDeps = ['lib/js/jquery-ui-1.10.1.custom.js']
+#['lib/jquery-ui-1.10.1.custom.min.js']
 # "lib/d3.v3.min.js", 
 
-task 'build:deps', 'concatenate dependencies', builddeps = (cb) ->
+DEPS = 'build:deps'
+DEPS_DESC = 'concatenate dependencies'
+
+task DEPS, DEPS_DESC, builddeps = (cb) ->
     console.log "Building deps"
+    dirName = "components/bootstrap/docs/assets/js"
     unless writingDeps
         writingDeps = true
-        fs.readdir "lib/bootstrap/js", (err, files) ->
+        fs.readdir dirName, (err, files) ->
             throw err if err
-            wanted = ("lib/bootstrap/js/#{f}" for f in files when f.match(/\.js$/) and not f.match(/(scrollspy|carousel|collapse)/))
-            wanted = wanted.concat otherDeps
+            wanted = ("#{ dirName }/#{f}" for f in files when f.match(/\.js$/) and not f.match(/(scrollspy|collapse|html5)/))
+            wanted = otherDeps.concat wanted
+            console.log wanted
             depContents = new Array remaining = wanted.length
             for f, i in wanted then do (f, i) ->
                 fs.readFile f, "utf8", (err, fileContents) ->
@@ -140,5 +196,4 @@ task 'watch', 'Watch production files and rebuild the application', watch = (cb)
                     console.log "Saw change in js/#{f} - rebuilding"
                     invoke 'build'
     
-
-# vim: set syntax=coffee
+# vim: set syntax=coffee sw=2 ts=2 foldmethod=indent cc=100
