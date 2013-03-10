@@ -3,6 +3,62 @@ do ->
   supportsSVG = ->
     window.SVGAngle? or document.implementation?.hasFeature?(SVG, "1.0")
 
+  ###
+  *
+  * A bridge between iPad and iPhone touch events and jquery draggable, 
+  * sortable etc. mouse interactions.
+  * @author Oleg Slobodskoi  
+  * 
+  * modified by John Hardy to use with any touch device
+  * fixed breakage caused by jquery.ui so that mouseHandled internal flag is reset 
+  * before each touchStart event
+  * 
+  ###
+  do ($ = jQuery) ->
+    $.support.touch = typeof Touch is 'object'
+    return false unless $.support.touch
+
+    proto =  $.ui.mouse.prototype
+    _mouseInit = proto._mouseInit
+
+    $.extend( proto, {
+      _mouseInit: ->
+          this.element
+          .bind( "touchstart." + this.widgetName, $.proxy( this, "_touchStart" ) );
+          _mouseInit.apply( this, arguments );
+
+      _touchStart: ( event ) ->
+          if ( event.originalEvent.targetTouches.length != 1 )
+              return false
+
+          this.element
+            .bind( "touchmove." + this.widgetName, $.proxy( this, "_touchMove" ) )
+            .bind( "touchend." + this.widgetName, $.proxy( this, "_touchEnd" ) )
+
+          this._modifyEvent( event )
+
+          $( document ).trigger($.Event("mouseup")); # reset mouseHandled flag in ui.mouse
+          this._mouseDown( event )
+
+          return false
+
+      _touchMove: ( event ) ->
+          this._modifyEvent( event )
+          this._mouseMove( event )
+
+      _touchEnd: ( event ) ->
+          this.element
+            .unbind( "touchmove." + this.widgetName )
+            .unbind( "touchend." + this.widgetName )
+          this._mouseUp( event )
+
+      _modifyEvent: ( event ) ->
+          event.which = 1
+          target = event.originalEvent.targetTouches[0]
+          event.pageX = target.clientX
+          event.pageY = target.clientY
+    })
+
   jQuery.fn.imWidget = (arg0, arg1) ->
       if typeof(arg0) is 'string'
           view = @data 'widget'
