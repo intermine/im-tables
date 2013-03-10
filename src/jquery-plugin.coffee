@@ -38,7 +38,7 @@ do ->
             return false
 
           view = new cls service, query, events, properties
-          @empty().addClass('bootstrap').append view.el
+          @empty().append view.el
           view.render()
 
           @data 'widget-options', properties
