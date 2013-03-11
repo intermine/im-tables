@@ -2,10 +2,14 @@ scope 'intermine.messages.results', {
     ReorderHelp: 'Drag the columns to reorder them'
 }
 
+scope 'intermine.messages.columns',
+  AllowRevRef: 'Allow reverse references'
+  CollapseAll: 'Collapse all branches'
+
 do ->
 
     class ColumnAdder extends intermine.query.ConstraintAdder
-        className: "form node-adder btn-group"
+        className: "form node-adder form-horizontal"
 
         initialize: (query, @newView) ->
             super(query)
@@ -29,6 +33,24 @@ do ->
           @newView.addPaths @chosen
           @reset()
 
+        reset: ->
+          @trigger 'resetting:tree'
+          @$('.im-tree-option').addClass 'hidden'
+          super()
+
+        events: ->
+          events =
+            'click .im-collapser': 'collapseBranches'
+            'change .im-allow-rev-ref': 'allowReverseRefs'
+
+          _.extend events, super()
+
+        collapseBranches: ->
+          @$pathfinder?.trigger 'collapse:tree-branches'
+
+        allowReverseRefs: ->
+          @$pathfinder?.allowRevRefs @$('.im-allow-rev-ref').is(':checked')
+
         refsOK: false
         multiSelect: true
 
@@ -37,8 +59,24 @@ do ->
         render: () ->
             super()
             @$('input').remove()
+            @$('.btn-chooser').after """
+              <label class="im-tree-option hidden">
+                #{intermine.messages.columns.AllowRevRef }
+                <input type="checkbox" class="im-allow-rev-ref">
+              </label>
+              <button class="btn im-collapser im-tree-option hidden" type="button" >
+                #{ intermine.messages.columns.CollapseAll }
+              </button>
+            """
             @$('.btn-chooser > span').text intermine.messages.columns.FindColumnToAdd
             this
+
+        showTree: (e) ->
+          @$('.im-tree-option').removeClass 'hidden'
+          @trigger 'showing:tree'
+          super(e)
+          @$pathfinder?.$el.removeClass @$pathfinder.dropDownClasses
+
 
     class ViewNode extends Backbone.Model
 
@@ -214,9 +252,14 @@ do ->
 
 
         drawSelector: ->
+            selector = '.im-reordering .well'
             nodeAdder = @$ '.node-adder'
+            @ca?.remove()
             ca = new ColumnAdder(@query, @newView)
             nodeAdder.empty().append ca.render().el
+            ca.on 'showing:tree', => @$(selector).slideUp()
+            ca.on 'resetting:tree', => @$(selector).slideDown()
+            @ca = ca
 
         updateOrder: (e, ui) ->
             # The update event doesn't just tell us what has changed, so we have read the 

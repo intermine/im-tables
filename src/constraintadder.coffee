@@ -1,5 +1,7 @@
 scope 'intermine.messages.constraints',
   BrowseForColumn: 'Browse for Column'
+  AddANewFilter: 'Add a new filter'
+  Filter: 'Filter'
 
 do ->
   
@@ -7,10 +9,11 @@ do ->
     pathLen = _.memoize (str) -> str.split(".").length
 
     CONSTRAINT_ADDER_HTML = """
-        <input type="text" placeholder="Add a new filter" class="im-constraint-adder span9">
-        <button disabled class="btn span2" type="submit">
-            Filter
-        </button>
+      <input type="text" placeholder="#{ intermine.messages.constraints.AddANewFilter }"
+              class="im-constraint-adder span9">
+      <button disabled class="btn btn-primary span2" type="submit">
+        #{ intermine.messages.constraints.Filter }
+      </button>
     """
 
     PATH_LEN_SORTER = (items) ->
@@ -87,7 +90,7 @@ do ->
             @path.getDisplayName (name) =>
                 @displayName = name
                 name = name.replace(/^.*\s*>/, '') # unless @depth is 0
-                a = $ @template name: name, path: @path, type: @path.getType()
+                a = $ @template _.extend {}, @, name: name, path: @path, type: @path.getType()
                 a.appendTo(@el)
                 @addedLiContent(a)
             this
@@ -123,30 +126,45 @@ do ->
                     @$el.show()
                     unless @$el.is '.open'
                         @openSubFinder()
+            @evts.on 'collapse:tree-branches', @collapse
+
+        collapse: =>
+          @subfinder?.remove()
+          @$el.removeClass 'open'
+          @$('i.im-has-fields')
+            .removeClass(intermine.icons.Expanded)
+            .addClass(intermine.icons.Collapsed)
 
         remove: () ->
-            @subfinder?.remove()
-            super()
+          @collapse()
+          super()
 
         openSubFinder: () ->
-            @subfinder = new PathChooser(@query, @path, @depth + 1, @evts, @getDisabled, @isSelectable, @multiSelect)
-            @$el.append @subfinder.render().el
-            @$el.addClass('open')
+          @$el.addClass('open')
+          @$('i.im-has-fields')
+            .addClass(intermine.icons.Expanded)
+            .removeClass(intermine.icons.Collapsed)
+          @subfinder = new PathChooser(@query, @path, @depth + 1, @evts, @getDisabled, @isSelectable, @multiSelect)
+          @subfinder.allowRevRefs @allowRevRefs
+
+          @$el.append @subfinder.render().el
 
         template: _.template """<a href="#">
-              <i class="icon-chevron-right im-has-fields"></i>
+              <i class="#{ intermine.icons.Collapsed } im-has-fields"></i>
+              <% if (isLoop) { %>
+                <i class="#{ intermine.icons.ReverseRef }"></i>
+              <% } %>
               <span><%- name %></span>
             </a>
             """
 
-        iconClasses: """icon-chevron-right icon-chevron-down"""
+        iconClasses: intermine.icons.ExpandCollapse
 
         toggleFields: () ->
-            @$el.children().filter('i.im-has-fields').toggleClass @iconClasses
             if @$el.is '.open'
-                @$el.removeClass('open').children('ul').remove()
+              @collapse()
             else
-                @openSubFinder()
+              @openSubFinder()
 
         handleClick: (e) ->
             e.preventDefault()
@@ -157,13 +175,16 @@ do ->
                 super(e)
 
         addedLiContent: (a) ->
-            if _.any(@query.views, (v) => v.match(@path.toString()))
-                @openSubFinder()
+          prefix = new RegExp "^#{ @path }\\."
+
+          if _.any(@query.views, (v) -> v.match prefix)
+            @toggleFields()
+            @$el.addClass('im-in-view')
 
     class ReverseReference extends Reference
 
         template: _.template """<a href="#">
-              <i class="icon-retweet im-has-fields"></i>
+              <i class="#{ intermine.icons.ReverseRef } im-has-fields"></i>
               <span><%- name %></span>
             </a>
             """
@@ -189,6 +210,8 @@ do ->
                 @evts.trigger 'matched', m, terms
             
         initialize: (@query, @path, @depth, events, @getDisabled, @canSelectRefs, @multiSelect) ->
+            @state = new Backbone.Model allowRevRefs: false
+            @leaves = []
             @evts =  if (@depth is 0) then _.extend({}, Backbone.Events) else events
             cd = @path.getEndClass()
             toPath = (f) => @path.append f
@@ -196,33 +219,56 @@ do ->
             @references = (toPath ref for name, ref of cd.references)
             @collections = (toPath coll for name, coll of cd.collections)
             @evts.on 'chosen', events if @depth is 0
+            @on 'collapse:tree-branches', =>
+              console.log "Bringing the tree down"
+              @evts.trigger 'collapse:tree-branches'
+            @state.on 'change:allowRevRefs', =>
+              @reset()
+              @render()
+
+        allowRevRefs: (allowed) =>
+          @state.set allowRevRefs: allowed
+
+        remove: ->
+          @evts.off() if @depth is 0
+          @state.off()
+          super()
                 
-        @DIVIDER: """<li class="divider"></li>"""
+        reset: ->
+          for leaf in @leaves
+            leaf.remove()
+          @leaves = []
 
         render: () ->
-            cd = @path.getEndClass()
-            if @depth is 0 and @canSelectRefs # then show the root class
-                @$el.append new RootClass(@query, cd, @evts, @multiSelect).render().el
-            for apath in @attributes
-                if intermine.options.ShowId or apath.end.name isnt 'id'
-                    @$el.append(new Attribute(@query, apath, @depth, @evts, @getDisabled, @multiSelect).render().el)
-            @$el.append PathChooser.DIVIDER
-            for rpath in @references.concat(@collections)
-                isLoop = false
-                if rpath.end.reverseReference? and @path.isReference()
-                    if @path.getParent().isa rpath.end.referencedType
-                        if @path.end.name is rpath.end.reverseReference
-                            isLoop = true
+          cd = @path.getEndClass()
+          if @depth is 0 and @canSelectRefs # then show the root class
+            @$el.append new RootClass(@query, cd, @evts, @multiSelect).render().el
+          for apath in @attributes
+            if intermine.options.ShowId or apath.end.name isnt 'id'
+              attr = new Attribute(@query, apath, @depth, @evts, @getDisabled, @multiSelect)
+              @leaves.push attr
+              @$el.append(attr.render().el)
 
-                if isLoop
-                    ref = new ReverseReference(@query, rpath, @depth, @evts, (() -> true), @multiSelect, @canSelectRefs)
-                else
-                    ref = new Reference(@query, rpath, @depth, @evts, @getDisabled, @multiSelect, @canSelectRefs)
-                @$el.append ref.render().el
+          for rpath in @references.concat(@collections)
+            isLoop = false
+            if rpath.end.reverseReference? and @path.isReference()
+              if @path.getParent().isa rpath.end.referencedType
+                if @path.end.name is rpath.end.reverseReference
+                  isLoop = true
 
-            @$el.addClass(@dropDownClasses) if @depth is 0
-            @$el.show()
-            this
+            # TODO. Clean this up with an options constructor.
+            if isLoop and not @state.get('allowRevRefs')
+                ref = new ReverseReference(@query, rpath, @depth, @evts, (() -> true), @multiSelect, @canSelectRefs)
+            else
+                ref = new Reference(@query, rpath, @depth, @evts, @getDisabled, @multiSelect, @canSelectRefs)
+            ref.allowRevRefs = @state.get('allowRevRefs')
+            ref.isLoop = isLoop
+            @leaves.push ref
+            @$el.append ref.render().el
+
+          @$el.addClass(@dropDownClasses) if @depth is 0
+          @$el.show()
+          this
 
     class ConstraintAdder extends Backbone.View
 
@@ -231,7 +277,7 @@ do ->
 
         initialize: (@query) ->
 
-        events:
+        events: ->
             'submit': 'handleSubmission'
 
         handleClick: (e) ->
@@ -276,28 +322,29 @@ do ->
             @$pathfinder = null
 
         showTree: (e) =>
-            if @$pathfinder?
-                @reset()
-            else
-                treeRoot = @getTreeRoot()
-                pathFinder = new PathChooser(@query, treeRoot, 0, @handleChoice, @isDisabled, @refsOK, @multiSelect)
-                pathFinder.render()
-                @$el.append(pathFinder.el)
-                pathFinder.$el.show().css top: @$el.height()
-                @$pathfinder = pathFinder
+          if @$pathfinder?
+            @reset()
+          else
+            treeRoot = @getTreeRoot()
+            pathFinder = new PathChooser(@query, treeRoot, 0, @handleChoice, @isDisabled, @refsOK, @multiSelect)
+            pathFinder.render()
+            @$el.append(pathFinder.el)
+            pathFinder.$el.show().css top: @$el.height()
+            @$pathfinder = pathFinder
+
+        VALUE_OPS =  intermine.Query.ATTRIBUTE_VALUE_OPS.concat(intermine.Query.REFERENCE_OPS)
 
         isValid: () ->
             if @newCon?
-                #console.log(@newCon.con.toJSON())
-                if not @newCon.con.has('op')
-                    return false
-                if @newCon.con.get('op') in intermine.Query.ATTRIBUTE_VALUE_OPS.concat(intermine.Query.REFERENCE_OPS)
-                    return @newCon.con.has('value')
-                if @newCon.con.get('op') in intermine.Query.MULTIVALUE_OPS
-                    return @newCon.con.has('values')
-                return true
+              if not @newCon.con.has('op')
+                  return false
+              if @newCon.con.get('op') in VALUE_OPS
+                  return @newCon.con.has('value')
+              if @newCon.con.get('op') in intermine.Query.MULTIVALUE_OPS
+                  return @newCon.con.has('values')
+              return true
             else
-                return false
+              return false
 
         render: ->
             browser = $ """
