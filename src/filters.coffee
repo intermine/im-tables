@@ -84,7 +84,7 @@ do ->
             @$el.append(@make "h3", {}, msgs.Heading)
             conBox = $ """<div class="#{ intermine.css.FilterBoxClass }">"""
             conBox.appendTo(@el)
-              .append(@make "p",  {}, if cons.length then msgs.EditOrRemove else msgs.None)
+              .append(@make "p",  {class: 'well-help'}, if cons.length then msgs.EditOrRemove else msgs.None)
               .append(ul = @make "ul", {})
 
             for c in cons then do (c) =>
@@ -112,7 +112,7 @@ do ->
            </div>
            <div class="modal-body">
                <div class="#{ intermine.css.FilterBoxClass }">
-                   <p></p>
+                   <p class="well-help"></p>
                    <ul></ul>
                </div>
                <button class="btn im-closer im-define-new-filter">
@@ -141,7 +141,7 @@ do ->
             cons = @getConstraints()
             msgs = intermine.messages.filters
 
-            @$('p').append if cons.length then msgs.EditOrRemove else msgs.None
+            @$('.well-help').append if cons.length then msgs.EditOrRemove else msgs.None
             ul = @$ 'ul'
 
             for c in cons then do (c) =>

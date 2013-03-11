@@ -2,7 +2,7 @@ scope "intermine.options",
     NUM_SEPARATOR: ',',
     NUM_CHUNK_SIZE: 3,
     MAX_PIE_SLICES: 15,
-    StylePrefix: 'bootstrap'
+    StylePrefix: 'intermine'
     GalaxyMain: "http://main.g2.bx.psu.edu"
     ShowId: false
     TableWidgets: ['Pagination', 'PageSizer', 'TableSummary', 'ManagementTools', 'ScrollBar']

@@ -279,7 +279,7 @@ do ->
 
         setupPreviewOverlay: ->
           @$el.popover
-            container: 'body'
+            container: @el
             html: true
             placement: (popover) =>
                 $(popover).addClass 'im-cell-preview bootstrap'

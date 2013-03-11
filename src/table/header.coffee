@@ -166,6 +166,12 @@ do ->
       'click .im-summary': 'showColumnSummary'
       'click .im-subtable-expander': 'toggleSubTable'
       'click .im-col-remover': 'removeColumn'
+      'toggle .dropdown': 'summaryToggled'
+
+    summaryToggled: (e, isOpen) ->
+      ignore e
+      unless isOpen
+        @summary?.remove()
 
     hideTooltips: -> @$('.im-th-button').tooltip 'hide'
 
@@ -197,6 +203,7 @@ do ->
         # Must append before render so that dimensions can be calculated.
         $menu.html summary.el
         summary.render()
+        @summary = summary
 
       false
   

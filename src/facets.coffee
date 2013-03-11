@@ -6,21 +6,6 @@ scope 'intermine.snippets.facets', {
         """
 }
 
-# Hack to fix tooltip positioning for SVG.
-# This should continue to work with future versions,
-# as it basically just makes the positioning alogrithm
-# compatible with SVG. I know this is fixed in bootstrap 2.3.0+,
-# but there is no programmatic version of bootstrap available.
-oldPos = $.fn.tooltip.Constructor.prototype.getPosition
-$.fn.tooltip.Constructor.prototype.getPosition = ->
-  ret = oldPos.apply(@, arguments)
-  el = @$element[0]
-  if (not ret.width and not ret.height and 'http://www.w3.org/2000/svg' is el.namespaceURI)
-    {width, height} = (el.getBoundingClientRect?() ? el.getBBox())
-    return $.extend ret, {width, height}
-  else
-    return ret
-
 do ->
 
     ##----------------
@@ -73,10 +58,14 @@ do ->
             else
               FrequencyFacet
             initialLimit = 400 # items
-            fac = new clazz(@query, @facet, initialLimit, @noTitle)
-            @$el.append fac.el
-            fac.render()
+            @fac = new clazz(@query, @facet, initialLimit, @noTitle)
+            @$el.append @fac.el
+            @fac.render()
             this
+
+        remove: ->
+          @fac?.remove()
+          super()
 
     class FacetView extends Backbone.View
         tagName: "dl"
@@ -161,12 +150,13 @@ do ->
         @_defaults = limits
 
       get: (prop) ->
-        ret = null
-        if @has(prop)
-          ret = super(prop)
+        ret = super(prop)
+        if ret?
+          ret
         else if prop of @_defaults
-          ret = @_defaults[prop]
-        ret
+          @_defaults[prop]
+        else
+          null
 
       set: (name, value) ->
         if _.isString(name) and (name of @_defaults)
@@ -187,7 +177,7 @@ do ->
             'click .btn-primary': 'changeConstraints'
             'click .btn-cancel': 'clearRange'
 
-        clearRange: -> @range.clear()
+        clearRange: -> @range?.clear()
 
         changeConstraints: ->
           @query.constraints = _(@query.constraints).filter (c) => c.path != @facet.path.toString()
@@ -255,6 +245,11 @@ do ->
             promise = @query.summarise @facet.path, @handleSummary
             promise.fail @remove
             this
+
+        remove: ->
+          @range?.off()
+          delete @range
+          super()
 
         handleSummary: (items, total) =>
             @throbber.remove()
@@ -336,20 +331,21 @@ do ->
                     @$("input.im-range-#{prop}").val "#{ val }"
                     if $slider.slider('values', idx) isnt val
                         $slider.slider('values', idx, val)
+
             @range.on 'change', () =>
-                changed = @range.has('min') and @range.has('max') and (@range.get('min') > @min or @range.get('max') < @max)
-                @$('.btn').toggleClass "disabled", !changed
-                for prop, idx of {min: 0, max: 1}
-                    unless @range.has(prop)
-                        $slider.slider('values', idx, @[prop])
-                        @$("input.im-range-#{prop}").val "#{ @[prop] }"
+              changed = @range.get('min') > @min or @range.get('max') < @max
+              @$('.btn').toggleClass "disabled", !changed
+              for prop, idx in ['min', 'max']
+                $slider.slider('values', idx, @[prop])
+                @$("input.im-range-#{prop}").val "#{ @[prop] }"
+
             $slider = @$('.slider').slider
-                range: true
-                min: @min
-                max: @max
-                values: [@min, @max]
-                step: @step
-                slide: (e, ui) => @range.set min: ui.values[0], max: ui.values[1]
+              range: true
+              min: @min
+              max: @max
+              values: [@min, @max]
+              step: @step
+              slide: (e, ui) => @range?.set min: ui.values[0], max: ui.values[1]
 
         drawChart: (items) =>
           if d3?
@@ -383,7 +379,7 @@ do ->
               .attr('y', h - bottomMargin)
               .attr('width', (d) -> x(d.bucket + 1) - x(d.bucket))
               .attr('height', 0)
-              .on('click', (d, i) => @range.set min: val(d.bucket), max: val(d.bucket + 1))
+              .on('click', (d, i) => @range?.set min: val(d.bucket), max: val(d.bucket + 1))
               .each (d, i) ->
                 title = "#{ val d.bucket } >= x < #{ val (d.bucket + 1)}: #{ d.count } items"
                 $(@).tooltip {title, container}
@@ -430,31 +426,6 @@ do ->
             console.error("Cannot draw selection without SVG lib")
 
         _selecting_paths_: false
-
-        drawCurve: () =>
-            if @max is @min
-                $(@el).remove()
-                return
-            sections = ((@max - @min) / @dev).toFixed()
-            w = @$el.width()
-            h = @chartHeight
-            nc = NormalCurve(w / 2, w / sections)
-            factor = h / nc(w / 2)
-            invert = (x) -> h - x + 2
-            scale = (x) -> x * factor
-            f = _.compose invert, scale, nc
-            xs = [1 .. w]
-            points = _.zip xs, (f(x) for x in xs)
-            pathCmd = "M1,#{ h }S#{ points.join(",") }L#{w - 1},#{ h }Z"
-
-            # Draw the curve
-            @paper.path(pathCmd)
-            for stdevs in [0 .. ((sections/2) + 1)]
-                xs = _.uniq([w / 2 - (stdevs * w / sections), w / 2 + (stdevs * w / sections)])
-
-                getPathCmd = (x) -> "M#{x},#{h}L#{x},#{f(x)}"
-                drawDivider = (x) => @paper.path(getPathCmd(x))
-                drawDivider x for x in xs when ( 0 <= x <= w )
 
 
     class PieFacet extends Backbone.View

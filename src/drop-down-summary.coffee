@@ -18,7 +18,6 @@ do ->
                 if replaces = formatter?.replaces
                   prefix = parent + '.'
                   vs = (prefix + r for r in replaces)
-                  console.log vs
                 else
                   f  = (a) -> intermine.options.ShowId or a isnt 'id'
                   as = (name for name, a of parent.getEndClass().attributes when f name)
@@ -31,7 +30,6 @@ do ->
                   li = $ """<li class="im-outer-joined-path"><a href="#"></a></li>"""
                   @$el.append li
                   $.when(node.getDisplayName(), @query.getPathInfo(v).getDisplayName()).done (parent, name) ->
-                    console.log parent, name
                     li.find('a').text name.replace(parent, '').replace(/^\s*>\s*/, '')
                   li.click (e) =>
                     e.stopPropagation()
@@ -42,20 +40,33 @@ do ->
         showPathSummary: (v) ->
             summ = new intermine.query.results.DropDownColumnSummary(@query, v)
             @$el.parent().html(summ.render().el)
-            @remove()
+            @summ = summ
+            @$el.remove() # Detach, but stay alive so we can remove summ later.
+
+        remove: ->
+          @summ?.remove()
+          super()
 
     class DropDownColumnSummary extends Backbone.View
         className: "im-dropdown-summary"
 
         initialize: (@query, @view) ->
+          @$el.on 'destroyed', @close
+
+        remove: ->
+          console.log "Byeee...."
+          @heading?.remove()
+          @summ?.remove()
+          super()
 
         render: ->
             heading = new SummaryHeading(@query, @view)
             heading.render().$el.appendTo @el
+            @heading = heading
 
-            summ = new intermine.results.ColumnSummary(@query, @view)
-            summ.noTitle = true
-            summ.render().$el.appendTo @el
+            @summ = new intermine.results.ColumnSummary(@query, @view)
+            @summ.noTitle = true
+            @summ.render().$el.appendTo @el
 
             this
 

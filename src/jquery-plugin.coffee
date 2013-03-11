@@ -4,6 +4,11 @@ do ->
     window.SVGAngle? or document.implementation?.hasFeature?(SVG, "1.0")
 
   ###
+  # Add a 'destroyed' event on element removal.
+  ###
+  jQuery.event.special.destroyed = remove: (o) -> o.handler?() if o.type isnt 'destroyed'
+
+  ###
   *
   * A bridge between iPad and iPhone touch events and jquery draggable, 
   * sortable etc. mouse interactions.

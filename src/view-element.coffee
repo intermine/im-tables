@@ -24,7 +24,7 @@ do ->
 
     events:
       'click .im-col-remover': 'remove'
-      'click .im-expander': 'toggleSubViews'
+      'click': 'toggleSubViews'
 
     toggleSubViews: ->
       @$('.im-sub-views').slideToggle()

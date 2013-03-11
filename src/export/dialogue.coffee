@@ -105,7 +105,11 @@ do ->
           'click .im-download-file .im-collapser': 'toggleLinkViewer'
           'click .im-download-file .im-copy': 'copyUriToClipboard'
           'click .im-export-destinations > li > a': 'moveToSection'
-          'hidden .modal': 'reset'
+          'hidden .modal': 'modalHidden'
+
+      modalHidden: (e) ->
+        if $(e.target).hasClass('modal') # Could have been triggered by tooltip, or popover
+          @reset()
 
       copyUriToClipboard: ->
         window.prompt intermine.messages.actions.CopyToClipBoard, @$('.im-download').attr('href')
@@ -348,7 +352,6 @@ do ->
       stop: -> @$('.modal').modal('hide')
 
       reset: () -> # Go back to the initial state...
-        console.log "resetting"
         for x in ['requestInfo', 'state', 'exportedCols', 'possibleColumns']
           obj = @[x]
           obj?.trigger 'close'
