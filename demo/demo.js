@@ -14,6 +14,24 @@ $(function() {
     };
 
     var services = {
+        YeastMineNext: {
+          root: "http://yeastmine-test.yeastgenome.org/yeastmine-dev",
+          token: "E1S3edN5Jed3qe53mdMa",
+          q: {
+            "name": "Phenotype -> Genes",
+            "from": "Phenotype",
+            "select": [
+              "genes.name",
+              "experimentType",
+              "qualifier", "allele", "condition", "details", "reporter",
+              "publications.pubMedId", "publications.citation"],
+            "orderBy": ["experimentType"],
+            "joins": ["publications"],
+            "where": {
+              "observable": "Protein secretion"
+            }
+          }
+        },
         Production: {
             root: "www.flymine.org/query", 
             token: "21k3D5x5B8pdd8T9yeY24fG8th2",
