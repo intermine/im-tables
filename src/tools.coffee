@@ -67,7 +67,6 @@ do ->
 
       render: ->
         actions = new intermine.query.actions.ActionBar(@query)
-        console.log "Created an action bar"
         try
           actions.render().$el.appendTo @el
         catch e
