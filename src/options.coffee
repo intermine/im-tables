@@ -6,6 +6,7 @@ scope "intermine.options",
     GalaxyMain: "http://main.g2.bx.psu.edu"
     ShowId: false
     TableWidgets: ['Pagination', 'PageSizer', 'TableSummary', 'ManagementTools', 'ScrollBar']
+    CellCutoff: 100
     CDN: # CDN resources that can be configured.
       server: 'http://cdn.intermine.org'
       resources:
