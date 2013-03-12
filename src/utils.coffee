@@ -86,8 +86,25 @@ do ($ = jQuery) ->
             else
                 cb orgs
 
+    ERROR = _.template """
+      <div class="alert alert-error">
+        <p class="apology">Could not fetch summary</p>
+        <pre><%- message %></pre>
+      </div>
+    """
+
+    renderError = (dest) -> (response) ->
+      $el = $(dest).empty()
+      message = JSON.parse(err.responseText).error
+      $el.append ERROR {message}
 
     class ItemView extends Backbone.View
+
+      initialize: ->
+        unless @model.toJSON?
+          @model = new Backbone.Model @model
+
+      renderError: (resp) -> renderError(@el) resp
 
       render: ->
 
@@ -101,7 +118,7 @@ do ($ = jQuery) ->
     scope 'intermine.views', {ItemView}
 
     scope "intermine.utils", {
-      copy, walk, getOrganisms, requiresAuthentication, modelIsBio,
+      copy, walk, getOrganisms, requiresAuthentication, modelIsBio, renderError,
       getParameter, numToString, pluralise, addStylePrefix, getContainer
     }
             
