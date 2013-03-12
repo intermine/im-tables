@@ -100,7 +100,7 @@ do ->
       exported = @model.collection.exported
       exported.on 'add remove', @render, @
       node = @model.get 'node'
-      @content = new PopOver({node, exported}).render()
+      @content = new PopOver({node, exported})
       @content.on 'needs-repositioning', => @$el.popover 'show'
 
     remove: ->
@@ -134,7 +134,9 @@ do ->
         trigger: 'manual'
         placement: 'top'
         content: @content.el
-        title: (tip) => @$('h4').text()
+        title: (tip) =>
+          @$('h4').text()
+          @content.render()
       
       this
 
