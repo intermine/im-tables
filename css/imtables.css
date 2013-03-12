@@ -1365,7 +1365,7 @@
   margin-bottom: 20px;}
 .intermine .table th,
 .intermine .table td {
-  padding: 8px;
+  padding: 5px;
   line-height: 20px;
   text-align: left;
   vertical-align: top;
@@ -3870,7 +3870,7 @@
   opacity: 0.8;
   filter: alpha(opacity=80);
 }
-.modal {
+.intermine .modal {
   position: fixed;
   top: 50%;
   left: 50%;
@@ -3897,7 +3897,7 @@
 .intermine .modal-body {
     max-height: 700px;
 }
-.modal.fade {
+.intermine .modal.fade {
   -webkit-transition: opacity .3s linear, top .3s ease-out;
   -moz-transition: opacity .3s linear, top .3s ease-out;
   -ms-transition: opacity .3s linear, top .3s ease-out;
@@ -3905,7 +3905,7 @@
   transition: opacity .3s linear, top .3s ease-out;
   top: -25%;
 }
-.fade {
+.intermine .fade {
   -webkit-transition: opacity 0.15s linear;
   -moz-transition: opacity 0.15s linear;
   -ms-transition: opacity 0.15s linear;
@@ -3913,20 +3913,20 @@
   transition: opacity 0.15s linear;
   opacity: 0;
 }
-.fade.in {
+.intermine .fade.in {
   opacity: 1;
 }
 
-[class^="icon-"]:hover {
+.intermine [class^="icon-"]:hover {
     font-size: 110%;
     text-decoration: none;
 }
 
-.btn .modal {
+.intermine .btn .modal {
    cursor: normal;
 }
 
-.modal .icon-reorder {
+.intermine .modal .icon-reorder {
     cursor: move;
 }
 
@@ -3952,19 +3952,19 @@
 .modal.fade.in {
   top: 42%;
 }
-.modal-header {
+.intermine .modal-header {
   padding: 9px 15px;
   border-bottom: 1px solid #eee;
 }
-.modal-body {
+.intermine .modal-body {
   overflow-y: auto;
   max-height: 400px;
   padding: 15px;
 }
-.modal-form {
+.intermine .modal-form {
   margin-bottom: 0;
 }
-.modal-footer {
+.intermine .modal-footer {
   padding: 14px 15px 15px;
   margin-bottom: 0;
   text-align: right;
@@ -3978,39 +3978,43 @@
   box-shadow: inset 0 1px 0 #ffffff;
   *zoom: 1;
 }
-.modal-footer:before,
-.modal-footer:after {
+.intermine .modal-footer:before,
+.intermine .modal-footer:after {
   display: table;
   content: "";
 }
-.modal-footer:after {
+.intermine .modal-footer:after {
   clear: both;
 }
-.modal-footer .btn + .btn {
+.intermine .modal-footer .btn + .btn {
   margin-left: 5px;
   margin-bottom: 0;
 }
-.modal-footer .btn-group .btn + .btn {
+.intermine .modal-footer .btn-group .btn + .btn {
   margin-left: -1px;
 }
-.tooltip.top {
+.intermine .tooltip.top {
   margin-top: -2px;
 }
-.tooltip.right {
+.intermine .tooltip.right {
   margin-left: 2px;
 }
-.tooltip.bottom {
+.intermine .tooltip.bottom {
   margin-top: 2px;
 }
-.tooltip.left {
+.intermine .tooltip.left {
   margin-left: -2px;
 }
 
-.modal .tooltip {
+.intermine .modal .tooltip {
     z-index: 1060;
 }
 
-.im-column-th .tooltip.left {
+.im-query-display {
+    margin: 0.4em;
+}
+
+.intermine .im-column-th .tooltip.left {
     margin-left: -10px;
 }
 .intermine .im-column-th .dropdown-menu:before {
@@ -4093,6 +4097,13 @@
   font-size: 1.2em;
   padding: 0.3em 1em;
 }
+.im-cell-preview .popover-content table.table tr td {
+    background: white;
+}
+
+.im-cell-preview .im-overspill {
+    display: none;
+}
 
 .im-cell-preview .popover-content {
   padding: 14px;
@@ -4117,6 +4128,9 @@
   background-color: transparent;
 }
 
+.im-cell-preview .im-related-counts tr td:first-child {
+    border-left: none;
+}
 .im-cell-preview .im-related-counts tr:first-child td {
     border-top: none;
 }
@@ -4149,29 +4163,29 @@
   border-left: 1px solid #dddddd;
 }
 
-.typeahead a:focus {
+.intermine .typeahead a:focus {
   outline: thin dotted #333;
   outline: 5px auto -webkit-focus-ring-color;
   outline-offset: -2px;
 }
-.typeahead a:hover,
-.typeahead a:active {
+.intermine .typeahead a:hover,
+.intermine .typeahead a:active {
   outline: 0;
 }
 
-.typeahead li.disabled > a {
+.intermine .typeahead li.disabled > a {
     color: #aaa;
 }
 
-.typeahead a {
+.intermine .typeahead a {
   color: #0088cc;
   text-decoration: none;
 }
-.typeahead a:hover {
+.intermine .typeahead a:hover {
   color: #005580;
   text-decoration: underline;
 }
-.typeahead.dropdown-menu a {
+.intermine .typeahead.dropdown-menu a {
   display: block;
   padding: 3px 15px;
   clear: both;
@@ -4181,7 +4195,7 @@
   white-space: nowrap;
 }
 
-.typeahead.dropdown-menu {
+.intermine .typeahead.dropdown-menu {
     background-clip: padding-box;
     background-color: #FFFFFF;
     border: 1px solid rgba(0, 0, 0, 0.2);
@@ -4200,28 +4214,25 @@
     font-size: 0.95em;
 }
 
-.typeahead.dropdown-menu li  {
+.intermine .typeahead.dropdown-menu li  {
     list-style-type: none;
 }
-.typeahead.dropdown-menu li > a {
+.intermine .typeahead.dropdown-menu li > a {
     width: 100%;
     display: inline-block;
     padding: 3px 0 3px 4px;
 }
-.typeahead.dropdown-menu li {
+.intermine .typeahead.dropdown-menu li {
     margin-left: 0;
     font-size: 0.95em;
 }
 
-.typeahead.dropdown-menu li > a:hover {
+.intermine .typeahead.dropdown-menu li > a:hover {
     width: 100%;
 }
 
-    
-
-.typeahead.dropdown-menu li > a:hover,
-.typeahead.dropdown-menu .active > a,
-.typeahead.dropdown-menu .active > a:hover {
+.intermine .typeahead.dropdown-menu .active > a,
+.intermine .typeahead.dropdown-menu .active > a:hover {
   color: #ffffff;
   text-decoration: none;
   background-color: #0088cc;
@@ -4232,10 +4243,10 @@
     text-transform: uppercase;
 }
 
-.typeahead.dropdown-menu li.disabled > a:hover {
+.intermine .typeahead.dropdown-menu li.disabled > a:hover {
     background-color: #ccc;
 }
-.typeahead {
+.intermine .typeahead {
   margin-top: 2px;
   -webkit-border-radius: 4px;
   -moz-border-radius: 4px;
@@ -4333,12 +4344,12 @@ table.table {
     border-bottom: none;
 }
 
-.im-cell-preview {
+.intermine .im-cell-preview {
     max-width: 450px;
 }
 
 .im-cell-preview .popover-inner {
-    width: 350px;
+    min-width: 350px;
 }
 
 .im-cell-link {
@@ -5034,7 +5045,6 @@ td.im-result-subtable .im-subtable {
 }
 
 .intermine .node-adder {
-    width: 100%;
 }
 
 .node-adder > ul {
@@ -5098,8 +5108,13 @@ td.im-result-subtable .im-subtable {
 }
 
 .node-adder > ul {
+    max-width: 97%;
+    width: 100%;
     padding-left: 5px;
     margin-left: 0;
+}
+.node-adder > ul li {
+    line-height: 24px;
 }
 
 .node-adder > ul ul {
@@ -5358,8 +5373,9 @@ td.im-result-subtable .im-subtable {
     display: inline-block;
 }
 
-.im-constraint-adder, .node-adder {
-    position: relative;
+.im-constraint-adder, form.node-adder {
+    padding: 0.5em 0.8em;
+    margin-bottom: 0px;
 }
 
 .im-constraint .btn-group {
@@ -5856,10 +5872,6 @@ ul.im-list-tags li {
     display: inline-block;
     float: left;
     margin: 0.5em 0.5em 0 0;
-}
-
-.im-item-field { 
-    background: #eee;
 }
 
 .im-item-details td.im-field-value { 
