@@ -23,7 +23,6 @@ do ->
             <% } %>
     """
 
-    HIDDEN_FIELDS = ["class", "objectId"]
 
     class SubTable extends Backbone.View
         tagName: "td"
@@ -162,119 +161,26 @@ do ->
             path = @path = @options.node.append field
             @$el.addClass 'im-type-' + path.getType().toLowerCase()
 
-
-          
-        toField = (row) -> $(row).find('.im-field-name').text()
-
-        sortTableByFieldName = (tbody) -> tbody.html _.sortBy tbody.children('tr').get(), toField
-
-        {NUM_SEPARATOR, NUM_CHUNK_SIZE} = intermine.options
-        numToStr = (n) -> intermine.utils.numToString n, NUM_SEPARATOR, NUM_CHUNK_SIZE
       
         # TODO: this should be its own view.
         getPopoverContent: ->
           return @model.cachedPopover if @model.cachedPopover?
 
-          $throbber = $ """
-            <div class="progress progress-info progress-striped active">
-              <div class="bar" style="width: 100%"></div>
-            </div>
-          """
-          itemDetails = $ """
-              <table class="im-item-details table table-condensed table-bordered">
-              <colgroup>
-                  <col class="im-item-field"/>
-                  <col class="im-item-value"/>
-              </colgroup>
-              </table>
-          """
-          relatedCounts = $ """
-            <table class="table im-related-counts table-condensed"></table>
-          """
-
           type = @model.get '_type'
           id = @model.get 'id'
-          q = @options.query
-          s = q.service
-          root = s.root
-          content = @make 'div'
 
-          $throbber.appendTo content
+          popover = new intermine.table.cell.Preview
+            service: @options.query.service
+            schema: @options.query.model
+            model: {type, id}
 
-          formatName = do (q) -> (field, row) ->
-            p = q.model.getPathInfo "#{ type }.#{ field }"
-            fv = row.find '.im-field-value'
-            fv.addClass p.getType().toString().toLowerCase()
-            p.getDisplayName().done (name) ->
-              row.find('.im-field-name').text name.split(' > ').pop()
-              sortTableByFieldName row.parent()
+          content = popover.el
+          working = $.Deferred()
 
-          types = [type].concat q.model.getAncestorsOf type
+          popover.on 'ready', -> working.resolve()
+          popover.render()
 
-          itemDetails.addClass (t.toLowerCase() for t in types).join ' '
-          
-          ready = s.findById type, id, (item) ->
-            $throbber.remove()
-            itemDetails.prependTo content
-
-            for field, value of item when value and (field not in HIDDEN_FIELDS) and not value['objectId']
-              v = value + ""
-              v = if v.length > 100 then v.substring(0, 100) + "..." else v
-              row = $ """
-                <tr>
-                  <td class="im-field-name">#{ field }</td>
-                  <td class="im-field-value #{field.toLowerCase()}">
-                    #{ v }
-                  </td>
-                </tr>
-              """
-              formatName field, row
-              itemDetails.append row
-
-            getLeaves = (o) ->
-              leaves = []
-              values = (leaf for name, leaf of o when name not in HIDDEN_FIELDS)
-              for x in values
-                  if x['objectId']
-                      leaves = leaves.concat(getLeaves(x))
-                  else
-                      leaves.push(x)
-              leaves
-                
-            for field, value of item when value and value['objectId']
-              values = getLeaves(value)
-              row = $ """
-                <tr>
-                  <td class="im-field-name">#{ field }</td>
-                  <td class="im-field-value #{ field.toLowerCase() }">
-                    #{ values.join ', ' }
-                  </td>
-                </tr>
-              """
-              itemDetails.append row
-              formatName field, row
-          
-
-          if conf = intermine.options.preview.count[root]?[type]
-            for settings in conf
-              if _.isObject settings
-                {query, label} = settings
-                q = intermine.utils.copy query
-                intermine.utils.walk q, (o, k, v) -> o[k] = id if v is '{{ID}}'
-              else
-                label = settings
-                q = select: settings + '.id', from: type, where: {id: id}
-              counted = s.count(q).done do (label) -> (c) ->
-                $throbber.remove()
-                relatedCounts.appendTo content
-                relatedCounts.append """
-                  <tr>
-                    <td>#{ label }:</td> <td class="im-count">#{ numToStr c }</td>
-                  </tr>
-                """
-              ready = ready.then -> counted
-
-          @model.cachedPopover = [content, ready]
+          @model.cachedPopover = [content, working.promise()]
           
 
         setupPreviewOverlay: ->
