@@ -197,6 +197,8 @@ task 'build:setup', 'Set things up for building', prebuild = (cb) ->
             fs.mkdir "build", "770", ->
                 cont cb
 
+child_process = require 'child_process'
+
 task 'build', 'Run a complete build', ->
     clean ->
         prebuild ->
@@ -204,15 +206,14 @@ task 'build', 'Run a complete build', ->
                 concat ->
                     compile ->
                         console.log "done at #{new Date()}"
+                        child_process.spawn('notify-send', ["Recompiled im-tables"], {stdio: 'ignore', detached: true})
 
 task 'watch', 'Watch production files and rebuild the application', watch = (cb) ->
     console.log "Watching for changes in ./src"
-    fs.readdir 'src', (err, files) ->
-        throw err if err
-        for f in files then do (f) ->
-            fs.watchFile "src/#{f}", (curr, prev) ->
-                if +curr.mtime isnt +prev.mtime
-                    console.log "Saw change in js/#{f} - rebuilding"
-                    invoke 'build'
+    listen = (name) -> fs.watchFile name, (curr, prev) ->
+      if +curr.mtime isnt +prev.mtime
+        console.log "Saw change in #{ name } - rebuilding..."
+        invoke 'build'
+    deepRead('src').then(_.flatten).invoke('map', listen).done()
     
 # vim: set syntax=coffee sw=2 ts=2 foldmethod=indent cc=100
