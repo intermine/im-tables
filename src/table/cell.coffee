@@ -1,26 +1,28 @@
 do ->
 
     CELL_HTML = _.template """
-            <input class="list-chooser" type="checkbox" style="display: none" data-obj-id="<%= id %>" 
-                <% if (selected) { %>checked <% }; %>
-                data-obj-type="<%= _type %>">
-            <% if (value == null) { %>
-                <span class="null-value">no value</span>
-            <% } else { %>
-                <% if (url != null && url.match(/^http/)) { %>
-                  <a class="im-cell-link" href="<%= url %>">
-                    <% if (!url.match(window.location.origin)) { %>
-                        <i class="icon-globe"></i>
-                    <% } %>
-                <% } else { %>
-                  <a class="im-cell-link" href="<%= base %><%= url %>">
-                <% } %>
-                    <%- value %>
-                </a>
-            <% } %>
-            <% if (field == 'url') { %>
-                <a class="im-cell-link external" href="<%= value %>"><i class="icon-globe"></i>link</a>
-            <% } %>
+      <input class="list-chooser" type="checkbox" style="display: none" data-obj-id="<%= id %>" 
+          <% if (selected) { %>checked <% }; %>
+          data-obj-type="<%= _type %>">
+      <a class="im-cell-link" href="<%= url %>">
+        <% if (url != null && !url.match(host)) { %>
+          <% if (icon) { %>
+            <img src="<%= icon %>" class="im-external-link"></img>
+          <% } else { %>
+            <i class="icon-globe"></i>
+          <% } %>
+        <% } %>
+        <% if (value == null) { %>
+          <span class="null-value">no value</span>
+        <% } else { %>
+          <span class="im-displayed-value">
+            <%- value %>
+          </span>
+        <% } %>
+      </a>
+      <% if (field == 'url' && value != url) { %>
+          <a class="im-cell-link external" href="<%= value %>"><i class="icon-globe"></i>link</a>
+      <% } %>
     """
 
 
@@ -133,7 +135,11 @@ do ->
 
         getUnits: () -> 1
 
-        formatter: (model) -> model.escape @options.field
+        formatter: (model) ->
+          if model.get(@options.field)?
+            model.escape @options.field
+          else
+            """<span class="null-value">no value</span>"""
 
         events:
             'click': 'activateChooser'
@@ -151,6 +157,8 @@ do ->
                 @$('input').hide()
                 @$el.removeClass "active"
                 @model.set "selected", false
+            @options.query.on 'showing:preview', (el) => # Close ours if another is being opened.
+              @cellPreview?.hide() unless el is @el
 
             @options.query.on "start:highlight:node", (node) =>
                 if @options.node?.toPathString() is node.toPathString()
@@ -160,10 +168,8 @@ do ->
             field = @options.field
             path = @path = @options.node.append field
             @$el.addClass 'im-type-' + path.getType().toLowerCase()
-
       
-        # TODO: this should be its own view.
-        getPopoverContent: ->
+        getPopoverContent: =>
           return @model.cachedPopover if @model.cachedPopover?
 
           type = @model.get '_type'
@@ -175,41 +181,57 @@ do ->
             model: {type, id}
 
           content = popover.el
-          working = $.Deferred()
 
-          popover.on 'ready', -> working.resolve()
+          popover.on 'ready', => @cellPreview.reposition()
           popover.render()
 
-          @model.cachedPopover = [content, working.promise()]
-          
+          @model.cachedPopover = content
+
+        getPopoverPlacement: (popover) =>
+          table = @$el.closest ".im-table-container"
+          {left} = @$el.offset()
+
+          limits = table.offset()
+          _.extend limits,
+            right: limits.left + table.width()
+            bottom: limits.top + table.height()
+
+          w = @$el.width()
+          h = @$el.height()
+          elPos = @$el.offset()
+
+          pw = $(popover).outerWidth()
+          ph = $(popover)[0].offsetHeight
+
+          fitsOnRight = left + w + pw <= limits.right
+          fitsOnLeft = limits.left <= left - pw
+
+          if fitsOnLeft
+            return 'left'
+          if fitsOnRight
+            return 'right'
+          else
+            return 'top'
 
         setupPreviewOverlay: ->
-          @$el.popover
+          options =
             container: @el
+            containment: '.im-query-results'
             html: true
-            placement: (popover) =>
-                $(popover).addClass 'im-cell-preview bootstrap'
-                table = @$el.closest "table"
-                {left} = @$el.offset()
-                w = @$el.width()
-                if left + w + 400 <= table.offset().left + table.width()
-                    return 'right'
-                if table.offset().left <= left - 400
-                    return 'left'
-                else
-                    return "bottom"
             title: @model.get '_type'
-            trigger: "hover"
-            delay: {show: 500, hide: 100}
-            content: =>
-                unless @content
-                  [@content, ready] = @getPopoverContent()
-                  ready.done => @$el.popover 'show'
+            trigger: intermine.options.CellPreviewTrigger
+            delay: {show: 700, hide: 250} # Slight delays to prevent jumpiness.
+            classes: 'im-cell-preview'
+            content: @getPopoverContent
+            placement: @getPopoverPlacement
 
-                @content
+          @$el.on 'shown', => @cellPreview.reposition()
+          @$el.on 'shown', => @options.query.trigger 'showing:preview', @el
+
+          @cellPreview = new intermine.bootstrap.DynamicPopover @el, options
 
 
-        updateValue: => @$('.im-cell-link').html @formatter(@model)
+        updateValue: => @$('.im-displayed-value').html @formatter(@model)
 
         render: ->
             id = @model.get "id"
@@ -217,8 +239,20 @@ do ->
             data =
               value: @model.get field
               field: field
+              url: @model.get('url')
+            unless /^http/.test(data.url)
+              data.url = @model.get('base') + data.url
 
-            _.defaults data, @model.toJSON(), {'_type': ''}
+            host = if intermine.options.IndicateOffHostLinks
+              window.location.host
+            else
+              /.*/
+            icon = null
+            for domain, url of intermine.options.ExternalLinkIcons when data.url.match domain
+                console.log domain, url
+                icon ?= url
+
+            _.defaults data, @model.toJSON(), {'_type': '', host: host, icon: icon}
             html = CELL_HTML data
 
             @$el.append(html)
@@ -230,13 +264,11 @@ do ->
             this
 
         setWidth: (w) ->
-          #@$el.css width: w + "px"
-          #  @$('.im-cell-link').css "max-width": (w - 5) + "px"
           this
 
         activateChooser: ->
-            if @model.get "selectable"
-                @model.set selected: !@model.get("selected") if @$('input').is ':visible'
+          if @model.get "selectable"
+            @model.set selected: !@model.get("selected") if @$('input').is ':visible'
 
     class NullCell extends Cell
         setupPreviewOverlay: ->

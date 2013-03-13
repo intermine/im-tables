@@ -22,7 +22,7 @@ do ->
 
   class Preview extends intermine.views.ItemView
 
-    className: 'im-cell-preview'
+    className: 'im-cell-preview-inner'
 
 
     ITEM_ROW = _.template """
@@ -74,13 +74,14 @@ do ->
         </td>
       </tr>
     """
-
+    
     events:
       'click .im-too-long': 'revealLongField'
 
     revealLongField: (e) ->
+      e?.preventDefault()
       e?.stopPropagation()
-      $tooLong = $ e.target
+      $tooLong = $ e.currentTarget
       $overSpill = $tooLong.siblings '.im-overspill'
       $tooLong.remove()
       $overSpill.show()
@@ -96,9 +97,11 @@ do ->
       p = @options.schema.getPathInfo "#{ type }.#{ field }"
       fv = row.find '.im-field-value'
       fv.addClass p.getType().toString().toLowerCase()
-      p.getDisplayName().done (name) ->
+      p.getDisplayName().done (name) =>
         row.find('.im-field-name').text name.split(' > ').pop()
         sortTableByFieldName row.parent()
+        @trigger 'ready'
+
 
     handleItem: (item) =>
       table = @itemDetails
@@ -168,6 +171,7 @@ do ->
       ready.done =>
         @$el.empty().append(@itemDetails).append(@relatedCounts)
         @trigger 'ready'
+
       ready.fail (err) =>
         @renderError err
         @trigger 'ready'
