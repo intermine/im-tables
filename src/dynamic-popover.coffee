@@ -43,12 +43,13 @@ do ->
         diff = offset.top + actualHeight - bottom
         offset.top -= diff
         arrowOffset.top = offset.top + (pos.top - offset.top) + (pos.height / 2) - (arrowHeight / 2)
-        if placement is 'right'
-          offset.left += arrowWidth
-        else if placement is 'left'
-          offset.left -= arrowWidth
       else
         return # All fine.
+
+      if placement is 'right'
+        offset.left += arrowWidth
+      else if placement is 'left'
+        offset.left -= arrowWidth
 
       $tip.offset offset
       $tip.find('.arrow').offset arrowOffset
