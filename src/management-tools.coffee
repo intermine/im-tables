@@ -2,7 +2,13 @@ do ->
     class ManagementTools extends Backbone.View
 
         initialize: (@query, @columnHeaders) ->
-            @query.on "change:constraints", @checkHasFilters, @
+          @query.on "change:constraints", @checkHasFilters, @
+          @query.on 'revert', (state) =>
+            newQ = state.get 'query'
+            delete @query
+            @$el.empty()
+            @initialize newQ, @columnHeaders
+            @render()
 
         checkHasFilters: () ->
           count = @query.constraints.length
