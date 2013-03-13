@@ -1,5 +1,9 @@
 $(function() {
 
+    $('#entry-dropdowns').click(function() {
+      $('.entry-points').toggleClass('dropdown');
+    });
+
     var getPageParam = function(name, defaultValue) {
         defaultValue = (defaultValue != null) ? defaultValue : "";
         name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
@@ -196,6 +200,7 @@ $(function() {
         $('.entry-points li').each(function() {
           $(this).toggleClass("active", $(this).text() === serviceArgs);
         });
+        $('.entry-points').removeClass('dropdown');
         var token = services[serviceArgs].token;
         display.imWidget({
             type: displayType,
