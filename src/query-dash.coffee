@@ -5,7 +5,6 @@ do ->
         className: "query-display row-fluid"
 
         initialize: (service, @query, @queryEvents, @tableProperties) ->
-            console.log @tableProperties
             @columnHeaders = new Backbone.Collection
             @events ?= {}
             if _(service).isString()
