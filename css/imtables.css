@@ -2488,7 +2488,6 @@
   -moz-border-radius-bottomleft: 4px;}
 .intermine .nav-tabs.nav-stacked > li:hover > *,
 .intermine .nav-tabs.nav-stacked > li > a:focus {
-  z-index: 2;
   border-color: #ddd;}
 .intermine .nav-pills.nav-stacked > li > * {
   margin-bottom: 3px;}
@@ -3855,13 +3854,13 @@
   z-index: 2050;
 }
 
-.intermine .modal-open .dropdown.open {
+.intermine .modal .dropdown.open {
   *z-index: 2050;
 }
-.intermine .modal-open .popover {
+.intermine .modal .popover {
   z-index: 2060;
 }
-.intermine .modal-open .tooltip {
+.intermine .modal .tooltip {
   z-index: 2070;
 }
 
@@ -4016,10 +4015,6 @@
 }
 .intermine .tooltip.left {
   margin-left: -2px;
-}
-
-.intermine .modal .tooltip {
-    z-index: 1060;
 }
 
 .im-query-display {
