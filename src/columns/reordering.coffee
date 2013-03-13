@@ -36,6 +36,7 @@ do ->
         reset: ->
           @trigger 'resetting:tree'
           @$('.im-tree-option').addClass 'hidden'
+          @chosen = []
           super()
 
         events: ->
@@ -205,9 +206,15 @@ do ->
           @remove()
         
         remove: ->
+          @sortOpts.off()
+          @sortOrder.off()
+          @sortPossibles.off()
           @newView.close()
           delete @newView
           delete @columnHeaders
+          delete @sortOpts
+          delete @sortOrder
+          delete @sortPossibles
           @$el.empty()
           @undelegateEvents()
           @off()
