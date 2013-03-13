@@ -183,9 +183,7 @@ do ->
 
     bestFit: (tip, elem) =>
       $(tip).addClass intermine.options.StylePrefix
-      bounds = @$el.closest '.im-table-container'
-      outOfBounds = @$el.offset().left - $(tip).width() <= bounds.offset().left
-      if outOfBounds then 'right' else 'left'
+      return 'top'
 
     checkHowFarOver: (el) ->
       bounds = @$el.closest '.im-table-container'
