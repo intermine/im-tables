@@ -202,7 +202,9 @@ do ->
         undo: () ->
             @states.remove(@states.last())
             newState = @states.last()
+            prev = @query
             newState.trigger 'revert', newState
+            prev.trigger 'revert', newState
 
         initialize: (@query, @display) ->
             @currentStep = 0
