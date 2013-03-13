@@ -143,7 +143,7 @@ do ->
 
     class ColumnsDialogue extends Backbone.View
         tagName: "div"
-        className: "im-column-dialogue modal fade"
+        className: "im-column-dialogue modal"
         
         initialize: (@query, @columnHeaders) ->
           @columnHeaders ?= new Backbone.Collection

@@ -145,7 +145,7 @@ do ->
     class ListAppender extends ListDialogue
 
         html: """
-            <div class="modal fade">
+            <div class="modal">
                 <div class="modal-header">
                     <a class="close btn-cancel">close</a>
                     <h2>Add Items To Existing List</h2>
@@ -312,7 +312,7 @@ do ->
                     <% }); %>
                 </ul>
             </div>
-            <div class="modal fade">
+            <div class="modal">
                 <div class="modal-header">
                     <a class="close" data-dismiss="modal">close</a>
                     <h3>Generated <span class="im-code-lang"></span> Code</h3>
@@ -335,6 +335,7 @@ do ->
 
         render: =>
             @$el.append @html
+            @$('.modal').hide() # I have no idea why this is needed.
             this
 
         events:
@@ -413,7 +414,7 @@ do ->
     class ListCreator extends ListDialogue
 
         html: """
-            <div class="modal fade im-list-creation-dialogue">
+            <div class="modal im-list-creation-dialogue">
                 <div class="modal-header">
                     <a class="close btn-cancel">close</a>
                     <h2>List Details</h2>

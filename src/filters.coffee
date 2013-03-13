@@ -99,7 +99,7 @@ do ->
             click: (e) -> e.stopPropagation()
 
     class FilterManager extends Constraints
-        className: "im-filter-manager modal fade"
+        className: "im-filter-manager modal"
         tagName: "div"
 
         initialize: (@query) ->

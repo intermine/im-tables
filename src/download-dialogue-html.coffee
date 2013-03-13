@@ -5,7 +5,7 @@ do ->
     #{ intermine.messages.actions.ExportButton }
   </a>
 
-  <div class="modal fade tabbable tabs-below">
+  <div class="modal tabbable tabs-below">
 
     <div class="modal-header">
       <a href="#" class="close" data-dismiss="modal">close</a>
