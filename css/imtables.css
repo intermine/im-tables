@@ -765,6 +765,17 @@
   -webkit-box-shadow: inset 0 1px 1px rgba(0 , 0 , 0 , 0.075) , 0 0 8px rgba(82 , 168 , 236 , 0.6);
      -moz-box-shadow: inset 0 1px 1px rgba(0 , 0 , 0 , 0.075) , 0 0 8px rgba(82 , 168 , 236 , 0.6);
           box-shadow: inset 0 1px 1px rgba(0 , 0 , 0 , 0.075) , 0 0 8px rgba(82 , 168 , 236 , 0.6);}
+
+.im-table-container .table td a.im-cell-link {
+    color: #555;
+}
+
+.intermine .im-query-results .im-table-container td.im-result-field:hover {
+    background-color: #0088cc;
+}
+.im-table-container .table td:hover > a.im-cell-link {
+    color: white;
+}
 .intermine input[type="radio"],
 .intermine input[type="checkbox"] {
   margin: 4px 0 0;
@@ -3219,7 +3230,7 @@
 .modal-backdrop.fade.in {
   opacity: 0.8;
   filter: alpha(opacity=80);}
-.modal {
+.intermine .modal {
   position: fixed;
   top: 10%;
   left: 50%;
@@ -3240,30 +3251,31 @@
   -webkit-background-clip: padding-box;
      -moz-background-clip: padding-box;
           background-clip: padding-box;}
-.modal.fade {
+.intermine .modal.fade {
   top: -25%;
   -webkit-transition: opacity 0.3s linear , top 0.3s ease-out;
      -moz-transition: opacity 0.3s linear , top 0.3s ease-out;
        -o-transition: opacity 0.3s linear , top 0.3s ease-out;
           transition: opacity 0.3s linear , top 0.3s ease-out;}
-.modal.fade.in {
+
+.intermine .modal.fade.in {
   top: 10%;}
-.modal-header {
+.intermine .modal-header {
   padding: 9px 15px;
   border-bottom: 1px solid #eee;}
-.modal-header .close {
+.intermine .modal-header .close {
   margin-top: 2px;}
-.modal-header h3 {
+.intermine .modal-header h3 {
   margin: 0;
   line-height: 30px;}
-.modal-body {
+.intermine .modal-body {
   position: relative;
   max-height: 400px;
   padding: 15px;
   overflow-y: auto;}
-.modal-form {
+.intermine .modal-form {
   margin-bottom: 0;}
-.modal-footer {
+.intermine .modal-footer {
   padding: 14px 15px 15px;
   margin-bottom: 0;
   text-align: right;
@@ -3276,19 +3288,19 @@
   -webkit-box-shadow: inset 0 1px 0 #ffffff;
      -moz-box-shadow: inset 0 1px 0 #ffffff;
           box-shadow: inset 0 1px 0 #ffffff;}
-.modal-footer:before,
-.modal-footer:after {
+.intermine .modal-footer:before,
+.intermine .modal-footer:after {
   display: table;
   line-height: 0;
   content: "";}
-.modal-footer:after {
+.intermine .modal-footer:after {
   clear: both;}
-.modal-footer .btn + .btn {
+.intermine .modal-footer .btn + .btn {
   margin-bottom: 0;
   margin-left: 5px;}
-.modal-footer .btn-group .btn + .btn {
+.intermine .modal-footer .btn-group .btn + .btn {
   margin-left: -1px;}
-.modal-footer .btn-block + .btn-block {
+.intermine .modal-footer .btn-block + .btn-block {
   margin-left: 0;}
 .intermine .tooltip {
   position: absolute;
@@ -4074,10 +4086,11 @@
   width: 0;
   height: 0;
 }
-.popover-inner {
+.im-cell-preview-inner {
   overflow: hidden;
 }
-.popover-inner h3 {
+.intermine .im-cell-preview h3 {
+    font-weight: bold;
     margin: 0px;
     font-size: 14px;
 }
@@ -4097,6 +4110,7 @@
   font-size: 1.2em;
   padding: 0.3em 1em;
 }
+
 .im-cell-preview .popover-content table.table tr td {
     background: white;
 }
@@ -4344,12 +4358,8 @@ table.table {
     border-bottom: none;
 }
 
-.intermine .im-cell-preview {
-    max-width: 450px;
-}
-
-.im-cell-preview .popover-inner {
-    min-width: 350px;
+.im-cell-preview .im-cell-preview-inner {
+    min-width: 150px;
 }
 
 .im-cell-link {
@@ -5295,6 +5305,14 @@ td.im-result-subtable .im-subtable {
     text-transform: uppercase;
     color: #aaa;
 }
+.null-value:hover {
+    text-decoration: none !important;
+}
+
+img.im-external-link {
+    height: 1em;
+    width: 1em;
+}
 
 .im-node {
     border-left: 1px solid #aaa;
@@ -5763,7 +5781,7 @@ form.im-join {
 
 /* Position the icons in the centre of their box, more or less */
 .im-th-button i {
-    z-index: 900; /* Otherwise can be overlayed by the empty portion of the title span */
+    z-index: 600; /* Otherwise can be overlayed by the empty portion of the title span */
     position: relative;
     top: -3px;
 }
@@ -6069,15 +6087,42 @@ td > .im-no-results {
 
 @media screen and (min-width: 550px) {
     .im-query-display .modal {
-        left: 50%;
+        top: 44%;
+        left: 53%;
         width: 525px;
+    }
+    .im-cell-preview.popover {
+        max-width: 275px;
+    }
+    .im-cell-preview .im-cell-preview-inner {
+        min-width: 250px;
+    }
+}
+
+@media screen and (min-width: 600px) {
+    .im-query-display .modal {
+        top: 44%;
+        left: 47%;
+        width: 575px;
+    }
+    .im-cell-preview.popover {
+        max-width: 300px;
+    }
+    .im-cell-preview .im-cell-preview-inner {
+        min-width: 275px;
     }
 }
 
 @media screen and (min-width: 700) {
     .im-query-display .modal {
-        left: 50%;
+        left: 40%;
         width: 650px;
+    }
+    .im-cell-preview.popover {
+        max-width: 300px;
+    }
+    .im-cell-preview .im-cell-preview-inner {
+        min-width: 280px;
     }
 }
 
@@ -6086,20 +6131,38 @@ td > .im-no-results {
         left: 40%;
         width: 720px;
     }
+    .im-cell-preview.popover {
+        max-width: 350px;
+    }
+    .im-cell-preview .im-cell-preview-inner {
+        min-width: 300px;
+    }
 }
 
 @media screen and (min-width: 900px) {
     .im-query-display .modal {
         width: 800px;
     }
+    .im-cell-preview.popover {
+        max-width: 400px;
+    }
+    .im-cell-preview .im-cell-preview-inner {
+        min-width: 350px;
+    }
 }
 
 @media screen and (min-width: 1000px) {
     .im-query-display .modal {
+        left: 35%;
         width: 900px;
     }
+    .im-cell-preview.popover {
+        max-width: 450px;
+    }
+    .im-cell-preview .im-cell-preview-inner {
+        min-width: 400px;
+    }
 }
-
 
 
 @media screen and (max-width: 1200px) {
@@ -6152,6 +6215,23 @@ td > .im-no-results {
     }
     .hidden-phone {
         display: none;
+    }
+}
+
+@media-screen and (min-height: 400px) {
+    .im-query-display .modal {
+        top: 40%;
+        height: 400px;
+    }
+}
+@media-screen and (min-height: 600px) {
+    .im-query-display .modal {
+        height: 500px;
+    }
+}
+@media-screen and (min-height: 700px) {
+    .im-query-display .modal {
+        height: 600px;
     }
 }
 
@@ -6392,3 +6472,4 @@ td > .im-no-results {
 .im-item-details.bioentity .organism {
     font-style: italic;
 }
+
