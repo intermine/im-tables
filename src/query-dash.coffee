@@ -9,7 +9,7 @@ do ->
             @events ?= {}
             if _(service).isString()
                 @service = new intermine.Service root: service
-            else if service.fetchModel
+            else if service.fetchModel?
                 ## Is premade for us.
                 @service = service
             else
