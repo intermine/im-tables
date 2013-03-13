@@ -1,7 +1,9 @@
 scope 'intermine.messages.columns', {
     FindColumnToAdd: 'Add a new Column',
-    OrderTitle: 'Add / Remove / Re-Arrange Columns',
-    SortTitle: 'Define Sort-Order',
+    OrderVerb: 'Add / Remove / Re-Arrange',
+    OrderTitle: 'Columns',
+    SortVerb: 'Configure',
+    SortTitle: 'Sort-Order',
     OnlyColsInView: 'Only show columns in the table:',
     SortingHelpTitle: 'What Columns Can I Sort by?',
     SortingHelpContent: """

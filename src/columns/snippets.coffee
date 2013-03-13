@@ -8,11 +8,17 @@ scope 'intermine.columns.snippets',
       <ul class="nav nav-tabs">
         <li class="active">
           <a data-target=".im-reordering" data-toggle="tab">
+            <span class="hidden-tablet">
+              #{ intermine.messages.columns.OrderVerb }
+            </span>
             #{ intermine.messages.columns.OrderTitle }
           </a>
         </li>
         <li>
           <a data-target=".im-sorting" data-toggle="tab">
+            <span class="hidden-tablet">
+              #{ intermine.messages.columns.SortVerb }
+            </span>
             #{ intermine.messages.columns.SortTitle }
           </a>
         </li>
