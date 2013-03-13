@@ -101,7 +101,7 @@ CONCAT_DESC = 'Concatenate source files to a single application script'
 CONCAT = 'build:concat'
 
 task CONCAT, CONCAT_DESC, concat = promiserToNode ->
-  return Q.reject('writing') if writing
+  return Q('writing') if writing
   console.log "Building source file"
   writeOut = writer 'build/build.coffee'
 
@@ -133,7 +133,7 @@ DEPS = 'build:deps'
 DEPS_DESC = 'concatenate dependencies'
 
 task DEPS, DEPS_DESC, builddeps = promiserToNode ->
-  return Q.reject('writing') if writingDeps
+  return Q('writing') if writingDeps
 
   console.log "Building deps"
   dirName = "components/bootstrap/docs/assets/js"
