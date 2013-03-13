@@ -16,7 +16,7 @@ do ->
       </div>
     """
 
-    placement: 'left'
+    placement: 'top'
 
     tagName: 'li'
 
