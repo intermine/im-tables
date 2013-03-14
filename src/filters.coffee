@@ -176,7 +176,7 @@ do ->
     class SingleColumnConstraints extends Constraints
         initialize: (query, @view) -> super(query)
 
-        getConAdder: -> new SingleConstraintAdder(@query, @view)
+        getConAdder: ->  null #-> new SingleConstraintAdder(@query, @view)
 
         getConstraints: -> c for c in @query.constraints when (c.path.match @view)
 

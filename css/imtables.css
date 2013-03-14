@@ -4764,7 +4764,6 @@ ul.im-cols h4 {
     left: -9px;
     top: 19px;
     min-width: 24em;
-    width: 26em;
     font-weight: normal;
 }
 
@@ -5066,6 +5065,7 @@ td.im-result-subtable .im-subtable {
 .intermine .node-adder {
 }
 
+.im-constraint-adder > ul,
 .node-adder > ul {
     max-height: 400px;
     overflow-y: auto;
@@ -5074,68 +5074,82 @@ td.im-result-subtable .im-subtable {
     border-top: 1px solid #ccc;
 }
 
+.im-constraint-adder ul,
 .node-adder ul {
     list-style-type: none;
     font-size: 14px;
 }
 
+.im-constraint-adder li > a,
 .node-adder li > a {
     padding: 0.3em;
     color: #555;
 }
+.im-constraint-adder li > a > span,
 .node-adder li > a > span {
     width: 100%;
 }
 
+.im-constraint-adder li.im-in-view > a,
 .node-adder li.im-in-view > a {
     border: 1px dashed #0088cc;
 }
 
+.im-constraint-adder li:hover > a,
 .node-adder li:hover > a {
     background: #0088cc;
     color: white;
     text-decoration: none;
 }
 
+.im-constraint-adder li.disabled:hover > a,
 .node-adder li.disabled:hover > a {
     color: white;
     background-color: #ccc;
 }
 
+.im-constraint-adder li,
 .node-adder li {
     padding-left: 1em;
     border-left: 1px dashed #ccc;
 }
 
+.im-constraint-adder li:hover > ul > li,
 .node-adder li:hover > ul > li {
     border-left-color: #0088cc;
 }
 
+.im-constraint-adder li:last-child,
 .node-adder li:last-child {
     border-left: none;
     padding-left: 0px;
 }
 
+.im-constraint-adder li:last-child a:before,
 .node-adder li:last-child a:before {
     color: #ccc;
     content: "\221F";
 }
 
 
+.im-constraint-adder li.disabled > a,
 .node-adder li.disabled > a {
     color: #aaa;
 }
 
+.im-constraint-adder > ul,
 .node-adder > ul {
     max-width: 97%;
     width: 100%;
     padding-left: 5px;
     margin-left: 0;
 }
+.im-constraint-adder > ul li,
 .node-adder > ul li {
     line-height: 24px;
 }
 
+.im-constraint-adder > ul ul,
 .node-adder > ul ul {
     margin-left: 1.5em;
 }
@@ -5302,17 +5316,20 @@ td.im-result-subtable .im-subtable {
     float: left;
 }
 
+.im-constraint-adder label,
 .node-adder label {
     margin-right: 0.5em;
     text-transform: uppercase;
     font-weight: bold;
     font-size: 12px;
 }
+.im-constraint-adder .im-tree-option,
 .node-adder .im-tree-option {
     margin-left: 1em;
     float: right;
     display: inline;
 }
+.im-constraint-adder > .hidden,
 .node-adder > .hidden {
     display: none;
 }
@@ -5415,7 +5432,6 @@ img.im-external-link {
 }
 
 .im-constraint-adder, form.node-adder {
-    padding: 0.5em 0.8em;
     margin-bottom: 0px;
 }
 
@@ -5653,6 +5669,10 @@ form.im-join {
 
 .im-query-actionbar > ul > .im-action.node-adder input {
     max-width: 60%;
+}
+
+.im-constraint-adder ul a {
+    float: none;
 }
 
 .im-action .btn-action {

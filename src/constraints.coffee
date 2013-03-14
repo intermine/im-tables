@@ -16,7 +16,7 @@ do ->
         true
       else
         parts = @query.toLowerCase().split(' ') ? []
-        _.all parts, (p) -> item.toLowerCase().indexOf(p) >= 0
+        _.all parts, (p) ->  item.toLowerCase().indexOf(p) >= 0
 
     HIGHLIGHTER = (tooMany) -> (item) ->
       if item is tooMany
@@ -57,6 +57,7 @@ do ->
                 @ops = intermine.Query.ATTRIBUTE_OPS
             else
                 @ops = BASIC_OPS
+            @con.on 'change', @fillConSummaryLabel, @
 
         events:
             'change .im-ops': 'drawValueOptions'
@@ -75,17 +76,31 @@ do ->
             e?.preventDefault()
             e?.stopPropagation()
             @$('.im-con-overview').siblings().slideUp 200
+            @con.set _.extend {}, @orig
             while (ta = @typeaheads.shift())
                 ta.remove()
 
+        IS_BLANK = /^\s*$/
+
         valid: () ->
-            unless @con.has('op')
-                return false
+            if @con.has('type')
+              return true # Using a select list - cannot be wrong
+
+            if not @con.get('op') or IS_BLANK.test @con.get('op') # No operator.
+              return false
+
             op = @con.get('op')
+            if @path.isReference() and op in ['=', '!=']
+                ok = try
+                  @query.getPathInfo(@con.get('value'))
+                  true
+                catch e
+                  false
+                return ok
             if op in intermine.Query.ATTRIBUTE_VALUE_OPS.concat(intermine.Query.REFERENCE_OPS)
-                return @con.has('value')
+                return @con.has('value') and not IS_BLANK.test @con.get('value')
             if op in intermine.Query.MULTIVALUE_OPS
-                return @con.has('values')
+                return @con.has('values') and @con.get('values').length > 0
             return true
 
         editConstraint: (e) ->
@@ -93,8 +108,8 @@ do ->
             e.preventDefault()
 
             if not @valid()
-                @$el.addClass 'error'
-                return false
+              @$el.addClass 'error'
+              return false
 
             @removeConstraint(e, silently = true)
             if @con.get('op') in intermine.Query.MULTIVALUE_OPS.concat(intermine.Query.NULL_OPS)
@@ -152,24 +167,25 @@ do ->
           $ """<span class="label label-#{type}">#{content}</span>"""
 
         fillConSummaryLabel: () ->
-            @label.empty()
-            @addIcons @label
-            ul = $('<ul class="breadcrumb">').appendTo @label
+          return unless @label?
+          @label.empty()
+          @addIcons @label
+          ul = $('<ul class="breadcrumb">').appendTo @label
 
-            if @con.has 'title'
-                ul.append toLabel @con.get('title'), 'path'
-            else
-                sp = toLabel @path, 'path'
-                do (sp) => @path.getDisplayName (name) -> sp.text name
-                ul.append(sp)
-            if (op = @getTitleOp())
-                ul.append toLabel op, 'op'
-            unless @con.get('op') in intermine.Query.NULL_OPS
-                if (val = @getTitleVal())
-                    ul.append toLabel val, 'value'
-                if @con.has 'extraValue'
-                    ul.append intermine.conbuilder.messages.ExtraLabel
-                    ul.append toLabel @con.get('extraValue'), 'extra'
+          if @con.has 'title'
+              ul.append toLabel @con.get('title'), 'path'
+          else
+              sp = toLabel @path, 'path'
+              do (sp) => @path.getDisplayName (name) -> sp.text name
+              ul.append(sp)
+          if (op = @getTitleOp())
+              ul.append toLabel op, 'op'
+          unless @con.get('op') in intermine.Query.NULL_OPS
+              if (val = @getTitleVal())
+                  ul.append toLabel val, 'value'
+              if @con.has 'extraValue'
+                  ul.append intermine.conbuilder.messages.ExtraLabel
+                  ul.append toLabel @con.get('extraValue'), 'extra'
 
         CON_OPTS = """<fieldset class="im-constraint-options"></fieldset>"""
 
@@ -181,7 +197,7 @@ do ->
           @fillConSummaryLabel()
           @$el.append @label
           fs = $(CON_OPTS).appendTo @el
-          @drawOperatorSelector(fs)
+          @drawOperatorSelector(fs) if @con.has('op')
           @drawValueOptions()
           @$el.append """
             <div class="alert alert-error span10 im-hidden">
@@ -200,6 +216,30 @@ do ->
             $select.change (e) => @con.set op: $select.val()
 
         btnGroup: """<div class="im-value-options btn-group" data-toggle="buttons-radio"></div>"""
+
+        drawTypeOpts: (fs) ->
+          label = """<label class="span4">IS A</label>"""
+          select = $ """
+            <select class="span7">
+            </select>
+          """
+          fs.append label
+          fs.append select
+          type = @con.get('type')
+          subclasses = @query.getSubclasses()
+          schema = @query.model
+          delete subclasses[@path]
+          baseType = schema.getPathInfo(@path, subclasses).getType()
+          types = [type].concat schema.getSubclassesOf baseType
+
+          for t in types then do (t) ->
+            option = $ '<option>'
+            option.attr value: t
+            select.append option
+            schema.getPathInfo(t).getDisplayName().done (name) ->
+              option.text name
+
+          select.change => @con.set type: select.val()
 
         drawBooleanOpts: (fs) ->
             current = @con.get 'value'
@@ -275,7 +315,7 @@ do ->
                 do (opt, lc) -> lc.getDisplayName (name) -> opt.text name
 
         handleSummary: (input, items, total) ->
-          suggestions = _.pluck items, 'item'
+          suggestions = ('' + item for item in _.pluck items, 'item')
           {MaxSuggestions} = intermine.options
           if total > MaxSuggestions
             tooMany = TOO_MANY_SUGGESTIONS extra: total - MaxSuggestions
@@ -314,7 +354,7 @@ do ->
             input = $ """
                 <input class="span7 im-constraint-value im-value-options im-con-value" type="text"
                     placeholder="#{ intermine.conbuilder.messages.ValuePlaceholder }"
-                    value="#{ @con.get('value') or @con.get('type') or '' }"
+                    value="#{ @con.get('value') or '' }"
                 >
             """
             fs.append input
@@ -353,7 +393,9 @@ do ->
             @$('.im-value-options').remove()
             fs = @$ '.im-constraint-options'
             currentOp = @con.get 'op'
-            if (@path.getType() in intermine.Model.BOOLEAN_TYPES) and not (currentOp in intermine.Query.NULL_OPS)
+            if not currentOp and @con.has('type')
+                @drawTypeOpts(fs)
+            else if (@path.getType() in intermine.Model.BOOLEAN_TYPES) and not (currentOp in intermine.Query.NULL_OPS)
                 @drawBooleanOpts(fs)
             else if currentOp in intermine.Query.MULTIVALUE_OPS
                 @drawMultiValueOps(fs)
@@ -374,7 +416,6 @@ do ->
             @$el.addClass "new"
             @buttons[0].text = "Apply"
             @con.set op: (if @type then 'LOOKUP' else '=')
-            @con.on 'change', @fillConSummaryLabel, @
 
         addIcons: ->
 

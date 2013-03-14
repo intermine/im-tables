@@ -34,23 +34,8 @@ do ->
           @reset()
 
         reset: ->
-          @trigger 'resetting:tree'
-          @$('.im-tree-option').addClass 'hidden'
-          @chosen = []
           super()
-
-        events: ->
-          events =
-            'click .im-collapser': 'collapseBranches'
-            'change .im-allow-rev-ref': 'allowReverseRefs'
-
-          _.extend events, super()
-
-        collapseBranches: ->
-          @$pathfinder?.trigger 'collapse:tree-branches'
-
-        allowReverseRefs: ->
-          @$pathfinder?.allowRevRefs @$('.im-allow-rev-ref').is(':checked')
+          @chosen = []
 
         refsOK: false
         multiSelect: true
@@ -60,21 +45,10 @@ do ->
         render: () ->
             super()
             @$('input').remove()
-            @$('.btn-chooser').after """
-              <label class="im-tree-option hidden">
-                #{intermine.messages.columns.AllowRevRef }
-                <input type="checkbox" class="im-allow-rev-ref">
-              </label>
-              <button class="btn im-collapser im-tree-option hidden" type="button" >
-                #{ intermine.messages.columns.CollapseAll }
-              </button>
-            """
             @$('.btn-chooser > span').text intermine.messages.columns.FindColumnToAdd
             this
 
         showTree: (e) ->
-          @$('.im-tree-option').removeClass 'hidden'
-          @trigger 'showing:tree'
           super(e)
           @$pathfinder?.$el.removeClass @$pathfinder.dropDownClasses
 

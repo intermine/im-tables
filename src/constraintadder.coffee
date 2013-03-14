@@ -201,7 +201,7 @@ do ->
 
     class PathChooser extends Backbone.View
         tagName: 'ul'
-        dropDownClasses: 'typeahead dropdown-menu'
+        dropDownClasses: '' #'typeahead dropdown-menu'
 
         searchFor: (terms) =>
             @evts.trigger('filter:paths', terms)
@@ -279,6 +279,14 @@ do ->
 
         events: ->
             'submit': 'handleSubmission'
+            'click .im-collapser': 'collapseBranches'
+            'change .im-allow-rev-ref': 'allowReverseRefs'
+
+        collapseBranches: ->
+          @$pathfinder?.trigger 'collapse:tree-branches'
+
+        allowReverseRefs: ->
+          @$pathfinder?.allowRevRefs @$('.im-allow-rev-ref').is(':checked')
 
         handleClick: (e) ->
             e.preventDefault()
@@ -317,11 +325,16 @@ do ->
 
         refsOK: true
         multiSelect: false
+
         reset: () ->
+            @trigger 'resetting:tree'
             @$pathfinder?.remove()
             @$pathfinder = null
+            @$('.im-tree-option').addClass 'hidden'
 
         showTree: (e) =>
+          @$('.im-tree-option').removeClass 'hidden'
+          @trigger 'showing:tree'
           if @$pathfinder?
             @reset()
           else
@@ -359,6 +372,15 @@ do ->
             @$el.append approver
             approver.click @handleSubmission
             browser.click @showTree
+            @$('.btn-chooser').after """
+              <label class="im-tree-option hidden">
+                #{intermine.messages.columns.AllowRevRef }
+                <input type="checkbox" class="im-allow-rev-ref">
+              </label>
+              <button class="btn im-collapser im-tree-option hidden" type="button" >
+                #{ intermine.messages.columns.CollapseAll }
+              </button>
+            """
             this
 
     scope "intermine.query", {PATH_LEN_SORTER, PATH_MATCHER, PATH_HIGHLIGHTER, ConstraintAdder}

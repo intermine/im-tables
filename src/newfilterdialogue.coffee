@@ -2,7 +2,7 @@ do ->
 
     class NewFilterDialogue extends Backbone.View
         tagName: "div"
-        className: "im-constraint-dialogue modal fade"
+        className: "im-constraint-dialogue modal"
 
         html: """
             <div class="modal-header">
@@ -28,8 +28,13 @@ do ->
 
         events:
             'click .im-close': 'closeDialogue'
-            'hidden': 'remove'
+            'hidden': 'onHidden'
             'click .im-add-constraint': 'addConstraint'
+
+        onHidden: (e) ->
+          unless e and e.target is @el
+            return false
+          @remove()
 
         closeDialogue: (e) -> @$el.modal('hide')
 
