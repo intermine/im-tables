@@ -4208,32 +4208,33 @@
     background-clip: padding-box;
     background-color: #FFFFFF;
     border: 1px solid rgba(0, 0, 0, 0.2);
-    border-radius: 5px 5px 5px 5px;
+    border-radius: 0px 0px 5px 5px;
     box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
     display: none;
     float: left;
     left: 0;
     list-style: none outside none;
-    margin: 1px 0 0;
+    margin: -1px 0px 0px 3px;
     min-width: 160px;
-    padding: 4px 0;
+    padding: 4px 0px;
     position: absolute;
     top: 100%;
-    z-index: 1600;
-    font-size: 0.95em;
+    z-index: 2600;
+    font-size: 14px;
 }
 
 .intermine .typeahead.dropdown-menu li  {
     list-style-type: none;
 }
 .intermine .typeahead.dropdown-menu li > a {
-    width: 100%;
-    display: inline-block;
-    padding: 3px 0 3px 4px;
+    float: none;
+    display: block;
+    margin: 0px;
+    padding: 3px 10px;
 }
 .intermine .typeahead.dropdown-menu li {
     margin-left: 0;
-    font-size: 0.95em;
+    font-size: 1em;
 }
 
 .intermine .typeahead.dropdown-menu li > a:hover {
@@ -4260,6 +4261,11 @@
   -webkit-border-radius: 4px;
   -moz-border-radius: 4px;
   border-radius: 4px;
+}
+.intermine .typeahead.dropdown-menu li:after {
+    content: '';
+    display: block;
+    clear: both;
 }
 
 .im-query-display .pagination li {
@@ -4759,6 +4765,11 @@ ul.im-cols h4 {
 .im-filter-manager .modal {
     text-align: left;
 }
+.im-filter-manager.modal,
+.im-filter-manager .modal-body {
+    overflow: visible;
+    overflow-y: visible;
+}
 
 .im-filter-manager.modal .well > ul > form,
 .im-filter-manager.modal .well > ul {
@@ -4947,10 +4958,13 @@ td.im-result-subtable .im-subtable {
 
 .im-query-display .im-value-options.ui-slider {
     margin: 1em 0;
-    height: 0.2em;
-    width: 90%;
+    box-shadow: 1px 1px 2px #ccc;
+    height: 1px;
+    width: 100%;
+    background: rgba(0, 136, 204, 0.52);
     position: relative;
 }
+
 .im-query-display .im-value-options.ui-slider .ui-slider-handle {
     top: -1.3em;
 }
@@ -4999,12 +5013,6 @@ td.im-result-subtable .im-subtable {
 
 .im-constraint-value {
     position: relative;
-}
-
-.im-filter-manager .typeahead,
-.im-constraint-dialogue .typeahead {
-    float: none;
-    position: static;
 }
 
 .intermine .im-constraint .im-con-buttons {
@@ -6082,10 +6090,10 @@ ul.im-list-tags li {
 }
 
 td > .im-no-results {
+    margin-top: 2em;
     margin-left: auto;
     margin-right: auto;
     max-width: 35em;
-
 }
 
 .im-query-display .modal {

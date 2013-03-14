@@ -10,6 +10,13 @@ do ->
 
     PATH_SEGMENT_DIVIDER = "&rarr;"
 
+    MATCHER = (item) ->
+      if (not @query or /^\s+$/.test(@query))
+        true
+      else
+        parts = @query.toLowerCase().split(' ') ? []
+        _.all parts, (p) -> item.toLowerCase().indexOf(p) >= 0
+
     class ActiveConstraint extends Backbone.View
         tagName: "form"
         className: "form-inline im-constraint row-fluid"
@@ -247,17 +254,17 @@ do ->
                 do (opt, lc) -> lc.getDisplayName (name) -> opt.text name
 
         handleSummary: (input, items, total) ->
-            if total <= 500 # Only offer typeahead if there are fewer than 500 items.
-                input.typeahead source: _.pluck(items, 'item')
-                # horrible hack to get correct typeahead placement
-                @typeaheads.push input.data('typeahead').$menu
-                input.keyup () ->
-                    input.data('typeahead').$menu.css
-                        top: input.offset().top + input.height()
-                        left: input.offset().left
-                @query.on 'cancel:add-constraint', () ->
-                    input.data('typeahead')?.$menu.remove()
-            input.attr placeholder: items[0].item # Suggest the most common item
+          if total <= 500 # Only offer typeahead if there are fewer than 500 items.
+            console.log "We can offer #{ total } suggestions!"
+            input.typeahead
+              source: _.pluck(items, 'item')
+              items: 20
+              minLength: 0
+              matcher: MATCHER
+            @typeaheads.push input.data('typeahead').$menu
+            @query.on 'cancel:add-constraint', () ->
+                input.data('typeahead')?.$menu.remove()
+          input.attr placeholder: items[0].item # Suggest the most common item
 
         handleNumericSummary: (input, summary) ->
             isInt = @path.getType() in ['int', 'Integer']
@@ -286,14 +293,22 @@ do ->
             fs.append input
             input.keyup () => @con.set value: input.val()
             input.change () => @con.set value: input.val()
-            withOutThisConstraint = @query.clone()
-            withOutThisConstraint.constraints = withOutThisConstraint.constraints.filter((c) => not ((c.path is @path.toString()) and (c.value is @con.get('value'))))
-            withOutThisConstraint.filterSummary @path.toString(), "", 500, (items, total) =>
-                if items?.length > 0
-                    if items[0].item? # string-ish values.
-                        @handleSummary(input, items, total)
-                    else if items[0].max? # numeric values
-                        @handleNumericSummary(input, items[0])
+            if @path.isAttribute()
+              @provideSuggestions(input)
+
+        provideSuggestions: (input) ->
+          clone = @query.clone()
+          pstr = @path.toString()
+          value = @con.get('value')
+          clone.constraints = (c for c in clone.constraints when not (c.path is pstr and c.value is value))
+
+          filtering = clone.filterSummary pstr, "", 500
+          filtering.done (items, stats) =>
+            if items?.length > 0
+              if items[0].item? # string-ish values.
+                @handleSummary(input, items, stats.uniqueValues)
+              else if items[0].max? # numeric values
+                @handleNumericSummary(input, items[0])
 
         drawExtraOpts: (fs) ->
             fs.append """
