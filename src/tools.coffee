@@ -119,12 +119,14 @@ do ->
                 <i class="icon-chevron-right"></i>
                 <%= n %> <%= things %>
               </h4>
-              <ul></ul>
+              <table></table>
             </div>
           """
 
+        cell = (content) -> $('<td>').html(content)
+
         toLabel = (type) -> (text) ->
-          """<span class="label label-#{ type }">#{ text }</span>"""
+          cell """<span class="label label-#{ type }">#{ text }</span>"""
 
         toPathLabel = toLabel 'path'
         toInfoLabel = toLabel 'info'
@@ -149,11 +151,11 @@ do ->
           n  = _.size xs
           return if n < 1
           q  = @model.get('query')
-          ul = $(@sectionTempl {n, things}).appendTo(@$('.im-step-details')).find('ul')
+          table = $(@sectionTempl {n, things}).appendTo(@$('.im-step-details')).find('table')
           for k, v of xs then do (k, v) ->
-            li = $ '<li>'
-            ul.append li
-            q.getPathInfo(toPath(k, v)).getDisplayName (name) -> f li, name, k, v
+            row = $ '<tr>'
+            table.append row
+            q.getPathInfo(toPath(k, v)).getDisplayName (name) -> f row, name, k, v
 
         getData: ->
           data = count: if @model.has('count') then nts(@model.get('count')) else ''
@@ -170,27 +172,28 @@ do ->
             @$('.btn-small').tooltip placement: 'right'
 
             ps = (q.getPathInfo(v) for v in q.views)
-            @addSection ps, 'Columns', ((i, x) -> x), (li, name) -> li.append toPathLabel name
+            @addSection ps, 'Columns', ((i, x) -> x), (row, name) ->
+              row.append toPathLabel name
 
-            @addSection q.constraints, 'Filters', ((i, c) -> c.path), (li, name, i, c) ->
-              li.append toPathLabel name
+            @addSection q.constraints, 'Filters', ((i, c) -> c.path), (row, name, i, c) ->
+              row.append toPathLabel name
               if c.type?
-                li.append toInfoLabel 'isa'
-                li.append toValLabel c.type
+                row.append toInfoLabel 'isa'
+                row.append toValLabel c.type
               if c.op?
-                li.append toInfoLabel c.op
+                row.append toInfoLabel c.op
               if c.value?
-                li.append toValLabel c.value
+                row.append toValLabel c.value
               else if c.values?
-                li.append toValLabel c.values.join(', ')
+                row.append toValLabel c.values.join(', ')
 
-            @addSection q.joins, 'Joins', ((p, style) -> p), (li, name, p, style) ->
-              li.append toPathLabel name
-              li.append toInfoLabel style
+            @addSection q.joins, 'Joins', ((p, style) -> p), (row, name, p, style) ->
+              row.append toPathLabel name
+              row.append toInfoLabel style
 
-            @addSection q.sortOrder, 'Sort Order Elements', ((i, so) -> so.path), (li, name, i, {direction}) ->
-              li.append toPathLabel name
-              li.append toInfoLabel direction
+            @addSection q.sortOrder, 'Sort Order Elements', ((i, so) -> so.path), (row, name, i, {direction}) ->
+              row.append toPathLabel name
+              row.append toInfoLabel direction
 
             this
 
