@@ -86,8 +86,9 @@ do ->
             promise
 
         handleEmptyTable: () ->
-            apology = $ _.template intermine.snippets.table.NoResults @query
-            apology.appendTo(@el).find('button').click (e) => @query.trigger 'undo'
+            apology = _.template intermine.snippets.table.NoResults @query
+            @$el.append apology
+            @$el.find('.btn-primary').click => @query.trigger 'undo'
 
         appendRows: (res) =>
             @$("tbody > tr").remove()

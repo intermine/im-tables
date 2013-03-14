@@ -39,7 +39,8 @@ do ->
             'submit': (e) -> e.preventDefault(); e.stopPropagation()
 
         toggleEditForm: ->
-            @$('.im-con-overview').siblings().slideToggle 200
+            @$('.im-constraint-options').show()
+            @$('.im-con-buttons').show()
             @$('.im-value-options').show()
 
         hideEditForm: (e) ->

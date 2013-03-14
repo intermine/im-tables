@@ -3,7 +3,7 @@ scope 'intermine.snippets.table',
     <tr>
       <td colspan="<%= views.length %>">
         <div class="im-no-results alert alert-info">
-          <div <% if (__changed === 0) { %> style="display:none;" <% } %> >
+          <div <% if (revision === 0) { %> style="display:none;" <% } %> >
             #{ intermine.snippets.query.UndoButton }
           </div>
           <strong>NO RESULTS</strong>

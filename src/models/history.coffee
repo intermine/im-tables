@@ -43,6 +43,7 @@ do ->
     addStep: (title, query) ->
       @unwatch()
       @currentQuery = query.clone()
+      @currentQuery.revision = @currentStep
       @watch()
       @each (state) -> state.set current: false
       @add query: query.clone(), current: true, title: title, stepNo: @currentStep++
@@ -56,6 +57,7 @@ do ->
       current = @last()
       current?.set current: true
       @currentQuery = current?.get('query')?.clone()
+      @currentQuery.revision = current.get('stepNo')
       @watch()
       @trigger 'reverted', @currentQuery
 
