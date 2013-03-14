@@ -13,11 +13,31 @@ do ->
 
       watch: ->
         if q = @currentQuery
-          @listenTo q, "change:constraints", => @addStep "Changed Filters", q
-          @listenTo q, "change:views", => @addStep "Changed Columns", q
+          @listenTo q, "change:constraints", => @onChange q, 'constraints', 'filter'
+          @listenTo q, "change:views", => @onChange q, 'views', 'column'
           @listenTo q, "change:joins", => @addStep "Changed Joins", q
           @listenTo q, "count:is", (n) => @last().trigger 'got:count', n
           @listenTo q, "undo", => @popState()
+
+      onChange: (query, prop, label) ->
+        xs = @last().get('query')[prop]
+        ys = query[prop]
+        was = xs.length
+        now = ys.length
+        n = Math.abs was - now
+        quantity = if n is 1 then 'a ' else if n then "#{ n } " else ''
+        pl = if n isnt 1 then 's' else ''
+        verb = if was < now
+          'Added'
+        else if was > now
+          'Removed'
+        else if now is _.union(xs, ys).length
+          'Rearranged'
+        else
+          'Changed'
+
+        title = "#{ verb } #{ quantity }#{ label }#{pl}"
+        @addStep title, query
 
       addStep: (title, query) ->
         @unwatch()
