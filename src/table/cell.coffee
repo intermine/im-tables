@@ -68,7 +68,9 @@ do ->
             colRoot = @column.getType().name
             colStr = @column.toString()
             if @rows.length > 0
-                for v in @view then do (v) =>
+                # Prefer column to view as it is reliable.
+                columns = @rows[0].map (cell) -> cell.column
+                for v in columns then do (v) =>
                     th = $ """<th>
                         <i class="#{intermine.css.headerIconRemove}"></i>
                         <span></span>
