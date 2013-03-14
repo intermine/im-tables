@@ -489,7 +489,13 @@ do ->
           r = h * 0.4
           ir = h * 0.1
           donut = d3.layout.pie().value (d) -> d.get 'count'
-          paint = d3.scale.category20()
+
+          {PieColors} = intermine.options
+          if _.isFunction PieColors
+            paint = PieColors
+          else
+            paint = d3.scale[PieColors]()
+
           colour = (d, i) ->
             paint i
 
