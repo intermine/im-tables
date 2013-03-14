@@ -13,7 +13,7 @@ do ->
           <% } %>
         <% } %>
         <% if (value == null) { %>
-          <span class="null-value">no value</span>
+          <span class="null-value">&nbsp;</span>
         <% } else { %>
           <span class="im-displayed-value">
             <%- value %>
@@ -141,7 +141,7 @@ do ->
           if model.get(@options.field)?
             model.escape @options.field
           else
-            """<span class="null-value">no value</span>"""
+            """<span class="null-value">&nbsp;</span>"""
 
         events:
             'click': 'activateChooser'
