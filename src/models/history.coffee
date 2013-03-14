@@ -15,8 +15,9 @@ do ->
       if q = @currentQuery
         @listenTo q, "change:constraints", => @onChange q, 'constraints', 'filter'
         @listenTo q, "change:views", => @onChange q, 'views', 'column'
-        @listenTo q, "change:joins", => @addStep "Changed Joins", q
-        @listenTo q, "count:is", (n) => @last().trigger 'got:count', n
+        @listenTo q, "change:joins", => @addStep "Changed joins", q
+        @listenTo q, "set:sortorder", => @addStep "Changed sort order", q
+        @listenTo q, "count:is", (n) => @last().set count: n
         @listenTo q, "undo", => @popState()
 
     onChange: (query, prop, label) ->
@@ -43,8 +44,8 @@ do ->
       @unwatch()
       @currentQuery = query.clone()
       @watch()
-      @each (state) -> state.trigger 'is:current', false
-      @add query: query.clone(), title: title, stepNo: @currentStep++
+      @each (state) -> state.set current: false
+      @add query: query.clone(), current: true, title: title, stepNo: @currentStep++
 
     popState: -> @revert @at @length - 2
 
@@ -52,7 +53,9 @@ do ->
       @unwatch()
       while @last().get('stepNo') > target.get('stepNo')
         @pop()
-      @currentQuery = @last()?.get('query')?.clone()
+      current = @last()
+      current?.set current: true
+      @currentQuery = current?.get('query')?.clone()
       @watch()
       @trigger 'reverted', @currentQuery
 

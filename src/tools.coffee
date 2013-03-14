@@ -79,16 +79,14 @@ do ->
         className: 'im-step'
         tagName: 'li'
 
+        nts = (n) -> intermine.utils.numToString n, ',', 3
+
         initialize: (opts) ->
             super(opts)
-            @model.on 'got:count', (count) =>
-                @$('.im-step-count .count').text intermine.utils.numToString count, ',', 3
+            @model.on 'change:count', (m, count) =>
+              @$('.im-step-count .count').text nts count
 
-            @model.on 'is:current', (isCurrent) =>
-                @$('.btn').toggleClass('btn-inverse', not isCurrent).attr disabled: isCurrent
-                @$('.btn-main').text if isCurrent then "Current State" else "Revert to this State"
-                @$('.btn i').toggleClass('icon-white', not isCurrent)
-
+            @model.on 'change:current', @renderCurrency, @
             @model.on 'remove', () => @remove()
 
         events:
@@ -108,73 +106,91 @@ do ->
         revertToThisState: (e) ->
             @model.trigger 'revert', @model
             @$('.btn-small').tooltip('hide')
+        
+        renderCurrency: ->
+          isCurrent = @model.get 'current'
+          @$('.btn').toggleClass('btn-inverse', not isCurrent).attr disabled: isCurrent
+          @$('.btn-main').text if isCurrent then "Current State" else "Revert to this State"
+          @$('.btn i').toggleClass('icon-white', not isCurrent)
 
         sectionTempl: _.template """
-                <div>
-                    <h4>
-                        <i class="icon-chevron-right"></i>
-                        <%= n %> <%= things %>
-                    </h4>
-                    <ul></ul>
-                </div>
-            """
+            <div>
+              <h4>
+                <i class="icon-chevron-right"></i>
+                <%= n %> <%= things %>
+              </h4>
+              <ul></ul>
+            </div>
+          """
 
-        toLabel = (type, text) ->
+        toLabel = (type) -> (text) ->
           """<span class="label label-#{ type }">#{ text }</span>"""
 
-        toPathLabel = curry toLabel, 'path'
-        toInfoLabel = curry toLabel, 'info'
-        toValLabel  = curry toLabel, 'value'
+        toPathLabel = toLabel 'path'
+        toInfoLabel = toLabel 'info'
+        toValLabel  = toLabel 'value'
+      
+        template: _.template """
+          <button class="btn btn-small im-state-revert" disabled
+              title="Revert to this state">
+              <i class=icon-undo></i>
+          </button>
+          <h3><%- title %></h3>
+          <i class="icon-info-sign"></i>
+          </div>
+          <span class="im-step-count">
+              <span class="count"><%- count %></span> rows
+          </span>
+          <div class="im-step-details">
+          <div style="clear:both"></div>
+        """
+
+        addSection: (xs, things, toPath, f) ->
+          n  = _.size xs
+          return if n < 1
+          q  = @model.get('query')
+          ul = $(@sectionTempl {n, things}).appendTo(@$('.im-step-details')).find('ul')
+          for k, v of xs then do (k, v) ->
+            li = $ '<li>'
+            ul.append li
+            q.getPathInfo(toPath(k, v)).getDisplayName (name) -> f li, name, k, v
+
+        getData: ->
+          data = count: if @model.has('count') then nts(@model.get('count')) else ''
+          _.defaults data, @model.toJSON()
 
         render: () ->
             @$el.attr(step: @model.get 'stepNo')
-            @$el.append """
-                    <button class="btn btn-small im-state-revert" disabled
-                        title="Revert to this state">
-                        <i class=icon-undo></i>
-                    </button>
-                    <h3>#{ @model.get 'title' }</h3>
-                    <i class="icon-info-sign"></i>
-                    </div>
-                    <span class="im-step-count">
-                        <span class="count"></span> rows
-                    </span>
-                    <div class="im-step-details">
-                    <div style="clear:both"></div>
-                """
+            @$el.append @template @getData()
+
+            @renderCurrency()
 
             q = @model.get 'query'
-            addSection = (n, things) =>
-                $(@sectionTempl n: n, things: things).appendTo(@$('.im-step-details')).find('ul')
 
             @$('.btn-small').tooltip placement: 'right'
 
             ps = (q.getPathInfo(v) for v in q.views)
-            vlist = addSection(ps.length, 'Columns')
-            for p in ps then do (p) ->
-                li = $ '<li>'
-                vlist.append li
-                p.getDisplayName (name) -> li.append toPathLabel name
+            @addSection ps, 'Columns', ((i, x) -> x), (li, name) -> li.append toPathLabel name
 
-            clist = addSection(q.constraints.length, 'Filters')
-            for c in q.constraints then do (c) =>
-                li = $ '<li>'
-                clist.append li
-                q.getPathInfo(c.path).getDisplayName (name) ->
-                    li.append toPathLabel name
-                    li.append toInfoLabel c.op
-                    if c.value?
-                        li.append toValLabel c.value
-                    else if c.values?
-                        li.append toValLabel c.values.join(', ')
-            
-            jlist = addSection _.size(q.joins), 'Joins'
-            for path, style of q.joins then do (path, style) =>
-                li = $ '<li>'
-                jlist.append li
-                q.getPathInfo(path).getDisplayName (name) ->
-                    li.append toPathLabel name
-                    li.append toInfoLabel style
+            @addSection q.constraints, 'Filters', ((i, c) -> c.path), (li, name, i, c) ->
+              li.append toPathLabel name
+              if c.type?
+                li.append toInfoLabel 'isa'
+                li.append toValLabel c.type
+              if c.op?
+                li.append toInfoLabel c.op
+              if c.value?
+                li.append toValLabel c.value
+              else if c.values?
+                li.append toValLabel c.values.join(', ')
+
+            @addSection q.joins, 'Joins', ((p, style) -> p), (li, name, p, style) ->
+              li.append toPathLabel name
+              li.append toInfoLabel style
+
+            @addSection q.sortOrder, 'Sort Order Elements', ((i, so) -> so.path), (li, name, i, {direction}) ->
+              li.append toPathLabel name
+              li.append toInfoLabel direction
 
             this
 
@@ -184,8 +200,9 @@ do ->
         tagName: "div"
 
         initialize: (@states) ->
+          @subViews = []
           @states.on 'add', @appendState, @
-          @states.on 'add remove', @renderSummary, @
+          @states.on 'reverted', @render, @
 
         events:
             'click a.details': 'minumaximise'
@@ -198,15 +215,16 @@ do ->
             
         undo: -> @states.popState()
 
-        renderSummary: ->
-          @$('.im-trail-summary').text """query history: #{ @states.size() } states"""
-          @$el.toggle @states.size() > 1
-
         appendState: (state) ->
-          @$('.im-state-list').append new Step(model: state).render().el
+          step = new Step(model: state)
+          @subViews.push step
+          @$('.im-state-list').append step.render().el
+          @$el.addClass 'im-has-history'
 
         render: () ->
-          @$el.append """
+          while step = @subViews.pop()
+            step.remove()
+          @$el.html """
             <div class="btn-group">
               <a class="btn im-undo" href="#">
                 <i class="#{ intermine.icons.Undo }"></i>
@@ -221,7 +239,7 @@ do ->
             <div style="clear:both"></div>
           """
           @states.each (s) => @appendState(s)
-          @renderSummary()
+          @$el.toggleClass 'im-has-history', @states.size() > 1
           this
 
     scope "intermine.query.tools", {Tools, ToolBar, Trail}
