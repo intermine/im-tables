@@ -5185,8 +5185,11 @@ td.im-result-subtable .im-subtable {
 }
 
 .im-query-trail {
-    display: inline;
+    display: none;
     margin-left: 1em;
+}
+.im-has-history {
+    display: inline;
 }
 
 .im-query-trail.well.no-details {
@@ -5214,6 +5217,9 @@ td.im-result-subtable .im-subtable {
 
 .im-query-trail .im-step-details {
     display: none;
+}
+.im-query-trail .im-step-details h4 {
+    font-size: 0.8em;
 }
 
 .im-state-revert {
@@ -5301,6 +5307,13 @@ td.im-result-subtable .im-subtable {
     text-transform: uppercase;
     color: #aaa;
 }
+.null-value:after {
+    content: "\2205"; /* Null set sign */
+}
+
+@media screen and (min-width: 1000px) { .null-value:after { content: "none" } }
+@media screen and (min-width: 1200px) { .null-value:after { content: "no value" } }
+
 .null-value:hover {
     text-decoration: none !important;
 }
