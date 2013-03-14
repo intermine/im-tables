@@ -2,6 +2,7 @@ scope "intermine.options",
     NUM_SEPARATOR: ',',
     NUM_CHUNK_SIZE: 3,
     MAX_PIE_SLICES: 15
+    MaxSuggestions: 1000
     PieColors: 'category20'
     CellPreviewTrigger: 'click' # hover
     IndicateOffHostLinks: false

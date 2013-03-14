@@ -4248,6 +4248,12 @@
   background-color: #0088cc;
 }
 
+.intermine .im-filter-manager .typeahead .alert {
+    margin-right: -10px;
+    margin-left: -10px;
+    padding: 5px 10px;
+}
+
 .intermine .modal-header .close {
     margin-top: 2px;
     text-transform: uppercase;

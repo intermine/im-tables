@@ -3,19 +3,34 @@ scope "intermine.conbuilder.messages", {
     ExtraPlaceholder: 'Wernham-Hogg',
     ExtraLabel: 'within',
     IsA: 'is a',
-    CantEditConstraint: 'No value selected. Please enter a value.'
+    CantEditConstraint: 'No value selected. Please enter a value.',
+    TooManySuggestions: 'We cannot show you all the possible values'
 }
 
 do ->
 
     PATH_SEGMENT_DIVIDER = "&rarr;"
 
-    MATCHER = (item) ->
-      if (not @query or /^\s+$/.test(@query))
+    MATCHER = (tooMany) -> (item) ->
+      if (item is tooMany) or (not @query) or /^\s+$/.test(@query)
         true
       else
         parts = @query.toLowerCase().split(' ') ? []
         _.all parts, (p) -> item.toLowerCase().indexOf(p) >= 0
+
+    HIGHLIGHTER = (tooMany) -> (item) ->
+      if item is tooMany
+        tooMany
+      else
+        @constructor::highlighter.call(@, item)
+
+    TOO_MANY_SUGGESTIONS = _.template """
+      <span class="alert alert-info">
+        <i class="icon-info-sign"></i>
+        #{ intermine.conbuilder.messages.TooManySuggestions }
+        There are <%= extra %> values we could not include.
+      </span>
+    """
 
     class ActiveConstraint extends Backbone.View
         tagName: "form"
@@ -254,16 +269,21 @@ do ->
                 do (opt, lc) -> lc.getDisplayName (name) -> opt.text name
 
         handleSummary: (input, items, total) ->
-          if total <= 500 # Only offer typeahead if there are fewer than 500 items.
-            console.log "We can offer #{ total } suggestions!"
-            input.typeahead
-              source: _.pluck(items, 'item')
-              items: 20
-              minLength: 0
-              matcher: MATCHER
-            @typeaheads.push input.data('typeahead').$menu
-            @query.on 'cancel:add-constraint', () ->
-                input.data('typeahead')?.$menu.remove()
+          suggestions = _.pluck items, 'item'
+          {MaxSuggestions} = intermine.options
+          if total > MaxSuggestions
+            tooMany = TOO_MANY_SUGGESTIONS extra: total - MaxSuggestions
+            suggestions.push tooMany
+
+          input.typeahead
+            source: suggestions
+            items: 20
+            minLength: 0
+            highlighter: HIGHLIGHTER(tooMany)
+            matcher: MATCHER(tooMany)
+          @typeaheads.push input.data('typeahead').$menu
+          @query.on 'cancel:add-constraint', () ->
+              input.data('typeahead')?.$menu.remove()
           input.attr placeholder: items[0].item # Suggest the most common item
 
         handleNumericSummary: (input, summary) ->
@@ -302,7 +322,7 @@ do ->
           value = @con.get('value')
           clone.constraints = (c for c in clone.constraints when not (c.path is pstr and c.value is value))
 
-          filtering = clone.filterSummary pstr, "", 500
+          filtering = clone.filterSummary pstr, "", intermine.options.MaxSuggestions
           filtering.done (items, stats) =>
             if items?.length > 0
               if items[0].item? # string-ish values.
