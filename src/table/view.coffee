@@ -77,8 +77,10 @@ do ->
             throbber = $ @throbber colcount: @query.views.length
             #throbber.appendTo @el
 
-            promise = @getData @pageStart, @pageSize
-            promise.then(@appendRows, @handleError).always -> throbber.remove()
+            promise = @getData(@pageStart, @pageSize).then @readHeaderInfo
+            promise.done @appendRows
+            promise.fail @handleError
+            promise.always -> throbber.remove()
             promise.done () =>
                 @query.trigger "imtable:change:page", @pageStart, @pageSize
             promise
@@ -99,6 +101,10 @@ do ->
         minimisedColumnPlaceholder: _.template """
             <td class="im-minimised-col" style="width:<%= width %>px">&hellip;</td>
         """
+        
+        readHeaderInfo: (res) =>
+          @getEffectiveView(res.results[0]) if res?.results?[0]
+          res
 
         appendRow: (row) ->
             tr = $ "<tr>"
@@ -106,22 +112,23 @@ do ->
             minWidth = 10
             minimised = (k for k, v of @minimisedCols when v)
             w = 1 / (row.length - minimised.length) * (@$el.width() - (minWidth * minimised.length))
-            replacedBy = {}
-            for cell, i in row then do (cell, i) =>
-              {node, field} = cell.options
-              cell.path = path = if field? then node.append(field) else node
-              if intermine.results.shouldFormat path
-                replacedBy[cell.options.node.toString()] ?= cell
-                cell.formatter = intermine.results.getFormatter path
-                if cell.formatter.replaces?
-                  for replaced in cell.formatter.replaces
-                    replacedBy["#{ cell.options.node }.#{ replaced }"] ?= cell
+            replaces = {}
+            processed = {}
+            @columnHeaders.each (col) ->
+              for r in (rs = col.get('replaces'))
+                replaces[r] = col
 
             for cell, i in row then do (cell, i) =>
               path = cell.path
-              other = (replacedBy[path.toString()] or replacedBy[cell.options.node.toString()])
-              if other and cell isnt other
-                return
+              return if processed[path]
+              processed[path] = true
+              col = replaces[path]
+              if col and col.get('replaces').length
+                # Only accept if it is the right type.
+                return unless col.get('path').equals(path.getParent())
+                processed[r] = true for r in col.get('replaces')
+
+                cell.formatter = col.get('formatter') if col.has('formatter')
 
               if @minimisedCols[ path.toString() ]
                 tr.append @minimisedColumnPlaceholder width: minWidth
@@ -183,7 +190,7 @@ do ->
           # Create the columns
           cols = for cell in row
             path = q.getPathInfo cell.column
-            replaces = if cell.view? # subtable off this cell.
+            replaces = if cell.view? # subtable of this cell.
               (q.getPathInfo(v) for v in q.views when v.indexOf(cell.column) is 0)
             else
               []
@@ -195,13 +202,20 @@ do ->
             col.isFormatted = true
             replacedBy[p.getParent()] ?= col
             formatter = intermine.results.getFormatter p
+            col.formatter = formatter
             for r in (formatter.replaces ? [])
               subPath = "#{ p.getParent() }.#{ r }"
               replacedBy[subPath] ?= col
               col.replaces.push q.getPathInfo subPath if subPath in q.views
 
+          explicitReplacements = {}
+          for col in cols
+            for r in col.replaces
+              explicitReplacements[r] = col
+
           isReplaced = (col) ->
             p = col.path
+            return false unless intermine.results.shouldFormat(p) or explicitReplacements[p]
             replacer = replacedBy[p]
             replacer ?= replacedBy[p.getParent()] if p.isAttribute() and p.end.name is 'id'
             replacer and col isnt replacer
@@ -214,14 +228,11 @@ do ->
 
         # Read the result returned from the service, and add headers for 
         # the columns it represents to the table.
-        addColumnHeaders: (result) =>
+        addColumnHeaders: =>
             {get, invoke} = intermine.funcutils
             thead = $ "<thead>"
             tr    = $ "<tr>"
             thead.append tr
-
-            firstRow = result.results[0]
-            @getEffectiveView(firstRow)
 
             @columnHeaders.each (model) =>
               @buildColumnHeader model, tr
