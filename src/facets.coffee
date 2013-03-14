@@ -676,7 +676,11 @@ do ->
             'change input': 'handleChange'
 
         render: ->
-            percent = (parseInt(@item.get("count")) / @items.maxCount * 100).toFixed(1)
+            ratio = parseInt(@item.get("count"), 10) / @items.maxCount
+            opacity = ratio.toFixed(2) / 2 + 0.5
+            percent = (ratio * 100).toFixed(1)
+
+            # TODO: there is a hard coded color here - this should live in css somehow.
             @$el.append """
                 <td class="im-selector-col">
                     <span>#{ ((@item.get "symbol") || "") }</span>
@@ -686,8 +690,11 @@ do ->
                   #{@item.get("item") ? '<span class=null-value>NO VALUE</span>' }
                 </td>
                 <td class="im-count-col">
-                    <div class="im-facet-bar" style="width:#{percent}%">
+                    <div class="im-facet-bar"
+                         style="width:#{percent}%;background:rgba(206, 210, 222, #{opacity})">
+                      <span class="im-count">
                         #{@item.get "count"}
+                      </span>
                     </div>
                 </td>
             """

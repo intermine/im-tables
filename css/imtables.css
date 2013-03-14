@@ -5408,11 +5408,17 @@ img.im-external-link {
     float: right;
     text-align: right;
     padding: 0.2em;
-    padding-right: 1em;
     background: #ced2de;
-    border-radius: 0.5em;
+    border-radius: 3px;
     overflow: visible;
     font-weight: bold;
+}
+.im-facet-bar > .im-count {
+    opacity: 1;
+    font-family: monospace;
+    float: right;
+    margin-right: 0.5em;
+    text-shadow: -1px -1px #fff;
 }
 
 .im-query-facets {
