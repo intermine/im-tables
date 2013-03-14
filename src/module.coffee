@@ -11,6 +11,7 @@ stope = (f) -> (e) ->
     e.preventDefault()
     f(e)
 
+# TODO, allow merging of nested things.
 scope = (path, code = {}, overwrite = false) ->
     parts = path.split "."
     ns = root
