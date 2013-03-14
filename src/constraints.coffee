@@ -24,6 +24,12 @@ do ->
       else
         @constructor::highlighter.call(@, item)
 
+    UPDATER = (tooMany) -> (item) ->
+      if item is tooMany
+        null # Ceci ne c'est pas un item
+      else
+        item
+
     TOO_MANY_SUGGESTIONS = _.template """
       <span class="alert alert-info">
         <i class="icon-info-sign"></i>
@@ -279,6 +285,7 @@ do ->
             source: suggestions
             items: 20
             minLength: 0
+            updater: UPDATER(tooMany)
             highlighter: HIGHLIGHTER(tooMany)
             matcher: MATCHER(tooMany)
           @typeaheads.push input.data('typeahead').$menu
