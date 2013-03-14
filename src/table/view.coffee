@@ -275,6 +275,10 @@ do ->
             @drawn = false
             @render()
 
+        remove: ->
+          @table?.remove()
+          super()
+
         # @param query The query this view is bound to.
         # @param selector Where to put this table.
         initialize: (@query, selector, @columnHeaders) ->
@@ -285,15 +289,9 @@ do ->
             @__selecting = false
             @visibleViews = @query.views.slice()
 
-            @query.on "change:views", =>
-                @visibleViews = @query.views.slice()
-                @refresh()
-
             @query.on "start:list-creation", => @__selecting = true
             @query.on "stop:list-creation", => @__selecting = false
 
-            @query.on "change:constraints", @refresh
-            @query.on "change:joins", @refresh
             @query.on "table:filled", @onDraw
 
             @query.on 'page:forwards', () => @goForward 1

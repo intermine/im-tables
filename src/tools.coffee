@@ -127,6 +127,7 @@ do ->
         toValLabel  = curry toLabel, 'value'
 
         render: () ->
+            @$el.attr(step: @model.get 'stepNo')
             @$el.append """
                     <button class="btn btn-small im-state-revert" disabled
                         title="Revert to this state">
@@ -182,69 +183,45 @@ do ->
         className: "im-query-trail"
         tagName: "div"
 
+        initialize: (@states) ->
+          @states.on 'add', @appendState, @
+          @states.on 'add remove', @renderSummary, @
+
         events:
             'click a.details': 'minumaximise'
             'click a.shade': 'toggle'
             'click a.im-undo': 'undo'
 
-        toggle: () ->
-            @$('.im-step').slideToggle 'fast', () => @$el.toggleClass "toggled"
+        toggle: -> @$('.im-step').slideToggle 'fast', () => @$el.toggleClass "toggled"
 
-        minumaximise: () =>
-            @$el.toggleClass "minimised"
-
-        startListening: () ->
-            @query.on "change:constraints", @addStep "Changed Filters"
-            @query.on "change:views", @addStep "Changed Columns"
-            @query.on 'count:is', (count) => @states.last().trigger 'got:count', count
-            @query.on 'undo', @undo, @
+        minumaximise: -> @$el.toggleClass "minimised"
             
-        undo: () ->
-            @states.remove(@states.last())
-            newState = @states.last()
-            prev = @query
-            newState.trigger 'revert', newState
-            prev.trigger 'revert', newState
+        undo: -> @states.popState()
 
-        initialize: (@query, @display) ->
-            @currentStep = 0
-            @states = new Backbone.Collection()
-            @states.on 'add', (state) =>
-                @$('.im-state-list').append new Step(model: state).render().el
-            @states.on 'add remove', () =>
-                @$('.im-trail-summary').text """query history: #{ @states.size() } states"""
-                @$el.toggle @states.size() > 1
+        renderSummary: ->
+          @$('.im-trail-summary').text """query history: #{ @states.size() } states"""
+          @$el.toggle @states.size() > 1
 
-            @states.on 'revert', (state) =>
-                @query = state.get('query').clone()
-                num = state.get 'stepNo'
-                @display.loadQuery(@query)
-                @startListening()
-                @states.remove  @states.filter (s) -> s.get('stepNo') > num
-                state.trigger 'is:current', true
-
-            @startListening()
-
-        addStep: (title) -> () =>
-            @states.each (state) -> state.trigger 'is:current', false
-            @states.add query: @query.clone(), title: title, stepNo: @currentStep++
+        appendState: (state) ->
+          @$('.im-state-list').append new Step(model: state).render().el
 
         render: () ->
-            @$el.append """
-                <div class="btn-group">
-                  <a class="btn im-undo" href="#">
-                    <i class="#{ intermine.icons.Undo }"></i>
-                    Undo
-                  </a>
-                  <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
-                    <span class="caret"></span>
-                  </a>
-                  <ul class="dropdown-menu im-state-list">
-                  </ul>
-                </div>
-                <div style="clear:both"></div>
-              """
-            @addStep('Original State')()
-            this
+          @$el.append """
+            <div class="btn-group">
+              <a class="btn im-undo" href="#">
+                <i class="#{ intermine.icons.Undo }"></i>
+                Undo
+              </a>
+              <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+                <span class="caret"></span>
+              </a>
+              <ul class="dropdown-menu im-state-list">
+              </ul>
+            </div>
+            <div style="clear:both"></div>
+          """
+          @states.each (s) => @appendState(s)
+          @renderSummary()
+          this
 
     scope "intermine.query.tools", {Tools, ToolBar, Trail}

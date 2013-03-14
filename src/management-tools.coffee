@@ -1,19 +1,14 @@
 do ->
     class ManagementTools extends Backbone.View
 
-        initialize: (@query, @columnHeaders) ->
-          @query.on "change:constraints", @checkHasFilters, @
-          @query.on 'revert', (state) =>
-            newQ = state.get 'query'
-            delete @query
-            @$el.empty()
-            @initialize newQ, @columnHeaders
-            @render()
+        initialize: (@states, @columnHeaders) ->
+          @states.on 'add reverted', @checkHasFilters, @
 
         checkHasFilters: () ->
-          count = @query.constraints.length
-          @$('.im-filters').toggleClass "im-has-constraint", count > 0
-          @$('.im-filters .im-action').text if count > 0 then count else 'Add '
+          if q = @states.currentQuery
+            count = q.constraints.length
+            @$('.im-filters').toggleClass "im-has-constraint", count > 0
+            @$('.im-filters .im-action').text if count > 0 then count else 'Add '
 
         tagName: "div"
         className: "im-management-tools"
@@ -38,14 +33,16 @@ do ->
             'click .im-filters': 'showFilterDialogue'
 
         showColumnDialogue: (e) ->
-            dialogue = new intermine.query.results.table.ColumnsDialogue(@query, @columnHeaders)
-            @$el.append dialogue.el
-            dialogue.render().showModal()
+          q = @states.currentQuery
+          dialogue = new intermine.query.results.table.ColumnsDialogue(q, @columnHeaders)
+          @$el.append dialogue.el
+          dialogue.render().showModal()
 
         showFilterDialogue: (e) ->
-            dialogue = new intermine.query.filters.FilterManager(@query)
-            @$el.append dialogue.el
-            dialogue.render().showModal()
+          q = @states.currentQuery
+          dialogue = new intermine.query.filters.FilterManager(q)
+          @$el.append dialogue.el
+          dialogue.render().showModal()
 
         render: () ->
             @$el.append @html
