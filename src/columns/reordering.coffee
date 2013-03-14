@@ -355,8 +355,7 @@ do ->
             @query.select(newViews)
 
         changeSorting: (e) ->
-            lis = @$('.im-sorting-container li')
-            newSO = lis.map( (i, e) -> {path: $(e).data('path'), direction: $(e).data("direction")}).get()
+            newSO = (so.toJSON() for so in @sortOrder.models)
             @hideModal()
             @query.orderBy(newSO)
 
