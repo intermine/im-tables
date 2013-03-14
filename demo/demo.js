@@ -90,7 +90,7 @@ $(function() {
                   'chromosomeLocation.locatedOn': {isa: 'Chromosome'}, 
                   length: {lt: 8000},
                   "pathways.name": ["Metabolic pathways", "Gene Expression", "Transcription", "mRNA Processing"],
-                  "chromosome.primaryIdentifier": "2L"
+                  "chromosomeLocation.locatedOn.primaryIdentifier": "2L"
               }
           }
         },
