@@ -93,7 +93,7 @@ scope "intermine.results.formatsets", {
 }
 
 scope "intermine.results", {
-    getFormatter:   (model, type) ->
+    getFormatter: (model, type) ->
         formatter = null
         unless type?
           [model, type] = [model.model, model.getParent()?.getType()]
