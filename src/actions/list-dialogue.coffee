@@ -7,20 +7,20 @@ define 'actions/list-dialogue', ->
     usingDefaultName: true
 
     initialize: (@query) ->
-        @types = {}
-        @model = new Backbone.Model()
-        @query.on "imo:selected", (type, id, selected) =>
-            if selected
-                @types[id] = type
-            else
-                delete @types[id]
-            types = _(@types).values()
-            
-            if types.length > 0
-                m = @query.model
-                commonType = m.findCommonTypeOfMultipleClasses(types)
-                @newCommonType(commonType) unless commonType is @commonType
-            @selectionChanged()
+      @types = {}
+      @model = new Backbone.Model()
+      @query.on "imo:selected", (type, id, selected) =>
+        if selected
+            @types[id] = type
+        else
+            delete @types[id]
+        types = _(@types).values()
+        
+        if types.length > 0
+            m = @query.model
+            commonType = m.findCommonTypeOfMultipleClasses(types)
+            @newCommonType(commonType) unless commonType is @commonType
+        @selectionChanged()
 
     selectionChanged: (n) =>
         n or= _(@types).values().length

@@ -4,9 +4,8 @@ define 'actions/list-manager', using 'actions/list-append-dialogue', 'actions/ne
     tagName: "li"
     className: "im-list-management dropdown"
 
-    initialize: (@query) ->
-      @query.on "change:views", @updateTypeOptions
-      @query.on "change:constraints", @updateTypeOptions
+    initialize: (@states) ->
+      @states.on 'add reverted', @updateTypeOptions
       @action = ListManager.actions.create
 
     html: """
@@ -43,12 +42,12 @@ define 'actions/list-manager', using 'actions/list-append-dialogue', 'actions/ne
       @action = ListManager.actions[ $t.data 'action' ]
 
     openDialogue: (type, q) ->
-      dialog = new @action(@query)
+      dialog = new @action(@states.currentQuery)
       dialog.render().$el.appendTo @el
       dialog.openDialogue type, q
 
     startPicking: ->
-      dialog = new @action(@query)
+      dialog = new @action(@states.currentQuery)
       dialog.render().$el.appendTo @el
       dialog.startPicking()
 
@@ -56,12 +55,14 @@ define 'actions/list-manager', using 'actions/list-append-dialogue', 'actions/ne
       ul = @$ '.im-type-options'
       ul.find("li").remove()
 
-      viewNodes = @query.getViewNodes()
+      query = @states.currentQuery
+
+      viewNodes = query.getViewNodes()
 
       for node in viewNodes then do (node) =>
           li = $ """<li></li>"""
           ul.append li
-          countQuery = @query.clone()
+          countQuery = query.clone()
           try
               countQuery.select [node.append("id").toPathString()]
           catch err
@@ -72,18 +73,18 @@ define 'actions/list-manager', using 'actions/list-append-dialogue', 'actions/ne
 
           for missingNode in unselected
               ns = missingNode.toPathString()
-              inCons = _.any @query.constraints, (c) -> c.path.substring(0, ns.length) is ns
-              unless (inCons or @query.isOuterJoined(missingNode))
+              inCons = _.any query.constraints, (c) -> c.path.substring(0, ns.length) is ns
+              unless (inCons or query.isOuterJoined(missingNode))
                   countQuery.addConstraint( [missingNode.append("id"), "IS NOT NULL"] )
 
           countQuery.orderBy []
 
           li.click => @openDialogue(node.getType().name, countQuery)
 
-          colNos = (i + 1 for v, i in @query.views when @query.getPathInfo(v).getParent().toPathString() is node.toPathString())
+          colNos = (i + 1 for v, i in query.views when query.getPathInfo(v).getParent().toPathString() is node.toPathString())
 
-          li.mouseover => @query.trigger "start:highlight:node", node
-          li.mouseout => @query.trigger "stop:highlight"
+          li.mouseover -> query.trigger "start:highlight:node", node
+          li.mouseout -> query.trigger "stop:highlight"
 
           countQuery.count (n) ->
               return li.remove() if n < 1

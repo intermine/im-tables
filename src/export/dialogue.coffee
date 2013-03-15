@@ -18,8 +18,9 @@ do ->
       tagName: "li"
       className: "im-export-dialogue dropdown"
 
-      initialize: (@query) ->
+      initialize: (@history) ->
 
+          @service = @history.currentQuery.service
           @requestInfo = new Backbone.Model
             format: EXPORT_FORMATS[0].extension
             allRows: true
@@ -34,11 +35,11 @@ do ->
           @state.on 'change:url', @onChangeURL
           @state.on 'change:section', @onChangeSection
 
-          @query.service.whoami (user) =>
+          @service.whoami (user) =>
             if user.hasPreferences and (myGalaxy = user.preferences['galaxy-url'])
               @requestInfo.set galaxy: myGalaxy
 
-          @query.service.fetchVersion (v) => @$('.im-ws-v12').remove() if v < 12
+          @service.fetchVersion (v) => @$('.im-ws-v12').remove() if v < 12
 
           @requestInfo.on "change:galaxy", (m, uri) =>
             input = @$('input.im-galaxy-uri')
@@ -57,11 +58,12 @@ do ->
                   btns.last().addClass 'active'
 
           @exportedCols = new Backbone.Collection
-          @query.on 'download-menu:open', @openDialogue, @
-          @query.on 'imtable:change:page', (start, size) =>
-              @requestInfo.set start: start, end: start + size
-          for v in @query.views
-              @exportedCols.add path: @query.getPathInfo v
+          @listenToQuery()
+
+          @history.on 'add reverted', @listenToQuery, @
+          @history.on 'add reverted', @warnOfOuterJoinedCollections, @
+          @history.on 'add reverted', @makeSlider, @
+
           @requestInfo.on 'change', @buildPermaLink
           @requestInfo.on 'change:allRows', (m, allRows) =>
               allOrSome(allRows, '.im-row-selection', '.im-row-btns .btn')
@@ -82,6 +84,16 @@ do ->
               @$slider?.slider 'option', 'values', [m.get('start'), end - 1 ]
           @requestInfo.on "change:format", (m, format) => @$('.im-export-format').val format
           @exportedCols.on 'add remove reset', @initCols
+      
+      listenToQuery: ->
+        query = @history.currentQuery
+        query.on 'download-menu:open', @openDialogue, @
+        query.on 'imtable:change:page', (start, size) =>
+            @requestInfo.set start: start, end: start + size
+
+        @exportedCols.reset()
+        for v in query.views
+          @exportedCols.add path: query.getPathInfo v
 
       events:
           'click .im-reset-cols': 'resetCols'
@@ -131,7 +143,7 @@ do ->
       buildPermaLink: (e) =>
           endpoint = @getExportEndPoint()
           params = @getExportParams()
-          isPrivate = intermine.utils.requiresAuthentication @query
+          isPrivate = intermine.utils.requiresAuthentication @history.currentQuery
           @state.set {isPrivate}
           delete params.token unless isPrivate
           url = endpoint + "?" + $.param(params, true)
@@ -157,28 +169,28 @@ do ->
           return false # seriously, don't
 
       forgetGalaxy: (e) ->
-          @query.service
-              .whoami()
-              .pipe( (user) => console.log(user); user.clearPreference('galaxy-url'))
-              .done( () => @requestInfo.set galaxy: intermine.options.GalaxyMain )
-          return false
+        @service
+          .whoami()
+          .pipe( (user) => console.log(user); user.clearPreference('galaxy-url'))
+          .done( () => @requestInfo.set galaxy: intermine.options.GalaxyMain )
+        return false
 
       keyPressOnLimit: (e) ->
-          input = $(e.target)
-          switch e.keyCode
-              when 38 # UP
-                  input.val 1 + parseInt(input.val(), 10)
-              when 40 # DOWN
-                  input.val parseInt(input.val(), 10) - 1
-          input.change()
+        input = $(e.target)
+        switch e.keyCode
+          when 38 # UP
+              input.val 1 + parseInt(input.val(), 10)
+          when 40 # DOWN
+              input.val parseInt(input.val(), 10) - 1
+        input.change()
 
       changeStart: (e) ->
-          if @checkStartAndEnd() # only if valid.
-              @requestInfo.set start: parseInt(@$('.im-first-row').val(), 10) - 1 # Start is 0-based, display is 1-based.
+        if @checkStartAndEnd() # only if valid.
+            @requestInfo.set start: parseInt(@$('.im-first-row').val(), 10) - 1 # Start is 0-based, display is 1-based.
 
       changeEnd: (e) ->
-          if @checkStartAndEnd() # only if valid
-              @requestInfo.set end: parseInt(@$('.im-last-row').val(), 10)
+        if @checkStartAndEnd() # only if valid
+            @requestInfo.set end: parseInt(@$('.im-last-row').val(), 10)
 
       DIGITS: /^\s*\d+\s*$/
 
@@ -243,34 +255,35 @@ do ->
               user.setPreference 'galaxy-url', uri
 
       doGalaxy: (galaxy) ->
-          console.log "Sending to #{ galaxy }"
-          endpoint = @getExportEndPoint()
-          format = @requestInfo.get 'format'
-          qLists = (c.value for c in @query when c.op is 'IN')
-          intermine.utils.getOrganisms @query, (orgs) =>
-              params =
-                  tool_id: 'flymine' # name of tool within galaxy that does uploads.
-                  organism: orgs.join(', ')
-                  URL: endpoint
-                  URL_method: "post"
-                  name: "#{ if orgs.length is 1 then orgs[0] + ' ' else ''}#{ @query.root } data"
-                  data_type: if format is 'tab' then 'tabular' else format
-                  info: """
-                      #{ @query.root } data from #{ @query.service.root }.
-                      Uploaded from #{ window.location.toString().replace(/\?.*/, '') }.
-                      #{ if qLists.length then ' source: ' + lists.join(', ') else '' }
-                      #{ if orgs.length then ' organisms: ' + orgs.join(', ') else '' }
-                  """
-              for k, v of @getExportParams()
-                  params[k] = v
-              openWindowWithPost "#{ galaxy }/tool_runner", "Upload", params
+        query = @history.currentQuery
+        console.log "Sending to #{ galaxy }"
+        endpoint = @getExportEndPoint()
+        format = @requestInfo.get 'format'
+        qLists = (c.value for c in @query when c.op is 'IN')
+        intermine.utils.getOrganisms query, (orgs) =>
+            params =
+                tool_id: 'flymine' # name of tool within galaxy that does uploads.
+                organism: orgs.join(', ')
+                URL: endpoint
+                URL_method: "post"
+                name: "#{ if orgs.length is 1 then orgs[0] + ' ' else ''}#{ query.root } data"
+                data_type: if format is 'tab' then 'tabular' else format
+                info: """
+                    #{ query.root } data from #{ @service.root }.
+                    Uploaded from #{ window.location.toString().replace(/\?.*/, '') }.
+                    #{ if qLists.length then ' source: ' + lists.join(', ') else '' }
+                    #{ if orgs.length then ' organisms: ' + orgs.join(', ') else '' }
+                """
+            for k, v of @getExportParams()
+                params[k] = v
+            intermine.utils.openWindowWithPost "#{ galaxy }/tool_runner", "Upload", params
 
       changeGalaxyURI: (e) -> @requestInfo.set galaxy: @$('.im-galaxy-uri').val()
 
       getExportEndPoint: () ->
           format = @requestInfo.get 'format'
           suffix = if format in intermine.Query.BIO_FORMATS then "/#{format}" else ""
-          return "#{ @query.service.root }query/results#{ suffix }"
+          return "#{ @service.root }query/results#{ suffix }"
 
       # Unnecessary? We could always use this if the url gets too big...
       # openWindowWithPost @getExportEndPoint(), "Export", @getExportParams()
@@ -281,7 +294,7 @@ do ->
           else true # Do the default linky thing
 
       getExportQuery: () ->
-          q = @query.clone()
+          q = @history.currentQuery.clone()
           f = @requestInfo.get 'format'
           toPath = (col) -> col.get 'path'
           idAttr = (path) -> path.append 'id'
@@ -301,7 +314,7 @@ do ->
       getExportParams: () ->
           params = @requestInfo.toJSON()
           params.query = @getExportQuery().toXML()
-          params.token = @query.service.token
+          params.token = @service.token
 
           # Clean up params we don't need to send
           delete params.galaxy
@@ -360,14 +373,15 @@ do ->
         delete @$slider
         delete @count
         @$el.empty()
-        @initialize @query
+        @initialize @history
         @render()
 
       resetCols: (e) ->
           e?.stopPropagation()
           e?.preventDefault()
+          q = @history.currentQuery
           @$('.im-reset-cols').addClass 'disabled'
-          @exportedCols.reset @query.views.map (v) => path: @query.getPathInfo v
+          @exportedCols.reset q.views.map (v) -> path: q.getPathInfo v
 
       updateFormat: (e) -> @requestInfo.set format: @$('.im-export-format').val()
 
@@ -462,8 +476,9 @@ do ->
 
         @$('.im-export-options').append row.render().$el
 
-        for path in @query.views
-          coll.add path: @query.getPathInfo(path), included: false
+        q = @history.currentQuery
+        for path in q.views
+          coll.add path: q.getPathInfo(path), included: false
 
 
       addFastaFeatureSelector: () ->
@@ -498,13 +513,13 @@ do ->
 
         @$('.im-export-options').append row.render().$el
 
-        for node in @query.getViewNodes() when node.isa 'SequenceFeature'
+        for node in @history.currentQuery.getViewNodes() when node.isa 'SequenceFeature'
            coll.add path: node, included: true
 
         coll.trigger 'ready'
 
       initColumnOptions: ->
-        nodes = ({node} for node in @query.getQueryNodes())
+        nodes = ({node} for node in @history.currentQuery.getQueryNodes())
         @possibleColumns = new intermine.columns.models.PossibleColumns nodes,
           exported: @exportedCols
 
@@ -538,14 +553,15 @@ do ->
           maybes.append maybeView.render().el
 
       warnOfOuterJoinedCollections: () ->
-          if _.any(@query.joins, (s, p) => (s is 'OUTER') and @query.canHaveMultipleValues(p))
-              @$('.im-row-selection').append """
-                      <div class="alert alert-warning">
-                          <button class="close" data-dismiss="alert">×</button>
-                          <strong>NB</strong>
-                          #{ intermine.messages.actions.OuterJoinWarning }
-                      </div>
-                  """
+        q = @history.currentQuery
+        if _.any(q.joins, (s, p) => (s is 'OUTER') and @query.canHaveMultipleValues(p))
+          @$('.im-row-selection').append """
+            <div class="alert alert-warning">
+                <button class="close" data-dismiss="alert">×</button>
+                <strong>NB</strong>
+                #{ intermine.messages.actions.OuterJoinWarning }
+            </div>
+          """
 
       initFormats: () ->
           select = @$ '.im-export-format'
@@ -557,46 +573,50 @@ do ->
 
           for format in EXPORT_FORMATS
               select.append formatToOpt format
-          if intermine.utils.modelIsBio @query.model
+
+          @service.fetchModel().done (model) ->
+            if intermine.utils.modelIsBio model
               for format in BIO_FORMATS
-                  select.append formatToOpt format
+                select.append formatToOpt format
 
           select.val @requestInfo.get('format')
 
       render: () ->
 
-          @$el.append intermine.snippets.actions.DownloadDialogue()
-          @$('.modal-footer .btn').tooltip()
+        @$el.append intermine.snippets.actions.DownloadDialogue()
+        @$('.modal-footer .btn').tooltip()
 
-          # This really ought to live in events...
-          for val in ["no", "gzip", "zip"] then do (val) =>
-              @$(".im-#{val}-compression").click (e) =>
-                  @requestInfo.set compress: val
+        # This really ought to live in events...
+        for val in ["no", "gzip", "zip"] then do (val) =>
+          @$(".im-#{val}-compression").click (e) =>
+            @requestInfo.set compress: val
 
-          @initFormats()
-          @initCols()
-          @updateFormatOptions()
-          @warnOfOuterJoinedCollections()
-          @makeSlider()
+        @initFormats()
+        @initCols()
+        @updateFormatOptions()
+        @warnOfOuterJoinedCollections()
+        @makeSlider()
 
-          @$el.find('.modal').hide()
-          @state.set
-            section: 'download-file'
+        @$el.find('.modal').hide()
+        @state.set
+          section: 'download-file'
 
-          @buildPermaLink()
+        @buildPermaLink()
 
-          this
+        this
 
       makeSlider: () ->
-          @query.count (c) =>
-            @count = c
-            @requestInfo.set end: c
-            @$slider = @$('.slider').slider
-              range: true,
-              min: 0,
-              max: c - 1,
-              values: [0, c - 1],
-              step: 1,
-              slide: (e, ui) => @requestInfo.set start: ui.values[0], end: ui.values[1] + 1
+        q = @history.currentQuery
+        @$slider?.slider 'destroy'
+        q.count (c) =>
+          @count = c
+          @requestInfo.set end: c
+          @$slider = @$('.slider').slider
+            range: true,
+            min: 0,
+            max: c - 1,
+            values: [0, c - 1],
+            step: 1,
+            slide: (e, ui) => @requestInfo.set start: ui.values[0], end: ui.values[1] + 1
 
   scope "intermine.query.export", {ExportDialogue}

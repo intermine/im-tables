@@ -19,7 +19,7 @@ do ->
     class Tools extends Backbone.View
         className: "im-query-tools"
 
-        initialize: (@query) ->
+        initialize: (@states) ->
 
         render: ->
             tabs = @make "ul",
@@ -63,10 +63,10 @@ do ->
 
       className: "im-query-actionbar"
 
-      initialize: (@query) ->
+      initialize: (@states) ->
 
       render: ->
-        actions = new intermine.query.actions.ActionBar(@query)
+        actions = new intermine.query.actions.ActionBar @states
         try
           actions.render().$el.appendTo @el
         catch e

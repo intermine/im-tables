@@ -42,7 +42,7 @@ define 'actions/code-gen', using 'html/code-gen', (HTML) ->
 
     html: HTML {langs: CODE_GEN_LANGS}
 
-    initialize: (@query) ->
+    initialize: (@states) ->
       @model = new Backbone.Model
       @model.on 'set:lang', @displayLang
 
@@ -71,14 +71,16 @@ define 'actions/code-gen', using 'html/code-gen', (HTML) ->
       $m    = @$ '.modal'
       lang  = @model.get('lang')
 
+      query = @states.currentQuery
+
       ext   = if lang is 'js'  then 'html' else lang
-      href  = if lang is 'xml' then '#'    else @query.getCodeURI lang
-      code  = if lang is 'xml' then indent(@query.toXML()) else @query.fetchCode lang
+      href  = if lang is 'xml' then '#'    else query.getCodeURI lang
+      code  = if lang is 'xml' then indent(query.toXML()) else query.fetchCode lang
       ready = if prettyPrintOne? then alreadyDone else intermine.cdn.load 'prettify'
 
       @$('a .im-code-lang').text lang
       @$('.modal h3 .im-code-lang').text lang
-      @$('.modal .btn-save').attr href: @query.getCodeURI @lang
+      @$('.modal .btn-save').attr href: query.getCodeURI @lang
 
       jQuery.when(code, ready).then (code) ->
         formatted = prettyPrintOne(_.escape(code), ext)

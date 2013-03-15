@@ -57,7 +57,7 @@ do ->
         renderTools: (q) ->
             tools = @make "div", {class: "span3 im-query-toolbox"}
             @$el.append tools
-            @toolbar = new intermine.query.tools.Tools(q)
+            @toolbar = new intermine.query.tools.Tools @states
             @toolbar.render().$el.appendTo tools
 
         renderQueryManagement: (q) ->
@@ -74,7 +74,7 @@ do ->
         TABLE_CLASSES: "im-query-results"
 
         renderTools: (q) ->
-          @toolbar = new intermine.query.tools.ToolBar(q)
+          @toolbar = new intermine.query.tools.ToolBar @states
           @tools.append @toolbar.render().el
 
     scope "intermine.query.results", {DashBoard, CompactView}
