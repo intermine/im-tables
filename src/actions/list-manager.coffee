@@ -8,6 +8,8 @@ define 'actions/list-manager', using 'actions/list-append-dialogue', 'actions/ne
       @states.on 'add reverted', @updateTypeOptions
       @action = ListManager.actions.create
 
+      @states.currentQuery.service.whoami().fail => @remove()
+
     html: """
         <a href="#" class="btn" data-toggle="dropdown">
             <i class="icon-list-alt"></i>
