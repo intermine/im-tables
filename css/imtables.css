@@ -6132,6 +6132,9 @@ td > .im-no-results {
         left: 47%;
         width: 575px;
     }
+    .im-query-display .modal.im-list-creation-dialogue {
+        max-width: 500px;
+    }
     .im-cell-preview.popover {
         max-width: 300px;
     }
@@ -6139,11 +6142,38 @@ td > .im-no-results {
         min-width: 275px;
     }
 }
+@media screen and (max-width: 700px) {
+    .im-query-display .modal.im-list-creation-dialogue .modal-body {
+        max-height: 300px;
+    }
+    .im-query-display .modal.im-list-creation-dialogue .im-tag-options h5,
+    .im-query-display .modal.im-list-creation-dialogue .im-tag-options ul.suggestions {
+        display: none;
+    }
+    .im-query-display .im-list-creation-dialogue .modal-header h2 {
+        font-size: 16px;
+    }
+    .im-query-display .im-list-creation-dialogue .modal-body form {
+        font-size: 0.9em;
+    }
+    .im-query-display .im-list-creation-dialogue .modal-body form label {
+        max-width: 25%;
+        float: left;
+        margin-right: 1em;
+    }
+    .im-query-display .im-list-creation-dialogue .modal-body form input {
+        max-width: 60%;
+        float: right;
+    }
+}
 
 @media screen and (min-width: 700) {
     .im-query-display .modal {
         left: 40%;
         width: 650px;
+    }
+    .im-query-display .modal.im-list-creation-dialogue {
+        max-width: 350px;
     }
     .im-cell-preview.popover {
         max-width: 300px;
@@ -6169,6 +6199,9 @@ td > .im-no-results {
 @media screen and (min-width: 900px) {
     .im-query-display .modal {
         width: 800px;
+    }
+    .im-query-display .modal.im-list-creation-dialogue {
+        max-width: 500px;
     }
     .im-cell-preview.popover {
         max-width: 400px;
