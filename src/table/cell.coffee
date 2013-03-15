@@ -154,13 +154,14 @@ do ->
                 @$('input').attr disabled: !selectable
             @model.on 'change', @updateValue
             @options.query.on "start:list-creation", =>
-                @$('input').show() if @model.get "selectable"
+                @model.set selecting: true
             @options.query.on "stop:list-creation", =>
-                @$('input').hide()
-                @$el.removeClass "active"
-                @model.set "selected", false
+              @model.set selecting: false, selected: false
             @options.query.on 'showing:preview', (el) => # Close ours if another is being opened.
               @cellPreview?.hide() unless el is @el
+
+            @model.on 'change:selecting', (m, selecting) =>
+              @$('input').toggle selecting && m.get "selectable"
 
             @options.query.on "start:highlight:node", (node) =>
                 if @options.node?.toPathString() is node.toPathString()
@@ -229,6 +230,8 @@ do ->
 
           @$el.on 'shown', => @cellPreview.reposition()
           @$el.on 'shown', => @options.query.trigger 'showing:preview', @el
+          @$el.on 'show', (e) =>
+            e.preventDefault() if @model.get 'selecting'
 
           @cellPreview = new intermine.bootstrap.DynamicPopover @el, options
 
