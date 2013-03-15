@@ -5592,27 +5592,6 @@ input.im-constraint-adder {
     top: -10px;
 }
 
-#logged-in-notice a.username {
-    max-width: 10em;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: inline-block;
-    white-space: nowrap;
-}
-
-#logged-in {
-    display: none;
-}
-#logged-in.logged-in {
-    display: inline-block;
-}
-#logged-out {
-    display: inline-block;
-}
-#logged-out.logged-in {
-    display: none;
-}
-
 .v9.unsupported {
     display: none;
 }

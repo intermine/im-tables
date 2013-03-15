@@ -196,17 +196,23 @@ $(function() {
         bar: getPageParam('bar', 'none')
     };
 
-    var login = function(serviceArgs) {
+    var login = function(serviceArgs, noToken) {
         $('.entry-points li').each(function() {
           $(this).toggleClass("active", $(this).text() === serviceArgs);
         });
         $('.entry-points').removeClass('dropdown');
-        var token = services[serviceArgs].token;
+        var token = (noToken ? null : services[serviceArgs].token);
+        var url = services[serviceArgs].root;
+        var query = services[serviceArgs].q;
+        doLogin(url, token, query);
+    };
+    var doLogin = function(url, token, query) {
+
         display.imWidget({
             type: displayType,
-            url: services[serviceArgs].root,
+            url: url,
             token: token,
-            query: services[serviceArgs].q,
+            query: query,
             events: query_events,
             properties: tableProps
         });
@@ -224,6 +230,94 @@ $(function() {
           .fail(function() {$('.v9').addClass('unsupported');});
 
     };
+
+    $('#log-out').on('click', function(e) {
+      var current = $('.entry-points li.active a').text();
+      console.log("Logging out of " + current);
+      login(current, true);
+    });
+
+    $('#start-registration').on('click', function(e) {
+      $('#registration-fields').show();
+      $('#user-changer').text('Sign Up');
+      $('#offer-registration').hide();
+    });
+
+    $('#cancel-login').on('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      $('#registration-fields').hide();
+      $('#user-changer').text('Log In');
+      $('#offer-registration').show();
+      $('#change-user-form input').each(function() {
+        $(this).val('');
+      });
+      $('#log-out').dropdown('toggle');
+    });
+
+
+    var canBasicAuth = function() {
+      if (!jQuery.base64) {
+        return $.getScript('https://raw.github.com/carlo/jquery-base64/master/jquery.base64.min.js');
+      } else {
+        var ret = $.Deferred();
+        ret.resolve(true);
+        return ret.promise();
+      }
+    };
+    var makeBasicAuth = function(user, pass) {
+      return canBasicAuth().then(function() {
+        var tok = user + ':' + pass;
+        var hash = $.base64.encode(tok);
+        return 'Basic ' + hash;
+      });
+    };
+
+    $('#change-user-form').submit(function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      var service = display.imWidget('option', 'service');
+      var username = $('#new-user').val();
+      var password = $('#new-pass').val();
+      var root = service.root;
+      $('#log-out').dropdown('toggle');
+      var authP = makeBasicAuth(username, password);
+      authP.fail(function() {
+        notifier.notify({
+          title: "Log in failed",
+          text: 'Cannot fetch base64 encoder',
+          level: "warning"
+        });
+      });
+      var promise = authP.then(function(auth) {
+        return $.ajax({
+          url: root + 'user/token?format=json',
+          beforeSend: function (xhr) { xhr.setRequestHeader('Authorization', auth); return true;},
+          dataType: 'json',
+          type: 'GET'
+        });
+      });
+      promise.done(function(ret) {
+        var url = service.root;
+        var token = ret.token;
+        var query = display.imWidget('option', 'query');
+        doLogin(url, token, query);
+        console.log(ret);
+        notifier.notify({
+          title: "Logged in",
+          text: "logged in as " + username,
+          level: 'success'
+        });
+      });
+
+      promise.fail(function(xhr) {
+        notifier.notify({
+          title: "Log in failed",
+          text: 'Incorrect username/password',
+          level: "warning"
+        });
+      });
+    });
 
     $('.entry-points li').click(function() {
         var text = $(this).text();
