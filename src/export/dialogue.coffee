@@ -607,7 +607,9 @@ do ->
 
       makeSlider: () ->
         q = @history.currentQuery
+        # Unset any previous sliders.
         @$slider?.slider 'destroy'
+        @$slider = null
         q.count (c) =>
           @count = c
           @requestInfo.set end: c
