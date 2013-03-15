@@ -255,16 +255,14 @@ $(function() {
       $('#log-out').dropdown('toggle');
     });
 
-
     var canBasicAuth = function() {
       if (!jQuery.base64) {
-        return $.getScript('https://raw.github.com/carlo/jquery-base64/master/jquery.base64.min.js');
+        return $.getScript(intermine.options.CDN.server + '/js/jquery-base64/1.0/jquery-base64.min.js');
       } else {
-        var ret = $.Deferred();
-        ret.resolve(true);
-        return ret.promise();
+        return $.Deferred(function () {this.resolve(true)}).promise();
       }
     };
+
     var makeBasicAuth = function(user, pass) {
       return canBasicAuth().then(function() {
         var tok = user + ':' + pass;
