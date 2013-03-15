@@ -86,6 +86,23 @@ do ($ = jQuery) ->
             else
                 cb orgs
 
+    openWindowWithPost = (uri, name, params) ->
+
+      form = $ """
+          <form method="POST" action="#{ uri }" 
+               target="#{ name }#{ new Date().getTime() }">
+      """
+
+      for k, v of params
+        input = $("""<input name="#{ k }" type="hidden">""")
+        form.append(input)
+        input.val(v)
+      form.appendTo 'body'
+      w = window.open("someNonExistantPathToSomeWhere", name)
+      form.submit()
+      form.remove()
+      w.close()
+
     ERROR = _.template """
       <div class="alert alert-error">
         <p class="apology">Could not fetch summary</p>
@@ -119,6 +136,7 @@ do ($ = jQuery) ->
 
     scope "intermine.utils", {
       copy, walk, getOrganisms, requiresAuthentication, modelIsBio, renderError,
-      getParameter, numToString, pluralise, addStylePrefix, getContainer
+      getParameter, numToString, pluralise, addStylePrefix, getContainer,
+      openWindowWithPost
     }
             

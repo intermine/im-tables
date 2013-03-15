@@ -105,12 +105,14 @@ task CONCAT, CONCAT_DESC, concat = promiserToNode ->
   console.log "Building source file"
   writeOut = writer 'build/build.coffee'
 
+  footer = 'end_of_definitions()'
+
   writing = true
   Q.all([Q.all(deepRead(n) for n in neededEarly), deepRead('src')])
     .then((nested) -> (_.flatten names for names in nested))
     .then(([priorities, rest]) -> _.union priorities, rest)
     .then((fileNames) -> Q.all( read(f, 'utf8') for f in fileNames ))
-    .then((contents) -> "#{ header }\n\n#{ contents.join('\n\n') }")
+    .then((contents) -> "#{ header }\n\n#{ contents.join('\n\n') }\n\n#{ footer }")
     .then(writeOut)
     .then -> writing = false
 
