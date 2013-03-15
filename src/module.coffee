@@ -24,48 +24,51 @@ scope = (path, code = {}, overwrite = false) ->
             ns[ name ] = value
     return ns
 
+# Declare here for visibility.
+define = ->
+using = ->
+end_of_definitions = ->
 
-pending_modules = {}
-defined_modules = {}
+do ->
 
-check_pending = ->
-  newDefs = 0
-  for name, pending of pending_modules
-    obj = pending()
-    if obj?
-      defined_modules[name] = obj
-      delete pending_modules[name]
-      newDefs++
+  pending_modules = {}
+  defined_modules = {}
 
-  newDefs
+  sweep_pending = ->
+    newDefs = 0
+    for name, pending of pending_modules
+      obj = pending()
+      if obj?
+        defined_modules[name] = obj
+        delete pending_modules[name]
+        newDefs++
+    newDefs
 
-define = (name, f) ->
-  obj = f()
-  if obj?
-    defined_modules[name] = obj
-  else
+  define_pending_modules = -> 1 while sweep_pending()
+
+  define = (name, f) ->
+    if name of pending_modules or name of defined_modules
+      throw new Error("Duplicate definition for #{ name }")
     pending_modules[name] = f
-  check_pending()
-  obj
-
-using = (names..., f) -> () ->
-  objs = (defined_modules[name] for name in names when name of defined_modules)
-  if objs.length is names.length
-    f objs...
-  else
+    define_pending_modules()
     null
 
-get_pending = -> (name for name of pending_modules)
+  using = (names..., f) -> (eof = false) ->
+    objs = (defined_modules[name] for name in names when name of defined_modules)
+    if objs.length is names.length
+      f objs...
+    else if eof # report missing dependencies.
+      (name for name in names when name not of defined_modules)
+    else
+      null
 
-end_of_definitions = ->
-  while check_pending() # Load all resolvable pending modules.
-    1
-  pending = get_pending()
-  if pending.length
-    throw new Error('The following modules have unmet dependencies: ' + pending + '. The following modules are defined: ' + (n for n of defined_modules))
+  end_of_definitions = -> # TODO, remove the need to check this here.
+    pending = (name for name of pending_modules)
+    if pending.length
+      err = "The following modules have unmet dependencies"
+      problems = ("#{ name } needs [#{ pending_modules[name] true }]" for name in pending)
+      throw new Error("#{ err }: #{ problems.join ', ' }")
 
 # Export this out for others to use.
 scope "intermine", {scope}, true
-
-
 
