@@ -7,20 +7,38 @@ define 'actions/list-dialogue', ->
     usingDefaultName: true
 
     initialize: (@query) ->
+      @listOptions = new Backbone.Model
       @types = {}
       @model = new Backbone.Model()
       @query.on "imo:selected", (type, id, selected) =>
         if selected
-            @types[id] = type
+          @types[id] = type
         else
-            delete @types[id]
-        types = _(@types).values()
+          delete @types[id]
+        types = _.values @types
         
         if types.length > 0
-            m = @query.model
-            commonType = m.findCommonTypeOfMultipleClasses(types)
-            @newCommonType(commonType) unless commonType is @commonType
+          m = @query.model
+          commonType = m.findCommonTypeOfMultipleClasses(types)
+          @listOptions.set type: commonType
+
         @selectionChanged()
+
+      @listOptions.on 'change:type', @newCommonType, @
+      @listOptions.on 'change:query', (_, q) => q.count @selectionChanged
+      @listOptions.on 'change:query', => @$('.modal').modal('show').find('form').show()
+      @listOptions.on 'change:name', @updateNameDisplay, @
+      @listOptions.on 'change:name', @checkName, @
+
+    updateNameDisplay: ->
+      console.log "Updating name to #{ @listOptions.get('name') }"
+      @$('.im-list-name').val @listOptions.get 'name'
+
+    remove: ->
+      for thing in ['model', 'listOptions']
+        @[thing].off()
+        delete @[thing]
+      super()
 
     selectionChanged: (n) =>
         n or= _(@types).values().length
@@ -30,9 +48,10 @@ define 'actions/list-dialogue', ->
         @$('form').show()
         @nothingSelected() if n < 1
 
-    newCommonType: (type) ->
-        @commonType = type
-        @query.trigger "common:type:selected", type
+    newCommonType: ->
+      # Broadcast a message to the cells so they can decide to enable or
+      # disable their check-boxes.
+      @query.trigger "common:type:selected", @listOptions.get 'type'
 
     nothingSelected: ->
         @$('.im-selection-instruction').slideDown()
@@ -40,17 +59,21 @@ define 'actions/list-dialogue', ->
         @query.trigger "selection:cleared"
 
     events: ->
-        'change .im-list-name': 'listNameChanged'
-        'submit form': 'ignore'
-        'click form': 'ignore'
-        'click .btn-cancel': 'stop'
+      'hidden': 'onHidden'
+      'change .im-list-name': 'listNameChanged'
+      'submit form': 'ignore'
+      'click form': 'ignore'
+      'click .btn-cancel': 'stop'
+      'click .btn-primary': 'create'
+
+    onHidden: (e) ->
+      @remove() if e and $(e.target).is('.modal')
 
     startPicking: ->
         @query.trigger "start:list-creation"
         @nothingSelected()
         m = @$('.modal').show -> $(@).addClass("in").draggable(handle: "h2")
         @$('.modal-header h2').css(cursor: "move").tooltip title: "Drag me around!"
-        @$('.btn-primary').unbind('click').click => @create()
 
     stop: (e) ->
         @query.trigger "stop:list-creation"
@@ -64,35 +87,47 @@ define 'actions/list-dialogue', ->
         e.preventDefault()
         e.stopPropagation()
     
-    listNameChanged: ->
-        @usingDefaultName = false
+    listNameChanged: (e) ->
+      @listOptions.set customName: true, name: $(e.target).val()
 
-        $target = @$ '.im-list-name'
-        $target.parent().removeClass """error"""
-        $target.next().text ''
-        chosen = $target.val()
-
-        @query.service.fetchLists (ls) =>
-            for l in ls
-                if l.name is chosen
-                    $target.next().text """This name is already taken"""
-                    $target.parent().addClass """error"""
+    getLists: ->
+      # Caching version of fetch lists. This caches lists requests within a specific window.
+      now = new Date().getTime()
+      if not @listPromise or @listPromise.made_at < now - intermine.options.ListFreshness
+        @listPromise = @query.service.fetchLists()
+        @listPromise.made_at = now
+      @listPromise
 
 
-    create: (q) ->
-        throw "Override me!"
+    checkName: ->
+      selector = '.im-list-name'
+      message = intermine.messages.actions.ListNameDuplicate
+      @clearError selector
+
+      @getLists().done (ls) =>
+        chosen = @listOptions.get 'name'
+        isDup = _.any ls, (l) -> l.authorized and l.name is chosen
+        @setError selector, message if isDup
+
+    setError: (selector, message) ->
+      $input = @$ selector
+      $input.next().text message
+      $input.parent().addClass 'error'
+
+    clearError: (selector) ->
+      $input = @$ selector
+      $input.next().text ''
+      $input.parent().removeClass 'error'
+
+    create: -> throw new Error "Override me!"
 
     openDialogue: (type, q) ->
-        type ?= @query.root
-        q    ?= @query.clone()
-        q.joins = {}
-        @newCommonType(type)
-        q?.count @selectionChanged
-        @$('.modal').modal("show").find('form').show()
-        @$('.btn-primary').unbind('click').click => @create(q, type)
+      type ?= @query.root
+      q    ?= @query.clone()
+      @listOptions.set query: q, type: type
 
     render: ->
         @$el.append @html
-        @$('.modal').modal(show: false).on "hidden", => @remove()
+        @$('.modal').modal(show: false)
         this
 

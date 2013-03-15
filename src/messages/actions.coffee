@@ -1,4 +1,10 @@
 scope "intermine.messages.actions", {
+    ListNameDuplicate: 'List names must be unique. This name is already taken',
+    ListNameEmpty: 'Lists must have names. Please enter one',
+    ListNameIllegal: _.template """
+      Some characters are not allowed in list names. This name contains the following
+      illegal characters: <%- illegals.join(', ') %>. Please remove them.
+    """
     ExportTitle: "Download Results",
     ConfigureExport: "Configure Export",
     GetData: "Download Data",

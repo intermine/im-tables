@@ -14,7 +14,6 @@ define 'actions/new-list-dialogue', using 'actions/list-dialogue', 'models/uniq-
           @hideTagOptions()
       @tags  = new UniqItems()
       @suggestedTags = new UniqItems()
-      @listOptions = new Backbone.Model
       @tags.on "add", @updateTagBox
       @suggestedTags.on "add", @updateTagBox
       @tags.on "remove", @updateTagBox
@@ -23,50 +22,54 @@ define 'actions/new-list-dialogue', using 'actions/list-dialogue', 'models/uniq-
 
     hideTagOptions: () -> @$('.im-tag-options').hide()
 
-    newCommonType: (type) ->
-      super(type)
+    newCommonType: ->
+      super()
+      return if @listOptions.get('customName')
+
+      type = @listOptions.get 'type'
+      {service, model} = @query
       now = new Date()
       dateStr = "#{ now }".replace(/\s\d\d:\d\d:\d\d\s.*$/, '')
-      
       text = "#{ type } list - #{ dateStr }"
+      cd = model.classes[type]
+      ids = _.keys(@types)
+
+      @listOptions.set name: text, customName: false
+
+      for categoriser in intermine.options.ListCategorisers
+        [first, rest...] = categoriser.split(/\./)
+        if cd.fields[first]?
+          if ids?.length
+            oq =
+              select: categoriser
+              from: type,
+              where: {id: ids}
+            querying = service.rows(oq).then (rows) =>
+              if rows.length is 1
+                @listOptions.set
+                  name: "#{ type } list for #{ rows[0][0] } - #{ dateStr }"
+                  customName: false
+          else
+            oq = (@listOptions.get('query') or @query).clone()
+            querying = oq.summarise(categoriser, 1).then (items, {uniqueValues}) =>
+              if uniqueValues is 1
+                @listOptions.set
+                  name: "#{ type } list for #{ items[0].item } - #{ dateStr }"
+                  customName: false
+        
+          querying.always => @avoidNameDuplication()
+          return
       
-      $target = @$ '.im-list-name'
+      @avoidNameDuplication()
 
-      if @usingDefaultName
-        copyNo = 1
-        textBase = text
-        $target.val text
-        @query.service.fetchLists (ls) =>
-
-          for l in _.sortBy(ls, (l) -> l.name)
-            if l.name is text
-              text = "#{textBase} (#{ copyNo++ })"
-              $target.val text
-
-          @usingDefaultName = true
-        cd = @query.model.classes[type]
-        # The following is much too specific and should be configurable...
-        # TODO: refactor this out into general logic 
-        # and make it work with selections for all objects.
-        if cd.fields['organism']?
-            ids = _.keys(@types)
-            if ids?.length
-                oq =
-                    select: 'organism.shortName',
-                    from: type,
-                    where:
-                        id: _.keys(@types)
-
-                @query.service.query oq, (orgQuery) ->
-                    orgQuery.count (c) ->
-                        if c is 1
-                            orgQuery.rows (rs) ->
-                                newVal = "#{ type } list for #{ rs[0][0] } - #{ dateStr }"
-                                textBase = newVal
-                                $target.val newVal
-
-
-        @$('.im-list-type').val(type)
+    avoidNameDuplication: ->
+      text = textBase = @listOptions.get 'name'
+      copyNo = 1
+      {service, model} = @query
+      @getLists().done (ls) => for l in _.sortBy(ls, (l) -> l.name)
+        if l.name is text
+          text = "#{textBase} (#{ copyNo++ })"
+          @listOptions.set name: text, customName: false
 
     openDialogue: (type, q) ->
         super(type, q)
@@ -103,6 +106,10 @@ define 'actions/new-list-dialogue', using 'actions/list-dialogue', 'models/uniq-
       'click .im-confirm-tag': 'addTag'
       'click .btn-reset': 'reset'
       'click .control-group h5': 'rollUpNext'
+      'change .im-list-desc': 'updateDesc'
+
+    updateDesc: (e) ->
+      @listOptions.set description: $(e.target).val()
 
     rollUpNext: (e) ->
       $(e.target).next().slideToggle()
@@ -113,39 +120,30 @@ define 'actions/new-list-dialogue', using 'actions/list-dialogue', 'models/uniq-
           @$(".im-list-#{field}").val("")
       @initTags()
 
-    create: (q) ->
-      $nameInput = @$ '.im-list-name'
-      newListName = $nameInput.val()
-      newListDesc = @$('.im-list-desc').val()
-      newListType = @$('.im-list-type').val()
-      newListTags = @tags.map (t) -> t.get "item"
-      if not newListName
-          $nameInput.next().text """
-              A list requires a name. Please enter one.
-          """
-          $nameInput.parent().addClass "error"
+    create: ->
+      {query, name, type, description} = @listOptions.toJSON()
+      tags = @tags.map (t) -> t.get "item"
+
+      unless name and /\w/.test name
+        return @setError '.im-list-name', intermine.messages.actions.ListNameEmpty
           
-      else if illegals = newListName.match ILLEGAL_LIST_NAME_CHARS
-          $nameInput.next().text """
-              This name contains illegal characters (#{ illegals }). Please remove them
-          """
-          $nameInput.parent().addClass "error"
-      else
-          listQ = (q or {select: ["id"], from: newListType, where: {id: _(@types).keys()}})
-          opts =
-              name: newListName
-              description: newListDesc
-              tags: newListTags
+      if illegals = name.match ILLEGAL_LIST_NAME_CHARS
+        return @setError '.im-list-name', intermine.messages.actions.ListNameIllegal {illegals}
 
-          @makeNewList listQ, opts
-          @$('.btn-primary').unbind('click')
+      listQ = query or {select: ["id"], from: type, where: {id: _(@types).keys()}}
 
-    makeNewList: (query, opts) =>
-      if query.service?
-          query.saveAsList(opts, @handleSuccess).fail(@handleFailure)
-          @stop()
+      opts = {name, description, tags}
+
+      @makeNewList listQ, opts
+
+    makeNewList: (query, opts) ->
+      if query.saveAsList?
+        saving = query.saveAsList(opts)
+        saving.done @handleSuccess
+        saving.fail @handleFailure
+        @stop()
       else
-          @query.service.query query, (q) => @makeNewList q, opts
+        @query.service.query query, (q) => @makeNewList q, opts
 
     handleSuccess: (list) =>
       console.log "Created a list", list
@@ -219,7 +217,7 @@ define 'actions/new-list-dialogue', using 'actions/list-dialogue', 'models/uniq-
 
       tagAdder = @$ '.im-available-tags'
       @$('a').button()
-      @query.service.fetchLists (ls) -> tagAdder.typeahead
+      @getLists().done (ls) -> tagAdder.typeahead
         source: (_.reduce ls, ((a, l) -> _.union a, l.tags), [])
         items: 10
         matcher: (item) ->
