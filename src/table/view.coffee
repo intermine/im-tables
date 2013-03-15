@@ -637,7 +637,7 @@ do ->
 
         placePagination: ($widgets) ->
             $pagination = $(intermine.snippets.table.Pagination).appendTo($widgets)
-            $pagination.find('li').tooltip(placement: "left")
+            $pagination.find('li').tooltip(placement: "top")
             currentPageButton = $pagination.find(".im-current-page a").click =>
                 total = @cache.lastResult.iTotalRecords
                 if @table.pageSize >= total
