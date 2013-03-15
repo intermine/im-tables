@@ -693,7 +693,7 @@ do ->
                     <input type="checkbox">
                 </td>
                 <td class="im-item-col">
-                  #{@item.get("item") ? '<span class=null-value>NO VALUE</span>' }
+                  #{@item.get("item") ? '<span class=null-value>&nbsp;</span>' }
                 </td>
                 <td class="im-count-col">
                     <div class="im-facet-bar"
