@@ -22,7 +22,7 @@ define 'actions/list-append-dialogue', using 'actions/list-dialogue', 'html/appe
 
     onlyShowCompatibleOptions: ->
       type = @commonType
-      m = @query.service.model
+      m = @query.model
       compatibles = 0
       @$('form select option').each (i, elem) =>
         $o = $(elem)

@@ -552,9 +552,9 @@ do ->
           maybeView = new intermine.columns.views.PossibleColumns collection: @possibleColumns
           maybes.append maybeView.render().el
 
-      warnOfOuterJoinedCollections: () ->
+      warnOfOuterJoinedCollections: ->
         q = @history.currentQuery
-        if _.any(q.joins, (s, p) => (s is 'OUTER') and @query.canHaveMultipleValues(p))
+        if _.any(q.joins, (s, p) => (s is 'OUTER') and q.canHaveMultipleValues(p))
           @$('.im-row-selection').append """
             <div class="alert alert-warning">
                 <button class="close" data-dismiss="alert">×</button>
