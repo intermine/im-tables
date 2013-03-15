@@ -11,6 +11,7 @@ define 'actions/list-dialogue', ->
       @types = {}
       @model = new Backbone.Model()
       @query.on "imo:selected", (type, id, selected) =>
+        return unless @listOptions? # from another time...
         if selected
           @types[id] = type
         else
