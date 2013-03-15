@@ -1,5 +1,8 @@
 do ->
     
+    # TODO. Separate the data fields from things like selectable.
+    # This could be done with name-spacing such as a dot, colon or dash
+    # which are illegal field name characters.
     class IMObject extends Backbone.Model
 
         initialize: (query, obj, field, base) ->
@@ -8,6 +11,7 @@ do ->
             obj.base = base
             obj.selected = false
             obj.selectable = true
+            obj.selecting = false
             @attributes = obj
             pathInfo = query.model.getPathInfo(obj._type)
             query.on "selection:cleared", => @set selectable: true

@@ -147,25 +147,19 @@ do ->
             'click': 'activateChooser'
 
         initialize: ->
-            @model.on "change:selected", (model, selected) =>
-                @$el.toggleClass "active", selected
-                @$('input').attr checked: selected
-            @model.on "change:selectable", (model, selectable) =>
-                @$('input').attr disabled: !selectable
-            @model.on 'change', @updateValue
+            @model.on 'change', @selectingStateChange, @
+            @model.on 'change', @updateValue, @
+
             @options.query.on "start:list-creation", =>
-                @model.set selecting: true
+              @model.set selecting: true
             @options.query.on "stop:list-creation", =>
               @model.set selecting: false, selected: false
             @options.query.on 'showing:preview', (el) => # Close ours if another is being opened.
               @cellPreview?.hide() unless el is @el
 
-            @model.on 'change:selecting', (m, selecting) =>
-              @$('input').toggle selecting && m.get "selectable"
-
             @options.query.on "start:highlight:node", (node) =>
-                if @options.node?.toPathString() is node.toPathString()
-                    @$el.addClass "im-highlight"
+              if @options.node?.toPathString() is node.toPathString()
+                @$el.addClass "im-highlight"
             @options.query.on "stop:highlight", => @$el.removeClass "im-highlight"
 
             field = @options.field
@@ -236,7 +230,15 @@ do ->
           @cellPreview = new intermine.bootstrap.DynamicPopover @el, options
 
 
-        updateValue: => @$('.im-displayed-value').html @formatter(@model)
+        updateValue: ->
+          @$('.im-displayed-value').html @formatter(@model)
+
+        selectingStateChange: ->
+          {selected, selectable, selecting} = @model.toJSON()
+          @$el.toggleClass "active", selected
+          @$('input').attr checked: selected
+          @$('input').attr disabled: !selectable
+          @$('input').toggle selecting && selectable
 
         render: ->
             id = @model.get "id"
@@ -263,7 +265,7 @@ do ->
             @$el.append(html)
                 .toggleClass(active: @model.get "selected")
 
-            @updateValue()
+            @model.trigger 'change'
 
             @setupPreviewOverlay() if id?
             this
