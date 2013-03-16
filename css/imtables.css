@@ -2351,6 +2351,7 @@
 .intermine .alert-danger h4,
 .intermine .alert-error h4 {
   color: #b94a48;}
+.intermine .well.im-editing,
 .intermine .alert-info {
   color: #3a87ad;
   background-color: #d9edf7;
@@ -4541,8 +4542,11 @@ table.table thead .sorting_desc_disabled {
     border-top: none;
 }
 
+.im-query-actions .im-export-dialogue .modal {
+    top: 38%;
+}
 .im-export-dialogue .modal .modal-body {
-    max-height: 500px;
+    max-height: 430px;
 }
 
 .im-export-dialogue .im-checkables {
@@ -4613,11 +4617,6 @@ div.well.im-perma-link-content,
 
 .im-export-dialogue .galaxy-toggle { height: 18px } /* Fix for issue in FlyMine */
 
-.im-export-dialogue .im-galaxy-options,
-.im-export-dialogue .im-row-selection, 
-.im-export-dialogue .im-col-options {
-    display: none;
-}
 
 .im-export-dialogue .im-row-selection {
     /* Fixes for firefox */
@@ -4696,6 +4695,14 @@ ul.im-possible-attributes {
 
 .im-query-display .im-export-dialogue .im-exported-cols > li {
     display: block;
+}
+.im-query-display .im-export-dialogue .im-exported-cols > li > div {
+    padding-top: 7px;
+    padding-bottom: 7px;
+}
+
+.im-col-options > .well {
+    padding: 10px;
 }
 
 .im-possible-columns {

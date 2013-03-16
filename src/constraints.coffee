@@ -71,10 +71,14 @@ do ->
             @$('.im-constraint-options').show()
             @$('.im-con-buttons').show()
             @$('.im-value-options').show()
+            @$el.siblings('.im-constraint').slideUp()
+            @$el.closest('.well').addClass 'im-editing'
 
         hideEditForm: (e) ->
             e?.preventDefault()
             e?.stopPropagation()
+            @$el.siblings('.im-constraint').slideDown()
+            @$el.closest('.well').removeClass 'im-editing'
             @$('.im-con-overview').siblings().slideUp 200
             @con.set _.extend {}, @orig
             while (ta = @typeaheads.shift())
