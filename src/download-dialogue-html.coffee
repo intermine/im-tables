@@ -18,106 +18,92 @@ do ->
      <div class="carousel slide">
       <div class="carousel-inner">
       <div class="active item">
-      <form class="form">
 
-        <div class="row-fluid">
-          <label>
-            <span class="span4">
-              #{ intermine.messages.actions.ExportFormat }
-            </span>
-            <select class="im-export-format input-xlarge span8"></select>
-          </label>  
-        </div>
-
-        <div class="row-fluid im-column-selection">
-          <label title="#{ intermine.messages.actions.ColumnsHelp }">
-            <span class="span4">
-              #{ intermine.messages.actions.WhichColumns }
-            </span>
-            <div class="im-col-btns radio btn-group pull-right span8">
-              <button class="btn active im-all-cols span6">
-                #{ intermine.messages.actions.AllColumns }
-              </button>
-              <button class="btn span5">
-                #{ intermine.messages.actions.SomeColumns }
-              </button>
-            </div>
-          </label>
-          <div class="clearfix"></div>
-          <div class="im-col-options">
-            <div class="well">
-              <ul class="im-cols im-exported-cols nav nav-tabs nav-stacked"></ul>
-            </div>
-            <h4>#{ intermine.messages.actions.PossibleColumns }</h4>
-            <div class="im-can-be-exported-cols">
-            </div>
-            <div style="clear:both;"></div>
-            <button class="im-reset-cols btn disabled">
-              <i class="#{ intermine.icons.Undo }"></i>
-              #{ intermine.messages.actions.ResetColumns }
-            </button>
-          </div>
-        </div>
-
-        <div class="row-fluid im-row-opts">
-          <label title="#{ intermine.messages.actions.RowsHelp }">
-            <span class="span4">
+       <div class="tabbable tabs-left">
+         <ul class="nav nav-tabs">
+           <li class="active">
+             <a href="#" class="im-export-format">format</a>
+           </li>
+           <li>
+             <a href="#" class="im-export-columns">columns</a>
+           </li>
+           <li>
+             <a href="#" class="im-export-rows">Rows</a>
+           </li>
+           <li>
+             <a href="#" class="im-export-output">Output</a>
+           </li>
+           <li>
+             <a href="#" class="im-export-destination">Destination</a>
+           </li>
+         </ul>
+         <div class="tab-content">
+           <div class="tab-pane active im-export-format">
+              <h2>
+                #{ intermine.messages.actions.ExportFormat }
+              </h2>
+             <div class="im-export-formats" data-toggle="buttons-radio">
+             </div>
+           </div>
+           <div class="tab-pane im-export-columns">
+               <button class="im-reset-cols btn disabled pull-right">
+                 <i class="#{ intermine.icons.Undo }"></i>
+                 #{ intermine.messages.actions.ResetColumns }
+               </button>
+              <h2>
+                #{ intermine.messages.actions.WhichColumns }
+              </h2>
+              <div class="im-col-options">
+                <div class="well">
+                  <ul class="im-cols im-exported-cols nav nav-tabs nav-stacked"></ul>
+                </div>
+                <h4>#{ intermine.messages.actions.PossibleColumns }</h4>
+                <div class="im-can-be-exported-cols">
+                </div>
+                <div style="clear:both;"></div>
+              </div>
+           </div>
+           <div class="tab-pane im-export-rows">
+             <h2>
               #{ intermine.messages.actions.WhichRows }
-            </span>
-            <div class="im-row-btns radio span8 btn-group pull-right"
-                  data-toggle="buttons-radio">
-              <button class="btn active im-all-rows span6">
-                #{ intermine.messages.actions.AllRows }
-              </button>
-              <button class="btn span5">
-                #{ intermine.messages.actions.SomeRows }
-              </button>
-            </div>
-          </label>
-          <div class="form-horizontal">
-            <fieldset class="im-row-selection control-group">
-              <label class="control-label">
-                #{ intermine.messages.actions.FirstRow }
-                <input type="text" value="1"
-                        class="disabled input-mini im-first-row im-range-limit">
-              </label>
-              <label class="control-label">
-                #{ intermine.messages.actions.LastRow }
-                <input type="text"
-                        class="disabled input-mini im-last-row im-range-limit">
-              </label>
-              <div style="clear:both"></div>
-              <div class="slider im-row-range-slider"></div>
-            </fieldset>
-          </div>
-        </div>
-
-        <fieldset class="control-group">
-          <label>
-            <span class="span4">
-              #{ intermine.messages.actions.CompressResults }
-            </span>
-            <div class="span8 im-compression-opts radio btn-group pull-right"
-                  data-toggle="buttons-radio">
-              <button class="btn active im-no-compression span7">
-                #{ intermine.messages.actions.NoCompression }
-              </button>
-              <button class="btn im-gzip-compression span2">
-                #{ intermine.messages.actions.GZIPCompression }
-              </button>
-              <button class="btn im-zip-compression span2">
-                #{ intermine.messages.actions.ZIPCompression }
-              </button>
-            </div>
-          </label>
-        </fieldset>
-
-        <div class="row-fluid">
-          <fieldset class="im-export-options control-group">
-          </fieldset>
-        </div>
-
-      </form>
+             </h2>
+              <div class="form-horizontal">
+                <fieldset class="im-row-selection control-group">
+                  <label class="control-label">
+                    #{ intermine.messages.actions.FirstRow }
+                    <input type="text" value="1"
+                            class="disabled input-mini im-first-row im-range-limit">
+                  </label>
+                  <label class="control-label">
+                    #{ intermine.messages.actions.LastRow }
+                    <input type="text"
+                            class="disabled input-mini im-last-row im-range-limit">
+                  </label>
+                  <div style="clear:both"></div>
+                  <div class="slider im-row-range-slider"></div>
+                </fieldset>
+              </div>
+           </div>
+           <div class="tab-pane im-export-output">
+              <h2>
+                #{ intermine.messages.actions.CompressResults }
+              </h2>
+              <div class="span8 im-compression-opts radio btn-group pull-right"
+                    data-toggle="buttons-radio">
+                <button class="btn active im-no-compression span7">
+                  #{ intermine.messages.actions.NoCompression }
+                </button>
+                <button class="btn im-gzip-compression span2">
+                  #{ intermine.messages.actions.GZIPCompression }
+                </button>
+                <button class="btn im-zip-compression span2">
+                  #{ intermine.messages.actions.ZIPCompression }
+                </button>
+              </div>
+           </div>
+           <div class="tab-pane"></div>
+         </div>
+       </div>
       
       </div> <!-- End item -->
       
@@ -130,6 +116,7 @@ do ->
       </div> <!-- end inner -->
       </div> <!-- end carousel -->
 
+      <!--
       <div class="row-fluid im-export-destination-options">
 
         <div class="im-download-file active">
@@ -164,8 +151,10 @@ do ->
         </div>
 
       </div>
+      -->
     </div>
 
+    <!--
     <ul class="im-export-destinations nav nav-tabs">
       <li class="active">
         <a href="#" data-section="download-file">
@@ -184,6 +173,7 @@ do ->
         </a>
       </li>
     </ul>
+    -->
 
     <div class="modal-footer">
       <a href="#" class="btn btn-primary im-download pull-right"

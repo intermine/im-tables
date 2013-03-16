@@ -65,6 +65,7 @@ do ->
           @history.on 'add reverted', @makeSlider, @
 
           @requestInfo.on 'change', @buildPermaLink
+          @requestInfo.on 'change:format', @changeFormatTab, @
           @requestInfo.on 'change:allRows', (m, allRows) =>
               allOrSome(allRows, '.im-row-selection', '.im-row-btns .btn')
           @requestInfo.on 'change:allCols', (m, allCols) =>
@@ -84,18 +85,32 @@ do ->
               @$slider?.slider 'option', 'values', [m.get('start'), end - 1 ]
           @requestInfo.on "change:format", (m, format) => @$('.im-export-format').val format
           @exportedCols.on 'add remove reset', @initCols
+          @exportedCols.on 'add remove change:excluded', =>
+            n = @exportedCols.filter( (c) -> not c.get 'excluded').length
+            @$('.nav-tabs .im-export-columns').text "#{ n } columns"
+          @requestInfo.on 'change:start change:end', =>
+            {start, end} = @requestInfo.toJSON()
+            @$('.nav-tabs .im-export-rows').text "#{ end - start } rows"
+
+
+
+      changeFormatTab: ->
+        format = @requestInfo.get 'format'
+        tab = @$ '.nav-tabs .im-export-format'
+        tab.text "#{ format } format"
       
       listenToQuery: ->
         query = @history.currentQuery
         query.on 'download-menu:open', @openDialogue, @
-        query.on 'imtable:change:page', (start, size) =>
-            @requestInfo.set start: start, end: start + size
+        #query.on 'imtable:change:page', (start, size) =>
+        #    @requestInfo.set start: start, end: start + size
 
         @exportedCols.reset()
         for v in query.views
           @exportedCols.add path: query.getPathInfo v
 
-      events:
+      events: ->
+        events =
           'click .im-reset-cols': 'resetCols'
           'click .im-col-btns': 'toggleColSelection'
           'click .im-row-btns': 'toggleRowSelection'
@@ -103,7 +118,6 @@ do ->
           'click .close': 'stop'
           'click .im-cancel': 'stop'
           'click a.im-download': 'export'
-          'change .im-export-format': 'updateFormat'
           'change .im-galaxy-uri': 'changeGalaxyURI'
           'click .im-send-to-galaxy': 'sendToGalaxy'
           'click .im-send-to-genomespace': 'sendToGenomespace'
@@ -119,8 +133,23 @@ do ->
           'click .im-export-destinations > li > a': 'moveToSection'
           'hidden .modal': 'modalHidden'
 
+        for f in EXPORT_FORMATS.concat(BIO_FORMATS) then do (f) =>
+          key = "click .im-format-#{ f.extension }"
+          cb = => @requestInfo.set format: f.extension
+          events[key] = cb
+        for x in ['format', 'columns', 'rows', 'output', 'destination'] then do (x) =>
+          key = "click .nav-tabs .im-export-#{ x }"
+          cb = (e) =>
+            console.log "Lets show #{ x }"
+            $a = $(e.target)
+            $a.data target: @$(".tab-pane.im-export-#{ x }")
+            $a.tab('show')
+          events[key] = cb
+        events
+
       modalHidden: (e) ->
-        if $(e.target).hasClass('modal') # Could have been triggered by tooltip, or popover
+        # Could have been triggered by tooltip, or popover
+        if $(e.target).hasClass('modal')
           @reset()
 
       copyUriToClipboard: ->
@@ -383,7 +412,6 @@ do ->
           @$('.im-reset-cols').addClass 'disabled'
           @exportedCols.reset q.views.map (v) -> path: q.getPathInfo v
 
-      updateFormat: (e) -> @requestInfo.set format: @$('.im-export-format').val()
 
       updateFormatOptions: () =>
           opts = @$('.im-export-options').empty()
@@ -524,11 +552,7 @@ do ->
           exported: @exportedCols
 
       initCols: () =>
-          @$('.im-cols li').remove()
-
-          emphasise = (elem) ->
-              elem.addClass 'active'
-              _.delay (() -> elem.removeClass 'active'), 1000
+          @$('ul.im-cols li').remove()
 
           cols = @$ '.im-exported-cols'
           @exportedCols.each (col) =>
@@ -563,23 +587,30 @@ do ->
             </div>
           """
 
+      formatToEl = (format) -> """
+        <label class="radio">
+          <input type="radio" class="im-format-#{ format.extension }"
+                 name="im-export-format" value="#{ format.extension }">
+          #{ format.name }
+        </label>
+      """
+
       initFormats: () ->
-          select = @$ '.im-export-format'
-          formatToOpt = (format) ->  """
-              <option value="#{format.extension}">
-                  #{format.name}
-              </option>
-          """
+        $formats = @$ '.tab-pane.im-export-format .im-export-formats'
+        current = @requestInfo.get 'format'
 
-          for format in EXPORT_FORMATS
-              select.append formatToOpt format
+        for format in EXPORT_FORMATS
+          $btn = $ formatToEl format
+          $btn.attr checked: format.extension is current
+          $formats.append $btn
 
-          @service.fetchModel().done (model) ->
-            if intermine.utils.modelIsBio model
-              for format in BIO_FORMATS
-                select.append formatToOpt format
+        @service.fetchModel().done (model) ->
+          if intermine.utils.modelIsBio model
+            for format in BIO_FORMATS
+              $btn = $ formatToEl format
+              $btn.attr checked: format.extension is current
+              $formats.append $btn
 
-          select.val @requestInfo.get('format')
 
       render: () ->
 
@@ -593,15 +624,16 @@ do ->
 
         @initFormats()
         @initCols()
+        @makeSlider()
         @updateFormatOptions()
         @warnOfOuterJoinedCollections()
-        @makeSlider()
 
         @$el.find('.modal').hide()
         @state.set
           section: 'download-file'
 
-        @buildPermaLink()
+        @requestInfo.trigger 'change'
+        @requestInfo.trigger 'change:format'
 
         this
 
@@ -613,7 +645,7 @@ do ->
         q.count (c) =>
           @count = c
           @requestInfo.set end: c
-          @$slider = @$('.slider').slider
+          @$slider = @$('.im-row-range-slider').slider
             range: true,
             min: 0,
             max: c - 1,

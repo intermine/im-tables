@@ -29,6 +29,7 @@ do ->
       "click .im-promote": "promote"
       "click .im-demote": "demote"
       "click .im-exclude": "toggle"
+      "click .im-path": "toggle"
 
     promote: ->
 
