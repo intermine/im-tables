@@ -5,44 +5,57 @@ do ->
     # which are illegal field name characters.
     class IMObject extends Backbone.Model
 
-        initialize: (query, obj, field, base) ->
-            obj._type = obj.class
-            obj[field] = obj.value
-            obj.base = base
-            obj.selected = false
-            obj.selectable = true
-            obj.selecting = false
-            @attributes = obj
-            pathInfo = query.model.getPathInfo(obj._type)
-            query.on "selection:cleared", => @set selectable: true
-            query.on "common:type:selected", (type) =>
-                typesAreCompatible = type and (pathInfo.isa(type) or (query.model.getPathInfo(type).isa(@get("_type"))))
-                @set selectable: (typesAreCompatible or !type)
-            @on "change:selected", ->
-                query.trigger "imo:selected", @get("_type"), @get("id"), @get("selected")
+      initialize: (query, obj, field, base) ->
+        obj[field] = obj.value
+        obj['obj:type'] = obj.class
+        obj['service:base'] = base
+        obj['service:url'] = obj.url
+        obj['is:selected'] = false
+        obj['is:selectable'] = true
+        obj['is:selecting'] = false
+        @set obj
+        model = query.model
+        query.on "selection:cleared", => @set 'is:selectable': true
+        query.on "common:type:selected", (type) =>
+          ok = not type or model.findSharedAncestor type, @get 'obj:type'
+          @set 'is:selectable': !! ok
+        @on "change:is:selected", (self, selected) ->
+          query.trigger "imo:selected", @get("obj:type"), @get("id"), selected
 
-        merge: (obj, field) -> @set field, obj.value
+      selectionState: ->
+        selected: @get 'is:selected'
+        selecting: @get 'is:selecting'
+        selectable: @get 'is:selectable'
+
+      merge: (obj, field) -> @set field, obj.value
 
     class NullObject extends IMObject
-        
-        initialize: (query, field, type) ->
-            @attributes = {}
-            @set field, null
-            @set 'id', null
-            @set 'type', type
-            @set 'selected', false
-            @set 'selectable', false
 
-        merge: () ->
+      initialize: (query, field, type) ->
+        @set
+          'id': null
+          'obj:type': type
+          'is:selected': false
+          'is:selectable': false
+          'is:selecting': false
+          'service:base': ''
+          'service:url': ''
+        @set field, null if field
+
+      merge: () ->
         
     class FPObject extends NullObject
-        initialize: (query, obj, field) ->
-            obj._type = obj.class
-            obj[field] = obj.value
-            obj.selected = false
-            obj.selectable = false
-            obj.base = ''
-            @attributes = obj
+
+      initialize: (query, obj, field) ->
+        @set
+          'id': null
+          'obj:type': obj.class
+          'is:selected': false
+          'is:selectable': false
+          'is:selecting': false
+          'service:base': ''
+          'service:url': ''
+        @set field, obj.value
 
     scope "intermine.model", {IMObject, NullObject, FPObject}
 

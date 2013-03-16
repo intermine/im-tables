@@ -1,9 +1,7 @@
 do ->
 
     CELL_HTML = _.template """
-      <input class="list-chooser" type="checkbox" style="display: none" data-obj-id="<%= id %>" 
-          <% if (selected) { %>checked <% }; %>
-          data-obj-type="<%= _type %>">
+      <input class="list-chooser" type="checkbox" style="display: none">
       <a class="im-cell-link" href="<%= url %>">
         <% if (url != null && !url.match(host)) { %>
           <% if (icon) { %>
@@ -150,26 +148,31 @@ do ->
             @model.on 'change', @selectingStateChange, @
             @model.on 'change', @updateValue, @
 
-            @options.query.on "start:list-creation", =>
-              @model.set selecting: true
-            @options.query.on "stop:list-creation", =>
-              @model.set selecting: false, selected: false
-            @options.query.on 'showing:preview', (el) => # Close ours if another is being opened.
-              @cellPreview?.hide() unless el is @el
-
-            @options.query.on "start:highlight:node", (node) =>
-              if @options.node?.toPathString() is node.toPathString()
-                @$el.addClass "im-highlight"
-            @options.query.on "stop:highlight", => @$el.removeClass "im-highlight"
+            @listenToQuery @options.query
 
             field = @options.field
             path = @path = @options.node.append field
             @$el.addClass 'im-type-' + path.getType().toLowerCase()
+
+        listenToQuery: (q) ->
+          q.on "start:list-creation", =>
+            @model.set 'is:selecting': true
+          q.on "stop:list-creation", =>
+            @model.set 'is:selecting': false, 'is:selected': false
+          q.on 'showing:preview', (el) => # Close ours if another is being opened.
+            @cellPreview?.hide() unless el is @el
+
+          q.on "start:highlight:node", (node) =>
+            if @options.node?.toPathString() is node.toPathString()
+              @$el.addClass "im-highlight"
+          q.on "stop:highlight", => @$el.removeClass "im-highlight"
+
+          q.on "replaced:by", (replacement) => @listenToQuery replacement
       
         getPopoverContent: =>
           return @model.cachedPopover if @model.cachedPopover?
 
-          type = @model.get '_type'
+          type = @model.get 'obj:type'
           id = @model.get 'id'
 
           popover = new intermine.table.cell.Preview
@@ -224,8 +227,7 @@ do ->
 
           @$el.on 'shown', => @cellPreview.reposition()
           @$el.on 'shown', => @options.query.trigger 'showing:preview', @el
-          @$el.on 'show', (e) =>
-            e.preventDefault() if @model.get 'selecting'
+          @$el.on 'show', (e) => e.preventDefault() if @model.get 'is:selecting'
 
           @cellPreview = new intermine.bootstrap.DynamicPopover @el, options
 
@@ -234,62 +236,49 @@ do ->
           @$('.im-displayed-value').html @formatter(@model)
 
         selectingStateChange: ->
-          {selected, selectable, selecting} = @model.toJSON()
+          {selected, selectable, selecting} = @model.selectionState()
           @$el.toggleClass "active", selected
           @$('input').attr checked: selected
-          @$('input').attr disabled: !selectable
-          @$('input').toggle selecting && selectable
+          @$('input').attr disabled: not selectable
+          @$('input').toggle selecting and selectable
+
+        getData: ->
+          {IndicateOffHostLinks, ExternalLinkIcons} = intermine.options
+          field = @options.field
+          data =
+            value: @model.get field
+            field: field
+            url: @model.get('service:url')
+            host: if IndicateOffHostLinks then window.location.host else /.*/
+            icon: null
+
+          unless /^http/.test(data.url)
+            data.url = @model.get('service:base') + data.url
+
+          for domain, url of ExternalLinkIcons when data.url.match domain
+            data.icon ?= url
+          data
 
         render: ->
-            id = @model.get "id"
-            field = @options.field
-            data =
-              value: @model.get field
-              field: field
-              url: @model.get('url')
-            unless /^http/.test(data.url)
-              data.url = @model.get('base') + data.url
+          @$el.html CELL_HTML @getData()
+          @model.trigger 'change'
+          @setupPreviewOverlay() if @model.get('id')
+          this
 
-            host = if intermine.options.IndicateOffHostLinks
-              window.location.host
-            else
-              /.*/
-            icon = null
-            for domain, url of intermine.options.ExternalLinkIcons when data.url.match domain
-                console.log domain, url
-                icon ?= url
-
-            _.defaults data, @model.toJSON(), {'_type': '', host: host, icon: icon}
-            html = CELL_HTML data
-
-            @$el.append(html)
-                .toggleClass(active: @model.get "selected")
-
-            @model.trigger 'change'
-
-            @setupPreviewOverlay() if id?
-            this
-
-        setWidth: (w) ->
+        setWidth: (w) -> # no-op. Was used, but can be removed when all callers are.
           this
 
         activateChooser: ->
-          if @model.get "selectable"
-            @model.set selected: !@model.get("selected") if @$('input').is ':visible'
+          {selected, selectable, selecting} = @model.selectionState()
+          if selectable and selecting
+            @model.set 'is:selected': not selected
 
     class NullCell extends Cell
         setupPreviewOverlay: ->
 
         initialize: ->
-            @model = new Backbone.Model
-                selected: false
-                selectable: false
-                value: null
-                id: null
-                url: null
-                base: null
-                _type: null
-            super()
+          @model = new intermine.model.NullObject()
+          super()
 
     scope "intermine.results.table", {NullCell, SubTable, Cell}
 

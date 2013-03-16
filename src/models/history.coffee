@@ -41,17 +41,20 @@ do ->
       @addStep title, query
 
     addStep: (title, query) ->
+      was = @currentQuery
       @unwatch()
       @currentQuery = query.clone()
       @currentQuery.revision = @currentStep
       @watch()
       @each (state) -> state.set current: false
       @add query: query.clone(), current: true, title: title, stepNo: @currentStep++
+      was?.trigger 'replaced:by', @currentQuery
 
     popState: -> @revert @at @length - 2
 
     revert: (target) ->
       @unwatch()
+      was = @currentQuery
       while @last().get('stepNo') > target.get('stepNo')
         @pop()
       current = @last()
@@ -60,6 +63,7 @@ do ->
       @currentQuery.revision = current.get('stepNo')
       @watch()
       @trigger 'reverted', @currentQuery
+      was?.trigger 'replaced:by', @currentQuery
 
   scope 'intermine.models.table', {History}
 
