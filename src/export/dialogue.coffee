@@ -1,16 +1,16 @@
 do ->
 
   EXPORT_FORMATS = [
-      {name: "Spreadsheet (tab separated values)", extension: "tab"},
+      {name: "Spreadsheet (tab separated values)", extension: "tsv", param: "tab"},
       {name: "Spreadsheet (comma separated values)", extension: "csv"},
       {name: "XML", extension: "xml"},
       {name: "JSON", extension: "json"},
   ]
 
   BIO_FORMATS = [
-      {name: "GFF3", extension: "gff3"},
-      {name: "UCSC-BED", extension: "bed"},
-      {name: "FASTA", extension: "fasta"}
+      {name: "GFF3 (General Feature Format)", extension: "gff3"},
+      {name: "UCSC-BED (Browser Extensible Display Format)", extension: "bed"},
+      {name: "NCBI compatible FASTA sequence", extension: "fasta"}
   ]
 
   class ExportDialogue extends Backbone.View
@@ -65,7 +65,7 @@ do ->
           @history.on 'add reverted', @makeSlider, @
 
           @requestInfo.on 'change', @buildPermaLink
-          @requestInfo.on 'change:format', @changeFormatTab, @
+          @requestInfo.on 'change:format', @onChangeFormat, @
           @requestInfo.on 'change:allRows', (m, allRows) =>
               allOrSome(allRows, '.im-row-selection', '.im-row-btns .btn')
           @requestInfo.on 'change:allCols', (m, allCols) =>
@@ -94,10 +94,11 @@ do ->
 
 
 
-      changeFormatTab: ->
+      onChangeFormat: ->
         format = @requestInfo.get 'format'
         tab = @$ '.nav-tabs .im-export-format'
         tab.text "#{ format } format"
+        @$('.im-export-formats input').val [ format ]
       
       listenToQuery: ->
         query = @history.currentQuery
@@ -601,15 +602,15 @@ do ->
 
         for format in EXPORT_FORMATS
           $btn = $ formatToEl format
-          $btn.attr checked: format.extension is current
           $formats.append $btn
 
         @service.fetchModel().done (model) ->
           if intermine.utils.modelIsBio model
             for format in BIO_FORMATS
               $btn = $ formatToEl format
-              $btn.attr checked: format.extension is current
               $formats.append $btn
+
+        $formats.find('input').val [ @requestInfo.get('format') ]
 
 
       render: () ->
