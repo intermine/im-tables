@@ -6,7 +6,7 @@ scope "intermine.icons", {
     Remove: "icon-minus-sign",
     Check: "icon-circle",
     UnCheck: "icon-circle-empty",
-    CheckUnCheck: "icon-cirle icon-circle-empty",
+    CheckUnCheck: "icon-circle icon-circle-blank",
     Add: "icon-plus-sign",
     Move: "icon-reorder",
     More: "icon-plus-sign-alt",
