@@ -85,6 +85,9 @@ task 'wrap:bb', promiserToNode ->
     wrapped = left + us + "\n\n" + bb + right
     write 'lib/backbone-wrapped.js', wrapped, 'utf8'
 
+patchBootstrap = (text) ->
+    text.replace /attr\(['"]data-target['"]\)/g, """data('target')"""
+
 writing = false
 
 neededEarly = [
@@ -147,7 +150,7 @@ task DEPS, DEPS_DESC, builddeps = promiserToNode ->
 
   makeOut()
     .then(-> Q.all( read(f, 'utf8') for f in deps))
-    .then((fileContents) -> fileContents.join('\n\n'))
+    .then((fileContents) -> fileContents.map(patchBootstrap).join('\n\n'))
     .then(writeOut)
     .then(stop)
   # .then(-> deepRead dirName)
