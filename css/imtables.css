@@ -1779,6 +1779,7 @@
           transition: height 0.35s ease;}
 .intermine .collapse.in {
   height: auto;}
+.intermine .im-minimise,
 .intermine .close {
   float: right;
   font-size: 20px;
@@ -1788,6 +1789,13 @@
   text-shadow: 0 1px 0 #ffffff;
   opacity: 0.2;
   filter: alpha(opacity=20);}
+.intermine .im-minimise:after {
+  content: 'minimise';
+}
+.intermine .im-collapsed:after {
+  content: 'expand';
+}
+.intermine .im-minimise:hover,
 .intermine .close:hover,
 .intermine .close:focus {
   color: #000000;
@@ -1795,6 +1803,13 @@
   cursor: pointer;
   opacity: 0.4;
   filter: alpha(opacity=40);}
+
+.im-list-creation-dialogue .im-minimise {
+    display:none;
+}
+.im-picking-list-items .im-minimise {
+  display: block;
+}
 .intermine button.close {
   padding: 0;
   cursor: pointer;
@@ -4254,7 +4269,9 @@
     padding: 5px 10px;
 }
 
+.intermine .modal-header .im-minimise,
 .intermine .modal-header .close {
+    margin-left: 0.5em;
     margin-top: 2px;
     text-transform: uppercase;
 }
@@ -5208,7 +5225,7 @@ td.im-result-subtable .im-subtable {
     font-size: 0.9em;
 }
 
-.im-list-creation-dialogue input.input-xlarge {
+.im-picking-list-items input.input-xlarge {
     width: 80%;
 }
 
@@ -5885,7 +5902,7 @@ form tr.active {
     overflow: auto;
 }
 
-.im-list-creation-dialogue {
+.im-picking-list-items {
     display: none;
 }
 
@@ -6132,7 +6149,7 @@ td > .im-no-results {
         left: 47%;
         width: 575px;
     }
-    .im-query-display .modal.im-list-creation-dialogue {
+    .im-query-display .modal.im-picking-list-items {
         max-width: 500px;
     }
     .im-cell-preview.popover {
@@ -6143,25 +6160,25 @@ td > .im-no-results {
     }
 }
 @media screen and (max-width: 700px) {
-    .im-query-display .modal.im-list-creation-dialogue .modal-body {
+    .im-query-display .modal.im-picking-list-items .modal-body {
         max-height: 300px;
     }
-    .im-query-display .modal.im-list-creation-dialogue .im-tag-options h5,
-    .im-query-display .modal.im-list-creation-dialogue .im-tag-options ul.suggestions {
+    .im-query-display .modal.im-picking-list-items .im-tag-options h5,
+    .im-query-display .modal.im-picking-list-items .im-tag-options ul.suggestions {
         display: none;
     }
-    .im-query-display .im-list-creation-dialogue .modal-header h2 {
+    .im-query-display .im-picking-list-items .modal-header h2 {
         font-size: 16px;
     }
-    .im-query-display .im-list-creation-dialogue .modal-body form {
+    .im-query-display .im-picking-list-items .modal-body form {
         font-size: 0.9em;
     }
-    .im-query-display .im-list-creation-dialogue .modal-body form label {
+    .im-query-display .im-picking-list-items .modal-body form label {
         max-width: 25%;
         float: left;
         margin-right: 1em;
     }
-    .im-query-display .im-list-creation-dialogue .modal-body form input {
+    .im-query-display .im-picking-list-items .modal-body form input {
         max-width: 60%;
         float: right;
     }
@@ -6172,7 +6189,7 @@ td > .im-no-results {
         left: 40%;
         width: 650px;
     }
-    .im-query-display .modal.im-list-creation-dialogue {
+    .im-query-display .modal.im-picking-list-items {
         max-width: 350px;
     }
     .im-cell-preview.popover {
@@ -6200,7 +6217,7 @@ td > .im-no-results {
     .im-query-display .modal {
         width: 800px;
     }
-    .im-query-display .modal.im-list-creation-dialogue {
+    .im-query-display .modal.im-picking-list-items {
         max-width: 500px;
     }
     .im-cell-preview.popover {

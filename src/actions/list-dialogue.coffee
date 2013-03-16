@@ -66,15 +66,23 @@ define 'actions/list-dialogue', ->
       'click form': 'ignore'
       'click .btn-cancel': 'stop'
       'click .btn-primary': 'create'
+      'click .im-minimise': 'minimise'
+
+    minimise: ->
+      @$('.control-group').slice(1).slideToggle()
+      @$('.im-minimise').toggleClass 'im-collapsed'
 
     onHidden: (e) ->
       @remove() if e and $(e.target).is('.modal')
 
     startPicking: ->
-        @query.trigger "start:list-creation"
-        @nothingSelected()
-        m = @$('.modal').show -> $(@).addClass("in").draggable(handle: "h2")
-        @$('.modal-header h2').css(cursor: "move").tooltip title: "Drag me around!"
+      @$('.modal').addClass 'im-picking-list-items'
+      @query.trigger "start:list-creation"
+      @nothingSelected()
+      m = @$('.modal').show -> $(@).addClass("in").draggable(handle: "h2")
+      @$('.modal-header h2').css(cursor: "move").tooltip
+        title: "Drag me around!"
+        placement: 'bottom'
 
     stop: (e) ->
         @query.trigger "stop:list-creation"
