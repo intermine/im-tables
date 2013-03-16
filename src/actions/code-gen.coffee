@@ -80,7 +80,7 @@ define 'actions/code-gen', using 'html/code-gen', (HTML) ->
 
       @$('a .im-code-lang').text lang
       @$('.modal h3 .im-code-lang').text lang
-      @$('.modal .btn-save').attr href: query.getCodeURI @lang
+      @$('.modal .btn-save').attr href: query.getCodeURI lang
 
       jQuery.when(code, ready).then (code) ->
         formatted = prettyPrintOne(_.escape(code), ext)
