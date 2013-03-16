@@ -2,6 +2,7 @@ define 'html/new-list', -> """
   <div class="modal im-list-creation-dialogue">
       <div class="modal-header">
           <a class="close btn-cancel">close</a>
+          <a class="im-minimise">&nbsp;</a>
           <h2>List Details</h2>
       </div>
       <div class="modal-body">
