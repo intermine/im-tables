@@ -1,83 +1,105 @@
 define 'actions/list-append-dialogue', using 'actions/list-dialogue', 'html/append-list', (ListDialogue, HTML) ->
 
+  OPTION_TEMPLATE = _.template """
+    <option value="<%- name %>">
+      <%- name %> (<%= size %> <%- things %>)
+    </option>
+  """
+
+  makeOption = (list) -> OPTION_TEMPLATE _.extend {}, list,
+    things: intermine.utils.pluralise list.type, list.size
+
   class ListAppender extends ListDialogue
 
     html: HTML
 
-    selectionChanged: (n) =>
-      super(n)
-      n or= _(@types).values().length
-      @$('.im-item-count').text n
-      @$('.im-item-type').text intermine.utils.pluralise @commonType, n
-      @nothingSelected if n < 1
+    events: -> _.extend super(),
+      'change select': 'setTarget'
+
+    setTarget: ->
+      name = @$('select').val()
+      @listOptions.set list: (l for l in @__ls when name is l.name)[0]
+
+    displayType: ->
+      {estSize, type} = @listOptions.toJSON()
+      @$('.im-item-type').text intermine.utils.pluralise type, estSize
+
+    initialize: ->
+      super arguments...
+      @listOptions.on 'change:estSize', (opts, n) => @$('.im-item-count').text n
+      @listOptions.on 'change:type', @displayType, @
+      @listOptions.on 'change:type', @onlyShowCompatibleOptions, @
 
     nothingSelected: ->
       super()
       @$('form select option').each (i, elem) =>
         $(elem).attr disabled: false
 
-    newCommonType: (type) ->
-      super(type)
-      @onlyShowCompatibleOptions()
+    getSuitabilityFilter: ->
+      {model} = @query
+      {type} = @listOptions.toJSON()
+      pi = model.getPathInfo type
+
+      (list) -> list.authorized and pi.isa list.type
 
     onlyShowCompatibleOptions: ->
-      type = @commonType
-      m = @query.model
-      compatibles = 0
-      @$('form select option').each (i, elem) =>
-        $o = $(elem)
-        $o.attr disabled: true
+      {list, type} = @listOptions.toJSON()
+      {service} = @query
+      select = @$ 'form select'
+      select.empty()
 
-        if type and elem.value
-          path = m.getPathInfo type
-          compat = path.isa $o.data "type"
-          $o.attr disabled: !compat
-          compatibles++ if compat
-      @$('.btn-primary').attr disabled: compatibles < 1
-      @$('.im-none-compatible-error').toggle compatibles < 1 if type
+      service.fetchLists().done (ls) =>
+        @__ls = ls
+        suitable = ls.filter @getSuitabilityFilter()
+        for l in suitable
+          opt = $ makeOption l
+          select.append opt
 
-    create: (q) ->
-      ids = _(@types).keys()
-      receiver = @$ '.im-receiving-list'
-      unless lName = receiver.val()
-        cg = receiver.closest('.control-group').addClass 'error'
+        if list
+          select.val(list.name)
+        else
+          @listOptions.set list: suitable[0]
+
+        @$('.btn-primary').attr disabled: suitable.length < 1
+        @$('.im-none-compatible-error').toggle suitable.length < 1
+
+    doAppend: ->
+      ids = _.keys @types
+      {query, list} = @listOptions.toJSON()
+      {service} = @query
+      listQ = (query or {select: ["id"], from: list.type, where: {id: ids}})
+
+      service.query(listQ).then (q) -> q.appendToList list.name
+
+    create: ->
+
+      unless @listOptions.has 'list'
+        cg = @$('.im-receiving-list').closest('.control-group').addClass 'error'
         ilh = @$('.help-inline').text("No receiving list selected").show()
         backToNormal = ->
-            ilh.fadeOut 1000, ->
-                ilh.text ""
-                cg.removeClass "error"
+          ilh.fadeOut 1000, ->
+            ilh.text ""
+            cg.removeClass "error"
         _.delay backToNormal, 5000
         return false
 
-      selectedOption = receiver.find(':selected').first()
-      targetType = selectedOption.data 'type'
-      targetSize = selectedOption.data 'size'
+      promise = @doAppend()
 
-      listQ = (q or {select: ["id"], from: targetType, where: {id: ids}})
+      promise.done (updated) =>
+        added = updated.size - @listOptions.get('list').size
+        @query.trigger "list-update:success", updated, added
+        @stop()
 
-      @query.service.query listQ, (q) =>
-        promise = q.appendToList receiver.val(), (updatedList) =>
-          @query.trigger "list-update:success", updatedList, updatedList.size - parseInt(targetSize, 10)
-          @stop()
-        promise.fail (xhr, level, message) =>
-          if xhr.responseText
-            message = (JSON.parse xhr.responseText).error
-          @query.trigger "list-update:failure", message
+      promise.fail (xhr, level, message) =>
+        err = try
+          JSON.parse(xhr.responseText).error
+        catch e
+          message
+        @query.trigger "list-update:failure", err
 
     render: ->
       super()
-      @fillSelect()
-
-      this
-
-    fillSelect: ->
-      @query.service.fetchLists (ls) =>
-        toOpt = (l) => @make "option"
-            , value: l.name, "data-type": l.type, "data-size": l.size
-            , "#{l.name} (#{l.size} #{intermine.utils.pluralise(l.type, l.size)})"
-
-        @$('.im-receiving-list').append(ls.filter((l) -> l.authorized).map toOpt)
-        @onlyShowCompatibleOptions()
+      #@listOptions.trigger 'change:type'
       this
 
     startPicking: ->

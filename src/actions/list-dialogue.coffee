@@ -7,9 +7,8 @@ define 'actions/list-dialogue', ->
     usingDefaultName: true
 
     initialize: (@query) ->
-      @listOptions = new Backbone.Model
+      @listOptions = opts = new Backbone.Model
       @types = {}
-      @model = new Backbone.Model()
       @query.on "imo:selected", (type, id, selected) =>
         return unless @listOptions? # from another time...
         if selected
@@ -18,36 +17,37 @@ define 'actions/list-dialogue', ->
           delete @types[id]
         types = _.values @types
         
+        opts.set estSize: types.length
+
         if types.length > 0
           m = @query.model
           commonType = m.findCommonTypeOfMultipleClasses(types)
-          @listOptions.set type: commonType
+          opts.set type: commonType
 
-        @selectionChanged()
-
-      @listOptions.on 'change:type', @newCommonType, @
-      @listOptions.on 'change:query', (_, q) => q.count @selectionChanged
-      @listOptions.on 'change:query', => @$('.modal').modal('show').find('form').show()
-      @listOptions.on 'change:name', @updateNameDisplay, @
-      @listOptions.on 'change:name', @checkName, @
+      opts.on 'change:query', (_, q) -> q.count (n) -> opts.set estSize: n
+      opts.on 'change:query', => @$('.modal').modal('show').find('form').show()
+      opts.on 'change:name', @updateNameDisplay, @
+      opts.on 'change:name', @checkName, @
+      opts.on 'change:type', @newCommonType, @
+      opts.on 'change:estSize', @bindEstSize, @
 
     updateNameDisplay: ->
       console.log "Updating name to #{ @listOptions.get('name') }"
       @$('.im-list-name').val @listOptions.get 'name'
 
     remove: ->
-      for thing in ['model', 'listOptions']
+      for thing in ['listOptions']
         @[thing].off()
         delete @[thing]
       super()
 
-    selectionChanged: (n) =>
-        n or= _(@types).values().length
-        hasSelectedItems = !!n
-        @$('.btn-primary').attr disabled: !hasSelectedItems
-        @$('.im-selection-instruction').hide()
-        @$('form').show()
-        @nothingSelected() if n < 1
+    bindEstSize: ->
+      estSize = @listOptions.get 'estSize'
+      hasSelectedItems = estSize > 0
+      @$('.btn-primary').attr disabled: not hasSelectedItems
+      @$('.im-selection-instruction').hide()
+      @$('form').show()
+      @nothingSelected() unless hasSelectedItems
 
     newCommonType: ->
       # Broadcast a message to the cells so they can decide to enable or

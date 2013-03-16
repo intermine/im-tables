@@ -12,7 +12,7 @@ define 'html/append-list', -> """
             <span class="im-item-count"></span>
             <span class="im-item-type"></span>
             to:
-            <select class="im-receiving-list">
+            <select class="im-receiving-list input-xlarge">
                 <option value=""><i>Select a list</i></option>
             </select>
           </label>
