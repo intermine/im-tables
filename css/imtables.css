@@ -3245,27 +3245,6 @@
 .modal-backdrop.fade.in {
   opacity: 0.8;
   filter: alpha(opacity=80);}
-.intermine .modal {
-  position: fixed;
-  top: 10%;
-  left: 50%;
-  z-index: 1050;
-  width: 560px;
-  margin-left: -280px;
-  background-color: #ffffff;
-  border: 1px solid #999;
-  border: 1px solid rgba(0 , 0 , 0 , 0.3);
-  *border: 1px solid #999;
-  -webkit-border-radius: 6px;
-     -moz-border-radius: 6px;
-          border-radius: 6px;
-  outline: none;
-  -webkit-box-shadow: 0 3px 7px rgba(0 , 0 , 0 , 0.3);
-     -moz-box-shadow: 0 3px 7px rgba(0 , 0 , 0 , 0.3);
-          box-shadow: 0 3px 7px rgba(0 , 0 , 0 , 0.3);
-  -webkit-background-clip: padding-box;
-     -moz-background-clip: padding-box;
-          background-clip: padding-box;}
 .intermine .modal.fade {
   top: -25%;
   -webkit-transition: opacity 0.3s linear , top 0.3s ease-out;
@@ -3898,27 +3877,26 @@
   filter: alpha(opacity=80);
 }
 .intermine .modal {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  z-index: 1050;
-  overflow: auto;
   width: 560px;
   margin: -250px 0 0 -280px;
+  position: fixed;
+  top: 10%;
+  left: 50%;
+  z-index: 1050;
   background-color: #ffffff;
   border: 1px solid #999;
-  border: 1px solid rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(0 , 0 , 0 , 0.3);
   *border: 1px solid #999;
-  /* IE6-7 */
-
   -webkit-border-radius: 6px;
-  -moz-border-radius: 6px;
-  border-radius: 6px;
-  -webkit-box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);
-  -moz-box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);
-  box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);
+     -moz-border-radius: 6px;
+          border-radius: 6px;
+  outline: none;
+  -webkit-box-shadow: 0 3px 7px rgba(0 , 0 , 0 , 0.3);
+     -moz-box-shadow: 0 3px 7px rgba(0 , 0 , 0 , 0.3);
+          box-shadow: 0 3px 7px rgba(0 , 0 , 0 , 0.3);
   -webkit-background-clip: padding-box;
-  -moz-background-clip: padding-box;
+     -moz-background-clip: padding-box;
+          background-clip: padding-box;
   background-clip: padding-box;
 }
 .intermine .modal-body {
@@ -4543,7 +4521,8 @@ table.table thead .sorting_desc_disabled {
 }
 
 .im-query-actions .im-export-dialogue .modal {
-    top: 38%;
+    margin-top: 10px;
+    top: 0;
 }
 .im-export-dialogue .modal .modal-body {
     max-height: 430px;
@@ -6125,22 +6104,22 @@ td > .im-no-results {
 }
 
 .im-query-display .modal {
-    left: 38%;
     width: 750px;
+    margin-left: -375px;
 }
 
 @media screen and (min-width: 480px) {
     .im-query-display .modal {
-        left: 50%;
-        width: 100%
+        margin-left: -240px;
+        width: 480px;
     }
 }
 
 @media screen and (min-width: 550px) {
     .im-query-display .modal {
         top: 44%;
-        left: 53%;
-        width: 525px;
+        width: 526px;
+        margin-left: -263px;
     }
     .im-cell-preview.popover {
         max-width: 275px;
@@ -6153,8 +6132,8 @@ td > .im-no-results {
 @media screen and (min-width: 600px) {
     .im-query-display .modal {
         top: 44%;
-        left: 47%;
-        width: 575px;
+        width: 576px;
+        margin-left: -289px
     }
     .im-query-display .modal.im-picking-list-items {
         max-width: 500px;
@@ -6193,7 +6172,7 @@ td > .im-no-results {
 
 @media screen and (min-width: 700) {
     .im-query-display .modal {
-        left: 40%;
+        margin-left: -375px;
         width: 650px;
     }
     .im-query-display .modal.im-picking-list-items {
@@ -6209,7 +6188,7 @@ td > .im-no-results {
 
 @media screen and (min-width: 767px) {
     .im-query-display .modal {
-        left: 40%;
+        margin-left: -360px;
         width: 720px;
     }
     .im-cell-preview.popover {
@@ -6223,6 +6202,7 @@ td > .im-no-results {
 @media screen and (min-width: 900px) {
     .im-query-display .modal {
         width: 800px;
+        margin-left: -400px;
     }
     .im-query-display .modal.im-picking-list-items {
         max-width: 500px;
@@ -6237,7 +6217,7 @@ td > .im-no-results {
 
 @media screen and (min-width: 1000px) {
     .im-query-display .modal {
-        left: 35%;
+        margin-left: -450px;
         width: 900px;
     }
     .im-cell-preview.popover {
@@ -6294,8 +6274,10 @@ td > .im-no-results {
     .im-query-display .modal.fade.in,
     .modal.fade.in,
     .modal.in {
-        width: 400px;
-        left: 68%;
+        width: 480px;
+        margin-left: -240px;
+        margin-top: 10px;
+        top: 0;
     }
     .hidden-phone {
         display: none;
