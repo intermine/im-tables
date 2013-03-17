@@ -3866,11 +3866,6 @@
   z-index: 2070;
 }
 
-.intermine .popover,
-.intermine.popover {
-    z-index: 1800;
-}
-
 .intermine.popover .popover-title,
 .intermine .popover .popover-title {
     margin: 0;
@@ -5908,10 +5903,6 @@ form tr.active {
     width: 250px;
 }
 
-.im-code-gen .modal {
-    width: 80%;
-    left: 30%;
-}
 
 .im-code-gen .modal {
     max-height: 600;
