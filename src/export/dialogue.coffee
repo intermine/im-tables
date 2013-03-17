@@ -15,12 +15,12 @@ do ->
 
   class ExportDialogue extends Backbone.View
 
-      tagName: "li"
-      className: "im-export-dialogue dropdown"
+      tagName: 'div'
+      className: "modal im-export-dialogue"
 
-      initialize: (@history) ->
-
-          @service = @history.currentQuery.service
+      initialize: (query) ->
+          @query = query.clone() # Take a snapshot, not a reference.
+          @service = query.service
           @requestInfo = new Backbone.Model
             format: EXPORT_FORMATS[0]
             allRows: true
@@ -48,30 +48,12 @@ do ->
             input.val(uri) unless currentVal is uri
             @$('.im-galaxy-save-url').attr disabled: uri is intermine.options.GalaxyMain
 
-          allOrSome = (all, optSel, btnSel) =>
-              opts = @$(optSel)
-              btns = @$(btnSel).removeClass 'active'
-              if all
-                  opts.fadeOut()
-                  btns.first().addClass 'active'
-              else
-                  opts.fadeIn()
-                  btns.last().addClass 'active'
-
           @exportedCols = new Backbone.Collection
-          @listenToQuery()
-
-          @history.on 'add reverted', @listenToQuery, @
-          @history.on 'add reverted', @warnOfOuterJoinedCollections, @
-          @history.on 'add reverted', @makeSlider, @
+          @resetExportedColumns()
 
           @requestInfo.on 'change', @buildPermaLink
           @requestInfo.on 'change:format', @onChangeFormat, @
           @requestInfo.on 'change:format', @updateFormatOptions, @
-          @requestInfo.on 'change:allRows', (m, allRows) =>
-              allOrSome(allRows, '.im-row-selection', '.im-row-btns .btn')
-          @requestInfo.on 'change:allCols', (m, allCols) =>
-              allOrSome(allCols, '.im-col-options', '.im-col-btns .btn')
           @requestInfo.on 'change:start', (m, start) =>
               $elem = @$('.im-first-row')
               newVal = "#{start + 1}"
@@ -93,23 +75,18 @@ do ->
             {start, end} = @requestInfo.toJSON()
             @$('.nav-tabs .im-export-rows').text "#{ end - start } rows"
 
-
-
       onChangeFormat: ->
         format = @requestInfo.get 'format'
         tab = @$ '.nav-tabs .im-export-format'
         tab.text "#{ format.extension } format"
         @$('.im-export-formats input').val [ format.extension ]
       
-      listenToQuery: ->
-        query = @history.currentQuery
-        query.on 'download-menu:open', @openDialogue, @
-        #query.on 'imtable:change:page', (start, size) =>
-        #    @requestInfo.set start: start, end: start + size
-
-        @exportedCols.reset()
-        for v in query.views
-          @exportedCols.add path: query.getPathInfo v
+      resetExportedColumns: (e) ->
+        e?.stopPropagation()
+        e?.preventDefault()
+        @$('.im-reset-cols').addClass 'disabled'
+        q = @query
+        @exportedCols.reset q.views.map (v) -> path: q.getPathInfo v
 
       readColumnHeaders: (e) ->
         @requestInfo.set columnHeaders: $(e.target).is ':checked'
@@ -119,10 +96,9 @@ do ->
 
       events: ->
         events =
-          'click .im-reset-cols': 'resetCols'
+          'click .im-reset-cols': 'resetExportedColumns'
           'click .im-col-btns': 'toggleColSelection'
           'click .im-row-btns': 'toggleRowSelection'
-          'click a.im-open-dialogue': 'openDialogue'
           'click .close': 'stop'
           'click .im-cancel': 'stop'
           'click a.im-download': 'export'
@@ -139,7 +115,7 @@ do ->
           'click .im-download-file .im-collapser': 'toggleLinkViewer'
           'click .im-download-file .im-copy': 'copyUriToClipboard'
           'click .im-export-destinations > li > a': 'moveToSection'
-          'hidden .modal': 'modalHidden'
+          'hidden': 'modalHidden'
           'change .im-column-headers': 'readColumnHeaders'
           'change .im-bed-chr-prefix': 'readBedChrPrefix'
 
@@ -161,8 +137,8 @@ do ->
 
       modalHidden: (e) ->
         # Could have been triggered by tooltip, or popover
-        if $(e.target).hasClass('modal')
-          @reset()
+        if e? and e.target is @el
+          @remove()
 
       copyUriToClipboard: ->
         window.prompt intermine.messages.actions.CopyToClipBoard, @$('.im-download').attr('href')
@@ -184,7 +160,7 @@ do ->
       buildPermaLink: (e) =>
           endpoint = @getExportEndPoint()
           params = @getExportParams()
-          isPrivate = intermine.utils.requiresAuthentication @history.currentQuery
+          isPrivate = intermine.utils.requiresAuthentication @query
           @state.set {isPrivate}
           delete params.token unless isPrivate
           url = endpoint + "?" + $.param(params, true)
@@ -296,7 +272,7 @@ do ->
               user.setPreference 'galaxy-url', uri
 
       doGalaxy: (galaxy) ->
-        query = @history.currentQuery
+        query = @query
         console.log "Sending to #{ galaxy }"
         endpoint = @getExportEndPoint()
         format = @requestInfo.get 'format'
@@ -335,7 +311,7 @@ do ->
           else true # Do the default linky thing
 
       getExportQuery: () ->
-          q = @history.currentQuery.clone()
+          q = @query.clone()
           f = @requestInfo.get 'format'
           toPath = (col) -> col.get 'path'
           idAttr = (path) -> path.append 'id'
@@ -400,29 +376,22 @@ do ->
 
       toggleRowSelection: (e) -> @requestInfo.set allRows: !@requestInfo.get('allRows'); false
 
-      openDialogue: (e) ->
-        @$('.modal').modal('show')
+      show: -> @$el.modal('show')
 
-      stop: -> @$('.modal').modal('hide')
+      stop: -> @$el.modal('hide')
 
-      reset: () -> # Go back to the initial state...
+      remove: () -> # Clean up thoroughly.
         for x in ['requestInfo', 'state', 'exportedCols', 'possibleColumns']
           obj = @[x]
-          obj?.trigger 'close'
+          obj?.close?()
+          obj?.destroy?()
           obj?.off()
           delete @[x]
+        delete @query
+        @$slider?.slider 'destroy'
         delete @$slider
-        delete @count
-        @$el.empty()
-        @initialize @history
-        @render()
+        super()
 
-      resetCols: (e) ->
-          e?.stopPropagation()
-          e?.preventDefault()
-          q = @history.currentQuery
-          @$('.im-reset-cols').addClass 'disabled'
-          @exportedCols.reset q.views.map (v) -> path: q.getPathInfo v
 
       isSpreadsheet: ->
         {ColumnHeaders, SpreadsheetOptions} = intermine.messages.actions
@@ -521,9 +490,8 @@ do ->
 
         @$('.im-export-options').append row.render().$el
 
-        q = @history.currentQuery
-        for path in q.views
-          coll.add path: q.getPathInfo(path), included: false
+        for path in @query.views
+          coll.add path: @query.getPathInfo(path), included: false
 
 
       addFastaFeatureSelector: () ->
@@ -558,44 +526,44 @@ do ->
 
         @$('.im-export-options').append row.render().$el
 
-        for node in @history.currentQuery.getViewNodes() when node.isa 'SequenceFeature'
+        for node in @query.getViewNodes() when node.isa 'SequenceFeature'
            coll.add path: node, included: true
 
         coll.trigger 'ready'
 
       initColumnOptions: ->
-        nodes = ({node} for node in @history.currentQuery.getQueryNodes())
+        nodes = ({node} for node in @query.getQueryNodes())
         @possibleColumns = new intermine.columns.models.PossibleColumns nodes,
           exported: @exportedCols
 
       initCols: () =>
-          @$('ul.im-cols li').remove()
+        @$('ul.im-cols li').remove()
 
-          cols = @$ '.im-exported-cols'
-          @exportedCols.each (col) =>
-            exported = new intermine.columns.views.ExportColumnHeader model: col
-            exported.render().$el.appendTo cols
+        cols = @$ '.im-exported-cols'
+        @exportedCols.each (col) =>
+          exported = new intermine.columns.views.ExportColumnHeader model: col
+          exported.render().$el.appendTo cols
 
-          cols.sortable
-              items: 'li'
-              axis: 'y'
-              placeholder: 'im-resorting-placeholder im-exported-col'
-              forcePlaceholderSize: true
-              update: (e, ui) =>
-                @$('.im-reset-cols').removeClass('disabled')
-                silent = true
-                @exportedCols.reset cols.find('li').map(-> $(@).data 'model' ).get(), {silent}
+        cols.sortable
+            items: 'li'
+            axis: 'y'
+            placeholder: 'im-resorting-placeholder im-exported-col'
+            forcePlaceholderSize: true
+            update: (e, ui) =>
+              @$('.im-reset-cols').removeClass('disabled')
+              silent = true
+              @exportedCols.reset cols.find('li').map(-> $(@).data 'model' ).get(), {silent}
 
-          @initColumnOptions()
+        @initColumnOptions()
 
-          maybes = @$ '.im-can-be-exported-cols'
-          @maybeView?.remove()
-          @maybeView = new intermine.columns.views.PossibleColumns
-            collection: @possibleColumns
-          maybes.append @maybeView.render().el
+        maybes = @$ '.im-can-be-exported-cols'
+        @maybeView?.remove()
+        @maybeView = new intermine.columns.views.PossibleColumns
+          collection: @possibleColumns
+        maybes.append @maybeView.render().el
 
       warnOfOuterJoinedCollections: ->
-        q = @history.currentQuery
+        q = @query
         if _.any(q.joins, (s, p) => (s is 'OUTER') and q.canHaveMultipleValues(p))
           @$('.im-row-selection').append """
             <div class="alert alert-warning">
@@ -646,7 +614,6 @@ do ->
         @updateFormatOptions()
         @warnOfOuterJoinedCollections()
 
-        @$el.find('.modal').hide()
         @state.set
           section: 'download-file'
 
@@ -656,11 +623,10 @@ do ->
         this
 
       makeSlider: () ->
-        q = @history.currentQuery
         # Unset any previous sliders.
         @$slider?.slider 'destroy'
         @$slider = null
-        q.count (c) =>
+        @query.count (c) =>
           @count = c
           @requestInfo.set end: c
           @$slider = @$('.im-row-range-slider').slider

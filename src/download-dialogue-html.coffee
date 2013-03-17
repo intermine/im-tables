@@ -1,11 +1,5 @@
 do ->
   DownloadDialogue = -> """
-  <a class="btn im-open-dialogue" href="#">
-    <i class="#{ intermine.icons.Export }"></i>
-    #{ intermine.messages.actions.ExportButton }
-  </a>
-
-  <div class="modal tabbable tabs-below">
 
     <div class="modal-header">
       <a href="#" class="close" data-dismiss="modal">close</a>
@@ -90,7 +84,7 @@ do ->
               <h2>
                 #{ intermine.messages.actions.CompressResults }
               </h2>
-              <div class="span8 im-compression-opts radio btn-group pull-right"
+              <div class="span11 im-compression-opts radio btn-group pull-right"
                     data-toggle="buttons-radio">
                 <button class="btn active im-no-compression span7">
                   #{ intermine.messages.actions.NoCompression }
@@ -190,8 +184,6 @@ do ->
         #{ intermine.messages.actions.Cancel }
       </button>
     </div>
-
-  </div>
   """
 
   scope 'intermine.snippets.actions', {DownloadDialogue}
