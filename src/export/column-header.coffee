@@ -13,6 +13,14 @@ do ->
 
   NAME_TEMPLATE = _.template """<span class="im-name-part"><%- part %></span>"""
 
+  moveRight = (xs, i) -> xs.splice i, 2, xs[i + 1], xs[i]
+
+  shift = (model, toLeft) ->
+    {models} = model.collection
+    idx = models.indexOf(model)
+    moveRight models, if toLeft then idx - 1 else idx
+    model.collection.trigger 'reset'
+
   class ExportColumnHeader extends intermine.views.ItemView
 
     tagName: 'li'
@@ -26,23 +34,24 @@ do ->
       "click .im-exclude": "toggle"
       "click .im-path": "toggle"
 
-    promote: ->
-      {models} = @model.collection
-      idx = models.indexOf(@model)
-      models.splice idx - 1, 2, models[idx], models[idx - 1]
-      @model.collection.trigger 'reset'
+    promote: (e) -> shift @model, toLeft = true unless $(e.target).is '.disabled'
 
-    demote: ->
+    demote: (e) -> shift @model, toLeft = false unless $(e.target).is '.disabled'
 
-    toggle: ->
-      @model.set excluded: not @model.get('excluded')
+    toggle: -> @model.set excluded: not @model.get('excluded')
 
     initialize: ->
       @model.set excluded: false unless @model.has 'excluded'
       @$el.data {@model}
       @on 'rendered', @displayName, @
       @on 'rendered', @onChangeExclusion, @
+      @on 'rendered', @checkShifters, @
       @model.on 'change:excluded', @onChangeExclusion, @
+
+    checkShifters: ->
+      idx = @model.collection.models.indexOf @model
+      @$('.im-promote').toggleClass 'disabled', idx is 0
+      @$('.im-demote').toggleClass 'disabled', idx + 1 is @model.collection.length
 
     onChangeExclusion: ->
       excl = @model.get 'excluded'

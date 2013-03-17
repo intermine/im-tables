@@ -16,15 +16,11 @@ do ->
       @on 'rendered', @setClassName, @
       @model.on 'destroy', @remove, @
 
-    # events:
-    #  'click': 'addToExportedList'
-    events: ->
-      mouseout: => console.log "Clicked on popover for #{ @model.get 'path' }"
-      click: => console.log "Clicked on popover for #{ @model.get 'path' }"
+    events:
+      'click': 'addToExportedList'
 
     addToExportedList: ->
-      console.log 'clicked', @model.get('path').toString()
-      @model.trigger 'selected' unless @model.get 'alreadySelected'
+      @model.trigger 'selected', @model unless @model.get 'alreadySelected'
 
     setClassName: ->
       @$el.toggleClass 'disabled', @model.get('alreadySelected')
@@ -68,9 +64,6 @@ do ->
     isSuitable: (p) ->
       ok = p.isAttribute() and (intermine.options.ShowId or (p.end.name isnt 'id'))
 
-    #events: ->
-    #  click: => console.log "Clicked on popover for #{ @options.node }"
-
     remove: ->
       @collection.each (m) ->
         m.destroy()
@@ -79,12 +72,16 @@ do ->
       super(arguments...)
 
     sortUL: ->
-      lis = @$('li').get()
+      $lis = @$ 'li'
+      $lis.detach()
+      lis = $lis.get()
       sorted = _.sortBy lis, (li) -> $(li).find('.im-field-name').text()
-      @$el.empty().append sorted
+
+      @$el.append sorted
       @trigger 'needs-repositioning'
 
     selectPathForExport: (model) ->
+      console.log "We want #{ model.get 'path' }"
       @collection.remove model
       @options.exported.add path: model.get 'path'
       model.destroy()
@@ -116,15 +113,16 @@ do ->
       @model.once 'popover-toggled', => @content.render()
 
     remove: ->
-      console.log "Cleaning up #{ @model.get 'node' }"
       @popover?.hide()
+      @popover?.destroy()
       @content?.remove()
       delete @content
+      delete @popover
       super(arguments...)
 
     events: ->
       shown: => @popover?.reposition(); @model.trigger 'popover-toggled', @model
-      click: => @popover?.toggle()
+      hide: => @content.$el.detach() # This preserves events on the popover
 
     render: ->
 
@@ -140,9 +138,9 @@ do ->
       options =
         containment: '.tab-pane'
         html: true
-        trigger: 'manual'
+        trigger: 'click'
         placement: 'top'
-        content: @content.$el
+        content: => @content.$el
         title: => @$('h4').text()
 
       @popover = new intermine.bootstrap.DynamicPopover @el, options

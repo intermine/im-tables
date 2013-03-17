@@ -4695,6 +4695,13 @@ ul.im-possible-attributes li {
     font-size: 14px;
 }
 
+.im-promoters i.disabled {
+    opacity: 0.5;
+}
+.im-promoters i.disabled:hover {
+    font-size: 1em;
+}
+
 .im-query-node {
     float: left;
 }
