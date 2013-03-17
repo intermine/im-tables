@@ -5,7 +5,7 @@ scope "intermine.icons", {
     Export: "icon-download-alt",
     Remove: "icon-minus-sign",
     Check: "icon-circle",
-    UnCheck: "icon-circle-empty",
+    UnCheck: "icon-circle-blank",
     CheckUnCheck: "icon-circle icon-circle-blank",
     Add: "icon-plus-sign",
     Move: "icon-reorder",

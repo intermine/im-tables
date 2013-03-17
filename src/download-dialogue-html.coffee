@@ -62,6 +62,8 @@ do ->
                 </div>
                 <div style="clear:both;"></div>
               </div>
+              <div class="im-col-options-bio">
+              </div>
            </div>
            <div class="tab-pane im-export-rows">
              <h2>
@@ -99,6 +101,9 @@ do ->
                 <button class="btn im-zip-compression span2">
                   #{ intermine.messages.actions.ZIPCompression }
                 </button>
+              </div>
+              <div style="clear:both"></div>
+              <div class="im-output-options">
               </div>
            </div>
            <div class="tab-pane"></div>

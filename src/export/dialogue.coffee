@@ -22,11 +22,12 @@ do ->
 
           @service = @history.currentQuery.service
           @requestInfo = new Backbone.Model
-            format: EXPORT_FORMATS[0].extension
+            format: EXPORT_FORMATS[0]
             allRows: true
             allCols: true
             start: 0
             compress: "no"
+            columnHeaders: true
             galaxy: intermine.options.GalaxyMain
 
           @state = new Backbone.Model
@@ -66,11 +67,11 @@ do ->
 
           @requestInfo.on 'change', @buildPermaLink
           @requestInfo.on 'change:format', @onChangeFormat, @
+          @requestInfo.on 'change:format', @updateFormatOptions, @
           @requestInfo.on 'change:allRows', (m, allRows) =>
               allOrSome(allRows, '.im-row-selection', '.im-row-btns .btn')
           @requestInfo.on 'change:allCols', (m, allCols) =>
               allOrSome(allCols, '.im-col-options', '.im-col-btns .btn')
-          @requestInfo.on 'change:format', @updateFormatOptions
           @requestInfo.on 'change:start', (m, start) =>
               $elem = @$('.im-first-row')
               newVal = "#{start + 1}"
@@ -97,8 +98,8 @@ do ->
       onChangeFormat: ->
         format = @requestInfo.get 'format'
         tab = @$ '.nav-tabs .im-export-format'
-        tab.text "#{ format } format"
-        @$('.im-export-formats input').val [ format ]
+        tab.text "#{ format.extension } format"
+        @$('.im-export-formats input').val [ format.extension ]
       
       listenToQuery: ->
         query = @history.currentQuery
@@ -109,6 +110,12 @@ do ->
         @exportedCols.reset()
         for v in query.views
           @exportedCols.add path: query.getPathInfo v
+
+      readColumnHeaders: (e) ->
+        @requestInfo.set columnHeaders: $(e.target).is ':checked'
+
+      readBedChrPrefix: (e) ->
+        @requestInfo.set useChrPrefix: $(e.target).is ':checked'
 
       events: ->
         events =
@@ -133,16 +140,20 @@ do ->
           'click .im-download-file .im-copy': 'copyUriToClipboard'
           'click .im-export-destinations > li > a': 'moveToSection'
           'hidden .modal': 'modalHidden'
+          'change .im-column-headers': 'readColumnHeaders'
+          'change .im-bed-chr-prefix': 'readBedChrPrefix'
 
-        for f in EXPORT_FORMATS.concat(BIO_FORMATS) then do (f) =>
-          key = "click .im-format-#{ f.extension }"
-          cb = => @requestInfo.set format: f.extension
+        for format in EXPORT_FORMATS.concat(BIO_FORMATS) then do (format) =>
+          key = "click .im-format-#{ format.extension }"
+          cb = => @requestInfo.set {format}
           events[key] = cb
         for x in ['format', 'columns', 'rows', 'output', 'destination'] then do (x) =>
           key = "click .nav-tabs .im-export-#{ x }"
           cb = (e) =>
-            console.log "Lets show #{ x }"
             $a = $(e.target)
+            if $a.parent().is('.disabled')
+              e.preventDefault()
+              return false
             $a.data target: @$(".tab-pane.im-export-#{ x }")
             $a.tab('show')
           events[key] = cb
@@ -413,58 +424,63 @@ do ->
           @$('.im-reset-cols').addClass 'disabled'
           @exportedCols.reset q.views.map (v) -> path: q.getPathInfo v
 
+      isSpreadsheet: ->
+        {ColumnHeaders, SpreadsheetOptions} = intermine.messages.actions
+        @$('.im-output-options').append  """
+          <h2>#{ SpreadsheetOptions }</h2>
+          <div>
+            <label>
+              <span class="span4">#{ ColumnHeaders }</span>
+              <input type="checkbox" class="span8 im-column-headers">
+            </label>
+          </div>
+        """
+        @$('.im-column-headers').attr checked: !!@requestInfo.get 'columnHeaders'
 
-      updateFormatOptions: () =>
-          opts = @$('.im-export-options').empty()
-          requestInfo = @requestInfo
-          format = requestInfo.get 'format'
+      isBED: ->
+        {BEDOptions, ChrPrefix} = intermine.messages.actions
+        chrPref = $ """
+          <h2>#{ BEDOptions }</h2>
+          <div>
+            <label>
+              <span class="span4">#{ ChrPrefix }</span>
+              <input type="checkbox" class="im-bed-chr-prefix span8">
+            </label>
+          </div>
+        """
+        chrPref.appendTo @$ '.im-output-options'
+        chrPref.find('input').attr checked: !!@requestInfo.get('useChrPrefix')
+        @addSeqFeatureSelector()
 
-          if format in (f.extension for f in BIO_FORMATS)
-              @$('.im-column-selection').slideUp()
-              @$('.im-row-opts').slideUp()
-              @requestInfo.set allCols: true
-              @$('.im-all-cols').attr disabled: true
-          else
-              @$('.im-column-selection').slideDown()
-              @$('.im-row-opts').slideDown()
-              @$('.im-all-cols').attr disabled: false
+      isGFF3: ->
+        @addSeqFeatureSelector()
+        @addExtraColumnsSelector()
 
-          switch format
-              when 'tab', 'csv'
-                  opts.append """
-                      <label>
-                          <span class="span4">
-                              #{ intermine.messages.actions.ColumnHeaders }
-                          </span>
-                          <span class="span8">
-                              <input type="checkbox" class="im-column-headers pull-right">
-                          </span>
-                      </label>
-                  """
-                  opts.find('.im-column-headers').change (e) ->
-                      requestInfo.set columnHeaders: $(@).is ':checked'
+      isFASTA: ->
+        @addFastaFeatureSelector()
+        @addExtraColumnsSelector()
+        @addFastaExtensionInput()
 
-              when 'bed'
-                  chrPref = $ """
-                      <label>
-                          <span class="span4">
-                              #{ intermine.messages.actions.ChrPrefix }
-                          </span>
-                          <input type="checkbox" class="span8">
-                          <div style="clear:both"></div>
-                      </label>
-                  """
-                  chrPref.appendTo opts
-                  chrPref.find('input').attr(checked: !!requestInfo.get('useChrPrefix')).change (e) ->
-                      requestInfo.set useChrPrefix: $(@).is ':checked'
-                  @addSeqFeatureSelector()
-              when 'gff3'
-                  @addSeqFeatureSelector()
-                  @addExtraColumnsSelector()
-              when 'fasta'
-                  @addFastaFeatureSelector()
-                  @addExtraColumnsSelector()
-                  @addFastaExtensionInput()
+      updateFormatOptions: () ->
+        opts = @$('.im-output-options').empty()
+        requestInfo = @requestInfo
+        format = requestInfo.get 'format'
+
+        if format in BIO_FORMATS
+          @$('.im-col-options').hide()
+          @$('.im-col-options-bio').show()
+          @$('.tab-pane.im-export-rows').removeClass('active')
+          @$('.nav-tabs .im-export-rows').parent().removeClass('active').addClass('disabled')
+          @requestInfo.set allCols: true
+        else
+          @$('.im-col-options').show()
+          @$('.im-col-options-bio').hide()
+          @$('.nav-tabs .im-export-rows').parent().removeClass('disabled')
+
+        if format.extension in ['tsv', 'csv']
+          @isSpreadsheet()
+        else
+          @['is' + format.extension.toUpperCase()]?()
 
       addFastaExtensionInput: () ->
           opts = @$ '.im-export-options'
@@ -573,9 +589,10 @@ do ->
           @initColumnOptions()
 
           maybes = @$ '.im-can-be-exported-cols'
-
-          maybeView = new intermine.columns.views.PossibleColumns collection: @possibleColumns
-          maybes.append maybeView.render().el
+          @maybeView?.remove()
+          @maybeView = new intermine.columns.views.PossibleColumns
+            collection: @possibleColumns
+          maybes.append @maybeView.render().el
 
       warnOfOuterJoinedCollections: ->
         q = @history.currentQuery
@@ -610,7 +627,7 @@ do ->
               $btn = $ formatToEl format
               $formats.append $btn
 
-        $formats.find('input').val [ @requestInfo.get('format') ]
+        $formats.find('input').val [ @requestInfo.get('format').extension ]
 
 
       render: () ->

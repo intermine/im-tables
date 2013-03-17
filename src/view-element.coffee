@@ -35,6 +35,8 @@ do ->
       @$('.im-col-remover').tooltip 'hide'
       super arguments...
 
+    namePart = _.template """<span class="im-name-part"><%- part %></span>"""
+
     render: ->
       path = @model.get 'path'
 
@@ -50,7 +52,11 @@ do ->
         placement: @placement
         container: @el
 
-      path.getDisplayName().done (name) => @$('.im-display-name').text name
+      path.getDisplayName().done (name) =>
+        parts = name.split ' > '
+        $name = @$('.im-display-name').empty()
+        for part in parts
+          $name.append namePart {part}
 
       ul = @$('.im-sub-views')
 

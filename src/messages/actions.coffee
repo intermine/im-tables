@@ -75,6 +75,7 @@ scope "intermine.messages.actions", {
     ResetColumns: "Reset Columns.",
     FirstRow: "From",
     LastRow: "To",
+    SpreadsheetOptions: "Spreadsheet Options",
     ColumnHeaders: "Include Column Headers",
     PossibleColumns: "You can add any attribute from these nodes without changing your results:",
     ExportedColumns: "Exported Columns (drag to reorder)",
@@ -99,6 +100,7 @@ scope "intermine.messages.actions", {
     NoSuitableColumns: """
             There are no columns of a suitable type for this format.
         """
+    BEDOptions: "BED Options"
     ChrPrefix: """
             Prefix "chr" to the chromosome identifier as per UCSC convention (eg: chr2)
         """

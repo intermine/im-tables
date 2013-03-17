@@ -16,20 +16,27 @@ do ->
       @on 'rendered', @setClassName, @
       @model.on 'destroy', @remove, @
 
-    events:
-      'click': 'addToExportedList'
+    # events:
+    #  'click': 'addToExportedList'
+    events: ->
+      mouseout: => console.log "Clicked on popover for #{ @model.get 'path' }"
+      click: => console.log "Clicked on popover for #{ @model.get 'path' }"
 
     addToExportedList: ->
-      console.log 'clicked'
+      console.log 'clicked', @model.get('path').toString()
       @model.trigger 'selected' unless @model.get 'alreadySelected'
 
     setClassName: ->
-      @$el.toggleClass 'im-already-selected', @model.get('alreadySelected')
+      @$el.toggleClass 'disabled', @model.get('alreadySelected')
 
     showDisplayName: ->
-      path = @model.get 'path'
       # Demeter violations coming up!! TODO.
-      canonical = path.model.getPathInfo "#{ path.getParent().getType().name }.#{ path.end.name }"
+      # Here we want the name without any preconfigured bits. So instead of 
+      # Gene > Organism . Name for Gene.organism.name, get
+      # Organism > Name
+      path = @model.get 'path'
+      basicPath = "#{ path.getParent().getType().name }.#{ path.end.name }"
+      canonical = path.model.getPathInfo basicPath
       canonical.getDisplayName().done (name) =>
         @$('.im-field-name').text name.split(' > ').pop()
         @model.trigger 'displayed-name'
@@ -60,6 +67,9 @@ do ->
 
     isSuitable: (p) ->
       ok = p.isAttribute() and (intermine.options.ShowId or (p.end.name isnt 'id'))
+
+    #events: ->
+    #  click: => console.log "Clicked on popover for #{ @options.node }"
 
     remove: ->
       @collection.each (m) ->
@@ -94,28 +104,27 @@ do ->
     className: 'im-query-node btn'
 
     initialize: ->
-      @model.collection.on 'popover-toggled', (other) =>
-        @$el.popover 'hide' unless @model is other
-      @model.on 'destroy', @remove, @
       exported = @model.collection.exported
-      exported.on 'add remove', @render, @
       node = @model.get 'node'
       @content = new PopOver({node, exported})
-      @content.on 'needs-repositioning', => @$el.popover 'show'
+
+      @listenTo exported, 'add remove', @render, @
+      @listenTo @content, 'needs-repositioning', => @popover?.reposition()
+      @listenTo @model, 'destroy', @remove, @
+      @listenTo @model.collection, 'popover-toggled', (originator) =>
+        @popover?.hide() unless @model is originator
+      @model.once 'popover-toggled', => @content.render()
 
     remove: ->
       console.log "Cleaning up #{ @model.get 'node' }"
-      @$el.popover 'hide'
-      @content.remove()
+      @popover?.hide()
+      @content?.remove()
       delete @content
       super(arguments...)
 
-    events:
-      'click': 'togglePopover'
-
-    togglePopover: ->
-      @$el.popover 'toggle'
-      @model.trigger 'popover-toggled', @model
+    events: ->
+      shown: => @popover?.reposition(); @model.trigger 'popover-toggled', @model
+      click: => @popover?.toggle()
 
     render: ->
 
@@ -128,15 +137,15 @@ do ->
         [parents..., end] = name.split(' > ')
         @$('h4').text end
 
-      @$el.popover
-        container: @$el.closest('.bootstrap')
+      options =
+        containment: '.tab-pane'
         html: true
         trigger: 'manual'
         placement: 'top'
-        content: @content.el
-        title: (tip) =>
-          @$('h4').text()
-          @content.render()
+        content: @content.$el
+        title: => @$('h4').text()
+
+      @popover = new intermine.bootstrap.DynamicPopover @el, options
       
       this
 
@@ -146,10 +155,19 @@ do ->
 
     className: 'im-possible-columns btn-group'
 
+    initialize: ->
+      @nodes = []
+
+    remove: ->
+      while node = @nodes.pop()
+        node.remove()
+      super arguments...
+
     render: ->
 
       @collection.each (model) =>
         item = new QueryNode {model}
+        @nodes.push item
         el = item.render().$el
         @$el.append el
 

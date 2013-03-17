@@ -11,17 +11,12 @@ do ->
     </div>
   """
 
-  NAME_TEMPLATE = _.template """
-    <% _.each(parents, function(parent) { %>
-      <span class="im-parent"><%- parent %></span>
-    <% }); %>
-    <span class="im-display-name"><%- name %></span>
-  """
+  NAME_TEMPLATE = _.template """<span class="im-name-part"><%- part %></span>"""
 
   class ExportColumnHeader extends intermine.views.ItemView
 
     tagName: 'li'
-    className: 'im-exported-col'
+    className: 'im-exported-col im-view-element'
 
     template: -> TEMPLATE
 
@@ -32,6 +27,10 @@ do ->
       "click .im-path": "toggle"
 
     promote: ->
+      {models} = @model.collection
+      idx = models.indexOf(@model)
+      models.splice idx - 1, 2, models[idx], models[idx - 1]
+      @model.collection.trigger 'reset'
 
     demote: ->
 
@@ -42,16 +41,21 @@ do ->
       @model.set excluded: false unless @model.has 'excluded'
       @$el.data {@model}
       @on 'rendered', @displayName, @
-      @model.on 'change:excluded', (m, excluded) =>
-        @$el.toggleClass 'im-excluded', excluded
-        @$('.im-exclude').toggleClass intermine.icons.CheckUnCheck
+      @on 'rendered', @onChangeExclusion, @
+      @model.on 'change:excluded', @onChangeExclusion, @
+
+    onChangeExclusion: ->
+      excl = @model.get 'excluded'
+      @$('.im-exclude').toggleClass(intermine.icons.Check, not excl)
+                        .toggleClass(intermine.icons.UnCheck, excl)
+      @$el.toggleClass 'im-excluded', excl
 
     displayName: ->
       @model.get('path').getDisplayName().done (dname) =>
-        [parents..., penult, name] = dname.split ' > '
-        @$('.im-path').append NAME_TEMPLATE {parents: parents.concat([penult]), name}
-        if parents.length
-          @$el.find('.im-parent').last().show()
+        parts = dname.split ' > '
+        $path = @$('.im-path')
+        for part in parts
+          $path.append NAME_TEMPLATE {part}
 
   scope 'intermine.columns.views', {ExportColumnHeader}
 

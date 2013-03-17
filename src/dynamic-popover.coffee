@@ -24,7 +24,7 @@ do ->
       actualHeight = $tip[0].offsetHeight
 
       $containment = @$element.closest(@options.containment)
-      top = $containment.offset().top
+      {top, left} = $containment.offset()
       height = $containment[0].offsetHeight
       bottom = top + height
 
@@ -35,21 +35,29 @@ do ->
         $tip.find('.arrow').css({top: '', left: ''}) # Undo any previous changes.
         return # Cannot help here.
 
-      if offset.top < top
-        diff = top - offset.top
-        offset.top += diff
-        arrowOffset.top = offset.top + (pos.top - offset.top) + (pos.height / 2) - (arrowHeight / 2)
-      else if offset.top + actualHeight > bottom
-        diff = offset.top + actualHeight - bottom
-        offset.top -= diff
-        arrowOffset.top = offset.top + (pos.top - offset.top) + (pos.height / 2) - (arrowHeight / 2)
+      if placement is 'right' or placement is 'left'
+        if offset.top < top
+          diff = top - offset.top
+          offset.top += diff
+          arrowOffset.top = offset.top + (pos.top - offset.top) + (pos.height / 2) - (arrowHeight / 2)
+        else if offset.top + actualHeight > bottom
+          diff = offset.top + actualHeight - bottom
+          offset.top -= diff
+          arrowOffset.top = offset.top + (pos.top - offset.top) + (pos.height / 2) - (arrowHeight / 2)
       else
-        return # All fine.
+        if offset.left < left
+          diff = left - offset.left
+          offset.left += diff
+          arrowOffset.left = pos.left + ( pos.width / 2 ) - (arrowWidth / 2)
+        
 
       if placement is 'right'
         offset.left += arrowWidth
+      else if placement is 'top'
+        offset.top -= arrowHeight
       else if placement is 'left'
         offset.left -= arrowWidth
+
 
       $tip.offset offset
       $tip.find('.arrow').offset arrowOffset
