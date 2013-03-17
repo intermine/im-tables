@@ -113,25 +113,28 @@ do ->
             minWidth = 10
             minimised = (k for k, v of @minimisedCols when v)
             w = 1 / (row.length - minimised.length) * (@$el.width() - (minWidth * minimised.length))
-            replaces = {}
+            replacer_of = {}
             processed = {}
             @columnHeaders.each (col) ->
               for r in (rs = col.get('replaces'))
-                replaces[r] = col
+                replacer_of[r] = col
 
             for cell, i in row then do (cell, i) =>
-              path = cell.path
-              return if processed[path]
-              processed[path] = true
-              col = replaces[path]
-              if col and col.get('replaces').length
+              return if processed[cell.path]
+              processed[cell.path] = true
+              {replaces, formatter, path} = (replacer_of[cell.path]?.toJSON() ? {})
+              if replaces?.length
                 # Only accept if it is the right type.
-                return unless col.get('path').equals(path.getParent())
-                processed[r] = true for r in col.get('replaces')
+                return unless path.equals(cell.path.getParent())
+                if formatter?.merge?
+                  for c in row when _.any(replaces, (x) -> x.equals c.path)
+                    formatter.merge(cell.model, c.model)
 
-                cell.formatter = col.get('formatter') if col.has('formatter')
+                processed[r] = true for r in replaces
 
-              if @minimisedCols[ path.toString() ]
+                cell.formatter = formatter if formatter?
+
+              if @minimisedCols[ cell.path ]
                 tr.append @minimisedColumnPlaceholder width: minWidth
               else
                 tr.append cell.el

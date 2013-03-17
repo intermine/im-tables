@@ -9,9 +9,11 @@
 ChrLocFormatter = (model) ->
   id = model.get 'id'
   @$el.addClass 'chromosome-location'
-  unless (model.has('start') and model.has('end') and model.has('chr'))
-    model._formatter_promise ?= @options.query.service.findById 'Location', id
-    model._formatter_promise.done (loc) ->
+  needs = ['start', 'end', 'chr']
+  unless model._fetching? or _.all(needs, (n) -> model.has n)
+    console.log "Fetching extra data for Location #{ id }"
+    model._fetching = @options.query.service.findById 'Location', id
+    model._fetching.done (loc) ->
       model.set start: loc.start, end: loc.end, chr: loc.locatedOn.primaryIdentifier
   
   {start, end, chr} = model.toJSON()
@@ -20,6 +22,10 @@ ChrLocFormatter = (model) ->
 ChrLocFormatter.replaces = [
   'locatedOn.primaryIdentifier', 'start', 'end', 'strand'
 ]
+
+ChrLocFormatter.merge = (location, chromosome) ->
+  if chromosome.has 'primaryIdentifier'
+    location.set chr: chromosome.get('primaryIdentifier')
 
 SequenceFormatter = (model) ->
   id = model.get 'id'
