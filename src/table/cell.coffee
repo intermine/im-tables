@@ -218,7 +218,7 @@ do ->
             container: @el
             containment: '.im-query-results'
             html: true
-            title: @model.get '_type'
+            title: @model.get 'obj:type'
             trigger: intermine.options.CellPreviewTrigger
             delay: {show: 700, hide: 250} # Slight delays to prevent jumpiness.
             classes: 'im-cell-preview'
