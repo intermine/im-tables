@@ -110,9 +110,12 @@ do ($ = jQuery) ->
       </div>
     """
 
-    renderError = (dest) -> (response) ->
+    renderError = (dest) -> (response, err) ->
       $el = $(dest).empty()
-      message = JSON.parse(err.responseText).error
+      message = try
+        JSON.parse(response.responseText).error
+      catch e
+        response?.responseText ? err
       $el.append ERROR {message}
 
     class ItemView extends Backbone.View
