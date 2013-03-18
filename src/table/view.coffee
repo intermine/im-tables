@@ -4,8 +4,8 @@ scope 'intermine.css', {
     sortedDESC: "icon-sort-down",
     headerIcon: "icon-white"
     headerIconRemove: "icon-remove-sign"
-    headerIconHide: "icon-minus-sign"
-    headerIconReveal: 'icon-plus-sign'
+    headerIconHide: "icon-eye-open"
+    headerIconReveal: 'icon-eye-close'
 }
 
 
@@ -52,7 +52,7 @@ do ->
                 @fill()
             @query.on 'columnvis:toggle', (view) =>
               @minimisedCols[view] = not @minimisedCols[view]
-              @trigger 'change:minimisedCols', _.extend {}, @minimisedCols
+              @query.trigger 'change:minimisedCols', _.extend {}, @minimisedCols
               @fill()
 
         changePageSize: (newSize) ->

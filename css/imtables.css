@@ -4527,6 +4527,11 @@ table.table thead .sorting_desc_disabled {
     font-size: 14px;
 }
 
+.im-query-display .im-minimised-th .im-th-buttons {
+    max-height: none;
+    min-width: 0px;
+    width: 1.5em;
+}
 
 .im-item-table .im-facet-row.hover,
 .im-dropdown-summary .im-item-table .im-facet-surrogate,
@@ -6291,7 +6296,7 @@ td > .im-no-results {
 }
 
 
-@media screen and (max-width: 700px) {
+@media screen and (max-width: 776px) {
     .hidden-tablet {
         display: none !important;
     }

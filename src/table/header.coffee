@@ -223,9 +223,10 @@ do ->
 
     minumaximise: (minimisedCols) =>
       {css_hide, css_reveal} = ICONS()
-      $i = $('i', e.target).removeClass css_hide + ' ' + css_reveal
+      $i = @$('.im-col-minumaximiser i').removeClass css_hide + ' ' + css_reveal
       minimised = minimisedCols[@view]
       $i.addClass if minimised then css_reveal else css_hide
+      @$el.toggleClass 'im-minimised-th', !!minimised
       @$('.im-col-title').toggle not minimised
 
     setSortOrder: (e) =>
