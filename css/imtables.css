@@ -4621,6 +4621,7 @@ table.table thead .sorting_desc_disabled {
 }
 
 
+div.well.im-query-xml,
 div.well.im-perma-link-content {
     padding: 0.35em;
     word-break: break-all;
@@ -4629,6 +4630,13 @@ div.well.im-perma-link-content {
     overflow: auto;
 }
 
+.im-export-destination-options .im-download-file .well {
+    display: none;
+}
+
+.im-export-destination-options .im-download-file .well.active {
+    display: block;
+}
 div.well.im-perma-link-content,
 .im-export-dialogue .carousel {
     margin-bottom: 0px;
