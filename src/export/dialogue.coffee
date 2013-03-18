@@ -98,6 +98,7 @@ do ->
           @requestInfo.on "change:format", (m, format) => @$('.im-export-format').val format
           @exportedCols.on 'add remove reset', @initCols
           @exportedCols.on 'add remove change:excluded', @updateColTabText, @
+          @exportedCols.on 'add remove change:excluded', @buildPermaLink
           @requestInfo.on 'change:start change:end', =>
             {start, end} = @requestInfo.toJSON()
             @$('.nav-tabs .im-export-rows').text "#{ end - start } rows"
@@ -115,6 +116,9 @@ do ->
         tab = @$ '.nav-tabs .im-export-format'
         tab.text "#{ format.extension } format"
         @$('.im-export-formats input').val [ format.extension ]
+        @$('.im-format-choice').each ->
+          inp = $('input', this)
+          $(this).toggleClass 'active', inp.attr('value') is format.extension
       
       resetExportedColumns: (e) ->
         e?.stopPropagation()
@@ -346,7 +350,7 @@ do ->
 
       getExportEndPoint: () ->
           format = @requestInfo.get 'format'
-          suffix = if format in intermine.Query.BIO_FORMATS then "/#{format}" else ""
+          suffix = if format in BIO_FORMATS then "/#{format.extension}" else ""
           return "#{ @service.root }query/results#{ suffix }"
 
       # Unnecessary? We could always use this if the url gets too big...
@@ -362,38 +366,46 @@ do ->
           f = @requestInfo.get 'format'
           toPath = (col) -> col.get 'path'
           idAttr = (path) -> path.append 'id'
-          isIncluded = (col) -> col.get 'included'
+          isIncluded = (col) -> col.get('included') or not col.get('excluded')
           featuresToPaths = (features) -> features.filter(isIncluded).map(_.compose idAttr, toPath)
-          columns = switch f
-              when 'bed', 'gff3'
-                  featuresToPaths @seqFeatures
-              when 'fasta'
-                  featuresToPaths @fastaFeatures
-              else
-                  @exportedCols.map(toPath) unless @requestInfo.get('allCols')
+          columns = switch f.extension
+            when 'bed', 'gff3'
+                featuresToPaths @seqFeatures
+            when 'fasta'
+                featuresToPaths @fastaFeatures
+            else
+                @exportedCols.filter(isIncluded).map(toPath)
+
           q.select columns if columns?
-          q.orderBy([]) if (f in _.pluck BIO_FORMATS, 'extension')
+
+          for path in @query.views when not q.isOuterJoined(path)
+            node = q.getPathInfo(path).getParent()
+            unless q.isInView node
+              q.addConstraint path: node.append('id'), op: 'IS NOT NULL'
+
+          q.orderBy([]) if f in BIO_FORMATS
           return q
 
       getExportParams: () ->
           params = @requestInfo.toJSON()
           params.query = @getExportQuery().toXML()
           params.token = @service.token
+          params.format = @getFormatParam()
 
           # Clean up params we don't need to send
           delete params.galaxy
           delete params.allRows
           delete params.allCols
           delete params.end
+          delete params.columnHeaders
           delete params.compress if params.compress is 'no'
 
-          switch params.format
-            when 'gff3', 'fasta' then null # Ignore
-            else
-              delete params.view
+          if params.format not in ['gff3', 'fasta']
+            delete params.view
 
-          if @requestInfo.get 'columnHeaders'
+          if @requestInfo.get('columnHeaders') and params.format in ['tab', 'csv']
               params.columnheaders = "1"
+
           unless @requestInfo.get 'allRows'
               start = params.start = @requestInfo.get('start')
               end = @requestInfo.get 'end'
@@ -403,9 +415,13 @@ do ->
 
       getExportURI: () ->
           q = @getExportQuery()
-          uri = q.getExportURI @requestInfo.get 'format'
+          uri = q.getExportURI @getFormatParam()
           uri += @getExtraOptions()
           return uri
+
+      getFormatParam: ->
+        format = @requestInfo.get 'format'
+        format.param or format.extension
 
       getExtraOptions: () ->
           ret = ""
@@ -610,11 +626,14 @@ do ->
           """
 
       formatToEl = (format) -> """
-        <label class="radio">
-          <input type="radio" class="im-format-#{ format.extension }"
-                 name="im-export-format" value="#{ format.extension }">
-          #{ format.name }
-        </label>
+        <div class="im-format-choice">
+          <label class="radio">
+            <input type="radio" class="im-format-#{ format.extension }"
+                  name="im-export-format" value="#{ format.extension }">
+            <i class="#{ intermine.icons[format.extension] }"></i>
+            #{ format.name }
+          </label>
+        </div>
       """
 
       initFormats: () ->
@@ -631,7 +650,8 @@ do ->
               $btn = $ formatToEl format
               $formats.append $btn
 
-        $formats.find('input').val [ @requestInfo.get('format').extension ]
+        ext = @requestInfo.get('format').extension
+        $formats.find('input').val [ ext ]
 
 
       render: () ->

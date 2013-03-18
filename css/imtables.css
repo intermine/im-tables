@@ -2359,6 +2359,7 @@
 .intermine .alert-error h4 {
   color: #b94a48;}
 .intermine .well.im-editing,
+.im-export-dialogue .im-export-formats > .im-format-choice.active,
 .intermine .alert-info {
   color: #3a87ad;
   background-color: #d9edf7;
@@ -3929,6 +3930,21 @@
     text-decoration: none;
 }
 
+.intermine .im-export-formats [class^="icon-"],
+.intermine .im-export-formats [class*=" icon-"],
+.intermine i.icon-xml,
+.intermine i.icon-json {
+    width: 2em;
+}
+.intermine i.icon-xml:before,
+.intermine i.icon-json:before {
+    font-weight: bold;
+    font-size: 0.75em;
+}
+.intermine i.icon-xml:before { content: "</>"; }
+.intermine i.icon-json:before { content: "{}"; }
+
+
 .intermine .btn .modal {
    cursor: normal;
 }
@@ -4575,6 +4591,12 @@ table.table thead .sorting_desc_disabled {
 .im-export-dialogue .im-export-options label:after {
     content: ' ';
     clear: both;
+}
+
+.im-export-dialogue .im-export-formats > .im-format-choice {
+    margin: 2px;
+    padding: 2px;
+    border: 1px solid transparent;
 }
 
 .im-export-dialogue .tab-pane .well {
@@ -6276,6 +6298,13 @@ td > .im-no-results {
 @media screen and (max-width: 1200px) {
     .im-only-widescreen {
         display: none;
+    }
+}
+
+@media screen and (min-width: 1200px) {
+    .im-query-display .modal {
+        margin-left: -500px;
+        width: 1000px;
     }
 }
 

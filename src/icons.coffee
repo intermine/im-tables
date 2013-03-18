@@ -24,6 +24,8 @@ scope "intermine.icons", {
     Edit: 'icon-cogs',
     tsv: 'icon-th',
     csv: 'icon-th',
+    xml: 'icon-xml',
+    json: 'icon-json'
 }
 
 
