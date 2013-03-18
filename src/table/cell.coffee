@@ -180,7 +180,7 @@ do ->
             schema: @options.query.model
             model: {type, id}
 
-          content = popover.el
+          content = popover.$el
 
           popover.on 'ready', => @cellPreview.reposition()
           popover.render()
@@ -226,8 +226,9 @@ do ->
             placement: @getPopoverPlacement
 
           @$el.on 'shown', => @cellPreview.reposition()
-          @$el.on 'shown', => @options.query.trigger 'showing:preview', @el
+          @$el.on 'show', => @options.query.trigger 'showing:preview', @el
           @$el.on 'show', (e) => e.preventDefault() if @model.get 'is:selecting'
+          @$el.on 'hide', (e) => @model.cachedPopover?.detach()
 
           @cellPreview = new intermine.bootstrap.DynamicPopover @el, options
 
