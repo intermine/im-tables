@@ -22,6 +22,8 @@ scope "intermine.icons", {
     Help: "icon-question-sign",
     ReverseRef: 'icon-retweet',
     Edit: 'icon-cogs',
+    Download: 'icon-file-alt',
+    ClipBoard: 'icon-paper-clip',
     tsv: 'icon-th',
     csv: 'icon-th',
     xml: 'icon-xml',

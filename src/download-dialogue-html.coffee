@@ -104,7 +104,7 @@ do ->
           <ul class="im-export-destinations nav nav-pills">
             <li class="active">
               <a href="#" data-destination="download-file">
-                <i class="icon-paper-clip im-copy"></i>
+                <i class="#{ intermine.icons.Download }"></i>
                 #{ intermine.messages.actions.ExportLong }
               </a>
             </li>
@@ -131,7 +131,7 @@ do ->
                   </button>
                 </div>
                 <span class="im-copy">
-                  <i class="icon icon-link"></i>
+                  <i class="icon #{ intermine.icons.ClipBoard }"></i>
                   #{ intermine.messages.actions.Copy }
                 </span>
 
