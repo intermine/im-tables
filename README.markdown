@@ -13,6 +13,7 @@ fantastic set of open source web development tools available today.
 We are extremely grateful to benefit from the hard work put into the
 development of:
 
+ * CoffeeScript
  * jQuery
  * Backbone
  * Bootstrap
