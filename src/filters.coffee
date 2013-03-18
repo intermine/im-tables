@@ -134,9 +134,9 @@ do ->
             # Horrible, horrible hackity hack, making kittens cry.
             $('.modal-backdrop').trigger 'click'
 
-        showModal: () -> @$el.modal().modal 'show' 
+        showModal: -> @$el.modal().modal 'show'
 
-        render: () ->
+        render: ->
             @$el.append @html
             cons = @getConstraints()
             msgs = intermine.messages.filters
