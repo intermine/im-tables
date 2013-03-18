@@ -4606,6 +4606,10 @@ table.table thead .sorting_desc_disabled {
     margin: 0px;
 }
 
+.im-export-dialogue .tabs-left > .nav-tabs > li {
+    max-width: 120px;
+}
+
 .modal .modal-footer .im-perma-link {
     margin-right: 1em;
     margin-left: 1em;
