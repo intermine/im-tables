@@ -6268,9 +6268,6 @@ td > .im-no-results {
 
 
 @media screen and (max-width: 1200px) {
-    .im-code-gen .modal {
-        left: 40%;
-    }
     .im-only-widescreen {
         display: none;
     }
@@ -6284,9 +6281,6 @@ td > .im-no-results {
         width: 95% !important;
     }
 
-    .im-code-gen .modal {
-        left: 45%;
-    }
 }
 
 
