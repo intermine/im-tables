@@ -61,7 +61,7 @@ do ->
 
         events:
             'change .im-ops': 'drawValueOptions'
-            'click .icon-edit': 'toggleEditForm'
+            'click .im-edit': 'toggleEditForm'
             'click .btn-cancel': 'hideEditForm'
             'click .btn-primary': 'editConstraint'
             'click .icon-remove-sign': 'removeConstraint'
@@ -137,7 +137,7 @@ do ->
             if @con.locked
                 $label.append """<a href="#"><i class="icon-lock" title="this constraint is not editable"></i></a>"""
             else
-                $label.append """<a href="#"><i class="icon-edit"></i></a>"""
+                $label.append """<a href="#"><i class="im-edit #{ intermine.icons.Edit }"></i></a>"""
 
         buttons: [
             {
