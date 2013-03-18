@@ -89,14 +89,21 @@ do ($ = jQuery) ->
     openWindowWithPost = (uri, name, params) ->
 
       form = $ """
-          <form method="POST" action="#{ uri }" 
+          <form style="display;none" method="POST" action="#{ uri }" 
                target="#{ name }#{ new Date().getTime() }">
       """
 
-      for k, v of params
+      addInput = (k, v) ->
         input = $("""<input name="#{ k }" type="hidden">""")
         form.append(input)
         input.val(v)
+
+      for k, v of params then do (k, v) ->
+        if _.isArray v
+          addInput k, v_ for v_ in v
+        else
+          addInput k, v
+
       form.appendTo 'body'
       w = window.open("someNonExistantPathToSomeWhere", name)
       form.submit()

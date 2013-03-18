@@ -335,7 +335,7 @@ do ->
                 URL: endpoint
                 URL_method: "post"
                 name: "#{ if orgs.length is 1 then orgs[0] + ' ' else ''}#{ query.root } data"
-                data_type: if format is 'tab' then 'tabular' else format
+                data_type: if format.extension is 'tsv' then 'tabular' else format.extension
                 info: """
                     #{ query.root } data from #{ @service.root }.
                     Uploaded from #{ window.location.toString().replace(/\?.*/, '') }.
@@ -356,7 +356,7 @@ do ->
       # Unnecessary? We could always use this if the url gets too big...
       # openWindowWithPost @getExportEndPoint(), "Export", @getExportParams()
       export: (e) ->
-        switch @state.get('section')
+        switch @state.get('destination')
           when 'galaxy' then @sendToGalaxy e
           when 'genomespace' then @sendToGenomespace e
           else true # Do the default linky thing
