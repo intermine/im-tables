@@ -1,29 +1,34 @@
 do ->
 
+  NODE_HTML = _.template """
+     <div>
+       <i class="<%= icon %>"></i>
+       <span class="im-display-name"></span>
+     </div>
+  """
+
   class SelectableNode extends Backbone.View
     tagName: 'li'
-    className: 'im-selectable-node'
+    className: 'im-selectable-node im-view-element'
 
     initialize: ->
       @model.on 'change:included', @render
+      @model.on 'destroy', @remove, @
 
     events:
-      'click a': 'toggleIncluded'
+      'click': 'toggleIncluded'
 
     toggleIncluded: ->
-      @model.set included: !@model.get('included')
+      @model.set included: not @model.get('included')
 
     render: =>
       {path, included} = @model.toJSON()
-      labelClass = if included then 'label-included' else 'label-available'
-      path.getDisplayName (name) => @$el.empty().append """
-        <span class="label #{ labelClass }">
-            <a href="#">
-              #{ name }
-            </a>
-        </span>
-      """
-      @
+      {Check, UnCheck} = intermine.icons
+      icon = if included then Check else UnCheck
+      @$el.html NODE_HTML {icon}
+      @$el.toggleClass 'included', included
+      path.getDisplayName (name) => @$('.im-display-name').text name
+      this
 
   class ExportColumnOptions extends Backbone.View
 
@@ -31,39 +36,29 @@ do ->
     className: 'export-column-options'
 
     TEMPLATE = (ctx) -> _.template """
-      <span class="span4 im-left-col control-label">
-        <i class="im-collapser #{ intermine.icons.Expanded }"></i>
-         <%= message %>
+      <div class="control-label">
+        <%= message %>
         <span class="im-selected-count">0</span> selected.
         <div class="btn im-clear disabled">
           #{ intermine.messages.actions.Clear }
         </div>
-      </span>
-      <ul class="well span8 im-export-paths">
-      </ul>
+      </div>
+      <div class="well">
+        <ul class="im-export-paths nav nav-tabs nav-stacked"></ul>
+      </div>
     """, ctx
 
     COUNT_INCLUDED = (sum, m) -> if m.get('included') then ++sum else sum
 
     initialize: ->
-      @paths = @collection ? throw new Error('collection required')
-      @paths.on 'change:included', @update
-      @paths.on 'add', @insert
-      @paths.on 'add', @update
-      @paths.on 'ready', @ready
+      @paths = col = @collection ? throw new Error('collection required')
+      @listenTo col, 'change:included', @update
+      @listenTo col, 'add', @insert
+      @listenTo col, 'add', @update
+      @listenTo col, 'close', @remove, @
 
     insert: (m) =>
       @$('.im-export-paths').append new SelectableNode(model: m).render().el
-
-    ready: =>
-      if @paths.isEmpty()
-        @$('.im-export-paths').append """
-          <li>
-            <span class="label label-important">
-            #{ intermine.messages.actions.NoSuitableColumns}
-            </span>
-          </li>
-        """
 
     events:
       'click .im-clear': 'clear'
@@ -87,6 +82,19 @@ do ->
 
     render: ->
       @$el.append TEMPLATE message: @options.message
+      if @paths.isEmpty()
+        @$('.im-export-paths').append """
+          <li>
+            <span class="label label-important">
+            #{ intermine.messages.actions.NoSuitableColumns}
+            </span>
+          </li>
+        """
+      else
+        @insert m for m in @paths.models
+
+      @paths.trigger 'change:included'
+
       this
 
   scope 'intermine.actions', {ExportColumnOptions}

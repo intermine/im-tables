@@ -135,7 +135,17 @@ do ($ = jQuery) ->
 
         this
 
+    class ClosableCollection extends Backbone.Collection
+
+      close: ->
+        @each (m) ->
+          m.destroy()
+          m.off()
+        @reset()
+
     scope 'intermine.views', {ItemView}
+
+    scope 'intermine.models', {ClosableCollection}
 
     scope "intermine.utils", {
       copy, walk, getOrganisms, requiresAuthentication, modelIsBio, renderError,

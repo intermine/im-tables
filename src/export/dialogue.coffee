@@ -13,6 +13,11 @@ do ->
       {name: "NCBI compatible FASTA sequence", extension: "fasta"}
   ]
 
+  DELENDA = [
+      'requestInfo', 'state', 'exportedCols', 'possibleColumns',
+      'seqFeatures'
+  ]
+
   class ExportDialogue extends Backbone.View
 
       tagName: 'div'
@@ -51,8 +56,19 @@ do ->
           @exportedCols = new Backbone.Collection
           @resetExportedColumns()
 
+          @seqFeatures = new intermine.models.ClosableCollection
+          @fastaFeatures= new intermine.models.ClosableCollection
+
+          for col in [@seqFeatures, @fastaFeatures] then do (col) =>
+            col.on 'change:included', => @onChangeIncludedNodes col
+
+          @fastaFeatures.on 'change:included', (originator, incl) =>
+            f = (m) -> m.set included: false unless m is originator
+            @fastaFeatures.each f if incl
+
           @requestInfo.on 'change', @buildPermaLink
           @requestInfo.on 'change:format', @onChangeFormat, @
+          @requestInfo.on 'change:format', @updateColTabText, @
           @requestInfo.on 'change:format', @updateFormatOptions, @
           @requestInfo.on 'change:start', (m, start) =>
               $elem = @$('.im-first-row')
@@ -68,12 +84,18 @@ do ->
               @$slider?.slider 'option', 'values', [m.get('start'), end - 1 ]
           @requestInfo.on "change:format", (m, format) => @$('.im-export-format').val format
           @exportedCols.on 'add remove reset', @initCols
-          @exportedCols.on 'add remove change:excluded', =>
-            n = @exportedCols.filter( (c) -> not c.get 'excluded').length
-            @$('.nav-tabs .im-export-columns').text "#{ n } columns"
+          @exportedCols.on 'add remove change:excluded', @updateColTabText, @
           @requestInfo.on 'change:start change:end', =>
             {start, end} = @requestInfo.toJSON()
             @$('.nav-tabs .im-export-rows').text "#{ end - start } rows"
+
+      updateColTabText: ->
+        n = @exportedCols.filter( (c) -> not c.get 'excluded').length
+        @$('.nav-tabs .im-export-columns').text "#{ n } columns"
+
+      onChangeIncludedNodes: (coll) ->
+        n = coll.reduce ((n, m) -> n + if m.get('included') then 1 else 0), 0
+        @$('.nav-tabs .im-export-columns').text "#{ n } nodes"
 
       onChangeFormat: ->
         format = @requestInfo.get 'format'
@@ -381,7 +403,7 @@ do ->
       stop: -> @$el.modal('hide')
 
       remove: () -> # Clean up thoroughly.
-        for x in ['requestInfo', 'state', 'exportedCols', 'possibleColumns']
+        for x in DELENDA
           obj = @[x]
           obj?.close?()
           obj?.destroy?()
@@ -493,43 +515,41 @@ do ->
         for path in @query.views
           coll.add path: @query.getPathInfo(path), included: false
 
-
-      addFastaFeatureSelector: () ->
-        @fastaFeatures = coll = new Backbone.Collection
-        
-        row = new intermine.actions.ExportColumnOptions
-          collection: coll
-          message: intermine.messages.actions.FastaFeatures
-        row.isValidCount = (c) -> c is 1
-
-        @$('.im-export-options').append row.render().$el
-
-        coll.on 'change:included', (questo, incl) =>
-          coll.each((quello) -> quello.set(included: false) unless questo is quello) if incl
-
+      initFastaFeatures: ->
+        @fastaFeatures.close()
         included = true
         for node in @query.getViewNodes()
           if (node.isa 'SequenceFeature') or (node.isa 'Protein')
             @fastaFeatures.add path: node, included: included
             included = false
 
-        coll.trigger 'ready'
+      addFastaFeatureSelector: () ->
+        @initFastaFeatures()
+        
+        row = new intermine.actions.ExportColumnOptions
+          collection: @fastaFeatures
+          message: intermine.messages.actions.FastaFeatures
+
+        row.isValidCount = (c) -> c is 1
+
+        @$('.im-col-options-bio').html row.render().$el
+
+      initSeqFeatures: ->
+        @seqFeatures.close()
+        for node in @query.getViewNodes() when node.isa 'SequenceFeature'
+           @seqFeatures.add path: node, included: true
 
       addSeqFeatureSelector: ->
-        @seqFeatures = coll = new Backbone.Collection
+        @initSeqFeatures()
 
         row = new intermine.actions.ExportColumnOptions
-          collection: coll
+          collection: @seqFeatures
           message: intermine.messages.actions.IncludedFeatures
 
         row.isValidCount = (c) -> c > 0
 
-        @$('.im-export-options').append row.render().$el
+        @$('.im-col-options-bio').html row.render().$el
 
-        for node in @query.getViewNodes() when node.isa 'SequenceFeature'
-           coll.add path: node, included: true
-
-        coll.trigger 'ready'
 
       initColumnOptions: ->
         nodes = ({node} for node in @query.getQueryNodes())
