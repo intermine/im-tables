@@ -4937,6 +4937,7 @@ ul.im-cols h4 {
 }
 
 .im-con-overview .breadcrumb {
+    background: transparent;
     width: 95%;
 }
 
