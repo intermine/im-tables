@@ -1618,6 +1618,7 @@
   overflow: hidden;
   background-color: #e5e5e5;
   border-bottom: 1px solid #ffffff;}
+.intermine .im-facet > .popover ul > li > a,
 .intermine .im-possible-attributes > li > a,
 .intermine .dropdown-menu > ul > li > a,
 .intermine .dropdown-menu > li > a {
@@ -1629,6 +1630,7 @@
   line-height: 20px;
   color: #333333;
   white-space: nowrap;}
+.intermine .im-facet > .popover ul > li > a:hover,
 .intermine .im-possible-attributes > li > a:hover,
 .intermine .dropdown-menu > ul > li > a:hover,
 .intermine .dropdown-menu > li > a:hover,
@@ -3930,6 +3932,15 @@
     text-decoration: none;
 }
 
+.intermine .im-facet > .popover .im-export-summary a {
+    text-transform: uppercase;
+}
+
+.intermine .im-facet > .popover .im-export-summary i {
+    margin-right: 1em;
+}
+
+.intermine .im-facet > .popover .im-export-summary i,
 .intermine .im-export-formats [class^="icon-"],
 .intermine .im-export-formats [class*=" icon-"],
 .intermine i.icon-xml,
@@ -4710,16 +4721,19 @@ div.well.im-perma-link-content,
 .im-query-display .im-export-dialogue ul.im-exported-cols {
     width: 100%;
 }
+.intermine .im-facet > .popover ul,
 ul.im-possible-attributes,
 .im-query-display .im-export-dialogue ul.im-exported-cols {
     padding: 0px;
     list-style-type: none;
 }
+.intermine .im-facet > .popover ul,
 ul.im-possible-attributes {
     margin-left: 0em;
     max-height: 300px;
     overflow-y: auto;
 }
+.intermine .im-facet > .popover ul,
 ul.im-possible-attributes li {
     margin: 0px;
 }

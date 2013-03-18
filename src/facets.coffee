@@ -37,6 +37,13 @@ do ->
         </dd>
     """
 
+    # One day tab will be expunged, one day...
+    SUMMARY_FORMATS =
+      tab: 'tsv'
+      csv: 'csv'
+      xml: 'xml'
+      json: 'json'
+
     # A bit of a nothing class - should be removed and replaced
     # with a factory function. TODO.
     class ColumnSummary extends Backbone.View
@@ -446,12 +453,17 @@ do ->
                                                     .toggleClass("im-invert", someAreSelected)
 
         events:
-            'click .im-filter .btn-primary': 'addConstraint'
-            'click .im-filter .btn-cancel': 'resetOptions'
-            'click .im-filter .btn-toggle-selection': 'toggleSelection'
-            click: (e) ->
-                e.stopPropagation()
-                e.preventDefault()
+          'click .im-filter .btn-primary': 'addConstraint'
+          'click .im-filter .btn-cancel': 'resetOptions'
+          'click .im-filter .btn-toggle-selection': 'toggleSelection'
+          'click .im-export-summary': 'exportSummary'
+
+        exportSummary: (e) ->
+          # The only purpose of this is to reinstate the default click behaviour which is
+          # being swallowed by another click handler. This is really dumb, but for future
+          # reference this is how you gazump someone elses click handlers.
+          e.stopImmediatePropagation()
+          return true
 
         resetOptions: (e) ->
             @items.each (item) -> item.set "selected", false
@@ -474,14 +486,16 @@ do ->
             newCon.title = @facet.title unless @facet.ignoreTitle
             @query.addConstraint newCon
 
-        render: -> @addChart().addControls()
-
-        @GREEKS = "αβγδεζηθικλμνξορστυφχψω".split("")
+        render: ->
+          @addChart()
+          @addControls()
+          this
 
         addChart: ->
           if d3?
             @_drawD3Chart()
           # Boo-hoo, can't draw a pretty chart.
+          this
 
         _drawD3Chart: ->
           h = @chartHeight
@@ -568,31 +582,52 @@ do ->
           </div>
         """
 
+        getDownloadPopover: ->
+          {icons} = intermine
+          lis = for param, name of SUMMARY_FORMATS
+            href = """#{ @query.getExportURI param }&summaryPath=#{ @facet.path }"""
+            i = """<i class="#{ icons[name] }"></i>"""
+            """<li><a href="#{ href }"> #{ i } #{ name }</a></li>"""
+
+          """<ul class="im-export-summary">#{ lis.join '' }</ul>"""
+
         addControls: ->
             $grp = $("""
             <form class="form form-horizontal">
-                #{ @filterControls }
-                <div class="im-item-table">
-                    <table class="table table-condensed">
-                        <colgroup>
-                            #{ @colClasses.map( (cl) -> "<col class=#{cl}>").join('') }
-                        </colgroup>
-                        <thead>
-                            <tr>#{ @columnHeaders.map( (h) -> "<th>#{ h }</th>" ).join('') }</tr>
-                        </thead>
-                        <tbody class="scrollable"></tbody>
-                    </table>
-                </div>
+              #{ @filterControls }
+              <div class="im-item-table">
+                <table class="table table-condensed">
+                  <colgroup>
+                    #{ @colClasses.map( (cl) -> "<col class=#{cl}>").join('') }
+                  </colgroup>
+                  <thead>
+                    <tr>#{ @columnHeaders.map( (h) -> "<th>#{ h }</th>" ).join('') }</tr>
+                  </thead>
+                  <tbody class="scrollable"></tbody>
+                </table>
+              </div>
             </form>""").appendTo @el
             $grp.button()
             @items.each (item) =>
-                r = @makeRow item
-                $grp.find('tbody').append r
+              r = @makeRow item
+              $grp.find('tbody').append r
             $grp.append """
-                <div class="im-filter btn-group">
-                  #{ @buttons }
-                </div>
+              <button class="btn pull-right im-download">
+                <i class="#{ intermine.icons.Download }"></i>
+                #{ intermine.messages.facets.DownloadData }
+              </button>
+              <div class="im-filter btn-group">
+                #{ @buttons }
+              </div>
             """
+
+            $grp.find('.im-download').popover
+              placement: 'top'
+              html: true
+              container: @el
+              title: intermine.messages.facets.DownloadFormat
+              content: @getDownloadPopover()
+              trigger: 'click'
 
             @initFilter()
 
