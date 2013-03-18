@@ -18,6 +18,12 @@ do ->
       'seqFeatures', 'fastaFeatures', 'extraAttributes'
   ]
 
+  ENTER = 13
+  SPACE = 32
+
+  formatByExtension = (ext) ->
+    _.find EXPORT_FORMATS.concat(BIO_FORMATS), (f) -> f.extension is ext
+
   class ExportDialogue extends Backbone.View
 
       tagName: 'div'
@@ -158,6 +164,12 @@ do ->
           'change .im-column-headers': 'readColumnHeaders'
           'change .im-bed-chr-prefix': 'readBedChrPrefix'
           'change .im-fasta-extension': 'readFastaExt'
+          'keyup .im-format-choice': (e) =>
+            input = $(e.target).find('input')
+            key = e?.which
+            if key is ENTER or key is SPACE
+              input.attr checked: true
+              @requestInfo.set format: formatByExtension input.val()
 
         for format in EXPORT_FORMATS.concat(BIO_FORMATS) then do (format) =>
           key = "click .im-format-#{ format.extension }"
@@ -640,14 +652,16 @@ do ->
         $formats = @$ '.tab-pane.im-export-format .im-export-formats'
         current = @requestInfo.get 'format'
 
-        for format in EXPORT_FORMATS
+        for format, i in EXPORT_FORMATS
           $btn = $ formatToEl format
+          $btn[0].tabIndex = i
           $formats.append $btn
 
         @service.fetchModel().done (model) ->
           if intermine.utils.modelIsBio model
-            for format in BIO_FORMATS
+            for format, i in BIO_FORMATS
               $btn = $ formatToEl format
+              $btn[0].tabIndex = i + EXPORT_FORMATS.length
               $formats.append $btn
 
         ext = @requestInfo.get('format').extension
