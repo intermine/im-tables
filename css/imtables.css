@@ -4572,13 +4572,25 @@ table.table thead .sorting_desc_disabled {
     clear: both;
 }
 
+.im-export-dialogue .tab-pane .well {
+    margin-top: 0.5em;
+}
+.im-export-dialogue .tab-pane .well > ul {
+    margin: 0px;
+}
+
 .modal .modal-footer .im-perma-link {
     margin-right: 1em;
     margin-left: 1em;
 }
 
+.im-export-destination-options .im-copy {
+    color: #aaa;
+    text-transform: uppercase;
+}
+
+
 div.well.im-perma-link-content {
-    max-height: 4em;
     padding: 0.35em;
     word-break: break-all;
     font-weight: bold;
@@ -4652,8 +4664,6 @@ div.well.im-perma-link-content,
 }
 
 .im-query-display .im-export-dialogue ul.im-cols {
-    padding-top: 2em;
-    margin: 0.2em 0.3em;
     display: block;
     position: relative;
 }

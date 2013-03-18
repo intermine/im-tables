@@ -142,6 +142,7 @@ do ($ = jQuery) ->
           m.destroy()
           m.off()
         @reset()
+        this
 
     scope 'intermine.views', {ItemView}
 

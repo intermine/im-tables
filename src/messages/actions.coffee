@@ -66,6 +66,7 @@ scope "intermine.messages.actions", {
     NoCompression: "No compression",
     GZIPCompression: "GZIP",
     ZIPCompression: "ZIP",
+    Copy: 'copy to clip-board'
     ResultsPermaLink: "Perma-link to results",
     ResultsPermaLinkText: "Results URI",
     ResultsPermaLinkTitle: "Get a permanent URL for these results, suitable for your own use",
@@ -95,14 +96,17 @@ scope "intermine.messages.actions", {
         """
     IncludedFeatures: "Exportable parts of this Query - <strong>choose at least one</strong>:"
     FastaFeatures: "Features with Sequences in this Query - <strong>select one</strong>:"
+    FastaOptions: 'FASTA Specific Options'
     FastaExtension: "Extension (eg: 100/100bp/5kbp/0.5mbp):"
     ExtraAttributes: "Columns to include as extra attributes on each exported record:"
     NoSuitableColumns: """
             There are no columns of a suitable type for this format.
         """
-    BEDOptions: "BED Options"
+    BEDOptions: "BED Specific Options"
+    Gff3Options: 'GFF3 Specific Options'
     ChrPrefix: """
             Prefix "chr" to the chromosome identifier as per UCSC convention (eg: chr2)
         """
+
 }
 

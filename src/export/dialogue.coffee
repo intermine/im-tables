@@ -15,7 +15,7 @@ do ->
 
   DELENDA = [
       'requestInfo', 'state', 'exportedCols', 'possibleColumns',
-      'seqFeatures'
+      'seqFeatures', 'fastaFeatures', 'extraAttributes'
   ]
 
   class ExportDialogue extends Backbone.View
@@ -35,11 +35,11 @@ do ->
             columnHeaders: true
             galaxy: intermine.options.GalaxyMain
 
-          @state = new Backbone.Model
+          @state = new Backbone.Model destination: 'download-file'
 
           @state.on 'change:isPrivate', @onChangePrivacy
           @state.on 'change:url', @onChangeURL
-          @state.on 'change:section', @onChangeSection
+          @state.on 'change:destination', @onChangeDest
 
           @service.whoami (user) =>
             if user.hasPreferences and (myGalaxy = user.preferences['galaxy-url'])
@@ -58,6 +58,7 @@ do ->
 
           @seqFeatures = new intermine.models.ClosableCollection
           @fastaFeatures= new intermine.models.ClosableCollection
+          @extraAttributes = new intermine.models.ClosableCollection
 
           for col in [@seqFeatures, @fastaFeatures] then do (col) =>
             col.on 'change:included', => @onChangeIncludedNodes col
@@ -65,6 +66,18 @@ do ->
           @fastaFeatures.on 'change:included', (originator, incl) =>
             f = (m) -> m.set included: false unless m is originator
             @fastaFeatures.each f if incl
+
+          @fastaFeatures.on 'change:included', (con, incl) =>
+            canHaveExt = incl and col.get('path').isa('SequenceFeature')
+            inp = @$('input.im-fasta-extension').attr disabled: not canHaveExt
+            if canHaveExt
+              @requestInfo.set extension: inp.val()
+            else
+              @requestInfo.unset 'extension'
+
+          @extraAttributes.on 'change:included', =>
+            extras = @extraAttributes.where included: true
+            @requestInfo.set view: extras.map String
 
           @requestInfo.on 'change', @buildPermaLink
           @requestInfo.on 'change:format', @onChangeFormat, @
@@ -140,6 +153,7 @@ do ->
           'hidden': 'modalHidden'
           'change .im-column-headers': 'readColumnHeaders'
           'change .im-bed-chr-prefix': 'readBedChrPrefix'
+          'change .im-fasta-extension': 'readFastaExt'
 
         for format in EXPORT_FORMATS.concat(BIO_FORMATS) then do (format) =>
           key = "click .im-format-#{ format.extension }"
@@ -156,6 +170,13 @@ do ->
             $a.tab('show')
           events[key] = cb
         events
+      
+      readFastaExt: (e) ->
+        ext = @$('input.im-fasta-extension')
+        if ext and /\S/.test ext
+          @requestInfo.set extension: ext
+        else
+          @requestInfo.unset 'extension'
 
       modalHidden: (e) ->
         # Could have been triggered by tooltip, or popover
@@ -172,8 +193,8 @@ do ->
       moveToSection: (e) ->
         $this = $ e.currentTarget
         $this.tab('show')
-        section = $this.data 'section'
-        @state.set {section}
+        destination = $this.data 'destination'
+        @state.set {destination}
 
       buildSharableLink: (e) ->
           # TODO!!
@@ -196,10 +217,14 @@ do ->
           @$('.im-perma-link-content').empty().append($a)
           @$('a.im-download').attr href: url
 
-      onChangeSection:  (m, section) =>
-          @$('.im-export-destination-options > div').removeClass 'active'
-          @$(".im-#{ section }").addClass 'active'
-          @$('.btn-primary.im-download').text intermine.messages.actions[section]
+      onChangeDest:  =>
+        destination = @state.get 'destination'
+        name = intermine.messages.actions[destination]
+        @$('.nav-tabs .im-export-destination').text name
+        @$('.btn-primary.im-download').text name
+
+        @$('.im-export-destination-options > div').removeClass 'active'
+        @$(".im-#{ destination }").addClass 'active'
 
       dontReallySubmitForm: (e) ->
           # Hack to fix bug in struts webapp
@@ -431,7 +456,7 @@ do ->
       isBED: ->
         {BEDOptions, ChrPrefix} = intermine.messages.actions
         chrPref = $ """
-          <h2>#{ BEDOptions }</h2>
+          <h3>#{ BEDOptions }</h3>
           <div>
             <label>
               <span class="span4">#{ ChrPrefix }</span>
@@ -445,12 +470,15 @@ do ->
 
       isGFF3: ->
         @addSeqFeatureSelector()
+        @$('.im-output-options').append """
+          <h3>#{ intermine.messages.actions.Gff3Options}</h3>
+        """
         @addExtraColumnsSelector()
 
       isFASTA: ->
         @addFastaFeatureSelector()
-        @addExtraColumnsSelector()
         @addFastaExtensionInput()
+        @addExtraColumnsSelector()
 
       updateFormatOptions: () ->
         opts = @$('.im-output-options').empty()
@@ -474,46 +502,34 @@ do ->
           @['is' + format.extension.toUpperCase()]?()
 
       addFastaExtensionInput: () ->
-          opts = @$ '.im-export-options'
-          requestInfo = @requestInfo
-          l = $ """
-              <label>
-                  <span class="span4">
-                      #{ intermine.messages.actions.FastaExtension }
-                  </span>
-                  <input type="text" class="span8">
-              </label>
-          """
-          input = l.find('input')
-          l.appendTo opts
-          @fastaFeatures.on 'change:included', (col, isIncluded) ->
-              canHaveExtension = isIncluded and col.get('path').isa('SequenceFeature')
-              input.attr disabled: !canHaveExtension
-              if canHaveExtension
-                  requestInfo.set extension: input.val()
-              else
-                  requestInfo.unset 'extension'
-          input.change (e) ->
-              if input.val()?
-                  requestInfo.set extension: input.val()
-              else
-                  requestInfo.unset 'extension'
+        {FastaOptions, FastaExtension} = intermine.messages.actions
+        extOpt = $ """
+          <h3>#{ FastaOptions }</h3>
+          <div>
+            <label>
+              <span class="span4">#{ FastaExtension }</span>
+              <input type="text"
+                     placeholder="5kbp"
+                     class="span8 im-fasta-extension">
+            </label>
+          </div>
+        """
+        extOpt.appendTo @$ '.im-output-options'
+        extOpt.find('input').val @requestInfo.get 'extension'
+
+      initExtraAttributes: ->
+        coll = @extraAttributes.close()
+        for path in @query.views when not @query.canHaveMultipleValues path
+          coll.add path: @query.getPathInfo(path), included: false
 
       addExtraColumnsSelector: () ->
-        @extraAttributes = coll = new Backbone.Collection
-
-        coll.on 'change:included', =>
-          extras = coll.filter((m) -> m.get('included')).map (m) -> m.get('path').toString()
-          @requestInfo.set view: extras
+        @initExtraAttributes()
 
         row = new intermine.actions.ExportColumnOptions
-          collection: coll
+          collection: @extraAttributes
           message: intermine.messages.actions.ExtraAttributes
 
-        @$('.im-export-options').append row.render().$el
-
-        for path in @query.views
-          coll.add path: @query.getPathInfo(path), included: false
+        @$('.im-output-options').append row.render().$el
 
       initFastaFeatures: ->
         @fastaFeatures.close()
@@ -634,9 +650,7 @@ do ->
         @updateFormatOptions()
         @warnOfOuterJoinedCollections()
 
-        @state.set
-          section: 'download-file'
-
+        @state.trigger 'change:destination'
         @requestInfo.trigger 'change'
         @requestInfo.trigger 'change:format'
 

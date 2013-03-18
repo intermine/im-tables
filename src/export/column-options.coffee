@@ -7,6 +7,8 @@ do ->
      </div>
   """
 
+  namePart = _.template """<span class="im-name-part"><%- part %></span>"""
+
   class SelectableNode extends Backbone.View
     tagName: 'li'
     className: 'im-selectable-node im-view-element'
@@ -27,7 +29,11 @@ do ->
       icon = if included then Check else UnCheck
       @$el.html NODE_HTML {icon}
       @$el.toggleClass 'included', included
-      path.getDisplayName (name) => @$('.im-display-name').text name
+      path.getDisplayName (name) =>
+        parts = name.split ' > '
+        $name = @$('.im-display-name').empty()
+        for part in parts
+          $name.append namePart {part}
       this
 
   class ExportColumnOptions extends Backbone.View

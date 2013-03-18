@@ -81,9 +81,9 @@ do ->
               </div>
            </div>
            <div class="tab-pane im-export-output">
-              <h2>
+              <h3>
                 #{ intermine.messages.actions.CompressResults }
-              </h2>
+              </h3>
               <div class="span11 im-compression-opts radio btn-group pull-right"
                     data-toggle="buttons-radio">
                 <button class="btn active im-no-compression span7">
@@ -100,7 +100,70 @@ do ->
               <div class="im-output-options">
               </div>
            </div>
-           <div class="tab-pane"></div>
+           <div class="tab-pane im-export-destination">
+          <ul class="im-export-destinations nav nav-pills">
+            <li class="active">
+              <a href="#" data-destination="download-file">
+                <i class="icon-paper-clip im-copy"></i>
+                #{ intermine.messages.actions.ExportLong }
+              </a>
+            </li>
+            <li>
+              <a href="#" data-destination="galaxy">
+                #{ intermine.messages.actions.SendToGalaxy }
+              </a>
+            </li>
+            <li>
+              <a href="#" data-destination="genomespace" >
+                #{ intermine.messages.actions.SendToGenomespace }
+              </a>
+            </li>
+          </ul>
+            <div class="row-fluid im-export-destination-options">
+
+              <div class="im-download-file active">
+                <span class="hidden-phone">
+                  #{ intermine.messages.actions.ResultsPermaLinkText }:
+                </span>
+                <span class="im-copy">
+                  <i class="icon icon-link"></i>
+                  #{ intermine.messages.actions.Copy }
+                </span>
+
+                <div class="well im-perma-link-content"></div>
+
+                <div class="alert alert-block im-private-query">
+                  <button type="button" class="close" data-dismiss="alert">×</button>
+                  <h4>nb:</h4>
+                  #{ intermine.messages.actions.IsPrivateData }
+                </div>
+
+              </div>
+
+              <div class="im-galaxy">
+                <form class="im-galaxy form form-compact well">
+                  <label>
+                    #{ intermine.messages.actions.GalaxyURILabel }
+                    <input class="im-galaxy-uri" 
+                          type="text" value="#{ intermine.options.GalaxyMain }">
+                  </label>
+                  <label>
+                    #{ intermine.messages.actions.SaveGalaxyURL }
+                    <input type="checkbox" disabled checked class="im-galaxy-save-url">
+                  </label>
+                </form>
+              </div>
+
+              <div class="im-genomespace">
+                <div class="well">
+                  <button class="btn btn-primary btn-block im-send-to-genomespace">
+                    #{ intermine.messages.actions.SendToGenomespace }
+                  </button>
+                </div>
+              </div>
+
+            </div>
+           </div>
          </div>
        </div>
       
@@ -115,63 +178,9 @@ do ->
       </div> <!-- end inner -->
       </div> <!-- end carousel -->
 
-      <!--
-      <div class="row-fluid im-export-destination-options">
-
-        <div class="im-download-file active">
-          <i class="icon icon-link im-copy"></i>
-          <span class="hidden-phone">
-            #{ intermine.messages.actions.ResultsPermaLinkText }
-          </span>
-          <i class="icon-angle-right im-collapser"></i>
-
-          <div class="well im-perma-link-content hide"></div>
-
-          <div class="alert alert-block im-private-query">
-            <button type="button" class="close" data-dismiss="alert">×</button>
-            <h4>nb:</h4>
-            #{ intermine.messages.actions.IsPrivateData }
-          </div>
-
-        </div>
-
-        <div class="im-galaxy">
-          <form class="im-galaxy form form-compact well">
-            <label>
-              #{ intermine.messages.actions.GalaxyURILabel }
-              <input class="im-galaxy-uri" 
-                    type="text" value="#{ intermine.options.GalaxyMain }">
-            </label>
-            <label>
-              #{ intermine.messages.actions.SaveGalaxyURL }
-              <input type="checkbox" disabled checked class="im-galaxy-save-url">
-            </label>
-          </form>
-        </div>
-
-      </div>
-      -->
     </div>
 
     <!--
-    <ul class="im-export-destinations nav nav-tabs">
-      <li class="active">
-        <a href="#" data-section="download-file">
-          <i class="icon-paper-clip im-copy"></i>
-          #{ intermine.messages.actions.ExportLong }
-        </a>
-      </li>
-      <li>
-        <a href="#" data-section="galaxy">
-          #{ intermine.messages.actions.SendToGalaxy }
-        </a>
-      </li>
-      <li>
-        <a href="#" data-section="genomespace" >
-          #{ intermine.messages.actions.SendToGenomespace }
-        </a>
-      </li>
-    </ul>
     -->
 
     <div class="modal-footer">
