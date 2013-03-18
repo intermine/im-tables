@@ -122,7 +122,12 @@ do ->
           @exportedCols.on 'add remove change:excluded', @buildPermaLink
           @requestInfo.on 'change:start change:end', =>
             {start, end} = @requestInfo.toJSON()
-            @$('.nav-tabs .im-export-rows').text "#{ end - start } rows"
+            text = if start is 0 and ((not end) or (@count and end is @count))
+              "All rows"
+            else
+              "#{ end - start } rows"
+
+            @$('.nav-tabs .im-export-rows').text text
 
       updateColTabText: ->
         n = @exportedCols.filter( (c) -> not c.get 'excluded').length
@@ -451,11 +456,11 @@ do ->
           if @requestInfo.get('columnHeaders') and params.format in ['tab', 'csv']
               params.columnheaders = "1"
 
-          unless @requestInfo.get 'allRows'
-              start = params.start = @requestInfo.get('start')
-              end = @requestInfo.get 'end'
-              if end isnt @count
-                  params.size = end - start
+          start = params.start = @requestInfo.get('start')
+          end = @requestInfo.get 'end'
+          if end isnt @count
+              params.size = end - start
+
           return params
 
       getExportURI: () ->
@@ -550,8 +555,8 @@ do ->
           @$('.im-col-options').hide()
           @$('.im-col-options-bio').show()
           @$('.tab-pane.im-export-rows').removeClass('active')
-          @$('.nav-tabs .im-export-rows').parent().removeClass('active').addClass('disabled')
-          @requestInfo.set allCols: true
+          @$('.nav-tabs .im-export-rows').text('All rows').parent().removeClass('active').addClass('disabled')
+          @requestInfo.set start: 0, end: @count
         else
           @$('.im-col-options').show()
           @$('.im-col-options-bio').hide()
