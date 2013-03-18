@@ -122,15 +122,21 @@ do ->
             <div class="row-fluid im-export-destination-options">
 
               <div class="im-download-file active">
-                <span class="hidden-phone">
-                  #{ intermine.messages.actions.ResultsPermaLinkText }:
-                </span>
+                <div class="btn-group im-what-to-show">
+                  <button class="im-results-uri btn active">
+                    #{ intermine.messages.actions.ResultsPermaLinkText }:
+                  </button>
+                  <button class="im-query-xml btn">
+                    #{ intermine.messages.actions.QueryXML }
+                  </button>
+                </div>
                 <span class="im-copy">
                   <i class="icon icon-link"></i>
                   #{ intermine.messages.actions.Copy }
                 </span>
 
-                <div class="well im-perma-link-content"></div>
+                <div class="well im-perma-link-content active"></div>
+                <div class="well im-query-xml"></div>
 
                 <div class="alert alert-block im-private-query">
                   <button type="button" class="close" data-dismiss="alert">×</button>

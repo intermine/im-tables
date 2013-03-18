@@ -69,6 +69,7 @@ scope "intermine.messages.actions", {
     Copy: 'copy to clip-board'
     ResultsPermaLink: "Perma-link to results",
     ResultsPermaLinkText: "Results URI",
+    QueryXML: 'Query XML',
     ResultsPermaLinkTitle: "Get a permanent URL for these results, suitable for your own use",
     ResultsPermaLinkShareTitle: "Get a permanent URL for these results, suitable for sharing with others",
     ColumnsHelp: "Export all columns, or choose specific columns to export.",

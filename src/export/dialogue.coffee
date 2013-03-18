@@ -21,8 +21,23 @@ do ->
   ENTER = 13
   SPACE = 32
 
-  formatByExtension = (ext) ->
-    _.find EXPORT_FORMATS.concat(BIO_FORMATS), (f) -> f.extension is ext
+  formatByExtension = (ext) -> _.find EXPORT_FORMATS.concat(BIO_FORMATS), (f) -> f.extension is ext
+
+  toPath = (col) -> col.get 'path'
+  idAttr = (path) -> path.append 'id'
+  isIncluded = (col) -> col.get('included')
+  isntExcluded = (col) -> not col.get('excluded')
+  featuresToPaths = (features) -> features.filter(isIncluded).map(_.compose idAttr, toPath)
+  
+  isImplicitlyConstrained = (q, node) ->
+    return true if q.isInView node
+    n = node.toString()
+    for v in q.views
+      return true if 0 is v.indexOf n
+    for c in q.constraints
+      return true if c.op and 0 is c.path.indexOf n
+    return false
+
 
   class ExportDialogue extends Backbone.View
 
@@ -63,7 +78,7 @@ do ->
           @resetExportedColumns()
 
           @seqFeatures = new intermine.models.ClosableCollection
-          @fastaFeatures= new intermine.models.ClosableCollection
+          @fastaFeatures = new intermine.models.ClosableCollection
           @extraAttributes = new intermine.models.ClosableCollection
 
           for col in [@seqFeatures, @fastaFeatures] then do (col) =>
@@ -73,7 +88,7 @@ do ->
             f = (m) -> m.set included: false unless m is originator
             @fastaFeatures.each f if incl
 
-          @fastaFeatures.on 'change:included', (con, incl) =>
+          @fastaFeatures.on 'change:included', (col, incl) =>
             canHaveExt = incl and col.get('path').isa('SequenceFeature')
             inp = @$('input.im-fasta-extension').attr disabled: not canHaveExt
             if canHaveExt
@@ -83,7 +98,7 @@ do ->
 
           @extraAttributes.on 'change:included', =>
             extras = @extraAttributes.where included: true
-            @requestInfo.set view: extras.map String
+            @requestInfo.set view: extras.map(toPath).map String
 
           @requestInfo.on 'change', @buildPermaLink
           @requestInfo.on 'change:format', @onChangeFormat, @
@@ -116,6 +131,7 @@ do ->
       onChangeIncludedNodes: (coll) ->
         n = coll.reduce ((n, m) -> n + if m.get('included') then 1 else 0), 0
         @$('.nav-tabs .im-export-columns').text "#{ n } nodes"
+        @buildPermaLink()
 
       onChangeFormat: ->
         format = @requestInfo.get 'format'
@@ -164,6 +180,7 @@ do ->
           'change .im-column-headers': 'readColumnHeaders'
           'change .im-bed-chr-prefix': 'readBedChrPrefix'
           'change .im-fasta-extension': 'readFastaExt'
+          'click .im-download-file .im-what-to-show button': 'switchWhatToShow'
           'keyup .im-format-choice': (e) =>
             input = $(e.target).find('input')
             key = e?.which
@@ -200,7 +217,12 @@ do ->
           @remove()
 
       copyUriToClipboard: ->
-        window.prompt intermine.messages.actions.CopyToClipBoard, @$('.im-download').attr('href')
+        text = if @$('button.im-results-uri').is '.active'
+          @$('.im-download').attr('href')
+        else
+          @$('.well.im-query-xml').text()
+
+        window.prompt intermine.messages.actions.CopyToClipBoard, text
 
       toggleLinkViewer: ->
         @$('.im-download-file .im-perma-link-content').toggleClass 'hide show'
@@ -216,9 +238,24 @@ do ->
           # TODO!!
           @$('.im-perma-link-share-content').text("TODO")
 
+      switchActive = ->
+        $this = $ this
+        $this.toggleClass 'active', not $this.hasClass 'active'
+
+      switchWhatToShow: (e) ->
+        return false if $(e.target).hasClass 'active'
+
+        btns = @$ '.im-what-to-show button'
+        btns.each switchActive
+
+        wells = @$ '.im-export-destination-options .im-download-file .well'
+        wells.each switchActive
+
+
       buildPermaLink: (e) =>
           endpoint = @getExportEndPoint()
           params = @getExportParams()
+          @$('.well.im-query-xml').text params.query
           isPrivate = intermine.utils.requiresAuthentication @query
           @state.set {isPrivate}
           delete params.token unless isPrivate
@@ -376,23 +413,19 @@ do ->
       getExportQuery: () ->
           q = @query.clone()
           f = @requestInfo.get 'format'
-          toPath = (col) -> col.get 'path'
-          idAttr = (path) -> path.append 'id'
-          isIncluded = (col) -> col.get('included') or not col.get('excluded')
-          featuresToPaths = (features) -> features.filter(isIncluded).map(_.compose idAttr, toPath)
           columns = switch f.extension
             when 'bed', 'gff3'
                 featuresToPaths @seqFeatures
             when 'fasta'
                 featuresToPaths @fastaFeatures
             else
-                @exportedCols.filter(isIncluded).map(toPath)
+                @exportedCols.filter(isntExcluded).map(toPath)
 
           q.select columns if columns?
 
           for path in @query.views when not q.isOuterJoined(path)
             node = q.getPathInfo(path).getParent()
-            unless q.isInView node
+            unless isImplicitlyConstrained q, node
               q.addConstraint path: node.append('id'), op: 'IS NOT NULL'
 
           q.orderBy([]) if f in BIO_FORMATS
