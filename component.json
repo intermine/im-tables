@@ -9,7 +9,8 @@
     "underscore": ">=1.3.3",
     "bootstrap": ">=2",
     "backbone": "~0.9.1",
-    "d3": ">=3"
+    "d3": ">=3",
+    "jquery-ui": "latest"
   },
   "devDependencies": {
     "mocha": ">=1.8.1",

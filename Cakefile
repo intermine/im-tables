@@ -50,6 +50,15 @@ deepRead = (name) ->
 
 cont = (cb) -> cb() if typeof cb is 'function'
 
+execP = (cmd) ->
+  def = Q.defer()
+  exec cmd, (err, stdout, stderr) ->
+    if err
+      def.reject(err)
+    else
+      def.resolve(stdout, stderr)
+  def.promise
+
 DEFAULT_ERR_HANDLER = (err) -> console.error err
 
 promiserToNode = (promiser) -> (cb) ->
@@ -74,16 +83,6 @@ task 'prefix-css', 'Build a prefixed css file', prefixulate = promiserToNode ->
   read(BOOTSTRAP_COMP, 'utf8').then(JSON.parse).get('version').then (v) ->
     writeOut =  writer "css/bootstrap-#{ v }-prefixed.css"
     read(BOOTSTRAP_CSS, 'utf8').then(prefix).then(writeOut)
-
-task 'wrap:bb', promiserToNode ->
-  readingBB = read 'components/backbone/backbone.js', 'utf8'
-  readingUS = read 'components/underscore/underscore.js', 'utf8'
-  readingWrapper = read 'lib/backbone-wrapper.js', 'utf8'
-
-  Q.all([readingUS, readingBB, readingWrapper]).then ([us, bb, wrapper]) ->
-    [left, right] = wrapper.split 'LIBRARIES'
-    wrapped = left + us + "\n\n" + bb + right
-    write 'lib/backbone-wrapped.js', wrapped, 'utf8'
 
 patchBootstrap = (text) ->
     text.replace /attr\(['"]data-target['"]\)/g, """data('target')"""
@@ -129,7 +128,15 @@ writingDeps = false
 
 otherDeps = ['lib/js/jquery-ui-1.10.1.custom.js']
 deps = [
-  'lib/js/jquery-ui-1.10.1.custom.js',
+  'components/jquery-ui/ui/jquery.ui.core.js',
+  'components/jquery-ui/ui/jquery.ui.widget.js',
+  'components/jquery-ui/ui/jquery.ui.mouse.js',
+  'components/jquery-ui/ui/jquery.ui.draggable.js',
+  'components/jquery-ui/ui/jquery.ui.droppable.js',
+  'components/jquery-ui/ui/jquery.ui.position.js',
+  'components/jquery-ui/ui/jquery.ui.selectable.js',
+  'components/jquery-ui/ui/jquery.ui.slider.js',
+  'components/jquery-ui/ui/jquery.ui.sortable.js',
   'components/bootstrap/docs/assets/js/bootstrap.js'
 ]
 
