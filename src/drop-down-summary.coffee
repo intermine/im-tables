@@ -54,7 +54,6 @@ do ->
           @$el.on 'destroyed', @close
 
         remove: ->
-          console.log "Byeee...."
           @heading?.remove()
           @summ?.remove()
           super()
@@ -76,10 +75,14 @@ do ->
 
         initialize: (@query, @view) ->
             @query.on "got:summary:total", (path, total, got, filteredTotal) =>
-                if path is @view
-                    available = filteredTotal ? total
-                    @$('.im-item-available').text nts available
-                    @$('.im-item-total').text(if filteredTotal? then "(filtered from #{ nts total })" else "")
+              if path is @view
+                  available = filteredTotal ? total
+                  @$('.im-item-available').text nts available
+                  @$('.im-item-total').text(if filteredTotal? then "(filtered from #{ nts total })" else "")
+                  if available > got
+                    @$('.im-item-got').text "Showing #{ nts got } of "
+                  else
+                    @$('.im-item-got').text ''
 
         template: _.template """
             <h3>
