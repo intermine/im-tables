@@ -5071,6 +5071,11 @@ td.im-result-subtable .im-subtable {
     position: relative;
 }
 
+.intermine .im-multi-value-table {
+    max-height: 250px;
+    overflow-y: auto;
+}
+
 .im-query-display .im-value-options.ui-slider .ui-slider-handle {
     top: -1.3em;
 }

@@ -65,7 +65,14 @@ do ->
             'click .btn-cancel': 'hideEditForm'
             'click .btn-primary': 'editConstraint'
             'click .icon-remove-sign': 'removeConstraint'
+            'click td.im-multi-value': 'toggleRowCheckbox'
             'submit': (e) -> e.preventDefault(); e.stopPropagation()
+
+        toggleRowCheckbox: (e) ->
+          $td = $ e.target
+          input = $td.prev().find('input')[0]
+          input.checked = not input.checked
+          $(input).trigger 'change'
 
         toggleEditForm: ->
             @$('.im-constraint-options').show()
@@ -80,6 +87,7 @@ do ->
             @$el.siblings('.im-constraint').slideDown()
             @$el.closest('.well').removeClass 'im-editing'
             @$('.im-con-overview').siblings().slideUp 200
+            @$('.im-multi-value-table input').prop('checked', true)
             @con.set _.extend {}, @orig
             while (ta = @typeaheads.shift())
                 ta.remove()
@@ -271,11 +279,17 @@ do ->
                 <%- name %> (<%- size %> <%- type %>s)
             </option>
         """
-        multiValueTable: '<table class="table table-condensed im-value-options"></table>'
+
+        multiValueTable: """
+          <div class="im-value-options im-multi-value-table">
+            <table class="table table-condensed"></table>
+          </div>
+        """
+
         multiValueOptTempl: _.template """
             <tr>
                 <td><input type=checkbox checked data-value="<%- value %>"></td>
-                <td><%- value %></td>
+                <td class="im-multi-value"><%- value %></td>
             </tr>
         """
         clearer: '<div class="im-value-options" style="clear:both;">'
@@ -285,15 +299,19 @@ do ->
             con.set(values: []) unless con.has('values')
             values = con.get('values')
             $multiValues = $(@multiValueTable).appendTo fs
-            _(values).each (v) => $multiValues.append @multiValueOptTempl value: v
-            $multiValues.find('input').change (e) ->
-                changed = $ @
-                value = changed.data 'value'
-                if changed.is ':checked'
-                    values.push(value) unless (_.include(values, value))
-                else
-                    values = _.without(values, value)
-                    con.set values: values
+            table = $multiValues.find('table')
+            _(values).each (v) => table.append @multiValueOptTempl value: v
+            $multiValues.find('input').change @changeMultiValues
+
+        changeMultiValues: (e) =>
+          changed = $(e.target)
+          values = @con.get 'values'
+          value = changed.data 'value'
+          if changed.prop('checked')
+              values = _.union values, [value]
+          else
+              values = _.without values, value
+          @con.set {values}
 
         drawListOptions: (fs) ->
             $lists = $(@valueSelect).appendTo fs
