@@ -134,7 +134,7 @@ do ->
 
                 cell.formatter = formatter if formatter?
 
-              if @minimisedCols[ cell.path ]
+              if @minimisedCols[ cell.path ] or (path and @minimisedCols[path])
                 tr.append @minimisedColumnPlaceholder width: minWidth
               else
                 tr.append cell.el
