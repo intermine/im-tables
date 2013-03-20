@@ -237,7 +237,7 @@ do ->
                 else
                     @selection?.remove()
                     @selection = null
-            @container = @make "div"
+            @container = @make "div",
                 class: "facet-content im-facet"
             @$el.append(@container)
             @canvas = @make "div"

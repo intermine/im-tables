@@ -50,7 +50,7 @@ do ->
             simplify = (x) -> x.replace(/^[^\.]+\./, "").replace(/\./g, " > ")
             facets = (FACETS[@query.root] or []).concat ({title: simplify(v), path: v} for v in @query.views)
             if facets
-                searcher = @make "input"
+                searcher = @make "input",
                     class: "input-long",
                     placeholder: "Filter facets..."
                 $(searcher).appendTo(@el).keyup (e) =>
