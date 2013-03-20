@@ -4880,14 +4880,14 @@ ul.im-cols h4 {
 }
 
 .im-query-display tr > th.too-far-over .im-th-buttons .dropdown-menu {
-    left: -350px;
+    left: -330px;
 }
 
 .im-query-display tr > th.too-far-over .im-th-buttons .dropdown-menu::after,
 .im-query-display tr > th:last-child .im-th-buttons .dropdown-menu::after,
 .im-query-display tr > th.too-far-over .im-th-buttons .dropdown-menu::before,
 .im-query-display tr > th:last-child .im-th-buttons .dropdown-menu::before {
-    left: 350px;
+    left: 315px;
 }
 
 .im-dropdown-summary .im-filter, .im-dropdown-summary .form .input-prepend {
