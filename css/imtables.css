@@ -6222,7 +6222,8 @@ td > .im-no-results {
 
 @media screen and (min-width: 600px) {
     .im-query-display .modal {
-        top: 44%;
+        margin-top: 0px;
+        top: 10%;
         width: 576px;
         margin-left: -289px
     }
