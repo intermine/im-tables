@@ -4430,6 +4430,8 @@ table.table {
     display: inline;
     opacity: 0.75;
 }
+.im-parent:after,
+.im-title-part:after,
 .im-view-element .im-name-part:after {
     content: "\00bb";
     color: #aaa;
@@ -5669,6 +5671,7 @@ input.im-constraint-adder {
     display: none;
 }
 
+/*
 .btn-toggle-selection:after {
     content: "Select All";
 }
@@ -5676,6 +5679,7 @@ input.im-constraint-adder {
 .btn-toggle-selection.im-invert:after {
     content: "Invert Selection"
 }
+*/
 
 .table .alert-error {
     padding: 1em;
@@ -5864,11 +5868,6 @@ form.im-join {
 
 .im-exported-col .im-parent {
     display: inline-block;
-}
-
-.im-parent:after,
-.im-title-part:after {
-    content: " >";
 }
 
 .im-col-title .im-last {
