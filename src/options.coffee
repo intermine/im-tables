@@ -1,4 +1,5 @@
 scope "intermine.options",
+    INITIAL_SUMMARY_ROWS: 500,
     NUM_SEPARATOR: ',',
     NUM_CHUNK_SIZE: 3,
     MAX_PIE_SLICES: 15
