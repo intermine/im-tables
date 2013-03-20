@@ -18,6 +18,7 @@ scope "intermine.icons", {
     Expanded: "icon-angle-down",
     MoveDown: "icon-angle-down",
     MoveUp: "icon-angle-up",
+    Toggle: "icon-exchange",
     ExpandCollapse: "icon-angle-right icon-angle-down",
     Help: "icon-question-sign",
     ReverseRef: 'icon-retweet',
