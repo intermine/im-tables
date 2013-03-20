@@ -37,6 +37,11 @@ do ->
 
     namePart = _.template """<span class="im-name-part"><%- part %></span>"""
 
+    splitName = ($elem) -> (name) ->
+      parts = name.split ' > '
+      for part in parts
+        $elem.append namePart {part}
+
     render: ->
       path = @model.get 'path'
 
@@ -52,18 +57,18 @@ do ->
         placement: @placement
         container: @el
 
-      path.getDisplayName().done (name) =>
-        parts = name.split ' > '
-        $name = @$('.im-display-name').empty()
-        for part in parts
-          $name.append namePart {part}
+      $name = @$('.im-display-name').empty()
+      path.getDisplayName splitName $name
 
       ul = @$('.im-sub-views')
 
       for replaced in @model.get('replaces') when replaced.isAttribute() then do (ul) ->
-        li = $ '<li>'
+        li = $ '<li></li>'
         ul.append li
-        replaced.getDisplayName().done (name) -> li.text name
+        span = document.createElement 'span'
+        li.append span
+        span.className = 'im-display-name'
+        replaced.getDisplayName splitName $ span
 
       ul.remove() unless ul.children().length
 
