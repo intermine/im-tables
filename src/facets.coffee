@@ -64,7 +64,7 @@ do ->
               NumericFacet
             else
               FrequencyFacet
-            initialLimit = 400 # items
+            initialLimit = intermine.options.INITIAL_SUMMARY_ROWS
             @fac = new clazz(@query, @facet, initialLimit, @noTitle)
             @$el.append @fac.el
             @fac.render()
@@ -102,11 +102,12 @@ do ->
             $progress.appendTo @el
             getSummary = @query.filterSummary @facet.path, filterTerm, @limit
             getSummary.fail @remove
+            limit = @limit
             getSummary.done (results, stats, count) =>
               @query.trigger 'got:summary:total', @facet.path, stats.uniqueValues, results.length, count
               $progress.remove()
               @$dt?.append " (#{stats.uniqueValues})"
-              hasMore = if results.length < @limit then false else (stats.uniqueValues > @limit)
+              hasMore = if results.length < limit then false else (stats.uniqueValues > limit)
               if hasMore
                 more = $(MORE_FACETS_HTML).appendTo(@$dt).tooltip( placement: 'left' ).click (e) =>
                   e.stopPropagation()
@@ -258,14 +259,14 @@ do ->
           delete @range
           super()
 
-        handleSummary: (items, total) =>
+        handleSummary: (items, stats) =>
             @throbber.remove()
             summary = items[0]
             @w = @$el.closest(':visible').width() * 0.95
             if summary.item?
                 if items.length > 1
                     # A numerical column configured to present as a string column.
-                    hasMore = if items.length < @limit then false else (total > @limit)
+                    hasMore = if items.length < @limit then false else (stats.uniqueValues > @limit)
                     @paper.remove()
                     hf = new HistoFacet @query, @facet, items, hasMore, ""
                     @$el.append hf.el
@@ -442,49 +443,76 @@ do ->
 
         initialize: (@query, @facet, items, @hasMore, @filterTerm) ->
             @items = new Backbone.Collection(items)
-            @items.each (item) -> item.set "visibility", true
+            @items.each (item) -> item.set visibility: true, selected: false
 
             @items.maxCount = @items.first()?.get "count"
             @items.on "change:selected", =>
-                someAreSelected = @items.any((item) -> item.get "selected")
+                someAreSelected = @items.any((item) -> !! item.get "selected")
                 allAreSelected = !@items.any (item) -> not item.get "selected"
                 @$('.im-filter .btn').attr "disabled", !someAreSelected
                 @$('.im-filter .btn-toggle-selection').attr("disabled", allAreSelected)
                                                     .toggleClass("im-invert", someAreSelected)
 
-        events:
-          'click .im-filter .btn-primary': 'addConstraint'
+        basicOps =
+          single: '='
+          multi: 'ONE OF'
+          absent: 'IS NULL'
+
+        negateOps = (ops) ->
+          ret = {}
+          ret.multi = if ops.multi is 'ONE OF' then 'NONE OF' else 'ONE OF'
+          ret.single = if ops.single is '=' then '!=' else '='
+          ret.absent = if ops.absent is 'IS NULL' then 'IS NOT NULL' else 'IS NULL'
+          ret
+
+        events: ->
           'click .im-filter .btn-cancel': 'resetOptions'
           'click .im-filter .btn-toggle-selection': 'toggleSelection'
           'click .im-export-summary': 'exportSummary'
+          'click .im-filter .im-filter-in': (e) => @addConstraint e, basicOps
+          'click .im-filter .im-filter-out': (e) => @addConstraint e, negateOps basicOps
 
         exportSummary: (e) ->
           # The only purpose of this is to reinstate the default click behaviour which is
           # being swallowed by another click handler. This is really dumb, but for future
-          # reference this is how you gazump someone elses click handlers.
+          # reference this is how you gazump someone else's click handlers.
           e.stopImmediatePropagation()
           return true
+        
+        changeSelection: (f) ->
+          tbody = @$('.im-item-table tbody')[0]
+          @items.each (item) -> item.facetRow?.remove()
+          @items.each (item) =>
+            f.call(@, item)
+            tbody.appendChild @makeRow item
+          @items.trigger 'change:selected'
 
-        resetOptions: (e) ->
-            @items.each (item) -> item.set "selected", false
+        resetOptions: (e) -> @changeSelection (item) -> item.set({selected: false}, {silent: true})
 
-        toggleSelection: (e) ->
-            @items.each (item) -> item.set("selected", !item.get "selected") if item.get "visibility"
+        toggleSelection: (e) -> @changeSelection (item) ->
+          item.set({selected: not item.get('selected')}, {silent: true}) if item.get('visibility')
 
-        addConstraint: (e) ->
-            newCon = path: @facet.path
-            vals = (item.get "item" for item in @items.filter (item) -> item.get "selected")
-            if vals.length is 1
-                if vals[0] is null
-                    newCon.op = 'IS NULL'
-                else
-                    newCon.op = '='
-                    newCon.value = "#{vals[0]}"
+        addConstraint: (e, ops, vals) ->
+          e.preventDefault()
+          e.stopPropagation()
+          newCon = path: @facet.path
+          unless vals?
+            vals = (item.get "item" for item in @items.where selected: true)
+            unselected = @items.where selected: false
+            if (not @hasMore) and vals.length > unselected.length
+              return @addConstraint e, negateOps(ops), (item.get('item') for item in unselected)
+
+          if vals.length is 1
+            if vals[0] is null
+                newCon.op = ops.absent
             else
-                newCon.op = "ONE OF"
-                newCon.values = vals
-            newCon.title = @facet.title unless @facet.ignoreTitle
-            @query.addConstraint newCon
+                newCon.op = ops.single
+                newCon.value = "#{vals[0]}"
+          else
+              newCon.op = ops.multi
+              newCon.values = vals
+          newCon.title = @facet.title unless @facet.ignoreTitle
+          @query.addConstraint newCon
 
         render: ->
           @addChart()
@@ -592,7 +620,7 @@ do ->
           """<ul class="im-export-summary">#{ lis.join '' }</ul>"""
 
         addControls: ->
-            $grp = $("""
+            $grp = $ """
             <form class="form form-horizontal">
               #{ @filterControls }
               <div class="im-item-table">
@@ -606,11 +634,10 @@ do ->
                   <tbody class="scrollable"></tbody>
                 </table>
               </div>
-            </form>""").appendTo @el
+            </form>"""
             $grp.button()
-            @items.each (item) =>
-              r = @makeRow item
-              $grp.find('tbody').append r
+            tbody = $grp.find('tbody')[0]
+            @items.each (item) => tbody.appendChild @makeRow item
             $grp.append """
               <button class="btn pull-right im-download">
                 <i class="#{ intermine.icons.Download }"></i>
@@ -620,6 +647,9 @@ do ->
                 #{ @buttons }
               </div>
             """
+
+            $btns = $grp.find('.btn').tooltip placement: 'top'
+            $btns.on 'click', (e) -> $btns.tooltip 'hide'
 
             $grp.find('.im-download').popover
               placement: 'top'
@@ -631,12 +661,25 @@ do ->
 
             @initFilter()
 
+            $grp.appendTo @el
+
             this
 
         buttons: """
-          <button type="submit" class="btn btn-primary" disabled>Filter</button>
-          <button class="btn btn-cancel" disabled>Reset</button>
-          <button class="btn btn-toggle-selection"></button>
+          <button type="submit" class="btn btn-primary im-filter-in" disabled
+                  title="Filter the table to only matching rows">
+            Filter
+          </button>
+          <button type="submit" class="btn btn-primary im-filter-out"
+                  title="Filter the table to exclude all matching rows"  disabled>
+            Filter Out
+          </button>
+          <button class="btn btn-cancel" disabled title="Reset selection">
+            <i class="#{ intermine.icons.Undo }"></i>
+          </button>
+          <button class="btn btn-toggle-selection" title="Toggle selection">
+            <i class="#{ intermine.icons.Toggle }"></i>
+          </button>
         """
 
         initFilter: ->
@@ -660,8 +703,8 @@ do ->
         columnHeaders: [' ', 'Item', 'Count']
 
         makeRow: (item) ->
-            row = new FacetRow(item, @items)
-            row.render().$el
+          row = new FacetRow(item, @items)
+          row.render().el
             
 
     class FacetRow extends Backbone.View
@@ -680,15 +723,11 @@ do ->
         isVisible: () -> not (@isAbove() or @isBelow())
 
         initialize: (@item, @items) ->
-            @item.on "change:selected", =>
-                isSelected = @item.get "selected"
-                if @item.has "path"
-                    item.get("path").node.setAttribute "class", if isSelected then "selected" else ""
-                @$el.toggleClass "active", isSelected
-                if isSelected isnt @$('input').attr("checked")
-                    @$('input').attr "checked", isSelected
+            @item.facetRow = @
+            @listenTo @item, "change:selected", => @onChangeSelected()
+            @listenTo @item, "change:visibility", => @onChangeVisibility()
 
-            @item.on 'hover', =>
+            @listenTo @item, 'hover', =>
                 @$el.addClass 'hover'
                 unless @isVisible()
                     above = @isAbove()
@@ -705,12 +744,25 @@ do ->
                         itemTable.scrollTop() + itemTable.offset().top + itemTable.outerHeight() - surrogate.outerHeight()
                     surrogate.offset top: newTop
 
-            @item.on 'unhover', =>
+            @listenTo @item, 'unhover', =>
                 @$el.removeClass 'hover'
                 s = @$el.closest('.im-item-table').find('.im-facet-surrogate').fadeOut 'fast', () ->
                     s.remove()
 
-            @item.on "change:visibility", => @$el.toggle @item.get "visibility"
+        initState: ->
+          @onChangeVisibility()
+          @onChangeSelected()
+
+        onChangeVisibility: ->
+          @$el.toggle @item.get "visibility"
+
+        onChangeSelected: ->
+          isSelected = !!@item.get "selected"
+          if @item.has "path"
+              item.get("path").node.setAttribute "class", if isSelected then "selected" else ""
+          @$el.toggleClass "active", isSelected
+          if isSelected isnt @$('input').attr("checked")
+              @$('input').attr "checked", isSelected
 
         events:
             'click': 'handleClick'
@@ -741,6 +793,8 @@ do ->
             """
             if @item.get "percent"
                 @$el.append """<td class="im-prop-col"><i>#{@item.get("percent").toFixed()}%</i></td>"""
+
+            @initState()
 
             this
 
