@@ -452,6 +452,7 @@ do ->
                 @$('.im-filter .btn').attr "disabled", !someAreSelected
                 @$('.im-filter .btn-toggle-selection').attr("disabled", allAreSelected)
                                                     .toggleClass("im-invert", someAreSelected)
+            @items.on 'add', @addItemRow, @
 
         basicOps =
           single: '='
@@ -469,8 +470,28 @@ do ->
           'click .im-filter .btn-cancel': 'resetOptions'
           'click .im-filter .btn-toggle-selection': 'toggleSelection'
           'click .im-export-summary': 'exportSummary'
+          'click .im-load-more': 'loadMoreItems'
           'click .im-filter .im-filter-in': (e) => @addConstraint e, basicOps
           'click .im-filter .im-filter-out': (e) => @addConstraint e, negateOps basicOps
+
+        loadMoreItems: ->
+          return if @summarising
+          loader = @$('.im-load-more')
+          text = loader.text()
+          loader.html """<i class="icon-refresh icon-spin"></i>"""
+          @limit *= 2
+          @summarising = @query.filterSummary @facet.path, @filterTerm, @limit
+          @summarising.done (items, stats, fcount) =>
+            @hasMore = stats.uniqueValues > @limit
+            newItems = items.slice @items.length
+            console.log "Adding #{ newItems.length }"
+            for newItem in newItems
+              @items.add _.extend newItem, {visibility: true, selected: false}
+            @query.trigger 'got:summary:total', @facet.path, stats.uniqueValues, items.length, fcount
+          @summarising.done =>
+            loader.empty().text text
+            loader.toggle @hasMore
+          @summarising.always => delete @summarising
 
         exportSummary: (e) ->
           # The only purpose of this is to reinstate the default click behaviour which is
@@ -620,6 +641,7 @@ do ->
           """<ul class="im-export-summary">#{ lis.join '' }</ul>"""
 
         addControls: ->
+            {More, DownloadData, DownloadFormat} = intermine.messages.facets
             $grp = $ """
             <form class="form form-horizontal">
               #{ @filterControls }
@@ -633,15 +655,16 @@ do ->
                   </thead>
                   <tbody class="scrollable"></tbody>
                 </table>
+                #{ if @hasMore then '<div class="im-load-more">' + More + '</div>' else '' }
               </div>
             </form>"""
             $grp.button()
             tbody = $grp.find('tbody')[0]
-            @items.each (item) => tbody.appendChild @makeRow item
+            @items.each (item) => @addItemRow item, @items, {}, tbody
             $grp.append """
               <button class="btn pull-right im-download">
                 <i class="#{ intermine.icons.Download }"></i>
-                #{ intermine.messages.facets.DownloadData }
+                #{ DownloadData }
               </button>
               <div class="im-filter btn-group">
                 #{ @buttons }
@@ -655,7 +678,7 @@ do ->
               placement: 'top'
               html: true
               container: @el
-              title: intermine.messages.facets.DownloadFormat
+              title: DownloadFormat
               content: @getDownloadPopover()
               trigger: 'click'
 
@@ -664,6 +687,10 @@ do ->
             $grp.appendTo @el
 
             this
+
+        addItemRow: (item, items, opts, tbody) ->
+          tbody ?= @$('.im-item-table tbody').get()[0]
+          tbody.appendChild @makeRow item
 
         buttons: """
           <button type="submit" class="btn btn-primary im-filter-in" disabled

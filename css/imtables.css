@@ -4563,12 +4563,18 @@ table.table thead .sorting_desc_disabled {
 }
 
 .im-item-table .im-facet-row.hover,
+.im-item-table .im-load-more,
 .im-dropdown-summary .im-item-table .im-facet-surrogate,
 .im-reordering-container li.im-reorderable.new,
 .im-reordering-container li.im-outer-joined-path.new {
     border: 1px solid #e3d19f;
     background-color: #fff3d3;
     background-image: none;
+}
+.im-item-table .im-load-more {
+    font-weight: bold;
+    cursor: pointer;
+    padding: 5px 10px 5px 20px;
 }
 .im-reordering-container li.im-outer-joined-path.new {
     border-top: none;
