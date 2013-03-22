@@ -4374,6 +4374,10 @@ table.table {
     font-size: 0.9em;
 }
 
+.im-table-container .im-subtable-summary {
+    cursor: pointer;
+}
+
 .im-table-container .im-subtable tbody > tr > td {
     font-size: 0.95em;
 }
