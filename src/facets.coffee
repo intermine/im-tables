@@ -166,6 +166,8 @@ do ->
         else
           null
 
+      toJSON: -> _.extend {}, @_defaults, @attributes
+
       set: (name, value) ->
         if _.isString(name) and (name of @_defaults)
           meth = if name is 'min' then 'max' else 'min'
@@ -179,15 +181,47 @@ do ->
 
     class NumericFacet extends FacetView
 
+        initialize: ->
+          super arguments...
+          @range = new NumericRange()
+          @range.on 'change', =>
+              if @shouldDrawBox()
+                  x = @xForVal(@range.get('min'))
+                  width = @xForVal(@range.get('max')) - x
+                  @drawSelection(x, width)
+              else
+                  @selection?.remove()
+                  @selection = null
+
+          @range.on 'reset', =>
+            {min, max} = @range.toJSON()
+            @$slider?.slider 'option', 'values', [min, max]
+            for prop, val of {min, max}
+              @$("input.im-range-#{prop}").val "#{ val }"
+
+          for prop, idx of {min: 0, max: 1} then do (prop, idx) =>
+            @range.on "change:#{prop}", (m, val) =>
+              return unless val?
+              val = @round(val)
+              @$("input.im-range-#{prop}").val "#{ val }"
+              if @$slider?.slider('values', idx) isnt val
+                  @$slider?.slider('values', idx, val)
+
+          @range.on 'change', () =>
+            changed = @range.get('min') > @min or @range.get('max') < @max
+            @$('.btn').toggleClass "disabled", !changed
+
         events:
             'click': (e) -> e.stopPropagation()
             'keyup input.im-range-val': 'incRangeVal'
             'click .btn-primary': 'changeConstraints'
             'click .btn-cancel': 'clearRange'
 
-        clearRange: -> @range?.clear()
+        clearRange: -> @range?.clear(); @range?.trigger 'reset'
 
-        changeConstraints: ->
+        changeConstraints: (e) ->
+          e.preventDefault()
+          e.stopPropagation()
           @query.constraints = _(@query.constraints).filter (c) => c.path != @facet.path.toString()
           newConstraints = [
               {
@@ -229,15 +263,6 @@ do ->
 
         render: ->
             super()
-            @range = new NumericRange()
-            @range.on 'change', =>
-                if @shouldDrawBox()
-                    x = @xForVal(@range.get('min'))
-                    width = @xForVal(@range.get('max')) - x
-                    @drawSelection(x, width)
-                else
-                    @selection?.remove()
-                    @selection = null
             @container = @make "div",
                 class: "facet-content im-facet"
             @$el.append(@container)
@@ -255,6 +280,8 @@ do ->
             this
 
         remove: ->
+          @$slider?.slider 'destroy'
+          delete @$slider
           @range?.off()
           delete @range
           super()
@@ -333,21 +360,8 @@ do ->
                 <input type="text" data-var="max" class="im-range-max input im-range-val" value="#{@max}">
                 <div class="slider"></div>
               """
-            for prop, idx of {min: 0, max: 1} then do (prop, idx) =>
-                @range.on "change:#{prop}", (m, val) =>
-                    val = @round(val)
-                    @$("input.im-range-#{prop}").val "#{ val }"
-                    if $slider.slider('values', idx) isnt val
-                        $slider.slider('values', idx, val)
 
-            @range.on 'change', () =>
-              changed = @range.get('min') > @min or @range.get('max') < @max
-              @$('.btn').toggleClass "disabled", !changed
-              for prop, idx in ['min', 'max']
-                $slider.slider('values', idx, @[prop])
-                @$("input.im-range-#{prop}").val "#{ @[prop] }"
-
-            $slider = @$('.slider').slider
+            @$slider = @$('.slider').slider
               range: true
               min: @min
               max: @max
@@ -449,7 +463,7 @@ do ->
             @items.on "change:selected", =>
                 someAreSelected = @items.any((item) -> !! item.get "selected")
                 allAreSelected = !@items.any (item) -> not item.get "selected"
-                @$('.im-filter .btn').attr "disabled", !someAreSelected
+                @$('.im-filter .btn-group .btn').attr "disabled", !someAreSelected
                 @$('.im-filter .btn-toggle-selection').attr("disabled", allAreSelected)
                                                     .toggleClass("im-invert", someAreSelected)
             @items.on 'add', @addItemRow, @
@@ -662,7 +676,7 @@ do ->
                   <i class="#{ intermine.icons.Download }"></i>
                   #{ DownloadData }
                 </button>
-                #{ @buttons }
+                #{ @buttons() }
               </div>
             """
 
@@ -704,10 +718,10 @@ do ->
           tbody ?= @$('.im-item-table tbody').get()[0]
           tbody.appendChild @makeRow item
 
-        buttons: """
+        buttons: -> """
           <div class="btn-group">
             <button type="submit" class="btn btn-primary im-filter-in" disabled
-                    title="Filter the table to only matching rows">
+                    title="#{ intermine.messages.facets.Include }">
               Filter
             </button>
             <button class="btn btn-primary dropdown-toggle" 
@@ -716,23 +730,25 @@ do ->
             </button>
             <ul class="dropdown-menu">
               <li>
-                <a class="im-filter-in">
-                  Restrict to matching rows
+                <a href="#" class="im-filter-in">
+                  #{ intermine.messages.facets.Include }
                 </a>
               </li>
               <li>
-                <a class="im-filter-out">
-                  Exclude matching rows
+                <a href="#" class="im-filter-out">
+                  #{ intermine.messages.facets.Exclude }
                 </a>
               </li>
             </ul>
           </div>
 
           <div class="btn-group">
-            <button class="btn btn-cancel" disabled title="Reset selection">
+            <button class="btn btn-cancel" disabled
+                      title="#{ intermine.messages.facets.Reset }">
               <i class="#{ intermine.icons.Undo }"></i>
             </button>
-            <button class="btn btn-toggle-selection" title="Toggle selection">
+            <button class="btn btn-toggle-selection"
+                    title="#{ intermine.messages.facets.ToggleSelection }">
               <i class="#{ intermine.icons.Toggle }"></i>
             </button>
           </div>
