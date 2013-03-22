@@ -13,7 +13,6 @@ define 'formatters/bio/core/chromosome-location', ->
       @$el.addClass 'chromosome-location'
       needs = ['start', 'end', 'chr']
       unless model._fetching? or _.all(needs, (n) -> model.has n)
-        console.log "Fetching extra data for Location #{ id }"
         model._fetching = @options.query.service.findById 'Location', id
         model._fetching.done (loc) ->
           model.set start: loc.start, end: loc.end, chr: loc.locatedOn.primaryIdentifier
