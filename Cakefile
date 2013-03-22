@@ -1,4 +1,4 @@
-{exec} = require "child_process"
+{exec, spawn} = require "child_process"
 fs     = require 'fs'
 Q      = require 'q'
 _      = require 'underscore'
@@ -209,7 +209,6 @@ task 'build:setup', 'Set things up for building', prebuild = (cb) ->
             fs.mkdir "build", "770", ->
                 cont cb
 
-child_process = require 'child_process'
 
 task 'build', 'Run a complete build', ->
     clean ->
@@ -218,7 +217,7 @@ task 'build', 'Run a complete build', ->
                 concat ->
                     compile ->
                         console.log "done at #{new Date()}"
-                        child_process.spawn('notify-send', ["Recompiled im-tables"], {stdio: 'ignore', detached: true})
+                        exec 'notify-send "Recompiled im-tables"'
 
 task 'watch', 'Watch production files and rebuild the application', watch = (cb) ->
     console.log "Watching for changes in ./src"
