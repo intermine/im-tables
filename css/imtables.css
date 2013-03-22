@@ -2264,7 +2264,7 @@
 .intermine .btn-group.open .btn.dropdown-toggle {
   background-color: #e6e6e6;}
 .intermine .btn-group.open .btn-primary.dropdown-toggle {
-  background-color: #0044cc;}
+  background-color: #51a351;}
 .intermine .btn-group.open .btn-warning.dropdown-toggle {
   background-color: #f89406;}
 .intermine .btn-group.open .btn-danger.dropdown-toggle {
@@ -4878,7 +4878,7 @@ ul.im-cols h4 {
     padding: 0px;
 }
 
-.im-th-buttons .dropdown-menu {
+.im-th-buttons .im-th-dropdown > .dropdown-menu {
     margin: 0px;
     padding: 0.2em;
     color: #333;

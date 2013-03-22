@@ -537,9 +537,7 @@ do ->
           this
 
         addChart: ->
-          if d3?
-            @_drawD3Chart()
-          # Boo-hoo, can't draw a pretty chart.
+          @_drawD3Chart() if d3?
           this
 
         _drawD3Chart: ->
@@ -657,26 +655,44 @@ do ->
             $grp.button()
             tbody = $grp.find('tbody')[0]
             @items.each (item) => @addItemRow item, @items, {}, tbody
+            # TODO - there are a lot of strings to externalise here.
             $grp.append """
-              <button class="btn pull-right im-download">
-                <i class="#{ intermine.icons.Download }"></i>
-                #{ DownloadData }
-              </button>
-              <div class="im-filter btn-group">
+              <div class="im-filter">
+                <button class="btn pull-right im-download" >
+                  <i class="#{ intermine.icons.Download }"></i>
+                  #{ DownloadData }
+                </button>
                 #{ @buttons }
               </div>
             """
 
-            $btns = $grp.find('.btn').tooltip placement: 'top'
-            $btns.on 'click', (e) -> $btns.tooltip 'hide'
+            $btns = $grp.find('.im-filter .btn').tooltip placement: 'top', container: @el
+            $btns.on 'click', (e) ->
+              console.log "Tooltipping", e
+              $btns.tooltip 'hide'
 
-            $grp.find('.im-download').popover
+            # The following is due to the insanity of bootstrap forcing
+            # all dropdowns closed when another opens, preventing nested
+            # dropdowns.
+            $grp.find('.dropdown-toggle').click (e) ->
+              $this = $ @
+              $parent = $this.parent()
+
+              $parent.toggleClass 'open'
+
+
+            imd = $grp.find('.im-download').popover
               placement: 'top'
               html: true
               container: @el
               title: DownloadFormat
               content: @getDownloadPopover()
-              trigger: 'click'
+              trigger: 'manual'
+
+            imd.click (e) ->
+              console.log "popping over", e
+              imd.popover 'toggle'
+            console.log imd
 
             @initFilter()
 
@@ -689,20 +705,37 @@ do ->
           tbody.appendChild @makeRow item
 
         buttons: """
-          <button type="submit" class="btn btn-primary im-filter-in" disabled
-                  title="Filter the table to only matching rows">
-            Filter
-          </button>
-          <button type="submit" class="btn btn-primary im-filter-out"
-                  title="Filter the table to exclude all matching rows"  disabled>
-            Filter Out
-          </button>
-          <button class="btn btn-cancel" disabled title="Reset selection">
-            <i class="#{ intermine.icons.Undo }"></i>
-          </button>
-          <button class="btn btn-toggle-selection" title="Toggle selection">
-            <i class="#{ intermine.icons.Toggle }"></i>
-          </button>
+          <div class="btn-group">
+            <button type="submit" class="btn btn-primary im-filter-in" disabled
+                    title="Filter the table to only matching rows">
+              Filter
+            </button>
+            <button class="btn btn-primary dropdown-toggle" 
+                    title="Select filter type"  disabled>
+              <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu">
+              <li>
+                <a class="im-filter-in">
+                  Restrict to matching rows
+                </a>
+              </li>
+              <li>
+                <a class="im-filter-out">
+                  Exclude matching rows
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <div class="btn-group">
+            <button class="btn btn-cancel" disabled title="Reset selection">
+              <i class="#{ intermine.icons.Undo }"></i>
+            </button>
+            <button class="btn btn-toggle-selection" title="Toggle selection">
+              <i class="#{ intermine.icons.Toggle }"></i>
+            </button>
+          </div>
         """
 
         initFilter: ->
