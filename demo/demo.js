@@ -85,8 +85,9 @@ $(function() {
             "where":[{"path":"Gene.homologues.type","op":"=","code":"A","value":"orthologue"},{"path":"Gene","op":"LOOKUP","code":"B","value":"CG6235","extraValue":"D. melanogaster"}]}
         },
         Beta: {
-          root: "beta.flymine.org/beta",
-          token: "M1n3x2ydw4icj140pbBcffIgR4Q",
+          "root": "preview.flymine.org/preview",
+          //root: "beta.flymine.org/beta",
+          //token: "M1n3x2ydw4icj140pbBcffIgR4Q",
           q: {
               select: [
                 "symbol",
