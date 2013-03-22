@@ -1,7 +1,11 @@
 do ->
 
     CELL_HTML = _.template """
-      <input class="list-chooser" type="checkbox" style="display: none">
+      <input class="list-chooser" type="checkbox"
+        <% if (checked) { %> checked <% } %>
+        <% if (disabled) { %> disabled <% } %>
+        style="display: <%= display %>"
+      >
       <a class="im-cell-link" href="<%= url %>">
         <% if (url != null && !url.match(host)) { %>
           <% if (icon) { %>
@@ -14,7 +18,7 @@ do ->
           <span class="null-value">&nbsp;</span>
         <% } else { %>
           <span class="im-displayed-value">
-            <%- value %>
+            <%= value %>
           </span>
         <% } %>
       </a>
@@ -255,25 +259,31 @@ do ->
           @cellPreview = new intermine.bootstrap.DynamicPopover @el, options
 
 
-        updateValue: ->
+        updateValue: -> _.defer =>
           @$('.im-displayed-value').html @formatter(@model)
 
-        selectingStateChange: ->
+        getInputState: ->
           {selected, selectable, selecting} = @model.selectionState()
-          @$el.toggleClass "active", selected
-          @$('input').attr checked: selected
-          @$('input').attr disabled: not selectable
-          @$('input').toggle selecting and selectable
+          checked = selected
+          disabled = not selectable
+          display = if selecting and selectable then 'inline' else 'none'
+          {checked, disabled, display}
+
+        selectingStateChange: ->
+          {checked, disabled, display} = @getInputState()
+          @$el.toggleClass "active", checked
+          @$('input').attr({checked, disabled}).css {display}
 
         getData: ->
           {IndicateOffHostLinks, ExternalLinkIcons} = intermine.options
           field = @options.field
           data =
-            value: @model.get field
+            value: @formatter(@model)
             field: field
             url: @model.get('service:url')
             host: if IndicateOffHostLinks then window.location.host else /.*/
             icon: null
+          _.extend data, @getInputState()
 
           unless /^http/.test(data.url)
             data.url = @model.get('service:base') + data.url
@@ -283,8 +293,9 @@ do ->
           data
 
         render: ->
-          @$el.html CELL_HTML @getData()
-          _.defer => @model.trigger 'change'
+          data = @getData()
+          _.defer => @$el.html CELL_HTML data
+          @$el.addClass 'active' if data.checked
           @setupPreviewOverlay() if @model.get('id')
           this
 

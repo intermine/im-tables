@@ -62,6 +62,7 @@ do ->
 
         render: ->
             @$el.empty()
+            @$el.append document.createElement 'tbody'
             promise = @fill()
             promise.done(@addColumnHeaders)
 
@@ -74,13 +75,9 @@ do ->
             @fill()
 
         fill: () ->
-            throbber = $ @throbber colcount: @query.views.length
-            #throbber.appendTo @el
-
             promise = @getData(@pageStart, @pageSize).then @readHeaderInfo
             promise.done @appendRows
             promise.fail @handleError
-            promise.always -> throbber.remove()
             promise.done () =>
                 @query.trigger "imtable:change:page", @pageStart, @pageSize
             promise
@@ -92,10 +89,12 @@ do ->
 
         appendRows: (res) =>
           @$("tbody > tr").remove()
+          tbody = @$('tbody')[0]
+
           if res.rows.length is 0
             @handleEmptyTable()
           else
-            _.defer @appendRow, row for row in res.rows
+            _.defer @appendRow, tbody, row for row in res.rows
 
           @query.trigger "table:filled"
 
@@ -107,12 +106,11 @@ do ->
           @getEffectiveView(res.results[0]) if res?.results?[0]
           res
 
-        appendRow: (row) =>
-            tr = $ "<tr>"
-            tr.appendTo @el
+        appendRow: (tbody, row) =>
+            tr = document.createElement 'tr'
+            tbody.appendChild tr
             minWidth = 10
             minimised = (k for k, v of @minimisedCols when v)
-            w = 1 / (row.length - minimised.length) * (@$el.width() - (minWidth * minimised.length))
             replacer_of = {}
             processed = {}
             @columnHeaders.each (col) ->
@@ -135,10 +133,10 @@ do ->
                 cell.formatter = formatter if formatter?
 
               if @minimisedCols[ cell.path ] or (path and @minimisedCols[path])
-                tr.append @minimisedColumnPlaceholder width: minWidth
+                $(tr).append @minimisedColumnPlaceholder width: minWidth
               else
-                tr.append cell.el
-                cell.render().setWidth w
+                cell.render()
+                tr.appendChild cell.el
 
         errorTempl: _.template """
             <div class="alert alert-error">
