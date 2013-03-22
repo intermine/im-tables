@@ -284,7 +284,7 @@ do ->
 
         render: ->
           @$el.html CELL_HTML @getData()
-          @model.trigger 'change'
+          _.defer => @model.trigger 'change'
           @setupPreviewOverlay() if @model.get('id')
           this
 
