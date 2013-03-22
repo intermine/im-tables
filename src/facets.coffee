@@ -502,16 +502,12 @@ do ->
         
         changeSelection: (f) ->
           tbody = @$('.im-item-table tbody')[0]
-          @items.each (item) -> item.facetRow?.remove()
-          @items.each (item) =>
-            f.call(@, item)
-            _.defer => tbody.appendChild @makeRow item
-          @items.trigger 'change:selected'
+          @items.each (item) => _.defer => f.call(@, item)
 
-        resetOptions: (e) -> @changeSelection (item) -> item.set({selected: false}, {silent: true})
+        resetOptions: (e) -> @changeSelection (item) -> item.set selected: false
 
         toggleSelection: (e) -> @changeSelection (item) ->
-          item.set({selected: not item.get('selected')}, {silent: true}) if item.get('visibility')
+          item.set({selected: not item.get('selected')}) if item.get('visibility')
 
         addConstraint: (e, ops, vals) ->
           e.preventDefault()
@@ -788,8 +784,8 @@ do ->
           if @item.has "path"
               item.get("path").node.setAttribute "class", if isSelected then "selected" else ""
           @$el.toggleClass "active", isSelected
-          if isSelected isnt @$('input').attr("checked")
-              @$('input').attr "checked", isSelected
+          if isSelected isnt @$('input').prop("checked")
+              @$('input').prop "checked", isSelected
 
         events:
             'click': 'handleClick'
@@ -894,13 +890,13 @@ do ->
             .attr('y1', h - .5)
             .attr('y2', h - .5)
             .style('stroke', '#000')
-          
-          @items.on 'change:selected', =>
-            chart.selectAll('rect').data(@items.models).transition()
-              .duration(intermine.options.D3.Transition.Duration)
-              .ease(intermine.options.D3.Transition.Easing)
-              .attr('class', (d) -> rectClass + (if d.get('selected') then '-selected' else ''))
 
+          onSelection = => _.defer => chart.selectAll('rect').data(@items.models).transition()
+            .duration(intermine.options.D3.Transition.Duration)
+            .ease(intermine.options.D3.Transition.Easing)
+            .attr('class', (d) -> rectClass + (if d.get('selected') then '-selected' else ''))
+          
+          @items.on 'change:selected', _.throttle onSelection, 150
           this
 
     class BooleanFacet extends PieFacet
