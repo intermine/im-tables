@@ -505,7 +505,7 @@ do ->
           @items.each (item) -> item.facetRow?.remove()
           @items.each (item) =>
             f.call(@, item)
-            tbody.appendChild @makeRow item
+            _.defer => tbody.appendChild @makeRow item
           @items.trigger 'change:selected'
 
         resetOptions: (e) -> @changeSelection (item) -> item.set({selected: false}, {silent: true})
@@ -646,7 +646,7 @@ do ->
             <form class="form form-horizontal">
               #{ @filterControls }
               <div class="im-item-table">
-                <table class="table table-condensed">
+                <table class="table table-condensed table-striped">
                   <colgroup>
                     #{ @colClasses.map( (cl) -> "<col class=#{cl}>").join('') }
                   </colgroup>
