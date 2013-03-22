@@ -58,63 +58,85 @@ do ->
                 else
                     """#{@rows[0][0].value} (#{@rows[0][1 ..].map((c) -> c.value).join(', ')})"""
 
+        renderHead: (headers) ->
+          # Prefer column to view as it is reliable.
+          columns = @rows[0].map (cell) -> cell.column
+          for v in columns then do (v) =>
+            th = $ """<th>
+                <i class="#{intermine.css.headerIconRemove}"></i>
+                <span></span>
+            </th>"""
+            th.find('i').click (e) => @query.removeFromSelect v
+            path = @query.getPathInfo(v)
+            @column.getDisplayName (colName) =>
+                span = th.find('span')
+                if intermine.results.shouldFormat(path)
+                    path = path.getParent()
+                path.getDisplayName (pathName) ->
+                    if pathName.match(colName)
+                        span.text pathName.replace(colName, '').replace(/^\s*>?\s*/, '')
+                    else
+                        span.text pathName.replace(/^[^>]*\s*>\s*/, '')
+            headers.append th
+
+        appendRow: (row, tbody) =>
+          tbody ?= @$ '.im-subtable tbody'
+          tr = $ '<tr>'
+          w = @$el.width() / @view.length
+          for cell in row then do (tr, cell) =>
+            view = @cellify cell
+            if intermine.results.shouldFormat view.path
+              view.formatter = intermine.results.getFormatter view.path
+            else
+            tr.append view.el
+            view.render().setWidth w
+          tbody.append tr
+          null
+
+        renderTable: ($table) ->
+          return if @tableRendered
+          $table ?= @$ '.im-subtable'
+          colRoot = @column.getType().name
+          colStr = @column.toString()
+          if @rows.length > 0
+            @renderHead $table.find('thead tr')
+            tbody = $table.find 'tbody'
+
+            if @column.isCollection()
+                _.defer @appendRow, row, tbody for row in @rows
+            else
+                @appendRow(@rows[0], tbody) # Odd hack to fix multiple repeated rows.
+          @tableRendered = true
+
+        events:
+          'click .im-subtable-summary': 'toggleTable'
+
+        toggleTable: (e) ->
+          e.stopPropagation()
+          $table = @$ '.im-subtable'
+          evt = if $table.is ':visible'
+            'subtable:collapsed'
+          else
+            @renderTable $table
+            'subtable:expanded'
+          $table.slideToggle()
+          @query.trigger evt, @column
+
         render: () ->
             icon = if @rows.length > 0 then '<i class=icon-table></i>' else '<i class=icon-non-existent></i>'
-            summary = $ """<span>#{ icon }&nbsp;#{ @getSummaryText() }</span>"""
-            summary.addClass('im-subtable-summary').appendTo @$el
-            t = $ '<table><thead><tr></tr></thead><tbody></tbody></table>'
-            colRoot = @column.getType().name
-            colStr = @column.toString()
-            if @rows.length > 0
-                # Prefer column to view as it is reliable.
-                columns = @rows[0].map (cell) -> cell.column
-                for v in columns then do (v) =>
-                    th = $ """<th>
-                        <i class="#{intermine.css.headerIconRemove}"></i>
-                        <span></span>
-                    </th>"""
-                    th.find('i').click (e) => @query.removeFromSelect v
-                    path = @query.getPathInfo(v)
-                    @column.getDisplayName (colName) =>
-                        span = th.find('span')
-                        if intermine.results.shouldFormat(path)
-                            path = path.getParent()
-                        path.getDisplayName (pathName) ->
-                            if pathName.match(colName)
-                                span.text pathName.replace(colName, '').replace(/^\s*>?\s*/, '')
-                            else
-                                span.text pathName.replace(/^[^>]*\s*>\s*/, '')
-                    t.children('thead').children('tr').append th
-                appendRow = (t, row) =>
-                    tr = $ '<tr>'
-                    w = @$el.width() / @view.length
-                    for cell in row then do (tr, cell) =>
-                      view = @cellify cell
-                      if intermine.results.shouldFormat view.path
-                        view.formatter = intermine.results.getFormatter view.path
-                      else
-                      tr.append view.el
-                      view.render().setWidth w
-                    t.children('tbody').append tr
-                    null
+            summary = $ """
+              <span class="im-subtable-summary">
+                #{ icon }&nbsp;#{ @getSummaryText() }
+              </span>
+            """
+            summary.appendTo @$el
 
-                if @column.isCollection()
-                    appendRow(t, row) for row in @rows
-                else
-                    appendRow(t, @rows[0]) # Odd hack to fix multiple repeated rows.
-
-
-            t.addClass 'im-subtable table table-condensed table-striped'
-
-            @$el.append t
-
-            summary.css(cursor: 'pointer').click (e) =>
-                e.stopPropagation()
-                if t.is(':visible')
-                    @query.trigger 'subtable:collapsed', @column
-                else
-                    @query.trigger 'subtable:expanded', @column
-                t.slideToggle()
+            @$el.append """
+              <table class="im-subtable table table-condensed table-striped">
+                <thead><tr></tr></thead>
+                <tbody></tbody>
+              </table>
+            """
 
             this
 

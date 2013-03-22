@@ -91,13 +91,13 @@ do ->
             @$el.find('.btn-primary').click => @query.trigger 'undo'
 
         appendRows: (res) =>
-            @$("tbody > tr").remove()
-            if res.rows.length is 0
-                @handleEmptyTable()
-            else
-                @appendRow(row) for row in res.rows
+          @$("tbody > tr").remove()
+          if res.rows.length is 0
+            @handleEmptyTable()
+          else
+            _.defer @appendRow, row for row in res.rows
 
-            @query.trigger "table:filled"
+          @query.trigger "table:filled"
 
         minimisedColumnPlaceholder: _.template """
             <td class="im-minimised-col" style="width:<%= width %>px">&hellip;</td>
@@ -107,7 +107,7 @@ do ->
           @getEffectiveView(res.results[0]) if res?.results?[0]
           res
 
-        appendRow: (row) ->
+        appendRow: (row) =>
             tr = $ "<tr>"
             tr.appendTo @el
             minWidth = 10
