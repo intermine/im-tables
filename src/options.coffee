@@ -13,6 +13,11 @@ scope "intermine.options",
       "http://www.yeastgenome.org": "http://www.yeastgenome.org/favicon.ico"
     StylePrefix: 'intermine'
     GalaxyMain: "http://main.g2.bx.psu.edu"
+    GenomeSpaceUpload: "https://gsui.genomespace.org/jsui/upload/loadUrlToGenomespace.html"
+    # GenomeSpaceUpload: 'https://identitytest.genomespace.org/jsui/uploaddialog.html'
+    ExternalExportDestinations: # Setting these to false disables them
+      Galaxy: true
+      Genomespace: true
     ShowId: false
     TableWidgets: ['Pagination', 'PageSizer', 'TableSummary', 'ManagementTools', 'ScrollBar']
     CellCutoff: 100

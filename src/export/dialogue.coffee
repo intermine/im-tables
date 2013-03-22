@@ -207,6 +207,12 @@ do ->
             $a.data target: @$(".tab-pane.im-export-#{ x }")
             $a.tab('show')
           events[key] = cb
+
+        # This really ought to live in events...
+        for val in ["no", "gzip", "zip"] then do (val) =>
+          events["click .im-#{val}-compression"] = (e) =>
+            @requestInfo.set compress: val
+
         events
       
       readFastaExt: (e) ->
@@ -334,7 +340,8 @@ do ->
       sendToGenomespace: (e) ->
           ignore e
           link = 'foo'
-          genomeSpaceURL = "https://gsui.genomespace.org/jsui/upload/loadUrlToGenomespace.html?"
+          genomeSpaceURL = intermine.options.GenomeSpaceUpload
+          #  "https://gsui.genomespace.org/jsui/upload/loadUrlToGenomespace.html?"
           uploadUrl = @state.get 'url'
           fileName = "Results.#{ @requestInfo.get 'format' }"
           qs = $.param {uploadUrl, fileName}
@@ -349,14 +356,14 @@ do ->
           console.log qs
 
           gsFrame = @$('.gs-frame').attr
-            src: genomeSpaceURL + qs
+            src: genomeSpaceURL + '?' + qs
             width: w
             height: h
 
           @$('.btn-primary').addClass 'disabled'
 
+          @$('.carousel').carousel interval: false
           @$('.carousel').carousel 1
-          @$('.carousel').carousel 'pause'
 
           window.setCallbackOnGSUploadComplete = (savePath) =>
             @$('.carousel').carousel 0
@@ -711,22 +718,33 @@ do ->
         @$el.append intermine.snippets.actions.DownloadDialogue()
         @$('.modal-footer .btn').tooltip()
 
-        # This really ought to live in events...
-        for val in ["no", "gzip", "zip"] then do (val) =>
-          @$(".im-#{val}-compression").click (e) =>
-            @requestInfo.set compress: val
-
         @initFormats()
         @initCols()
         @makeSlider()
         @updateFormatOptions()
         @warnOfOuterJoinedCollections()
+        @addExternalExports()
 
         @state.trigger 'change:destination'
         @requestInfo.trigger 'change'
         @requestInfo.trigger 'change:format'
 
         this
+
+      addExternalExports: ->
+        $options = @$ '.im-export-destination-options'
+        $navs = @$ '.im-export-destinations.nav'
+        for name, enabled of intermine.options.ExternalExportDestinations when enabled
+          action = "SendTo" + name
+          $navs.append """
+            <li>
+              <a href="#" data-destination="#{ name.toLowerCase() }">
+                #{ intermine.messages.actions[action] }
+              </a>
+            </li>
+          """
+          $options.append intermine.export.snippets[name]?()
+
 
       makeSlider: () ->
         # Unset any previous sliders.

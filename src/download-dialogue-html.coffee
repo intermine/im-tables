@@ -108,16 +108,6 @@ do ->
                 #{ intermine.messages.actions.ExportLong }
               </a>
             </li>
-            <li>
-              <a href="#" data-destination="galaxy">
-                #{ intermine.messages.actions.SendToGalaxy }
-              </a>
-            </li>
-            <li>
-              <a href="#" data-destination="genomespace" >
-                #{ intermine.messages.actions.SendToGenomespace }
-              </a>
-            </li>
           </ul>
             <div class="row-fluid im-export-destination-options">
 
@@ -144,28 +134,6 @@ do ->
                   #{ intermine.messages.actions.IsPrivateData }
                 </div>
 
-              </div>
-
-              <div class="im-galaxy">
-                <form class="im-galaxy form form-compact well">
-                  <label>
-                    #{ intermine.messages.actions.GalaxyURILabel }
-                    <input class="im-galaxy-uri" 
-                          type="text" value="#{ intermine.options.GalaxyMain }">
-                  </label>
-                  <label>
-                    #{ intermine.messages.actions.SaveGalaxyURL }
-                    <input type="checkbox" disabled checked class="im-galaxy-save-url">
-                  </label>
-                </form>
-              </div>
-
-              <div class="im-genomespace">
-                <div class="well">
-                  <button class="btn btn-primary btn-block im-send-to-genomespace">
-                    #{ intermine.messages.actions.SendToGenomespace }
-                  </button>
-                </div>
               </div>
 
             </div>
