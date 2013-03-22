@@ -25,8 +25,8 @@ scope "intermine.icons", {
     Edit: 'icon-cogs',
     Download: 'icon-file-alt',
     ClipBoard: 'icon-paper-clip',
-    tsv: 'icon-th',
-    csv: 'icon-th',
+    tsv: 'icon-table',
+    csv: 'icon-table',
     xml: 'icon-xml',
     json: 'icon-json'
 }
