@@ -34,7 +34,7 @@ do ->
            title="Toggle column">
           <i class="<%- css_hide %> <%- css_header %>"></i>
         </a>
-        <span class="dropdown im-filter-summary">
+        <span class="dropdown im-filter-summary im-th-dropdown">
           <a href="#" class="im-th-button im-col-filters dropdown-toggle"
              title=""
              data-toggle="dropdown" >
@@ -44,7 +44,7 @@ do ->
             <div>Could not ititialise the filter summary.</div>
           </div>
         </span>
-        <span class="dropdown im-summary">
+        <span class="dropdown im-summary im-th-dropdown">
           <a href="#" class="im-th-button summary-img dropdown-toggle" title="column summary"
             data-toggle="dropdown" >
             <i class="<%- css_summary %> <%- css_header %>"></i>
@@ -125,6 +125,7 @@ do ->
         placement: @bestFit
         container: @el
 
+      # Does not work if placed in events.
       @$('.summary-img').click @showColumnSummary
       @$('.im-col-filters').click @showFilterSummary
 
@@ -167,10 +168,11 @@ do ->
       'click .im-summary': 'showColumnSummary'
       'click .im-subtable-expander': 'toggleSubTable'
       'click .im-col-remover': 'removeColumn'
-      'toggle .dropdown': 'summaryToggled'
+      'toggle .im-th-button': 'summaryToggled'
 
     summaryToggled: (e, isOpen) ->
       ignore e
+      return unless e.target is e.currentTarget # Don't listen to bubbles.
       unless isOpen
         @summary?.remove()
 
