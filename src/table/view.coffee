@@ -424,7 +424,8 @@ do ->
             elOffset = @$el.offset()
             tableOffset = @table.$el.offset()
             jQuery('.im-table-overlay').remove()
-            @overlay = jQuery @make "div", class: "im-table-overlay discrete"
+            @overlay = jQuery @make "div",
+              class: "im-table-overlay discrete " + intermine.options.StylePrefix
             @overlay.css
                 top: elOffset.top
                 left: elOffset.left
