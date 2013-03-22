@@ -12,7 +12,7 @@ define 'actions', using 'actions/list-manager', 'actions/code-gen', (ListManager
     render: ->
       for cls in @actionClasses()
         action = new cls @states
-        action.render().$el.addClass(@extraClass).appendTo @el
+        action.render().$el.addClass(@extraClass).appendTo @el unless action.disabled
 
       this
 
