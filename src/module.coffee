@@ -1,4 +1,4 @@
-root = exports ? this
+root = this
 
 unless root.console
     root.console =
@@ -28,11 +28,14 @@ scope = (path, code = {}, overwrite = false) ->
 define = ->
 using = ->
 end_of_definitions = ->
+require = ->
 
 do ->
 
   pending_modules = {}
   defined_modules = {}
+
+  require = (name) -> defined_modules[name]
 
   sweep_pending = ->
     newDefs = 0
@@ -56,7 +59,7 @@ do ->
   using = (names..., f) -> (eof = false) ->
     objs = (defined_modules[name] for name in names when name of defined_modules)
     if objs.length is names.length
-      f objs...
+      f(objs...) or true
     else if eof # report missing dependencies.
       (name for name in names when name not of defined_modules)
     else
