@@ -15,8 +15,8 @@ scope "intermine.messages.actions", {
     Clear: "Clear"
     Export: "Download",
     'download-file': 'Download File',
-    'galaxy': 'Send to Galaxy',
-    'genomespace': 'Upload to Genomespace',
+    Galaxy: 'Send to Galaxy',
+    Genomespace: 'Upload to Genomespace',
     ExportAlt: "Send Data Somewhere Else",
     ExportLong: """
       <span class="hidden-tablet">Download</span>

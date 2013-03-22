@@ -47,6 +47,7 @@ do ->
       initialize: (query) ->
           @query = query.clone() # Take a snapshot, not a reference.
           @service = query.service
+          @dummyParams = ['allRows', 'allCols', 'end', 'columnHeaders']
           @requestInfo = new Backbone.Model
             format: EXPORT_FORMATS[0]
             allRows: true
@@ -54,7 +55,9 @@ do ->
             start: 0
             compress: "no"
             columnHeaders: true
-            galaxy: intermine.options.GalaxyMain
+
+          for name, enabled of intermine.options.ExternalExportDestinations when enabled
+            intermine.export.external[name].init?.call(@)
 
           @state = new Backbone.Model destination: 'download-file'
 
@@ -62,17 +65,7 @@ do ->
           @state.on 'change:url', @onChangeURL
           @state.on 'change:destination', @onChangeDest
 
-          @service.whoami (user) =>
-            if user.hasPreferences and (myGalaxy = user.preferences['galaxy-url'])
-              @requestInfo.set galaxy: myGalaxy
-
           @service.fetchVersion (v) => @$('.im-ws-v12').remove() if v < 12
-
-          @requestInfo.on "change:galaxy", (m, uri) =>
-            input = @$('input.im-galaxy-uri')
-            currentVal = input.val()
-            input.val(uri) unless currentVal is uri
-            @$('.im-galaxy-save-url').attr disabled: uri is intermine.options.GalaxyMain
 
           @exportedCols = new Backbone.Collection
           @resetExportedColumns()
@@ -168,10 +161,6 @@ do ->
           'click .close': 'stop'
           'click .im-cancel': 'stop'
           'click a.im-download': 'export'
-          'change .im-galaxy-uri': 'changeGalaxyURI'
-          'click .im-send-to-galaxy': 'sendToGalaxy'
-          'click .im-send-to-genomespace': 'sendToGenomespace'
-          'click .im-forget-galaxy': 'forgetGalaxy'
           'change .im-first-row': 'changeStart'
           'change .im-last-row': 'changeEnd'
           'keyup .im-range-limit': 'keyPressOnLimit'
@@ -208,10 +197,13 @@ do ->
             $a.tab('show')
           events[key] = cb
 
-        # This really ought to live in events...
         for val in ["no", "gzip", "zip"] then do (val) =>
           events["click .im-#{val}-compression"] = (e) =>
             @requestInfo.set compress: val
+
+        for name, enabled of intermine.options.ExternalExportDestinations when enabled
+          moreEvents = intermine.export.external[name].events?.call(@)
+          _.extend events, moreEvents if moreEvents?
 
         events
       
@@ -288,20 +280,13 @@ do ->
         @$('.btn-primary.im-download').text name
 
         @$('.im-export-destination-options > div').removeClass 'active'
-        @$(".im-#{ destination }").addClass 'active'
+        @$(".im-#{ destination.toLowerCase() }").addClass 'active'
 
       dontReallySubmitForm: (e) ->
           # Hack to fix bug in struts webapp
           e.preventDefault()
           e.stopPropagation()
           return false # seriously, don't
-
-      forgetGalaxy: (e) ->
-        @service
-          .whoami()
-          .pipe( (user) => console.log(user); user.clearPreference('galaxy-url'))
-          .done( () => @requestInfo.set galaxy: intermine.options.GalaxyMain )
-        return false
 
       keyPressOnLimit: (e) ->
         input = $(e.target)
@@ -337,77 +322,6 @@ do ->
           e.stopPropagation()
           e.preventDefault()
 
-      sendToGenomespace: (e) ->
-          ignore e
-          link = 'foo'
-          genomeSpaceURL = intermine.options.GenomeSpaceUpload
-          #  "https://gsui.genomespace.org/jsui/upload/loadUrlToGenomespace.html?"
-          uploadUrl = @state.get 'url'
-          fileName = "Results.#{ @requestInfo.get 'format' }"
-          qs = $.param {uploadUrl, fileName}
-
-          w = @$('.modal-body').width()
-          h = Math.max 400, @$('.modal-body').height()
-
-          console.log w, h
-
-          console.log uploadUrl
-          console.log fileName
-          console.log qs
-
-          gsFrame = @$('.gs-frame').attr
-            src: genomeSpaceURL + '?' + qs
-            width: w
-            height: h
-
-          @$('.btn-primary').addClass 'disabled'
-
-          @$('.carousel').carousel interval: false
-          @$('.carousel').carousel 1
-
-          window.setCallbackOnGSUploadComplete = (savePath) =>
-            @$('.carousel').carousel 0
-            @$('.carousel').carousel 'pause'
-            @$('.btn-primary').removeClass 'disabled'
-            @stop()
-
-
-      sendToGalaxy: (e) ->
-          ignore e
-          uri = @requestInfo.get 'galaxy'
-          @doGalaxy uri
-          if @$('.im-galaxy-save-url').is(':checked') and uri isnt intermine.options.GalaxyMain
-              @saveGalaxyPreference uri
-
-      saveGalaxyPreference: (uri) -> @query.service.whoami (user) ->
-          if user.hasPreferences and user.preferences['galaxy-url'] isnt uri
-              user.setPreference 'galaxy-url', uri
-
-      doGalaxy: (galaxy) ->
-        query = @query
-        console.log "Sending to #{ galaxy }"
-        endpoint = @getExportEndPoint()
-        format = @requestInfo.get 'format'
-        qLists = (c.value for c in @query when c.op is 'IN')
-        intermine.utils.getOrganisms query, (orgs) =>
-            params =
-                tool_id: 'flymine' # name of tool within galaxy that does uploads.
-                organism: orgs.join(', ')
-                URL: endpoint
-                URL_method: "post"
-                name: "#{ if orgs.length is 1 then orgs[0] + ' ' else ''}#{ query.root } data"
-                data_type: if format.extension is 'tsv' then 'tabular' else format.extension
-                info: """
-                    #{ query.root } data from #{ @service.root }.
-                    Uploaded from #{ window.location.toString().replace(/\?.*/, '') }.
-                    #{ if qLists.length then ' source: ' + lists.join(', ') else '' }
-                    #{ if orgs.length then ' organisms: ' + orgs.join(', ') else '' }
-                """
-            for k, v of @getExportParams()
-                params[k] = v
-            intermine.utils.openWindowWithPost "#{ galaxy }/tool_runner", "Upload", params
-
-      changeGalaxyURI: (e) -> @requestInfo.set galaxy: @$('.im-galaxy-uri').val()
 
       getExportEndPoint: () ->
           format = @requestInfo.get 'format'
@@ -417,10 +331,12 @@ do ->
       # Unnecessary? We could always use this if the url gets too big...
       # openWindowWithPost @getExportEndPoint(), "Export", @getExportParams()
       export: (e) ->
-        switch @state.get('destination')
-          when 'galaxy' then @sendToGalaxy e
-          when 'genomespace' then @sendToGenomespace e
-          else true # Do the default linky thing
+        dest = @state.get 'destination'
+        if dest of intermine.export.external
+          ignore e
+          intermine.export.external[dest].export.call(@)
+        else
+          true # Do the default linky thing
 
       getExportQuery: () ->
           q = @query.clone()
@@ -450,11 +366,8 @@ do ->
           params.format = @getFormatParam()
 
           # Clean up params we don't need to send
-          delete params.galaxy
-          delete params.allRows
-          delete params.allCols
-          delete params.end
-          delete params.columnHeaders
+          for dummy in @dummyParams
+            delete params[dummy]
           delete params.compress if params.compress is 'no'
 
           if params.format not in ['gff3', 'fasta']
@@ -738,7 +651,7 @@ do ->
           action = "SendTo" + name
           $navs.append """
             <li>
-              <a href="#" data-destination="#{ name.toLowerCase() }">
+              <a href="#" data-destination="#{ name }">
                 #{ intermine.messages.actions[action] }
               </a>
             </li>
