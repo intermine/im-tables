@@ -72,6 +72,19 @@ $(function() {
           }
         },
         Preview: {
+          "root": "preview.flymine.org/preview",
+          q: {
+            "title":"Gene --> Orthologues + GO terms of these orthologues.","description":"Show GO terms applied to orthologues of a specific gene. (Data Source: InParanoid, TreeFam, Drosophila Consortium, GO Consortium).",
+            "select":[
+              "Gene.primaryIdentifier","Gene.symbol","Gene.homologues.homologue.primaryIdentifier","Gene.homologues.homologue.symbol","Gene.homologues.type","Gene.homologues.homologue.organism.name","Gene.homologues.dataSets.name","Gene.homologues.gene.goAnnotation.ontologyTerm.name","Gene.homologues.gene.goAnnotation.ontologyTerm.identifier"],
+            "constraintLogic":"A and B",
+            "name":"Gene_OrthologueGO_new",
+            "comment":"13/03/07 added orthologue organismDbId. Philip 070607 updated to work with gene class Philip",
+            "orderBy":[{"Gene.primaryIdentifier":"ASC"}],
+            "joins":["Gene.homologues.gene","Gene.homologues.gene.goAnnotation","Gene.homologues.gene.goAnnotation.ontologyTerm"],
+            "where":[{"path":"Gene.homologues.type","op":"=","code":"A","value":"orthologue"},{"path":"Gene","op":"LOOKUP","code":"B","value":"CG6235","extraValue":"D. melanogaster"}]}
+        },
+        Beta: {
           root: "beta.flymine.org/beta",
           token: "M1n3x2ydw4icj140pbBcffIgR4Q",
           q: {
