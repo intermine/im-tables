@@ -4695,6 +4695,10 @@ div.well.im-perma-link-content,
     margin-top: 2em;
 }
 
+.alert.im-long-uri {
+    display: none;
+}
+
 .im-export-dialogue .galaxy-toggle { height: 18px } /* Fix for issue in FlyMine */
 
 

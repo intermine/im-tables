@@ -55,6 +55,12 @@ scope "intermine.messages.actions", {
         access to. If this is just a 24 hour access token, then you will need to replace it
         once it becomes invalid.
     """,
+    LongURI: """
+        The normal URI for this query (which includes the full query XML in the 
+        parameters) is too long for a GET request. The URI you can see here uses a
+        query-id, which has a limited validity. You should not store this URI for long
+        term use.
+    """,
     SendToOtherGalaxy: "Send",
     AllRows: "Whole Result Set"
     SomeRows: "Specific Range",

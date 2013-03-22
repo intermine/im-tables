@@ -48,6 +48,7 @@ do ->
           @query = query.clone() # Take a snapshot, not a reference.
           @service = query.service
           @dummyParams = ['allRows', 'allCols', 'end', 'columnHeaders']
+          @qids = {}
           @requestInfo = new Backbone.Model
             format: EXPORT_FORMATS[0]
             allRows: true
@@ -264,6 +265,24 @@ do ->
           delete params.token unless isPrivate
           url = endpoint + "?" + $.param(params, true)
           @state.set {url}
+          # Arbitrary long-uri cut off. Tests show failure starts around here.
+          uriIsTooLong = url.length > 4000
+          if uriIsTooLong
+            eq = @getExportQuery()
+            xml = eq.toXML()
+            # Check our own cache first.
+            fetching = (@qids[xml] ?= eq.fetchQID())
+
+            fetching.done (qid) =>
+              @$('.im-long-uri').show()
+              delete params.query
+              params.qid = qid
+              url = endpoint + "?" + $.param(params, true)
+              @state.set {url}
+          else
+            @$('.im-long-uri').hide()
+
+
 
       onChangePrivacy: (state, isPrivate) =>
           @$('.im-private-query').toggle isPrivate

@@ -134,6 +134,13 @@ do ->
                   #{ intermine.messages.actions.IsPrivateData }
                 </div>
 
+                <div class="alert alert-block alert-info im-long-uri">
+                  <button type="button" class="close" data-dismiss="alert">×</button>
+                  <h4>nb:</h4>
+                  #{ intermine.messages.actions.LongURI }
+                </div>
+
+
               </div>
 
             </div>
