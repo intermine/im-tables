@@ -4429,6 +4429,7 @@ table.table {
     z-index: 1010;
 }
 
+.popover-title .im-name-part,
 .im-view-element .im-name-part {
     margin-right: 0.5em;
     display: inline;
@@ -4436,17 +4437,23 @@ table.table {
 }
 .im-parent:after,
 .im-title-part:after,
+.popover-title .im-name-part:after,
 .im-view-element .im-name-part:after {
     content: "\00bb";
     color: #aaa;
     margin-left: 0.5em;
     font-weight: bold;
 }
+.popover-title .im-name-part:last-child,
 .im-view-element .im-name-part:last-child {
     opacity: 1;
 }
+.popover-title .im-name-part:last-child:after,
 .im-view-element .im-name-part:last-child:after {
     content: '';
+}
+.popover-title .im-name-part {
+    display: inline-block;
 }
 
 .im-soe, .im-view-element {

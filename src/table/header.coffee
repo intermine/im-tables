@@ -114,10 +114,11 @@ do ->
       @displaySortDirection()
 
       @namePromise.done =>
-        [ancestors..., penult, last] = @model.get('name').split(' > ')
+        [ancestors..., penult, last] = parts = @model.get('name').split(' > ')
         parentType = if ancestors.length then 'non-root' else 'root'
+        parts = ( """<span class="im-name-part">#{ p }</span>""" for p in parts )
         @$('.im-col-title').html(RENDER_TITLE {penult, last, parentType})
-                           .popover(placement: 'bottom', content: @model.get('name'))
+                           .popover(placement: 'bottom', html: true, title: parts.join(''))
 
 
       @$('.im-th-button').tooltip
