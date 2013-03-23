@@ -118,7 +118,7 @@ do ->
     """
 
     events:
-      'im-add-soe': 'addToOrderBy'
+      'click .im-add-soe': 'addToOrderBy'
       'dropped': 'addToOrderBy'
 
     addToOrderBy: ->
