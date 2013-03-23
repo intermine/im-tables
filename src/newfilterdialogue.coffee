@@ -42,15 +42,16 @@ do ->
 
         addConstraint: () ->
             if @conAdder.isValid()
-                @$el.modal('hide')
-                @$('.im-constraint.new .btn-primary').click()
+              @conAdder.newCon.editConstraint()
+              @$el.modal('hide')
             else
-                @$('.im-constraint.new').addClass('error')
+              @$('.im-constraint.new').addClass('error')
 
         render: () ->
             @$el.append @html
             @conAdder = new intermine.query.ConstraintAdder(@query)
             @$el.find('.modal-body').append @conAdder.render().el
+            @conAdder.showTree()
             this
             
     scope 'intermine.filters', {NewFilterDialogue}

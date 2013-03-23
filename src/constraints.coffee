@@ -49,7 +49,7 @@ do ->
             @path = @query.getPathInfo @orig.path
             @type = @path.getEndClass()
             @con = new Backbone.Model(_.extend({}, @orig))
-            if @path.isClass()
+            if @path.isReference() or @path.isRoot()
                 @ops = intermine.Query.REFERENCE_OPS
             else if @path.getType() in intermine.Model.BOOLEAN_TYPES
                 @ops = ["=", "!="].concat(intermine.Query.NULL_OPS)
@@ -116,8 +116,8 @@ do ->
             return true
 
         editConstraint: (e) ->
-            e.stopPropagation()
-            e.preventDefault()
+            e?.stopPropagation()
+            e?.preventDefault()
 
             if not @valid()
               @$el.addClass 'error'
@@ -330,7 +330,7 @@ do ->
         drawLoopOpts: (fs) ->
             $loops = $(@valueSelect).appendTo(fs)
             loopCandidates = @query.getQueryNodes().filter (lc) =>
-                lc.isa(@type) or @path.isa(lc.getEndClass())
+                lc.isa(@type) or @path.isa(lc.getType())
             for lc in loopCandidates
                 opt = $ """<option value="#{ lc.toString() }">"""
                 opt.appendTo $loops
@@ -437,7 +437,7 @@ do ->
             super q, c
             @$el.addClass "new"
             @buttons[0].text = "Apply"
-            @con.set op: (if @type then 'LOOKUP' else '=')
+            @con.set op: (if @path.isReference() then 'LOOKUP' else '=')
 
         addIcons: ->
 

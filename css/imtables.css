@@ -5223,6 +5223,8 @@ td.im-result-subtable .im-subtable {
     border: 1px dashed #0088cc;
 }
 
+.im-constraint-adder li.active > a,
+.node-adder li.active > a,
 .im-constraint-adder li:hover > a,
 .node-adder li:hover > a {
     background: #0088cc;
