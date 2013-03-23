@@ -10,12 +10,12 @@ define 'html/new-list', -> """
               <p class="im-list-summary"></p>
               <fieldset class="control-group">
                   <label>Name</label>
-                  <input class="im-list-name input-xlarge" type="text" placeholder="required identifier">
+                  <input class="im-list-name span10" type="text" placeholder="required identifier">
                   <span class="help-inline"></span>
               </fieldset>
               <fieldset class="control-group">
                   <label>Description</label>
-                  <input class="im-list-desc input-xlarge" type="text" placeholder="an optional description" >
+                  <input class="im-list-desc span10" type="text" placeholder="an optional description" >
               </fieldset>
               <fieldset class="control-group im-tag-options">
                   <label>Add Tags</label>
