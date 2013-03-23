@@ -47,6 +47,7 @@ define 'actions/list-dialogue', ->
       @$('.btn-primary').attr disabled: not hasSelectedItems
       @$('.im-selection-instruction').hide()
       @$('form').show()
+      @$el.addClass 'im-picked'
       @nothingSelected() unless hasSelectedItems
 
     newCommonType: ->
@@ -57,6 +58,7 @@ define 'actions/list-dialogue', ->
     nothingSelected: ->
         @$('.im-selection-instruction').slideDown()
         @$('form').hide()
+        @$el.removeClass 'im-picked'
         @query.trigger "selection:cleared"
 
     events: ->

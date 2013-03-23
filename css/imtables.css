@@ -1817,7 +1817,7 @@
 .im-list-creation-dialogue .im-minimise {
     display:none;
 }
-.im-picking-list-items .im-minimise {
+.im-picked .im-minimise {
   display: block;
 }
 .intermine button.close {
