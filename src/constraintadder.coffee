@@ -299,8 +299,7 @@ do ->
             e.preventDefault()
             e.stopPropagation()
             if @chosen?
-                con =
-                    path: @chosen.toString()
+                con = path: @chosen.toString()
 
                 @newCon = new intermine.query.NewConstraint(@query, con)
                 @newCon.render().$el.insertAfter @el
