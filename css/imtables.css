@@ -1408,6 +1408,7 @@
      -moz-border-radius: 0px;
           border-radius: 0px;}
 .intermine .table-bordered > thead > tr > th {
+  border-bottom: 1px solid #ddd;
   border-top: none;
 }
 .intermine .table-bordered > thead > tr > th,
@@ -4491,7 +4492,7 @@ table.table {
     display: inline-block;
 }
 
-.im-table-container th.im-has-constraint {
+.intermine .im-table-container .table-striped > thead > tr > th.im-has-constraint {
     border: 1px dashed #ccc;
 }
 
