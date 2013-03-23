@@ -75,10 +75,12 @@ define 'actions/new-list-dialogue', using 'actions/list-dialogue', 'models/uniq-
         super(type, q)
         @initTags()
 
+    TAG_ILLEGALS = /[^\w\d\s.,:-]/g
+
     initTags: ->
       @tags.reset()
       @suggestedTags.reset()
-      add = (tag) => @suggestedTags.add tag, {silent: true}
+      add = (tag) => @suggestedTags.add tag.replace(TAG_ILLEGALS, ' '), {silent: true}
       for c in @query.constraints then do (c) ->
           title = c.title or c.path.replace(/^[^\.]+\./, "")
           if c.op is "IN"
