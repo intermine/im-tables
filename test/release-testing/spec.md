@@ -3,7 +3,7 @@ Release Testing
 
 Before each release, the following specification must be verified
 by human testers. Any deviation from this spec is a bug, and should
-be reported at [https://github.com/intermine/im-tables/issues.][]
+be reported at [https://github.com/intermine/im-tables/issues.]()
 
 Table Layout
 -------------
@@ -11,28 +11,28 @@ Table Layout
 A rendered table must have:
 * A description stating the total result set size, and the range of the
   currently displayed rows. eg: `Showing 1 to 10 of 500 rows`
-* A selector for the number of rows to show. (see [row selector][#row-selector]).
+* A selector for the number of rows to show. (see [row selector](#row-selector)).
 * A set of controls for changing the range of currently displayed rows
-  (see [pagination][#pagination]).
+  (see [pagination](#pagination)).
 * A button that will open a dialogue for managing the selected view columns
-  and the table sort order (see [column management][#column-management]).
+  and the table sort order (see [column management](#column-management)).
 * A button that will open a dialogue for seeing the currently applied filters
-  and adding new filters (see [filter management][#filter-management]).
+  and adding new filters (see [filter management](#filter-management)).
 * A button that provides access to code generation (see
-  [code generation][#code-generation]).
+  [code generation](#code-generation)).
 * A button that provides access to the results export interface (see
-  [export][#export]).
+  [export](#export)).
 * A table with:
-  - An informative column header that matches each column (see [column headers][#column-headers]).
-  - Rows of [result cells][#result-cells] that match the number displayed in the table description.
+  - An informative column header that matches each column (see [column headers](#column-headers)).
+  - Rows of [result cells](#result-cells) that match the number displayed in the table description.
 
 If the current user is authenticated (all users in an intermine web-application
 should be authenticated), then there must also be:
 * A button that will open a set of interfaces for constructing lists from
-  results in the table (see [list management][#list-management]).
+  results in the table (see [list management](#list-management)).
 
 If the table has been altered since creation, an interface must be
-displayed indicating that the change can be undone. (see [query trail][#query-trail]).
+displayed indicating that the change can be undone. (see [query trail](#query-trail)).
 
 Row Selector
 --------------
@@ -115,7 +115,7 @@ Filter Management
 
 The filter management interface must:
 * Display all the current filters in a readable manner.
-* Offer facilities to edit each filter (see [editing filters][#editing-filters]).
+* Offer facilities to edit each filter (see [editing filters](#editing-filters)).
 * Allow the user to add a new filer to the query:
   - This should open a new dialogue
   - All constrainable columns should be presented.
@@ -135,7 +135,7 @@ When editing a constraint, a user should have the option to:
     operator.
   - Only allow the operators to be changed to something that makes sense
     - Attribute paths should be able to be constrained with:
-      `=`, `!=`, `>`, `<', `>=`, `<=`, `IS NULL`, `IS NOT NULL`, `ONE OF`, `NONE OF`, `CONTAINS`
+      `=`, `!=`, `>`, `<`, `>=`, `<=`, `IS NULL`, `IS NOT NULL`, `ONE OF`, `NONE OF`, `CONTAINS`
     - Boolean paths should be able to be constrained with:
       `=`, `!=`, `IS NULL`, `IS NOT NULL`
     - Reference paths should be able to be constrained with:
