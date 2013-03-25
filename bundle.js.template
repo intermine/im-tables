@@ -43,7 +43,6 @@
     var $ = jQuery;
     var _ = context._;
     var intermine = context.intermine;
-    var window = context;
 
     <%= imt %>
   }).call(context);
