@@ -8,7 +8,7 @@
     <link rel="stylesheet" type="text/css" href="css/style.css">
 
     <!-- im code -->
-    <script charset="UTF-8" type="text/javascript" src="../js/imtables-bundled.js"></script>
+    <script charset="UTF-8" type="text/javascript" src="../js/imtables-bundled.min.js"></script>
 
     <!-- Demo webapp -->
     <script type="text/javascript" src="demo.js"></script>
@@ -142,8 +142,8 @@
   -->
 
   <script type="text/javascript">
-    $(window).scroll(function() {
-        $('.navbar-fixed-top').toggleClass('navbar-covering', $(this).scrollTop() > 0);
+    jQuery(window).scroll(function() {
+        jQuery('.navbar-fixed-top').toggleClass('navbar-covering', jQuery(this).scrollTop() > 0);
     });
   </script>
 
