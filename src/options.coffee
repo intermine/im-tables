@@ -29,6 +29,7 @@ scope "intermine.options",
           '/js/google-code-prettify/latest/prettify.css'
         ]
         d3: '/js/d3/3.0.6/d3.v3.min.js'
+        'font-awesome': "/css/font-awesome/3.0.2/css/font-awesome.css"
     
     D3:
       Transition:
