@@ -156,12 +156,23 @@ $(function() {
         }
     };
 
-    window.notifier = new growlr.NotificationContainer({
-        extraClasses: "withnav",
-        timeout: 7000
-    });
+    window.notifier = {
+      notify: function(o) {
+        console.log(arguments);
+        alert(o.text);
+      }
+    };
+      
+      
+    //new growlr.NotificationContainer({
+    //    extraClasses: "withnav",
+    //    timeout: 7000
+    //});
 
-    var messageTemplate = _.template(
+    var messageTemplate = function(list) {
+      return list.name + ": " + list.description + " (" + list.size + " " + list.type + ")";
+    };
+    /**  _.template(
         "List successfully created:"
         + '<table class="table table-bordered">'
         + '<tr>'
@@ -173,7 +184,7 @@ $(function() {
         + '</tr></tr>'
         + '<td>type</td><td><%- type %></td>'
         + '</tr></table>'
-    );
+    );**/
 
     var failuriser = function(msg) {
         notifier.notify({
@@ -369,6 +380,6 @@ $(function() {
         changeLayout();
     });
 
-    login("Preview");
+    login("Beta");
     
 });
