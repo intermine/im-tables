@@ -4892,6 +4892,9 @@ ul.im-cols h4 {
 .im-filter-manager .modal {
     text-align: left;
 }
+
+.im-constraint-dialogue.modal,
+.im-constraint-dialogue .modal-body,
 .im-filter-manager.modal,
 .im-filter-manager .modal-body {
     overflow: visible;
