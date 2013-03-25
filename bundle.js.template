@@ -15,6 +15,7 @@
   }).call(context, context);
 
   context.jQuery = context.$ = context.jquery;
+  context.jquery.noConflict();
 
   (function(jQuery) {
     var $ = jQuery;
