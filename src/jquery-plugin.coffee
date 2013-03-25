@@ -1,7 +1,7 @@
 do ->
   SVG = "http://www.w3.org/TR/SVG11/feature#Shape"
   supportsSVG = ->
-    window.SVGAngle? or document.implementation?.hasFeature?(SVG, "1.0")
+    SVGAngle? or window.SVGAngle? or document.implementation?.hasFeature?(SVG, "1.0")
 
   ###
   # Add a 'destroyed' event on element removal.
