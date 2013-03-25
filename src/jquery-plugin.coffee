@@ -20,6 +20,7 @@ do ->
   * 
   ###
   do ($ = jQuery) ->
+
     $.support.touch = typeof Touch is 'object'
     return false unless $.support.touch
 
@@ -65,6 +66,12 @@ do ->
     })
 
   jQuery.fn.imWidget = (arg0, arg1) ->
+      hasStyle = (pattern) ->
+        links = jQuery 'link[rel="stylesheet"]'
+        found = false
+        links.each -> found or= pattern.test @href
+        found
+
       if typeof(arg0) is 'string'
           view = @data 'widget'
           if arg0 is 'option'
@@ -86,6 +93,9 @@ do ->
             # Can be loaded late, as only needed for summaries, which the
             # user will have to click on.
             intermine.cdn.load 'd3'
+          unless hasStyle /font-awesome/
+            intermine.cdn.load 'font-awesome'
+            
             
           service ?= new intermine.Service root: url, token: token
           service.errorHandler = error if error?
