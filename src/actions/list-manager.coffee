@@ -82,24 +82,21 @@ define 'actions/list-manager', using 'actions/list-append-dialogue', 'actions/ne
           countQuery.orderBy []
 
           li.click => @openDialogue(node.getType().name, countQuery)
-
-          colNos = (i + 1 for v, i in query.views when query.getPathInfo(v).getParent().toPathString() is node.toPathString())
-
           li.mouseover -> query.trigger "start:highlight:node", node
           li.mouseout -> query.trigger "stop:highlight"
 
           countQuery.count (n) ->
               return li.remove() if n < 1
+
               quantifier = switch n
                   when 1 then "The"
                   when 2 then "Both"
                   else "All #{n}"
               typeName = intermine.utils.pluralise(node.getType().name, n)
-              col = intermine.utils.pluralise("column", colNos.length)
               
               li.append """
                   <a href="#">
-                      #{quantifier} #{typeName} from #{col} #{colNos.join(", ")}
+                      #{quantifier} #{typeName}
                   </a>
               """
 
