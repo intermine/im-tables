@@ -1,0 +1,53 @@
+(function() {
+
+  var root = this;
+  var context = {};
+  var define = function(name, deps, f) {
+    context[name] = f();
+  };
+  define.amd = {jQuery: true};
+
+  context.document = root.document;
+  context.location = root.location;
+
+  (function() {
+    <%= jq %>
+  }).call(context, context);
+
+  context.jQuery = context.$ = context.jquery;
+
+  (function(jQuery) {
+    var $ = jQuery;
+    <%= ui %>
+  }).call(context, context.jquery);
+
+  (function() {
+    <%= _ %>
+  }).call(context);
+
+  (function() {
+    <%= bb %>
+  }).call(context);
+
+  (function(window) {
+    <%= bs %>
+  }).call(context, context);
+
+  (function() {
+    <%= imjs %>
+  }).call(context);
+
+  (function() {
+    var jQuery = context.jQuery;
+    var Backbone = context.Backbone;
+    var $ = jQuery;
+    var _ = context._;
+    var intermine = context.intermine;
+    var window = context;
+
+    <%= imt %>
+  }).call(context);
+
+  window.intermine = context.intermine;
+
+}).call(window);

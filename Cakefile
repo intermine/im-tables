@@ -1,7 +1,7 @@
 {exec, spawn} = require "child_process"
 fs     = require 'fs'
 Q      = require 'q'
-_      = require 'underscore'
+{_}    = require 'underscore'
 IM     = require './package.json'
 
 BLACKLIST = [
@@ -27,7 +27,8 @@ header = """
 BOOTSTRAP_CSS = "components/bootstrap/docs/assets/css/bootstrap.css"
 BOOTSTRAP_COMP = "components/bootstrap/component.json"
 
-read = Q.nfbind fs.readFile
+readP = Q.nfbind fs.readFile
+read = (fn, enc = 'utf8') -> readP fn, enc
 write = Q.nfbind fs.writeFile
 readdir = Q.nfbind fs.readdir
 mkdir = Q.nfbind fs.mkdir
@@ -65,6 +66,26 @@ promiserToNode = (promiser) -> (cb) ->
     done = promiser()
     cb ?= DEFAULT_ERR_HANDLER
     done.then( -> cont cb).done()
+
+task 'do:bundle', 'bundle deps into main package', bundle = promiserToNode ->
+  
+  console.log "Bundling..."
+  bundP = read 'bundle.js.template'
+
+  jqp = read 'components/jquery/jquery.js'
+  usp = read 'components/underscore/underscore.js'
+  bbp = read 'components/backbone/backbone.js'
+  bsp = read('components/bootstrap/docs/assets/js/bootstrap.js').then patchBootstrap
+  jquip = Q.all( read f for f in jquiFiles ).then (contents) -> contents.join '\n\n'
+  imjsp = read 'components/imjs/js/im.js'
+  imtp = read 'js/imtables.js'
+
+  wrap = (wrapper, data) -> _.template wrapper, data
+  bundleUp = ([bundle, jq, _, bb, bs, ui, imjs, imt]) -> wrap bundle, {jq, _, bb, bs, ui, imjs, imt}
+  writeOut = writer 'js/imtables-bundled.js'
+
+  Q.all([bundP, jqp, usp, bbp, bsp, jquip, imjsp, imtp]).then(bundleUp).then(writeOut)
+    
 
 task 'copyright', 'Show the copyright header', ->
     console.log header
@@ -127,7 +148,7 @@ task 'mkdir:out', 'Make the output directory', promiserToNode (makeOut = makeDir
 writingDeps = false
 
 otherDeps = ['lib/js/jquery-ui-1.10.1.custom.js']
-deps = [
+jquiFiles = [
   'components/jquery-ui/ui/jquery.ui.core.js',
   'components/jquery-ui/ui/jquery.ui.widget.js',
   'components/jquery-ui/ui/jquery.ui.mouse.js',
@@ -136,7 +157,9 @@ deps = [
   'components/jquery-ui/ui/jquery.ui.position.js',
   'components/jquery-ui/ui/jquery.ui.selectable.js',
   'components/jquery-ui/ui/jquery.ui.slider.js',
-  'components/jquery-ui/ui/jquery.ui.sortable.js',
+  'components/jquery-ui/ui/jquery.ui.sortable.js'
+]
+deps = jquiFiles.concat [
   'components/bootstrap/docs/assets/js/bootstrap.js'
 ]
 
@@ -218,6 +241,11 @@ task 'build', 'Run a complete build', ->
                     compile ->
                         console.log "done at #{new Date()}"
                         exec 'notify-send "Recompiled im-tables"'
+
+task 'build:bundle', 'build a bundle', ->
+  clean -> prebuild -> concat -> compile -> bundle ->
+    console.log "Bundled at #{new Date()}"
+  
 
 task 'watch', 'Watch production files and rebuild the application', watch = (cb) ->
     console.log "Watching for changes in ./src"
