@@ -66,8 +66,8 @@ do ->
 
     remove: ->
       @collection.each (m) ->
-        m.destroy()
-        m.off()
+        m?.destroy()
+        m?.off()
       @collection.off()
       super(arguments...)
 
