@@ -3884,8 +3884,8 @@
 }
 .intermine .modal {
   width: 560px;
-  margin: -250px 0 0 -280px;
   position: fixed;
+  margin: 0;
   top: 10%;
   left: 50%;
   z-index: 1050;
@@ -3904,6 +3904,11 @@
      -moz-background-clip: padding-box;
           background-clip: padding-box;
   background-clip: padding-box;
+}
+@media screen and (min-width: 600px) {
+  .intermine .modal {
+    margin: -250px 0 0 -280px;
+  }
 }
 .intermine .modal-body {
     max-height: 700px;
