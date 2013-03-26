@@ -8,7 +8,7 @@ scope "intermine.options",
     ListCategorisers: ['organism.name', 'department.company.name']
     PieColors: 'category20'
     CellPreviewTrigger: 'click' # hover
-    IndicateOffHostLinks: false
+    IndicateOffHostLinks: true
     ExternalLinkIcons:
       "http://www.yeastgenome.org": "http://www.yeastgenome.org/favicon.ico"
     StylePrefix: 'intermine'
@@ -17,7 +17,7 @@ scope "intermine.options",
     # GenomeSpaceUpload: 'https://identitytest.genomespace.org/jsui/uploaddialog.html'
     ExternalExportDestinations: # Setting these to false disables them
       Galaxy: true
-      Genomespace: true
+      Genomespace: false
     ShowId: false
     TableWidgets: ['Pagination', 'PageSizer', 'TableSummary', 'ManagementTools', 'ScrollBar']
     CellCutoff: 100
