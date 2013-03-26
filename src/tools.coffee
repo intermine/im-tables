@@ -152,7 +152,7 @@ do ->
           return if n < 1
           q  = @model.get('query')
           table = $(@sectionTempl {n, things}).appendTo(@$('.im-step-details')).find('table')
-          for k, v of xs then do (k, v) ->
+          for own k, v of xs then do (k, v) ->
             row = $ '<tr>'
             table.append row
             q.getPathInfo(toPath(k, v)).getDisplayName (name) -> f row, name, k, v
