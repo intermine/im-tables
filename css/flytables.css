@@ -4146,10 +4146,11 @@
   font-weight: normal;
   line-height: 18px;
   background-color: #f7f7f7;
+  margin-top: -1px;
   border-bottom: 1px solid #ebebeb;
-  -webkit-border-radius: 5px 5px 0 0;
-     -moz-border-radius: 5px 5px 0 0;
-          border-radius: 5px 5px 0 0;
+  -webkit-border-radius: 0px 0px 0 0;
+     -moz-border-radius: 0px 0px 0 0;
+          border-radius: 0px 0px 0 0;
 }
 .intermine .popover-title:empty {
   display: none;
@@ -4700,7 +4701,6 @@
 .intermine.popover .popover-title,
 .intermine .popover .popover-title {
     background-color: #f4eef7;
-    margin: 0;
 }
 .modal-backdrop.fade {
   opacity: 0;
@@ -4945,7 +4945,6 @@
 }
 .intermine .im-cell-preview h3 {
     font-weight: bold;
-    margin: 0px;
     font-size: 14px;
 }
 
@@ -5015,9 +5014,6 @@
   border-left: 0;
   border-collapse: separate;
   *border-collapse: collapse;
-  -webkit-border-radius: 4px;
-  -moz-border-radius: 4px;
-  border-radius: 4px;
 }
 .im-cell-preview .popover-content .table-bordered td {
   padding: 8px;
