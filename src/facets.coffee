@@ -318,7 +318,7 @@ do ->
 
         drawStats: () =>
             $(@container).append """
-                <table class="table table-bordered table-condensed">
+                <table class="table table-condensed">
                     <thead>
                         <tr>
                             <th>Min</th>
