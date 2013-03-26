@@ -89,7 +89,7 @@ do ->
 
         close: ->
           @off()
-          @each (vn) -> vn.off(); vn.destroy()
+          @each (vn) -> vn?.off(); vn?.destroy()
 
         lengthOfPath = (vn) -> vn.get('path').allDescriptors().length
 
@@ -108,13 +108,6 @@ do ->
           matches = @filter (vn) -> vn.isAbove(path, q)
           bestMatch = _.last _.sortBy matches, lengthOfPath
           return bestMatch
-
-        close: ->
-          @each (m) ->
-            m.destroy()
-            m.off()
-          @reset()
-          @off()
 
     class ColumnsDialogue extends Backbone.View
         tagName: "div"
