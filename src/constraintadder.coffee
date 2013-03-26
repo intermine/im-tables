@@ -191,7 +191,10 @@ do ->
 
         toggleFields: () -> # no-op
 
-        handleClick: () -> # no-op
+        handleClick: (e) -> 
+          e.preventDefault()
+          e.stopPropagation()
+          @$el.tooltip 'hide'
 
         render: () ->
             super()
