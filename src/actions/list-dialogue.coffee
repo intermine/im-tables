@@ -79,10 +79,11 @@ define 'actions/list-dialogue', ->
 
     startPicking: ->
       @$('.modal').addClass 'im-picking-list-items'
+      headAndFoot = @$('.modal-header').add('.modal-footer', @el).addClass('im-handle')
       @query.trigger "start:list-creation"
       @nothingSelected()
-      m = @$('.modal').show -> $(@).addClass("in").draggable(handle: "h2")
-      @$('.modal-header h2').css(cursor: "move").tooltip
+      m = @$('.modal').show -> $(@).addClass("in").draggable(handle: ".im-handle")
+      headAndFoot.css(cursor: "move").tooltip
         title: "Drag me around!"
         placement: 'bottom'
 
