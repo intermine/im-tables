@@ -252,7 +252,7 @@ task 'watch', 'Watch production files and rebuild the application', watch = (cb)
     listen = (name) -> fs.watchFile name, (curr, prev) ->
       if +curr.mtime isnt +prev.mtime
         console.log "Saw change in #{ name } - rebuilding..."
-        invoke 'build'
+        invoke 'build:bundle'
     deepRead('src').then(_.flatten).invoke('map', listen).done()
     
 # vim: set syntax=coffee sw=2 ts=2 foldmethod=indent cc=100
