@@ -5717,12 +5717,17 @@ ul.im-cols h4 {
 
 .im-th-buttons .im-th-dropdown > .dropdown-menu {
     margin: 0px;
-    padding: 0.2em;
     color: #333;
     left: -9px;
     top: 19px;
     min-width: 24em;
     font-weight: normal;
+}
+.im-th-buttons .im-th-dropdown > .dropdown-menu > .im-dropdown-summary h3 {
+    margin-bottom: 0.25em;
+}
+.intermine .im-dropdown-summary .im-facet > .form > .input-prepend .add-on {
+    margin-left: 1em;
 }
 
 .im-filter-manager .modal {
@@ -5774,6 +5779,9 @@ ul.im-cols h4 {
     margin: 0 1em 0 1em;
     width: 95%;
 }
+.im-dropdown-summary .form {
+    margin-top: 0.25em;
+}
 
 .im-dropdown-summary .im-item-table {
     position: relative;
@@ -5781,6 +5789,7 @@ ul.im-cols h4 {
     max-height: 20em;
     overflow-y: auto;
     overflow-x: hidden;
+    margin-top: 0.25em;
 }
 .im-dropdown-summary .im-item-table .im-item-selector {
     width: 5%;
