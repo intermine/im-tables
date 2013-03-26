@@ -2,7 +2,7 @@ scope 'intermine.columns.snippets',
   ColumnsDialogue: """
     <div class="modal-header">
       <a class="close" data-dismiss="modal">close</a>
-      <h3>Manage Columns</a>
+      <h3>Manage Columns</h3>
     </div>
     <div class="modal-body">
       <ul class="nav nav-tabs">
