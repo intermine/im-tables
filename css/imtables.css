@@ -4437,11 +4437,16 @@ table.table {
 .im-parent:after,
 .im-title-part:after,
 .popover-title .im-name-part:after,
+li.im-outer-joined-path > a:before,
 .im-view-element .im-name-part:after {
     content: "\00bb";
     color: #aaa;
     margin-left: 0.5em;
     font-weight: bold;
+}
+li.im-outer-joined-path > a:before {
+    margin-left: 0;
+    margin-right: 0.5em;
 }
 .popover-title .im-name-part:last-child,
 .im-view-element .im-name-part:last-child {
@@ -4937,11 +4942,26 @@ ul.im-cols h4 {
     clear: none;
 }
 
-.im-dropdown-summary .im-item-table table,
 .im-column-summary .im-facet table {
     margin: 0 1em 0 1em;
     width: 95%;
 }
+.im-column-summary .im-numeric-facet table {
+    border-collapse: collapse;
+    margin: 0;
+    width: 100%;
+}
+.im-column-summary .im-numeric-facet table th:first-child,
+.im-column-summary .im-numeric-facet table td:first-child {
+    padding-left: 1em;
+}
+.im-column-summary .im-numeric-facet .btn-group .btn:last-child {
+    margin-right: 1em;
+}
+.im-column-summary .im-numeric-facet input {
+    margin: 0 0.4em;
+}
+
 .im-dropdown-summary .form {
     margin-top: 0.25em;
 }
@@ -5624,10 +5644,7 @@ ul.im-summary-selector li.im-outer-joined-path a {
 
 li.im-outer-joined-path {
     list-style-type: none;
-    padding: 0.2em 0;
-    border-bottom: 1px solid #ddd;
 }
-
 .im-reorderable h4 {
     display: inline-block;
 }

@@ -354,7 +354,6 @@ do ->
                   <button class="btn btn-primary disabled">Apply</button>
                   <button class="btn btn-cancel disabled">Reset</button>
                 </div>
-                <label>Range:</label>
                 <input type="text" data-var="min" class="im-range-min input im-range-val" value="#{@min}">
                 <span>...</span>
                 <input type="text" data-var="max" class="im-range-max input im-range-val" value="#{@max}">
