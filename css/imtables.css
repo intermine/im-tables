@@ -1599,9 +1599,9 @@
   border: 1px solid rgba(0 , 0 , 0 , 0.2);
   *border-right-width: 2px;
   *border-bottom-width: 2px;
-  -webkit-border-radius: 6px;
-     -moz-border-radius: 6px;
-          border-radius: 6px;
+  -webkit-border-radius: 0px;
+     -moz-border-radius: 0px;
+          border-radius: 0px;
   -webkit-box-shadow: 0 5px 10px rgba(0 , 0 , 0 , 0.2);
      -moz-box-shadow: 0 5px 10px rgba(0 , 0 , 0 , 0.2);
           box-shadow: 0 5px 10px rgba(0 , 0 , 0 , 0.2);
@@ -3384,9 +3384,9 @@
   background-color: #ffffff;
   border: 1px solid #ccc;
   border: 1px solid rgba(0 , 0 , 0 , 0.2);
-  -webkit-border-radius: 6px;
-     -moz-border-radius: 6px;
-          border-radius: 6px;
+  -webkit-border-radius: 0px;
+     -moz-border-radius: 0px;
+          border-radius: 0px;
   -webkit-box-shadow: 0 5px 10px rgba(0 , 0 , 0 , 0.2);
      -moz-box-shadow: 0 5px 10px rgba(0 , 0 , 0 , 0.2);
           box-shadow: 0 5px 10px rgba(0 , 0 , 0 , 0.2);
@@ -3893,9 +3893,9 @@
   border: 1px solid #999;
   border: 1px solid rgba(0 , 0 , 0 , 0.3);
   *border: 1px solid #999;
-  -webkit-border-radius: 6px;
-     -moz-border-radius: 6px;
-          border-radius: 6px;
+  -webkit-border-radius: 0px;
+     -moz-border-radius: 0px;
+          border-radius: 0px;
   outline: none;
   -webkit-box-shadow: 0 3px 7px rgba(0 , 0 , 0 , 0.3);
      -moz-box-shadow: 0 3px 7px rgba(0 , 0 , 0 , 0.3);
