@@ -3,7 +3,8 @@ scope "intermine.conbuilder.messages", {
     ExtraPlaceholder: 'Wernham-Hogg',
     ExtraLabel: 'within',
     IsA: 'is a',
-    CantEditConstraint: 'No value selected. Please enter a value.',
+    NoValue: 'No value selected. Please enter a value.',
+    Duplicate: 'This constraint is already on the query',
     TooManySuggestions: 'We cannot show you all the possible values'
 }
 
@@ -38,6 +39,20 @@ do ->
       </span>
     """
 
+    aeql = (xs, ys) -> (not xs and not ys) or (xs and ys and _.all xs, (x) -> x in ys)
+
+    basicEql = (a, b) ->
+      return a is b unless (a and b)
+      keys = _.union.apply _, [a, b].map _.keys
+      console.log keys
+      same = true
+      for k in keys
+        [va, vb] = (x[k] for x in [a, b])
+        console.log va, vb
+        same and= (if _.isArray va then aeql va, vb else va is vb)
+      return same
+
+
     class ActiveConstraint extends Backbone.View
         tagName: "form"
         className: "form-inline im-constraint row-fluid"
@@ -47,7 +62,8 @@ do ->
         initialize: (@query, @orig) ->
             @typeaheads = []
             @path = @query.getPathInfo @orig.path
-            @type = @path.getEndClass()
+            @type = @path.getType()
+            @cast = if @type in intermine.Model.NUMERIC_TYPES then ((x) -> 1 * x) else ((x) -> '' + x)
             @con = new Backbone.Model(_.extend({}, @orig))
             if @path.isReference() or @path.isRoot()
                 @ops = intermine.Query.REFERENCE_OPS
@@ -110,20 +126,31 @@ do ->
                   false
                 return ok
             if op in intermine.Query.ATTRIBUTE_VALUE_OPS.concat(intermine.Query.REFERENCE_OPS)
-                return @con.has('value') and not IS_BLANK.test @con.get('value')
+                val = @con.get 'value'
+                return val? and (not IS_BLANK.test val) and (not _.isNaN val)
             if op in intermine.Query.MULTIVALUE_OPS
                 return @con.has('values') and @con.get('values').length > 0
             return true
+
+        isDuplicate: -> _.any @query.constraints, _.partial basicEql, @con.toJSON()
+
+        setError: (key) ->
+          @$el.addClass 'error'
+          @$('.im-conbuilder-error').text intermine.conbuilder.messages[key]
+          false
 
         editConstraint: (e) ->
             e?.stopPropagation()
             e?.preventDefault()
 
             if not @valid()
-              @$el.addClass 'error'
-              return false
+              return @setError 'NoValue'
+
+            if @isDuplicate()
+              return @setError 'Duplicate'
 
             @removeConstraint(e, silently = true)
+
             if @con.get('op') in intermine.Query.MULTIVALUE_OPS.concat(intermine.Query.NULL_OPS)
                 @con.unset('value')
             if @con.get('op') in intermine.Query.ATTRIBUTE_VALUE_OPS.concat(intermine.Query.NULL_OPS)
@@ -136,6 +163,7 @@ do ->
                 @query.addConstraint @con.toJSON()
             while (ta = @typeaheads.shift())
                 ta.remove()
+            true
 
         removeConstraint: (e, silently = false) ->
             @query.removeConstraint @orig, silently
@@ -214,7 +242,8 @@ do ->
           @$el.append """
             <div class="alert alert-error span10 im-hidden">
               <i class="icon-warning-sign"></i>
-              #{ intermine.conbuilder.messages.CantEditConstraint }
+              <span class="im-conbuilder-error">
+              </span>
             </div>
           """
           @addButtons()
@@ -380,8 +409,9 @@ do ->
                 >
             """
             fs.append input
-            input.keyup () => @con.set value: input.val()
-            input.change () => @con.set value: input.val()
+            setValue = => @con.set value: @cast input.val()?.trim()
+            input.keyup setValue
+            input.change setValue
             if @path.isAttribute()
               @provideSuggestions(input)
 

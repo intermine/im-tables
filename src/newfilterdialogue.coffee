@@ -40,12 +40,9 @@ do ->
 
         openDialogue: () -> @$el.modal().modal('show')
 
-        addConstraint: () ->
-            if @conAdder.isValid()
-              @conAdder.newCon.editConstraint()
-              @$el.modal('hide')
-            else
-              @$('.im-constraint.new').addClass('error')
+        addConstraint: (e) ->
+            edited = @conAdder.newCon.editConstraint(e)
+            @$el.modal('hide') if edited
 
         render: () ->
             @$el.append @html
