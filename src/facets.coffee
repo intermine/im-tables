@@ -486,6 +486,23 @@ do ->
           'click .im-load-more': 'loadMoreItems'
           'click .im-filter .im-filter-in': (e) => @addConstraint e, basicOps
           'click .im-filter .im-filter-out': (e) => @addConstraint e, negateOps basicOps
+          'keyup .im-filter-values': 'filterItems'
+          'click .im-clear-value-filter': 'clearValueFilter'
+
+        filterItems: (e) ->
+          $input = @$ '.im-filter-values'
+          current = $input.val()
+          if @hasMore or (@filterTerm and current < @filterTerm.length)
+              _.delay (-> @query.trigger 'filter:summary', current), 750
+          else
+            parts = (current ? '').toLowerCase().split /\s+/
+            test = (str) -> _.all parts, (part) -> !!(str and ~str.toLowerCase().indexOf(part))
+            @items.each (x) -> x.set visibility: test x.get 'item'
+
+        clearValueFilter: ->
+          $input = @$ '.im-filter-values'
+          $input.val @filterTerm
+          @items.each (x) -> x.set visibility: true
 
         loadMoreItems: ->
           return if @summarising
@@ -634,7 +651,10 @@ do ->
 
         filterControls: """
           <div class="input-prepend">
-              <span class="add-on"><i class="icon-refresh"></i></span><input type="text" class="input-medium  filter-values" placeholder="Filter values">
+              <span class="add-on im-clear-value-filter">
+                <i class="icon-refresh"></i>
+              </span>
+              <input type="text" class="input-medium  im-filter-values" placeholder="Filter values">
           </div>
         """
 
@@ -681,7 +701,6 @@ do ->
 
             $btns = $grp.find('.im-filter .btn').tooltip placement: 'top', container: @el
             $btns.on 'click', (e) ->
-              console.log "Tooltipping", e
               $btns.tooltip 'hide'
 
             # The following is due to the insanity of bootstrap forcing
@@ -755,19 +774,9 @@ do ->
 
         initFilter: ->
             xs = @items
-            $valFilter = @$ '.filter-values'
+            $valFilter = @$ '.im-filter-values'
             if @filterTerm
                 $valFilter.val @filterTerm
-            facet = @
-            $valFilter.keyup (e) ->
-                if facet.hasMore or (facet.filterTerm and $(@).val().length < facet.filterTerm.length)
-                    _.delay (() -> facet.query.trigger('filter:summary', $valFilter.val())), 750
-                else
-                    pattern = new RegExp $(@).val(), "i"
-                    xs.each (x) -> x.set "visibility", pattern.test x.get("item")
-            $valFilter.prev().click (e) ->
-                $(@).next().val(facet.filterTerm)
-                xs.each (x) -> x.set "visibility", true
 
         colClasses: ["im-item-selector", "im-item-value", "im-item-count"]
 
