@@ -5008,6 +5008,7 @@
     list-style-type: none;
     width: 50%;
     display: inline-block;
+    margin: 0px;
     -webkit-box-sizing:border-box;
     -moz-box-sizing:border-box;
     -ms-box-sizing:border-box;
