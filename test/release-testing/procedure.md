@@ -1,7 +1,7 @@
 Manual Testing Procedure
 =========================
 
-Where this library is to be manually tested the following procedure is
+Where this library is to be manually tested the testing procedure is
 as follows:
 * The different sections of the spec should be divided amongst the
   available testers. Each section of the spec should be tested by at
@@ -17,8 +17,11 @@ as follows:
 Browsers to be tested:
 * Webkit: chrome, safari, ios, android, opera (new)
 * Gecko: Firefox
-* IE 8+
+* IE 8+[^2]
 * Presto: opera (old)
 
   [^1]: Dev tools in webkit, firebug in firefox, developer tools in
         IE, dragonfly in opera.
+  [^2]: For ie8 and ie9, when testing in the demo the user should
+        select "TestModel" under the services list, as these browsers do not
+        require cross-domain requests.
