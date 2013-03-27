@@ -47,8 +47,8 @@ do ->
           queryPromise.fail (xhr, err, msg) =>
             @$el.append """
               <div class="alert alert-error">
-                <h1>#{err}</h1>
-                <p>Unable to construct query: #{msg}</p>
+                <h1>#{err or xhr}</h1>
+                <p>Unable to construct query: #{msg or xhr}</p>
               </div>
             """
 
