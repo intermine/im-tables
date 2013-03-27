@@ -71,7 +71,27 @@ jQuery(document).ready(function($) {
               }
           }
         },
-        Preview: {
+        'Missing Column': {
+          q: {
+            "model":{"name":"genomic"},
+            " title":"GO term name (and children of this term) --> Genes in organism1 + Orthologues in organism2.",
+            "description":"For a specified GO term (and children of this term) find all the genes in a particular organism that have an orthologue in another organism",
+            "select":[
+              "Gene.secondaryIdentifier",
+              "Gene.symbol","Gene.goAnnotation.ontologyTerm.parents.name",
+              "Gene.goAnnotation.ontologyTerm.parents.identifier",
+              "Gene.goAnnotation.ontologyTerm.name",
+              "Gene.goAnnotation.ontologyTerm.identifier",
+              "Gene.homologues.homologue.primaryIdentifier",
+              "Gene.homologues.homologue.secondaryIdentifier",
+              "Gene.homologues.homologue.symbol"
+            ],
+            "constraintLogic":"A and B and C and D",
+            "name":"GO_GeneOrthologues",
+            "comment":"","orderBy":[{"Gene.secondaryIdentifier":"ASC"}],"where":[{"path":"Gene.goAnnotation.ontologyTerm","type":"GOTerm"},{"path":"Gene.goAnnotation.ontologyTerm.parents","type":"GOTerm"},{"path":"Gene.homologues.type","op":"=","code":"D","editable":false,"switchable":false,"switched":"LOCKED","value":"orthologue"},{"path":"Gene.goAnnotation.ontologyTerm.parents.name","op":"=","code":"A","editable":true,"switchable":false,"switched":"LOCKED","value":"DNA binding"},{"path":"Gene.organism.name","op":"=","code":"B","editable":true,"switchable":false,"switched":"LOCKED","value":"Drosophila melanogaster"},{"path":"Gene.homologues.homologue.organism.name","op":"=","code":"C","editable":true,"switchable":true,"switched":"ON","value":"Caenorhabditis elegans"}]},
+          "root": "preview.flymine.org/preview"
+        },
+        'Gene-Homologues': {
           "root": "preview.flymine.org/preview",
           q: {
             "title":"Gene --> Orthologues + GO terms of these orthologues.","description":"Show GO terms applied to orthologues of a specific gene. (Data Source: InParanoid, TreeFam, Drosophila Consortium, GO Consortium).",
@@ -84,10 +104,10 @@ jQuery(document).ready(function($) {
             "joins":["Gene.homologues.gene","Gene.homologues.gene.goAnnotation","Gene.homologues.gene.goAnnotation.ontologyTerm"],
             "where":[{"path":"Gene.homologues.type","op":"=","code":"A","value":"orthologue"},{"path":"Gene","op":"LOOKUP","code":"B","value":"CG6235","extraValue":"D. melanogaster"}]}
         },
-        Beta: {
-          //"root": "preview.flymine.org/preview",
-          root: "beta.flymine.org/beta",
-          token: "M1n3x2ydw4icj140pbBcffIgR4Q",
+        'Gene-Prot-Exons': {
+          "root": "preview.flymine.org/preview",
+          //root: "beta.flymine.org/beta",
+          //token: "M1n3x2ydw4icj140pbBcffIgR4Q",
           q: {
               select: [
                 "symbol",
@@ -380,6 +400,6 @@ jQuery(document).ready(function($) {
         changeLayout();
     });
 
-    login("Beta");
+    login("Gene-Prot-Exons");
     
 });
