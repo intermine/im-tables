@@ -21,10 +21,12 @@ do ->
         TABLE_CLASSES: "span9 im-query-results"
 
         loadQuery: (q) ->
+          currentPageSize = @table?.getCurrentPageSize()
           @table?.remove()
           @main.empty()
           @table = new intermine.query.results.Table(q, @main, @columnHeaders)
           @table[k] = v for k, v of @tableProperties
+          @table.pageSize = currentPageSize if currentPageSize?
           @table.render()
           q.on evt, cb for evt, cb of @queryEvents
 

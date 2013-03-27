@@ -699,6 +699,8 @@ do ->
 
             $widgets.append """<div style="clear:both"></div>"""
 
+        getCurrentPageSize: -> @table?.pageSize ? @pageSize
+
         getCurrentPage: () ->
             if @table.pageSize then Math.floor @table.pageStart / @table.pageSize else 0
 
