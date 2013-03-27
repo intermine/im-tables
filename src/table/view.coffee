@@ -707,7 +707,7 @@ do ->
             pageSize = @table.pageSize
             correction = if total % pageSize is 0 then -1 else 0
 
-            Math.floor(total / @table.pageSize) + correction
+            Math.floor(total / pageSize) + correction
 
         goBack: (pages) -> @table.goTo Math.max 0, @table.pageStart - (pages * @table.pageSize)
 
