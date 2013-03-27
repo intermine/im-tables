@@ -57,13 +57,14 @@ do ->
     """
 
     RELATIONS = """
-      <table class="table im-related-counts table-condensed"></table>
+      <ul class="im-related-counts"></ul>
     """
 
     RELATION = _.template """
-      <tr>
-        <td><%- label %></td> <td class="im-count"><%= count %></td>
-      </tr>
+      <li class="im-relation">
+        <span class="pull-left"><%- label %></span>
+        <span class="pull-right im-count"><%= count %></span>
+      </li>
     """
 
     REFERENCE = _.template """
@@ -165,11 +166,16 @@ do ->
 
       ready = @fillItemTable()
 
-      for promise in @fillRelationsTable()
+      relations = @fillRelationsTable()
+
+      for promise in relations
         ready = ready.then -> promise
 
       ready.done =>
-        @$el.empty().append(@itemDetails).append(@relatedCounts)
+        @$el.empty().append(@itemDetails)
+        if relations.length
+          @$el.append """<h4>#{ intermine.messages.cell.RelatedItems }</h4>"""
+          @$el.append(@relatedCounts)
         @trigger 'ready'
 
       ready.fail (err) =>
