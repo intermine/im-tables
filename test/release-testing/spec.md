@@ -107,6 +107,7 @@ The column management interface must:
   - have their directions changed
   - Be removed from the sort order.
 * Allow new columns to be added to the sort order.
+* Not allow duplicate columns
 * If the cancel button is pressed, no queued changes may be applied.
 * If the apply changes is pressed, all changes must be applied.
 
