@@ -130,7 +130,7 @@ jQuery(document).ready(function($) {
         },
         TestModel: {
           help: 'alex@intermine.org',
-          root: window.location.host + "/intermine-test",
+          root: "http://demo.intermine.org/intermine-test-dev",
           token: "test-user-token",
           q: {
               select: ["*", "age"],
@@ -144,7 +144,7 @@ jQuery(document).ready(function($) {
         },
         OJC: {
           help: 'alex@intermine.org',
-          root: "localhost:8080/intermine-test",
+          root: "http://demo.intermine.org/intermine-test-dev",
           token: "test-user-token",
           q: {
               select: ['name', 'company.name', 'employees.name', 'employees.age', 'employees.end', 'employees.address.address' ],
@@ -156,7 +156,7 @@ jQuery(document).ready(function($) {
           }
         },
         DeepOJC: {
-          root: "localhost:8080/intermine-test",
+          root: "http://demo.intermine.org/intermine-test-dev",
           token: "test-user-token",
           q: {
               select: [
