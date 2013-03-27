@@ -44,7 +44,7 @@ scope "intermine.options",
             {label: 'employees', query: {select: '*', from: 'Employee', where: {'department.company.id': '{{ID}}'}} }
           ]
 
-        'http://beta.flymine.org/beta/service/':
+        'http://preview.flymine.org/preview/service/':
           Organism: [
             {label: 'Genes', query: {select: '*', from: 'Gene', where: {'organism.id': '{{ID}}'}} }
           ],
