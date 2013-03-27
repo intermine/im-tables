@@ -1,6 +1,6 @@
 {
   "name": "intermine-tables",
-  "version": "0.1.0",
+  "version": "1.2.0",
   "description": "ui widgets for displaying query results in interactive tables",
   "main": "js/imtables.js",
   "keywords": [
@@ -41,7 +41,8 @@
     "connect": "~2.7.3",
     "q": "~0.9.0",
     "ukraine": "~0.14.0",
-    "underscore": "~1.4.4"
+    "underscore": "~1.4.4",
+    "uglify-js": "~2.2.5"
   },
   "dependencies": {
     "serve": "~1.2.0"
