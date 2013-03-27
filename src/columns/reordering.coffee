@@ -8,6 +8,8 @@ scope 'intermine.messages.columns',
 
 do ->
 
+    byEl = (el) -> (nv) -> nv.el is el
+
     class ColumnAdder extends intermine.query.ConstraintAdder
         className: "form node-adder form-horizontal"
 
@@ -166,8 +168,18 @@ do ->
             'change input.im-only-in-view': 'onlyShowOptionsInView'
             'change .im-sortables-filter': 'filterSortables'
             'keyup .im-sortables-filter': 'filterSortables'
+            'sortstop .im-sorting-container': 'onSortStop'
             'sortupdate .im-reordering-container': 'updateOrder'
             'sortupdate .im-sorting-container': 'updateSorting'
+
+        onSortStop: (e, ui) ->
+          {top, left} = ui.offset
+          well = ui.item.closest '.well'
+          wtop = well.offset().top
+          removed = (top + ui.item.height() < wtop) or (top > wtop + well.height())
+          oe = @sortOrder.find byEl ui.item[0]
+          if removed
+            _.defer -> oe.destroy() # Must be deferred or $.sortable will but the item back
 
         onHidden: (e) ->
           return false unless @el is e?.target
