@@ -704,7 +704,10 @@ do ->
 
         getMaxPage: () ->
             total = @cache.lastResult.iTotalRecords
-            Math.floor total / @table.pageSize
+            pageSize = @table.pageSize
+            correction = if total % pageSize is 0 then -1 else 0
+
+            Math.floor(total / @table.pageSize) + correction
 
         goBack: (pages) -> @table.goTo Math.max 0, @table.pageStart - (pages * @table.pageSize)
 
@@ -767,7 +770,7 @@ do ->
                     tbl.goToPage parseInt pageSelector.val()
                     centre.find('a').show()
                     pageForm.hide()
-                for p in [1 .. maxPage]
+                for p in [1 .. maxPage + 1]
                     pageSelector.append """
                         <option value="#{p - 1}">p. #{p}</option>
                     """
@@ -791,7 +794,7 @@ do ->
             	else
                     pageForm.find('.control-group').addClass 'error'
                     inp.val ''
-                    inp.attr placeholder: "1 .. #{ @getMaxPage() }"
+                    inp.attr placeholder: "1 .. #{ @getMaxPage() + 1 }"
 
         onSetupError: (telem) -> (xhr) =>
             $(telem).empty()
