@@ -180,6 +180,14 @@ do ->
             path = @path = @options.node.append field
             @$el.addClass 'im-type-' + path.getType().toLowerCase()
 
+        events: ->
+          'shown': => @cellPreview?.reposition()
+          'show': (e) =>
+            @options.query.trigger 'showing:preview', @el
+            e?.preventDefault() if @model.get 'is:selecting'
+          'hide': (e) => @model.cachedPopover?.detach()
+          'click a.im-cell-link': (e) -> e?.stopPropagation()
+
         listenToQuery: (q) ->
           q.on "start:list-creation", =>
             @model.set 'is:selecting': true
@@ -250,11 +258,6 @@ do ->
             classes: 'im-cell-preview'
             content: @getPopoverContent
             placement: @getPopoverPlacement
-
-          @$el.on 'shown', => @cellPreview.reposition()
-          @$el.on 'show', => @options.query.trigger 'showing:preview', @el
-          @$el.on 'show', (e) => e.preventDefault() if @model.get 'is:selecting'
-          @$el.on 'hide', (e) => @model.cachedPopover?.detach()
 
           @cellPreview = new intermine.bootstrap.DynamicPopover @el, options
 
