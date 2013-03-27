@@ -7528,3 +7528,15 @@ td > .im-no-results {
     padding: 0;
 }
 
+.intermine ::-webkit-input-placeholder {
+    color: #999;
+}
+.intermine ::-moz-placeholder {
+    color: #999;
+}
+.intermine :-moz-placeholder {
+    color: #999;
+}
+.intermine :-ms-input-placeholder {
+    color: #999;
+}
