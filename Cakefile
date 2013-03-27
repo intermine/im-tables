@@ -83,8 +83,9 @@ task 'do:bundle', 'bundle deps into main package', bundle = promiserToNode ->
   wrap = (wrapper, data) -> _.template wrapper, data
   bundleUp = ([bundle, jq, _, bb, bs, ui, imjs, imt]) -> wrap bundle, {jq, _, bb, bs, ui, imjs, imt}
   writeOut = writer 'js/imtables-bundled.js'
+  uglify = -> execP './node_modules/.bin/uglifyjs -o js/imtables-bundled.min.js js/imtables-bundled.js'
 
-  Q.all([bundP, jqp, usp, bbp, bsp, jquip, imjsp, imtp]).then(bundleUp).then(writeOut)
+  Q.all([bundP, jqp, usp, bbp, bsp, jquip, imjsp, imtp]).then(bundleUp).then(writeOut).then(uglify)
     
 
 task 'copyright', 'Show the copyright header', ->
@@ -98,6 +99,10 @@ task 'build:compile', 'Build project from build/* to js/imtables.js', compile = 
             exec "notify-send 'Compilation Failed' '#{ err + stdout + stderr }'", cb
         else
             cont cb
+
+task 'build:ugly', 'Uglify the main artifact', ugly = promiserToNode ->
+  console.log "Uglifying.."
+  execP './node_modules/.bin/uglifyjs -o js/imtables.min.js js/imtables.js'
 
 task 'prefix-css', 'Build a prefixed css file', prefixulate = promiserToNode ->
   console.log "Prefixing css..."
@@ -243,7 +248,7 @@ task 'build', 'Run a complete build', ->
                         exec 'notify-send "Recompiled im-tables"'
 
 task 'build:bundle', 'build a bundle', ->
-  clean -> prebuild -> concat -> compile -> bundle ->
+  clean -> prebuild -> concat -> compile -> ugly -> bundle ->
     console.log "Bundled at #{new Date()}"
   
 
