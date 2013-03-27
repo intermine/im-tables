@@ -167,9 +167,6 @@ do ->
           else
             """<span class="null-value">&nbsp;</span>"""
 
-        events:
-            'click': 'activateChooser'
-
         initialize: ->
             @model.on 'change', @selectingStateChange, @
             @model.on 'change', @updateValue, @
@@ -186,6 +183,7 @@ do ->
             @options.query.trigger 'showing:preview', @el
             e?.preventDefault() if @model.get 'is:selecting'
           'hide': (e) => @model.cachedPopover?.detach()
+          'click': 'activateChooser'
           'click a.im-cell-link': (e) -> e?.stopPropagation()
 
         listenToQuery: (q) ->
