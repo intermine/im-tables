@@ -167,6 +167,7 @@ do ->
             'change .im-sortables-filter': 'filterSortables'
             'keyup .im-sortables-filter': 'filterSortables'
             'sortupdate .im-reordering-container': 'updateOrder'
+            'sortupdate .im-sorting-container': 'updateSorting'
 
         onHidden: (e) ->
           return false unless @el is e?.target
@@ -241,8 +242,13 @@ do ->
             lis = @$ '.im-view-element'
             byEl = (el) -> (nv) -> nv.el is el
             reorderedState = (@newView.find byEl el for el in lis.get())
-            debugger unless reorderedState.length
             @newView.reset reorderedState
+
+        updateSorting: (e, ui) ->
+          lis = @$ '.im-in-order'
+          byEl = (el) -> (oe) -> oe.el is el
+          reorderedState = (@sortOrder.find byEl el for el in lis.get())
+          @sortOrder.reset reorderedState
 
         sortingPlaceholder: """
             <div class="placeholder">

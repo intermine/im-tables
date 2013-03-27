@@ -56,7 +56,7 @@ do ->
 
     tagName: 'li'
 
-    className: 'im-reorderable im-soe'
+    className: 'im-reorderable im-soe im-in-order'
 
     TEMPLATE = _.template """
       <div>
@@ -71,6 +71,7 @@ do ->
       @model.on 'change:direction', =>
         @$('.im-sort-direction').toggleClass 'asc desc'
       @model.on 'destroy', @remove, @
+      @model.el = @el # See commend in view-element.coffee
 
     events:
       'click .im-sort-direction': 'changeDirection'
