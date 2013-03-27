@@ -978,6 +978,9 @@
     color: #555;
 }
 
+.intermine .im-query-results .im-result-field input[type="checkbox"] {
+    vertical-align: top;
+}
 .intermine .im-query-results .im-table-container td.im-result-field:hover {
     background: #9f67ad;
 }
