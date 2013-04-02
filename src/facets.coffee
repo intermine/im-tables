@@ -20,6 +20,8 @@ do ->
 
     Int = (x) -> parseInt(x, 10)
 
+    numeric = (x) -> +x
+
     MORE_FACETS_HTML = """
         <i class="icon-plus-sign pull-right" title="Showing top ten. Click to see all values"></i>
     """
@@ -214,6 +216,7 @@ do ->
         events:
             'click': (e) -> e.stopPropagation()
             'keyup input.im-range-val': 'incRangeVal'
+            'change input.im-range-val': 'setRangeVal'
             'click .btn-primary': 'changeConstraints'
             'click .btn-cancel': 'clearRange'
 
@@ -222,7 +225,8 @@ do ->
         changeConstraints: (e) ->
           e.preventDefault()
           e.stopPropagation()
-          @query.constraints = _(@query.constraints).filter (c) => c.path != @facet.path.toString()
+          fpath = @facet.path.toString()
+          @query.constraints = _(@query.constraints).filter (c) -> c.path isnt fpath
           newConstraints = [
               {
                   path: @facet.path
@@ -338,15 +342,23 @@ do ->
                 </table>
             """
 
+        setRangeVal: (e) ->
+          $input = $(e.target)
+          prop = $input.data 'var'
+
+          current = (@range.get(prop) ? @[prop])
+          next = numeric $input.val()
+          @range.set(prop, next) unless current is next
+
         incRangeVal: (e) ->
           $input = $(e.target)
           prop = $input.data 'var'
-          current = now = (@range.get(prop) ? @[prop])
+          current = next = (@range.get(prop) ? @[prop])
           switch e.keyCode
-            when 40 then now--
-            when 38 then now++
+            when 40 then next--
+            when 38 then next++
 
-          @range.set(prop, now) unless now is current
+          @range.set(prop, next) unless next is current
 
         drawSlider: =>
             $(@container).append """
