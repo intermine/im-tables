@@ -5224,7 +5224,6 @@ td.im-result-subtable .im-subtable {
 
 .im-query-display .im-constraint.error .alert.alert-error {
     margin-top: 1em;
-    margin-bottom: 0;
     display: block;
     max-height: 36px;
 }
