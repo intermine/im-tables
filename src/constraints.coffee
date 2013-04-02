@@ -44,11 +44,9 @@ do ->
     basicEql = (a, b) ->
       return a is b unless (a and b)
       keys = _.union.apply _, [a, b].map _.keys
-      console.log keys
       same = true
       for k in keys
         [va, vb] = (x[k] for x in [a, b])
-        console.log va, vb
         same and= (if _.isArray va then aeql va, vb else va is vb)
       return same
 
@@ -100,9 +98,10 @@ do ->
         hideEditForm: (e) ->
             e?.preventDefault()
             e?.stopPropagation()
+            @$el.removeClass 'error'
             @$el.siblings('.im-constraint').slideDown()
             @$el.closest('.well').removeClass 'im-editing'
-            @$('.im-con-overview').siblings().slideUp 200
+            @$('.im-con-overview').siblings('[class*="im-con"]').slideUp 200
             @$('.im-multi-value-table input').prop('checked', true)
             @con.set _.extend {}, @orig
             while (ta = @typeaheads.shift())
@@ -200,8 +199,10 @@ do ->
         getTitleVal: () ->
             if @con.get('values')
                 @con.get('values').length + " values"
+            else if @con.has('value')
+                @con.get('value')
             else
-                @con.get('value') or @con.get('type')
+              @con.get('type')
 
         toLabel = (content, type) ->
           $ """<span class="label label-#{type}">#{content}</span>"""
@@ -221,8 +222,8 @@ do ->
           if (op = @getTitleOp())
               ul.append toLabel op, 'op'
           unless @con.get('op') in intermine.Query.NULL_OPS
-              if (val = @getTitleVal())
-                  ul.append toLabel val, 'value'
+              val = @getTitleVal()
+              ul.append toLabel val, 'value' if val?
               if @con.has 'extraValue'
                   ul.append intermine.conbuilder.messages.ExtraLabel
                   ul.append toLabel @con.get('extraValue'), 'extra'
@@ -240,7 +241,7 @@ do ->
           @drawOperatorSelector(fs) if @con.has('op')
           @drawValueOptions()
           @$el.append """
-            <div class="alert alert-error span10 im-hidden">
+            <div class="alert alert-error im-hidden">
               <i class="icon-warning-sign"></i>
               <span class="im-conbuilder-error">
               </span>
@@ -384,22 +385,22 @@ do ->
               input.data('typeahead')?.$menu.remove()
           input.attr placeholder: items[0].item # Suggest the most common item
 
-        handleNumericSummary: (input, summary) ->
-            isInt = @path.getType() in ['int', 'Integer']
-            step = if isInt then 1 else 0.1
+        handleNumericSummary: (input, {min, max, average}) ->
+            isInt = @path.getType() in intermine.Model.INTEGRAL_TYPES
+            step = if isInt then 1 else (max - min / 100)
             caster = if isInt then parseInt else parseFloat
             fs = input.closest('fieldset')
             fs.append @clearer
             $slider = $ '<div class="im-value-options">'
             $slider.appendTo(fs).slider
-                min: summary.min
-                max: summary.max
-                value: (@con.get('value') or summary.average)
+                min: min
+                max: max
+                value: (if @con.has('value') then @con.get('value') else caster average)
                 step: step
                 slide: (e, ui) -> input.val(ui.value).change()
-            input.attr placeholder: caster(summary.average)
+            input.attr placeholder: caster average
             fs.append @clearer
-            input.change (e) -> $slider.slider('value', input.val())
+            input.change (e) -> $slider.slider 'value', caster input.val()
         
         drawAttributeOpts: (fs) ->
             input = $ """
@@ -412,6 +413,11 @@ do ->
             setValue = => @con.set value: @cast input.val()?.trim()
             input.keyup setValue
             input.change setValue
+            @con.on 'change:value', =>
+              current = @con.get 'value'
+              unless current is @cast input.val()
+                input.val(current).change()
+
             if @path.isAttribute()
               @provideSuggestions(input)
 
@@ -471,7 +477,7 @@ do ->
 
         addIcons: ->
 
-        valueChanged: (value) -> @fillConSummaryLabel _.extend({}, @con, {value: value})
+        valueChanged: (value) -> @fillConSummaryLabel _.extend({}, @con, {value: "" + value})
 
         opChanged: (op) -> @$('.label-op').text op
 
