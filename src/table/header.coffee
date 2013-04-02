@@ -256,7 +256,7 @@ do ->
     toggleSubTable: (e) =>
       ignore e
       cmd = if @model.get 'expanded' then 'collapse' else 'expand'
-      @query.trigger cmd + ':subtables', @path
+      @query.trigger cmd + ':subtables', @model.get 'path'
       @model.set expanded: not @model.get 'expanded'
 
   scope 'intermine.query.results', {ColumnHeader}
