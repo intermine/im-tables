@@ -42,10 +42,10 @@ do ->
             @column = @query.getPathInfo(subtable.column)
             @query.on 'expand:subtables', (path) =>
                 if path.toString() is @column.toString()
-                    @$('.im-subtable').slideDown()
+                  @renderTable().slideDown()
             @query.on 'collapse:subtables', (path) =>
                 if path.toString() is @column.toString()
-                    @$('.im-subtable').slideUp()
+                  @$('.im-subtable').slideUp()
 
         getSummaryText: () ->
             if @column.isCollection()
@@ -98,8 +98,8 @@ do ->
           null
 
         renderTable: ($table) ->
-          return if @tableRendered
           $table ?= @$ '.im-subtable'
+          return $table if @tableRendered
           colRoot = @column.getType().name
           colStr = @column.toString()
           if @rows.length > 0
@@ -111,6 +111,7 @@ do ->
             else
                 @appendRow(@rows[0], tbody) # Odd hack to fix multiple repeated rows.
           @tableRendered = true
+          $table
 
         events:
           'click .im-subtable-summary': 'toggleTable'
