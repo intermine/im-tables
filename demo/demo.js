@@ -400,6 +400,7 @@ jQuery(document).ready(function($) {
         changeLayout();
     });
 
-    login("Gene-Prot-Exons");
+    var initial = $('.entry-points li.active a').text();
+    login(initial || "Gene-Prot-Exons");
     
 });
