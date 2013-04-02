@@ -27,8 +27,7 @@ define 'actions/code-gen', using 'html/code-gen', (HTML) ->
 
       indentLevel-- if isClosing
 
-      indent = new Array(indentLevel).join('  ')
-      buffer.push indent + line
+      buffer.push new Array(indentLevel).join('  ') + line
       
       indentLevel++ if isOpening
 
