@@ -4737,7 +4737,7 @@
 }
 @media screen and (min-width: 600px) {
   .intermine .modal {
-    margin: -250px 0 0 -280px;
+    margin: 0px 0 0 -280px;
   }
 }
 .intermine .modal-body {
