@@ -324,3 +324,7 @@ ul.notifications li.success {
 ul.notifications li:first-child {
     border-top: none;
 }
+
+#settings-dialogue textarea, #settings-dialog input, #settings-dialogue select {
+    width: 80%;
+}

@@ -51,7 +51,7 @@
                     </li>
                     -->
                     <li>
-                      <a>
+                      <a id="demo-settings">
                         <i class="icon-cog"></i>
                       </a>
                     </li>
@@ -132,6 +132,33 @@
      <!--
      <div class="right gh-ribbon"><a href="#" class="red"><span class="text"></span></a></div>
      -->
+     <div class="intermine">
+         <div class="modal hide" id="settings-dialogue">
+             <div class="modal-header">
+                 <a data-dismiss="modal" class="close" href="#">close</a>
+                 <h2>Settings</h2>
+             </div>
+             <div class="modal-body">
+                 <form class="form">
+                     <label>Import Query</label>
+                     <textarea name="query"></textarea>
+                     <label>For service</label>
+                     <select name="service" id="query-service"></select>
+                 </form>
+             </div>
+             <div class="modal-footer">
+                <div class="btn-group pull-right">
+                    <button class="btn btn-primary">
+                        Apply
+                    </button>
+                    <button class="btn btn-cancel" data-dismiss="modal">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+             
 
   </body>
 

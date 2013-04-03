@@ -400,6 +400,33 @@ jQuery(document).ready(function($) {
         changeLayout();
     });
 
+    $('#demo-settings').click(function() {
+      $('#settings-dialogue').modal('show');
+    });
+
+    var $serviceSelect = $('#query-service');
+    var serviceCombinations = {};
+    var name, service, root;
+    for (name in services) {
+      service = services[name];
+      if (!serviceCombinations[service.root]) {
+        serviceCombinations[service.root] = service;
+      }
+    }
+    for (root in serviceCombinations) {
+      $serviceSelect.append('<option value="' + root + '">' + root + '</option>');
+    }
+
+    $('#settings-dialogue .btn-primary').click(function(e) {
+      $('#settings-dialogue').modal('hide');
+      var params = $('#settings-dialogue form').serializeArray();
+      var form = intermine.funcutils.pairsToObj(params.map(function(param) {
+        return [param.name, param.value];
+      }));
+      var service = serviceCombinations[form.service];
+      doLogin(service.root, service.token, intermine.Query.fromXML(form.query));
+    });
+
     var initial = $('.entry-points li.active a').text();
     login(initial || "Gene-Prot-Exons");
     
