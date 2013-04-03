@@ -298,7 +298,6 @@ do ->
                 if items.length > 1
                     # A numerical column configured to present as a string column.
                     hasMore = if items.length < @limit then false else (stats.uniqueValues > @limit)
-                    @paper.remove()
                     hf = new HistoFacet @query, @facet, items, hasMore, ""
                     @$el.append hf.el
                     return hf.render()
