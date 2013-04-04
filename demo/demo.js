@@ -130,7 +130,8 @@ jQuery(document).ready(function($) {
         },
         TestModel: {
           help: 'alex@intermine.org',
-          root: "http://demo.intermine.org/intermine-test-dev",
+          //root: "http://demo.intermine.org/intermine-test-dev",
+          root: "http://localhost/intermine-test",
           token: "test-user-token",
           q: {
               select: ["*", "age"],
@@ -404,28 +405,30 @@ jQuery(document).ready(function($) {
       $('#settings-dialogue').modal('show');
     });
 
-    var $serviceSelect = $('#query-service');
-    var serviceCombinations = {};
-    var name, service, root;
-    for (name in services) {
-      service = services[name];
-      if (!serviceCombinations[service.root]) {
-        serviceCombinations[service.root] = service;
+    (function() {
+      var $serviceSelect = $('#query-service');
+      var serviceCombinations = {};
+      var name, service, root;
+      for (name in services) {
+        service = services[name];
+        if (!serviceCombinations[service.root]) {
+          serviceCombinations[service.root] = service;
+        }
       }
-    }
-    for (root in serviceCombinations) {
-      $serviceSelect.append('<option value="' + root + '">' + root + '</option>');
-    }
+      for (root in serviceCombinations) {
+        $serviceSelect.append('<option value="' + root + '">' + root + '</option>');
+      }
 
-    $('#settings-dialogue .btn-primary').click(function(e) {
-      $('#settings-dialogue').modal('hide');
-      var params = $('#settings-dialogue form').serializeArray();
-      var form = intermine.funcutils.pairsToObj(params.map(function(param) {
-        return [param.name, param.value];
-      }));
-      var service = serviceCombinations[form.service];
-      doLogin(service.root, service.token, intermine.Query.fromXML(form.query));
-    });
+      $('#settings-dialogue .btn-primary').click(function(e) {
+        $('#settings-dialogue').modal('hide');
+        var params = $('#settings-dialogue form').serializeArray();
+        var form = intermine.funcutils.pairsToObj(params.map(function(param) {
+          return [param.name, param.value];
+        }));
+        var service = serviceCombinations[form.service];
+        doLogin(service.root, service.token, intermine.Query.fromXML(form.query));
+      });
+    })();
 
     var initial = $('.entry-points li.active a').text();
     login(initial || "Gene-Prot-Exons");
