@@ -7548,11 +7548,6 @@ td > .im-no-results {
 .intermine .dropdown-menu .divider {
     background-color: transparent;
 }
-.bag-detail-table .active {
-    background-color: white;
-    color: #343434;
-    padding: 0;
-}
 
 .intermine ::-webkit-input-placeholder {
     color: #999;
