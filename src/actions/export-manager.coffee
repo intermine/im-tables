@@ -11,7 +11,7 @@ define 'actions/export-manager', ->
     template: _.template """
       <a class="btn im-open-dialogue" href="#">
         <i class="#{ intermine.icons.Export }"></i>
-        #{ intermine.messages.actions.ExportButton }
+        <span class="visible-desktop">#{ intermine.messages.actions.ExportButton }</span>
       </a>
     """
 

@@ -108,6 +108,9 @@ do ->
             console.error "#{ type } widgets are not supported"
             return false
 
+          if @width() < jQuery('body').width() * 0.6
+            @addClass 'im-half'
+
           view = new cls service, query, events, properties
           @empty().append view.el
           view.render()

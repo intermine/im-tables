@@ -231,7 +231,7 @@ do ->
             <div class="btn-group">
               <a class="btn im-undo" href="#">
                 <i class="#{ intermine.icons.Undo }"></i>
-                Undo
+                <span class="visible-desktop">Undo</span>
               </a>
               <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
                 <span class="caret"></span>

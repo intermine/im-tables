@@ -3,8 +3,8 @@ define 'html/code-gen', -> _.template """
       <a class="btn btn-action" href="#">
           <i class="#{ intermine.icons.Script }"></i>
           <span class="im-only-widescreen">Get</span>
-          <span class="im-code-lang"></span>
-          Code
+          <span class="im-code-lang hidden-tablet"></span>
+          <span class="hidden-tablet">Code</span>
       </a>
       <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
           <span class="caret"></span>
