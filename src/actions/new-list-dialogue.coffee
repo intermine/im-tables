@@ -237,6 +237,7 @@ define 'actions/new-list-dialogue', using 'actions/list-dialogue', 'models/uniq-
 
       this
 
+  scope 'intermine.query.actions', {ListCreator} # backwards compatibility for widgets
   scope 'intermine.actions.lists', {ListCreator}
 
   ListCreator
