@@ -3979,7 +3979,8 @@
 }
 .intermine .modal-header {
   padding: 9px 15px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid #5c0075;
+  box-shadow: 0px 5px -3px #f4eef7;
 }
 .intermine .modal-header .close {
   margin-top: 2px;
@@ -3987,6 +3988,8 @@
 .intermine .modal-header h3 {
   margin: 0;
   line-height: 30px;
+  margin: -9px -15px;
+  padding: 9px 15px;
 }
 .intermine .modal-body {
   position: relative;
@@ -4821,10 +4824,6 @@
 .im-query-display .modal.fade.in,
 .modal.fade.in {
   top: 42%;
-}
-.intermine .modal-header {
-  padding: 9px 15px;
-  border-bottom: 1px solid #eee;
 }
 .intermine .modal-body {
   overflow-y: auto;
