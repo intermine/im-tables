@@ -5263,9 +5263,10 @@ table.table {
 
 .im-table-container .table tbody > tr td.im-highlight {
     background: #9f67ad;
+    font-weight: bold;
 }
 
-.table td.im-highlight a {
+.im-table-container .table tbody > tr td.im-highlight a {
     color: white;
     font-weight: bold;
 }
