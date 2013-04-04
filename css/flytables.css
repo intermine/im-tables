@@ -7254,6 +7254,13 @@ td > .im-no-results {
     .im-query-toolbox {
         width: 95% !important;
     }
+    .im-half .visible-desktop,
+    .im-half .hidden-tablet {
+        display: none !important;
+    }
+    .im-half .im-table-container .im-page-sizer select {
+        max-width: 5em !important;
+    }
 
 }
 
