@@ -38,6 +38,7 @@ do ->
       return true if c.op and 0 is c.path.indexOf n
     return false
 
+  Tab = jQuery.fn.tab.noConflict()
 
   class ExportDialogue extends Backbone.View
 
@@ -195,7 +196,7 @@ do ->
               e.preventDefault()
               return false
             $a.data target: @$(".tab-pane.im-export-#{ x }")
-            $a.tab('show')
+            Tab.call $a, 'show'
           events[key] = cb
 
         for val in ["no", "gzip", "zip"] then do (val) =>
@@ -234,7 +235,7 @@ do ->
 
       moveToSection: (e) ->
         $this = $ e.currentTarget
-        $this.tab('show')
+        Tab.call $this, 'show'
         destination = $this.data 'destination'
         @state.set {destination}
 
