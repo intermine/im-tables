@@ -81,9 +81,9 @@ do ->
               </div>
            </div>
            <div class="tab-pane im-export-output">
-              <h3>
+              <label>
                 #{ intermine.messages.actions.CompressResults }
-              </h3>
+              </label>
               <div class="span11 im-compression-opts radio btn-group pull-right"
                     data-toggle="buttons-radio">
                 <button class="btn active im-no-compression span7">
