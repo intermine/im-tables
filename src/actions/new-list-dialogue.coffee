@@ -1,6 +1,9 @@
 define 'actions/new-list-dialogue', using 'actions/list-dialogue', 'models/uniq-items', 'html/new-list', (ListDialogue, UniqItems, HTML) ->
 
   ILLEGAL_LIST_NAME_CHARS = /[^\w\s\(\):+\.-]/g
+  
+  CATEGORY_FROM_SUMMARY = (items, {uniqueValues}) -> [uniqueValues, items, 'item']
+  CATEGORY_FROM_ROWS = (rows) -> [rows.length, rows, 0]
 
   class ListCreator extends ListDialogue
 
@@ -38,25 +41,26 @@ define 'actions/new-list-dialogue', using 'actions/list-dialogue', 'models/uniq-
 
       for categoriser in intermine.options.ListCategorisers
         [first, rest...] = categoriser.split(/\./)
-        if cd.fields[first]?
+        if first of cd.fields
           if ids?.length
             oq =
               select: categoriser
               from: type,
               where: {id: ids}
-            querying = service.rows(oq).then (rows) =>
-              if rows.length is 1
-                @listOptions.set
-                  name: "#{ type } list for #{ rows[0][0] } - #{ dateStr }"
-                  customName: false
+            querying = service.rows(oq).then CATEGORY_FROM_ROWS
           else
             oq = (@listOptions.get('query') or @query).clone()
-            querying = oq.summarise(categoriser, 1).then (items, {uniqueValues}) =>
-              if uniqueValues is 1
-                @listOptions.set
-                  name: "#{ type } list for #{ items[0].item } - #{ dateStr }"
-                  customName: false
-        
+            viewNode = oq.getViewNodes()[0]
+            summPath = "#{ viewNode }.#{ categoriser }"
+            if first of viewNode.getType().fields
+              querying = oq.summarise(summPath , 1).then CATEGORY_FROM_SUMMARY
+
+          querying.done ([n, xs, key]) =>
+            if n is 1
+              category = xs[0][key]
+              name = "#{ type } list for #{ category } - #{ dateStr }"
+              @listOptions.set {name, customName: false}
+
           querying.always => @avoidNameDuplication()
           return
       
