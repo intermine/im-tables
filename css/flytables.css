@@ -3989,6 +3989,7 @@
   margin: 0;
   line-height: 30px;
   margin: -9px -15px;
+  margin-top: -12px !important;
   padding: 9px 15px;
 }
 .intermine .modal-body {
