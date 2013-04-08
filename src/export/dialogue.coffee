@@ -38,7 +38,7 @@ do ->
       return true if c.op and 0 is c.path.indexOf n
     return false
 
-  Tab = jQuery.fn.tab.noConflict()
+  {Tab} = intermine.bootstrap
 
   class ExportDialogue extends Backbone.View
 

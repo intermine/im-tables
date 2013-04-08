@@ -7,7 +7,7 @@ scope 'intermine.columns.snippets',
     <div class="modal-body">
       <ul class="nav nav-tabs">
         <li class="active">
-          <a data-target=".im-reordering" data-toggle="tab">
+          <a data-target=".im-reordering">
             <span class="hidden-tablet">
               #{ intermine.messages.columns.OrderVerb }
             </span>
@@ -15,7 +15,7 @@ scope 'intermine.columns.snippets',
           </a>
         </li>
         <li>
-          <a data-target=".im-sorting" data-toggle="tab">
+          <a data-target=".im-sorting" >
             <span class="hidden-tablet">
               #{ intermine.messages.columns.SortVerb }
             </span>

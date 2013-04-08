@@ -10,6 +10,8 @@ do ->
 
     byEl = (el) -> (nv) -> nv.el is el
 
+    {Tab} = intermine.bootstrap
+
     class ColumnAdder extends intermine.query.ConstraintAdder
         className: "form node-adder form-horizontal"
 
@@ -213,7 +215,7 @@ do ->
         onlyShowOptionsInView: (e) ->
           @sortOpts.set onlyInView: $(e.currentTarget).is ':checked'
 
-        changeTab: (e) -> $(e.target).tab("show")
+        changeTab: (e) -> Tab.call $(e.target), "show"
 
         initOrdering: ->
           @newView.reset(model.toJSON() for model in @columnHeaders.models)

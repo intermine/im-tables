@@ -151,6 +151,10 @@ do ($ = jQuery) ->
         @reset()
         this
 
+    Tab = jQuery.fn.tab.noConflict()
+
+    scope 'intermine.bootstrap', {Tab}
+
     scope 'intermine.views', {ItemView}
 
     scope 'intermine.models', {ClosableCollection}
