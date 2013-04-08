@@ -51,14 +51,14 @@ do ->
                 @evts.trigger 'chosen', @path, isNewChoice
 
         initialize: (@query, @path, @depth, @evts, @getDisabled, @multiSelect) ->
-            @evts.on 'remove', () => @remove()
-            @evts.on 'chosen', (p, isNewChoice) =>
+            @listenTo @evts, 'remove', () => @remove()
+            @listenTo @evts, 'chosen', (p, isNewChoice) =>
                 if (p.toString() is @path.toString())
                     @$el.toggleClass('active', isNewChoice)
                 else
                     @$el.removeClass('active') unless @multiSelect
 
-            @evts.on 'filter:paths', (terms) =>
+            @listenTo @evts, 'filter:paths', (terms) =>
                 terms = (new RegExp(t, 'i') for t in terms when t)
                 if terms.length
                     matches = 0
@@ -70,6 +70,11 @@ do ->
                     @matches(matches, terms, lastMatch)
                 else
                     @$el.show()
+
+        remove: ->
+          for prop in ['query', 'path', 'depth', 'evts', 'getDisabled', 'multiSelect']
+            delete @[prop]
+          super arguments...
 
         template: _.template """<a href="#" title="<%- path %> (<%- type %>)"><span><%- name %></span></a>"""
 
@@ -83,11 +88,16 @@ do ->
                     matchesOnPath = _.any terms, (t) => !!@path.end.name.match(t)
                     @$('a span').html if (hl.match(/strong/) or not matchesOnPath) then hl else "<strong>#{ hl }</strong>"
             @$el.toggle !!(matches is terms.length)
+
+
+        rendered: false
     
         render: () ->
             disabled = @getDisabled(@path)
             @$el.addClass('disabled') if disabled
-            @path.getDisplayName (name) =>
+            debugger if @rendered
+            @rendered = true
+            @path.getDisplayName().then (name) =>
                 @displayName = name
                 name = name.replace(/^.*\s*>/, '') # unless @depth is 0
                 a = $ @template _.extend {}, @, name: name, path: @path, type: @path.getType()
@@ -223,11 +233,8 @@ do ->
             @collections = (toPath coll for name, coll of cd.collections)
             @evts.on 'chosen', events if @depth is 0
             @on 'collapse:tree-branches', =>
-              console.log "Bringing the tree down"
               @evts.trigger 'collapse:tree-branches'
-            @state.on 'change:allowRevRefs', =>
-              @reset()
-              @render()
+            @state.on 'change:allowRevRefs', => @render() if @rendered # Re-render.
 
         allowRevRefs: (allowed) =>
           @state.set allowRevRefs: allowed
@@ -239,20 +246,21 @@ do ->
                 
         reset: ->
           @$root?.remove()
-          for leaf in @leaves
+          while leaf = @leaves.pop()
             leaf.remove()
-          @leaves = []
 
         render: () ->
+          @reset()
+          @rendered = true
           cd = @path.getEndClass()
           if @depth is 0 and @canSelectRefs # then show the root class
             @$root = new RootClass(@query, cd, @evts, @multiSelect)
             @$el.append @$root.render().el
+
           for apath in @attributes
             if intermine.options.ShowId or apath.end.name isnt 'id'
               attr = new Attribute(@query, apath, @depth, @evts, @getDisabled, @multiSelect)
               @leaves.push attr
-              @$el.append(attr.render().el)
 
           for rpath in @references.concat(@collections)
             isLoop = false
@@ -262,14 +270,18 @@ do ->
                   isLoop = true
 
             # TODO. Clean this up with an options constructor.
-            if isLoop and not @state.get('allowRevRefs')
-                ref = new ReverseReference(@query, rpath, @depth, @evts, (() -> true), @multiSelect, @canSelectRefs)
+            allowingRevRefs = @state.get('allowRevRefs')
+            ref = if isLoop and not allowingRevRefs
+                new ReverseReference(@query, rpath, @depth, @evts, (() -> true), @multiSelect, @canSelectRefs)
             else
-                ref = new Reference(@query, rpath, @depth, @evts, @getDisabled, @multiSelect, @canSelectRefs)
-            ref.allowRevRefs = @state.get('allowRevRefs')
+                new Reference(@query, rpath, @depth, @evts, @getDisabled, @multiSelect, @canSelectRefs)
+
+            ref.allowRevRefs = allowingRevRefs
             ref.isLoop = isLoop
             @leaves.push ref
-            @$el.append ref.render().el
+
+          for leaf in @leaves
+            @$el.append leaf.render().el
 
           @$el.addClass(@dropDownClasses) if @depth is 0
           @$el.show()
