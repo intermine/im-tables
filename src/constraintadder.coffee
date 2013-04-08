@@ -95,7 +95,6 @@ do ->
         render: () ->
             disabled = @getDisabled(@path)
             @$el.addClass('disabled') if disabled
-            debugger if @rendered
             @rendered = true
             @path.getDisplayName().then (name) =>
                 @displayName = name
