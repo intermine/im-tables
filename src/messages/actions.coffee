@@ -117,6 +117,7 @@ scope "intermine.messages.actions", {
     ChrPrefix: """
             Prefix "chr" to the chromosome identifier as per UCSC convention (eg: chr2)
         """
+    ConfigureExportHelp: 'Configure the export options in these categories'
 
 }
 

@@ -32,6 +32,12 @@ do ->
               Destination: <span class="im-current"></span>
              </a>
            </li>
+           <div class="alert alert-info">
+             <p>
+              <i class="icon-info-sign"></i>
+              #{ intermine.messages.actions.ConfigureExportHelp }
+             </p>
+           </div>
          </ul>
          <div class="tab-content">
            <div class="tab-pane active im-export-format">

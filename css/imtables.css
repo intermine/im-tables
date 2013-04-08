@@ -4665,8 +4665,14 @@ table.table thead .sorting_desc_disabled {
     margin: 0px;
 }
 
+.im-export-dialogue .tabs-left > .nav-tabs > .alert,
 .im-export-dialogue .tabs-left > .nav-tabs > li {
-    max-width: 120px;
+    width: 120px;
+}
+.im-export-dialogue .tabs-left > .nav-tabs > .alert {
+    box-sizing: border-box;
+    padding-right: 1em;
+    margin: 2px;
 }
 
 .modal .modal-footer .im-perma-link {
