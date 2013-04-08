@@ -17,9 +17,11 @@ scope 'intermine.export.snippets',
   Genomespace: -> """
     <div class="im-genomespace">
       <div class="well">
-        <button class="btn btn-primary btn-block im-send-to-genomespace">
-          #{ intermine.messages.actions.SendToGenomespace }
-        </button>
+        <label>File Name</label>
+        <div class="input-append">
+          <input class="im-genomespace-filename input" style="width: 40em" type="text">
+          <span class="add-on im-format"></span>
+        </div>
       </div>
     </div>
     """
