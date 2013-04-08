@@ -238,6 +238,7 @@ do ->
           super()
                 
         reset: ->
+          @$root?.remove()
           for leaf in @leaves
             leaf.remove()
           @leaves = []
@@ -245,7 +246,8 @@ do ->
         render: () ->
           cd = @path.getEndClass()
           if @depth is 0 and @canSelectRefs # then show the root class
-            @$el.append new RootClass(@query, cd, @evts, @multiSelect).render().el
+            @$root = new RootClass(@query, cd, @evts, @multiSelect)
+            @$el.append @$root.render().el
           for apath in @attributes
             if intermine.options.ShowId or apath.end.name isnt 'id'
               attr = new Attribute(@query, apath, @depth, @evts, @getDisabled, @multiSelect)
