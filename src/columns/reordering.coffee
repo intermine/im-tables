@@ -215,7 +215,7 @@ do ->
         onlyShowOptionsInView: (e) ->
           @sortOpts.set onlyInView: $(e.currentTarget).is ':checked'
 
-        changeTab: (e) -> Tab.call $(e.target), "show"
+        changeTab: (e) -> Tab.call $(e.currentTarget), "show"
 
         initOrdering: ->
           @newView.reset(model.toJSON() for model in @columnHeaders.models)
