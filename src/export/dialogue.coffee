@@ -295,9 +295,9 @@ do ->
 
       onChangeDest:  =>
         destination = @state.get 'destination'
-        name = intermine.messages.actions[destination]
-        @$('.nav-tabs .im-export-destination').text name
-        @$('.btn-primary.im-download').text name
+        [dest, action] = (intermine.messages.actions[x + destination] for x in ['Dest', ''])
+        @$('.nav-tabs .im-export-destination .im-current').text dest
+        @$('.btn-primary.im-download').text action
 
         @$('.im-export-destination-options > div').removeClass 'active'
         @$(".im-#{ destination.toLowerCase() }").addClass 'active'

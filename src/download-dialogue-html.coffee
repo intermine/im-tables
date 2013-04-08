@@ -28,7 +28,9 @@ do ->
              <a href="#" class="im-export-output">Output</a>
            </li>
            <li>
-             <a href="#" class="im-export-destination">Destination</a>
+             <a href="#" class="im-export-destination">
+              Destination: <span class="im-current"></span>
+             </a>
            </li>
          </ul>
          <div class="tab-content">
