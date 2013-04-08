@@ -2,33 +2,20 @@ do ->
   sendToGenomeSpace = ->
     genomeSpaceURL = intermine.options.GenomeSpaceUpload
     uploadUrl = @state.get 'url'
-    fileName = "Results.#{ @requestInfo.get 'format' }"
+    format = @requestInfo.get 'format'
+
+    fileName = "Results.#{ format.extension }"
     qs = $.param {uploadUrl, fileName}
+    url  = "#{genomeSpaceURL}?#{qs}"
 
-    w = @$('.modal-body').width()
-    h = Math.max 400, @$('.modal-body').height()
+    win = window.open url
 
-    console.log w, h
-
-    console.log uploadUrl
-    console.log fileName
-    console.log qs
-
-    gsFrame = @$('.gs-frame').attr
-      src: genomeSpaceURL + '?' + qs
-      width: w
-      height: h
-
-    @$('.btn-primary').addClass 'disabled'
-
-    @$('.carousel').carousel interval: false
-    @$('.carousel').carousel 1
-
-    window.setCallbackOnGSUploadComplete = (savePath) =>
-      @$('.carousel').carousel 0
-      @$('.carousel').carousel 'pause'
-      @$('.btn-primary').removeClass 'disabled'
+    win.setCallbackOnGSUploadComplete = (savePath) => @stop()
+    win.setCallbackOnGSUploadError = (savePath) =>
+      @trigger 'export:error', 'genomespace'
       @stop()
+
+    win.focus()
 
   scope 'intermine.export.external.Genomespace',
     export: sendToGenomeSpace
