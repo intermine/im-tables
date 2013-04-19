@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+  <head>
+      <meta http-equiv="Content-Type" content="text/html;charset=ISO-8859-1" />
+      <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+
+    <link rel="stylesheet" type="text/css" href="../css/imtables.css">
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+
+    <!-- im code -->
+    <script charset="UTF-8" type="text/javascript" src="../js/imtables-bundled.js"></script>
+
+    <!-- Demo webapp -->
+    <script type="text/javascript" src="demo.js"></script>
+
+  </head>
+ 
+
+  <body>
+      <h1 id="list-name"></h1>
+     <div id="table-display"></div>
+  </body>
+  <script>
+      jQuery(function() {
+          var list, // <-- need to somehow get an idea of which list you are interested in.
+              root = 'http://www.flymine.org/query',
+              flymine = new intermine.Service({root: root}),
+              ActionBar = intermine.query.actions.ActionBar, // We need to adjust the behaviour of ActionBar#actionClasses
+               _actionClasses = ActionBar.prototype.actionClasses; // Store a reference to the original implementation.
+
+          // Here we define the button that will go in along-side the other actions (code-generator,
+          // export, create-list). This constructor just needs to produce an object that conforms
+          // to the Backbone.View interface (#el: HTMLElemnt, #$el: jQuery, #render: () -> View).
+          function ListToQuery(history) {
+
+              this.el = document.createElement('li');
+              this.$el = jQuery(this.el);
+
+              // Don't show this option if there is no list to use.
+              this.disabled = list == null; 
+
+              this.render = function() {
+                  var $a = jQuery('<a>');
+
+                  $a.text('Use this list in a query').addClass('btn').attr({
+                    href: root + '/loadQuery.do?method=list&name=' + encodeURIComponent(list.name)
+                  });
+                  this.$el.append($a);
+                  return this;
+              };
+          }
+
+          // Here we adapt the relevant method that gets the list of actions, adding our new one to the list,
+          // injecting it into the current method.
+          ActionBar.prototype.actionClasses = function() {
+              var classes = _actionClasses.call(this); // Get what would have orinally have been returned.
+              classes.push(ListToQuery); // add our new action.
+              return classes;
+          };
+
+          // This is just code specific to this demo. This does not need to be used.
+          var fetching = flymine.fetchLists();
+          fetching.done(function(lists) {
+              list = lists[0]; // just grab the first one.
+              var q = {
+                  select: ['*'],
+                  from: list.type,
+                  where: [[list.type, 'IN', list.name]]
+              };
+              jQuery('#list-name').text(list.name + ': ' + list.description);
+              jQuery('#table-display').imWidget({
+                  type: 'table',
+                  service: flymine,
+                  query: q,
+              });
+          });
+
+      });
+  </script>
+</html>
+
