@@ -4671,6 +4671,8 @@ table.table thead .sorting_desc_disabled {
 }
 .im-export-dialogue .tabs-left > .nav-tabs > .alert {
     box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
     padding-right: 1em;
     margin: 2px;
 }
