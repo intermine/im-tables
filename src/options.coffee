@@ -13,8 +13,9 @@ scope "intermine.options",
       "http://www.yeastgenome.org": "http://www.yeastgenome.org/favicon.ico"
     StylePrefix: 'intermine'
     GalaxyMain: "http://main.g2.bx.psu.edu"
-    GenomeSpaceUpload: "https://gsui.genomespace.org/jsui/upload/loadUrlToGenomespace.html"
-    # GenomeSpaceUpload: 'https://identitytest.genomespace.org/jsui/uploaddialog.html'
+    GalaxyCurrent: null
+    GalaxyTool: 'flymine'
+    GenomeSpaceUpload: "https://identitytest.genomespace.org/jsui/upload/loadUrlToGenomespace.html"
     ExternalExportDestinations: # Setting these to false disables them
       Galaxy: true
       Genomespace: false
@@ -35,6 +36,10 @@ scope "intermine.options",
       Transition:
         Easing: 'elastic'
         Duration: 750
+    brand:
+      "http://www.flymine.org": "FlyMine"
+      "http://preview.flymine.org": "FlyMine-Preview"
+      "http://www.mousemine.org": "MouseMine (MGI)"
     preview:
       count:
         'http://localhost/intermine-test/service/':
