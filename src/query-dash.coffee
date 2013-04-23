@@ -79,4 +79,17 @@ do ->
           @toolbar = new intermine.query.tools.ToolBar @states
           @tools.append @toolbar.render().el
 
-    scope "intermine.query.results", {DashBoard, CompactView}
+    class Toolless extends DashBoard
+
+      className: 'im-query-display im-toolless'
+
+      TABLE_CLASSES: 'im-query-results'
+
+      renderTools: (q) ->
+
+      renderQueryManagement: (q) ->
+        {Trail} = intermine.query.tools
+        trail = new Trail(@states)
+        @$el.prepend trail.render().el
+
+    scope "intermine.query.results", {DashBoard, CompactView, Toolless}

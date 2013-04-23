@@ -403,6 +403,12 @@ jQuery(document).ready(function($) {
         changeLayout();
     });
 
+    $('#select-minimal-layout').click(function() {
+        displayType = 'minimal';
+        changeLayout();
+    });
+
+
     $('#demo-settings').click(function() {
       $('#settings-dialogue').modal('show');
     });

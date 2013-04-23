@@ -102,6 +102,8 @@ do ->
             intermine.query.results.CompactView
           else if type is 'dashboard'
             intermine.query.results.DashBoard
+          else if type is 'minimal'
+            intermine.query.results.Toolless
 
           unless cls
             console.error "#{ type } widgets are not supported"
