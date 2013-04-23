@@ -88,14 +88,13 @@ do ->
           else
               throw new Error("Unknown method #{arg0}")
       else
-          {type, service, url, token, query, events, properties, error} = arg0
+          {type, service, url, token, query, events, properties, error, options} = arg0
           if supportsSVG() and not d3?
             # Can be loaded late, as only needed for summaries, which the
             # user will have to click on.
             intermine.cdn.load 'd3'
           unless hasStyle /font-awesome/
             intermine.cdn.load 'font-awesome'
-            
             
           service ?= new intermine.Service root: url, token: token
           service.errorHandler = error if error?
@@ -110,6 +109,9 @@ do ->
 
           if @width() < jQuery('body').width() * 0.6
             @addClass 'im-half'
+
+          if options?
+            intermine.setOptions options
 
           view = new cls service, query, events, properties
           @empty().append view.el
