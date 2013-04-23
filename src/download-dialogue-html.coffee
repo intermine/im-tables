@@ -173,8 +173,7 @@ do ->
     -->
 
     <div class="modal-footer">
-      <a href="#" class="btn btn-primary im-download pull-right"
-              title="#{ intermine.messages.actions.ExportHelp }">
+      <a href="#" class="btn btn-primary im-download pull-right">
         <i class="icon #{ intermine.icons.Export }"></i>
         #{ intermine.messages.actions.Export }
       </a>

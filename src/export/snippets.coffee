@@ -1,11 +1,12 @@
 scope 'intermine.export.snippets',
-  Galaxy: -> """
+  Galaxy: _.template """
     <div class="im-galaxy">
       <form class="im-galaxy form form-compact well">
         <label>
           #{ intermine.messages.actions.GalaxyURILabel }
           <input class="im-galaxy-uri" 
-                type="text" value="#{ intermine.options.GalaxyMain }">
+                type="text"
+                value="<%- galaxy %>"
         </label>
         <label>
           #{ intermine.messages.actions.SaveGalaxyURL }

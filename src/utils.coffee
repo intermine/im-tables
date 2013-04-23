@@ -63,28 +63,36 @@ do ($ = jQuery) ->
 
     requiresAuthentication = (q) -> _.any q.constraints, (c) -> c.op in ['NOT IN', 'IN']
 
+    organisable = (path) ->
+      path.getEndClass().name is 'Organism' or path.getType().fields['organism']?
+
+    uniquelyFlat = _.compose _.uniq, _.flatten
+
     getOrganisms = (query, cb) ->
-        restrictedOrganisms = (c.value for c in query.constraints when c.path.match(/(o|O)rganism/))
-        if restrictedOrganisms.length
-            cb(restrictedOrganisms)
+        def = $.Deferred()
+        def.done cb if cb?
+        done = _.compose def.resolve, uniquelyFlat
+
+        mustBe = ((c.value or c.values) for c in query.constraints when (
+          (c.op in ['=', 'ONE OF', 'LOOKUP']) and c.path.match(/(o|O)rganism(\.\w+)?$/)))
+
+        if mustBe.length
+          done mustBe
         else
-            toRun = query.clone()
-            orgs = []
-            nodes = (toRun.getPathInfo(v).getParent() for v in toRun.views)
-            onodes = (n for n in nodes when (n.toPathString() is "Organism" or n.getType().fields["organism"]?))
-            onodes2 = (if n.toPathString() is "Organism" then n else n.append("organism") for n in onodes)
-            newView = ("#{n.toPathString()}.shortName" for n in onodes2)
-            toRun.views = _.uniq(newView)
-            if toRun.views.length
-                toRun.sortOrder = []
-                promise = toRun.rows (rows) ->
-                    for row in rows
-                        orgs = orgs.concat(row)
-                    cb _.uniq(orgs)
-                promise.fail ->
-                    cb orgs
-            else
-                cb orgs
+          toRun = query.clone()
+          newView = for n in toRun.getViewNodes() when organisable n
+            opath = if n.getEndClass().name is 'Organism' then n else n.append('organism')
+            opath.append 'shortName'
+
+          if newView.length
+            toRun.select(_.uniq newView, String)
+                 .orderBy([])
+                 .rows()
+                 .then(done, -> done [])
+          else
+            done []
+
+        return def.promise()
 
     openWindowWithPost = (uri, name, params) ->
 

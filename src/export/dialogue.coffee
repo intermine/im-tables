@@ -649,7 +649,6 @@ do ->
       render: () ->
 
         @$el.append intermine.snippets.actions.DownloadDialogue()
-        @$('.modal-footer .btn').tooltip()
 
         @initFormats()
         @initCols()
@@ -676,7 +675,7 @@ do ->
               </a>
             </li>
           """
-          $options.append intermine.export.snippets[name]?()
+          $options.append intermine.export.snippets[name]?(@requestInfo.toJSON())
 
 
       makeSlider: () ->
