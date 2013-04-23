@@ -215,6 +215,8 @@ jQuery(document).ready(function($) {
         });
     };
 
+    intermine.setOptions({GalaxyCurrent: 'https://test.g2.bx.psu.edu'});
+
     var query_events = {
         "list-creation:success": function(list) {
             notifier.notify({
