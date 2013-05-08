@@ -67,10 +67,15 @@ promiserToNode = (promiser) -> (cb) ->
     cb ?= DEFAULT_ERR_HANDLER
     done.then( -> cont cb).done()
 
-task 'do:bundle', 'bundle deps into main package', bundle = promiserToNode ->
+FULL_BUNDLE = 'bundle.js.template'
+BUNDLE_NAME = 'js/imtables-bundled.js'
+MINIMAL_BUNDLE = 'mini-bundle.js.template'
+MINI_BUNDLE_NAME = 'js/imtables-mini-bundle.js'
+
+bundle = (templateFileName, outFileName) -> promiserToNode ->
   
   console.log "Bundling..."
-  bundP = read 'bundle.js.template'
+  bundP = read templateFileName
 
   jqp = read 'components/jquery/jquery.js'
   usp = read 'components/underscore/underscore.js'
@@ -82,11 +87,14 @@ task 'do:bundle', 'bundle deps into main package', bundle = promiserToNode ->
 
   wrap = (wrapper, data) -> _.template wrapper, data
   bundleUp = ([bundle, jq, _, bb, bs, ui, imjs, imt]) -> wrap bundle, {jq, _, bb, bs, ui, imjs, imt}
-  writeOut = writer 'js/imtables-bundled.js'
+  writeOut = writer outFileName
   uglify = -> execP './node_modules/.bin/uglifyjs -o js/imtables-bundled.min.js js/imtables-bundled.js'
 
   Q.all([bundP, jqp, usp, bbp, bsp, jquip, imjsp, imtp]).then(bundleUp).then(writeOut).then(uglify)
     
+task 'do:bundle', 'bundle deps into main package', bundle FULL_BUNDLE, BUNDLE_NAME
+
+task 'do:mini-bundle', 'build the minimal viable bundle', bundle MINIMAL_BUNDLE, MINI_BUNDLE_NAME
 
 task 'copyright', 'Show the copyright header', ->
     console.log header
@@ -248,9 +256,12 @@ task 'build', 'Run a complete build', ->
                         exec 'notify-send "Recompiled im-tables"'
 
 task 'build:bundle', 'build a bundle', ->
-  clean -> prebuild -> concat -> compile -> ugly -> bundle ->
+  clean -> prebuild -> concat -> compile -> ugly -> bundle(FULL_BUNDLE, BUNDLE_NAME) ->
     console.log "Bundled at #{new Date()}"
-  
+
+task 'mini:bundle', 'build a mini bundle', ->
+  clean -> prebuild -> concat -> compile -> ugly -> bundle(MINIMAL_BUNDLE, MINI_BUNDLE_NAME) ->
+    console.log "Mini-Bundled at #{new Date()}"
 
 task 'watch', 'Watch production files and rebuild the application', watch = (cb) ->
     console.log "Watching for changes in ./src"
