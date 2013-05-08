@@ -5,7 +5,7 @@
 
   context.document = root.document;
   context.location = root.location;
-  context.$ = context.jQuery = window.jQuery;
+  context.$ = context.jquery = context.jQuery = window.jQuery;
   context.Backbone = window.Backbone;
   context._ = window._;
   context.intermine = window.intermine;

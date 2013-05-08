@@ -88,7 +88,8 @@ bundle = (templateFileName, outFileName) -> promiserToNode ->
   wrap = (wrapper, data) -> _.template wrapper, data
   bundleUp = ([bundle, jq, _, bb, bs, ui, imjs, imt]) -> wrap bundle, {jq, _, bb, bs, ui, imjs, imt}
   writeOut = writer outFileName
-  uglify = -> execP './node_modules/.bin/uglifyjs -o js/imtables-bundled.min.js js/imtables-bundled.js'
+  uglyOutName = outFileName.replace /js$/, 'min.js'
+  uglify = -> execP "./node_modules/.bin/uglifyjs -o #{ uglyOutName } #{ outFileName }"
 
   Q.all([bundP, jqp, usp, bbp, bsp, jquip, imjsp, imtp]).then(bundleUp).then(writeOut).then(uglify)
     
