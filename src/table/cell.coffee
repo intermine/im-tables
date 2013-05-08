@@ -185,7 +185,10 @@ do ->
             e?.preventDefault() if @model.get 'is:selecting'
           'hide': (e) => @model.cachedPopover?.detach()
           'click': 'activateChooser'
+          'click': 'reportClick'
           'click a.im-cell-link': (e) -> e?.stopPropagation()
+
+        reportClick: -> @model.trigger 'click', @model
 
         listenToQuery: (q) ->
           q.on "start:list-creation", =>

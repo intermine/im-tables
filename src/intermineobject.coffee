@@ -5,7 +5,7 @@ do ->
     # which are illegal field name characters.
     class IMObject extends Backbone.Model
 
-      initialize: (query, obj, field, base) ->
+      initialize: (query, obj, field, base, history) ->
         obj[field] = obj.value
         obj['obj:type'] = obj.class
         obj['service:base'] = base
@@ -21,6 +21,7 @@ do ->
           @set 'is:selectable': !! ok
         @on "change:is:selected", (self, selected) ->
           query.trigger "imo:selected", @get("obj:type"), @get("id"), selected
+        @on 'click', -> query.trigger 'imo:click', @get('obj:type'), @get('id'), @
 
       selectionState: ->
         selected: @get 'is:selected'

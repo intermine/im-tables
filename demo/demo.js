@@ -215,9 +215,12 @@ jQuery(document).ready(function($) {
         });
     };
 
-    intermine.setOptions({GalaxyCurrent: 'https://test.g2.bx.psu.edu'});
+    intermine.setOptions({GalaxyCurrent: 'https://demo.g2.bx.psu.edu'});
 
     var query_events = {
+        "imo:click": function(type, id) {
+          console.log("The user is interested in " + type + "(" + id + ")");
+        },
         "list-creation:success": function(list) {
             notifier.notify({
                 text: messageTemplate(list),
