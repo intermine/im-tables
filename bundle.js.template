@@ -48,6 +48,6 @@
     <%= imt %>
   }).call(context);
 
-  window.intermine = context.intermine;
+  window.intermine = context._.extend((window.intermine || {}), context.intermine);
 
 }).call(window);
