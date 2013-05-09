@@ -376,8 +376,15 @@ do ->
             unless isImplicitlyConstrained q, node
               q.addConstraint path: node.append('id'), op: 'IS NOT NULL'
 
-          q.orderBy([]) if f in BIO_FORMATS
-          return q
+          newOrder = if f in BIO_FORMATS
+            []
+          else
+            viewNodes = q.getViewNodes()
+            _.filter q.sortOrder, ({path}) ->
+              parent = q.getPathInfo(path).getParent()
+              _.any viewNodes, (node) -> parent.equals node
+
+          q.orderBy newOrder
 
       getExportParams: () ->
           params = @requestInfo.toJSON()
