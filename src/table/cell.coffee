@@ -1,13 +1,13 @@
 do ->
 
-    CELL_HTML = _.template """
+    _CELL_HTML = _.template """
       <input class="list-chooser" type="checkbox"
         <% if (checked) { %> checked <% } %>
         <% if (disabled) { %> disabled <% } %>
         style="display: <%= display %>"
       >
-      <a class="im-cell-link" href="<%= url %>">
-        <% if (url != null && !url.match(host)) { %>
+      <a class="im-cell-link" target="<%= target %>" href="<%= url %>">
+        <% if (isForeign) { %>
           <% if (icon) { %>
             <img src="<%= icon %>" class="im-external-link"></img>
           <% } else { %>
@@ -27,6 +27,11 @@ do ->
       <% } %>
     """
 
+    CELL_HTML = (data) ->
+      {url, host} = data
+      data.isForeign = url? and not url.match host
+      data.target = if data.isForeign then 'blank' else ''
+      _CELL_HTML data
 
     class SubTable extends Backbone.View
         tagName: "td"
