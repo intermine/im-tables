@@ -8,5 +8,7 @@ define 'formatters/bio/core/organism', ->
       model._fetching = p = @options.query.service.findById 'Organism', model.get 'id'
       p.done (org) -> model.set org
 
-    data = _.extend {shortName: ''}, model.toJSON()
+    defaults = shortName: (model.get('name') or '')
+
+    data = _.extend defaults, model.toJSON()
     templ data
