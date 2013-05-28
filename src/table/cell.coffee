@@ -22,14 +22,17 @@ do ->
           </span>
         <% } %>
       </a>
-      <% if (field == 'url' && value != url) { %>
-          <a class="im-cell-link external" href="<%= value %>"><i class="icon-globe"></i>link</a>
+      <% if (rawValue != null && field == 'url' && rawValue != url) { %>
+          <a class="im-cell-link external" href="<%= rawValue %>">
+            <i class="icon-globe"></i>
+            link
+          </a>
       <% } %>
     """
 
     CELL_HTML = (data) ->
       {url, host} = data
-      data.isForeign = url? and not url.match host
+      data.isForeign = (url? and not url.match host)
       data.target = if data.isForeign then 'blank' else ''
       _CELL_HTML data
 
@@ -286,6 +289,7 @@ do ->
           field = @options.field
           data =
             value: @formatter(@model)
+            rawValue: @model.get(field)
             field: field
             url: @model.get('service:url')
             host: if IndicateOffHostLinks then window.location.host else /.*/
