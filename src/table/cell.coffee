@@ -193,7 +193,6 @@ do ->
             e?.preventDefault() if @model.get 'is:selecting'
           'hide': (e) => @model.cachedPopover?.detach()
           'click': 'activateChooser'
-          'click': 'reportClick'
           'click a.im-cell-link': (e) -> e?.stopPropagation()
 
         reportClick: -> @model.trigger 'click', @model
@@ -317,6 +316,7 @@ do ->
           this
 
         activateChooser: ->
+          @reportClick()
           {selected, selectable, selecting} = @model.selectionState()
           if selectable and selecting
             @model.set 'is:selected': not selected
