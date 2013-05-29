@@ -51,7 +51,6 @@ do ->
         className: "im-dropdown-summary"
 
         initialize: (@query, @view) ->
-          @$el.on 'destroyed', @close
 
         remove: ->
           @heading?.remove()

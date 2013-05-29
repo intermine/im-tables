@@ -381,7 +381,7 @@ do ->
 
         drawChart: (items) =>
           if d3?
-            @_drawD3Chart(items)
+            setTimeout (=> @_drawD3Chart(items)), 0
           # Boo-hoo, can't draw a pretty chart.
 
         _drawD3Chart: (items) ->
@@ -578,7 +578,9 @@ do ->
           this
 
         addChart: ->
-          @_drawD3Chart() if d3?
+          @chartElem = @make "div"
+          @$el.append @chartElem
+          setTimeout (=> @_drawD3Chart()), 0 if d3?
           this
 
         _drawD3Chart: ->
@@ -597,9 +599,7 @@ do ->
           colour = (d, i) ->
             paint i
 
-          elem = @make "div"
-          @$el.append elem
-          chart = d3.select(elem).append('svg')
+          chart = d3.select(@chartElem).append('svg')
             .attr('class', 'chart')
             .attr('height', h)
             .attr('width', w)
@@ -732,10 +732,7 @@ do ->
               content: @getDownloadPopover()
               trigger: 'manual'
 
-            imd.click (e) ->
-              console.log "popping over", e
-              imd.popover 'toggle'
-            console.log imd
+            imd.click (e) -> imd.popover 'toggle'
 
             @initFilter()
 
@@ -909,11 +906,6 @@ do ->
 
         columnHeaders: [' ', 'Item', 'Count']
         
-        addChart: ->
-          if d3?
-            @_drawD3Chart()
-          # Boo-hoo, can't draw a pretty chart.
-
         _drawD3Chart: ->
           return this if @items.all (i) -> 1 is i.get 'count'
           data = @items.models
@@ -925,9 +917,8 @@ do ->
           max = f.get "count"
           x = d3.scale.linear().domain([0, n]).range([@leftMargin, w])
           y = d3.scale.linear().domain([0, max]).rangeRound([0, h])
-          chart = @make "div"
-          @$el.append chart
-          chart = d3.select(chart).append('svg')
+
+          chart = d3.select(@chartElem).append('svg')
             .attr('class', 'chart')
             .attr('width', w)
             .attr('height', h)

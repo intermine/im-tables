@@ -100,6 +100,9 @@ do ->
         @model.set(expanded: true) if node.toString().match @view
       @query.on 'subtable:collapsed', (node) =>
         @model.set(expanded: false) if node.toString().match @view
+      @query.on 'showing:column-summary', (path) =>
+        unless path.equals @model.get 'path'
+          @summary?.remove()
 
       @model.on 'change:conCount', @displayConCount
       @model.on 'change:direction', @displaySortDirection
@@ -165,10 +168,11 @@ do ->
       'click .im-col-sort-indicator': 'setSortOrder'
       'click .im-col-minumaximiser': 'toggleColumnVisibility'
       'click .im-col-filters': 'showFilterSummary'
-      'click .im-summary': 'showColumnSummary'
       'click .im-subtable-expander': 'toggleSubTable'
       'click .im-col-remover': 'removeColumn'
       'toggle .im-th-button': 'summaryToggled'
+
+    #'click .im-summary': 'showColumnSummary'
 
     summaryToggled: (e, isOpen) ->
       ignore e
@@ -199,6 +203,7 @@ do ->
       @checkHowFarOver if e? then $(e.currentTarget) else @$el
 
       unless @$(selector).hasClass 'open'
+        @query.trigger 'showing:column-summary', @model.get 'path'
         summary = new View(@query, @model.get('path'))
         $menu = @$ selector + ' .dropdown-menu'
         # Must append before render so that dimensions can be calculated.
