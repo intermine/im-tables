@@ -1,13 +1,13 @@
 do ->
 
-    CELL_HTML = _.template """
+    _CELL_HTML = _.template """
       <input class="list-chooser" type="checkbox"
         <% if (checked) { %> checked <% } %>
         <% if (disabled) { %> disabled <% } %>
         style="display: <%= display %>"
       >
-      <a class="im-cell-link" href="<%= url %>">
-        <% if (url != null && !url.match(host)) { %>
+      <a class="im-cell-link" target="<%= target %>" href="<%= url %>">
+        <% if (isForeign) { %>
           <% if (icon) { %>
             <img src="<%= icon %>" class="im-external-link"></img>
           <% } else { %>
@@ -22,11 +22,19 @@ do ->
           </span>
         <% } %>
       </a>
-      <% if (field == 'url' && value != url) { %>
-          <a class="im-cell-link external" href="<%= value %>"><i class="icon-globe"></i>link</a>
+      <% if (rawValue != null && field == 'url' && rawValue != url) { %>
+          <a class="im-cell-link external" href="<%= rawValue %>">
+            <i class="icon-globe"></i>
+            link
+          </a>
       <% } %>
     """
 
+    CELL_HTML = (data) ->
+      {url, host} = data
+      data.isForeign = (url? and not url.match host)
+      data.target = if data.isForeign then 'blank' else ''
+      _CELL_HTML data
 
     class SubTable extends Backbone.View
         tagName: "td"
@@ -284,6 +292,7 @@ do ->
           field = @options.field
           data =
             value: @formatter(@model)
+            rawValue: @model.get(field)
             field: field
             url: @model.get('service:url')
             host: if IndicateOffHostLinks then window.location.host else /.*/

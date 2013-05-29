@@ -31,6 +31,7 @@ scope "intermine.options",
         ]
         d3: '/js/d3/3.0.6/d3.v3.min.js'
         'font-awesome': "/css/font-awesome/3.0.2/css/font-awesome.css"
+        'filesaver': '/js/filesaver.js/FileSaver.min.js'
     
     D3:
       Transition:

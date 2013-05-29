@@ -6995,7 +6995,7 @@ ul.im-list-tags li {
     opacity: 0.3;
 }
 
-.chart div {
+.im-column-summary .chart div {
   font: 10px sans-serif;
   background-color: steelblue;
   text-align: right;
@@ -7004,27 +7004,27 @@ ul.im-list-tags li {
   color: white;
 }
 
-.chart rect {
+.im-column-summary .chart rect {
     fill: steelblue;
     stroke: white;
 }
 
-.chart .donut-arc:hover,
-.chart rect:hover {
+.im-column-summary .chart .donut-arc:hover,
+.im-column-summary .chart rect:hover {
     opacity: 0.75;
 }
 
-.chart rect.squashed {
+.im-column-summary .chart rect.squashed {
     fill: steelblue;
     stroke: steelblue;
 }
 
-.chart rect.bar-selected {
+.im-column-summary .chart rect.bar-selected {
     fill: #ff7f0e;
     stroke: white;
 }
 
-.chart rect.squashed-selected {
+.im-column-summary .chart rect.squashed-selected {
     fill: #ff7f0e;
     stroke: #ff7f0e;
 }
