@@ -600,8 +600,7 @@ do ->
             forcePlaceholderSize: true
             update: (e, ui) =>
               @$('.im-reset-cols').removeClass('disabled')
-              silent = true
-              @exportedCols.reset cols.find('li').map(-> $(@).data 'model' ).get(), {silent}
+              @exportedCols.reset cols.find('li').map(-> $(@).data 'model' ).get()
 
         @initColumnOptions()
 
