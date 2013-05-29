@@ -34,6 +34,7 @@ define 'actions/code-gen', using 'html/code-gen', (HTML) ->
     return buffer.join("\n")
 
   alreadyDone = jQuery.Deferred -> @resolve(true)
+  alreadyRejected = jQuery.Deferred -> @reject 'not available'
 
   class CodeGenerator extends Backbone.View
     tagName: "li"
@@ -66,6 +67,14 @@ define 'actions/code-gen', using 'html/code-gen', (HTML) ->
       @model.set {lang: $t.data('lang') or @model.get('lang')}, {silent: true}
       @model.trigger 'set:lang'
 
+    canSaveFromMemory = ->
+      if not Blob?
+        alreadyRejected
+      if saveAs?
+        alreadyDone
+      else
+        intermine.cdn.load 'filesaver'
+
     displayLang: =>
       $m    = @$ '.modal'
       lang  = @model.get('lang')
@@ -79,7 +88,15 @@ define 'actions/code-gen', using 'html/code-gen', (HTML) ->
 
       @$('a .im-code-lang').text lang
       @$('.modal h3 .im-code-lang').text lang
-      @$('.modal .btn-save').attr href: query.getCodeURI lang
+
+      saveBtn = @$('.modal .btn-save').removeClass('disabled').unbind('click').attr href: null
+      if lang is 'xml'
+        saveBtn.addClass 'disabled'
+        canSaveFromMemory().done -> saveBtn.removeClass('disabled').click ->
+          blob = new Blob [code], type: 'application/xml;charset=utf8'
+          saveAs blob, 'query.xml'
+      else
+        saveBtn.attr href: query.getCodeURI lang
 
       jQuery.when(code, ready).then (code) ->
         formatted = prettyPrintOne(_.escape(code), ext)
