@@ -314,6 +314,7 @@ do ->
           this
 
         activateChooser: ->
+          @reportClick()
           {selected, selectable, selecting} = @model.selectionState()
           if selectable and selecting
             @model.set 'is:selected': not selected
