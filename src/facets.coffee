@@ -646,7 +646,7 @@ do ->
           paths.each (d, i) ->
             title = "#{ d.data.get 'item' }: #{ percent d }%"
             placement = if (d.endAngle + d.startAngle) / 2 > Math.PI then 'left' else 'right'
-            $(@).tooltip {title, placement, container: elem}
+            $(@).tooltip {title, placement, container: @chartElem}
           paths.transition()
             .duration(intermine.options.D3.Transition.Duration)
             .ease(intermine.options.D3.Transition.Easing)
