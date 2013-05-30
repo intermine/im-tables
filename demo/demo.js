@@ -36,6 +36,15 @@ jQuery(document).ready(function($) {
             }
           }
         },
+        WormMine: {
+          root: "http://206.108.125.166:8080/wormmine",
+          q: {
+            "name": "Gene -> CDS's",
+            "from": "Gene",
+            "select": [ "CDSs.primaryIdentifier", "organism.name" ],
+            "join": ['organism']
+          }
+        },
         Production: {
             root: "www.flymine.org/query", 
             token: "21k3D5x5B8pdd8T9yeY24fG8th2",
