@@ -10,7 +10,7 @@ define 'formatters/bio/core/organism', ->
   ensureData = (model, service) ->
     return if model._fetching? or model.has 'shortName'
     model._fetching = p = service.findById 'Organism', model.get 'id'
-    p.done (org) -> model.set org
+    p.done (org) -> model.set shortName: org.shortName
 
   templ = _.template """<span class="name"><%- shortName %></span>"""
 
@@ -18,5 +18,9 @@ define 'formatters/bio/core/organism', ->
     @$el.addClass 'organism'
     ensureData model, @options.query.service
 
-    data = getData model, 'shortName', 'name'
-    templ data
+    if model.get 'id'
+      data = getData model, 'shortName', 'name'
+      templ data
+    else
+      """<span class="null-value">&nbsp;</span>"""
+

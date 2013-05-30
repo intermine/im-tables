@@ -32,7 +32,7 @@ do ->
 
     CELL_HTML = (data) ->
       {url, host} = data
-      data.isForeign = (url? and not url.match host)
+      data.isForeign = (url and not url.match host)
       data.target = if data.isForeign then 'blank' else ''
       _CELL_HTML data
 
