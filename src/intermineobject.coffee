@@ -32,7 +32,7 @@ do ->
 
     class NullObject extends IMObject
 
-      initialize: (query, field, type) ->
+      initialize: (_, {query, field, type}) ->
         @set
           'id': null
           'obj:type': type
@@ -47,7 +47,7 @@ do ->
         
     class FPObject extends NullObject
 
-      initialize: (query, obj, field) ->
+      initialize: ({}, {query, obj, field}) ->
         @set
           'id': null
           'obj:type': obj.class

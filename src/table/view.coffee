@@ -560,9 +560,10 @@ do ->
                   model = if obj.id?
                       @itemModels[obj.id] or= (new intermine.model.IMObject(@query, obj, field, base))
                   else if not obj.class?
-                      new intermine.model.NullObject @query, field
+                    type = node.getParent().name
+                    new intermine.model.NullObject {}, {@query, field, type}
                   else
-                      new intermine.model.FPObject(@query, obj, field, node.getType().name)
+                    new intermine.model.FPObject({}, {@query, obj, field})
                   model.merge obj, field
                   args = {model, node, field}
                   args.query = @query
