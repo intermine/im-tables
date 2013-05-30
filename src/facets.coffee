@@ -499,6 +499,7 @@ do ->
           'click .im-filter .im-filter-out': (e) => @addConstraint e, negateOps basicOps
           'keyup .im-filter-values': 'filterItems'
           'click .im-clear-value-filter': 'clearValueFilter'
+          'click': (e) -> e.stopPropagation()
 
         filterItems: (e) ->
           $input = @$ '.im-filter-values'
@@ -583,6 +584,15 @@ do ->
           setTimeout (=> @_drawD3Chart()), 0 if d3?
           this
 
+        getChartPalette = ->
+          {PieColors} = intermine.options
+          if _.isFunction PieColors
+            paint = PieColors
+          else
+            paint = d3.scale[PieColors]()
+
+          (d, i) -> paint i
+
         _drawD3Chart: ->
           h = @chartHeight
           w = @$el.closest(':visible').width()
@@ -590,19 +600,13 @@ do ->
           ir = h * 0.1
           donut = d3.layout.pie().value (d) -> d.get 'count'
 
-          {PieColors} = intermine.options
-          if _.isFunction PieColors
-            paint = PieColors
-          else
-            paint = d3.scale[PieColors]()
-
-          colour = (d, i) ->
-            paint i
+          colour = getChartPalette()
 
           chart = d3.select(@chartElem).append('svg')
             .attr('class', 'chart')
             .attr('height', h)
             .attr('width', w)
+
           arc = d3.svg.arc()
             .startAngle( (d) -> d.startAngle )
             .endAngle( (d) -> d.endAngle )
