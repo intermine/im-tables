@@ -8,7 +8,7 @@ define 'formatters/bio/core/chromosome-location', ->
 
   class ChrLocFormatter
 
-    @replaces: ['locatedOn.primaryIdentifier', 'start', 'end', 'strand']
+    @replaces: ['locatedOn.primaryIdentifier', 'start', 'end']
 
     @merge: (location, chromosome) ->
       if chromosome.has 'primaryIdentifier'
