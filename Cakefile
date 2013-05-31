@@ -256,13 +256,17 @@ task 'build', 'Run a complete build', ->
                         console.log "done at #{new Date()}"
                         exec 'notify-send "Recompiled im-tables"'
 
-task 'build:bundle', 'build a bundle', ->
+task 'build:bundle', 'build a bundle', buildBundle = (next) ->
   clean -> prebuild -> concat -> compile -> ugly -> bundle(FULL_BUNDLE, BUNDLE_NAME) ->
     console.log "Bundled at #{new Date()}"
+    next?()
 
-task 'mini:bundle', 'build a mini bundle', ->
+task 'mini:bundle', 'build a mini bundle', miniBundle = (next) ->
   clean -> prebuild -> concat -> compile -> ugly -> bundle(MINIMAL_BUNDLE, MINI_BUNDLE_NAME) ->
     console.log "Mini-Bundled at #{new Date()}"
+    next?()
+
+task 'build:all', 'produce all build files', -> buildBundle miniBundle
 
 task 'watch', 'Watch production files and rebuild the application', watch = (cb) ->
     console.log "Watching for changes in ./src"
