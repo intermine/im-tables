@@ -5293,14 +5293,14 @@ table.table {
 .im-parent:after,
 .im-title-part:after,
 .popover-title .im-name-part:after,
-li.im-outer-joined-path > a:before,
+li.im-subpath > a:before,
 .im-view-element .im-name-part:after {
     content: "\00bb";
     color: #aaa;
     margin-left: 0.5em;
     font-weight: bold;
 }
-li.im-outer-joined-path > a:before {
+li.im-subpath > a:before {
     margin-left: 0;
     margin-right: 0.5em;
 }
@@ -6494,16 +6494,11 @@ img.im-external-link {
     margin-right: 0.5em;
 }
 
-ul.im-summary-selector {
-    margin: 0;
-    padding: 0;
-}
-
 ul.im-summary-selector li.im-outer-joined-path a {
     white-space: normal;
 }
 
-li.im-outer-joined-path {
+li.im-subpath {
     list-style-type: none;
     padding: 0.2em 0;
     border-bottom: 1px solid #ddd;
@@ -6515,6 +6510,11 @@ li.im-outer-joined-path {
 
 .im-reorderable li.im-outer-joined-path {
     display: block;
+}
+
+.intermine ul.no-margins {
+    margin: 0;
+    padding: 0;
 }
 
 li.im-outer-joined-path:last-child {

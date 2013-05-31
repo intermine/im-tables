@@ -22,9 +22,14 @@ do ->
     <div class="im-column-header">
       <div class="im-th-buttons">
         <% if (sortable) { %>
-          <a href="#" class="im-th-button im-col-sort-indicator" title="sort this column">
-            <i class="icon-sorting <%- css_unsorted %> <%- css_header %>"></i>
-          </a>
+          <span class="im-th-dropdown im-col-sort dropdown">
+            <a href="#" class="im-th-button im-col-sort-indicator" title="sort this column">
+              <i class="icon-sorting <%- css_unsorted %> <%- css_header %>"></i>
+            </a>
+            <div class="dropdown-menu">
+              <div>Could not intitialise the sorting menu.</div>
+            </div>
+          </span>
         <% }; %>
         <a href="#" class="im-th-button im-col-remover"
            title="remove this column">
@@ -128,7 +133,7 @@ do ->
         placement: @bestFit
         container: @el
 
-      # Does not work if placed in events.
+      # Does not work if placed in events, due to interference from dropdowns
       @$('.summary-img').click @showColumnSummary
       @$('.im-col-filters').click @showFilterSummary
 
@@ -139,10 +144,12 @@ do ->
 
       this
 
+    firstResult = _.compose _.first, _.compact, _.map
 
     updateModel: =>
+      direction = firstResult @model.get('replaces').concat(@view), (p) => @query.getSortDirection p
       @model.set
-        direction: @query.getSortDirection(@model.get('replaces')[0] ? @view)
+        direction: direction
         sortable: not @query.isOuterJoined @view
         conCount: (_.size _.filter @query.constraints, (c) => !!c.path.match @view)
 
@@ -165,7 +172,7 @@ do ->
         sortButton.toggleClass css_unsorted + ' ' + icons[@model.get 'direction']
 
     events:
-      'click .im-col-sort-indicator': 'setSortOrder'
+      'click .im-col-sort': 'setSortOrder'
       'click .im-col-minumaximiser': 'toggleColumnVisibility'
       'click .im-col-filters': 'showFilterSummary'
       'click .im-subtable-expander': 'toggleSubTable'
@@ -204,8 +211,9 @@ do ->
 
       unless @$(selector).hasClass 'open'
         @query.trigger 'showing:column-summary', @model.get 'path'
-        summary = new View(@query, @model.get('path'))
+        summary = new View(@query, @model.get('path'), @model)
         $menu = @$ selector + ' .dropdown-menu'
+        console.log "#{ selector } not found" unless $menu.length
         # Must append before render so that dimensions can be calculated.
         $menu.html summary.el
         summary.render()
@@ -214,7 +222,7 @@ do ->
       false
   
     showColumnSummary: (e) =>
-      cls = if @model.get('path').isAttribute()
+      cls = if @path().isAttribute()
         intermine.query.results.DropDownColumnSummary
       else
         intermine.query.results.OuterJoinDropDown
@@ -237,15 +245,18 @@ do ->
       @$el.toggleClass 'im-minimised-th', !!minimised
       @$('.im-col-title').toggle not minimised
 
+    path: -> @model.get 'path'
+
     setSortOrder: (e) =>
-      e?.preventDefault()
-      e?.stopPropagation()
-      currentDirection = @model.get('direction')
-      direction = NEXT_DIRECTION_OF[ currentDirection ] ? 'ASC'
-      if @model.get('replaces').length is 0
-        @query.orderBy [ {path: @view, direction} ]
+      {direction, replaces} = @model.toJSON()
+      direction = NEXT_DIRECTION_OF[ direction ] ? 'ASC'
+      formatter = intermine.results.getFormatter @path()
+      if replaces.length
+        @showSummary('.im-col-sort', intermine.query.FormattedSorting) e
+        @$('.im-col-sort').toggleClass 'open'
       else
-        @query.orderBy ( {path, direction} for path in @model.get('replaces') )
+        @$('.im-col-sort').removeClass 'open'
+        @query.orderBy [ {path: @view, direction} ]
 
     addExpander: ->
       expandAll = $ """

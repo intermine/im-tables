@@ -1,7 +1,7 @@
 do ->
 
     class OuterJoinDropDown extends Backbone.View
-        className: "im-summary-selector"
+        className: "im-summary-selector no-margins"
         tagName: 'ul'
 
         initialize: (@query, @path) ->
@@ -27,7 +27,7 @@ do ->
                 @showPathSummary(vs[0])
             else
                 for v in vs then do (v) =>
-                  li = $ """<li class="im-outer-joined-path"><a href="#"></a></li>"""
+                  li = $ """<li class="im-subpath im-outer-joined-path"><a href="#"></a></li>"""
                   @$el.append li
                   $.when(node.getDisplayName(), @query.getPathInfo(v).getDisplayName()).done (parent, name) ->
                     li.find('a').text name.replace(parent, '').replace(/^\s*>\s*/, '')
