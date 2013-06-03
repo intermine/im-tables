@@ -4523,10 +4523,16 @@ li.im-subpath > a:before {
 .intermine .im-table-container .table-striped > thead > tr > th.im-has-constraint {
     border: 1px dashed #ccc;
 }
+.im-query-display th .im-col-filters {
+    display: none;
+}
 
 .im-query-display .btn.im-has-constraint i,
 .im-query-display th.im-has-constraint .im-col-filters {
     color: #5cb35d;
+}
+.im-query-display th.im-has-constraint .im-col-filters {
+    display: block;
 }
 
 th .im-col-summary.navbar {
@@ -4540,8 +4546,6 @@ table.progress {
 .im-table-throbber h2 {
     color: #ccc;
 }
-
-
 
 .im-table-overlay {
     border-radius: 10px;
@@ -4600,6 +4604,15 @@ table.table thead .sorting_desc_disabled {
     max-height: none;
     min-width: 0px;
     width: 1.5em;
+}
+.im-column-header .im-col-composed {
+    display: none;
+}
+.im-query-display .im-is-composed .im-col-composed {
+    display: block;
+}
+.im-query-display .im-minimised-th .im-col-composed {
+    display: none;
 }
 
 .im-item-table .im-facet-row.hover,
@@ -5930,6 +5943,13 @@ form.im-join {
     position: absolute;
     top: 0.6em;
     left: 0.2em;
+}
+
+.im-col-composed {
+    position: absolute;
+    float: right;
+    bottom: 5px;
+    right: 5px;
 }
 
 .im-query-results .table thead th {

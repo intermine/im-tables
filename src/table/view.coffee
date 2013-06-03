@@ -46,6 +46,7 @@ do ->
 
         initialize: (@query, @getData, @columnHeaders) ->
             @columnHeaders ?= new Backbone.Collection
+            @blacklistedFormatters = []
             @minimisedCols = {}
             @query.on "set:sortorder", (oes) =>
                 @lastAction = 'resort'
@@ -54,6 +55,9 @@ do ->
               @minimisedCols[view] = not @minimisedCols[view]
               @query.trigger 'change:minimisedCols', _.extend {}, @minimisedCols
               @fill()
+            @query.on "formatter:blacklist", (path, formatter) =>
+              @blacklistedFormatters.push formatter
+              @fill().then @addColumnHeaders
 
         changePageSize: (newSize) ->
             @pageSize = newSize
@@ -201,14 +205,15 @@ do ->
           # Build the replacement information.
           for col in cols when col.path.isAttribute() and intermine.results.shouldFormat col.path
             p = col.path
-            col.isFormatted = true
             replacedBy[p.getParent()] ?= col
             formatter = intermine.results.getFormatter p
-            col.formatter = formatter
-            for r in (formatter.replaces ? [])
-              subPath = "#{ p.getParent() }.#{ r }"
-              replacedBy[subPath] ?= col
-              col.replaces.push q.getPathInfo subPath if subPath in q.views
+            unless formatter in @blacklistedFormatters
+              col.isFormatted = true
+              col.formatter = formatter
+              for r in (formatter.replaces ? [])
+                subPath = "#{ p.getParent() }.#{ r }"
+                replacedBy[subPath] ?= col
+                col.replaces.push q.getPathInfo subPath if subPath in q.views
 
           explicitReplacements = {}
           for col in cols
@@ -220,7 +225,7 @@ do ->
             return false unless intermine.results.shouldFormat(p) or explicitReplacements[p]
             replacer = replacedBy[p]
             replacer ?= replacedBy[p.getParent()] if p.isAttribute() and p.end.name is 'id'
-            replacer and col isnt replacer
+            replacer and replacer.formatter? and col isnt replacer
 
           for col in cols when not isReplaced col
             if col.isFormatted
@@ -231,7 +236,6 @@ do ->
         # Read the result returned from the service, and add headers for 
         # the columns it represents to the table.
         addColumnHeaders: =>
-            {get, invoke} = intermine.funcutils
             thead = $ "<thead>"
             tr    = $ "<tr>"
             thead.append tr
@@ -239,6 +243,7 @@ do ->
             @columnHeaders.each (model) =>
               @buildColumnHeader model, tr
                     
+            @$el.children('thead').remove()
             thead.appendTo @el
 
     class PageSizer extends Backbone.View

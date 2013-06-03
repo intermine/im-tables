@@ -25,10 +25,10 @@ scope "intermine.icons", {
     Edit: 'icon-cogs',
     Download: 'icon-file-alt',
     ClipBoard: 'icon-paper-clip',
+    Composed: 'icon-columns',
     tsv: 'icon-table',
     csv: 'icon-table',
     xml: 'icon-xml',
     json: 'icon-json'
 }
-
 

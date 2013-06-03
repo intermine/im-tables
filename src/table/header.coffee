@@ -16,6 +16,7 @@ do ->
     css_reveal: intermine.css.headerIconReveal
     css_filter: intermine.icons.Filter
     css_summary: intermine.icons.Summary
+    css_composed: intermine.icons.Composed
 
 
   TEMPLATE = _.template """ 
@@ -58,8 +59,11 @@ do ->
             <div>Could not ititialise the column summary.</div>
           </div>
         </span>
+        <a href="#" class="im-th-button im-col-composed"
+            title="Toggle formatting">
+          <i class="<%- css_composed %> <%- css_header %>"></i>
+        </a>
       </div>
-      <div style="clear:both"></div>
       <div class="im-col-title">
         <%- path %>
       </div>
@@ -77,7 +81,6 @@ do ->
   NEXT_DIRECTION_OF =
     ASC: 'DESC'
     DESC: 'ASC'
-
 
   class ColumnHeader extends Backbone.View
 
@@ -112,6 +115,11 @@ do ->
       @model.on 'change:conCount', @displayConCount
       @model.on 'change:direction', @displaySortDirection
 
+    getCompositionTitle = (replaces) -> """
+      This column replaces #{ replaces.length } others. Click here
+      to show the individual columns separately.
+    """
+
     render: ->
 
       @$el.empty()
@@ -128,14 +136,18 @@ do ->
         @$('.im-col-title').html(RENDER_TITLE {penult, last, parentType})
                            .popover(placement: 'bottom', html: true, title: parts.join(''))
 
+      # Does not work if placed in events, due to interference from dropdowns
+      @$('.summary-img').click @showColumnSummary
+      @$('.im-col-filters').click(@showFilterSummary)
+      replaces = @model.get 'replaces'
+      @$('.im-col-composed').attr(title: getCompositionTitle replaces).click =>
+          @query.trigger 'formatter:blacklist', @view, @model.get 'formatter'
+
+      @$el.toggleClass 'im-is-composed', replaces?.length > 1
 
       @$('.im-th-button').tooltip
         placement: @bestFit
         container: @el
-
-      # Does not work if placed in events, due to interference from dropdowns
-      @$('.summary-img').click @showColumnSummary
-      @$('.im-col-filters').click @showFilterSummary
 
       @$('.dropdown .dropdown-toggle').dropdown()
 
@@ -157,7 +169,7 @@ do ->
       conCount = @model.get 'conCount'
       @$el.addClass 'im-has-constraint' if conCount
 
-      @$('.im-col-filters').attr title: COL_FILTER_TITLE conCount
+      @$('.im-col-filters').attr(title: COL_FILTER_TITLE conCount)
 
     html: ->
       data = _.extend {}, ICONS(), @model.toJSON()
