@@ -114,7 +114,7 @@ do ->
           @requestInfo.on "change:format", (m, format) => @$('.im-export-format').val format
           @exportedCols.on 'add remove reset', @initCols
           @exportedCols.on 'add remove change:excluded', @updateColTabText, @
-          @exportedCols.on 'add remove change:excluded', @buildPermaLink
+          @exportedCols.on 'add remove reset change:excluded', @buildPermaLink
           @requestInfo.on 'change:start change:end', =>
             {start, end} = @requestInfo.toJSON()
             text = if start is 0 and ((not end) or (@count and end is @count))
