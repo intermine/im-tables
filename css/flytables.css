@@ -5355,9 +5355,17 @@ li.im-subpath > a:before {
     border: 1px dashed #ccc;
 }
 
+.im-query-display th .im-col-filters {
+    display: none;
+}
+
 .im-query-display .btn.im-has-constraint i,
 .im-query-display th.im-has-constraint .im-col-filters {
     color: #5cb35d;
+}
+
+.im-query-display th.im-has-constraint .im-col-filters {
+    display: block;
 }
 
 th .im-col-summary.navbar {
@@ -5431,6 +5439,16 @@ table.table thead .sorting_desc_disabled {
     max-height: none;
     min-width: 0px;
     width: 1.5em;
+}
+
+.im-column-header .im-col-composed {
+    display: none;
+}
+.im-query-display .im-is-composed .im-col-composed {
+    display: block;
+}
+.im-query-display .im-minimised-th .im-col-composed {
+    display: none;
 }
 
 .im-item-table .im-facet-row.hover,
@@ -5754,6 +5772,10 @@ ul.im-cols h4 {
     min-width: 24em;
     font-weight: normal;
 }
+.im-th-buttons .im-filter-summary > .dropdown-menu,
+.im-th-buttons .im-col-sort > .dropdown-menu {
+    left: -28px;
+}
 .im-th-buttons .im-th-dropdown > .dropdown-menu > .im-dropdown-summary h3 {
     margin-bottom: 0.25em;
 }
@@ -5779,7 +5801,7 @@ ul.im-cols h4 {
 }
 
 .im-query-display tr > th.too-far-over .im-th-buttons .dropdown-menu {
-    left: -330px;
+    left: -312px;
 }
 
 .im-query-display tr > th.too-far-over .im-th-buttons .dropdown-menu::after,
@@ -6500,8 +6522,6 @@ ul.im-summary-selector li.im-outer-joined-path a {
 
 li.im-subpath {
     list-style-type: none;
-    padding: 0.2em 0;
-    border-bottom: 1px solid #ddd;
 }
 
 .im-reorderable h4 {
@@ -6515,6 +6535,22 @@ li.im-subpath {
 .intermine ul.no-margins {
     margin: 0;
     padding: 0;
+}
+
+.im-column-th .im-formatted-part a > i.icon-sort {
+    opacity: 0.6;
+}
+.im-column-th .im-formatted-part a > i {
+    float: right;
+}
+.im-column-th .im-formatted-part .im-sort-path {
+    margin-right: 1em;
+}
+.im-column-th .im-formatted-part .im-sort-path:after {
+    content: ",";
+}
+.im-column-th .im-formatted-part .im-sort-path:last-child:after {
+    content: "";
 }
 
 li.im-outer-joined-path:last-child {
@@ -6742,6 +6778,13 @@ form.im-join {
     position: absolute;
     top: 0.6em;
     left: 0.2em;
+}
+
+.im-col-composed {
+    position: absolute;
+    float: right;
+    bottom: 5px;
+    right: 5px;
 }
 
 .im-query-results .table thead th {

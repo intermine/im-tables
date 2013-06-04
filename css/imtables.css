@@ -4523,6 +4523,7 @@ li.im-subpath > a:before {
 .intermine .im-table-container .table-striped > thead > tr > th.im-has-constraint {
     border: 1px dashed #ccc;
 }
+
 .im-query-display th .im-col-filters {
     display: none;
 }
@@ -4605,6 +4606,7 @@ table.table thead .sorting_desc_disabled {
     min-width: 0px;
     width: 1.5em;
 }
+
 .im-column-header .im-col-composed {
     display: none;
 }
@@ -4966,7 +4968,7 @@ ul.im-cols h4 {
 }
 
 .im-query-display tr > th.too-far-over .im-th-buttons .dropdown-menu {
-    left: -330px;
+    left: -312px;
 }
 
 .im-query-display tr > th.too-far-over .im-th-buttons .dropdown-menu::after,
