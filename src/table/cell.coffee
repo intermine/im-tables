@@ -313,6 +313,8 @@ do ->
         setWidth: (w) -> # no-op. Was used, but can be removed when all callers are.
           this
 
+        reportClick: -> @model.trigger 'click', @model
+
         activateChooser: ->
           @reportClick()
           {selected, selectable, selecting} = @model.selectionState()
