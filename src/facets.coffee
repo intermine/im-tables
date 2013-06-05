@@ -491,6 +491,7 @@ do ->
           ret
 
         events: ->
+          'submit .im-facet form': (e) -> e.preventDefault(); e.stopPropagation()
           'click .im-filter .btn-cancel': 'resetOptions'
           'click .im-filter .btn-toggle-selection': 'toggleSelection'
           'click .im-export-summary': 'exportSummary'
