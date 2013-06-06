@@ -12,9 +12,9 @@ define 'formatters/bio/core', using bio_formatters..., (Chr, Seq, Org, Pub) ->
     Organism: Org
 
   scope 'intermine.results.formatsets.genomic',
-    'Location.start': true,
-    'Location.end': true,
-    'Organism.name': true,
+    'Location.start': false,
+    'Location.end': false,
+    'Organism.name': false,
     'Publication.title': false,
-    'Sequence.residues': true
+    'Sequence.residues': false
 
