@@ -62,7 +62,7 @@ do ->
 
   scope 'intermine',
     setOptions: (opts, ns = '') ->
-      ns = 'intermine.options' + ns
+      ns = if ns is '' or /^\./.test(ns) then 'intermine.options' + ns else ns
       scope ns, opts, true
 
 do ->
