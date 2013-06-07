@@ -120,6 +120,14 @@ do ->
       to show the individual columns separately.
     """
 
+    renderName: =>
+      [ancestors..., penult, last] = parts = @model.get('name').split(' > ')
+      parentType = if ancestors.length then 'non-root' else 'root'
+      parts = ( """<span class="im-name-part">#{ p }</span>""" for p in parts )
+      content = RENDER_TITLE {penult, last, parentType}
+      title = parts.join ''
+      @$('.im-col-title').html(content).popover {title, placement: 'bottom', html: true}
+
     render: ->
 
       @$el.empty()
@@ -129,12 +137,7 @@ do ->
       @displayConCount()
       @displaySortDirection()
 
-      @namePromise.done =>
-        [ancestors..., penult, last] = parts = @model.get('name').split(' > ')
-        parentType = if ancestors.length then 'non-root' else 'root'
-        parts = ( """<span class="im-name-part">#{ p }</span>""" for p in parts )
-        @$('.im-col-title').html(RENDER_TITLE {penult, last, parentType})
-                           .popover(placement: 'bottom', html: true, title: parts.join(''))
+      @namePromise.done @renderName
 
       # Does not work if placed in events, due to interference from dropdowns
       @$('.summary-img').click @showColumnSummary

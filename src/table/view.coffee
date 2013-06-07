@@ -8,7 +8,6 @@ scope 'intermine.css', {
     headerIconReveal: 'icon-eye-close'
 }
 
-
 do ->
 
     NUMERIC_TYPES = ["int", "Integer", "double", "Double", "float", "Float"]
@@ -188,6 +187,14 @@ do ->
           header = new intermine.query.results.ColumnHeader {model, @query}
           header.render().$el.appendTo tr
 
+        longestCommonPrefix = (paths) ->
+          parts = paths[0].split /\./
+          prefix = parts.shift() # Root, must be common prefix.
+          prefixesAll = (pf) -> _.all paths, (path) -> 0 is path.indexOf pf
+          for part in parts when prefixesAll nextPrefix = "#{prefix}.#{part}"
+            prefix = nextPrefix
+          prefix
+
         getEffectiveView: (row) ->
           q = @query
           replacedBy = {}
@@ -197,7 +204,9 @@ do ->
           cols = for cell in row
             path = q.getPathInfo cell.column
             replaces = if cell.view? # subtable of this cell.
-              (q.getPathInfo(v) for v in q.views when v.indexOf(cell.column) is 0)
+              commonPrefix = longestCommonPrefix cell.view
+              path = q.getPathInfo commonPrefix
+              replaces = (q.getPathInfo(v) for v in cell.view)
             else
               []
             {path, replaces}
@@ -227,10 +236,12 @@ do ->
             replacer ?= replacedBy[p.getParent()] if p.isAttribute() and p.end.name is 'id'
             replacer and replacer.formatter? and col isnt replacer
 
+          console.log "header paths are:"
           for col in cols when not isReplaced col
             if col.isFormatted
               col.replaces.push col.path unless col.path in col.replaces
               col.path = col.path.getParent()
+            console.log col.path
             @columnHeaders.add col
 
         # Read the result returned from the service, and add headers for 

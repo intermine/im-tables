@@ -4,24 +4,15 @@ do ->
         className: "im-summary-selector no-margins"
         tagName: 'ul'
 
-        initialize: (@query, @path) ->
+        initialize: (@query, @path, model) ->
+          {@replaces, @isFormatted} = model.toJSON()
+
+        getSubpaths: -> @replaces.slice()
 
         render: ->
             vs = []
             node = @path
-            if !@path.isAttribute()
-                str = @path.toString()
-                vs = (v for v in @query.views when v.match str)
-            else
-                node = parent = @path.getParent()
-                formatter = intermine.results.getFormatter @path
-                if replaces = formatter?.replaces
-                  prefix = parent + '.'
-                  vs = (prefix + r for r in replaces)
-                else
-                  f  = (a) -> intermine.options.ShowId or a isnt 'id'
-                  as = (name for name, a of parent.getEndClass().attributes when f name)
-                  vs = (parent.append(a).toString() for a in as)
+            vs = @getSubpaths()
 
             if vs.length is 1
                 @showPathSummary(vs[0])
