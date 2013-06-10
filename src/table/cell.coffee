@@ -33,7 +33,7 @@ do ->
     CELL_HTML = (data) ->
       {url, host} = data
       data.isForeign = (url and not url.match host)
-      data.target = if data.isForeign then 'blank' else ''
+      data.target = if data.isForeign then '_blank' else ''
       _CELL_HTML data
 
     class SubTable extends Backbone.View
@@ -56,19 +56,28 @@ do ->
                   @$('.im-subtable').slideUp()
 
         getSummaryText: () ->
-            if @column.isCollection()
-                """#{ @rows.length } #{ @column.getType().name }s"""
-            else
-                # Single collapsed reference.
-                if @rows.length is 0
-                    # find the outer join:
-                    level = if @query.isOuterJoined(@view[0])
-                        @query.getPathInfo(@query.getOuterJoin(@view[0]))
-                    else
-                        @column
-                    """No #{ level.getType().name }"""
-                else
-                    """#{@rows[0][0].value} (#{@rows[0][1 ..].map((c) -> c.value).join(', ')})"""
+          def = jQuery.Deferred()
+
+          if @column.isCollection()
+              def.resolve """#{ @rows.length } #{ @column.getType().name }s"""
+          else
+              # Single collapsed reference.
+              if @rows.length is 0
+                  # find the outer join:
+                  level = if @query.isOuterJoined(@view[0])
+                      @query.getPathInfo(@query.getOuterJoin(@view[0]))
+                  else
+                      @column
+                  def.resolve """
+                    <span class="im-no-value">No #{ level.getType().name }</span>
+                  """
+              else
+                  def.resolve """#{@rows[0][0].value} (#{@rows[0][1 ..].map((c) -> c.value).join(', ')})"""
+          def.promise()
+
+        getEffectiveView: ->
+          # TODO: we need to consume replaced columns in subtables.
+          columns = @rows[0].map (cell) -> cell.column
 
         renderHead: (headers) ->
           # Prefer column to view as it is reliable.
@@ -139,10 +148,11 @@ do ->
             icon = if @rows.length > 0 then '<i class=icon-table></i>' else '<i class=icon-non-existent></i>'
             summary = $ """
               <span class="im-subtable-summary">
-                #{ icon }&nbsp;#{ @getSummaryText() }
+                #{ icon }&nbsp;
               </span>
             """
             summary.appendTo @$el
+            @getSummaryText().done (content) -> summary.append content
 
             @$el.append """
               <table class="im-subtable table table-condensed table-striped">
