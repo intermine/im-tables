@@ -5805,9 +5805,7 @@ ul.im-cols h4 {
 }
 
 .im-query-display tr > th.too-far-over .im-th-buttons .dropdown-menu::after,
-.im-query-display tr > th:last-child .im-th-buttons .dropdown-menu::after,
-.im-query-display tr > th.too-far-over .im-th-buttons .dropdown-menu::before,
-.im-query-display tr > th:last-child .im-th-buttons .dropdown-menu::before {
+.im-query-display tr > th.too-far-over .im-th-buttons .dropdown-menu::before {
     left: 315px;
 }
 
@@ -6378,9 +6376,12 @@ td.im-result-subtable .im-subtable {
     display: none;
 }
 
-.null-value {
+.im-no-value, .null-value {
     text-transform: uppercase;
     color: #aaa;
+}
+.im-table-container .im-no-value {
+    cursor: normal;
 }
 .null-value:after {
     content: "\2205"; /* Null set sign */

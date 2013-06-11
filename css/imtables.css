@@ -4972,9 +4972,7 @@ ul.im-cols h4 {
 }
 
 .im-query-display tr > th.too-far-over .im-th-buttons .dropdown-menu::after,
-.im-query-display tr > th:last-child .im-th-buttons .dropdown-menu::after,
-.im-query-display tr > th.too-far-over .im-th-buttons .dropdown-menu::before,
-.im-query-display tr > th:last-child .im-th-buttons .dropdown-menu::before {
+.im-query-display tr > th.too-far-over .im-th-buttons .dropdown-menu::before {
     left: 315px;
 }
 
@@ -5545,8 +5543,10 @@ td.im-result-subtable .im-subtable {
 .node-adder > .hidden {
     display: none;
 }
-
-.null-value {
+.im-table-container .im-no-value {
+    cursor: auto;
+}
+.im-no-value, .null-value {
     text-transform: uppercase;
     color: #aaa;
 }
