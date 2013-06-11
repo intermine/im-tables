@@ -71,6 +71,13 @@ define 'actions/list-manager', using 'actions/list-append-dialogue', 'actions/ne
               console.error(err)
               return
 
+          # Must de-outer counts on outer-joined paths.
+          if query.isOuterJoined(countQuery.views[0]) then do (path = node) ->
+            style = 'INNER'
+            until path.isRoot()
+              countQuery.addJoin {path, style}
+              path = path.getParent()
+
           unselected = viewNodes.filter (n) -> n isnt node
 
           for missingNode in unselected
