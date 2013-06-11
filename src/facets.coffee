@@ -490,8 +490,12 @@ do ->
           ret.absent = if ops.absent is 'IS NULL' then 'IS NOT NULL' else 'IS NULL'
           ret
 
+        IGNORE_E = (e) ->
+          console.log "Ignoring an event"
+          e.preventDefault(); e.stopPropagation()
+
         events: ->
-          'submit .im-facet form': (e) -> e.preventDefault(); e.stopPropagation()
+          'submit .im-facet form': IGNORE_E
           'click .im-filter .btn-cancel': 'resetOptions'
           'click .im-filter .btn-toggle-selection': 'toggleSelection'
           'click .im-export-summary': 'exportSummary'
@@ -500,7 +504,7 @@ do ->
           'click .im-filter .im-filter-out': (e) => @addConstraint e, negateOps basicOps
           'keyup .im-filter-values': 'filterItems'
           'click .im-clear-value-filter': 'clearValueFilter'
-          'click': (e) -> e.stopPropagation()
+          'click': IGNORE_E
 
         filterItems: (e) ->
           $input = @$ '.im-filter-values'
@@ -853,9 +857,11 @@ do ->
           isSelected = !!@item.get "selected"
           if @item.has "path"
               item.get("path").node.setAttribute "class", if isSelected then "selected" else ""
-          @$el.toggleClass "active", isSelected
-          if isSelected isnt @$('input').prop("checked")
-              @$('input').prop "checked", isSelected
+          f = =>
+            @$el.toggleClass "active", isSelected
+            if isSelected isnt @$('input').prop("checked")
+                @$('input').prop "checked", isSelected
+          setTimeout f, 0
 
         events:
             'click': 'handleClick'
@@ -898,7 +904,7 @@ do ->
 
         handleChange: (e) ->
             e.stopPropagation()
-            @item.set "selected", @$('input').is ':checked'
+            setTimeout (=> @item.set "selected", @$('input').is ':checked'), 0
 
     class HistoFacet extends PieFacet
 
