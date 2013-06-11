@@ -6037,7 +6037,6 @@ form.im-join {
 
 /* Position the icons in the centre of their box, more or less */
 .im-th-button i {
-    z-index: 600; /* Otherwise can be overlayed by the empty portion of the title span */
     position: relative;
     top: -3px;
 }
