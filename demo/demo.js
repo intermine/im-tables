@@ -1,5 +1,14 @@
 
 jQuery(document).ready(function($) {
+
+    var formatsets, formatset, fsKey;
+    for (formatsets in intermine.results.formatsets) {
+      formatset = intermine.results.formatsets[formatsets];
+      for (fsKey in formatset) {
+        formatset[fsKey] = true;
+      }
+    }
+
     $('#entry-dropdowns').click(function() {
       $('.entry-points').toggleClass('dropdown');
     });
@@ -113,6 +122,24 @@ jQuery(document).ready(function($) {
             "joins":["Gene.homologues.gene","Gene.homologues.gene.goAnnotation","Gene.homologues.gene.goAnnotation.ontologyTerm"],
             "where":[{"path":"Gene.homologues.type","op":"=","code":"A","value":"orthologue"},{"path":"Gene","op":"LOOKUP","code":"B","value":"CG6235","extraValue":"D. melanogaster"}]}
         },
+        'CDSs': {
+          "root": "beta.flymine.org/beta",
+          q: {
+            "name":"CDSs",
+            "title":"a query for the features overlapping the cdss",
+            "select":[
+              'symbol',
+              'CDSs.primaryIdentifier',
+              'CDSs.chromosomeLocation.*'
+            ],
+            from: "Gene",
+            "joins":["CDSs"],
+            "where":{
+              length: {lt: 2000},
+              'organism.species': 'melanogaster'
+            }
+          }
+        },
         'Gene-Prot-Exons': {
           "root": "preview.flymine.org/preview",
           //root: "beta.flymine.org/beta",
@@ -163,6 +190,18 @@ jQuery(document).ready(function($) {
               where: [
                   ["employees.age", "lt", 50 ]
               ]
+          }
+        },
+        MultiOJC: {
+          help: 'alex@intermine.org',
+          root: "http://localhost/intermine-test",
+          token: "test-user-token",
+          q: {
+              select: [
+                'name', 'department.name', 'address.address', 'employmentPeriod.start'
+              ],
+              from: "Employee",
+              joins: ['department', 'address', 'employmentPeriod']
           }
         },
         DeepOJC: {
