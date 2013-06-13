@@ -54,6 +54,14 @@ jQuery(document).ready(function($) {
             "join": ['organism']
           }
         },
+        'Worm-CDSs': {
+          root: "http://206.108.125.166:8080/wormmine",
+          q: {
+            "name": "CDSs",
+            "from": "CDS",
+            "select": [ "length", "primaryIdentifier", "symbol", "gene.primaryIdentifier" ]
+          }
+        },
         Production: {
             root: "www.flymine.org/query", 
             token: "21k3D5x5B8pdd8T9yeY24fG8th2",
@@ -92,7 +100,7 @@ jQuery(document).ready(function($) {
         'Missing Column': {
           q: {
             "model":{"name":"genomic"},
-            " title":"GO term name (and children of this term) --> Genes in organism1 + Orthologues in organism2.",
+            "title":"GO term name (and children of this term) --> Genes in organism1 + Orthologues in organism2.",
             "description":"For a specified GO term (and children of this term) find all the genes in a particular organism that have an orthologue in another organism",
             "select":[
               "Gene.secondaryIdentifier",
