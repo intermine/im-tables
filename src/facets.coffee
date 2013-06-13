@@ -91,6 +91,19 @@ do ->
             this
 
     class FrequencyFacet extends FacetView
+
+        showMore: (e) =>
+          more = $ e.target
+          got = @$('dd').length()
+          areVisible = @$('dd').first().is ':visible'
+
+          e.stopPropagation()
+          e.preventDefault()
+
+          @query.summarise @facet.path, (items) =>
+            @addItem(item).toggle(areVisible) for item in items[got..]
+            more.tooltip('hide').remove()
+
         render: (filterTerm = "") ->
             return if @rendering
             @rendering = true
@@ -105,20 +118,14 @@ do ->
             getSummary = @query.filterSummary @facet.path, filterTerm, @limit
             getSummary.fail @remove
             limit = @limit
+            placement = 'left'
             getSummary.done (results, stats, count) =>
               @query.trigger 'got:summary:total', @facet.path, stats.uniqueValues, results.length, count
               $progress.remove()
               @$dt?.append " (#{stats.uniqueValues})"
               hasMore = if results.length < limit then false else (stats.uniqueValues > limit)
               if hasMore
-                more = $(MORE_FACETS_HTML).appendTo(@$dt).tooltip( placement: 'left' ).click (e) =>
-                  e.stopPropagation()
-                  e.preventDefault()
-                  got = @$('dd').length()
-                  areVisible = @$('dd').first().is ':visible'
-                  @query.summarise @facet.path, (items) =>
-                    @addItem(item).toggle(areVisible) for item in items[got..]
-                    more.tooltip('hide').remove()
+                $(MORE_FACETS_HTML).appendTo(@$dt).tooltip({placement}).click @showMore
               
               summaryView = if stats.uniqueValues <= 1
                 @$el.empty()

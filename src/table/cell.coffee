@@ -76,41 +76,97 @@ do ->
           def.promise()
 
         getEffectiveView: ->
-          # TODO: we need to consume replaced columns in subtables.
-          columns = @rows[0].map (cell) -> cell.column
+          # TODO: refactor the common code between this and Table#getEffectiveView
+          {getReplacedTest, longestCommonPrefix} = intermine.utils
+          {shouldFormat, getFormatter} = intermine.results
+          row = @rows[0] # use first row as pattern for all of them
+          replacedBy = {}
+          explicitReplacements = {}
 
-        renderHead: (headers) ->
+          columns = for cell in row
+            [path, replaces] = if cell.view? # subtable of this cell
+              commonPrefix = longestCommonPrefix cell.view
+              path = @query.getPathInfo commonPrefix
+              [path, (@query.getPathInfo sv for sv in cell.view)]
+            else
+              path = @query.getPathInfo cell.column
+              [path, [path]]
+            {path, replaces}
+
+          for c in columns when c.path.isAttribute() and shouldFormat c.path
+            parent = c.path.getParent()
+            replacedBy[parent] ?= c
+            formatter = getFormatter c.path
+            # TODO: unless formatter in BLACKLISTED FORMATTERS
+            unless formatter in @options.blacklistedFormatters
+              c.isFormatted = true
+              c.formatter = formatter
+              for fieldExpr in (formatter.replaces ? [])
+                subPath = @query.getPathInfo "#{ parent }.#{ fieldExpr }"
+                replacedBy[subPath] ?= c
+                c.replaces.push subPath
+            explicitReplacements[r] = c for r in c.replaces
+
+          isReplaced = getReplacedTest replacedBy, explicitReplacements
+
+          view = []
+          console.log "Subtable view:"
+          for col in columns when not isReplaced col
+            if col.isFormatted
+              col.path = col.path.getParent()
+            view.push col
+            console.log "#{ col.path } replaces #{ col.replaces }"
+
+          return view
+
+        renderHead: (headers, columns) ->
           # Prefer column to view as it is reliable.
-          columns = @rows[0].map (cell) -> cell.column
-          for v in columns then do (v) =>
+          tableNamePromise = @column.getDisplayName()
+          for c in columns then do (c) =>
             th = $ """<th>
                 <i class="#{intermine.css.headerIconRemove}"></i>
                 <span></span>
             </th>"""
-            th.find('i').click (e) => @query.removeFromSelect v
-            path = @query.getPathInfo(v)
-            @column.getDisplayName (colName) =>
-                span = th.find('span')
-                if intermine.results.shouldFormat(path)
-                    path = path.getParent()
-                path.getDisplayName (pathName) ->
-                    if pathName.match(colName)
-                        span.text pathName.replace(colName, '').replace(/^\s*>?\s*/, '')
-                    else
-                        span.text pathName.replace(/^[^>]*\s*>\s*/, '')
+            th.find('i').click (e) => @query.removeFromSelect c.replaces
+            $.when(tableNamePromise, c.path.getDisplayName()).then (tableName, colName) ->
+              text = if colName.match(tableName)
+                  colName.replace(tableName, '').replace(/^\s*>?\s*/, '')
+              else
+                  colName.replace(/^[^>]*\s*>\s*/, '')
+              span = th.find('span').text text
+
             headers.append th
 
-        appendRow: (row, tbody) =>
+        appendRow: (columns, row, tbody) =>
           tbody ?= @$ '.im-subtable tbody'
           tr = $ '<tr>'
           w = @$el.width() / @view.length
-          for cell in row then do (tr, cell) =>
-            view = @cellify cell
-            if intermine.results.shouldFormat view.path
-              view.formatter = intermine.results.getFormatter view.path
-            else
-            tr.append view.el
-            view.render().setWidth w
+          processed = {}
+          replacedBy = {}
+          for c in columns
+            for r in c.replaces
+              replacedBy[r] = c
+
+          cells = row.map @cellify
+
+          for cell in cells then do (tr, cell) =>
+            return if processed[cell.path]
+            processed[cell.path] = true
+            {replaces, formatter, path} = replacedBy[cell.path] ? {}
+            if replaces.length > 1
+              # Only accept if it is the right type - otherwise break (aka return)
+              # this is required because formatters need to be based on a model of the
+              # right type, and the merge method is not guaranteed to be associative.
+              return unless path.equals(cell.path.getParent())
+              if formatter?.merge?
+                for otherC in row when _.any(replaces, (repl) -> repl.equals otherC.path)
+                  formatter.merge(cell.model, otherC.model)
+            processed[r] = true for r in replaces
+            cell.formatter = formatter if formatter?
+
+            tr.append cell.el
+            cell.render().setWidth w
+
           tbody.append tr
           null
 
@@ -120,13 +176,14 @@ do ->
           colRoot = @column.getType().name
           colStr = @column.toString()
           if @rows.length > 0
-            @renderHead $table.find('thead tr')
+            columns = @getEffectiveView()
+            @renderHead $table.find('thead tr'), columns
             tbody = $table.find 'tbody'
 
             if @column.isCollection()
-                _.defer @appendRow, row, tbody for row in @rows
+                _.defer @appendRow, columns, row, tbody for row in @rows
             else
-                @appendRow(@rows[0], tbody) # Odd hack to fix multiple repeated rows.
+                @appendRow(columns, @rows[0], tbody) # Odd hack to fix multiple repeated rows.
           @tableRendered = true
           $table
 

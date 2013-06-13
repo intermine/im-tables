@@ -181,24 +181,16 @@ do ->
                 </a>"""
             notice.append p
             @$el.append notice
-            
 
         buildColumnHeader: (model, tr) -> #view, i, title, tr) ->
           header = new intermine.query.results.ColumnHeader {model, @query}
           header.render().$el.appendTo tr
 
-        longestCommonPrefix = (paths) ->
-          parts = paths[0].split /\./
-          prefix = parts.shift() # Root, must be common prefix.
-          prefixesAll = (pf) -> _.all paths, (path) -> 0 is path.indexOf pf
-          for part in parts when prefixesAll nextPrefix = "#{prefix}.#{part}"
-            prefix = nextPrefix
-          prefix
-
         getEffectiveView: (row) ->
           q = @query
           replacedBy = {}
           @columnHeaders.reset()
+          {longestCommonPrefix, getReplacedTest} = intermine.utils
 
           # Create the columns
           cols = for cell in row
@@ -229,20 +221,15 @@ do ->
             for r in col.replaces
               explicitReplacements[r] = col
 
-          isReplaced = (col) ->
-            p = col.path
-            return false unless intermine.results.shouldFormat(p) or explicitReplacements[p]
-            replacer = replacedBy[p]
-            replacer ?= replacedBy[p.getParent()] if p.isAttribute() and p.end.name is 'id'
-            replacer and replacer.formatter? and col isnt replacer
+          isReplaced = getReplacedTest replacedBy, explicitReplacements
 
-          console.log "header paths are:"
+          console.log "Main table columns:"
           for col in cols when not isReplaced col
             if col.isFormatted
               col.replaces.push col.path unless col.path in col.replaces
               col.path = col.path.getParent()
-            console.log col.path
             @columnHeaders.add col
+            console.log "#{ col.path } replaces #{ col.replaces }"
 
         # Read the result returned from the service, and add headers for 
         # the columns it represents to the table.
@@ -568,6 +555,7 @@ do ->
                   return new intermine.results.table.SubTable
                     query: @query
                     cellify: makeCell
+                    blacklistedFormatters: (@table?.blacklistedFormatters ? [])
                     subtable: obj
                     node: node
                 else
