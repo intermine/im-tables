@@ -37,7 +37,7 @@ do ->
           <i class="<%- css_remove %> <%- css_header %>"></i>
         </a>
         <a href="#" class="im-th-button im-col-minumaximiser"
-           title="Toggle column">
+           title="Toggle column visibility">
           <i class="<%- css_hide %> <%- css_header %>"></i>
         </a>
         <span class="dropdown im-filter-summary im-th-dropdown">
