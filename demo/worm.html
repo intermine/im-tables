@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+  <head profile="http://http://www.w3.org/2005/10/profile">
+    <link rel="icon" type="image/ico" href="favicon.ico">
+    <meta http-equiv="Content-Type" content="text/html;charset=ISO-8859-1" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+
+    <link rel="stylesheet" type="text/css" href="../css/imtables.css">
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+
+    <!-- im code -->
+    <script charset="UTF-8" type="text/javascript" src="../js/imtables-bundled.js"></script>
+
+    <!-- Demo webapp -->
+    <script type="text/javascript" src="demo.js"></script>
+
+  </head>
+ 
+
+  <body>
+  <!-- navbar -->
+  <div class="bootstrap">
+    <div class="navbar navbar-fixed-top">
+        <div class="navbar-inner">
+        <div class="container">
+            <a class="brand" href="#">Results Tables Demo</a>
+            <div class="nav-collapse">
+                <a id="entry-dropdowns" href="#">Service</a>
+                <ul class="nav entry-points">
+                    <li><a href="#">WormMine</a></li>
+                    <li><a href="#">Worm-CDSs</a></li>
+                    <!--
+                    <li><a href="#">TestModel</a></li>
+                    <li><a href="#">OJC</a></li>
+                    <li><a href="#">DeepOJC</a></li>
+                    -->
+
+                    <!--
+                    <li class="dropdown visible-desktop">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            Layout
+                            <span class="caret"></span>
+                        </a>
+                        <ul class="dropdown-menu layout-chooser">
+                            <li class="active"><a id="select-wide-layout" href="#">Wide</a></li>
+                            <li><a id="select-compact-layout" href="#">Compact</a></li>
+                            <li><a id="select-minimal-layout" href="#">Minimal</a></li>
+                        </ul>
+                    </li>
+                    -->
+                    <li>
+                      <a>
+                        <i class="icon-cog"></i>
+                      </a>
+                    </li>
+                </ul>
+
+                <ul id="login-status" class='nav pull-right secondary-nav v9 intermine'>
+                    <li id="logged-in" class="pull-right login-controls">
+                        <!--
+                        <span class="navbar-text" id="logged-in-notice">
+                            Logged in as 
+                            <a href="#" class="username"></a>
+                        </span>
+                        -->
+                        <span class="navbar-text">
+                            <a id="log-out" href="#">Log Out</a>
+                        </span>
+                    </li>
+                    <li class='dropdown pull-right login-controls' data-dropdown='dropdown' id="logged-out">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            Login
+                            <b class="caret"></b>
+                        </a>
+                        <div class='dropdown-menu' id="change-user-menu">
+                            <form id="change-user-form" class="form">
+                                <div style="margin:0;padding:0;display:inline">
+                                <fieldset class='textbox'>
+                                    <div class="input-prepend">
+                                        <span class="add-on">
+                                            <i class="icon-envelope"></i>
+                                        </span>
+                                        <input class="span2" type="text" id="new-user"
+                                            placeholder="email">
+                                    </div>
+                                    <div class="input-prepend">
+                                        <span class="add-on">
+                                            <i class="icon-user"></i>
+                                        </span>
+                                        <input class="span2" id="new-pass"
+                                            type="password" placeholder="password">
+                                    </div>
+                                    <div id="registration-fields">
+                                    <div class="input-prepend">
+                                        <span class="add-on">
+                                            <i class="icon-user"></i>
+                                        </span>
+                                        <input class="span4"
+                                            type="password" id="confirm-pass" placeholder="confirm password">
+                                    </div>
+                                    <label>
+                                        Sign up for mailing list?
+                                        <input type="checkbox" id="spamme">
+                                    </label>
+                                    </div>
+                                </fieldset>
+                                <fieldset class='subchk'>
+                                    <div class="btn-group">
+                                        <button id="user-changer" class="btn btn-primary" type="submit">Log-In</button>
+                                        <button id="cancel-login" class="btn" type="cancel">Cancel</button>
+                                    </div>
+                                    <p id="offer-registration">
+                                        Don't have an account? 
+                                        <a id="start-registration" href="#">Sign up</a>
+                                    </p>
+                                </fieldset>
+                            </form>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            </div>
+        </div>
+        </div>
+    </div>
+  </div>
+
+     <div id="table-display"></div>
+
+     <!--
+     <div class="right gh-ribbon"><a href="#" class="red"><span class="text"></span></a></div>
+     -->
+
+  </body>
+
+  <!--
+        @import url(http://fonts.googleapis.com/css?family=Telex);
+        @import url(http://fonts.googleapis.com/css?family=Oxygen);
+        body, input, select, label, form, p, span, .bootstrap {
+            font-family: 'Oxygen', "Helvetica", sans-serif;
+        }
+  -->
+
+  <script type="text/javascript">
+    jQuery(window).scroll(function() {
+        jQuery('.navbar-fixed-top').toggleClass('navbar-covering', jQuery(this).scrollTop() > 0);
+    });
+  </script>
+
+</html>
+
+
