@@ -223,13 +223,11 @@ do ->
 
           isReplaced = getReplacedTest replacedBy, explicitReplacements
 
-          console.log "Main table columns:"
           for col in cols when not isReplaced col
             if col.isFormatted
               col.replaces.push col.path unless col.path in col.replaces
               col.path = col.path.getParent()
             @columnHeaders.add col
-            console.log "#{ col.path } replaces #{ col.replaces }"
 
         # Read the result returned from the service, and add headers for 
         # the columns it represents to the table.

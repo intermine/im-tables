@@ -97,7 +97,6 @@ do ->
             parent = c.path.getParent()
             replacedBy[parent] ?= c
             formatter = getFormatter c.path
-            # TODO: unless formatter in BLACKLISTED FORMATTERS
             unless formatter in @options.blacklistedFormatters
               c.isFormatted = true
               c.formatter = formatter
@@ -110,12 +109,10 @@ do ->
           isReplaced = getReplacedTest replacedBy, explicitReplacements
 
           view = []
-          console.log "Subtable view:"
           for col in columns when not isReplaced col
             if col.isFormatted
               col.path = col.path.getParent()
             view.push col
-            console.log "#{ col.path } replaces #{ col.replaces }"
 
           return view
 
