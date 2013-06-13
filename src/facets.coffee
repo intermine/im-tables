@@ -177,7 +177,13 @@ do ->
 
       toJSON: -> _.extend {}, @_defaults, @attributes
 
+      nullify: ->
+        @set {min: null, max: null}
+        @nulled = true
+        @trigger evt, @ for evt in ['change:min', 'change:max', 'change']
+
       set: (name, value) ->
+        @nulled = false
         if _.isString(name) and (name of @_defaults)
           meth = if name is 'min' then 'max' else 'min'
           super(name, Math[meth](@_defaults[name], value))
@@ -185,6 +191,7 @@ do ->
           super(arguments...)
 
       isNotAll: ->
+        return true if @nulled
         {min, max} = @toJSON()
         (min? and min isnt @_defaults.min) or (max? and max isnt @_defaults.max)
 
@@ -195,12 +202,22 @@ do ->
           @range = new NumericRange()
           @range.on 'change', =>
               if @shouldDrawBox()
+                if @range.nulled
+                  @drawSelection 0, 25
+                else
                   x = @xForVal(@range.get('min'))
                   width = @xForVal(@range.get('max')) - x
                   @drawSelection(x, width)
               else
                   @selection?.remove()
                   @selection = null
+
+          @range.on 'change', =>
+            if @range.isNotAll()
+              @drawEstCount()
+            else
+              @estCount?.remove()
+              @estCount = null
 
           @range.on 'reset', =>
             {min, max} = @range.toJSON()
@@ -210,6 +227,9 @@ do ->
 
           for prop, idx of {min: 0, max: 1} then do (prop, idx) =>
             @range.on "change:#{prop}", (m, val) =>
+              if m.nulled
+                @$("input.im-range-#{prop}").val "null"
+
               return unless val?
               val = @round(val)
               @$("input.im-range-#{prop}").val "#{ val }"
@@ -217,7 +237,7 @@ do ->
                   @$slider?.slider('values', idx, val)
 
           @range.on 'change', () =>
-            changed = @range.get('min') > @min or @range.get('max') < @max
+            changed = @range.isNotAll() #@range.get('min') > @min or @range.get('max') < @max
             @$('.btn').toggleClass "disabled", !changed
 
         events:
@@ -234,18 +254,24 @@ do ->
           e.stopPropagation()
           fpath = @facet.path.toString()
           @query.constraints = _(@query.constraints).filter (c) -> c.path isnt fpath
-          newConstraints = [
-              {
-                  path: @facet.path
-                  op: ">="
-                  value: @range.get('min')
-              },
-              {
-                  path: @facet.path
-                  op: "<="
-                  value: @range.get('max')
-              }
-          ]
+          if @range.nulled
+            newConstraints = [{
+              path: @facet.path
+              op: 'IS NULL'
+            }]
+          else
+            newConstraints = [
+                {
+                    path: @facet.path
+                    op: ">="
+                    value: @range.get('min')
+                },
+                {
+                    path: @facet.path
+                    op: "<="
+                    value: @range.get('max')
+                }
+            ]
 
           @query.addConstraints newConstraints
 
@@ -392,6 +418,7 @@ do ->
           # Boo-hoo, can't draw a pretty chart.
 
         _drawD3Chart: (items) ->
+          @items = items
           bottomMargin = 18
           rightMargin = 14
           n = items[0].buckets + 1
@@ -400,16 +427,49 @@ do ->
           most = d3.max items, (d) -> d.count
           x = d3.scale.linear().domain([1, n]).range([@leftMargin, @w - rightMargin])
           y = d3.scale.linear().domain([0, most]).rangeRound([0, h - bottomMargin])
-          # Replace our hack with a d3 scale.
-          @xForVal = d3.scale.linear().domain([@min, @max]).range([@leftMargin, @w - rightMargin])
+          @xForVal = d3.scale.linear()
+            .domain([@min, @max])
+            .range([@leftMargin, @w - rightMargin])
+
           xToVal = d3.scale.linear().domain([1, n]).range([@min, @max])
           val = (x) => @round xToVal x
+          bucketVal = (x) =>
+            raw = val x
+            if raw < @min
+              @min
+            else if raw > @max
+              @max
+            else
+              raw
+          bucketRange = (bucket) ->
+            if bucket?
+              [min, max] = (bucketVal(bucket + delta) for delta in [0, 1])
+            else
+              [min, max] = [0 - bucketVal(2), bucketVal(1)]
+            {min, max}
+
+          getTitle = (item) ->
+            title = if item.bucket?
+              brange = bucketRange item.bucket
+              "#{ brange.min } >= x < #{ brange.max }: #{ item.count } items"
+            else
+              "x is null: #{ item.count } items"
+
           @paper = chart = d3.select(@canvas).append('svg')
             .attr('class', 'chart')
             .attr('width', @w)
             .attr('height', h)
 
           container = @canvas
+
+          barClickHandler = (d, i) =>
+            if d.bucket?
+              @range?.set bucketRange d.bucket
+            else
+              @range?.nullify()
+
+          for item in items when item.bucket?
+            item.brange = bucketRange item.bucket
 
           chart.selectAll('rect')
             .data(items)
@@ -418,9 +478,10 @@ do ->
               .attr('y', h - bottomMargin)
               .attr('width', (d) -> x(d.bucket + 1) - x(d.bucket))
               .attr('height', 0)
-              .on('click', (d, i) => @range?.set min: val(d.bucket), max: val(d.bucket + 1))
+              .classed('im-null-bucket', (d) -> d.bucket is null)
+              .on('click', barClickHandler)
               .each (d, i) ->
-                title = "#{ val d.bucket } >= x < #{ val (d.bucket + 1)}: #{ d.count } items"
+                title = getTitle d
                 $(@).tooltip {title, container}
 
           rects = chart.selectAll('rect').data(items)
@@ -448,6 +509,42 @@ do ->
 
           this
 
+        drawEstCount: ->
+          @estCount?.remove()
+          return false unless d3?
+          @estCount = @paper.append('text')
+            .classed('im-est-count', true)
+            .attr('x', @w * 0.75)
+            .attr('y', 22)
+            .text("~#{ @estimateCount() }")
+
+        sumCounts = (xs) -> _.reduce(xs, ((total, x) -> total + x.count), 0)
+
+        fracWithinRange = (range, min, max) ->
+          return 0 unless range
+          rangeSize = range.max - range.min
+          overlap = if range.min < min
+            Math.min(range.max, max) - min
+          else
+            max - Math.max(range.min, min)
+          overlap / rangeSize
+
+        getPartialCount = (min, max) -> (item) ->
+          if item?
+            item.count * fracWithinRange item.brange, min, max
+          else
+            0
+
+        estimateCount: ->
+          if @range.nulled
+            sumCounts @items.filter (i) -> i.bucket is null
+          else
+            {min, max} = @range.toJSON()
+            fullBuckets = sumCounts @items.filter (i) -> i.brange? and i.brange.min >= min and i.brange.max <= max
+            [partialLeft] = @items.filter (i) -> i.brange? and i.brange.min < min and i.brange.max > min
+            [partialRight] = @items.filter (i) -> i.brange? and i.brange.max > max and i.brange.min < max
+            [left, right] = [partialLeft, partialRight].map getPartialCount min, max
+            @round fullBuckets + left + right
 
         drawSelection: (x, width) =>
           @selection?.remove()
@@ -459,8 +556,8 @@ do ->
               .attr('x', x)
               .attr('y', 0)
               .attr('width', width)
-              .attr('height', @chartHeight)
-              .attr('class', 'rubberband-selection')
+              .attr('height', @chartHeight * 0.9)
+              .classed('rubberband-selection', true)
           else
             console.error("Cannot draw selection without SVG lib")
 

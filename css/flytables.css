@@ -7011,12 +7011,6 @@ ul.im-list-tags li {
     stroke: #5cb35d;
 }
 
-.im-facet rect.rubberband-selection {
-    fill: #5cb35d;
-    stroke: #5cb35d;
-    opacity: 0.3;
-}
-
 .im-facet path.yaxis {
     stroke: #555;
     stroke-width: 1px;
@@ -7050,6 +7044,20 @@ ul.im-list-tags li {
 .im-column-summary .chart rect {
     fill: steelblue;
     stroke: white;
+}
+.im-column-summary .chart rect.im-null-bucket {
+    fill: rgb(236, 176, 21);
+}
+.im-column-summary .chart text.im-est-count {
+    font-size: 20px;
+    opacity: 0.75;
+    fill: #555;
+}
+.im-facet rect.rubberband-selection {
+    fill: #5cb35d;
+    stroke: rgb(93, 165, 94);
+    stroke-width: 2px;
+    opacity: 0.3;
 }
 
 .im-column-summary .chart .donut-arc:hover,
