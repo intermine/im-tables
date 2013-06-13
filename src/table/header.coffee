@@ -128,6 +128,10 @@ do ->
       title = parts.join ''
       @$('.im-col-title').html(content).popover {title, placement: 'bottom', html: true}
 
+    isComposed: ->
+      return false if @query.isOuterJoined(@view)
+      return (@model.get('replaces') or []).length > 1
+
     render: ->
 
       @$el.empty()
@@ -146,7 +150,7 @@ do ->
       @$('.im-col-composed').attr(title: getCompositionTitle replaces).click =>
           @query.trigger 'formatter:blacklist', @view, @model.get 'formatter'
 
-      @$el.toggleClass 'im-is-composed', replaces?.length > 1
+      @$el.toggleClass 'im-is-composed', @isComposed()
 
       @$('.im-th-button').tooltip
         placement: @bestFit
