@@ -1,3 +1,5 @@
+@import url(http://fonts.googleapis.com/css?family=Lobster);
+@import url(http://fonts.googleapis.com/css?family=Josefin+Slab:400,600,600italic);
 
 body {
     margin: 0px;
@@ -68,6 +70,7 @@ padding: 0.8em 1.6em;
 margin-left: -20px;
 font-size: 1.2em;
 font-weight: 200;
+font-family: 'Lobster', serif;
 text-shadow: 0 1px 0 #ffffff;}
 
 .bootstrap ul#login-status,
@@ -102,15 +105,17 @@ ul.notifications li,
 .bootstrap .navbar .container a {
     color: #5c5c5c;
     text-decoration: none;
-    font-family: "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+    font-family: "Open Sans", "Droid Sans", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
     padding: 0.25em;
 }
 
 .bootstrap .navbar a#entry-dropdowns,
 .bootstrap .navbar .login-controls a,
 .bootstrap .navbar .entry-points a {
+    font-family: 'Josefin Slab', 'Open Sans', 'Droid Sans', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
     font-size: 12px;
-    font-weight: bold;
+    font-weight: 600;
+    font-style: italic;
     margin: 0px;
     padding: 2em 0.5em 1em 0.5em;
 }
@@ -206,12 +211,17 @@ body {
     .bootstrap .navbar .entry-points {
         display: block;
     }
-.bootstrap .navbar #entry-dropdowns {
-    display: none;
-}
+    .bootstrap .navbar #entry-dropdowns {
+        display: none;
+    }
     .bootstrap .navbar .login-controls a,
     .bootstrap .navbar .entry-points a {
         padding: 2em 0.7em 1.5em 0.7em;
+    }
+}
+@media screen and (min-width: 836px) {
+    .bootstrap .navbar .container {
+    width: 836px;
     }
 }
 @media screen and (min-width: 850px) {
@@ -301,7 +311,7 @@ ul.notifications li {
 ul.notifications li,
 ul.notifications li div h1 { 
     color: #555;
-    font-family: 'Helvatica Neue', 'Helvetica', 'Arial', sans-serif;
+    font-family: 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
 }
 
 ul.notifications li.warning,
@@ -327,4 +337,33 @@ ul.notifications li:first-child {
 
 #settings-dialogue textarea, #settings-dialog input, #settings-dialogue select {
     width: 80%;
+}
+
+#error-messages {
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+}
+
+#error-messages .error-message {
+    position: relative;
+    width: 250px;
+    min-height: 50px;
+    border: 3px solid #aaa;
+    margin: 4px;
+    padding: 5px;
+    color: #333;
+    font-family: 'Open Sans', 'Droid Sans', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+    box-shadow: 2px 1px 3px #ccc;
+    background: rgba(254, 254,254, 0.7);
+}
+
+.error-message .dismiss {
+    float: right;
+    text-transform: uppercase;
+    font-weight: bold;
+    font-size: 0.8em;
+    color: #555;
+    right: 3px;
+    top: 3px;
 }

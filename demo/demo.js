@@ -118,7 +118,7 @@ jQuery(document).ready(function($) {
           "root": "preview.flymine.org/preview"
         },
         'Gene-Homologues': {
-          "root": "preview.flymine.org/preview",
+          "root": "beta.flymine.org/beta",
           q: {
             "title":"Gene --> Orthologues + GO terms of these orthologues.","description":"Show GO terms applied to orthologues of a specific gene. (Data Source: InParanoid, TreeFam, Drosophila Consortium, GO Consortium).",
             "select":[
@@ -132,6 +132,7 @@ jQuery(document).ready(function($) {
         },
         'CDSs': {
           "root": "beta.flymine.org/beta",
+          "token": "M1n3x2ydw4icj140pbBcffIgR4Q",
           q: {
             "name":"CDSs",
             "title":"a query for the features overlapping the cdss",
@@ -233,18 +234,43 @@ jQuery(document).ready(function($) {
         }
     };
 
-    window.notifier = {
+    var notifier, errorHandler, noop;
+    noop = function () {};
+    notifier = window.notifier = {
       notify: function(o) {
         console.log(arguments);
         alert(o.text);
       }
     };
-      
-      
-    //new growlr.NotificationContainer({
-    //    extraClasses: "withnav",
-    //    timeout: 7000
-    //});
+    errorHandler = function(err) {
+      if (err.responseText || /whoami/.test(err)) {
+        return;
+      }
+      console.log("Error", err);
+      var messages, div, closer;
+
+      messages = document.getElementById('error-messages');
+      div = document.createElement('div');
+      closer = document.createElement('button');
+
+      if (!messages) {
+        messages =  document.createElement('ul');
+        messages.id = 'error-messages';
+        document.querySelector('body').appendChild(messages);
+      }
+
+      closer.innerHTML = 'dismiss';
+      closer.className = 'dismiss';
+      closer.addEventListener('click', function(event) {
+        messages.removeChild(div);
+      });
+      div.appendChild(closer);
+      div.className = 'error-message';
+      div.appendChild(document.createTextNode('ERROR: ' + err));
+
+      messages.appendChild(div);
+        
+    };
 
     var messageTemplate = function(list) {
       return list.name + ": " + list.description + " (" + list.size + " " + list.type + ")";
@@ -314,28 +340,30 @@ jQuery(document).ready(function($) {
         doLogin(url, token, query);
     };
     var doLogin = function(url, token, query) {
+        jQuery('#error-messages').empty();
 
         display.imWidget({
             type: displayType,
             url: url,
             token: token,
+            error: errorHandler,
             query: query,
             events: query_events,
             properties: tableProps
         });
 
-        $('.login-controls').toggleClass("logged-in", !!token);
-
         var service = display.imWidget('option', 'service');
 
-        service.whoami()
+        $('.login-controls').toggleClass("logged-in", !!token);
+
+        var p1 = service.whoami()
           .done(function(u) {$('#logged-in-notice').show().find('a.username').text(u.username);})
           .fail(function() {$('#logged-in-notice').hide()});
 
-        service.fetchVersion()
+        var p2 = service.fetchVersion()
           .done(function(v) {$('.v9').toggleClass('unsupported', (v < 9))})
           .fail(function() {$('.v9').addClass('unsupported');});
-
+        
     };
 
     $('#log-out').on('click', function(e) {
@@ -407,7 +435,6 @@ jQuery(document).ready(function($) {
         var token = ret.token;
         var query = display.imWidget('option', 'query');
         doLogin(url, token, query);
-        console.log(ret);
         notifier.notify({
           title: "Logged in",
           text: "logged in as " + username,
