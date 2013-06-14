@@ -189,7 +189,7 @@
 }
 .intermine {
   margin: 0;
-  font-family: "Helvetica Neue" , Helvetica , Arial , sans-serif;
+  font-family: "Open Sans", "Droid Sans", "Helvetica Neue" , Helvetica , Arial , sans-serif;
   font-size: 14px;
   line-height: 20px;
   color: #333333;
@@ -877,7 +877,7 @@
 .intermine button,
 .intermine select,
 .intermine textarea {
-  font-family: "Helvetica Neue" , Helvetica , Arial , sans-serif;
+  font-family: "Open Sans", "Droid Sans", "Helvetica Neue" , Helvetica , Arial , sans-serif;
 }
 .intermine label {
   display: block;
@@ -3381,7 +3381,7 @@
 .intermine .navbar-search .search-query {
   padding: 4px 14px;
   margin-bottom: 0;
-  font-family: "Helvetica Neue" , Helvetica , Arial , sans-serif;
+  font-family: "Open Sans", "Droid Sans", "Helvetica Neue" , Helvetica , Arial , sans-serif;
   font-size: 13px;
   font-weight: normal;
   line-height: 1;
