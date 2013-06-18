@@ -26,6 +26,52 @@ jQuery(document).ready(function($) {
         }
     };
 
+    var merge = function() {
+      var toMerge, key, value
+        , len = arguments.length
+        , i   = 1
+        , obj = arguments[0];
+      if (obj == null) throw new Error("object to merge on is null");
+      for (;i < len;i++) {
+        toMerge = arguments[i];
+        if (toMerge == null) throw new Error("object to merge is null");
+        for (key in toMerge) {
+          value = toMerge[key];
+          obj[key] = value;
+        }
+      }
+      return obj;
+    }
+    var all = function(things, test, context) {
+      if (things == null) throw new Error("no things provided to test");
+      if (test == null) test = function (x) { return x };
+      if (!test.call) throw new Error("test is not callable");
+      var elem, ret = true, i = 0, len = things.length;
+      for (;ret && i < len; i++) {
+        elem = things[i];
+        ret = test.call(context, elem);
+      }
+      return ret;
+    }
+
+    intermine.scope("intermine.results.formatters", {
+      Manager: function(model) {
+        var id, needs, p, data;
+        id = model.get('id');
+        needs = ['title', 'name'];
+        if (model._fetching || !all(needs, function (n) { return model.has(n); })) {
+          model._fetching = p = this.options.query.service.findById('Manager', id);
+          p.done(function(manager) { model.set(manager) });
+        }
+        data = merge({title: '', name: ''}, model.toJSON());
+        return data.title + " " + data.name;
+      }
+    });
+
+    intermine.scope('intermine.results.formatsets.testmodel', {
+      'Manager.name': true
+    });
+
     var services = {
         YeastMineNext: {
           root: "http://yeastmine-test.yeastgenome.org/yeastmine-dev",
