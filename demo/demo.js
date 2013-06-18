@@ -42,16 +42,24 @@ jQuery(document).ready(function($) {
       }
       return obj;
     }
-    var all = function(things, test, context) {
+    var any = function(things, test, context) {
       if (things == null) throw new Error("no things provided to test");
       if (test == null) test = function (x) { return x };
       if (!test.call) throw new Error("test is not callable");
-      var elem, ret = true, i = 0, len = things.length;
-      for (;ret && i < len; i++) {
+      var elem, i = 0, len = things.length;
+      for (;i < len; i++) {
         elem = things[i];
-        ret = test.call(context, elem);
+        if (test.call(context, elem)) {
+          return true;
+        }
       }
-      return ret;
+      return false;
+    }
+    var all = function(things, test, context) {
+      if (test == null) test = function (x) { return x };
+      if (!test.call) throw new Error("test is not callable");
+      var invertedTest = function (x) { return !test.call(context, x) };
+      return !any(things, invertedTest);
     }
 
     intermine.scope("intermine.results.formatters", {
@@ -59,7 +67,7 @@ jQuery(document).ready(function($) {
         var id, needs, p, data;
         id = model.get('id');
         needs = ['title', 'name'];
-        if (model._fetching || !all(needs, function (n) { return model.has(n); })) {
+        if (model._fetching || any(needs, function (n) { return !model.has(n); })) {
           model._fetching = p = this.options.query.service.findById('Manager', id);
           p.done(function(manager) { model.set(manager) });
         }
