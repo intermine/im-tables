@@ -10,7 +10,7 @@ do ->
   BIO_FORMATS = [
       {name: "GFF3 (General Feature Format)", extension: "gff3"},
       {name: "UCSC-BED (Browser Extensible Display Format)", extension: "bed"},
-      {name: "NCBI compatible FASTA sequence", extension: "fasta"}
+      {name: "FASTA sequence", extension: "fasta"}
   ]
 
   DELENDA = [
@@ -136,7 +136,7 @@ do ->
       onChangeFormat: ->
         format = @requestInfo.get 'format'
         tab = @$ '.nav-tabs .im-export-format'
-        tab.text "#{ format.extension } format"
+        tab.text "Format: #{ format.extension }"
         @$('.im-export-formats input').val [ format.extension ]
         @$('.im-format-choice').each ->
           inp = $('input', this)
