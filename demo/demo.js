@@ -75,9 +75,17 @@ jQuery(document).ready(function($) {
         return data.title + " " + data.name;
       }
     });
+    var employeeNameFormatter = function(model) {
+      return "<strong>" + model.get('name') + "</strong>";
+    };
+    var employeeAgeFormatter = function(model) {
+      return "<i>" + model.get('age') + "</i>";
+    };
 
     intermine.scope('intermine.results.formatsets.testmodel', {
-      'Manager.name': true
+      'Manager.name': true,
+      'Employee.age': employeeAgeFormatter,
+      'Employee.name': employeeNameFormatter
     });
 
     var services = {
