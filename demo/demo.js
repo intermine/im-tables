@@ -31,13 +31,14 @@ jQuery(document).ready(function($) {
         , len = arguments.length
         , i   = 1
         , obj = arguments[0];
-      if (obj == null) throw new Error("object to merge on is null");
+      if (obj == null) obj = {}; // Null target is {}
       for (;i < len;i++) {
         toMerge = arguments[i];
-        if (toMerge == null) throw new Error("object to merge is null");
-        for (key in toMerge) {
-          value = toMerge[key];
-          obj[key] = value;
+        if (toMerge != null) { // Skip null mergends
+          for (key in toMerge) {
+            value = toMerge[key];
+            obj[key] = value;
+          }
         }
       }
       return obj;
@@ -252,7 +253,7 @@ jQuery(document).ready(function($) {
         },
         OJC: {
           help: 'alex@intermine.org',
-          root: "http://demo.intermine.org/intermine-test-dev",
+          root: "http://localhost/intermine-test",
           token: "test-user-token",
           q: {
               select: ['name', 'company.name', 'employees.name', 'employees.age', 'employees.end', 'employees.address.address' ],
@@ -261,6 +262,9 @@ jQuery(document).ready(function($) {
               where: [
                   ["employees.age", "lt", 50 ]
               ]
+          },
+          properties: {
+            SubtableInitialState: 'open'
           }
         },
         MultiOJC: {
@@ -276,7 +280,7 @@ jQuery(document).ready(function($) {
           }
         },
         DeepOJC: {
-          root: "http://demo.intermine.org/intermine-test-dev",
+          root: "http://localhost/intermine-test",
           token: "test-user-token",
           q: {
               select: [
@@ -399,10 +403,11 @@ jQuery(document).ready(function($) {
         var token = (noToken ? null : services[serviceArgs].token);
         var url = services[serviceArgs].root;
         var query = services[serviceArgs].q;
-        doLogin(url, token, query);
+        doLogin(url, token, query, services[serviceArgs].properties);
     };
-    var doLogin = function(url, token, query) {
+    var doLogin = function(url, token, query, props) {
         jQuery('#error-messages').empty();
+        console.log(props);
 
         display.imWidget({
             type: displayType,
@@ -411,7 +416,7 @@ jQuery(document).ready(function($) {
             error: errorHandler,
             query: query,
             events: query_events,
-            properties: tableProps
+            properties: merge({}, tableProps, props)
         });
 
         var service = display.imWidget('option', 'service');
@@ -582,7 +587,7 @@ jQuery(document).ready(function($) {
           return [param.name, param.value];
         }));
         var service = serviceCombinations[form.service];
-        doLogin(service.root, service.token, intermine.Query.fromXML(form.query));
+        doLogin(service.root, service.token, intermine.Query.fromXML(form.query), service.properties);
       });
     })();
 
