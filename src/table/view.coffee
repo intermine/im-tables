@@ -554,6 +554,7 @@ do ->
                     query: @query
                     cellify: makeCell
                     blacklistedFormatters: (@table?.blacklistedFormatters ? [])
+                    mainTable: @
                     subtable: obj
                     node: node
                 else

@@ -215,7 +215,7 @@ do ->
               </table>
             """
 
-            if intermine.options.SubtableInitialState is 'open'
+            if intermine.options.SubtableInitialState is 'open' or @options.mainTable.SubtableInitialState is 'open'
               @toggleTable()
 
             this
