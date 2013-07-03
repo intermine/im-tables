@@ -108,6 +108,21 @@ jQuery(document).ready(function($) {
             }
           }
         },
+        MetabolicTest: {
+          root: "http://test.metabolicmine.org/test",
+          q: {
+            "name": "SNPS and their doubles",
+            "select":[
+              "GWASResult.SNP.primaryIdentifier",
+              "GWASResult.SNP.alleles",
+              "GWASResult.SNP.chromosomeLocation.start",
+              "GWASResult.SNP.chromosome.primaryIdentifier",
+              "GWASResult.phenotype","GWASResult.pValue",
+              "GWASResult.study.firstAuthor"
+            ],
+            "orderBy":[{"GWASResult.SNP.primaryIdentifier":"ASC"}]
+          }
+        },
         WormMine: {
           root: "http://206.108.125.166:8080/wormmine",
           q: {
