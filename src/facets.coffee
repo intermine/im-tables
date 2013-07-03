@@ -345,7 +345,6 @@ do ->
             @max = summary.max
             @min = summary.min
             @step = step = if inty(@query.getType @facet.path) then 1 else Math.abs((@max - @min) / 100)
-            console.log "Step = #{ step }"
             @round = (x) -> if step is 1 then Math.round(x) else x
             if summary.count?
               @stepWidth = (@w - (@leftMargin + 1)) / items[0].buckets
@@ -407,13 +406,16 @@ do ->
                 <div class="slider"></div>
               """
 
-            @$slider = @$('.slider').slider
+            opts =
               range: true
               min: @min
               max: @max
               values: [@min, @max]
               step: @step
-              slide: (e, ui) => @range?.set min: ui.values[0], max: ui.values[1]
+              slide: (e, ui) =>
+                @range?.set min: ui.values[0], max: ui.values[1]
+
+            @$slider = @$('.slider').slider opts
 
         drawChart: (items) =>
           if d3?
@@ -425,7 +427,6 @@ do ->
           bottomMargin = 18
           rightMargin = 14
           n = items[0].buckets + 1
-          console.log items
           h = @chartHeight
           most = d3.max items, (d) -> d.count
           x = d3.scale.linear().domain([1, n]).range([@leftMargin, @w - rightMargin])
@@ -638,7 +639,6 @@ do ->
           @summarising.done (items, stats, fcount) =>
             @hasMore = stats.uniqueValues > @limit
             newItems = items.slice @items.length
-            console.log "Adding #{ newItems.length }"
             for newItem in newItems
               @items.add _.extend newItem, {visibility: true, selected: false}
             @query.trigger 'got:summary:total', @facet.path, stats.uniqueValues, items.length, fcount
