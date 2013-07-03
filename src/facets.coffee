@@ -323,6 +323,8 @@ do ->
           delete @range
           super()
 
+        inty = (type) -> type in ["int", "Integer", "long", "Long"]
+
         handleSummary: (items, stats) =>
             @throbber.remove()
             summary = items[0]
@@ -342,7 +344,8 @@ do ->
             @range.setLimits(summary)
             @max = summary.max
             @min = summary.min
-            @step = step = if @query.getType(@facet.path) in ["int", "Integer"] then 1 else 0.1
+            @step = step = if inty(@query.getType @facet.path) then 1 else Math.abs((@max - @min) / 100)
+            console.log "Step = #{ step }"
             @round = (x) -> if step is 1 then Math.round(x) else x
             if summary.count?
               @stepWidth = (@w - (@leftMargin + 1)) / items[0].buckets
@@ -387,8 +390,8 @@ do ->
           prop = $input.data 'var'
           current = next = (@range.get(prop) ? @[prop])
           switch e.keyCode
-            when 40 then next--
-            when 38 then next++
+            when 40 then next -= @step
+            when 38 then next += @step
 
           @range.set(prop, next) unless next is current
 
@@ -476,7 +479,7 @@ do ->
             .enter().append('rect')
               .attr('x', (d, i) -> x(d.bucket) - 0.5)
               .attr('y', h - bottomMargin)
-              .attr('width', (d) -> x(d.bucket + 1) - x(d.bucket))
+              .attr('width', (d) -> Math.abs(x(d.bucket + 1) - x(d.bucket)))
               .attr('height', 0)
               .classed('im-null-bucket', (d) -> d.bucket is null)
               .on('click', barClickHandler)
