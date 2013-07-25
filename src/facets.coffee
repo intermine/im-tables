@@ -55,10 +55,12 @@ do ->
             if facet.path
               @facet = facet
             else
+              fp = @query.getPathInfo facet
               @facet =
-                path: (@query.getPathInfo facet)
+                path: fp
                 title: facet.toString().replace(/^[^\.]+\./, "").replace(/\./g, " > ")
                 ignoreTitle: true
+              fp.getDisplayName().then (name) => @facet.title = name.replace(/^[^>]+>\s*/, '')
 
         render: =>
             attrType = @facet.path.getType()
