@@ -56,6 +56,7 @@ do ->
         tagName: 'div'
         className: "im-column-summary"
         initialize: (@query, facet) ->
+            @state = new Backbone.Model({open: false})
             if facet.path
               @facet = facet
             else
@@ -76,10 +77,14 @@ do ->
             @$el.append @fac.el
             @fac.render()
             @fac.on 'ready', => @trigger 'ready', @
+            @fac.on 'toggled', => @state.set open: !@state.get('open')
+            @fac.on 'closed', => @state.set open: false
             @trigger 'rendered', @
             this
 
         toggle: -> @fac?.toggle()
+
+        close: -> @fac?.close()
 
         remove: ->
           @fac?.remove()
@@ -98,6 +103,11 @@ do ->
             @$('.im-facet').slideToggle()
             @$('dt i').first().toggleClass 'icon-chevron-right icon-chevron-down'
             @trigger 'toggled', @
+
+        close: ->
+            @$('.im-facet').slideUp()
+            @$('dt i').removeClass('icon-chevron-down').addClass('icon-chevron-right')
+            @trigger 'close', @
 
         render: =>
             unless @noTitle
