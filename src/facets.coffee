@@ -25,10 +25,10 @@ do ->
     MORE_FACETS_HTML = """
         <i class="icon-plus-sign pull-right" title="Showing top ten. Click to see all values"></i>
     """
-    FACET_TITLE = _.template """
+    FACET_TITLE = """
         <dt>
           <i class="icon-chevron-right"></i>
-          <%= title %>
+          <span class="im-facet-title"></span>
           &nbsp;<span class="im-facet-count"></span>
         </dt>
     """
@@ -75,7 +75,11 @@ do ->
             @fac = new clazz(@query, @facet, initialLimit, @noTitle)
             @$el.append @fac.el
             @fac.render()
+            @fac.on 'ready', => @trigger 'ready', @
+            @trigger 'rendered', @
             this
+
+        toggle: -> @fac?.toggle()
 
         remove: ->
           @fac?.remove()
@@ -87,14 +91,18 @@ do ->
             @query.on "change:constraints", @render
             @query.on "filter:summary", @render
 
+        events: ->
+          "click dt": "toggle"
+
+        toggle: ->
+            @$('.im-facet').slideToggle()
+            @$('dt i').first().toggleClass 'icon-chevron-right icon-chevron-down'
+            @trigger 'toggled', @
+
         render: =>
             unless @noTitle
-              $.when(@facet.title).then (title) =>
-                @$dt = $(FACET_TITLE {title}).prependTo @el
-                @$dt.click =>
-                    @$dt.siblings().slideToggle()
-                    @$dt.find('i').first().toggleClass 'icon-chevron-right icon-chevron-down'
-                    @trigger 'toggle', @
+              @$el.prepend FACET_TITLE
+              $.when(@facet.title).then (title) => @$('.im-facet-title').text title
             this
 
     class FrequencyFacet extends FacetView
@@ -147,6 +155,7 @@ do ->
               summaryView.render?()
 
               @rendering = false
+              @trigger 'ready', @
         
         getVizualization: (stats) ->
           unless @query.canHaveMultipleValues @facet.path
@@ -247,12 +256,14 @@ do ->
             changed = @range.isNotAll() #@range.get('min') > @min or @range.get('max') < @max
             @$('.btn').toggleClass "disabled", !changed
 
-        events:
+        events: ->
+          _.extend (super arguments...), {
             'click': (e) -> e.stopPropagation()
             'keyup input.im-range-val': 'incRangeVal'
             'change input.im-range-val': 'setRangeVal'
             'click .btn-primary': 'changeConstraints'
             'click .btn-cancel': 'clearRange'
+          }
 
         clearRange: -> @range?.clear(); @range?.trigger 'reset'
 
@@ -321,6 +332,7 @@ do ->
             @throbber.appendTo @el
             promise = @query.summarise @facet.path, @handleSummary
             promise.fail @remove
+            promise.done => @trigger 'ready', @
             this
 
         remove: ->
