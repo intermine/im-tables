@@ -26,7 +26,11 @@ do ->
         <i class="icon-plus-sign pull-right" title="Showing top ten. Click to see all values"></i>
     """
     FACET_TITLE = _.template """
-        <dt><i class="icon-chevron-right"></i><%= title %></dt>
+        <dt>
+          <i class="icon-chevron-right"></i>
+          <%= title %>
+          &nbsp;<span class="im-facet-count"></span>
+        </dt>
     """
     FACET_TEMPLATE = _.template """
         <dd>
@@ -58,9 +62,8 @@ do ->
               fp = @query.getPathInfo facet
               @facet =
                 path: fp
-                title: facet.toString().replace(/^[^\.]+\./, "").replace(/\./g, " > ")
+                title: fp.getDisplayName().then (name) => name.replace(/^[^>]+>\s*/, '')
                 ignoreTitle: true
-              fp.getDisplayName().then (name) => @facet.title = name.replace(/^[^>]+>\s*/, '')
 
         render: =>
             attrType = @facet.path.getType()
@@ -86,10 +89,12 @@ do ->
 
         render: =>
             unless @noTitle
-                @$dt = $(FACET_TITLE @facet).appendTo @el
+              $.when(@facet.title).then (title) =>
+                @$dt = $(FACET_TITLE {title}).prependTo @el
                 @$dt.click =>
                     @$dt.siblings().slideToggle()
                     @$dt.find('i').first().toggleClass 'icon-chevron-right icon-chevron-down'
+                    @trigger 'toggle', @
             this
 
     class FrequencyFacet extends FacetView
@@ -124,7 +129,7 @@ do ->
             getSummary.done (results, stats, count) =>
               @query.trigger 'got:summary:total', @facet.path, stats.uniqueValues, results.length, count
               $progress.remove()
-              @$dt?.append " (#{stats.uniqueValues})"
+              @$('.im-facet-count').text("(#{stats.uniqueValues})")
               hasMore = if results.length < limit then false else (stats.uniqueValues > limit)
               if hasMore
                 $(MORE_FACETS_HTML).appendTo(@$dt).tooltip({placement}).click @showMore
