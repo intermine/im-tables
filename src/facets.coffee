@@ -628,9 +628,7 @@ do ->
           ret.absent = if ops.absent is 'IS NULL' then 'IS NOT NULL' else 'IS NULL'
           ret
 
-        IGNORE_E = (e) ->
-          console.log "Ignoring an event"
-          e.preventDefault(); e.stopPropagation()
+        IGNORE_E = (e) -> e.preventDefault(); e.stopPropagation()
 
         events: ->
           'submit .im-facet form': IGNORE_E
@@ -658,7 +656,6 @@ do ->
 
         clearValueFilter: ->
           $input = @$ '.im-filter-values'
-          console.log "Resetting filter term"
           $input.val @filterTerm
           @items.each (x) -> x.set visibility: true
 
