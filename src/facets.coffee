@@ -131,6 +131,7 @@ do ->
 
         render: (filterTerm = "") ->
             return if @rendering
+            @filterTerm = filterTerm
             @rendering = true
             @$el.empty()
             super()
@@ -639,15 +640,17 @@ do ->
           'click .im-load-more': 'loadMoreItems'
           'click .im-filter .im-filter-in': (e) => @addConstraint e, basicOps
           'click .im-filter .im-filter-out': (e) => @addConstraint e, negateOps basicOps
-          'keyup .im-filter-values': 'filterItems'
+          'keyup .im-filter-values': _.throttle @filterItems, 750, {leading: false}
           'click .im-clear-value-filter': 'clearValueFilter'
           'click': IGNORE_E
 
-        filterItems: (e) ->
+        filterItems: (e) =>
           $input = @$ '.im-filter-values'
           current = $input.val()
-          if @hasMore or (@filterTerm and current < @filterTerm.length)
-              _.delay (-> @query.trigger 'filter:summary', current), 750
+          if @hasMore or (@filterTerm and current.length < @filterTerm.length)
+            return if @_filter_queued
+            @_filter_queued = true
+            _.delay (=> @query.trigger 'filter:summary', $input.val()), 750
           else
             parts = (current ? '').toLowerCase().split /\s+/
             test = (str) -> _.all parts, (part) -> !!(str and ~str.toLowerCase().indexOf(part))
@@ -655,6 +658,7 @@ do ->
 
         clearValueFilter: ->
           $input = @$ '.im-filter-values'
+          console.log "Resetting filter term"
           $input.val @filterTerm
           @items.each (x) -> x.set visibility: true
 
@@ -879,7 +883,7 @@ do ->
 
             imd.click (e) -> imd.popover 'toggle'
 
-            @initFilter()
+            @initFilter($grp)
 
             $grp.appendTo @el
 
@@ -925,11 +929,11 @@ do ->
           </div>
         """
 
-        initFilter: ->
-            xs = @items
-            $valFilter = @$ '.im-filter-values'
-            if @filterTerm
-                $valFilter.val @filterTerm
+        initFilter: ($grp) ->
+          return unless @filterTerm?
+          sel = '.im-filter-values'
+          $valFilter = if $grp? then $grp.find(sel) else @$ sel
+          $valFilter.val @filterTerm
 
         colClasses: ["im-item-selector", "im-item-value", "im-item-count"]
 
