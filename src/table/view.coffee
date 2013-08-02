@@ -320,6 +320,11 @@ do ->
                 @$el.append dialogue.el
                 dialogue.render().openDialogue()
 
+            @query.on "download-menu:open", =>
+              dialogue = new intermine.query.export.ExportDialogue @query
+              @$el.append dialogue.render().el
+              dialogue.show()
+
         pageSizeFeasibilityThreshold: 250
 
         # Check if the given size could be considered problematic
@@ -340,13 +345,10 @@ do ->
         # without user interaction.
         # @param size the requested page size.
         handlePageSizeSelection: (size) =>
-            console.log("The user wants #{ size } rows per page")
             if @aboveSizeThreshold size
-              console.log("Large page size detected")
               $really = $ intermine.snippets.table.LargeTableDisuader
-              $really.find('.btn-primary').click () =>
-                  @table.changePageSize size
-              $really.find('.btn').click () -> $really.modal('hide')
+              $really.find('.btn-primary').click => @table.changePageSize size
+              $really.find('.btn').click -> $really.modal('hide')
               $really.find('.im-alternative-action').click (e) =>
                   @query.trigger($(e.target).data 'event') if $(e.target).data('event')
                   @query.trigger 'page-size:revert', @table.pageSize
