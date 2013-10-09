@@ -45,10 +45,10 @@ do ->
       return true if c.op and 0 is c.path.indexOf n
     return false
 
-  anyNodeIsSuitable = (model, nodes) -> (types) ->
-    ret = _.any types, (t) -> _.any nodes, (n) -> n.name in model.getSubclassesOf t
-    console.log "One of #{ nodes.map (n) -> n.name } matches one of #{ types }: #{ ret }"
-    return ret
+  anyAny = (xs, ys, f) -> _.any xs, (x) -> _.any ys, (y) -> f x, y
+
+  anyNodeIsSuitable = (model, nodes) -> (types) -> anyAny types, nodes, (t, n) ->
+    n.name in model.getSubclassesOf t
 
   {Tab} = intermine.bootstrap
 
@@ -658,7 +658,6 @@ do ->
             viewNodeTypes = @query.getViewNodes().map (n) -> n.getType()
             isSuitableForThisQuery = anyNodeIsSuitable model, viewNodeTypes
             for format, i in BIO_FORMATS when isSuitableForThisQuery format.types
-              console.log "#{ format.name } is suitable"
               $btn = $ formatToEl format
               $btn[0].tabIndex = i + EXPORT_FORMATS.length
               $formats.append $btn
