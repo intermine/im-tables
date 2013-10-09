@@ -6154,42 +6154,6 @@ ul.im-list-tags li {
     overflow: hidden;
 }
 
-/* SVG styles */
-/*
-.im-facet path, circle {
-    fill: #D9EDF7;
-    stroke: #3A87AD;
-    stroke-width: 2px;
-}
-
-.im-facet path.falses {
-    fill: #bce8f1;
-}
-
-.im-facet path.disabled {
-    opacity: 0.5;
-}
-
-.im-facet path.selected {
-    fill: #5cb35d;
-    stroke: #5cb35d;
-}
-
-.im-facet path.yaxis {
-    stroke: #555;
-    stroke-width: 1px;
-}
-
-.im-facet path.tickline {
-    stroke: #ddd;
-    stroke-width: 1px;
-}
-
-.im-facet text.pie-label {
-    font-size: 14px;
-}
-*/
-
 .im-facet rect.rubberband-selection {
     fill: #5cb35d;
     stroke: #5cb35d;
