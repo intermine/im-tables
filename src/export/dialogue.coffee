@@ -8,9 +8,16 @@ do ->
   ]
 
   BIO_FORMATS = [
-      {name: "GFF3 (General Feature Format)", extension: "gff3"},
-      {name: "UCSC-BED (Browser Extensible Display Format)", extension: "bed"},
-      {name: "FASTA sequence", extension: "fasta"}
+      {
+        name: "GFF3 (General Feature Format)",
+        extension: "gff3",
+        types: ["SequenceFeature"]
+      },
+      {
+        name: "UCSC-BED (Browser Extensible Display Format)",
+        extension: "bed", types: ["SequenceFeature"]
+      },
+      {name: "FASTA sequence", extension: "fasta", types: ["SequenceFeature", "Protein"]}
   ]
 
   DELENDA = [
@@ -37,6 +44,11 @@ do ->
     for c in q.constraints
       return true if c.op and 0 is c.path.indexOf n
     return false
+
+  anyNodeIsSuitable = (model, nodes) -> (types) ->
+    ret = _.any types, (t) -> _.any nodes, (n) -> n.name in model.getSubclassesOf t
+    console.log "One of #{ nodes.map (n) -> n.name } matches one of #{ types }: #{ ret }"
+    return ret
 
   {Tab} = intermine.bootstrap
 
@@ -641,9 +653,12 @@ do ->
           $btn[0].tabIndex = i
           $formats.append $btn
 
-        @service.fetchModel().done (model) ->
+        @service.fetchModel().done (model) =>
           if intermine.utils.modelIsBio model
-            for format, i in BIO_FORMATS
+            viewNodeTypes = @query.getViewNodes().map (n) -> n.getType()
+            isSuitableForThisQuery = anyNodeIsSuitable model, viewNodeTypes
+            for format, i in BIO_FORMATS when isSuitableForThisQuery format.types
+              console.log "#{ format.name } is suitable"
               $btn = $ formatToEl format
               $btn[0].tabIndex = i + EXPORT_FORMATS.length
               $formats.append $btn
