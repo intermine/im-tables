@@ -1,6 +1,6 @@
 {
   "name": "intermine-tables",
-  "version": "1.3.2",
+  "version": "1.4.0",
   "description": "ui widgets for displaying query results in interactive tables",
   "main": "js/imtables.js",
   "keywords": [
