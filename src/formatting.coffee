@@ -1,13 +1,17 @@
 
 scope "intermine.results", {
-    getFormatter: (model, type) ->
-        formatter = null
-        unless type?
-          [model, type] = [model.model, model.getParent()?.getType()]
-        type = type.name or type
-        types = [type].concat model.getAncestorsOf(type)
-        formatter or= intermine.results.formatters[t] for t in types
-        return formatter
+    getFormatter: (path) ->
+      return null unless path?
+      cd = if path.isAttribute() then path.getParent().getType() else path.getType()
+      ancestors = [cd.name].concat path.model.getAncestorsOf cd.name
+      formats = intermine.results.formatsets[path.model.name] ? {}
+      fieldName = path.end.name
+      for a in ancestors
+        formatter = (formats["#{a}.*"] or formats["#{ a }.#{fieldName}"])
+        if formatter is true
+          formatter = intermine.results.formatters[a]
+        return formatter if formatter?
+      return null
 
     shouldFormat: (path, formatSet) ->
       return false unless path.isAttribute()
@@ -15,7 +19,7 @@ scope "intermine.results", {
       formatSet ?= model.name
       cd = if path.isAttribute() then path.getParent().getType() else path.getType()
       fieldName = path.end.name
-      formatterAvailable = intermine.results.getFormatter(path.model, cd)?
+      formatterAvailable = intermine.results.getFormatter(path)?
 
       return false unless formatterAvailable
       return true if fieldName is 'id'

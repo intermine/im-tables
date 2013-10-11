@@ -53,6 +53,15 @@ define 'actions/list-manager', using 'actions/list-append-dialogue', 'actions/ne
       dialog.render().$el.appendTo @el
       dialog.startPicking()
 
+    descendedFrom = (putativeParent) ->
+      if putativeParent.isAttribute()
+        -> false
+      else
+        prefix = putativeParent + '.'
+        (suspectedChild) -> suspectedChild.substring(0, prefix.length) is prefix
+    
+    pathOf = intermine.funcutils.get 'path'
+
     updateTypeOptions: =>
       ul = @$ '.im-type-options'
       ul.find("li").remove()
@@ -81,9 +90,9 @@ define 'actions/list-manager', using 'actions/list-append-dialogue', 'actions/ne
           unselected = viewNodes.filter (n) -> n isnt node
 
           for missingNode in unselected
-              ns = missingNode.toPathString()
-              inCons = _.any query.constraints, (c) -> c.path.substring(0, ns.length) is ns
-              unless (inCons or query.isOuterJoined(missingNode))
+              inCons = _.any countQuery.constraints, _.compose descendedFrom(missingNode), pathOf
+              needsAsserting = (not inCons) or (query.isOuterJoined(missingNode))
+              if needsAsserting
                   countQuery.addConstraint( [missingNode.append("id"), "IS NOT NULL"] )
 
           countQuery.orderBy []
@@ -92,7 +101,7 @@ define 'actions/list-manager', using 'actions/list-append-dialogue', 'actions/ne
           li.mouseover -> query.trigger "start:highlight:node", node
           li.mouseout -> query.trigger "stop:highlight"
 
-          countQuery.count (n) ->
+          countQuery.count().then (n) ->
               return li.remove() if n < 1
 
               quantifier = switch n

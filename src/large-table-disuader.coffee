@@ -1,6 +1,6 @@
 scope 'intermine.snippets.table',
   LargeTableDisuader: """
-    <div class="modal fade im-page-size-sanity-check">
+    <div class="modal im-page-size-sanity-check">
       <div class="modal-header">
         <h3>
           Are you sure?

@@ -29,9 +29,8 @@ do ->
 
     $.extend( proto, {
       _mouseInit: ->
-          this.element
-          .bind( "touchstart." + this.widgetName, $.proxy( this, "_touchStart" ) );
-          _mouseInit.apply( this, arguments );
+          @element.bind( "touchstart." + @widgetName, $.proxy( @, "_touchStart" ) )
+          _mouseInit.apply @, arguments
 
       _touchStart: ( event ) ->
           if ( event.originalEvent.targetTouches.length != 1 )

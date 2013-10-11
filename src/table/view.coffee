@@ -256,20 +256,24 @@ do ->
                 @pageSize = @sizes[0][0]
             @query.on 'page-size:revert', (size) => @$('select').val size
 
+        events:
+          "change select": "changePageSize"
+
+        changePageSize: (evt) ->
+          @query.trigger "page-size:selected", parseInt($(evt.target).val(), 10)
+
         render: () ->
-            @$el.append """
-                <label>
-                    <span class="im-only-widescreen">Rows per page:</span>
-                    <select class="span" title="Rows per page">
-                    </select>
-                </label>
-            """
-            select = @$('select')
-            for ps in @sizes
-                select.append @make 'option', {value: ps[0], selected: ps[0] is @pageSize}, (ps[1] or ps[0])
-            select.change (e) =>
-                @query.trigger "page-size:selected", parseInt(select.val())
-            this
+          @$el.append """
+              <label>
+                  <span class="im-only-widescreen">Rows per page:</span>
+                  <select class="span" title="Rows per page">
+                  </select>
+              </label>
+          """
+          select = @$('select')
+          for ps in @sizes
+              select.append @make 'option', {value: ps[0], selected: ps[0] is @pageSize}, (ps[1] or ps[0])
+          this
 
     class Table extends Backbone.View
 
@@ -316,6 +320,11 @@ do ->
                 @$el.append dialogue.el
                 dialogue.render().openDialogue()
 
+            @query.on "download-menu:open", =>
+              dialogue = new intermine.query.export.ExportDialogue @query
+              @$el.append dialogue.render().el
+              dialogue.show()
+
         pageSizeFeasibilityThreshold: 250
 
         # Check if the given size could be considered problematic
@@ -337,17 +346,16 @@ do ->
         # @param size the requested page size.
         handlePageSizeSelection: (size) =>
             if @aboveSizeThreshold size
-                $really = $ intermine.snippets.table.LargeTableDisuader
-                $really.find('.btn-primary').click () =>
-                    @table.changePageSize size
-                $really.find('.btn').click () -> $really.modal('hide')
-                $really.find('.im-alternative-action').click (e) =>
-                    @query.trigger($(e.target).data 'event') if $(e.target).data('event')
-                    @query.trigger 'page-size:revert', @table.pageSize
-                $really.on 'hidden', () -> $really.remove()
-                $really.appendTo(@el).modal().modal('show')
+              $really = $ intermine.snippets.table.LargeTableDisuader
+              $really.find('.btn-primary').click => @table.changePageSize size
+              $really.find('.btn').click -> $really.modal('hide')
+              $really.find('.im-alternative-action').click (e) =>
+                  @query.trigger($(e.target).data 'event') if $(e.target).data('event')
+                  @query.trigger 'page-size:revert', @table.pageSize
+              $really.on 'hidden', -> $really.remove()
+              $really.appendTo(@el).modal().modal('show')
             else
-                @table.changePageSize size
+              @table.changePageSize size
         
         # Set the sort order of a query so that it matches the parameters 
         # passed from DataTables.
@@ -554,6 +562,7 @@ do ->
                     query: @query
                     cellify: makeCell
                     blacklistedFormatters: (@table?.blacklistedFormatters ? [])
+                    mainTable: @
                     subtable: obj
                     node: node
                 else
