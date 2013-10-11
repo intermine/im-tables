@@ -74,8 +74,13 @@ do ->
       if (count > 0) then "#{ count } active filters" else "Filter by values in this column"
 
   RENDER_TITLE = _.template """
-    <div class="im-title-part im-parent im-<%= parentType %>-parent"><%- penult %></div>
-    <div class="im-title-part im-last"><%- last %></div>
+    <div
+      class="im-title-part im-parent im-<%= parentType %>-parent<% if (!last) { %> im-last<% } %>">
+        <%- penult %>
+    </div>
+    <% if (last) { %>
+      <div class="im-title-part im-last"><%- last %></div>
+    <% } %>
   """
 
   NEXT_DIRECTION_OF =
