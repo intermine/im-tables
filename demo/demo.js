@@ -251,6 +251,25 @@ jQuery(document).ready(function($) {
               }
           }
         },
+        MouseColumnHeaders: {
+          help: "alex@intermine.org",
+          root: "http://beta.mousemine.org/mousemine",
+          q: {
+            "select":[
+              "GXDExpression.assayType","GXDExpression.feature.symbol",
+              "GXDExpression.feature.primaryIdentifier","GXDExpression.structure.namespace",
+              "GXDExpression.structure.name","GXDExpression.strength","GXDExpression.pattern",
+              "GXDExpression.genotype.symbol","GXDExpression.sex","GXDExpression.age",
+              "GXDExpression.assayId","GXDExpression.probe","GXDExpression.image",
+              "GXDExpression.publication.mgiJnum"
+            ],
+            "orderBy":[{"GXDExpression.assayId":"ASC"}],
+            "where":[
+              {"path":"GXDExpression.feature.organism.taxonId","op":"=","code":"B","value":"10090"},
+              {"path":"GXDExpression.feature","op":"LOOKUP","code":"A","value":"Pax6"}
+            ]
+          }
+        },
         TestModel: {
           help: 'alex@intermine.org',
           //root: "http://demo.intermine.org/intermine-test-dev",
