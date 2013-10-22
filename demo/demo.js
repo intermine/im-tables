@@ -5,7 +5,8 @@ jQuery(document).ready(function($) {
     for (formatsets in intermine.results.formatsets) {
       formatset = intermine.results.formatsets[formatsets];
       for (fsKey in formatset) {
-        formatset[fsKey] = true;
+        if (formatset[fsKey] === false)
+          formatset[fsKey] = true;
       }
     }
 
@@ -249,6 +250,22 @@ jQuery(document).ready(function($) {
                   "pathways.name": ["Metabolic pathways", "Gene Expression", "Transcription", "mRNA Processing"],
                   "chromosomeLocation.locatedOn.primaryIdentifier": "2L"
               }
+          }
+        },
+        MouseColumnHeaders: {
+          help: "alex@intermine.org",
+          root: "http://beta.mousemine.org/mousemine",
+          q: {
+            "select":[
+              "GXDExpression.assayType","GXDExpression.feature.symbol",
+              "GXDExpression.assayId","GXDExpression.probe","GXDExpression.image",
+              "GXDExpression.publication.mgiJnum"
+            ],
+            "orderBy":[{"GXDExpression.assayId":"ASC"}],
+            "where":[
+              {"path":"GXDExpression.feature.organism.taxonId","op":"=","code":"B","value":"10090"},
+              {"path":"GXDExpression.feature","op":"LOOKUP","code":"A","value":"Pax6"}
+            ]
           }
         },
         TestModel: {

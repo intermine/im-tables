@@ -106,8 +106,10 @@ do ->
         """
         
         readHeaderInfo: (res) =>
-          @getEffectiveView(res.results[0]) if res?.results?[0]
-          res
+          if res?.results?[0]
+            @getEffectiveView(res.results[0]).then => res
+          else
+            res
 
         appendRow: (tbody, row) =>
             tr = document.createElement 'tr'
@@ -124,8 +126,8 @@ do ->
               return if processed[cell.path]
               processed[cell.path] = true
               {replaces, formatter, path} = (replacer_of[cell.path]?.toJSON() ? {})
-              if replaces?.length
-                # Only accept if it is the right type.
+              if replaces?.length > 1
+                # Only accept if it is the right type, since formatters expect a type.
                 return unless path.equals(cell.path.getParent())
                 if formatter?.merge?
                   for c in row when _.any(replaces, (x) -> x.equals c.path)
@@ -133,7 +135,7 @@ do ->
 
                 processed[r] = true for r in replaces
 
-                cell.formatter = formatter if formatter?
+              cell.formatter = formatter if formatter?
 
               if @minimisedCols[ cell.path ] or (path and @minimisedCols[path])
                 $(tr).append @minimisedColumnPlaceholder width: minWidth
@@ -186,48 +188,55 @@ do ->
           header = new intermine.query.results.ColumnHeader {model, @query}
           header.render().$el.appendTo tr
 
-        getEffectiveView: (row) ->
-          q = @query
-          replacedBy = {}
-          @columnHeaders.reset()
-          {longestCommonPrefix, getReplacedTest} = intermine.utils
+        getEffectiveView: (row) -> @query.service.get("/classkeys").then ({classes}) =>
+            q = @query
+            classKeys = classes
+            replacedBy = {}
+            @columnHeaders.reset()
+            {longestCommonPrefix, getReplacedTest} = intermine.utils
 
-          # Create the columns
-          cols = for cell in row
-            path = q.getPathInfo cell.column
-            replaces = if cell.view? # subtable of this cell.
-              commonPrefix = longestCommonPrefix cell.view
-              path = q.getPathInfo commonPrefix
-              replaces = (q.getPathInfo(v) for v in cell.view)
-            else
-              []
-            {path, replaces}
+            # Create the columns
+            cols = for cell in row
+              path = q.getPathInfo cell.column
+              replaces = if cell.view? # subtable of this cell.
+                commonPrefix = longestCommonPrefix cell.view
+                path = q.getPathInfo commonPrefix
+                replaces = (q.getPathInfo(v) for v in cell.view)
+              else
+                []
+              {path, replaces}
 
-          # Build the replacement information.
-          for col in cols when col.path.isAttribute() and intermine.results.shouldFormat col.path
-            p = col.path
-            replacedBy[p.getParent()] ?= col
-            formatter = intermine.results.getFormatter p
-            unless formatter in @blacklistedFormatters
-              col.isFormatted = true
-              col.formatter = formatter
-              for r in (formatter.replaces ? [])
-                subPath = "#{ p.getParent() }.#{ r }"
-                replacedBy[subPath] ?= col
-                col.replaces.push q.getPathInfo subPath if subPath in q.views
+            # Build the replacement information.
+            for col in cols when col.path.isAttribute() and intermine.results.shouldFormat col.path
+              p = col.path
+              formatter = intermine.results.getFormatter p
+              unless formatter in @blacklistedFormatters
+                col.isFormatted = true
+                col.formatter = formatter
+                for r in (formatter.replaces ? [])
+                  subPath = "#{ p.getParent() }.#{ r }"
+                  replacedBy[subPath] ?= col
+                  col.replaces.push q.getPathInfo subPath if subPath in q.views
 
-          explicitReplacements = {}
-          for col in cols
-            for r in col.replaces
-              explicitReplacements[r] = col
+            isKeyField = (col) ->
+              return false unless col.path.isAttribute()
+              pType = col.path.getParent().getType().name
+              fName = col.path.end.name
+              return "#{pType}.#{fName}" in (classKeys?[pType] ? [])
 
-          isReplaced = getReplacedTest replacedBy, explicitReplacements
+            explicitReplacements = {}
+            for col in cols
+              for r in col.replaces
+                explicitReplacements[r] = col
 
-          for col in cols when not isReplaced col
-            if col.isFormatted
-              col.replaces.push col.path unless col.path in col.replaces
-              col.path = col.path.getParent()
-            @columnHeaders.add col
+            isReplaced = getReplacedTest replacedBy, explicitReplacements
+
+            for col in cols when not isReplaced col
+              if col.isFormatted
+                col.replaces.push col.path unless col.path in col.replaces
+                col.path = col.path.getParent() if (isKeyField(col) or col.replaces.length > 1)
+
+              @columnHeaders.add col
 
         # Read the result returned from the service, and add headers for 
         # the columns it represents to the table.
