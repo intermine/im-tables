@@ -5,7 +5,8 @@ jQuery(document).ready(function($) {
     for (formatsets in intermine.results.formatsets) {
       formatset = intermine.results.formatsets[formatsets];
       for (fsKey in formatset) {
-        formatset[fsKey] = true;
+        if (formatset[fsKey] === false)
+          formatset[fsKey] = true;
       }
     }
 
@@ -257,9 +258,6 @@ jQuery(document).ready(function($) {
           q: {
             "select":[
               "GXDExpression.assayType","GXDExpression.feature.symbol",
-              "GXDExpression.feature.primaryIdentifier","GXDExpression.structure.namespace",
-              "GXDExpression.structure.name","GXDExpression.strength","GXDExpression.pattern",
-              "GXDExpression.genotype.symbol","GXDExpression.sex","GXDExpression.age",
               "GXDExpression.assayId","GXDExpression.probe","GXDExpression.image",
               "GXDExpression.publication.mgiJnum"
             ],
