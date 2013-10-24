@@ -10,7 +10,7 @@ scope "intermine.options",
     CellPreviewTrigger: 'click' # hover
     IndicateOffHostLinks: true
     ExternalLinkIcons:
-      "http://www.yeastgenome.org": "http://www.yeastgenome.org/favicon.ico"
+      "http://some.host.somewhere": "http://some.host.somewhere/logo.png"
     StylePrefix: 'intermine'
     GalaxyMain: "http://main.g2.bx.psu.edu"
     GalaxyCurrent: null
