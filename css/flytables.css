@@ -7554,9 +7554,11 @@ td > .im-no-results {
 
 .im-result-field.dna-sequence .im-cell-link {
     font-family: monospace;
-    white-space: pre;
 }
-
+.im-result-field.dna-sequence .im-cell-link code {
+    color: #555;
+    border: none;
+}
 
 .im-selectable-node .label {
     margin-left: 1em;

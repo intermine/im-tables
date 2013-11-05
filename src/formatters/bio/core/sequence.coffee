@@ -1,5 +1,7 @@
 define 'formatters/bio/core/sequence', ->
 
+  lineLength = 40
+
   SequenceFormatter = (model) ->
     id = model.get 'id'
     @$el.addClass 'dna-sequence'
@@ -11,9 +13,9 @@ define 'formatters/bio/core/sequence', ->
     lines = []
 
     while sequence.length > 0
-      line = sequence.slice 0, 80
-      rest = sequence.slice 80
+      line = sequence.slice 0, lineLength
+      rest = sequence.slice lineLength
       lines.push line
       sequence = rest
 
-    lines.join("\n")
+    ("<code>#{ line }</code>" for line in lines).join("<br/>")
