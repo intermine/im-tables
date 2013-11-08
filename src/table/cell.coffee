@@ -40,7 +40,7 @@ do ->
         tagName: "td"
         className: "im-result-subtable"
 
-        initialize: ->
+        initialize: (@options = {}) ->
             @query = @options.query
             @cellify = @options.cellify
             @path = @options.node
@@ -243,7 +243,7 @@ do ->
           else
             """<span class="null-value">&nbsp;</span>"""
 
-        initialize: ->
+        initialize: (@options = {}) ->
             @model.on 'change', @selectingStateChange, @
             @model.on 'change', @updateValue, @
 
@@ -391,7 +391,7 @@ do ->
     class NullCell extends Cell
         setupPreviewOverlay: ->
 
-        initialize: ->
+        initialize: (@options = {}) ->
           @model = new intermine.model.NullObject()
           super()
 

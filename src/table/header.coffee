@@ -93,8 +93,8 @@ do ->
 
     className: 'im-column-th'
 
-    initialize: ->
-      @query = @options.query
+    initialize: ({query}) ->
+      @query = query
       # Store this, as it will be needed several times.
       @view = @model.get('path').toString()
       if @model.get('replaces').length is 1 and @model.get('isFormatted')

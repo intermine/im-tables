@@ -89,7 +89,7 @@ do ->
 
     template: _.template THROBBER
 
-    initialize: ->
+    initialize: (@options = {}) ->
       super arguments...
       @on 'rendered', @insertRows, @
 
@@ -102,7 +102,6 @@ do ->
         row.find('.im-field-name').text name.split(' > ').pop()
         sortTableByFieldName row.parent()
         @trigger 'ready'
-
 
     handleItem: (item) =>
       table = @itemDetails
@@ -181,11 +180,5 @@ do ->
       ready.fail (err) =>
         @renderError err
         @trigger 'ready'
-
         
   scope 'intermine.table.cell', {Preview}
-          
-
-
-
-

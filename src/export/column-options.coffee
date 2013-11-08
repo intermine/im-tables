@@ -56,7 +56,7 @@ do ->
 
     COUNT_INCLUDED = (sum, m) -> if m.get('included') then ++sum else sum
 
-    initialize: ->
+    initialize: (@options) ->
       @paths = col = @collection ? throw new Error('collection required')
       @listenTo col, 'change:included', @update
       @listenTo col, 'add', @insert
