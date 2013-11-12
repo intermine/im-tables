@@ -578,7 +578,7 @@ do ->
                   node = @query.getPathInfo(obj.column).getParent()
                   field = obj.column.replace(/^.*\./, '')
                   model = if obj.id?
-                      @itemModels[obj.id] or= (new intermine.model.IMObject(@query, obj, field, base))
+                      @itemModels[obj.id] or= (new intermine.model.IMObject(obj, @query, field, base))
                   else if not obj.class?
                     type = node.getParent().name
                     new intermine.model.NullObject {}, {@query, field, type}
@@ -596,7 +596,7 @@ do ->
                         makeCell(cell)
                     else if cell?.id?
                         field = fields[idx]
-                        imo = @itemModels[cell.id] or= (new intermine.model.IMObject(@query, cell, field[1], base))
+                        imo = @itemModels[cell.id] or= (new intermine.model.IMObject(cell, @query, field[1], base))
                         imo.merge cell, field[1]
                         new intermine.results.table.Cell(
                             model: imo
