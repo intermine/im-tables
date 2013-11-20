@@ -229,8 +229,8 @@ jQuery(document).ready(function($) {
           }
         },
         'Gene-Prot-Exons': {
-          "root": "preview.flymine.org/preview",
-          //root: "beta.flymine.org/beta",
+          root: "beta.flymine.org/beta",
+          //"root": "localhost/squirrelmine",
           //token: "M1n3x2ydw4icj140pbBcffIgR4Q",
           q: {
               select: [
@@ -242,6 +242,7 @@ jQuery(document).ready(function($) {
                 "proteins.name", 
                 "exons.primaryIdentifier"
               ], 
+              orderBy: ["proteins.name"],
               from: "Gene", 
               where: {
                   // Aesthetic - means we can render the type correctly.

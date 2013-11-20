@@ -312,7 +312,7 @@ do ->
           for path in @query.views when test0 path
             @sortPossibles.add {path, @query}
 
-          for n in @query.getQueryNodes() when not isOuter n
+          for n in @query.getViewNodes() when not isOuter n
             for path in n.getChildNodes() when test1 path
               @sortPossibles.add {path, @query}
         
