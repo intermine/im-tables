@@ -3794,6 +3794,7 @@
 .intermine .pagination ul > li > a,
 .intermine .pagination ul > li > span {
   float: left;
+  cursor: pointer;
   padding: 4px 12px;
   line-height: 20px;
   text-decoration: none;
@@ -3806,6 +3807,7 @@
 .intermine .pagination ul > .active > a,
 .intermine .pagination ul > .active > span {
   background-color: #f5f5f5;
+  cursor: default;
 }
 .intermine .pagination ul > .active > a,
 .intermine .pagination ul > .active > span {
@@ -5206,6 +5208,10 @@ a.im-pagination-button {
     text-align: left;
 }
 
+.im-column-dialogue .nav > li > a {
+    cursor: pointer;
+}
+
 .im-column-summary .im-all-same {
     margin: 1em;
 }
@@ -5318,6 +5324,10 @@ li.im-subpath > a:before {
 
 .im-soe, .im-view-element {
     background-color: white;
+}
+
+.im-soe .im-add-soe {
+    cursor: pointer;
 }
 
 .im-view-element .tooltip {
@@ -5647,6 +5657,10 @@ ul.im-possible-attributes li {
     margin: 0px;
 }
 
+.im-facet .im-clear-value-filter {
+    cursor: pointer;
+}
+
 .popover.im-possible-export-attributes .popover-title {
     font-size: 14px;
     padding: 0.5em 1em;
@@ -5919,6 +5933,9 @@ ul.im-cols h4 {
 
 .im-constraint label.im-con-overview {
     width: 100%;
+}
+.im-constraint label.im-con-overview a {
+    cursor: pointer;
 }
 
 .im-con-overview .breadcrumb {
@@ -6781,6 +6798,10 @@ form.im-join {
     left: 0.2em;
 }
 
+.im-th-button {
+    cursor: pointer;
+}
+
 .im-col-composed {
     position: absolute;
     float: right;
@@ -6879,6 +6900,7 @@ form.im-join {
 
 .modal-body .im-col-remover {
     margin-right: 5px;
+    cursor: pointer;
 }
 
 /* .im-col-remover:after {

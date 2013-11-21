@@ -3130,8 +3130,7 @@
 .intermine .pagination ul > .active > a,
 .intermine .pagination ul > .active > span {
   color: #999999;
-  cursor: pointer;}
-  cursor: pointer;
+  cursor: default;}
 .intermine .pagination ul > .disabled > span,
 .intermine .pagination ul > .disabled > a,
 .intermine .pagination ul > .disabled > a:hover,
