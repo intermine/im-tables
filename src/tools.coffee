@@ -229,11 +229,11 @@ do ->
             step.remove()
           @$el.html """
             <div class="btn-group">
-              <a class="btn im-undo" href="#">
+              <a class="btn im-undo">
                 <i class="#{ intermine.icons.Undo }"></i>
                 <span class="visible-desktop">Undo</span>
               </a>
-              <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+              <a class="btn dropdown-toggle" data-toggle="dropdown">
                 <span class="caret"></span>
               </a>
               <ul class="dropdown-menu im-state-list">

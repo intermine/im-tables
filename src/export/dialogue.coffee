@@ -690,7 +690,7 @@ do ->
           action = "SendTo" + name
           $navs.append """
             <li>
-              <a href="#" data-destination="#{ name }">
+              <a data-destination="#{ name }">
                 #{ intermine.messages.actions[action] }
               </a>
             </li>

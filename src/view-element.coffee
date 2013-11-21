@@ -4,7 +4,7 @@ do ->
 
     TEMPLATE = _.template """
       <div>
-        <a class="im-col-remover" title="Remove this column" href="#">
+        <a class="im-col-remover" title="Remove this column">
           <i class="#{ intermine.icons.Remove }"></i>
         </a>
         <i class="icon-reorder pull-right"></i>

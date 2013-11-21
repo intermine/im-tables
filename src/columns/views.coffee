@@ -38,7 +38,7 @@ do ->
         @model.trigger 'displayed-name'
 
     template: _.template """
-      <a href="#">
+      <a>
         <i class="<% if (alreadySelected) { %>#{ intermine.icons.Check }<% } else { %>#{ intermine.icons.UnCheck }<% } %>"></i>
         <span class="im-field-name"><%- path %></span>
       </a>

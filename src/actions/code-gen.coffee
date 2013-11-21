@@ -82,7 +82,7 @@ define 'actions/code-gen', using 'html/code-gen', (HTML) ->
       query = @states.currentQuery
 
       ext   = if lang is 'js'  then 'html' else lang
-      href  = if lang is 'xml' then '#'    else query.getCodeURI lang
+      href  = if lang is 'xml' then ''    else query.getCodeURI lang
       code  = if lang is 'xml' then indent(query.toXML()) else query.fetchCode lang
       ready = if prettyPrintOne? then alreadyDone else intermine.cdn.load 'prettify'
 

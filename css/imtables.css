@@ -3115,6 +3115,7 @@
 .intermine .pagination ul > li > a,
 .intermine .pagination ul > li > span {
   float: left;
+  cursor: pointer;
   padding: 4px 12px;
   line-height: 20px;
   text-decoration: none;
@@ -3129,7 +3130,8 @@
 .intermine .pagination ul > .active > a,
 .intermine .pagination ul > .active > span {
   color: #999999;
-  cursor: default;}
+  cursor: pointer;}
+  cursor: pointer;
 .intermine .pagination ul > .disabled > span,
 .intermine .pagination ul > .disabled > a,
 .intermine .pagination ul > .disabled > a:hover,
@@ -4376,6 +4378,10 @@ a.im-pagination-button {
     text-align: left;
 }
 
+.im-column-dialogue .nav > li > a {
+    cursor: pointer;
+}
+
 .im-column-summary .im-all-same {
     margin: 1em;
 }
@@ -4487,6 +4493,10 @@ li.im-subpath > a:before {
 
 .im-soe, .im-view-element {
     background-color: white;
+}
+
+.im-soe .im-add-soe {
+    cursor: pointer;
 }
 
 .im-view-element .tooltip {
@@ -4641,6 +4651,22 @@ table.table thead .sorting_desc_disabled {
 }
 .im-export-dialogue .modal .modal-body {
     max-height: 430px;
+}
+.im-query-actions .dropdown-menu a,
+.im-query-actions .im-open-dialogue,
+.im-query-actions .im-promoters i,
+.im-query-actions .im-exclude,
+.im-query-actions .im-copy,
+.im-query-actions a.btn,
+.im-management-tools .im-view-element .im-col-remover,
+.im-management-tools .im-view-element .im-expander,
+.intermine .modal .im-closer,
+.im-query-actions .nav-tabs a {
+    cursor:pointer;
+}
+.im-query-actions .im-promoters i.disabled,
+.im-data-export .nav-tabs li.active > a {
+    cursor: default;
 }
 
 .im-export-dialogue .im-checkables {
@@ -4811,6 +4837,10 @@ ul.im-possible-attributes {
 .intermine .im-facet > .popover ul,
 ul.im-possible-attributes li {
     margin: 0px;
+}
+
+.im-facet .im-clear-value-filter {
+    cursor: pointer;
 }
 
 .popover.im-possible-export-attributes .popover-title {
@@ -5087,6 +5117,9 @@ ul.im-cols h4 {
 
 .im-constraint label.im-con-overview {
     width: 100%;
+}
+.im-constraint label.im-con-overview a {
+    cursor: pointer;
 }
 
 .im-con-overview .breadcrumb {
@@ -5947,6 +5980,10 @@ form.im-join {
     left: 0.2em;
 }
 
+.im-th-button {
+    cursor: pointer;
+}
+
 .im-col-composed {
     position: absolute;
     float: right;
@@ -6043,6 +6080,7 @@ form.im-join {
 
 .modal-body .im-col-remover {
     margin-right: 5px;
+    cursor: pointer;
 }
 
 /* .im-col-remover:after {

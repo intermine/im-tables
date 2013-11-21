@@ -108,7 +108,7 @@ do ->
 
     TEMPLATE = _.template """
       <div>
-        <a href="#" class="im-add-soe"
+        <a class="im-add-soe"
            title="#{ intermine.messages.columns.AddThisColumn }" >
           <i class="icon-plus"></i>
           <span title="<%- path %>"><%- path %></span>

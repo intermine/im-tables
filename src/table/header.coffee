@@ -24,7 +24,7 @@ do ->
       <div class="im-th-buttons">
         <% if (sortable) { %>
           <span class="im-th-dropdown im-col-sort dropdown">
-            <a href="#" class="im-th-button im-col-sort-indicator" title="sort this column">
+            <a class="im-th-button im-col-sort-indicator" title="sort this column">
               <i class="icon-sorting <%- css_unsorted %> <%- css_header %>"></i>
             </a>
             <div class="dropdown-menu">
@@ -32,16 +32,16 @@ do ->
             </div>
           </span>
         <% }; %>
-        <a href="#" class="im-th-button im-col-remover"
+        <a class="im-th-button im-col-remover"
            title="remove this column">
           <i class="<%- css_remove %> <%- css_header %>"></i>
         </a>
-        <a href="#" class="im-th-button im-col-minumaximiser"
+        <a class="im-th-button im-col-minumaximiser"
            title="Toggle column visibility">
           <i class="<%- css_hide %> <%- css_header %>"></i>
         </a>
         <span class="dropdown im-filter-summary im-th-dropdown">
-          <a href="#" class="im-th-button im-col-filters dropdown-toggle"
+          <a class="im-th-button im-col-filters dropdown-toggle"
              title=""
              data-toggle="dropdown" >
             <i class="<%- css_filter %> <%- css_header %>"></i>
@@ -51,7 +51,7 @@ do ->
           </div>
         </span>
         <span class="dropdown im-summary im-th-dropdown">
-          <a href="#" class="im-th-button summary-img dropdown-toggle" title="column summary"
+          <a class="im-th-button summary-img dropdown-toggle" title="column summary"
             data-toggle="dropdown" >
             <i class="<%- css_summary %> <%- css_header %>"></i>
           </a>
@@ -59,7 +59,7 @@ do ->
             <div>Could not ititialise the column summary.</div>
           </div>
         </span>
-        <a href="#" class="im-th-button im-col-composed"
+        <a class="im-th-button im-col-composed"
             title="Toggle formatting">
           <i class="<%- css_composed %> <%- css_header %>"></i>
         </a>
