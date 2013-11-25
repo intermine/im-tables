@@ -819,34 +819,40 @@ do ->
                     inp.val ''
                     inp.attr placeholder: "1 .. #{ @getMaxPage() + 1 }"
 
-        onSetupError: (telem) -> (xhr) =>
+        errorIntro = "Could not load the data-table."
+        genericExplanation = """
+                The server may be down, or 
+                incorrectly configured, or 
+                we could be pointed at an invalid URL.
+        """
+        badJson = "What we do know is that the server did not return a valid JSON response."
+
+        onSetupError: (telem) -> (resp) =>
             $(telem).empty()
             console.error "SETUP FAILURE", arguments
             notice = @make "div", class: "alert alert-error"
-            explanation = """
-                Could not load the data-table.
-                    The server may be down, or 
-                    incorrectly configured, or 
-                    we could be pointed at an invalid URL.
-            """
 
-            if xhr?.responseText
-                try
-                    parsed = JSON?.parse(xhr.responseText).error or explanation
-                    explanation = parsed
-                catch e
-                    explanation += "\n What we do know is that the server did not return a valid JSON response."
-                    console.error xhr.responseText
+            # Depending on the imjs version, we the xhr may have been parsed for us, or not.
+            reasonStr = if text = resp?.responseText
+              try
+                  JSON?.parse(text).error or genericExplanation
+              catch e
+                  console.error text
+                  genericExplanation + "\n" + badJson
+            else if resp?
+              String resp
+            else
+              genericExplanation
 
-                parts = _(part for part in explanation.split("\n") when part?).groupBy (p, i) -> i > 0
-                explanation = [
-                    @make("span", {}, parts[false] + ""),
-                    @make("ul", {}, (@make "li", {}, issue for issue in parts[true]))
-                ]
+            reasons = reasonStr.split "\n"
+
+            content = [@make("span", {}, errorIntro)]
+            if reasons.length
+              content.push @make "ul", {}, (@make "li", {}, issue for issue in reasons)
 
             $(notice).append(@make("a", {class: "close", "data-dismiss": "alert"}, "close"))
                      .append(@make("strong", {}, "Ooops...! "))
-                     .append(explanation)
+                     .append(content)
                      .appendTo(telem)
 
     scope "intermine.query.results", {Table}
