@@ -1,4 +1,6 @@
-do ->
+define 'export/dialogue', using 'perma-query', (getPermaQuery) ->
+
+  defer = (x) -> new jQuery.Deferred -> @resolve x
 
   EXPORT_FORMATS = [
       {name: "Spreadsheet (tab separated values)", extension: "tsv", param: "tab"},
@@ -78,6 +80,8 @@ do ->
           @state.on 'change:isPrivate', @onChangePrivacy
           @state.on 'change:url', @onChangeURL
           @state.on 'change:destination', @onChangeDest
+          @state.on 'change:permalink', @onChangePermalink
+          @state.on 'change:permaquery', @onChangePermaquery
 
           @service.fetchVersion (v) => @$('.im-ws-v12').remove() if v < 12
 
@@ -268,32 +272,34 @@ do ->
         wells = @$ '.im-export-destination-options .im-download-file .well'
         wells.each switchActive
 
-
       buildPermaLink: (e) =>
           endpoint = @getExportEndPoint()
-          params = @getExportParams()
-          @$('.well.im-query-xml').text params.query
-          isPrivate = intermine.utils.requiresAuthentication @query
+          currentQuery = @query
+          isPrivate = intermine.utils.requiresAuthentication currentQuery
           @state.set {isPrivate}
-          delete params.token unless isPrivate
-          url = endpoint + "?" + $.param(params, true)
-          @state.set {url}
-          # Arbitrary long-uri cut off. Tests show failure starts around here.
-          uriIsTooLong = url.length > 4000
-          if uriIsTooLong
-            eq = @getExportQuery()
-            xml = eq.toXML()
-            # Check our own cache first.
-            fetching = (@qids[xml] ?= eq.fetchQID())
-
-            fetching.done (qid) =>
-              @$('.im-long-uri').show()
-              delete params.query
-              params.qid = qid
+          # TODO: use the original query for actual export.
+          for [noIds, prop] in [[true, 'permalink'], [false, 'url']] then do (noIds, prop) =>
+            @getExportParams(noIds).then (params) =>
+              delete params.token unless isPrivate
               url = endpoint + "?" + $.param(params, true)
-              @state.set {url}
-          else
-            @$('.im-long-uri').hide()
+              @state.set(permaquery: params.query) if noIds
+              @state.set prop, url
+              # Arbitrary long-uri cut off. Tests show failure starts around here.
+              uriIsTooLong = url.length > 4000
+              if uriIsTooLong
+                @getExportQuery(noIds).then (eq) =>
+                  xml = eq.toXML()
+                  # Check our own cache first.
+                  fetching = (@qids[xml] ?= eq.fetchQID())
+
+                  fetching.done (qid) =>
+                    @$('.im-long-uri').show()
+                    delete params.query
+                    params.qid = qid
+                    url = endpoint + "?" + $.param(params, true)
+                    @state.set prop, url
+              else
+                @$('.im-long-uri').hide()
 
 
 
@@ -301,9 +307,14 @@ do ->
           @$('.im-private-query').toggle isPrivate
 
       onChangeURL: (state, url) =>
-          $a = $('<a>').text(url).attr href: url
-          @$('.im-perma-link-content').empty().append($a)
           @$('a.im-download').attr href: url
+
+      onChangePermaquery: (state, permaquery) =>
+          @$('.well.im-query-xml').text permaquery
+
+      onChangePermalink: (state, permalink) =>
+          $a = $('<a>').text(permalink).attr href: permalink
+          @$('.im-perma-link-content').empty().append($a)
 
       onChangeDest:  =>
         destination = @state.get 'destination'
@@ -370,7 +381,7 @@ do ->
         else
           true # Do the default linky thing
 
-      getExportQuery: () ->
+      getExportQuery: (noIdCons = false) ->
           q = @query.clone()
           f = @requestInfo.get 'format'
           columns = switch f.extension
@@ -398,9 +409,10 @@ do ->
 
           q.orderBy newOrder
 
-      getExportParams: () ->
+          if noIdCons then getPermaQuery(q) else defer q
+
+      getExportParams: (noIdCons = false) ->
           params = @requestInfo.toJSON()
-          params.query = @getExportQuery().toXML()
           params.token = @service.token
           params.format = @getFormatParam()
 
@@ -420,10 +432,11 @@ do ->
           if end isnt @count
               params.size = end - start
 
-          return params
+          @getExportQuery(noIdCons).then (q) ->
+            params.query = q.toXML()
+            return params
 
-      getExportURI: () ->
-          q = @getExportQuery()
+      getExportURI: (noIdCons = false) -> @getExportQuery(noIdCons).then (q) =>
           uri = q.getExportURI @getFormatParam()
           uri += @getExtraOptions()
           return uri

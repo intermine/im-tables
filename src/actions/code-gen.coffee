@@ -1,4 +1,4 @@
-define 'actions/code-gen', using 'html/code-gen', (HTML) ->
+define 'actions/code-gen', using 'perma-query', 'html/code-gen', (getPermaQuery, HTML) ->
 
   CODE_GEN_LANGS = [
       {name: "Perl", extension: "pl"},
@@ -33,7 +33,9 @@ define 'actions/code-gen', using 'html/code-gen', (HTML) ->
 
     return buffer.join("\n")
 
-  alreadyDone = jQuery.Deferred -> @resolve(true)
+  {get, invoke} = intermine.funcutils
+  defer = (x) -> jQuery.Deferred -> @resolve x
+  alreadyDone = defer true
   alreadyRejected = jQuery.Deferred -> @reject 'not available'
 
   class CodeGenerator extends Backbone.View
@@ -80,11 +82,15 @@ define 'actions/code-gen', using 'html/code-gen', (HTML) ->
       lang  = @model.get('lang')
 
       query = @states.currentQuery
+      pq = getPermaQuery query
 
       ext   = if lang is 'js'  then 'html' else lang
       href  = if lang is 'xml' then ''    else query.getCodeURI lang
-      code  = if lang is 'xml' then indent(query.toXML()) else query.fetchCode lang
       ready = if prettyPrintOne? then alreadyDone else intermine.cdn.load 'prettify'
+      code  = if lang is 'xml'
+        pq.then(invoke 'toXML').then(indent)
+      else
+        pq.then(invoke 'fetchCode', lang)
 
       @$('a .im-code-lang').text lang
       @$('.modal h3 .im-code-lang').text lang
@@ -96,9 +102,11 @@ define 'actions/code-gen', using 'html/code-gen', (HTML) ->
           blob = new Blob [code], type: 'application/xml;charset=utf8'
           saveAs blob, 'query.xml'
       else
-        saveBtn.attr href: query.getCodeURI lang
+        pq.then(invoke 'getCodeURI', lang).then (href) -> saveBtn.attr {href}
 
-      jQuery.when(code, ready).then (code) ->
+      @states.on 'error', console.error.bind(console)
+
+      jQuery.when(code, ready).fail((e) => @states.trigger 'error', e).then (code) ->
         formatted = prettyPrintOne(_.escape(code), ext)
         $m.find('pre').html formatted
         $m.modal 'show'
