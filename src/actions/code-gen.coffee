@@ -98,9 +98,10 @@ define 'actions/code-gen', using 'perma-query', 'html/code-gen', (getPermaQuery,
       saveBtn = @$('.modal .btn-save').removeClass('disabled').unbind('click').attr href: null
       if lang is 'xml'
         saveBtn.addClass 'disabled'
-        canSaveFromMemory().done -> saveBtn.removeClass('disabled').click ->
-          blob = new Blob [code], type: 'application/xml;charset=utf8'
-          saveAs blob, 'query.xml'
+        jQuery.when(code, canSaveFromMemory()).done (xml) ->
+          saveBtn.removeClass('disabled').click ->
+            blob = new Blob [xml], type: 'application/xml;charset=utf8'
+            saveAs blob, 'query.xml'
       else
         pq.then(invoke 'getCodeURI', lang).then (href) -> saveBtn.attr {href}
 

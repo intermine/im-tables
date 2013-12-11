@@ -7,7 +7,7 @@
  * Copyright 2012, 2013, Alex Kalderimis and InterMine
  * Released under the LGPL license.
  * 
- * Built at Tue Nov 26 2013 18:53:53 GMT+0000 (GMT)
+ * Built at Wed Dec 11 2013 13:03:16 GMT+0000 (GMT)
 */
 
 
@@ -781,21 +781,6 @@
     json: 'icon-json'
   });
 
-  scope('intermine.messages.cell', {
-    RelatedItems: "Related item counts:"
-  });
-
-  scope('intermine.messages.columns', {
-    FindColumnToAdd: 'Add a new Column',
-    OrderVerb: 'Add / Remove / Re-Arrange',
-    OrderTitle: 'Columns',
-    SortVerb: 'Configure',
-    SortTitle: 'Sort-Order',
-    OnlyColsInView: 'Only show columns in the table:',
-    SortingHelpTitle: 'What Columns Can I Sort by?',
-    SortingHelpContent: "A table can be sorted by any of the attributes of the objects\nwhich are in the output columns or constrained by a filter, so\nlong as they haven't been declared to be optional parts of the\nquery. So if you are displaying <span class=\"label path\">Gene > Name</span>\nand <span class=\"label path\">Gene > Exons > Symbol</span>, and also\n<span class=\"label path\">Gene > Proteins > Name</span> if the gene\nhas any proteins (ie. the proteins part of the query is optional), then\nyou can sort by any of the attributes attached to\n<span class=\"label path available\">Gene</span>\nor <span class=\"label path available\">Gene > Exons</span>,\nwhether or not you have selected them for output, but you could not sort by\nany of the attributes of <span class=\"label path available\">Gene > Proteins</span>,\nsince these items may not be present in the results."
-  });
-
   scope("intermine.messages.actions", {
     ListNameDuplicate: 'List names must be unique. This name is already taken',
     ListNameEmpty: 'Lists must have names. Please enter one',
@@ -869,6 +854,21 @@
     Gff3Options: 'GFF3 Specific Options',
     ChrPrefix: "Prefix \"chr\" to the chromosome identifier as per UCSC convention (eg: chr2)",
     ConfigureExportHelp: 'Configure the export options in these categories'
+  });
+
+  scope('intermine.messages.cell', {
+    RelatedItems: "Related item counts:"
+  });
+
+  scope('intermine.messages.columns', {
+    FindColumnToAdd: 'Add a new Column',
+    OrderVerb: 'Add / Remove / Re-Arrange',
+    OrderTitle: 'Columns',
+    SortVerb: 'Configure',
+    SortTitle: 'Sort-Order',
+    OnlyColsInView: 'Only show columns in the table:',
+    SortingHelpTitle: 'What Columns Can I Sort by?',
+    SortingHelpContent: "A table can be sorted by any of the attributes of the objects\nwhich are in the output columns or constrained by a filter, so\nlong as they haven't been declared to be optional parts of the\nquery. So if you are displaying <span class=\"label path\">Gene > Name</span>\nand <span class=\"label path\">Gene > Exons > Symbol</span>, and also\n<span class=\"label path\">Gene > Proteins > Name</span> if the gene\nhas any proteins (ie. the proteins part of the query is optional), then\nyou can sort by any of the attributes attached to\n<span class=\"label path available\">Gene</span>\nor <span class=\"label path available\">Gene > Exons</span>,\nwhether or not you have selected them for output, but you could not sort by\nany of the attributes of <span class=\"label path available\">Gene > Proteins</span>,\nsince these items may not be present in the results."
   });
 
   scope('intermine.messages.facets', {
@@ -1608,539 +1608,3365 @@
     });
   })();
 
-  (function() {
-    var PANE_HTML, Step, TAB_HTML, ToolBar, Tools, Trail, curry, _ref, _ref1, _ref2, _ref3;
+  reqs = ['actions', 'actions/list-manager', 'actions/code-gen', 'actions/export-manager'];
 
-    curry = intermine.funcutils.curry;
-    TAB_HTML = _.template("<li>\n    <a href=\"#<%= ref %>\" data-toggle=\"tab\">\n        <%= title %>\n    </a>\n</li>");
-    PANE_HTML = _.template("<div class=\"tab-pane\" id=\"<%= ref %>\"></div>");
-    Tools = (function(_super) {
-      __extends(Tools, _super);
+  define('actions/actionbar', using.apply(null, __slice.call(reqs).concat([function(Actions, Lists, CodeGen, Exports) {
+    var ActionBar, _ref;
 
-      function Tools() {
-        _ref = Tools.__super__.constructor.apply(this, arguments);
+    ActionBar = (function(_super) {
+      __extends(ActionBar, _super);
+
+      function ActionBar() {
+        _ref = ActionBar.__super__.constructor.apply(this, arguments);
         return _ref;
       }
 
-      Tools.prototype.className = "im-query-tools";
+      ActionBar.prototype.extraClass = "im-action";
 
-      Tools.prototype.initialize = function(states) {
-        this.states = states;
+      ActionBar.prototype.actionClasses = function() {
+        return [Lists, CodeGen, Exports];
       };
 
-      Tools.prototype.render = function() {
-        var $pane, actions, c, columns, conf, content, filters, tabs, view, _i, _j, _len, _len1;
+      return ActionBar;
 
-        tabs = this.make("ul", {
-          "class": "nav nav-tabs"
-        });
-        conf = [
-          filters = {
-            title: "Filters",
-            ref: "filters",
-            view: intermine.query.filters.Filters
-          }, columns = {
-            title: "Columns",
-            ref: "columns",
-            view: intermine.query.columns.Columns
-          }, actions = {
-            title: "Actions",
-            ref: "actions",
-            view: intermine.query.actions.Actions
-          }
-        ];
-        for (_i = 0, _len = conf.length; _i < _len; _i++) {
-          c = conf[_i];
-          $(tabs).append(TAB_HTML(c));
+    })(Actions);
+    scope("intermine.query.actions", {
+      ActionBar: ActionBar
+    });
+    return ActionBar;
+  }])));
+
+  define('actions/code-gen', using('perma-query', 'html/code-gen', function(getPermaQuery, HTML) {
+    var CODE_GEN_LANGS, CodeGenerator, alreadyDone, alreadyRejected, defer, get, indent, invoke, _ref, _ref1;
+
+    CODE_GEN_LANGS = [
+      {
+        name: "Perl",
+        extension: "pl"
+      }, {
+        name: "Python",
+        extension: "py"
+      }, {
+        name: "Ruby",
+        extension: "rb"
+      }, {
+        name: "Java",
+        extension: "java"
+      }, {
+        name: "JavaScript",
+        extension: "js"
+      }, {
+        name: "XML",
+        extension: "xml"
+      }
+    ];
+    indent = function(xml) {
+      var buffer, indentLevel, isClosing, isOneLiner, isOpening, line, lines, _i, _len;
+
+      lines = xml.split(/></);
+      indentLevel = 1;
+      buffer = [];
+      for (_i = 0, _len = lines.length; _i < _len; _i++) {
+        line = lines[_i];
+        if (!/>$/.test(line)) {
+          line = line + '>';
         }
-        this.$el.append(tabs);
-        content = this.make("div", {
-          "class": "tab-content"
-        });
-        for (_j = 0, _len1 = conf.length; _j < _len1; _j++) {
-          c = conf[_j];
-          $pane = $(PANE_HTML(c)).appendTo(content);
-          view = new c.view(this.query);
-          $pane.append(view.render().el);
+        if (!/^</.test(line)) {
+          line = '<' + line;
         }
-        $(content).find('.tab-pane').first().addClass("active");
-        $(tabs).find("a").first().tab('show');
-        this.$el.append(content);
-        return this;
-      };
+        isClosing = /^<\/\w+\s*>/.test(line);
+        isOneLiner = /\/>$/.test(line) || (!isClosing && /<\/\w+>$/.test(line));
+        isOpening = !(isOneLiner || isClosing);
+        if (isClosing) {
+          indentLevel--;
+        }
+        buffer.push(new Array(indentLevel).join('  ') + line);
+        if (isOpening) {
+          indentLevel++;
+        }
+      }
+      return buffer.join("\n");
+    };
+    _ref = intermine.funcutils, get = _ref.get, invoke = _ref.invoke;
+    defer = function(x) {
+      return jQuery.Deferred(function() {
+        return this.resolve(x);
+      });
+    };
+    alreadyDone = defer(true);
+    alreadyRejected = jQuery.Deferred(function() {
+      return this.reject('not available');
+    });
+    return CodeGenerator = (function(_super) {
+      var canSaveFromMemory;
 
-      return Tools;
+      __extends(CodeGenerator, _super);
 
-    })(Backbone.View);
-    ToolBar = (function(_super) {
-      __extends(ToolBar, _super);
-
-      function ToolBar() {
-        _ref1 = ToolBar.__super__.constructor.apply(this, arguments);
+      function CodeGenerator() {
+        this.expand = __bind(this.expand, this);
+        this.compact = __bind(this.compact, this);
+        this.doMainAction = __bind(this.doMainAction, this);
+        this.displayLang = __bind(this.displayLang, this);
+        this.showComments = __bind(this.showComments, this);
+        this.render = __bind(this.render, this);        _ref1 = CodeGenerator.__super__.constructor.apply(this, arguments);
         return _ref1;
       }
 
-      ToolBar.prototype.className = "im-query-actionbar";
+      CodeGenerator.prototype.tagName = "li";
 
-      ToolBar.prototype.initialize = function(states) {
+      CodeGenerator.prototype.className = "im-code-gen";
+
+      CodeGenerator.prototype.html = HTML({
+        langs: CODE_GEN_LANGS
+      });
+
+      CodeGenerator.prototype.initialize = function(states) {
+        this.states = states;
+        this.model = new Backbone.Model;
+        return this.model.on('set:lang', this.displayLang);
+      };
+
+      CodeGenerator.prototype.render = function() {
+        this.$el.append(this.html);
+        this.$('.modal').hide();
+        return this;
+      };
+
+      CodeGenerator.prototype.events = {
+        'click .im-show-comments': 'showComments',
+        'click .dropdown-menu a': 'setLang',
+        'click .btn-action': 'doMainAction'
+      };
+
+      CodeGenerator.prototype.showComments = function(e) {
+        if ($(e.target).is('.active')) {
+          return this.compact();
+        } else {
+          return this.expand();
+        }
+      };
+
+      CodeGenerator.prototype.setLang = function(e) {
+        var $t;
+
+        $t = $(e.target);
+        this.model.set({
+          lang: $t.data('lang') || this.model.get('lang')
+        }, {
+          silent: true
+        });
+        return this.model.trigger('set:lang');
+      };
+
+      canSaveFromMemory = function() {
+        if (typeof Blob === "undefined" || Blob === null) {
+          alreadyRejected;
+        }
+        if (typeof saveAs !== "undefined" && saveAs !== null) {
+          return alreadyDone;
+        } else {
+          return intermine.cdn.load('filesaver');
+        }
+      };
+
+      CodeGenerator.prototype.displayLang = function() {
+        var $m, code, ext, href, lang, pq, query, ready, saveBtn,
+          _this = this;
+
+        $m = this.$('.modal');
+        lang = this.model.get('lang');
+        query = this.states.currentQuery;
+        pq = getPermaQuery(query);
+        ext = lang === 'js' ? 'html' : lang;
+        href = lang === 'xml' ? '' : query.getCodeURI(lang);
+        ready = typeof prettyPrintOne !== "undefined" && prettyPrintOne !== null ? alreadyDone : intermine.cdn.load('prettify');
+        code = lang === 'xml' ? pq.then(invoke('toXML')).then(indent) : pq.then(invoke('fetchCode', lang));
+        this.$('a .im-code-lang').text(lang);
+        this.$('.modal h3 .im-code-lang').text(lang);
+        saveBtn = this.$('.modal .btn-save').removeClass('disabled').unbind('click').attr({
+          href: null
+        });
+        if (lang === 'xml') {
+          saveBtn.addClass('disabled');
+          jQuery.when(code, canSaveFromMemory()).done(function(xml) {
+            return saveBtn.removeClass('disabled').click(function() {
+              var blob;
+
+              blob = new Blob([xml], {
+                type: 'application/xml;charset=utf8'
+              });
+              return saveAs(blob, 'query.xml');
+            });
+          });
+        } else {
+          pq.then(invoke('getCodeURI', lang)).then(function(href) {
+            return saveBtn.attr({
+              href: href
+            });
+          });
+        }
+        this.states.on('error', console.error.bind(console));
+        return jQuery.when(code, ready).fail(function(e) {
+          return _this.states.trigger('error', e);
+        }).then(function(code) {
+          var formatted;
+
+          formatted = prettyPrintOne(_.escape(code), ext);
+          $m.find('pre').html(formatted);
+          return $m.modal('show');
+        });
+      };
+
+      CodeGenerator.prototype.doMainAction = function(e) {
+        if (this.model.has('lang')) {
+          return this.displayLang();
+        } else {
+          return $(e.target).next().dropdown('toggle');
+        }
+      };
+
+      CodeGenerator.prototype.compact = function() {
+        var $m;
+
+        $m = this.$('.modal');
+        $m.find('span.com').closest('li').slideUp();
+        return $m.find('.linenums li').filter(function() {
+          return $(this).text().replace(/\s+/g, "") === "";
+        }).slideUp();
+      };
+
+      CodeGenerator.prototype.expand = function() {
+        var $m;
+
+        $m = this.$('.modal');
+        return $m.find('linenums li').slideDown();
+      };
+
+      return CodeGenerator;
+
+    })(Backbone.View);
+  }));
+
+  define('actions/export-manager', function() {
+    var ExportManager, _ref;
+
+    return ExportManager = (function(_super) {
+      __extends(ExportManager, _super);
+
+      function ExportManager() {
+        _ref = ExportManager.__super__.constructor.apply(this, arguments);
+        return _ref;
+      }
+
+      ExportManager.prototype.tagName = 'li';
+
+      ExportManager.prototype.className = 'im-data-export';
+
+      ExportManager.prototype.initialize = function(states) {
+        this.states = states;
+        return ExportManager.__super__.initialize.call(this);
+      };
+
+      ExportManager.prototype.template = _.template("<a class=\"btn im-open-dialogue\">\n  <i class=\"" + intermine.icons.Export + "\"></i>\n  <span class=\"visible-desktop\">" + intermine.messages.actions.ExportButton + "</span>\n</a>");
+
+      ExportManager.prototype.events = function() {
+        return {
+          'click .im-open-dialogue': 'openDialogue'
+        };
+      };
+
+      ExportManager.prototype.openDialogue = function() {
+        var _ref1;
+
+        if ((_ref1 = this.dialogue) != null) {
+          _ref1.remove();
+        }
+        this.dialogue = new intermine.query["export"].ExportDialogue(this.states.currentQuery);
+        this.$el.append(this.dialogue.render().el);
+        return this.dialogue.show();
+      };
+
+      return ExportManager;
+
+    })(intermine.views.ItemView);
+  });
+
+  define('actions/list-append-dialogue', using('actions/list-dialogue', 'html/append-list', function(ListDialogue, HTML) {
+    var ListAppender, OPTION_TEMPLATE, makeOption, _ref;
+
+    OPTION_TEMPLATE = _.template("<option value=\"<%- name %>\">\n  <%- name %> (<%= size %> <%- things %>)\n</option>");
+    makeOption = function(list) {
+      return OPTION_TEMPLATE(_.extend({}, list, {
+        things: intermine.utils.pluralise(list.type, list.size)
+      }));
+    };
+    ListAppender = (function(_super) {
+      __extends(ListAppender, _super);
+
+      function ListAppender() {
+        _ref = ListAppender.__super__.constructor.apply(this, arguments);
+        return _ref;
+      }
+
+      ListAppender.prototype.html = HTML;
+
+      ListAppender.prototype.events = function() {
+        return _.extend(ListAppender.__super__.events.call(this), {
+          'change select': 'setTarget'
+        });
+      };
+
+      ListAppender.prototype.setTarget = function() {
+        var l, name;
+
+        name = this.$('select').val();
+        return this.listOptions.set({
+          list: ((function() {
+            var _i, _len, _ref1, _results;
+
+            _ref1 = this.__ls;
+            _results = [];
+            for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+              l = _ref1[_i];
+              if (name === l.name) {
+                _results.push(l);
+              }
+            }
+            return _results;
+          }).call(this))[0]
+        });
+      };
+
+      ListAppender.prototype.displayType = function() {
+        var estSize, type, _ref1;
+
+        _ref1 = this.listOptions.toJSON(), estSize = _ref1.estSize, type = _ref1.type;
+        return this.$('.im-item-type').text(intermine.utils.pluralise(type, estSize));
+      };
+
+      ListAppender.prototype.initialize = function() {
+        var _this = this;
+
+        ListAppender.__super__.initialize.apply(this, arguments);
+        this.listOptions.on('change:estSize', function(opts, n) {
+          return _this.$('.im-item-count').text(n);
+        });
+        this.listOptions.on('change:type', this.displayType, this);
+        return this.listOptions.on('change:type', this.onlyShowCompatibleOptions, this);
+      };
+
+      ListAppender.prototype.nothingSelected = function() {
+        var _this = this;
+
+        ListAppender.__super__.nothingSelected.call(this);
+        return this.$('form select option').each(function(i, elem) {
+          return $(elem).attr({
+            disabled: false
+          });
+        });
+      };
+
+      ListAppender.prototype.getSuitabilityFilter = function() {
+        var model, pi, type;
+
+        model = this.query.model;
+        type = this.listOptions.toJSON().type;
+        pi = model.getPathInfo(type);
+        return function(list) {
+          return list.authorized && pi.isa(list.type);
+        };
+      };
+
+      ListAppender.prototype.onlyShowCompatibleOptions = function() {
+        var list, select, service, type, _ref1,
+          _this = this;
+
+        _ref1 = this.listOptions.toJSON(), list = _ref1.list, type = _ref1.type;
+        service = this.query.service;
+        select = this.$('form select');
+        select.empty();
+        return service.fetchLists().done(function(ls) {
+          var l, opt, suitable, _i, _len;
+
+          _this.__ls = ls;
+          suitable = ls.filter(_this.getSuitabilityFilter());
+          for (_i = 0, _len = suitable.length; _i < _len; _i++) {
+            l = suitable[_i];
+            opt = $(makeOption(l));
+            select.append(opt);
+          }
+          if (list) {
+            select.val(list.name);
+          } else {
+            _this.listOptions.set({
+              list: suitable[0]
+            });
+          }
+          _this.$('.btn-primary').attr({
+            disabled: suitable.length < 1
+          });
+          return _this.$('.im-none-compatible-error').toggle(suitable.length < 1);
+        });
+      };
+
+      ListAppender.prototype.doAppend = function() {
+        var ids, list, listQ, query, service, _ref1;
+
+        ids = _.keys(this.types);
+        _ref1 = this.listOptions.toJSON(), query = _ref1.query, list = _ref1.list;
+        service = this.query.service;
+        listQ = query || {
+          select: ["id"],
+          from: list.type,
+          where: {
+            id: ids
+          }
+        };
+        return service.query(listQ).then(function(q) {
+          return q.appendToList(list.name);
+        });
+      };
+
+      ListAppender.prototype.create = function() {
+        var backToNormal, cg, ilh, promise,
+          _this = this;
+
+        if (!this.listOptions.has('list')) {
+          cg = this.$('.im-receiving-list').closest('.control-group').addClass('error');
+          ilh = this.$('.help-inline').text("No receiving list selected").show();
+          backToNormal = function() {
+            return ilh.fadeOut(1000, function() {
+              ilh.text("");
+              return cg.removeClass("error");
+            });
+          };
+          _.delay(backToNormal, 5000);
+          return false;
+        }
+        promise = this.doAppend();
+        promise.done(function(updated) {
+          var added;
+
+          added = updated.size - _this.listOptions.get('list').size;
+          _this.query.trigger("list-update:success", updated, added);
+          return _this.stop();
+        });
+        return promise.fail(function(xhr, level, message) {
+          var e, err;
+
+          err = (function() {
+            try {
+              return JSON.parse(xhr.responseText).error;
+            } catch (_error) {
+              e = _error;
+              return message;
+            }
+          })();
+          return _this.query.trigger("list-update:failure", err);
+        });
+      };
+
+      ListAppender.prototype.render = function() {
+        ListAppender.__super__.render.call(this);
+        return this;
+      };
+
+      ListAppender.prototype.startPicking = function() {
+        ListAppender.__super__.startPicking.call(this);
+        return this.$('.im-none-compatible-error').hide();
+      };
+
+      return ListAppender;
+
+    })(ListDialogue);
+    scope('intermine.actions.lists', {
+      ListAppender: ListAppender
+    });
+    return ListAppender;
+  }));
+
+  define('actions/list-dialogue', function() {
+    var ListDialogue, _ref;
+
+    return ListDialogue = (function(_super) {
+      __extends(ListDialogue, _super);
+
+      function ListDialogue() {
+        _ref = ListDialogue.__super__.constructor.apply(this, arguments);
+        return _ref;
+      }
+
+      ListDialogue.prototype.tagName = "li";
+
+      ListDialogue.prototype.className = "im-list-dialogue dropdown";
+
+      ListDialogue.prototype.usingDefaultName = true;
+
+      ListDialogue.prototype.initialize = function(query) {
+        var opts,
+          _this = this;
+
+        this.query = query;
+        this.listOptions = opts = new Backbone.Model;
+        this.types = {};
+        this.query.on("imo:selected", function(type, id, selected) {
+          var commonType, m, types;
+
+          if (_this.listOptions == null) {
+            return;
+          }
+          if (selected) {
+            _this.types[id] = type;
+          } else {
+            delete _this.types[id];
+          }
+          types = _.values(_this.types);
+          opts.set({
+            estSize: types.length
+          });
+          if (types.length > 0) {
+            m = _this.query.model;
+            commonType = m.findCommonTypeOfMultipleClasses(types);
+            return opts.set({
+              type: commonType
+            });
+          }
+        });
+        opts.on('change:query', function(_, q) {
+          return q.count(function(n) {
+            return opts.set({
+              estSize: n
+            });
+          });
+        });
+        opts.on('change:query', function() {
+          return _this.$('.modal').modal('show').find('form').show();
+        });
+        opts.on('change:name', this.updateNameDisplay, this);
+        opts.on('change:name', this.checkName, this);
+        opts.on('change:type', this.newCommonType, this);
+        return opts.on('change:estSize', this.bindEstSize, this);
+      };
+
+      ListDialogue.prototype.updateNameDisplay = function() {
+        console.log("Updating name to " + (this.listOptions.get('name')));
+        return this.$('.im-list-name').val(this.listOptions.get('name'));
+      };
+
+      ListDialogue.prototype.remove = function() {
+        var thing, _i, _len, _ref1;
+
+        _ref1 = ['listOptions'];
+        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+          thing = _ref1[_i];
+          this[thing].off();
+          delete this[thing];
+        }
+        return ListDialogue.__super__.remove.call(this);
+      };
+
+      ListDialogue.prototype.bindEstSize = function() {
+        var estSize, hasSelectedItems;
+
+        estSize = this.listOptions.get('estSize');
+        hasSelectedItems = estSize > 0;
+        this.$('.btn-primary').attr({
+          disabled: !hasSelectedItems
+        });
+        this.$('.im-selection-instruction').hide();
+        this.$('form').show();
+        this.$el.addClass('im-picked');
+        if (!hasSelectedItems) {
+          return this.nothingSelected();
+        }
+      };
+
+      ListDialogue.prototype.newCommonType = function() {
+        return this.query.trigger("common:type:selected", this.listOptions.get('type'));
+      };
+
+      ListDialogue.prototype.nothingSelected = function() {
+        this.$('.im-selection-instruction').slideDown();
+        this.$('form').hide();
+        this.$el.removeClass('im-picked');
+        return this.query.trigger("selection:cleared");
+      };
+
+      ListDialogue.prototype.events = function() {
+        return {
+          'hidden': 'onHidden',
+          'change .im-list-name': 'listNameChanged',
+          'submit form': 'ignore',
+          'click form': 'ignore',
+          'click .btn-cancel': 'stop',
+          'click .btn-primary': 'create',
+          'click .im-minimise': 'minimise'
+        };
+      };
+
+      ListDialogue.prototype.minimise = function() {
+        this.$('.control-group').slice(1).slideToggle();
+        return this.$('.im-minimise').toggleClass('im-collapsed');
+      };
+
+      ListDialogue.prototype.onHidden = function(e) {
+        if (e && $(e.target).is('.modal')) {
+          return this.remove();
+        }
+      };
+
+      ListDialogue.prototype.startPicking = function() {
+        var headAndFoot, m;
+
+        this.$('.modal').addClass('im-picking-list-items');
+        headAndFoot = this.$('.modal-header').add('.modal-footer', this.el).addClass('im-handle');
+        this.query.trigger("start:list-creation");
+        this.nothingSelected();
+        m = this.$('.modal').show(function() {
+          return $(this).addClass("in").draggable({
+            handle: ".im-handle"
+          });
+        });
+        return headAndFoot.css({
+          cursor: "move"
+        }).tooltip({
+          title: "Drag me around!",
+          placement: 'bottom'
+        });
+      };
+
+      ListDialogue.prototype.stop = function(e) {
+        var modal;
+
+        this.query.trigger("stop:list-creation");
+        modal = this.$('.modal');
+        if (modal.is('.ui-draggable')) {
+          return this.remove();
+        } else {
+          return modal.modal('hide');
+        }
+      };
+
+      ListDialogue.prototype.ignore = function(e) {
+        e.preventDefault();
+        return e.stopPropagation();
+      };
+
+      ListDialogue.prototype.listNameChanged = function(e) {
+        return this.listOptions.set({
+          customName: true,
+          name: $(e.target).val()
+        });
+      };
+
+      ListDialogue.prototype.getLists = function() {
+        var now;
+
+        now = new Date().getTime();
+        if (!this.listPromise || this.listPromise.made_at < now - intermine.options.ListFreshness) {
+          this.listPromise = this.query.service.fetchLists();
+          this.listPromise.made_at = now;
+        }
+        return this.listPromise;
+      };
+
+      ListDialogue.prototype.checkName = function() {
+        var message, selector,
+          _this = this;
+
+        selector = '.im-list-name';
+        message = intermine.messages.actions.ListNameDuplicate;
+        this.clearError(selector);
+        return this.getLists().done(function(ls) {
+          var chosen, isDup;
+
+          chosen = _this.listOptions.get('name');
+          isDup = _.any(ls, function(l) {
+            return l.authorized && l.name === chosen;
+          });
+          if (isDup) {
+            return _this.setError(selector, message);
+          }
+        });
+      };
+
+      ListDialogue.prototype.setError = function(selector, message) {
+        var $input;
+
+        $input = this.$(selector);
+        $input.next().text(message);
+        return $input.parent().addClass('error');
+      };
+
+      ListDialogue.prototype.clearError = function(selector) {
+        var $input;
+
+        $input = this.$(selector);
+        $input.next().text('');
+        return $input.parent().removeClass('error');
+      };
+
+      ListDialogue.prototype.create = function() {
+        throw new Error("Override me!");
+      };
+
+      ListDialogue.prototype.openDialogue = function(type, q) {
+        if (type == null) {
+          type = this.query.root;
+        }
+        if (q == null) {
+          q = this.query.clone();
+        }
+        return this.listOptions.set({
+          query: q,
+          type: type
+        });
+      };
+
+      ListDialogue.prototype.render = function() {
+        this.$el.append(this.html);
+        this.$('.modal').modal({
+          show: false
+        });
+        return this;
+      };
+
+      return ListDialogue;
+
+    })(Backbone.View);
+  });
+
+  define('actions/list-manager', using('actions/list-append-dialogue', 'actions/new-list-dialogue', function(ListAppender, ListCreator) {
+    var ListManager, _ref;
+
+    return ListManager = (function(_super) {
+      var descendedFrom, pathOf;
+
+      __extends(ListManager, _super);
+
+      function ListManager() {
+        this.updateTypeOptions = __bind(this.updateTypeOptions, this);
+        this.changeAction = __bind(this.changeAction, this);        _ref = ListManager.__super__.constructor.apply(this, arguments);
+        return _ref;
+      }
+
+      ListManager.prototype.tagName = "li";
+
+      ListManager.prototype.className = "im-list-management dropdown";
+
+      ListManager.prototype.initialize = function(states) {
+        this.states = states;
+        this.states.on('add reverted', this.updateTypeOptions);
+        this.action = ListManager.actions.create;
+        return this.disabled = this.states.currentQuery.service.token == null;
+      };
+
+      ListManager.prototype.html = "<a class=\"btn\" data-toggle=\"dropdown\">\n    <i class=\"icon-list-alt\"></i>\n    <span class=\"im-only-widescreen\">Create / Add to</span>\n    List\n    <b class=\"caret\"></b>\n</a>\n<ul class=\"dropdown-menu im-type-options pull-right\">\n    <div class=\"btn-group\" data-toggle=\"buttons-radio\">\n        <button class=\"btn active im-list-action-chooser\" data-action=\"create\">\n            Create New List\n        </button>\n        <button class=\"btn im-list-action-chooser\" data-action=\"append\">\n            Add to Existing List\n        </button>\n    </div>\n</ul>";
+
+      ListManager.prototype.events = {
+        'click .btn-group > .im-list-action-chooser': 'changeAction',
+        'click .im-pick-and-choose': 'startPicking'
+      };
+
+      ListManager.actions = {
+        create: ListCreator,
+        append: ListAppender
+      };
+
+      ListManager.prototype.changeAction = function(e) {
+        var $t;
+
+        e.stopPropagation();
+        e.preventDefault();
+        $t = $(e.target).button("toggle");
+        return this.action = ListManager.actions[$t.data('action')];
+      };
+
+      ListManager.prototype.openDialogue = function(type, q) {
+        var dialog;
+
+        dialog = new this.action(this.states.currentQuery);
+        dialog.render().$el.appendTo(this.el);
+        return dialog.openDialogue(type, q);
+      };
+
+      ListManager.prototype.startPicking = function() {
+        var dialog;
+
+        dialog = new this.action(this.states.currentQuery);
+        dialog.render().$el.appendTo(this.el);
+        return dialog.startPicking();
+      };
+
+      descendedFrom = function(putativeParent) {
+        var prefix;
+
+        if (putativeParent.isAttribute()) {
+          return function() {
+            return false;
+          };
+        } else {
+          prefix = putativeParent + '.';
+          return function(suspectedChild) {
+            return suspectedChild.substring(0, prefix.length) === prefix;
+          };
+        }
+      };
+
+      pathOf = intermine.funcutils.get('path');
+
+      ListManager.prototype.updateTypeOptions = function() {
+        var node, query, ul, viewNodes, _fn, _i, _len,
+          _this = this;
+
+        ul = this.$('.im-type-options');
+        ul.find("li").remove();
+        query = this.states.currentQuery;
+        viewNodes = query.getViewNodes();
+        _fn = function(node) {
+          var countQuery, err, inCons, li, missingNode, needsAsserting, unselected, _j, _len1;
+
+          li = $("<li></li>");
+          ul.append(li);
+          countQuery = query.clone();
+          try {
+            countQuery.select([node.append("id").toPathString()]);
+          } catch (_error) {
+            err = _error;
+            console.error(err);
+            return;
+          }
+          if (query.isOuterJoined(countQuery.views[0])) {
+            (function(path) {
+              var style, _results;
+
+              style = 'INNER';
+              _results = [];
+              while (!path.isRoot()) {
+                countQuery.addJoin({
+                  path: path,
+                  style: style
+                });
+                _results.push(path = path.getParent());
+              }
+              return _results;
+            })(node);
+          }
+          unselected = viewNodes.filter(function(n) {
+            return n !== node;
+          });
+          for (_j = 0, _len1 = unselected.length; _j < _len1; _j++) {
+            missingNode = unselected[_j];
+            inCons = _.any(countQuery.constraints, _.compose(descendedFrom(missingNode), pathOf));
+            needsAsserting = (!inCons) || (query.isOuterJoined(missingNode));
+            if (needsAsserting) {
+              countQuery.addConstraint([missingNode.append("id"), "IS NOT NULL"]);
+            }
+          }
+          countQuery.orderBy([]);
+          li.click(function() {
+            return _this.openDialogue(node.getType().name, countQuery);
+          });
+          li.mouseover(function() {
+            return query.trigger("start:highlight:node", node);
+          });
+          li.mouseout(function() {
+            return query.trigger("stop:highlight");
+          });
+          return countQuery.count().then(function(n) {
+            var quantifier, typeName;
+
+            if (n < 1) {
+              return li.remove();
+            }
+            quantifier = (function() {
+              switch (n) {
+                case 1:
+                  return "The";
+                case 2:
+                  return "Both";
+                default:
+                  return "All " + n;
+              }
+            })();
+            typeName = intermine.utils.pluralise(node.getType().name, n);
+            return li.append("<a>" + quantifier + " " + typeName + "</a>");
+          });
+        };
+        for (_i = 0, _len = viewNodes.length; _i < _len; _i++) {
+          node = viewNodes[_i];
+          _fn(node);
+        }
+        return ul.append("<li class=\"im-pick-and-choose\">\n    <a>Choose individual items from the table</a>\n</li>");
+      };
+
+      ListManager.prototype.render = function() {
+        this.$el.append(this.html);
+        this.updateTypeOptions();
+        return this;
+      };
+
+      return ListManager;
+
+    })(Backbone.View);
+  }));
+
+  define('actions/new-list-dialogue', using('actions/list-dialogue', 'models/uniq-items', 'html/new-list', function(ListDialogue, UniqItems, HTML) {
+    var CATEGORY_FROM_ROWS, CATEGORY_FROM_SUMMARY, ILLEGAL_LIST_NAME_CHARS, ListCreator, _ref;
+
+    ILLEGAL_LIST_NAME_CHARS = /[^\w\s\(\):+\.-]/g;
+    CATEGORY_FROM_SUMMARY = function(items, _arg) {
+      var uniqueValues;
+
+      uniqueValues = _arg.uniqueValues;
+      return [uniqueValues, items, 'item'];
+    };
+    CATEGORY_FROM_ROWS = function(rows) {
+      return [rows.length, rows, 0];
+    };
+    ListCreator = (function(_super) {
+      var TAG_ILLEGALS;
+
+      __extends(ListCreator, _super);
+
+      function ListCreator() {
+        this.updateTagBox = __bind(this.updateTagBox, this);
+        this.handleFailure = __bind(this.handleFailure, this);
+        this.handleSuccess = __bind(this.handleSuccess, this);        _ref = ListCreator.__super__.constructor.apply(this, arguments);
+        return _ref;
+      }
+
+      ListCreator.prototype.html = HTML;
+
+      ListCreator.prototype.initialize = function(query) {
+        var _this = this;
+
+        this.query = query;
+        ListCreator.__super__.initialize.call(this, this.query);
+        this.query.service.whoami(function(me) {
+          _this.canTag = me.username != null;
+          if (_this.rendered && !_this.canTag) {
+            return _this.hideTagOptions();
+          }
+        });
+        this.tags = new UniqItems();
+        this.suggestedTags = new UniqItems();
+        this.tags.on("add", this.updateTagBox);
+        this.suggestedTags.on("add", this.updateTagBox);
+        this.tags.on("remove", this.updateTagBox);
+        return this.initTags();
+      };
+
+      ListCreator.prototype.hideTagOptions = function() {
+        return this.$('.im-tag-options').hide();
+      };
+
+      ListCreator.prototype.newCommonType = function() {
+        var categoriser, cd, dateStr, first, ids, model, now, oq, querying, rest, service, summPath, text, type, viewNode, _i, _len, _ref1, _ref2, _ref3,
+          _this = this;
+
+        ListCreator.__super__.newCommonType.call(this);
+        if (this.listOptions.get('customName')) {
+          return;
+        }
+        type = this.listOptions.get('type');
+        _ref1 = this.query, service = _ref1.service, model = _ref1.model;
+        now = new Date();
+        dateStr = ("" + now).replace(/\s\d\d:\d\d:\d\d\s.*$/, '');
+        text = "" + type + " list - " + dateStr;
+        cd = model.classes[type];
+        ids = _.keys(this.types);
+        this.listOptions.set({
+          name: text,
+          customName: false
+        });
+        _ref2 = intermine.options.ListCategorisers;
+        for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
+          categoriser = _ref2[_i];
+          _ref3 = categoriser.split(/\./), first = _ref3[0], rest = 2 <= _ref3.length ? __slice.call(_ref3, 1) : [];
+          if (first in cd.fields) {
+            if (ids != null ? ids.length : void 0) {
+              oq = {
+                select: categoriser,
+                from: type,
+                where: {
+                  id: ids
+                }
+              };
+              querying = service.rows(oq).then(CATEGORY_FROM_ROWS);
+            } else {
+              oq = (this.listOptions.get('query') || this.query).clone();
+              viewNode = oq.getViewNodes()[0];
+              summPath = "" + viewNode + "." + categoriser;
+              if (first in viewNode.getType().fields) {
+                querying = oq.summarise(summPath, 1).then(CATEGORY_FROM_SUMMARY);
+              }
+            }
+            querying.done(function(_arg) {
+              var category, key, n, name, xs;
+
+              n = _arg[0], xs = _arg[1], key = _arg[2];
+              if (n === 1) {
+                category = xs[0][key];
+                name = "" + type + " list for " + category + " - " + dateStr;
+                return _this.listOptions.set({
+                  name: name,
+                  customName: false
+                });
+              }
+            });
+            querying.always(function() {
+              return _this.avoidNameDuplication();
+            });
+            return;
+          }
+        }
+        return this.avoidNameDuplication();
+      };
+
+      ListCreator.prototype.avoidNameDuplication = function() {
+        var copyNo, model, service, text, textBase, _ref1,
+          _this = this;
+
+        text = textBase = this.listOptions.get('name');
+        copyNo = 1;
+        _ref1 = this.query, service = _ref1.service, model = _ref1.model;
+        return this.getLists().done(function(ls) {
+          var l, _i, _len, _ref2, _results;
+
+          _ref2 = _.sortBy(ls, function(l) {
+            return l.name;
+          });
+          _results = [];
+          for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
+            l = _ref2[_i];
+            if (l.name === text) {
+              text = "" + textBase + " (" + (copyNo++) + ")";
+              _results.push(_this.listOptions.set({
+                name: text,
+                customName: false
+              }));
+            } else {
+              _results.push(void 0);
+            }
+          }
+          return _results;
+        });
+      };
+
+      ListCreator.prototype.openDialogue = function(type, q) {
+        ListCreator.__super__.openDialogue.call(this, type, q);
+        return this.initTags();
+      };
+
+      TAG_ILLEGALS = /[^\w\d\s.,:-]/g;
+
+      ListCreator.prototype.initTags = function() {
+        var add, c, now, _fn, _i, _len, _ref1,
+          _this = this;
+
+        this.tags.reset();
+        this.suggestedTags.reset();
+        add = function(tag) {
+          return _this.suggestedTags.add(tag.replace(TAG_ILLEGALS, ' '), {
+            silent: true
+          });
+        };
+        _ref1 = this.query.constraints;
+        _fn = function(c) {
+          var title;
+
+          title = c.title || c.path.replace(/^[^\.]+\./, "");
+          if (c.op === "IN") {
+            return add("source: " + c.value);
+          } else if (c.op === "=") {
+            return add("" + title + ": " + c.value);
+          } else if (c.op === "<") {
+            return add("" + title + " below " + c.value);
+          } else if (c.op === ">") {
+            return add("" + title + " above " + c.value);
+          } else if (c.type) {
+            return add("" + title + " is a " + c.type);
+          } else {
+            return add("" + title + " " + c.op + " " + (c.value || c.values));
+          }
+        };
+        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+          c = _ref1[_i];
+          _fn(c);
+        }
+        now = new Date();
+        add("month: " + (now.getFullYear()) + "-" + (now.getMonth() + 1));
+        add("year: " + (now.getFullYear()));
+        add("day: " + (now.getFullYear()) + "-" + (now.getMonth() + 1) + "-" + (now.getDate()));
+        return this.updateTagBox();
+      };
+
+      ListCreator.prototype.events = function() {
+        return _.extend(ListCreator.__super__.events.call(this), {
+          'click .remove-tag': 'removeTag',
+          'click .accept-tag': 'acceptTag',
+          'click .im-confirm-tag': 'addTag',
+          'click .btn-reset': 'reset',
+          'click .control-group h5': 'rollUpNext',
+          'change .im-list-desc': 'updateDesc'
+        });
+      };
+
+      ListCreator.prototype.updateDesc = function(e) {
+        return this.listOptions.set({
+          description: $(e.target).val()
+        });
+      };
+
+      ListCreator.prototype.rollUpNext = function(e) {
+        $(e.target).next().slideToggle();
+        return $(e.target).find("i").toggleClass("icon-chevron-right icon-chevron-down");
+      };
+
+      ListCreator.prototype.reset = function() {
+        var field, _i, _len, _ref1;
+
+        _ref1 = ["name", "desc", "type"];
+        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+          field = _ref1[_i];
+          this.$(".im-list-" + field).val("");
+        }
+        return this.initTags();
+      };
+
+      ListCreator.prototype.create = function() {
+        var description, illegals, listQ, name, opts, query, tags, type, _ref1;
+
+        _ref1 = this.listOptions.toJSON(), query = _ref1.query, name = _ref1.name, type = _ref1.type, description = _ref1.description;
+        tags = this.tags.map(function(t) {
+          return t.get("item");
+        });
+        if (!(name && /\w/.test(name))) {
+          return this.setError('.im-list-name', intermine.messages.actions.ListNameEmpty);
+        }
+        if (illegals = name.match(ILLEGAL_LIST_NAME_CHARS)) {
+          return this.setError('.im-list-name', intermine.messages.actions.ListNameIllegal({
+            illegals: illegals
+          }));
+        }
+        listQ = query || {
+          select: ["id"],
+          from: type,
+          where: {
+            id: _(this.types).keys()
+          }
+        };
+        opts = {
+          name: name,
+          description: description,
+          tags: tags
+        };
+        return this.makeNewList(listQ, opts);
+      };
+
+      ListCreator.prototype.makeNewList = function(query, opts) {
+        var saving,
+          _this = this;
+
+        if (query.saveAsList != null) {
+          saving = query.saveAsList(opts);
+          saving.done(this.handleSuccess);
+          saving.fail(this.handleFailure);
+          return this.stop();
+        } else {
+          return this.query.service.query(query, function(q) {
+            return _this.makeNewList(q, opts);
+          });
+        }
+      };
+
+      ListCreator.prototype.handleSuccess = function(list) {
+        console.log("Created a list", list);
+        return this.query.trigger("list-creation:success", list);
+      };
+
+      ListCreator.prototype.handleFailure = function(xhr, level, message) {
+        if (xhr.responseText) {
+          message = (JSON.parse(xhr.responseText)).error;
+        }
+        return this.query.trigger("list-creation:failure", message);
+      };
+
+      ListCreator.prototype.removeTag = function(e) {
+        var tag;
+
+        tag = $(e.target).closest('.label').find('.tag-text').text();
+        this.tags.remove(tag);
+        this.suggestedTags.add(tag);
+        return $('.tooltip').remove();
+      };
+
+      ListCreator.prototype.acceptTag = function(e) {
+        var tag;
+
+        console.log("Accepting", e);
+        tag = $(e.target).closest('.label').find('.tag-text').text();
+        $('.tooltip').remove();
+        this.suggestedTags.remove(tag);
+        return this.tags.add(tag);
+      };
+
+      ListCreator.prototype.updateTagBox = function() {
+        var box;
+
+        box = this.$('.im-list-tags.choices');
+        box.empty();
+        this.tags.each(function(t) {
+          var $li;
+
+          $li = $("<li title=\"" + (t.escape("item")) + "\">\n    <span class=\"label label-warning\">\n        <i class=\"icon-tag icon-white\"></i>\n        <span class=\"tag-text\">" + (t.escape("item")) + "</span>\n        <a href=\"#\">\n            <i class=\"icon-remove-circle icon-white remove-tag\"></i>\n        </a>\n    </span>\n</li>");
+          return $li.tooltip({
+            placement: "top"
+          }).appendTo(box);
+        });
+        box.append("<div style=\"clear:both\"></div>");
+        box = this.$('.im-list-tags.suggestions');
+        box.empty();
+        this.suggestedTags.each(function(t) {
+          var $li;
+
+          $li = $("<li title=\"This tag is a suggestion. Click the 'ok' sign to add it\">\n    <span class=\"label\">\n        <i class=\"icon-tag icon-white\"></i>\n        <span class=\"tag-text\">" + (t.escape("item")) + "</span>\n        <a href=\"#\" class=\"accept-tag\">\n            <i class=\"icon-ok-circle icon-white\"></i>\n        </a>\n    </span>\n</li>");
+          return $li.tooltip({
+            placement: "top"
+          }).appendTo(box);
+        });
+        return box.append("<div style=\"clear:both\"></div>");
+      };
+
+      ListCreator.prototype.addTag = function(e) {
+        var tagAdder;
+
+        e.preventDefault();
+        tagAdder = this.$('.im-available-tags');
+        this.tags.add(tagAdder.val());
+        tagAdder.val("");
+        return tagAdder.next().attr({
+          disabled: true
+        });
+      };
+
+      ListCreator.prototype.rendered = false;
+
+      ListCreator.prototype.render = function() {
+        var tagAdder,
+          _this = this;
+
+        ListCreator.__super__.render.call(this);
+        this.updateTagBox();
+        tagAdder = this.$('.im-available-tags');
+        this.$('a').button();
+        this.getLists().done(function(ls) {
+          return tagAdder.typeahead({
+            source: _.reduce(ls, (function(a, l) {
+              return _.union(a, l.tags);
+            }), []),
+            items: 10,
+            matcher: function(item) {
+              if (!this.query) {
+                return true;
+              }
+              return this.constructor.prototype.matcher.call(this, item);
+            }
+          });
+        });
+        tagAdder.keyup(function(e) {
+          _this.$('.im-confirm-tag').attr("disabled", false);
+          if (e.which === 13) {
+            return _this.addTag(e);
+          }
+        });
+        if ((this.canTag != null) && !this.canTag) {
+          this.hideTagOptions();
+        }
+        this.rendered = true;
+        return this;
+      };
+
+      return ListCreator;
+
+    })(ListDialogue);
+    scope('intermine.query.actions', {
+      ListCreator: ListCreator
+    });
+    scope('intermine.actions.lists', {
+      ListCreator: ListCreator
+    });
+    return ListCreator;
+  }));
+
+  define('actions', using('actions/list-manager', 'actions/code-gen', function(ListManager, CodeGenerator) {
+    var Actions, _ref;
+
+    Actions = (function(_super) {
+      __extends(Actions, _super);
+
+      function Actions() {
+        _ref = Actions.__super__.constructor.apply(this, arguments);
+        return _ref;
+      }
+
+      Actions.prototype.className = "im-query-actions row-fluid";
+
+      Actions.prototype.tagName = "ul";
+
+      Actions.prototype.initialize = function(states) {
         this.states = states;
       };
 
-      ToolBar.prototype.render = function() {
-        var actions, e;
+      Actions.prototype.actionClasses = function() {
+        return [ListManager, CodeGenerator];
+      };
 
-        actions = new intermine.query.actions.ActionBar(this.states);
-        try {
-          actions.render().$el.appendTo(this.el);
-        } catch (_error) {
-          e = _error;
-          console.error("Failed to set up toolbar because: " + e.message, e.stack);
+      Actions.prototype.extraClass = "im-action";
+
+      Actions.prototype.render = function() {
+        var action, cls, _i, _len, _ref1;
+
+        _ref1 = this.actionClasses();
+        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+          cls = _ref1[_i];
+          action = new cls(this.states);
+          if (!action.disabled) {
+            action.render().$el.addClass(this.extraClass).appendTo(this.el);
+          }
         }
         return this;
       };
 
-      return ToolBar;
+      return Actions;
 
     })(Backbone.View);
-    Step = (function(_super) {
-      var cell, nts, toInfoLabel, toLabel, toPathLabel, toValLabel;
+    scope("intermine.query.actions", {
+      Actions: Actions
+    });
+    return Actions;
+  }));
 
-      __extends(Step, _super);
+  (function() {
+    var PossibleColumns, _ref;
 
-      function Step() {
-        _ref2 = Step.__super__.constructor.apply(this, arguments);
+    PossibleColumns = (function(_super) {
+      __extends(PossibleColumns, _super);
+
+      function PossibleColumns() {
+        _ref = PossibleColumns.__super__.constructor.apply(this, arguments);
+        return _ref;
+      }
+
+      PossibleColumns.prototype.initialize = function(_, _arg) {
+        var _this = this;
+
+        this.exported = _arg.exported;
+        return this.on('close', function() {
+          return _this.each(function(m) {
+            return m.destroy();
+          });
+        });
+      };
+
+      return PossibleColumns;
+
+    })(Backbone.Collection);
+    return scope('intermine.columns.models', {
+      PossibleColumns: PossibleColumns
+    });
+  })();
+
+  scope('intermine.messages.results', {
+    ReorderHelp: 'Drag the columns to reorder them'
+  });
+
+  scope('intermine.messages.columns', {
+    AllowRevRef: 'Allow reverse references',
+    CollapseAll: 'Collapse all branches'
+  });
+
+  (function() {
+    var ColumnAdder, ColumnsDialogue, NewViewNodes, Tab, ViewNode, byEl, _ref, _ref1, _ref2, _ref3;
+
+    byEl = function(el) {
+      return function(nv) {
+        return nv.el === el;
+      };
+    };
+    Tab = intermine.bootstrap.Tab;
+    ColumnAdder = (function(_super) {
+      __extends(ColumnAdder, _super);
+
+      function ColumnAdder() {
+        this.isDisabled = __bind(this.isDisabled, this);
+        this.handleSubmission = __bind(this.handleSubmission, this);
+        this.handleChoice = __bind(this.handleChoice, this);        _ref = ColumnAdder.__super__.constructor.apply(this, arguments);
+        return _ref;
+      }
+
+      ColumnAdder.prototype.className = "form node-adder form-horizontal";
+
+      ColumnAdder.prototype.initialize = function(query, newView) {
+        this.newView = newView;
+        ColumnAdder.__super__.initialize.call(this, query);
+        return this.chosen = [];
+      };
+
+      ColumnAdder.prototype.handleChoice = function(path) {
+        var $b;
+
+        if (__indexOf.call(this.chosen, path) >= 0) {
+          this.chosen = _.without(this.chosen, path);
+        } else {
+          this.chosen.push(path);
+        }
+        this.applyChanges();
+        $b = this.$('.btn-chooser');
+        if ($b.is('.active')) {
+          return $b.button('toggle');
+        }
+      };
+
+      ColumnAdder.prototype.handleSubmission = function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        return this.applyChanges();
+      };
+
+      ColumnAdder.prototype.applyChanges = function() {
+        this.newView.addPaths(this.chosen);
+        return this.reset();
+      };
+
+      ColumnAdder.prototype.reset = function() {
+        ColumnAdder.__super__.reset.call(this);
+        return this.chosen = [];
+      };
+
+      ColumnAdder.prototype.refsOK = false;
+
+      ColumnAdder.prototype.multiSelect = true;
+
+      ColumnAdder.prototype.isDisabled = function(path) {
+        var _ref1;
+
+        return _ref1 = path.toString(), __indexOf.call(this.query.views, _ref1) >= 0;
+      };
+
+      ColumnAdder.prototype.render = function() {
+        ColumnAdder.__super__.render.call(this);
+        this.$('input').remove();
+        this.$('.btn-chooser > span').text(intermine.messages.columns.FindColumnToAdd);
+        return this;
+      };
+
+      ColumnAdder.prototype.showTree = function(e) {
+        var _ref1;
+
+        ColumnAdder.__super__.showTree.call(this, e);
+        return (_ref1 = this.$pathfinder) != null ? _ref1.$el.removeClass(this.$pathfinder.dropDownClasses) : void 0;
+      };
+
+      return ColumnAdder;
+
+    })(intermine.query.ConstraintAdder);
+    ViewNode = (function(_super) {
+      __extends(ViewNode, _super);
+
+      function ViewNode() {
+        _ref1 = ViewNode.__super__.constructor.apply(this, arguments);
+        return _ref1;
+      }
+
+      ViewNode.prototype.initialize = function() {
+        if (!this.has('isNew')) {
+          this.set({
+            isNew: false
+          });
+        }
+        if (!this.has('replaces')) {
+          this.set({
+            replaces: []
+          });
+        }
+        if (!this.has('isFormatted')) {
+          return this.set({
+            isFormatted: intermine.results.shouldFormat(this.get('path'))
+          });
+        }
+      };
+
+      ViewNode.prototype.addPath = function(path) {
+        return this.set({
+          replaces: this.get('replaces').concat([path])
+        });
+      };
+
+      ViewNode.prototype.getViews = function() {
+        if (this.get('replaces').length) {
+          return this.get('replaces');
+        } else {
+          return [this.get('path')];
+        }
+      };
+
+      ViewNode.prototype.isAbove = function(path, query) {
+        var base, myformatter, theirformatter;
+
+        base = this.get('path');
+        if (base.isAttribute()) {
+          false;
+        }
+        if (path.toString().indexOf(base.toString()) !== 0) {
+          return false;
+        } else if (this.get('isFormatted') && intermine.results.shouldFormat(path)) {
+          myformatter = intermine.results.getFormatter(base.append('id'));
+          theirformatter = intermine.results.getFormatter(path);
+          return myformatter === theirformatter;
+        } else if (path.containsCollection() && query.isOuterJoined(path)) {
+          return true;
+        } else {
+          return false;
+        }
+      };
+
+      return ViewNode;
+
+    })(Backbone.Model);
+    NewViewNodes = (function(_super) {
+      var lengthOfPath;
+
+      __extends(NewViewNodes, _super);
+
+      function NewViewNodes() {
+        _ref2 = NewViewNodes.__super__.constructor.apply(this, arguments);
         return _ref2;
       }
 
-      Step.prototype.className = 'im-step';
+      NewViewNodes.prototype.model = ViewNode;
 
-      Step.prototype.tagName = 'li';
-
-      nts = function(n) {
-        return intermine.utils.numToString(n, ',', 3);
-      };
-
-      Step.prototype.initialize = function(opts) {
-        var _this = this;
-
-        Step.__super__.initialize.call(this, opts);
-        this.model.on('change:count', function(m, count) {
-          return _this.$('.im-step-count .count').text(nts(count));
-        });
-        this.model.on('change:current', this.renderCurrency, this);
-        return this.model.on('remove', function() {
-          return _this.remove();
+      NewViewNodes.prototype.close = function() {
+        this.off();
+        return this.each(function(vn) {
+          if (vn != null) {
+            vn.off();
+          }
+          return vn != null ? vn.destroy() : void 0;
         });
       };
 
-      Step.prototype.events = {
-        'click .icon-info-sign': 'showDetails',
-        'click h4': 'toggleSection',
-        'click .btn': 'revertToThisState'
+      lengthOfPath = function(vn) {
+        return vn.get('path').allDescriptors().length;
       };
 
-      Step.prototype.toggleSection = function(e) {
-        e.stopPropagation();
-        $(e.target).find('i').toggleClass("icon-chevron-right icon-chevron-down");
-        return $(e.target).next().children().toggle();
+      NewViewNodes.prototype.initialize = function(_, options) {
+        this.options = options;
       };
 
-      Step.prototype.showDetails = function(e) {
-        e.stopPropagation();
-        return this.$('.im-step-details').toggle();
-      };
+      NewViewNodes.prototype.addPaths = function(paths) {
+        var group, path, _i, _len, _results;
 
-      Step.prototype.revertToThisState = function(e) {
-        this.model.trigger('revert', this.model);
-        return this.$('.btn-small').tooltip('hide');
-      };
-
-      Step.prototype.renderCurrency = function() {
-        var isCurrent;
-
-        isCurrent = this.model.get('current');
-        this.$('.btn').toggleClass('btn-inverse', !isCurrent).attr({
-          disabled: isCurrent
-        });
-        this.$('.btn-main').text(isCurrent ? "Current State" : "Revert to this State");
-        return this.$('.btn i').toggleClass('icon-white', !isCurrent);
-      };
-
-      Step.prototype.sectionTempl = _.template("<div>\n  <h4>\n    <i class=\"icon-chevron-right\"></i>\n    <%= n %> <%= things %>\n  </h4>\n  <table></table>\n</div>");
-
-      cell = function(content) {
-        return $('<td>').html(content);
-      };
-
-      toLabel = function(type) {
-        return function(text) {
-          return cell("<span class=\"label label-" + type + "\">" + text + "</span>");
-        };
-      };
-
-      toPathLabel = toLabel('path');
-
-      toInfoLabel = toLabel('info');
-
-      toValLabel = toLabel('value');
-
-      Step.prototype.template = _.template("<button class=\"btn btn-small im-state-revert\" disabled\n    title=\"Revert to this state\">\n    <i class=icon-undo></i>\n</button>\n<h3><%- title %></h3>\n<i class=\"icon-info-sign\"></i>\n</div>\n<span class=\"im-step-count\">\n    <span class=\"count\"><%- count %></span> rows\n</span>\n<div class=\"im-step-details\">\n<div style=\"clear:both\"></div>");
-
-      Step.prototype.addSection = function(xs, things, toPath, f) {
-        var k, n, q, table, v, _results;
-
-        n = _.size(xs);
-        if (n < 1) {
-          return;
-        }
-        q = this.model.get('query');
-        table = $(this.sectionTempl({
-          n: n,
-          things: things
-        })).appendTo(this.$('.im-step-details')).find('table');
         _results = [];
-        for (k in xs) {
-          if (!__hasProp.call(xs, k)) continue;
-          v = xs[k];
-          _results.push((function(k, v) {
-            var row;
-
-            row = $('<tr>');
-            table.append(row);
-            return q.getPathInfo(toPath(k, v)).getDisplayName(function(name) {
-              return f(row, name, k, v);
-            });
-          })(k, v));
+        for (_i = 0, _len = paths.length; _i < _len; _i++) {
+          path = paths[_i];
+          group = this.getGroup(path);
+          if (group != null) {
+            _results.push(group.addPath(path));
+          } else {
+            _results.push(this.add({
+              path: path,
+              isNew: true
+            }));
+          }
         }
         return _results;
       };
 
-      Step.prototype.getData = function() {
-        var data;
+      NewViewNodes.prototype.getGroup = function(path) {
+        var bestMatch, matches, q;
 
-        data = {
-          count: this.model.has('count') ? nts(this.model.get('count')) : ''
-        };
-        return _.defaults(data, this.model.toJSON());
+        q = this.options.query;
+        matches = this.filter(function(vn) {
+          return vn.isAbove(path, q);
+        });
+        bestMatch = _.last(_.sortBy(matches, lengthOfPath));
+        return bestMatch;
       };
 
-      Step.prototype.render = function() {
-        var ps, q, v;
+      return NewViewNodes;
 
-        this.$el.attr({
-          step: this.model.get('stepNo')
-        });
-        this.$el.append(this.template(this.getData()));
-        this.renderCurrency();
-        q = this.model.get('query');
-        this.$('.btn-small').tooltip({
-          placement: 'right'
-        });
-        ps = (function() {
-          var _i, _len, _ref3, _results;
+    })(Backbone.Collection);
+    ColumnsDialogue = (function(_super) {
+      __extends(ColumnsDialogue, _super);
 
-          _ref3 = q.views;
-          _results = [];
-          for (_i = 0, _len = _ref3.length; _i < _len; _i++) {
-            v = _ref3[_i];
-            _results.push(q.getPathInfo(v));
-          }
-          return _results;
-        })();
-        this.addSection(ps, 'Columns', (function(i, x) {
-          return x;
-        }), function(row, name) {
-          return row.append(toPathLabel(name));
-        });
-        this.addSection(q.constraints, 'Filters', (function(i, c) {
-          return c.path;
-        }), function(row, name, i, c) {
-          row.append(toPathLabel(name));
-          if (c.type != null) {
-            row.append(toInfoLabel('isa'));
-            row.append(toValLabel(c.type));
-          }
-          if (c.op != null) {
-            row.append(toInfoLabel(c.op));
-          }
-          if (c.value != null) {
-            return row.append(toValLabel(c.value));
-          } else if (c.values != null) {
-            return row.append(toValLabel(c.values.join(', ')));
-          }
-        });
-        this.addSection(q.joins, 'Joins', (function(p, style) {
-          return p;
-        }), function(row, name, p, style) {
-          row.append(toPathLabel(name));
-          return row.append(toInfoLabel(style));
-        });
-        this.addSection(q.sortOrder, 'Sort Order Elements', (function(i, so) {
-          return so.path;
-        }), function(row, name, i, _arg) {
-          var direction;
-
-          direction = _arg.direction;
-          row.append(toPathLabel(name));
-          return row.append(toInfoLabel(direction));
-        });
-        return this;
-      };
-
-      return Step;
-
-    })(Backbone.View);
-    Trail = (function(_super) {
-      __extends(Trail, _super);
-
-      function Trail() {
-        _ref3 = Trail.__super__.constructor.apply(this, arguments);
+      function ColumnsDialogue() {
+        this.addPossibleSortElement = __bind(this.addPossibleSortElement, this);
+        this.addSortElement = __bind(this.addSortElement, this);        _ref3 = ColumnsDialogue.__super__.constructor.apply(this, arguments);
         return _ref3;
       }
 
-      Trail.prototype.className = "im-query-trail";
+      ColumnsDialogue.prototype.tagName = "div";
 
-      Trail.prototype.tagName = "div";
+      ColumnsDialogue.prototype.className = "im-column-dialogue modal";
 
-      Trail.prototype.initialize = function(states) {
-        this.states = states;
-        this.subViews = [];
-        this.states.on('add', this.appendState, this);
-        return this.states.on('reverted', this.render, this);
-      };
-
-      Trail.prototype.events = {
-        'click a.details': 'minumaximise',
-        'click a.shade': 'toggle',
-        'click a.im-undo': 'undo'
-      };
-
-      Trail.prototype.toggle = function() {
-        var _this = this;
-
-        return this.$('.im-step').slideToggle('fast', function() {
-          return _this.$el.toggleClass("toggled");
-        });
-      };
-
-      Trail.prototype.minumaximise = function() {
-        return this.$el.toggleClass("minimised");
-      };
-
-      Trail.prototype.undo = function() {
-        return this.states.popState();
-      };
-
-      Trail.prototype.appendState = function(state) {
-        var step;
-
-        step = new Step({
-          model: state
-        });
-        this.subViews.push(step);
-        this.$('.im-state-list').append(step.render().el);
-        return this.$el.addClass('im-has-history');
-      };
-
-      Trail.prototype.render = function() {
-        var step,
+      ColumnsDialogue.prototype.initialize = function(query, columnHeaders) {
+        var _ref4,
           _this = this;
 
-        while (step = this.subViews.pop()) {
-          step.remove();
+        this.query = query;
+        this.columnHeaders = columnHeaders;
+        if ((_ref4 = this.columnHeaders) == null) {
+          this.columnHeaders = new Backbone.Collection;
         }
-        this.$el.html("<div class=\"btn-group\">\n  <a class=\"btn im-undo\">\n    <i class=\"" + intermine.icons.Undo + "\"></i>\n    <span class=\"visible-desktop\">Undo</span>\n  </a>\n  <a class=\"btn dropdown-toggle\" data-toggle=\"dropdown\">\n    <span class=\"caret\"></span>\n  </a>\n  <ul class=\"dropdown-menu im-state-list\">\n  </ul>\n</div>\n<div style=\"clear:both\"></div>");
-        this.states.each(function(s) {
-          return _this.appendState(s);
+        this.sortOpts = new Backbone.Model;
+        this.sortOrder = new intermine.columns.collections.SortOrder;
+        this.sortPossibles = new intermine.columns.collections.PossibleOrderElements;
+        this.newView = new NewViewNodes([], {
+          query: this.query
         });
-        this.$el.toggleClass('im-has-history', this.states.size() > 1);
+        this.sortOrder.on('add', this.addSortElement);
+        this.sortPossibles.on('add', this.addPossibleSortElement);
+        this.sortOpts.on('change:onlyInView', function(m, only) {
+          return _this.sortPossibles.each(function(m) {
+            return m.trigger('only-in-view', only);
+          });
+        });
+        this.sortOpts.on('change:filterTerm', function(m, re) {
+          return _this.sortPossibles.each(function(m) {
+            return m.trigger('filter', re);
+          });
+        });
+        this.sortOrder.on('destroy', function(m) {
+          return _this.sortPossibles.add({
+            path: m.get('path'),
+            query: _this.query
+          });
+        });
+        this.newView.on('add remove change', this.drawOrder, this);
+        return this.newView.on('destroy', function(nv) {
+          return _this.newView.remove(nv);
+        });
+      };
+
+      ColumnsDialogue.prototype.html = function() {
+        return intermine.columns.snippets.ColumnsDialogue;
+      };
+
+      ColumnsDialogue.prototype.render = function() {
+        var _this = this;
+
+        this.$el.append(this.html());
+        this.initOrdering();
+        this.initSorting();
+        this.sortOpts.set({
+          onlyInView: true
+        });
+        this.$('i.im-sorting-help').popover({
+          placement: function(popover) {
+            $(popover).addClass('bootstrap');
+            return 'left';
+          },
+          trigger: 'hover',
+          html: true,
+          title: intermine.messages.columns.SortingHelpTitle,
+          content: intermine.messages.columns.SortingHelpContent
+        });
+        this.$('.nav-tabs li a').each(function(i, e) {
+          var $elem;
+
+          $elem = $(e);
+          return $elem.data({
+            target: _this.$($elem.data("target"))
+          });
+        });
         return this;
       };
 
-      return Trail;
-
-    })(Backbone.View);
-    return scope("intermine.query.tools", {
-      Tools: Tools,
-      ToolBar: ToolBar,
-      Trail: Trail
-    });
-  })();
-
-  (function() {
-    var NewFilterDialogue, _ref;
-
-    NewFilterDialogue = (function(_super) {
-      __extends(NewFilterDialogue, _super);
-
-      function NewFilterDialogue() {
-        _ref = NewFilterDialogue.__super__.constructor.apply(this, arguments);
-        return _ref;
-      }
-
-      NewFilterDialogue.prototype.tagName = "div";
-
-      NewFilterDialogue.prototype.className = "im-constraint-dialogue modal";
-
-      NewFilterDialogue.prototype.html = "<div class=\"modal-header\">\n    <a href=\"#\" class=\"close pull-right im-close\">close</a>\n    <h3>Add New Filter</h3>\n</div>\n<div class=\"modal-body\">\n</div>\n<div class=\"modal-footer\">\n    <button class=\"disabled btn btn-primary pull-right im-add-constraint\">\n        Add Filter\n    </button>\n    <button class=\"btn im-close pull-left\">\n        Cancel\n    </button>\n</div>";
-
-      NewFilterDialogue.prototype.initialize = function(query) {
-        var _this = this;
-
-        this.query = query;
-        this.query.on('change:constraints', this.closeDialogue, this);
-        return this.query.on('editing-constraint', function() {
-          return _this.$('.im-add-constraint').removeClass('disabled');
-        });
-      };
-
-      NewFilterDialogue.prototype.events = {
-        'click .im-close': 'closeDialogue',
+      ColumnsDialogue.prototype.events = {
         'hidden': 'onHidden',
-        'click .im-add-constraint': 'addConstraint'
+        'click .btn-cancel': 'hideModal',
+        'click .btn-primary': 'applyChanges',
+        'click .nav-tabs li a': 'changeTab',
+        'change input.im-only-in-view': 'onlyShowOptionsInView',
+        'change .im-sortables-filter': 'filterSortables',
+        'keyup .im-sortables-filter': 'filterSortables',
+        'sortstop .im-sorting-container': 'onSortStop',
+        'sortupdate .im-reordering-container': 'updateOrder',
+        'sortupdate .im-sorting-container': 'updateSorting'
       };
 
-      NewFilterDialogue.prototype.onHidden = function(e) {
-        if (!(e && e.target === this.el)) {
+      ColumnsDialogue.prototype.onSortStop = function(e, ui) {
+        var left, oe, removed, top, well, wtop, _ref4;
+
+        _ref4 = ui.offset, top = _ref4.top, left = _ref4.left;
+        well = ui.item.closest('.well');
+        wtop = well.offset().top;
+        removed = (top + ui.item.height() < wtop) || (top > wtop + well.height());
+        oe = this.sortOrder.find(byEl(ui.item[0]));
+        if (removed) {
+          return _.defer(function() {
+            return oe.destroy();
+          });
+        }
+      };
+
+      ColumnsDialogue.prototype.onHidden = function(e) {
+        if (this.el !== (e != null ? e.target : void 0)) {
           return false;
         }
         return this.remove();
       };
 
-      NewFilterDialogue.prototype.closeDialogue = function(e) {
+      ColumnsDialogue.prototype.remove = function() {
+        this.sortOpts.off();
+        this.sortOrder.off();
+        this.sortPossibles.off();
+        this.newView.close();
+        delete this.newView;
+        delete this.columnHeaders;
+        delete this.sortOpts;
+        delete this.sortOrder;
+        delete this.sortPossibles;
+        this.$el.empty();
+        this.undelegateEvents();
+        this.off();
+        return ColumnsDialogue.__super__.remove.call(this);
+      };
+
+      ColumnsDialogue.prototype.getFilterTerm = function(e) {
+        var $input, pattern, term;
+
+        $input = $(e.currentTarget);
+        term = $input.val();
+        if (!term) {
+          return;
+        }
+        pattern = term.split(/\s+/).join('.*');
+        return new RegExp(pattern, 'i');
+      };
+
+      ColumnsDialogue.prototype.filterSortables = function(e) {
+        return this.sortOpts.set({
+          filterTerm: this.getFilterTerm(e)
+        });
+      };
+
+      ColumnsDialogue.prototype.onlyShowOptionsInView = function(e) {
+        return this.sortOpts.set({
+          onlyInView: $(e.currentTarget).is(':checked')
+        });
+      };
+
+      ColumnsDialogue.prototype.changeTab = function(e) {
+        return Tab.call($(e.currentTarget), "show");
+      };
+
+      ColumnsDialogue.prototype.initOrdering = function() {
+        var model;
+
+        this.newView.reset((function() {
+          var _i, _len, _ref4, _results;
+
+          _ref4 = this.columnHeaders.models;
+          _results = [];
+          for (_i = 0, _len = _ref4.length; _i < _len; _i++) {
+            model = _ref4[_i];
+            _results.push(model.toJSON());
+          }
+          return _results;
+        }).call(this));
+        this.drawOrder();
+        return this.drawSelector();
+      };
+
+      ColumnsDialogue.prototype.drawOrder = function() {
+        var colContainer,
+          _this = this;
+
+        colContainer = this.$('.im-reordering-container');
+        colContainer.empty();
+        colContainer.tooltip({
+          title: intermine.messages.results.ReorderHelp,
+          placement: intermine.utils.addStylePrefix('top')
+        });
+        this.newView.each(function(model) {
+          var view;
+
+          view = new intermine.columns.views.ViewElement({
+            model: model
+          });
+          return colContainer.append(view.render().el);
+        });
+        return colContainer.sortable({
+          items: 'li.im-reorderable',
+          axis: 'y',
+          forcePlaceholderSize: true,
+          placeholder: 'im-resorting-placeholder'
+        });
+      };
+
+      ColumnsDialogue.prototype.drawSelector = function() {
+        var ca, nodeAdder, selector, _ref4,
+          _this = this;
+
+        selector = '.im-reordering .well';
+        nodeAdder = this.$('.node-adder');
+        if ((_ref4 = this.ca) != null) {
+          _ref4.remove();
+        }
+        ca = new ColumnAdder(this.query, this.newView);
+        nodeAdder.empty().append(ca.render().el);
+        ca.on('showing:tree', function() {
+          return _this.$(selector).slideUp();
+        });
+        ca.on('resetting:tree', function() {
+          return _this.$(selector).slideDown();
+        });
+        return this.ca = ca;
+      };
+
+      ColumnsDialogue.prototype.updateOrder = function(e, ui) {
+        var el, lis, reorderedState;
+
+        lis = this.$('.im-view-element');
+        byEl = function(el) {
+          return function(nv) {
+            return nv.el === el;
+          };
+        };
+        reorderedState = (function() {
+          var _i, _len, _ref4, _results;
+
+          _ref4 = lis.get();
+          _results = [];
+          for (_i = 0, _len = _ref4.length; _i < _len; _i++) {
+            el = _ref4[_i];
+            _results.push(this.newView.find(byEl(el)));
+          }
+          return _results;
+        }).call(this);
+        return this.newView.reset(reorderedState);
+      };
+
+      ColumnsDialogue.prototype.updateSorting = function(e, ui) {
+        var el, lis, reorderedState;
+
+        lis = this.$('.im-in-order');
+        byEl = function(el) {
+          return function(oe) {
+            return oe.el === el;
+          };
+        };
+        reorderedState = (function() {
+          var _i, _len, _ref4, _results;
+
+          _ref4 = lis.get();
+          _results = [];
+          for (_i = 0, _len = _ref4.length; _i < _len; _i++) {
+            el = _ref4[_i];
+            _results.push(this.sortOrder.find(byEl(el)));
+          }
+          return _results;
+        }).call(this);
+        return this.sortOrder.reset(reorderedState);
+      };
+
+      ColumnsDialogue.prototype.sortingPlaceholder = "<div class=\"placeholder\">\n    Drop columns here.\n</div>";
+
+      ColumnsDialogue.prototype.makeSortOrderElem = function(model) {
+        var possibles, soe;
+
+        possibles = this.sortPossibles;
+        soe = new intermine.columns.views.OrderElement({
+          model: model,
+          possibles: possibles
+        });
+        return soe.render().el;
+      };
+
+      ColumnsDialogue.prototype.makeSortOption = function(model) {
+        var option;
+
+        option = new intermine.columns.views.PossibleOrderElement({
+          model: model,
+          sortOrder: this.sortOrder
+        });
+        return option.render().el;
+      };
+
+      ColumnsDialogue.prototype.initSorting = function() {
+        var container;
+
+        container = this.$('.im-sorting-container').empty().append(this.sortingPlaceholder);
+        this.$('.im-sorting-container-possibilities').empty();
+        container.sortable();
+        container.parent().droppable({
+          drop: function(event, ui) {
+            return $(ui.draggable).trigger('dropped');
+          }
+        });
+        this.buildSortOrder();
+        return this.buildPossibleSortOrder();
+      };
+
+      ColumnsDialogue.prototype.buildSortOrder = function() {
+        var direction, i, path, so, _i, _len, _ref4, _results;
+
+        this.sortOrder.reset([]);
+        _ref4 = this.query.sortOrder || [];
+        _results = [];
+        for (i = _i = 0, _len = _ref4.length; _i < _len; i = ++_i) {
+          so = _ref4[i];
+          path = so.path, direction = so.direction;
+          _results.push(this.sortOrder.add({
+            path: this.query.getPathInfo(path),
+            direction: direction
+          }));
+        }
+        return _results;
+      };
+
+      ColumnsDialogue.prototype.buildPossibleSortOrder = function() {
+        var inView, isOuter, isSorted, n, path, test0, test1, _i, _j, _len, _len1, _ref4, _ref5, _results,
+          _this = this;
+
+        this.sortPossibles.reset([]);
+        isSorted = function(v) {
+          return _this.query.getSortDirection(v);
+        };
+        isOuter = function(v) {
+          return _this.query.isOuterJoined(v);
+        };
+        inView = function(v) {
+          var _ref4;
+
+          return _ref4 = "" + v, __indexOf.call(_this.query.views, _ref4) >= 0;
+        };
+        test0 = function(path) {
+          return !isSorted(path) && !isOuter(path);
+        };
+        test1 = function(p) {
+          return p.isAttribute() && !inView(p) && !isSorted(p);
+        };
+        _ref4 = this.query.views;
+        for (_i = 0, _len = _ref4.length; _i < _len; _i++) {
+          path = _ref4[_i];
+          if (test0(path)) {
+            this.sortPossibles.add({
+              path: path,
+              query: this.query
+            });
+          }
+        }
+        _ref5 = this.query.getViewNodes();
+        _results = [];
+        for (_j = 0, _len1 = _ref5.length; _j < _len1; _j++) {
+          n = _ref5[_j];
+          if (!isOuter(n)) {
+            _results.push((function() {
+              var _k, _len2, _ref6, _results1;
+
+              _ref6 = n.getChildNodes();
+              _results1 = [];
+              for (_k = 0, _len2 = _ref6.length; _k < _len2; _k++) {
+                path = _ref6[_k];
+                if (test1(path)) {
+                  _results1.push(this.sortPossibles.add({
+                    path: path,
+                    query: this.query
+                  }));
+                }
+              }
+              return _results1;
+            }).call(this));
+          }
+        }
+        return _results;
+      };
+
+      ColumnsDialogue.prototype.addSortElement = function(m) {
+        var container, elem;
+
+        container = this.$('.im-sorting-container');
+        elem = this.makeSortOrderElem(m);
+        return container.append(elem);
+      };
+
+      ColumnsDialogue.prototype.addPossibleSortElement = function(m) {
+        var elem, possibilities;
+
+        possibilities = this.$('.im-sorting-container-possibilities');
+        elem = this.makeSortOption(m);
+        return possibilities.append(elem);
+      };
+
+      ColumnsDialogue.prototype.hideModal = function() {
         return this.$el.modal('hide');
       };
 
-      NewFilterDialogue.prototype.openDialogue = function() {
-        return this.$el.modal().modal('show');
+      ColumnsDialogue.prototype.showModal = function() {
+        return this.$el.modal({
+          show: true
+        });
       };
 
-      NewFilterDialogue.prototype.addConstraint = function(e) {
-        var edited;
-
-        edited = this.conAdder.newCon.editConstraint(e);
-        if (edited) {
-          return this.$el.modal('hide');
+      ColumnsDialogue.prototype.applyChanges = function(e) {
+        if (this.$('.im-reordering').is('.active')) {
+          return this.changeOrder(e);
+        } else {
+          return this.changeSorting(e);
         }
       };
 
-      NewFilterDialogue.prototype.render = function() {
-        this.$el.append(this.html);
-        this.conAdder = new intermine.query.ConstraintAdder(this.query);
-        this.$el.find('.modal-body').append(this.conAdder.render().el);
-        this.conAdder.showTree();
-        return this;
+      ColumnsDialogue.prototype.changeOrder = function(e) {
+        var newViews;
+
+        newViews = _.flatten(this.newView.map(function(v) {
+          return v.getViews();
+        }));
+        this.hideModal();
+        return this.query.select(newViews);
       };
 
-      return NewFilterDialogue;
+      ColumnsDialogue.prototype.changeSorting = function(e) {
+        var newSO, so;
+
+        newSO = (function() {
+          var _i, _len, _ref4, _results;
+
+          _ref4 = this.sortOrder.models;
+          _results = [];
+          for (_i = 0, _len = _ref4.length; _i < _len; _i++) {
+            so = _ref4[_i];
+            _results.push(so.toJSON());
+          }
+          return _results;
+        }).call(this);
+        this.hideModal();
+        return this.query.orderBy(newSO);
+      };
+
+      return ColumnsDialogue;
 
     })(Backbone.View);
-    return scope('intermine.filters', {
-      NewFilterDialogue: NewFilterDialogue
+    return scope("intermine.query.results.table", {
+      ColumnsDialogue: ColumnsDialogue
     });
   })();
 
   (function() {
-    var ViewElement, _ref;
+    var ATTR_HTML, Columns, CurrentColumns, JOIN_TOGGLE_HTML, Selectable, _ref, _ref1, _ref2;
 
-    ViewElement = (function(_super) {
-      var TEMPLATE, namePart, splitName;
+    JOIN_TOGGLE_HTML = _.template("<form class=\"form-inline pull-right im-join\">\n<div class=\"btn-group\" data-toggle=\"buttons-radio\">\n    <button data-style=\"INNER\" class=\"btn btn-small <% print(outer ? \"\" : \"active\") %>\">\n    Required\n    </button>\n    <button data-style=\"OUTER\" class=\"btn btn-small <% print(outer ? \"active\" : \"\") %>\">\n    Optional\n    </button>\n</div></form>");
+    ATTR_HTML = _.template("<input type=\"checkbox\" \n    data-path=\"<%= path %>\"\n    <% inQuery ? print(\"checked\") : \"\" %> >\n<span class=\"im-view-option\">\n    <%= name %> (<% print(type.replace(\"java.lang.\", \"\")) %>)\n</span>");
+    CurrentColumns = (function(_super) {
+      __extends(CurrentColumns, _super);
 
-      __extends(ViewElement, _super);
-
-      function ViewElement() {
-        _ref = ViewElement.__super__.constructor.apply(this, arguments);
+      function CurrentColumns() {
+        _ref = CurrentColumns.__super__.constructor.apply(this, arguments);
         return _ref;
       }
 
-      TEMPLATE = _.template("<div>\n  <a class=\"im-col-remover\" title=\"Remove this column\">\n    <i class=\"" + intermine.icons.Remove + "\"></i>\n  </a>\n  <i class=\"icon-reorder pull-right\"></i>\n  <% if (replaces.length) { %>\n    <i class=\"" + intermine.icons.Collapsed + " im-expander pull-right\"></i>\n  <% } %>\n  <span class=\"im-display-name\"><%- path %></span>\n  <ul class=\"im-sub-views\"></ul>\n</div>");
+      CurrentColumns.prototype.className = "node-remover";
 
-      ViewElement.prototype.placement = 'top';
+      CurrentColumns.prototype.tagName = "dl";
 
-      ViewElement.prototype.tagName = 'li';
-
-      ViewElement.prototype.className = 'im-view-element im-reorderable';
-
-      ViewElement.prototype.events = {
-        'click .im-col-remover': 'remove',
-        'click': 'toggleSubViews'
+      CurrentColumns.prototype.initialize = function(query) {
+        this.query = query;
       };
 
-      ViewElement.prototype.toggleSubViews = function() {
-        this.$('.im-sub-views').slideToggle();
-        return this.$('.im-expander').toggleClass(intermine.icons.ExpandCollapse);
-      };
+      CurrentColumns.prototype.render = function() {
+        var cd, rootSel, subnodes,
+          _this = this;
 
-      ViewElement.prototype.remove = function() {
-        this.model.destroy();
-        this.$('.im-col-remover').tooltip('hide');
-        return ViewElement.__super__.remove.apply(this, arguments);
-      };
+        cd = this.query.service.model.classes[this.query.root];
+        rootSel = new Selectable(this.query, cd);
+        rootSel.render().$el.appendTo(this.el);
+        subnodes = _({}).extend(cd.references, cd.collections);
+        _(subnodes).chain().values().sortBy(function(f) {
+          return f.name;
+        }).each(function(f) {
+          var sel, type;
 
-      namePart = _.template("<span class=\"im-name-part\"><%- part %></span>");
-
-      splitName = function($elem) {
-        return function(name) {
-          var part, parts, _i, _len, _results;
-
-          parts = name.split(' > ');
-          _results = [];
-          for (_i = 0, _len = parts.length; _i < _len; _i++) {
-            part = parts[_i];
-            _results.push($elem.append(namePart({
-              part: part
-            })));
-          }
-          return _results;
-        };
-      };
-
-      ViewElement.prototype.render = function() {
-        var $name, path, replaced, ul, _i, _len, _ref1;
-
-        path = this.model.get('path');
-        this.model.el = this.el;
-        this.$el.append(TEMPLATE(this.model.toJSON()));
-        this.$('.im-col-remover').tooltip({
-          placement: this.placement,
-          container: this.el
+          type = _this.query.getPathInfo(f).getEndClass();
+          sel = new Selectable(_this.query, type, f);
+          return sel.render().$el.appendTo(_this.el);
         });
-        $name = this.$('.im-display-name').empty();
-        path.getDisplayName(splitName($name));
-        ul = this.$('.im-sub-views');
-        _ref1 = this.model.get('replaces');
-        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-          replaced = _ref1[_i];
-          if (replaced.isAttribute()) {
-            (function(ul) {
-              var li, span;
+        return this;
+      };
 
-              li = $('<li></li>');
-              ul.append(li);
-              span = document.createElement('span');
-              li.append(span);
-              span.className = 'im-display-name';
-              return replaced.getDisplayName(splitName($(span)));
-            })(ul);
-          }
+      return CurrentColumns;
+
+    })(Backbone.View);
+    Selectable = (function(_super) {
+      __extends(Selectable, _super);
+
+      function Selectable() {
+        this.render = __bind(this.render, this);
+        this.setCheckBoxState = __bind(this.setCheckBoxState, this);        _ref1 = Selectable.__super__.constructor.apply(this, arguments);
+        return _ref1;
+      }
+
+      Selectable.prototype.tagName = "dl";
+
+      Selectable.prototype.className = "im-selectable-node";
+
+      Selectable.prototype.initialize = function(query, table, field) {
+        this.query = query;
+        this.table = table;
+        this.field = field;
+        this.path = this.query.root + (this.field ? "." + this.field.name : "");
+        return this.query.on("change:views", this.setCheckBoxState);
+      };
+
+      Selectable.prototype.events = {
+        'click dt': 'toggleFields',
+        'change input[type="checkbox"]': 'changeView'
+      };
+
+      Selectable.prototype.toggleFields = function(e) {
+        return this.$('dd').slideToggle();
+      };
+
+      Selectable.prototype.changeView = function(e) {
+        var $t, path;
+
+        $t = $(e.target);
+        path = $t.data("path");
+        if ($t.attr("checked")) {
+          return this.query.addToSelect(path);
+        } else {
+          return this.query.removeFromSelect(path);
         }
-        if (!ul.children().length) {
-          ul.remove();
+      };
+
+      Selectable.prototype.setCheckBoxState = function(e) {
+        var _this = this;
+
+        return this.$('dd input').each(function(i, cbx) {
+          var $cbx, path;
+
+          $cbx = $(cbx);
+          path = $cbx.data("path");
+          return $cbx.attr({
+            checked: _this.query.hasView(path)
+          });
+        });
+      };
+
+      Selectable.prototype.render = function() {
+        var attr, dt, icon, isInView, name, title, _fn, _ref2, _ref3,
+          _this = this;
+
+        this.$el.empty();
+        title = this.make("h4", {}, ((_ref2 = this.field) != null ? _ref2.name : void 0) || this.table.name);
+        dt = this.make("dt", {
+          "class": "im-column-group"
+        }, title);
+        this.$el.append(dt);
+        isInView = _(this.query.views).any(function(v) {
+          return this.path === v.substring(0, v.lastIndexOf("."));
+        });
+        icon = isInView ? "minus" : "plus";
+        $("<i class=\"icon-" + icon + "-sign\"></i>").css({
+          cursor: "pointer"
+        }).appendTo(title);
+        if (isInView && this.path !== this.query.root) {
+          $(JOIN_TOGGLE_HTML({
+            outer: this.query.isOuterJoin(this.path)
+          })).submit(function(e) {
+            var _this = this;
+
+            return e.preventDefault().css("display", "inline-block".appendTo(title.find(".btn".click(function(e) {
+              var style;
+
+              e.stopPropagation();
+              style = $(e.target).data("style");
+              return _this.query.setJoinStyle(_this.path, style.button());
+            }))));
+          });
+        }
+        _ref3 = this.table.attributes;
+        _fn = function(attr) {
+          return _this.addAttribute(attr);
+        };
+        for (name in _ref3) {
+          attr = _ref3[name];
+          _fn(attr);
         }
         return this;
       };
 
-      return ViewElement;
+      Selectable.prototype.addAttribute = function(a) {
+        var ctx, dd, p;
+
+        if (a.name !== "id") {
+          dd = this.make("dd");
+          p = "" + this.path + "." + a.name;
+          ctx = {
+            path: p,
+            inQuery: __indexOf.call(this.query.views, p) >= 0
+          };
+          _(ctx).extend(a);
+          return $(dd).append(ATTR_HTML(ctx)).appendTo(this.el);
+        }
+      };
+
+      return Selectable;
 
     })(Backbone.View);
-    return scope('intermine.columns.views', {
-      ViewElement: ViewElement
+    Columns = (function(_super) {
+      __extends(Columns, _super);
+
+      function Columns() {
+        _ref2 = Columns.__super__.constructor.apply(this, arguments);
+        return _ref2;
+      }
+
+      Columns.prototype.className = "im-query-columns";
+
+      Columns.prototype.initialize = function(query) {
+        this.query = query;
+      };
+
+      Columns.prototype.render = function() {
+        var cls, _fn, _i, _len, _ref3,
+          _this = this;
+
+        _ref3 = [ColumnAdder, CurrentColumns];
+        _fn = function(cls) {
+          var inst;
+
+          inst = new cls(_this.query);
+          return _this.$el.append(inst.render().el);
+        };
+        for (_i = 0, _len = _ref3.length; _i < _len; _i++) {
+          cls = _ref3[_i];
+          _fn(cls);
+        }
+        return this;
+      };
+
+      return Columns;
+
+    })(Backbone.View);
+    return scope("intermine.query.columns", {
+      Columns: Columns
     });
   })();
 
-  scope('intermine.snippets.table', {
-    LargeTableDisuader: "<div class=\"modal im-page-size-sanity-check\">\n  <div class=\"modal-header\">\n    <h3>\n      Are you sure?\n    </h3>\n  </div>\n  <div class=\"modal-body\">\n    <p>\n      You have requested a very large table size. Your\n      browser may struggle to render such a large table,\n      and the page will probably become unresponsive. It\n      will be very difficult for you to read the whole table\n      in the page. We suggest the following alternatives:\n    </p>\n    <ul>\n      <li>\n         <p>\n            If you are looking for something specific, you can use the\n            <span class=\"label label-info\">filtering tools</span>\n            to narrow down the result set. Then you \n            might be able to fit the items you are interested in in a\n            single page.\n         </p>\n          <button class=\"btn im-alternative-action\" data-event=\"add-filter-dialogue:please\">\n          <i class=\"" + intermine.icons.Filter + "\"></i>\n          Add a new filter.\n          </button>\n        </li>\n        <li>\n          <p>\n            If you want to see all the data, you can page \n            <span class=\"label label-info\">\n             <i class=\"icon-chevron-left\"></i>\n              backwards\n            </span>\n            and \n            <span class=\"label label-info\">\n              forwards\n              <i class=\"icon-chevron-right\"></i>\n            </span>\n            through the results.\n          </p>\n          <div class=\"btn-group\">\n            <a class=\"btn im-alternative-action\" data-event=\"page:backwards\" href=\"#\">\n             <i class=\"icon-chevron-left\"></i>\n             go one page back\n           </a>\n           <a class=\"btn im-alternative-action\" data-event=\"page:forwards\" href=\"#\">\n             go one page forward\n             <i class=\"icon-chevron-right\"></i>\n           </a>\n          </div>\n        </li>\n        <li>\n            <p>\n                If you want to get and save the results, we suggest\n                <span class=\"label label-info\">downloading</span>\n                the results in a format that suits you. \n            <p>\n            <button class=\"btn im-alternative-action\" data-event=\"download-menu:open\">\n                <i class=\"" + intermine.icons.Export + "\"></i>\n                Open the download menu.\n            </buttn>\n        </li>\n    </ul>\n  </div>\n  <div class=\"modal-footer\">\n      <button class=\"btn btn-primary pull-right\">\n          I know what I'm doing.\n      </button>\n      <button class=\"btn pull-left im-alternative-action\">\n          OK, no worries then.\n      </button>\n  </div>\n</div>"
+  scope('intermine.columns.snippets', {
+    ColumnsDialogue: "<div class=\"modal-header\">\n  <a class=\"close\" data-dismiss=\"modal\">close</a>\n  <h3>Manage Columns</h3>\n</div>\n<div class=\"modal-body\">\n  <ul class=\"nav nav-tabs\">\n    <li class=\"active\">\n      <a data-target=\".im-reordering\">\n        <span class=\"hidden-tablet\">\n          " + intermine.messages.columns.OrderVerb + "\n        </span>\n        " + intermine.messages.columns.OrderTitle + "\n      </a>\n    </li>\n    <li>\n      <a data-target=\".im-sorting\" >\n        <span class=\"hidden-tablet\">\n          " + intermine.messages.columns.SortVerb + "\n        </span>\n        " + intermine.messages.columns.SortTitle + "\n      </a>\n    </li>\n  </ul>\n  <div class=\"tab-content\">\n    <div class=\"tab-pane fade im-reordering active in\">\n      <div class=\"node-adder\"></div>\n      <div class=\"well\">\n      <ul class=\"im-reordering-container nav nav-tabs nav-stacked\"></ul>\n      </div>\n    </div>\n    <div class=\"tab-pane fade im-sorting\">\n      <div class=\"well\">\n      <ul class=\"im-sorting-container nav nav-tabs nav-stacked\"></ul>\n      </div>\n      <form class=\"form-search\">\n      <i class=\"" + intermine.icons.Help + " pull-right im-sorting-help\"></i>\n      <div class=\"input-prepend\">\n        <span class=\"add-on\">filter</span>\n        <input type=\"text\" class=\"search-query im-sortables-filter\">\n      </div>\n      <label class=\"im-only-in-view\">\n        " + intermine.messages.columns.OnlyColsInView + "\n        <input class=\"im-only-in-view\" type=\"checkbox\" checked>\n      </label>\n      </form>\n      <div class=\"well\">\n      <ul class=\"im-sorting-container-possibilities nav nav-tabs nav-stacked\"></ul>\n      </div>\n    </div>\n  </div>\n</div>\n<div class=\"modal-footer\">\n  <a class=\"btn btn-cancel\">\n    Cancel\n  </a>\n  <a class=\"btn pull-right btn-primary\">\n    Apply\n  </a>\n</div>"
   });
+
+  (function() {
+    var NODE_TEMPLATE, PopOver, PossibleColumn, PossibleColumns, QueryNode, _ref, _ref1, _ref2, _ref3;
+
+    NODE_TEMPLATE = _.template("<h4><%- node %></h4>\n<ul class=\"im-possible-attributes\"></ul>");
+    PossibleColumn = (function(_super) {
+      __extends(PossibleColumn, _super);
+
+      function PossibleColumn() {
+        _ref = PossibleColumn.__super__.constructor.apply(this, arguments);
+        return _ref;
+      }
+
+      PossibleColumn.prototype.tagName = 'li';
+
+      PossibleColumn.prototype.className = 'im-possible-column';
+
+      PossibleColumn.prototype.initialize = function(options) {
+        this.options = options;
+        this.on('rendered', this.showDisplayName, this);
+        this.on('rendered', this.setClassName, this);
+        return this.model.on('destroy', this.remove, this);
+      };
+
+      PossibleColumn.prototype.events = {
+        'click': 'addToExportedList'
+      };
+
+      PossibleColumn.prototype.addToExportedList = function() {
+        if (!this.model.get('alreadySelected')) {
+          return this.model.trigger('selected', this.model);
+        }
+      };
+
+      PossibleColumn.prototype.setClassName = function() {
+        return this.$el.toggleClass('disabled', this.model.get('alreadySelected'));
+      };
+
+      PossibleColumn.prototype.showDisplayName = function() {
+        var basicPath, canonical, path,
+          _this = this;
+
+        path = this.model.get('path');
+        basicPath = "" + (path.getParent().getType().name) + "." + path.end.name;
+        canonical = path.model.getPathInfo(basicPath);
+        return canonical.getDisplayName().done(function(name) {
+          _this.$('.im-field-name').text(name.split(' > ').pop());
+          return _this.model.trigger('displayed-name');
+        });
+      };
+
+      PossibleColumn.prototype.template = _.template("<a>\n  <i class=\"<% if (alreadySelected) { %>" + intermine.icons.Check + "<% } else { %>" + intermine.icons.UnCheck + "<% } %>\"></i>\n  <span class=\"im-field-name\"><%- path %></span>\n</a>");
+
+      return PossibleColumn;
+
+    })(intermine.views.ItemView);
+    PopOver = (function(_super) {
+      __extends(PopOver, _super);
+
+      function PopOver() {
+        _ref1 = PopOver.__super__.constructor.apply(this, arguments);
+        return _ref1;
+      }
+
+      PopOver.prototype.tagName = 'ul';
+
+      PopOver.prototype.className = 'im-possible-attributes';
+
+      PopOver.prototype.initialize = function(options) {
+        this.options = options;
+        this.collection = new Backbone.Collection;
+        this.collection.on('selected', this.selectPathForExport, this);
+        this.collection.on('displayed-name', this.sortUL, this);
+        return this.initFields();
+      };
+
+      PopOver.prototype.initFields = function() {
+        var alreadySelected, path, _i, _len, _ref2, _results;
+
+        this.collection.reset();
+        _ref2 = this.options.node.getChildNodes();
+        _results = [];
+        for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
+          path = _ref2[_i];
+          if (!(this.isSuitable(path))) {
+            continue;
+          }
+          alreadySelected = this.options.exported.any(function(x) {
+            return path.equals(x.get('path'));
+          });
+          _results.push(this.collection.add({
+            path: path,
+            alreadySelected: alreadySelected
+          }));
+        }
+        return _results;
+      };
+
+      PopOver.prototype.isSuitable = function(p) {
+        var ok;
+
+        return ok = p.isAttribute() && (intermine.options.ShowId || (p.end.name !== 'id'));
+      };
+
+      PopOver.prototype.remove = function() {
+        this.collection.each(function(m) {
+          if (m != null) {
+            m.destroy();
+          }
+          return m != null ? m.off() : void 0;
+        });
+        this.collection.off();
+        return PopOver.__super__.remove.apply(this, arguments);
+      };
+
+      PopOver.prototype.sortUL = function() {
+        var $lis, lis, sorted;
+
+        $lis = this.$('li');
+        $lis.detach();
+        lis = $lis.get();
+        sorted = _.sortBy(lis, function(li) {
+          return $(li).find('.im-field-name').text();
+        });
+        this.$el.append(sorted);
+        return this.trigger('needs-repositioning');
+      };
+
+      PopOver.prototype.selectPathForExport = function(model) {
+        console.log("We want " + (model.get('path')));
+        this.collection.remove(model);
+        this.options.exported.add({
+          path: model.get('path')
+        });
+        model.destroy();
+        return model.off();
+      };
+
+      PopOver.prototype.render = function() {
+        var _this = this;
+
+        this.collection.each(function(model) {
+          var item;
+
+          item = new PossibleColumn({
+            model: model
+          });
+          item.render();
+          return _this.$el.append(item.el);
+        });
+        return this;
+      };
+
+      return PopOver;
+
+    })(Backbone.View);
+    QueryNode = (function(_super) {
+      __extends(QueryNode, _super);
+
+      function QueryNode() {
+        _ref2 = QueryNode.__super__.constructor.apply(this, arguments);
+        return _ref2;
+      }
+
+      QueryNode.prototype.tagName = 'div';
+
+      QueryNode.prototype.className = 'im-query-node btn';
+
+      QueryNode.prototype.initialize = function(options) {
+        var exported, node,
+          _this = this;
+
+        this.options = options;
+        exported = this.model.collection.exported;
+        node = this.model.get('node');
+        this.content = new PopOver({
+          node: node,
+          exported: exported
+        });
+        this.listenTo(exported, 'add remove', this.render, this);
+        this.listenTo(this.content, 'needs-repositioning', function() {
+          var _ref3;
+
+          return (_ref3 = _this.popover) != null ? _ref3.reposition() : void 0;
+        });
+        this.listenTo(this.model, 'destroy', this.remove, this);
+        this.listenTo(this.model.collection, 'popover-toggled', function(originator) {
+          var _ref3;
+
+          if (_this.model !== originator) {
+            return (_ref3 = _this.popover) != null ? _ref3.hide() : void 0;
+          }
+        });
+        return this.model.once('popover-toggled', function() {
+          return _this.content.render();
+        });
+      };
+
+      QueryNode.prototype.remove = function() {
+        var _ref3, _ref4, _ref5;
+
+        if ((_ref3 = this.popover) != null) {
+          _ref3.hide();
+        }
+        if ((_ref4 = this.popover) != null) {
+          _ref4.destroy();
+        }
+        if ((_ref5 = this.content) != null) {
+          _ref5.remove();
+        }
+        delete this.content;
+        delete this.popover;
+        return QueryNode.__super__.remove.apply(this, arguments);
+      };
+
+      QueryNode.prototype.events = function() {
+        var _this = this;
+
+        return {
+          shown: function() {
+            var _ref3;
+
+            if ((_ref3 = _this.popover) != null) {
+              _ref3.reposition();
+            }
+            return _this.model.trigger('popover-toggled', _this.model);
+          },
+          hide: function() {
+            return _this.content.$el.detach();
+          }
+        };
+      };
+
+      QueryNode.prototype.render = function() {
+        var data, options, ul,
+          _this = this;
+
+        data = this.model.toJSON();
+        this.$el.empty();
+        this.$el.html(NODE_TEMPLATE(data));
+        ul = this.$('ul');
+        data.node.getDisplayName().done(function(name) {
+          var end, parents, _i, _ref3;
+
+          _ref3 = name.split(' > '), parents = 2 <= _ref3.length ? __slice.call(_ref3, 0, _i = _ref3.length - 1) : (_i = 0, []), end = _ref3[_i++];
+          return _this.$('h4').text(end);
+        });
+        options = {
+          containment: '.tab-pane',
+          html: true,
+          trigger: 'click',
+          placement: 'top',
+          content: function() {
+            return _this.content.$el;
+          },
+          title: function() {
+            return _this.$('h4').text();
+          }
+        };
+        this.popover = new intermine.bootstrap.DynamicPopover(this.el, options);
+        return this;
+      };
+
+      return QueryNode;
+
+    })(Backbone.View);
+    PossibleColumns = (function(_super) {
+      __extends(PossibleColumns, _super);
+
+      function PossibleColumns() {
+        _ref3 = PossibleColumns.__super__.constructor.apply(this, arguments);
+        return _ref3;
+      }
+
+      PossibleColumns.prototype.tagName = 'div';
+
+      PossibleColumns.prototype.className = 'im-possible-columns btn-group';
+
+      PossibleColumns.prototype.initialize = function(options) {
+        this.options = options;
+        return this.nodes = [];
+      };
+
+      PossibleColumns.prototype.remove = function() {
+        var node;
+
+        while (node = this.nodes.pop()) {
+          node.remove();
+        }
+        return PossibleColumns.__super__.remove.apply(this, arguments);
+      };
+
+      PossibleColumns.prototype.render = function() {
+        var _this = this;
+
+        this.collection.each(function(model) {
+          var el, item;
+
+          item = new QueryNode({
+            model: model
+          });
+          _this.nodes.push(item);
+          el = item.render().$el;
+          return _this.$el.append(el);
+        });
+        return this;
+      };
+
+      return PossibleColumns;
+
+    })(Backbone.View);
+    return scope('intermine.columns.views', {
+      PossibleColumns: PossibleColumns
+    });
+  })();
+
+  scope("intermine.conbuilder.messages", {
+    ValuePlaceholder: 'David*',
+    ExtraPlaceholder: 'Wernham-Hogg',
+    ExtraLabel: 'within',
+    IsA: 'is a',
+    NoValue: 'No value selected. Please enter a value.',
+    Duplicate: 'This constraint is already on the query',
+    TooManySuggestions: 'We cannot show you all the possible values'
+  });
+
+  (function() {
+    var ActiveConstraint, HIGHLIGHTER, MATCHER, NewConstraint, PATH_SEGMENT_DIVIDER, TOO_MANY_SUGGESTIONS, UPDATER, aeql, basicEql, _ref, _ref1;
+
+    PATH_SEGMENT_DIVIDER = "&rarr;";
+    MATCHER = function(tooMany) {
+      return function(item) {
+        var parts, _ref;
+
+        if ((item === tooMany) || (!this.query) || /^\s+$/.test(this.query)) {
+          return true;
+        } else {
+          parts = (_ref = this.query.toLowerCase().split(' ')) != null ? _ref : [];
+          return _.all(parts, function(p) {
+            return item.toLowerCase().indexOf(p) >= 0;
+          });
+        }
+      };
+    };
+    HIGHLIGHTER = function(tooMany) {
+      return function(item) {
+        if (item === tooMany) {
+          return tooMany;
+        } else {
+          return this.constructor.prototype.highlighter.call(this, item);
+        }
+      };
+    };
+    UPDATER = function(tooMany) {
+      return function(item) {
+        if (item === tooMany) {
+          return null;
+        } else {
+          return item;
+        }
+      };
+    };
+    TOO_MANY_SUGGESTIONS = _.template("<span class=\"alert alert-info\">\n  <i class=\"icon-info-sign\"></i>\n  " + intermine.conbuilder.messages.TooManySuggestions + "\n  There are <%= extra %> values we could not include.\n</span>");
+    aeql = function(xs, ys) {
+      var longer, shorter, _ref;
+
+      if (!xs && !ys) {
+        return true;
+      }
+      if (!xs || !ys) {
+        return false;
+      }
+      _ref = _.sortBy([xs, ys], function(a) {
+        return a.length;
+      }), shorter = _ref[0], longer = _ref[1];
+      return _.all(longer, function(x) {
+        return __indexOf.call(shorter, x) >= 0;
+      });
+    };
+    basicEql = function(a, b) {
+      var k, keys, same, va, vb, x, _i, _len, _ref;
+
+      if (!(a && b)) {
+        return a === b;
+      }
+      keys = _.union.apply(_, [a, b].map(_.keys));
+      same = true;
+      for (_i = 0, _len = keys.length; _i < _len; _i++) {
+        k = keys[_i];
+        _ref = (function() {
+          var _j, _len1, _ref, _results;
+
+          _ref = [a, b];
+          _results = [];
+          for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
+            x = _ref[_j];
+            _results.push(x[k]);
+          }
+          return _results;
+        })(), va = _ref[0], vb = _ref[1];
+        same && (same = (_.isArray(va) ? aeql(va, vb) : va === vb));
+      }
+      return same;
+    };
+    ActiveConstraint = (function(_super) {
+      var BASIC_OPS, CON_OPTS, IS_BLANK, toLabel;
+
+      __extends(ActiveConstraint, _super);
+
+      function ActiveConstraint() {
+        this.changeMultiValues = __bind(this.changeMultiValues, this);        _ref = ActiveConstraint.__super__.constructor.apply(this, arguments);
+        return _ref;
+      }
+
+      ActiveConstraint.prototype.tagName = "form";
+
+      ActiveConstraint.prototype.className = "form-inline im-constraint row-fluid";
+
+      BASIC_OPS = intermine.Query.ATTRIBUTE_VALUE_OPS.concat(intermine.Query.NULL_OPS);
+
+      ActiveConstraint.prototype.initialize = function(query, orig) {
+        var _ref1, _ref2;
+
+        this.query = query;
+        this.orig = orig;
+        this.typeaheads = [];
+        this.path = this.query.getPathInfo(this.orig.path);
+        this.type = this.path.getType();
+        this.cast = (_ref1 = this.type, __indexOf.call(intermine.Model.NUMERIC_TYPES, _ref1) >= 0) ? (function(x) {
+          return 1 * x;
+        }) : (function(x) {
+          return '' + x;
+        });
+        this.con = new Backbone.Model(_.extend({}, this.orig));
+        if (this.path.isReference() || this.path.isRoot()) {
+          this.ops = intermine.Query.REFERENCE_OPS;
+        } else if (_ref2 = this.path.getType(), __indexOf.call(intermine.Model.BOOLEAN_TYPES, _ref2) >= 0) {
+          this.ops = ["=", "!="].concat(intermine.Query.NULL_OPS);
+        } else if (this.con.has('values')) {
+          this.ops = intermine.Query.ATTRIBUTE_OPS;
+        } else {
+          this.ops = BASIC_OPS;
+        }
+        return this.con.on('change', this.fillConSummaryLabel, this);
+      };
+
+      ActiveConstraint.prototype.events = {
+        'change .im-ops': 'drawValueOptions',
+        'click .im-edit': 'toggleEditForm',
+        'click .btn-cancel': 'hideEditForm',
+        'click .btn-primary': 'editConstraint',
+        'click .icon-remove-sign': 'removeConstraint',
+        'click td.im-multi-value': 'toggleRowCheckbox',
+        'submit': function(e) {
+          e.preventDefault();
+          return e.stopPropagation();
+        }
+      };
+
+      ActiveConstraint.prototype.toggleRowCheckbox = function(e) {
+        var $td, input;
+
+        $td = $(e.target);
+        input = $td.prev().find('input')[0];
+        input.checked = !input.checked;
+        return $(input).trigger('change');
+      };
+
+      ActiveConstraint.prototype.toggleEditForm = function() {
+        this.$('.im-constraint-options').show();
+        this.$('.im-con-buttons').show();
+        this.$('.im-value-options').show();
+        this.$el.siblings('.im-constraint').slideUp();
+        return this.$el.closest('.well').addClass('im-editing');
+      };
+
+      ActiveConstraint.prototype.hideEditForm = function(e) {
+        var ta, _results;
+
+        if (e != null) {
+          e.preventDefault();
+        }
+        if (e != null) {
+          e.stopPropagation();
+        }
+        this.$el.removeClass('error');
+        this.$el.siblings('.im-constraint').slideDown();
+        this.$el.closest('.well').removeClass('im-editing');
+        this.$('.im-con-overview').siblings('[class*="im-con"]').slideUp(200);
+        this.$('.im-multi-value-table input').prop('checked', true);
+        this.con.set(_.extend({}, this.orig));
+        _results = [];
+        while ((ta = this.typeaheads.shift())) {
+          _results.push(ta.remove());
+        }
+        return _results;
+      };
+
+      IS_BLANK = /^\s*$/;
+
+      ActiveConstraint.prototype.valid = function() {
+        var e, ok, op, val;
+
+        if (this.con.has('type')) {
+          return true;
+        }
+        if (!this.con.get('op') || IS_BLANK.test(this.con.get('op'))) {
+          return false;
+        }
+        op = this.con.get('op');
+        if (this.path.isReference() && (op === '=' || op === '!=')) {
+          ok = (function() {
+            try {
+              this.query.getPathInfo(this.con.get('value'));
+              return true;
+            } catch (_error) {
+              e = _error;
+              return false;
+            }
+          }).call(this);
+          return ok;
+        }
+        if (__indexOf.call(intermine.Query.ATTRIBUTE_VALUE_OPS.concat(intermine.Query.REFERENCE_OPS), op) >= 0) {
+          val = this.con.get('value');
+          return (val != null) && (!IS_BLANK.test(val)) && (!_.isNaN(val));
+        }
+        if (__indexOf.call(intermine.Query.MULTIVALUE_OPS, op) >= 0) {
+          return this.con.has('values') && this.con.get('values').length > 0;
+        }
+        return true;
+      };
+
+      ActiveConstraint.prototype.isDuplicate = function() {
+        return _.any(this.query.constraints, _.partial(basicEql, this.con.toJSON()));
+      };
+
+      ActiveConstraint.prototype.setError = function(key) {
+        this.$el.addClass('error');
+        this.$('.im-conbuilder-error').text(intermine.conbuilder.messages[key]);
+        return false;
+      };
+
+      ActiveConstraint.prototype.editConstraint = function(e) {
+        var silently, ta, _ref1, _ref2, _ref3;
+
+        if (e != null) {
+          e.stopPropagation();
+        }
+        if (e != null) {
+          e.preventDefault();
+        }
+        if (!this.valid()) {
+          return this.setError('NoValue');
+        }
+        if (this.isDuplicate()) {
+          return this.setError('Duplicate');
+        }
+        this.removeConstraint(e, silently = true);
+        if (_ref1 = this.con.get('op'), __indexOf.call(intermine.Query.MULTIVALUE_OPS.concat(intermine.Query.NULL_OPS), _ref1) >= 0) {
+          this.con.unset('value');
+        }
+        if (_ref2 = this.con.get('op'), __indexOf.call(intermine.Query.ATTRIBUTE_VALUE_OPS.concat(intermine.Query.NULL_OPS), _ref2) >= 0) {
+          this.con.unset('values');
+        }
+        if ((_ref3 = this.con.get('op'), __indexOf.call(intermine.Query.MULTIVALUE_OPS, _ref3) >= 0) && this.con.get('values').length === 0) {
+          this.query.trigger("change:constraints");
+        } else {
+          this.query.addConstraint(this.con.toJSON());
+        }
+        while ((ta = this.typeaheads.shift())) {
+          ta.remove();
+        }
+        return true;
+      };
+
+      ActiveConstraint.prototype.removeConstraint = function(e, silently) {
+        if (silently == null) {
+          silently = false;
+        }
+        return this.query.removeConstraint(this.orig, silently);
+      };
+
+      ActiveConstraint.prototype.addIcons = function($label) {
+        $label.append("<a><i class=\"icon-remove-sign\"></i></a>");
+        if (this.con.locked) {
+          return $label.append("<a><i class=\"icon-lock\" title=\"this constraint is not editable\"></i></a>");
+        } else {
+          return $label.append("<a><i class=\"im-edit " + intermine.icons.Edit + "\"></i></a>");
+        }
+      };
+
+      ActiveConstraint.prototype.buttons = [
+        {
+          text: "Update",
+          "class": "btn btn-primary"
+        }, {
+          text: "Cancel",
+          "class": "btn btn-cancel"
+        }
+      ];
+
+      ActiveConstraint.prototype.addButtons = function() {
+        var btns, c, t, _fn, _i, _len, _ref1, _ref2;
+
+        btns = $("<div class=\"btn-group im-con-buttons\">\n</div>");
+        _ref1 = this.buttons;
+        _fn = function() {
+          return btns.append("<button class=\"" + c + "\">" + t + "</button>");
+        };
+        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+          _ref2 = _ref1[_i], t = _ref2.text, c = _ref2["class"];
+          _fn();
+        }
+        return this.$el.append(btns);
+      };
+
+      ActiveConstraint.prototype.getTitleOp = function() {
+        return this.con.get('op') || intermine.conbuilder.messages.IsA;
+      };
+
+      ActiveConstraint.prototype.getTitleVal = function() {
+        if (this.con.get('values')) {
+          return this.con.get('values').length + " values";
+        } else if (this.con.has('value')) {
+          return this.con.get('value');
+        } else {
+          return this.con.get('type');
+        }
+      };
+
+      toLabel = function(content, type) {
+        return $("<span class=\"label label-" + type + "\">" + content + "</span>");
+      };
+
+      ActiveConstraint.prototype.fillConSummaryLabel = function() {
+        var op, sp, ul, val, _ref1,
+          _this = this;
+
+        if (this.label == null) {
+          return;
+        }
+        this.label.empty();
+        this.addIcons(this.label);
+        ul = $('<ul class="breadcrumb">').appendTo(this.label);
+        if (this.con.has('title')) {
+          ul.append(toLabel(this.con.get('title'), 'path'));
+        } else {
+          sp = toLabel(this.path, 'path');
+          (function(sp) {
+            return _this.path.getDisplayName(function(name) {
+              return sp.text(name);
+            });
+          })(sp);
+          ul.append(sp);
+        }
+        if ((op = this.getTitleOp())) {
+          ul.append(toLabel(op, 'op'));
+        }
+        if (_ref1 = this.con.get('op'), __indexOf.call(intermine.Query.NULL_OPS, _ref1) < 0) {
+          val = this.getTitleVal();
+          if (val != null) {
+            ul.append(toLabel(val, 'value'));
+          }
+          if (this.con.has('extraValue')) {
+            ul.append(intermine.conbuilder.messages.ExtraLabel);
+            return ul.append(toLabel(this.con.get('extraValue'), 'extra'));
+          }
+        }
+      };
+
+      CON_OPTS = "<fieldset class=\"im-constraint-options\"></fieldset>";
+
+      ActiveConstraint.prototype.render = function() {
+        var fs;
+
+        this.label = $("<label class=\"im-con-overview\">\n</label>");
+        this.fillConSummaryLabel();
+        this.$el.append(this.label);
+        fs = $(CON_OPTS).appendTo(this.el);
+        if (this.con.has('op')) {
+          this.drawOperatorSelector(fs);
+        }
+        this.drawValueOptions();
+        this.$el.append("<div class=\"alert alert-error im-hidden\">\n  <i class=\"icon-warning-sign\"></i>\n  <span class=\"im-conbuilder-error\">\n  </span>\n</div>");
+        this.addButtons();
+        return this;
+      };
+
+      ActiveConstraint.prototype.drawOperatorSelector = function(fs) {
+        var $select, current,
+          _this = this;
+
+        current = this.con.get('op');
+        $select = $("<select class=\"span4 im-ops\"><option>" + current + "</option></select>");
+        $select.appendTo(fs);
+        _(this.ops).chain().without(current).each(function(op) {
+          return $select.append("<option>" + op + "</select>");
+        });
+        return $select.change(function(e) {
+          return _this.con.set({
+            op: $select.val()
+          });
+        });
+      };
+
+      ActiveConstraint.prototype.btnGroup = "<div class=\"im-value-options btn-group\" data-toggle=\"buttons-radio\"></div>";
+
+      ActiveConstraint.prototype.drawTypeOpts = function(fs) {
+        var baseType, label, schema, select, subclasses, t, type, types, _fn, _i, _len,
+          _this = this;
+
+        label = "<label class=\"span4\">IS A</label>";
+        select = $("<select class=\"span7\">\n</select>");
+        fs.append(label);
+        fs.append(select);
+        type = this.con.get('type');
+        subclasses = this.query.getSubclasses();
+        schema = this.query.model;
+        delete subclasses[this.path];
+        baseType = schema.getPathInfo(this.path, subclasses).getType();
+        types = [type].concat(schema.getSubclassesOf(baseType));
+        _fn = function(t) {
+          var option;
+
+          option = $('<option>');
+          option.attr({
+            value: t
+          });
+          select.append(option);
+          return schema.getPathInfo(t).getDisplayName().done(function(name) {
+            return option.text(name);
+          });
+        };
+        for (_i = 0, _len = types.length; _i < _len; _i++) {
+          t = types[_i];
+          _fn(t);
+        }
+        return select.change(function() {
+          return _this.con.set({
+            type: select.val()
+          });
+        });
+      };
+
+      ActiveConstraint.prototype.drawBooleanOpts = function(fs) {
+        var con, current, grp, val, _i, _len, _ref1, _results,
+          _this = this;
+
+        current = this.con.get('value');
+        con = this.con;
+        grp = $(this.btnGroup).appendTo(fs);
+        _ref1 = ['true', 'false'];
+        _results = [];
+        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+          val = _ref1[_i];
+          _results.push((function(val) {
+            var button;
+
+            button = $("<button class=\"btn " + (current === val ? 'active' : '') + "\">\n    " + val + "\n</button>");
+            button.appendTo(grp);
+            return button.click(function(e) {
+              var wasActive;
+
+              wasActive = button.is('.active');
+              grp.find('button').removeClass('active');
+              if (!wasActive) {
+                button.addClass('active');
+                return _this.con.set({
+                  value: val
+                });
+              } else {
+                return _this.con.unset('value');
+              }
+            });
+          })(val));
+        }
+        return _results;
+      };
+
+      ActiveConstraint.prototype.valueSelect = "<select class=\"span7 im-value-options im-con-value\"></select>";
+
+      ActiveConstraint.prototype.listOptionTempl = _.template("<option value=\"<%- name %>\">\n    <%- name %> (<%- size %> <%- type %>s)\n</option>");
+
+      ActiveConstraint.prototype.multiValueTable = "<div class=\"im-value-options im-multi-value-table\">\n  <table class=\"table table-condensed\"></table>\n</div>";
+
+      ActiveConstraint.prototype.multiValueOptTempl = _.template("<tr>\n    <td><input type=checkbox checked data-value=\"<%- value %>\"></td>\n    <td class=\"im-multi-value\"><%- value %></td>\n</tr>");
+
+      ActiveConstraint.prototype.clearer = '<div class="im-value-options" style="clear:both;">';
+
+      ActiveConstraint.prototype.drawMultiValueOps = function(fs) {
+        var $multiValues, con, table, values,
+          _this = this;
+
+        con = this.con;
+        if (!con.has('values')) {
+          con.set({
+            values: []
+          });
+        }
+        values = con.get('values');
+        $multiValues = $(this.multiValueTable).appendTo(fs);
+        table = $multiValues.find('table');
+        _(values).each(function(v) {
+          return table.append(_this.multiValueOptTempl({
+            value: v
+          }));
+        });
+        return $multiValues.find('input').change(this.changeMultiValues);
+      };
+
+      ActiveConstraint.prototype.changeMultiValues = function(e) {
+        var changed, value, values;
+
+        changed = $(e.target);
+        values = this.con.get('values');
+        value = changed.data('value');
+        if (changed.prop('checked')) {
+          values = _.union(values, [value]);
+        } else {
+          values = _.without(values, value);
+        }
+        return this.con.set({
+          values: values
+        });
+      };
+
+      ActiveConstraint.prototype.drawListOptions = function(fs) {
+        var $lists,
+          _this = this;
+
+        $lists = $(this.valueSelect).appendTo(fs);
+        this.query.service.fetchLists(function(ls) {
+          var selectables, sl, _i, _len;
+
+          selectables = _(ls).filter(function(l) {
+            return l.size && _this.path.isa(l.type);
+          });
+          for (_i = 0, _len = selectables.length; _i < _len; _i++) {
+            sl = selectables[_i];
+            $lists.append(_this.listOptionTempl(sl));
+          }
+          if (_this.con.has('value')) {
+            $lists.val(_this.con.get('value'));
+          }
+          if (selectables.length === 0) {
+            $lists.attr({
+              disabled: true
+            });
+            return $lists.append('No lists of this type available');
+          } else {
+            return _this.con.set({
+              value: $lists.val()
+            });
+          }
+        });
+        return $lists.change(function(e) {
+          return _this.con.set({
+            value: $lists.val()
+          });
+        });
+      };
+
+      ActiveConstraint.prototype.drawLoopOpts = function(fs) {
+        var $loops, lc, loopCandidates, opt, _i, _len, _results,
+          _this = this;
+
+        $loops = $(this.valueSelect).appendTo(fs);
+        loopCandidates = this.query.getQueryNodes().filter(function(lc) {
+          return lc.isa(_this.type) || _this.path.isa(lc.getType());
+        });
+        _results = [];
+        for (_i = 0, _len = loopCandidates.length; _i < _len; _i++) {
+          lc = loopCandidates[_i];
+          opt = $("<option value=\"" + (lc.toString()) + "\">");
+          opt.appendTo($loops);
+          _results.push((function(opt, lc) {
+            return lc.getDisplayName(function(name) {
+              return opt.text(name);
+            });
+          })(opt, lc));
+        }
+        return _results;
+      };
+
+      ActiveConstraint.prototype.handleSummary = function(input, items, total) {
+        var MaxSuggestions, item, suggestions, tooMany;
+
+        suggestions = (function() {
+          var _i, _len, _ref1, _results;
+
+          _ref1 = _.pluck(items, 'item');
+          _results = [];
+          for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+            item = _ref1[_i];
+            _results.push('' + item);
+          }
+          return _results;
+        })();
+        MaxSuggestions = intermine.options.MaxSuggestions;
+        if (total > MaxSuggestions) {
+          tooMany = TOO_MANY_SUGGESTIONS({
+            extra: total - MaxSuggestions
+          });
+          suggestions.push(tooMany);
+        }
+        input.typeahead({
+          source: suggestions,
+          items: 20,
+          minLength: 0,
+          updater: UPDATER(tooMany),
+          highlighter: HIGHLIGHTER(tooMany),
+          matcher: MATCHER(tooMany)
+        });
+        this.typeaheads.push(input.data('typeahead').$menu);
+        this.query.on('cancel:add-constraint', function() {
+          var _ref1;
+
+          return (_ref1 = input.data('typeahead')) != null ? _ref1.$menu.remove() : void 0;
+        });
+        return input.attr({
+          placeholder: items[0].item
+        });
+      };
+
+      ActiveConstraint.prototype.handleNumericSummary = function(input, _arg) {
+        var $slider, average, caster, fs, isInt, max, min, step, _ref1;
+
+        min = _arg.min, max = _arg.max, average = _arg.average;
+        isInt = (_ref1 = this.path.getType(), __indexOf.call(intermine.Model.INTEGRAL_TYPES, _ref1) >= 0);
+        step = isInt ? 1 : max - min / 100;
+        caster = isInt ? parseInt : parseFloat;
+        fs = input.closest('fieldset');
+        fs.append(this.clearer);
+        $slider = $('<div class="im-value-options">');
+        $slider.appendTo(fs).slider({
+          min: min,
+          max: max,
+          value: (this.con.has('value') ? this.con.get('value') : caster(average)),
+          step: step,
+          slide: function(e, ui) {
+            return input.val(ui.value).change();
+          }
+        });
+        input.attr({
+          placeholder: caster(average)
+        });
+        fs.append(this.clearer);
+        return input.change(function(e) {
+          return $slider.slider('value', caster(input.val()));
+        });
+      };
+
+      ActiveConstraint.prototype.drawAttributeOpts = function(fs) {
+        var input, setValue,
+          _this = this;
+
+        input = $("<input class=\"span7 im-constraint-value im-value-options im-con-value\" type=\"text\"\n    placeholder=\"" + intermine.conbuilder.messages.ValuePlaceholder + "\"\n    value=\"" + (this.con.get('value') || '') + "\"\n>");
+        fs.append(input);
+        setValue = function() {
+          var _ref1;
+
+          return _this.con.set({
+            value: _this.cast((_ref1 = input.val()) != null ? _ref1.trim() : void 0)
+          });
+        };
+        input.keyup(setValue);
+        input.change(setValue);
+        this.con.on('change:value', function() {
+          var current;
+
+          current = _this.con.get('value');
+          if (current !== _this.cast(input.val())) {
+            return input.val(current).change();
+          }
+        });
+        if (this.path.isAttribute()) {
+          return this.provideSuggestions(input);
+        }
+      };
+
+      ActiveConstraint.prototype.provideSuggestions = function(input) {
+        var c, clone, filtering, pstr, value,
+          _this = this;
+
+        clone = this.query.clone();
+        pstr = this.path.toString();
+        value = this.con.get('value');
+        clone.constraints = (function() {
+          var _i, _len, _ref1, _results;
+
+          _ref1 = clone.constraints;
+          _results = [];
+          for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+            c = _ref1[_i];
+            if (!(c.path === pstr && c.value === value)) {
+              _results.push(c);
+            }
+          }
+          return _results;
+        })();
+        filtering = clone.filterSummary(pstr, "", intermine.options.MaxSuggestions);
+        return filtering.done(function(items, stats) {
+          if ((items != null ? items.length : void 0) > 0) {
+            if (items[0].item != null) {
+              return _this.handleSummary(input, items, stats.uniqueValues);
+            } else if (items[0].max != null) {
+              return _this.handleNumericSummary(input, items[0]);
+            }
+          }
+        });
+      };
+
+      ActiveConstraint.prototype.drawExtraOpts = function(fs) {
+        var input,
+          _this = this;
+
+        fs.append("<label class=\"im-value-options\">\n    " + intermine.conbuilder.messages.ExtraLabel + "\n    <input type=\"text\" class=\"im-extra-value\"\n        placeholder=\"" + intermine.conbuilder.messages.ExtraPlaceholder + "\"\n        value=\"" + (this.con.get('extraValue') || '') + "\"\n    >\n</label>");
+        return input = fs.find('input.im-extra-value').change(function(e) {
+          return _this.con.set({
+            extraValue: input.val()
+          });
+        });
+      };
+
+      ActiveConstraint.prototype.drawValueOptions = function() {
+        var currentOp, fs, _ref1;
+
+        this.$('.im-value-options').remove();
+        fs = this.$('.im-constraint-options');
+        currentOp = this.con.get('op');
+        if (!currentOp && this.con.has('type')) {
+          this.drawTypeOpts(fs);
+        } else if ((_ref1 = this.path.getType(), __indexOf.call(intermine.Model.BOOLEAN_TYPES, _ref1) >= 0) && !(__indexOf.call(intermine.Query.NULL_OPS, currentOp) >= 0)) {
+          this.drawBooleanOpts(fs);
+        } else if (__indexOf.call(intermine.Query.MULTIVALUE_OPS, currentOp) >= 0) {
+          this.drawMultiValueOps(fs);
+        } else if (__indexOf.call(intermine.Query.LIST_OPS, currentOp) >= 0) {
+          this.drawListOptions(fs);
+        } else if (this.path.isReference() && (currentOp === '=' || currentOp === '!=')) {
+          this.drawLoopOpts(fs);
+        } else if (!(__indexOf.call(intermine.Query.NULL_OPS, currentOp) >= 0)) {
+          this.drawAttributeOpts(fs);
+        }
+        if (__indexOf.call(intermine.Query.TERNARY_OPS, currentOp) >= 0) {
+          return this.drawExtraOpts(fs);
+        }
+      };
+
+      return ActiveConstraint;
+
+    })(Backbone.View);
+    NewConstraint = (function(_super) {
+      __extends(NewConstraint, _super);
+
+      function NewConstraint() {
+        _ref1 = NewConstraint.__super__.constructor.apply(this, arguments);
+        return _ref1;
+      }
+
+      NewConstraint.prototype.initialize = function(q, c) {
+        NewConstraint.__super__.initialize.call(this, q, c);
+        this.$el.addClass("new");
+        this.buttons[0].text = "Apply";
+        return this.con.set({
+          op: (this.path.isReference() ? 'LOOKUP' : '=')
+        });
+      };
+
+      NewConstraint.prototype.addIcons = function() {};
+
+      NewConstraint.prototype.valueChanged = function(value) {
+        return this.fillConSummaryLabel(_.extend({}, this.con, {
+          value: "" + value
+        }));
+      };
+
+      NewConstraint.prototype.opChanged = function(op) {
+        return this.$('.label-op').text(op);
+      };
+
+      NewConstraint.prototype.removeConstraint = function() {};
+
+      NewConstraint.prototype.hideEditForm = function(e) {
+        NewConstraint.__super__.hideEditForm.call(this, e);
+        this.query.trigger("cancel:add-constraint");
+        return this.remove();
+      };
+
+      return NewConstraint;
+
+    })(ActiveConstraint);
+    return scope("intermine.query", {
+      ActiveConstraint: ActiveConstraint,
+      NewConstraint: NewConstraint
+    });
+  })();
+
+  (function() {
+    var DownloadDialogue;
+
+    DownloadDialogue = function() {
+      return "<div class=\"modal-header\">\n  <a  class=\"close im-closer\" data-dismiss=\"modal\">close</a>\n  <h2>\n    " + intermine.messages.actions.ExportTitle + "\n  </h2>\n</div>\n\n<div class=\"modal-body tab-content\">\n <div class=\"carousel slide\">\n  <div class=\"carousel-inner\">\n  <div class=\"active item\">\n\n   <div class=\"tabbable tabs-left\">\n     <ul class=\"nav nav-tabs\">\n       <li class=\"active\">\n         <a  class=\"im-export-format\">format</a>\n       </li>\n       <li>\n         <a  class=\"im-export-columns\">columns</a>\n       </li>\n       <li>\n         <a  class=\"im-export-rows\">Rows</a>\n       </li>\n       <li>\n         <a  class=\"im-export-output\">Output</a>\n       </li>\n       <li>\n         <a  class=\"im-export-destination\">\n          Destination: <span class=\"im-current\"></span>\n         </a>\n       </li>\n       <div class=\"alert alert-info\">\n         <p>\n          <i class=\"icon-info-sign\"></i>\n          " + intermine.messages.actions.ConfigureExportHelp + "\n         </p>\n       </div>\n     </ul>\n     <div class=\"tab-content\">\n       <div class=\"tab-pane active im-export-format\">\n          <h2>\n            " + intermine.messages.actions.ExportFormat + "\n          </h2>\n         <div class=\"im-export-formats\" data-toggle=\"buttons-radio\">\n         </div>\n       </div>\n       <div class=\"tab-pane im-export-columns\">\n           <button class=\"im-reset-cols btn disabled pull-right\">\n             <i class=\"" + intermine.icons.Undo + "\"></i>\n             " + intermine.messages.actions.ResetColumns + "\n           </button>\n          <h2>\n            " + intermine.messages.actions.WhichColumns + "\n          </h2>\n          <div class=\"im-col-options\">\n            <div class=\"well\">\n              <ul class=\"im-cols im-exported-cols nav nav-tabs nav-stacked\"></ul>\n            </div>\n            <h4>" + intermine.messages.actions.PossibleColumns + "</h4>\n            <div class=\"im-can-be-exported-cols\">\n            </div>\n            <div style=\"clear:both;\"></div>\n          </div>\n          <div class=\"im-col-options-bio\">\n          </div>\n       </div>\n       <div class=\"tab-pane im-export-rows\">\n         <h2>\n          " + intermine.messages.actions.WhichRows + "\n         </h2>\n          <div class=\"form-horizontal\">\n            <fieldset class=\"im-row-selection control-group\">\n              <label class=\"control-label\">\n                " + intermine.messages.actions.FirstRow + "\n                <input type=\"text\" value=\"1\"\n                        class=\"disabled input-mini im-first-row im-range-limit\">\n              </label>\n              <label class=\"control-label\">\n                " + intermine.messages.actions.LastRow + "\n                <input type=\"text\"\n                        class=\"disabled input-mini im-last-row im-range-limit\">\n              </label>\n              <div style=\"clear:both\"></div>\n              <div class=\"slider im-row-range-slider\"></div>\n            </fieldset>\n          </div>\n       </div>\n       <div class=\"tab-pane im-export-output\">\n          <label>\n            " + intermine.messages.actions.CompressResults + "\n          </label>\n          <div class=\"span11 im-compression-opts radio btn-group pull-right\"\n                data-toggle=\"buttons-radio\">\n            <button class=\"btn active im-no-compression span7\">\n              " + intermine.messages.actions.NoCompression + "\n            </button>\n            <button class=\"btn im-gzip-compression span2\">\n              " + intermine.messages.actions.GZIPCompression + "\n            </button>\n            <button class=\"btn im-zip-compression span2\">\n              " + intermine.messages.actions.ZIPCompression + "\n            </button>\n          </div>\n          <div style=\"clear:both\"></div>\n          <div class=\"im-output-options\">\n          </div>\n       </div>\n       <div class=\"tab-pane im-export-destination\">\n      <ul class=\"im-export-destinations nav nav-pills\">\n        <li class=\"active\">\n          <a  data-destination=\"download-file\">\n            <i class=\"" + intermine.icons.Download + "\"></i>\n            " + intermine.messages.actions.ExportLong + "\n          </a>\n        </li>\n      </ul>\n        <div class=\"row-fluid im-export-destination-options\">\n\n          <div class=\"im-download-file active\">\n            <div class=\"btn-group im-what-to-show\">\n              <button class=\"im-results-uri btn active\">\n                " + intermine.messages.actions.ResultsPermaLinkText + ":\n              </button>\n              <button class=\"im-query-xml btn\">\n                " + intermine.messages.actions.QueryXML + "\n              </button>\n            </div>\n            <span class=\"im-copy\">\n              <i class=\"icon " + intermine.icons.ClipBoard + "\"></i>\n              " + intermine.messages.actions.Copy + "\n            </span>\n\n            <div class=\"well im-perma-link-content active\"></div>\n            <div class=\"well im-query-xml\"></div>\n\n            <div class=\"alert alert-block im-private-query\">\n              <button type=\"button\" class=\"close im-closer\" data-dismiss=\"alert\">×</button>\n              <h4>nb:</h4>\n              " + intermine.messages.actions.IsPrivateData + "\n            </div>\n\n            <div class=\"alert alert-block alert-info im-long-uri\">\n              <button type=\"button\" class=\"close im-closer\" data-dismiss=\"alert\">×</button>\n              <h4>nb:</h4>\n              " + intermine.messages.actions.LongURI + "\n            </div>\n\n\n          </div>\n\n        </div>\n       </div>\n     </div>\n   </div>\n  \n  </div> <!-- End item -->\n  \n  <div class=\"item\">\n    <iframe class=\"gs-frame\" width=\"0\" height=\"0\" frameborder=\"0\"\n      id=\"im-to-gs-" + (new Date().getTime()) + "\">\n    </iframe>\n  </div>\n\n  </div> <!-- end inner -->\n  </div> <!-- end carousel -->\n\n</div>\n\n<!--\n-->\n\n<div class=\"modal-footer\">\n  <a  class=\"btn btn-primary im-download pull-right\">\n    <i class=\"icon " + intermine.icons.Export + "\"></i>\n    " + intermine.messages.actions.Export + "\n  </a>\n  <button class=\"btn btn-cancel pull-left im-cancel\">\n    " + intermine.messages.actions.Cancel + "\n  </button>\n</div>";
+    };
+    return scope('intermine.snippets.actions', {
+      DownloadDialogue: DownloadDialogue
+    });
+  })();
 
   (function() {
     var DropDownColumnSummary, OuterJoinDropDown, SummaryHeading, _ref, _ref1, _ref2;
@@ -2328,151 +5154,251 @@
   })();
 
   (function() {
-    var SVG, supportsSVG;
+    var DynamicPopover;
 
-    SVG = "http://www.w3.org/TR/SVG11/feature#Shape";
-    supportsSVG = function() {
-      var _ref;
+    DynamicPopover = (function(_super) {
+      __extends(DynamicPopover, _super);
 
-      return (typeof SVGAngle !== "undefined" && SVGAngle !== null) || (window.SVGAngle != null) || ((_ref = document.implementation) != null ? typeof _ref.hasFeature === "function" ? _ref.hasFeature(SVG, "1.0") : void 0 : void 0);
-    };
-    /*
-    # Add a 'destroyed' event on element removal.
-    */
-
-    jQuery.event.special.destroyed = {
-      remove: function(o) {
-        if (o.type !== 'destroyed') {
-          return typeof o.handler === "function" ? o.handler() : void 0;
+      function DynamicPopover(elem, opts) {
+        this.init('popover', elem, opts);
+        $(elem).data('popover', this);
+        if (opts != null ? opts.classes : void 0) {
+          this.tip().addClass(opts.classes);
         }
       }
-    };
-    /*
-    *
-    * A bridge between iPad and iPhone touch events and jquery draggable, 
-    * sortable etc. mouse interactions.
-    * @author Oleg Slobodskoi  
-    * 
-    * modified by John Hardy to use with any touch device
-    * fixed breakage caused by jquery.ui so that mouseHandled internal flag is reset 
-    * before each touchStart event
-    *
-    */
 
-    (function($) {
-      var proto, _mouseInit;
-
-      $.support.touch = typeof Touch === 'object';
-      if (!$.support.touch) {
-        return false;
-      }
-      proto = $.ui.mouse.prototype;
-      _mouseInit = proto._mouseInit;
-      return $.extend(proto, {
-        _mouseInit: function() {
-          this.element.bind("touchstart." + this.widgetName, $.proxy(this, "_touchStart"));
-          return _mouseInit.apply(this, arguments);
-        },
-        _touchStart: function(event) {
-          if (event.originalEvent.targetTouches.length !== 1) {
-            return false;
-          }
-          this.element.bind("touchmove." + this.widgetName, $.proxy(this, "_touchMove")).bind("touchend." + this.widgetName, $.proxy(this, "_touchEnd"));
-          this._modifyEvent(event);
-          $(document).trigger($.Event("mouseup"));
-          this._mouseDown(event);
-          return false;
-        },
-        _touchMove: function(event) {
-          this._modifyEvent(event);
-          return this._mouseMove(event);
-        },
-        _touchEnd: function(event) {
-          this.element.unbind("touchmove." + this.widgetName).unbind("touchend." + this.widgetName);
-          return this._mouseUp(event);
-        },
-        _modifyEvent: function(event) {
-          var target;
-
-          event.which = 1;
-          target = event.originalEvent.targetTouches[0];
-          event.pageX = target.clientX;
-          return event.pageY = target.clientY;
-        }
-      });
-    })(jQuery);
-    return jQuery.fn.imWidget = function(arg0, arg1) {
-      var cls, error, events, hasStyle, options, properties, query, service, token, type, url, view;
-
-      hasStyle = function(pattern) {
-        var found, links;
-
-        links = jQuery('link[rel="stylesheet"]');
-        found = false;
-        links.each(function() {
-          return found || (found = pattern.test(this.href));
-        });
-        return found;
+      DynamicPopover.prototype.hasContent = function() {
+        return true;
       };
-      if (typeof arg0 === 'string') {
-        view = this.data('widget');
-        if (arg0 === 'option') {
-          switch (arg1) {
-            case 'query':
-              return view.query;
-            case 'service':
-              return view.service;
-            case 'events':
-              return view.queryEvents;
-            case 'type':
-              return this.data('widget-type');
-            case 'properties':
-              return this.data('widget-options');
-            default:
-              throw new Error("Unknown option " + arg1);
-          }
-        } else if (arg0 === 'table') {
-          return view;
+
+      DynamicPopover.prototype.getPlacement = function() {
+        if (typeof this.options.placement === 'function') {
+          return this.options.placement.call(this, this.tip()[0], this.$element[0]);
         } else {
-          throw new Error("Unknown method " + arg0);
+          return this.options.placement;
         }
-      } else {
-        type = arg0.type, service = arg0.service, url = arg0.url, token = arg0.token, query = arg0.query, events = arg0.events, properties = arg0.properties, error = arg0.error, options = arg0.options;
-        if (supportsSVG() && (typeof d3 === "undefined" || d3 === null)) {
-          intermine.cdn.load('d3');
+      };
+
+      DynamicPopover.prototype.respectContainment = function(offset, pos, placement) {
+        var $containment, $tip, actualHeight, actualWidth, arrowHeight, arrowOffset, arrowWidth, bottom, diff, height, left, top, _ref;
+
+        $tip = this.tip();
+        arrowOffset = {};
+        actualWidth = $tip[0].offsetWidth;
+        actualHeight = $tip[0].offsetHeight;
+        $containment = this.$element.closest(this.options.containment);
+        _ref = $containment.offset(), top = _ref.top, left = _ref.left;
+        height = $containment[0].offsetHeight;
+        bottom = top + height;
+        arrowHeight = $tip.find('.arrow')[0].offsetHeight;
+        arrowWidth = $tip.find('.arrow')[0].offsetWidth;
+        if (actualHeight >= height) {
+          $tip.find('.arrow').css({
+            top: '',
+            left: ''
+          });
+          return;
         }
-        if (!hasStyle(/font-awesome/)) {
-          intermine.cdn.load('font-awesome');
+        if (placement === 'right' || placement === 'left') {
+          if (offset.top < top) {
+            diff = top - offset.top;
+            offset.top += diff;
+            arrowOffset.top = offset.top + (pos.top - offset.top) + (pos.height / 2) - (arrowHeight / 2);
+          } else if (offset.top + actualHeight > bottom) {
+            diff = offset.top + actualHeight - bottom;
+            offset.top -= diff;
+            arrowOffset.top = offset.top + (pos.top - offset.top) + (pos.height / 2) - (arrowHeight / 2);
+          }
+        } else {
+          if (offset.left < left) {
+            diff = left - offset.left;
+            offset.left += diff;
+            arrowOffset.left = pos.left + (pos.width / 2) - (arrowWidth / 2);
+          }
         }
-        if (service == null) {
-          service = new intermine.Service({
-            root: url,
-            token: token
+        if (placement === 'right') {
+          offset.left += arrowWidth;
+        } else if (placement === 'top') {
+          offset.top -= arrowHeight;
+        } else if (placement === 'left') {
+          offset.left -= arrowWidth;
+        }
+        $tip.offset(offset);
+        return $tip.find('.arrow').offset(arrowOffset);
+      };
+
+      DynamicPopover.prototype.applyPlacement = function(offset, placement) {
+        var $tip;
+
+        $tip = this.tip();
+        $tip.removeClass('left right top bottom');
+        return DynamicPopover.__super__.applyPlacement.call(this, offset, placement);
+      };
+
+      DynamicPopover.prototype.reposition = function() {
+        var $tip, actualHeight, actualWidth, placement, pos, tp;
+
+        pos = this.getPosition();
+        $tip = this.tip();
+        actualWidth = $tip[0].offsetWidth;
+        actualHeight = $tip[0].offsetHeight;
+        placement = this.getPlacement();
+        tp = (function() {
+          switch (placement) {
+            case 'bottom':
+              return {
+                top: pos.top + pos.height,
+                left: pos.left + pos.width / 2 - actualWidth / 2
+              };
+            case 'top':
+              return {
+                top: pos.top - actualHeight,
+                left: pos.left + pos.width / 2 - actualWidth / 2
+              };
+            case 'left':
+              return {
+                top: pos.top + pos.height / 2 - actualHeight / 2,
+                left: pos.left - actualWidth
+              };
+            case 'right':
+              return {
+                top: pos.top + pos.height / 2 - actualHeight / 2,
+                left: pos.left + pos.width
+              };
+          }
+        })();
+        this.applyPlacement(tp, placement);
+        if (this.options.containment != null) {
+          this.respectContainment(tp, pos, placement);
+        }
+        return this.$element.trigger('repositioned');
+      };
+
+      return DynamicPopover;
+
+    })(jQuery.fn.popover.Constructor);
+    return scope('intermine.bootstrap', {
+      DynamicPopover: DynamicPopover
+    });
+  })();
+
+  (function() {
+    var ExportColumnHeader, NAME_TEMPLATE, TEMPLATE, moveRight, shift, _ref;
+
+    TEMPLATE = "<div>\n  <div class=\"pull-right im-promoters\">\n    <i class=\"" + intermine.icons.MoveUp + " im-promote\"></i>\n    <i class=\"" + intermine.icons.MoveDown + " im-demote\"></i>\n  </div>\n  <i class=\"" + intermine.icons.Check + " im-exclude\"></i>\n  <span class=\"im-path\"></span>\n</div>";
+    NAME_TEMPLATE = _.template("<span class=\"im-name-part\"><%- part %></span>");
+    moveRight = function(xs, i) {
+      return xs.splice(i, 2, xs[i + 1], xs[i]);
+    };
+    shift = function(model, toLeft) {
+      var idx, models;
+
+      models = model.collection.models;
+      idx = models.indexOf(model);
+      moveRight(models, toLeft ? idx - 1 : idx);
+      return model.collection.trigger('reset');
+    };
+    ExportColumnHeader = (function(_super) {
+      __extends(ExportColumnHeader, _super);
+
+      function ExportColumnHeader() {
+        _ref = ExportColumnHeader.__super__.constructor.apply(this, arguments);
+        return _ref;
+      }
+
+      ExportColumnHeader.prototype.tagName = 'li';
+
+      ExportColumnHeader.prototype.className = 'im-exported-col im-view-element';
+
+      ExportColumnHeader.prototype.template = function() {
+        return TEMPLATE;
+      };
+
+      ExportColumnHeader.prototype.events = {
+        "click .im-promote": "promote",
+        "click .im-demote": "demote",
+        "click .im-exclude": "toggle",
+        "click .im-path": "toggle"
+      };
+
+      ExportColumnHeader.prototype.promote = function(e) {
+        var toLeft;
+
+        if (!$(e.target).is('.disabled')) {
+          return shift(this.model, toLeft = true);
+        }
+      };
+
+      ExportColumnHeader.prototype.demote = function(e) {
+        var toLeft;
+
+        if (!$(e.target).is('.disabled')) {
+          return shift(this.model, toLeft = false);
+        }
+      };
+
+      ExportColumnHeader.prototype.toggle = function() {
+        return this.model.set({
+          excluded: !this.model.get('excluded')
+        });
+      };
+
+      ExportColumnHeader.prototype.initialize = function() {
+        if (!this.model.has('excluded')) {
+          this.model.set({
+            excluded: false
           });
         }
-        if (error != null) {
-          service.errorHandler = error;
-        }
-        cls = type === 'table' ? intermine.query.results.CompactView : type === 'dashboard' ? intermine.query.results.DashBoard : type === 'minimal' ? intermine.query.results.Toolless : void 0;
-        if (!cls) {
-          console.error("" + type + " widgets are not supported");
-          return false;
-        }
-        if (this.width() < jQuery('body').width() * 0.6) {
-          this.addClass('im-half');
-        }
-        if (options != null) {
-          intermine.setOptions(options);
-        }
-        view = new cls(service, query, events, properties);
-        this.empty().append(view.el);
-        view.render();
-        this.data('widget-options', properties);
-        this.data('widget-type', type);
-        this.data('widget', view);
-        return this.data('widget');
-      }
-    };
+        this.$el.data({
+          model: this.model
+        });
+        this.on('rendered', this.displayName, this);
+        this.on('rendered', this.onChangeExclusion, this);
+        this.on('rendered', this.checkShifters, this);
+        return this.model.on('change:excluded', this.onChangeExclusion, this);
+      };
+
+      ExportColumnHeader.prototype.checkShifters = function() {
+        var idx;
+
+        idx = this.model.collection.models.indexOf(this.model);
+        this.$('.im-promote').toggleClass('disabled', idx === 0);
+        return this.$('.im-demote').toggleClass('disabled', idx + 1 === this.model.collection.length);
+      };
+
+      ExportColumnHeader.prototype.onChangeExclusion = function() {
+        var excl;
+
+        excl = this.model.get('excluded');
+        this.$('.im-exclude').toggleClass(intermine.icons.Check, !excl).toggleClass(intermine.icons.UnCheck, excl);
+        return this.$el.toggleClass('im-excluded', excl);
+      };
+
+      ExportColumnHeader.prototype.displayName = function() {
+        var _this = this;
+
+        return this.model.get('path').getDisplayName().done(function(dname) {
+          var $path, part, parts, _i, _len, _results;
+
+          parts = dname.split(' > ');
+          $path = _this.$('.im-path');
+          _results = [];
+          for (_i = 0, _len = parts.length; _i < _len; _i++) {
+            part = parts[_i];
+            _results.push($path.append(NAME_TEMPLATE({
+              part: part
+            })));
+          }
+          return _results;
+        });
+      };
+
+      return ExportColumnHeader;
+
+    })(intermine.views.ItemView);
+    return scope('intermine.columns.views', {
+      ExportColumnHeader: ExportColumnHeader
+    });
   })();
 
   (function() {
@@ -3835,196 +6761,6 @@
     });
   }));
 
-  scope('intermine.export.snippets', {
-    Galaxy: _.template("<div class=\"im-galaxy\">\n  <form class=\"im-galaxy form form-compact well\">\n    <label>\n      " + intermine.messages.actions.GalaxyURILabel + "\n      <input class=\"im-galaxy-uri\" \n            type=\"text\"\n            value=\"<%- galaxy %>\"\n    </label>\n    <label>\n      " + intermine.messages.actions.SaveGalaxyURL + "\n      <input type=\"checkbox\" disabled checked class=\"im-galaxy-save-url\">\n    </label>\n  </form>\n</div>"),
-    Genomespace: function() {
-      return "<div class=\"im-genomespace\">\n  <div class=\"well\">\n    <label>File Name</label>\n    <div class=\"input-append\">\n      <input class=\"im-genomespace-filename input\" style=\"width: 40em\" type=\"text\">\n      <span class=\"add-on im-format\"></span>\n    </div>\n  </div>\n</div>";
-    }
-  });
-
-  (function() {
-    var ExportColumnHeader, NAME_TEMPLATE, TEMPLATE, moveRight, shift, _ref;
-
-    TEMPLATE = "<div>\n  <div class=\"pull-right im-promoters\">\n    <i class=\"" + intermine.icons.MoveUp + " im-promote\"></i>\n    <i class=\"" + intermine.icons.MoveDown + " im-demote\"></i>\n  </div>\n  <i class=\"" + intermine.icons.Check + " im-exclude\"></i>\n  <span class=\"im-path\"></span>\n</div>";
-    NAME_TEMPLATE = _.template("<span class=\"im-name-part\"><%- part %></span>");
-    moveRight = function(xs, i) {
-      return xs.splice(i, 2, xs[i + 1], xs[i]);
-    };
-    shift = function(model, toLeft) {
-      var idx, models;
-
-      models = model.collection.models;
-      idx = models.indexOf(model);
-      moveRight(models, toLeft ? idx - 1 : idx);
-      return model.collection.trigger('reset');
-    };
-    ExportColumnHeader = (function(_super) {
-      __extends(ExportColumnHeader, _super);
-
-      function ExportColumnHeader() {
-        _ref = ExportColumnHeader.__super__.constructor.apply(this, arguments);
-        return _ref;
-      }
-
-      ExportColumnHeader.prototype.tagName = 'li';
-
-      ExportColumnHeader.prototype.className = 'im-exported-col im-view-element';
-
-      ExportColumnHeader.prototype.template = function() {
-        return TEMPLATE;
-      };
-
-      ExportColumnHeader.prototype.events = {
-        "click .im-promote": "promote",
-        "click .im-demote": "demote",
-        "click .im-exclude": "toggle",
-        "click .im-path": "toggle"
-      };
-
-      ExportColumnHeader.prototype.promote = function(e) {
-        var toLeft;
-
-        if (!$(e.target).is('.disabled')) {
-          return shift(this.model, toLeft = true);
-        }
-      };
-
-      ExportColumnHeader.prototype.demote = function(e) {
-        var toLeft;
-
-        if (!$(e.target).is('.disabled')) {
-          return shift(this.model, toLeft = false);
-        }
-      };
-
-      ExportColumnHeader.prototype.toggle = function() {
-        return this.model.set({
-          excluded: !this.model.get('excluded')
-        });
-      };
-
-      ExportColumnHeader.prototype.initialize = function() {
-        if (!this.model.has('excluded')) {
-          this.model.set({
-            excluded: false
-          });
-        }
-        this.$el.data({
-          model: this.model
-        });
-        this.on('rendered', this.displayName, this);
-        this.on('rendered', this.onChangeExclusion, this);
-        this.on('rendered', this.checkShifters, this);
-        return this.model.on('change:excluded', this.onChangeExclusion, this);
-      };
-
-      ExportColumnHeader.prototype.checkShifters = function() {
-        var idx;
-
-        idx = this.model.collection.models.indexOf(this.model);
-        this.$('.im-promote').toggleClass('disabled', idx === 0);
-        return this.$('.im-demote').toggleClass('disabled', idx + 1 === this.model.collection.length);
-      };
-
-      ExportColumnHeader.prototype.onChangeExclusion = function() {
-        var excl;
-
-        excl = this.model.get('excluded');
-        this.$('.im-exclude').toggleClass(intermine.icons.Check, !excl).toggleClass(intermine.icons.UnCheck, excl);
-        return this.$el.toggleClass('im-excluded', excl);
-      };
-
-      ExportColumnHeader.prototype.displayName = function() {
-        var _this = this;
-
-        return this.model.get('path').getDisplayName().done(function(dname) {
-          var $path, part, parts, _i, _len, _results;
-
-          parts = dname.split(' > ');
-          $path = _this.$('.im-path');
-          _results = [];
-          for (_i = 0, _len = parts.length; _i < _len; _i++) {
-            part = parts[_i];
-            _results.push($path.append(NAME_TEMPLATE({
-              part: part
-            })));
-          }
-          return _results;
-        });
-      };
-
-      return ExportColumnHeader;
-
-    })(intermine.views.ItemView);
-    return scope('intermine.columns.views', {
-      ExportColumnHeader: ExportColumnHeader
-    });
-  })();
-
-  (function() {
-    var sendToGenomeSpace;
-
-    sendToGenomeSpace = function() {
-      var fileName, format, genomeSpaceURL, gsFileName, qs, uploadUrl, url, win, _ref,
-        _this = this;
-
-      genomeSpaceURL = intermine.options.GenomeSpaceUpload;
-      uploadUrl = this.state.get('url');
-      _ref = this.requestInfo.toJSON(), format = _ref.format, gsFileName = _ref.gsFileName;
-      fileName = "" + gsFileName + "." + format.extension;
-      qs = $.param({
-        uploadUrl: uploadUrl,
-        fileName: fileName
-      });
-      url = "" + genomeSpaceURL + "?" + qs;
-      win = window.open(url);
-      win.setCallbackOnGSUploadComplete = function(savePath) {
-        return _this.stop();
-      };
-      win.setCallbackOnGSUploadError = function(savePath) {
-        _this.trigger('export:error', 'genomespace');
-        return _this.stop();
-      };
-      return win.focus();
-    };
-    return scope('intermine.export.external.Genomespace', {
-      init: function() {
-        var gsFileName, onChange, s, view;
-
-        view = this;
-        onChange = function() {
-          var format, gsFileName, _ref;
-
-          _ref = view.requestInfo.toJSON(), format = _ref.format, gsFileName = _ref.gsFileName;
-          view.$('.im-genomespace .im-format').text('.' + format.extension);
-          return view.$('.im-genomespace-filename').val(gsFileName);
-        };
-        this.dummyParams.push('gsFileName');
-        this.requestInfo.on('change', onChange);
-        s = this.service.name || this.service.root.replace(/^https?:\/\//, '').replace(/\/.*/, '');
-        gsFileName = "" + this.query.root + " results from " + s + " " + (new Date());
-        return this.requestInfo.set({
-          gsFileName: gsFileName
-        });
-      },
-      "export": sendToGenomeSpace,
-      events: function() {
-        var _this = this;
-
-        return {
-          'click .im-send-to-genomespace': function(e) {
-            return sendToGenomeSpace.call(_this, e);
-          },
-          'change .im-genomespace-filename': function(e) {
-            return _this.requestInfo.set({
-              gsFileName: $(e.target).val()
-            });
-          }
-        };
-      }
-    });
-  })();
-
   (function() {
     var changeGalaxyURI, defaultGalaxy, doGalaxy, forgetGalaxy, getResultClass, saveGalaxyPreference, sendToGalaxy, yielding;
 
@@ -4185,6 +6921,1671 @@
           }
         };
       }
+    });
+  })();
+
+  (function() {
+    var sendToGenomeSpace;
+
+    sendToGenomeSpace = function() {
+      var fileName, format, genomeSpaceURL, gsFileName, qs, uploadUrl, url, win, _ref,
+        _this = this;
+
+      genomeSpaceURL = intermine.options.GenomeSpaceUpload;
+      uploadUrl = this.state.get('url');
+      _ref = this.requestInfo.toJSON(), format = _ref.format, gsFileName = _ref.gsFileName;
+      fileName = "" + gsFileName + "." + format.extension;
+      qs = $.param({
+        uploadUrl: uploadUrl,
+        fileName: fileName
+      });
+      url = "" + genomeSpaceURL + "?" + qs;
+      win = window.open(url);
+      win.setCallbackOnGSUploadComplete = function(savePath) {
+        return _this.stop();
+      };
+      win.setCallbackOnGSUploadError = function(savePath) {
+        _this.trigger('export:error', 'genomespace');
+        return _this.stop();
+      };
+      return win.focus();
+    };
+    return scope('intermine.export.external.Genomespace', {
+      init: function() {
+        var gsFileName, onChange, s, view;
+
+        view = this;
+        onChange = function() {
+          var format, gsFileName, _ref;
+
+          _ref = view.requestInfo.toJSON(), format = _ref.format, gsFileName = _ref.gsFileName;
+          view.$('.im-genomespace .im-format').text('.' + format.extension);
+          return view.$('.im-genomespace-filename').val(gsFileName);
+        };
+        this.dummyParams.push('gsFileName');
+        this.requestInfo.on('change', onChange);
+        s = this.service.name || this.service.root.replace(/^https?:\/\//, '').replace(/\/.*/, '');
+        gsFileName = "" + this.query.root + " results from " + s + " " + (new Date());
+        return this.requestInfo.set({
+          gsFileName: gsFileName
+        });
+      },
+      "export": sendToGenomeSpace,
+      events: function() {
+        var _this = this;
+
+        return {
+          'click .im-send-to-genomespace': function(e) {
+            return sendToGenomeSpace.call(_this, e);
+          },
+          'change .im-genomespace-filename': function(e) {
+            return _this.requestInfo.set({
+              gsFileName: $(e.target).val()
+            });
+          }
+        };
+      }
+    });
+  })();
+
+  scope('intermine.export.snippets', {
+    Galaxy: _.template("<div class=\"im-galaxy\">\n  <form class=\"im-galaxy form form-compact well\">\n    <label>\n      " + intermine.messages.actions.GalaxyURILabel + "\n      <input class=\"im-galaxy-uri\" \n            type=\"text\"\n            value=\"<%- galaxy %>\"\n    </label>\n    <label>\n      " + intermine.messages.actions.SaveGalaxyURL + "\n      <input type=\"checkbox\" disabled checked class=\"im-galaxy-save-url\">\n    </label>\n  </form>\n</div>"),
+    Genomespace: function() {
+      return "<div class=\"im-genomespace\">\n  <div class=\"well\">\n    <label>File Name</label>\n    <div class=\"input-append\">\n      <input class=\"im-genomespace-filename input\" style=\"width: 40em\" type=\"text\">\n      <span class=\"add-on im-format\"></span>\n    </div>\n  </div>\n</div>";
+    }
+  });
+
+  scope('intermine.snippets.facets', {
+    OnlyOne: _.template("<div class=\"alert alert-info im-all-same\">\n    All <%= count %> values are the same: <strong><%= item %></strong>\n</div>")
+  });
+
+  (function() {
+    var BooleanFacet, ColumnSummary, FACET_TEMPLATE, FACET_TITLE, FacetRow, FacetView, FrequencyFacet, HistoFacet, Int, MORE_FACETS_HTML, NormalCurve, NumericFacet, NumericRange, PieFacet, SUMMARY_FORMATS, numeric, _ref, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8;
+
+    NormalCurve = function(mean, stdev) {
+      return function(x) {
+        var a;
+
+        a = x - mean;
+        return Math.exp(-(a * a) / (2 * stdev * stdev)) / (Math.sqrt(2 * Math.PI) * stdev);
+      };
+    };
+    Int = function(x) {
+      return parseInt(x, 10);
+    };
+    numeric = function(x) {
+      return +x;
+    };
+    MORE_FACETS_HTML = "<i class=\"icon-plus-sign pull-right\" title=\"Showing top ten. Click to see all values\"></i>";
+    FACET_TITLE = "<dt>\n  <i class=\"icon-chevron-right\"></i>\n  <span class=\"im-facet-title\"></span>\n  &nbsp;<span class=\"im-facet-count\"></span>\n</dt>";
+    FACET_TEMPLATE = _.template("<dd>\n    <a href=#>\n        <b class=\"im-facet-count pull-right\">\n            (<%= count %>)\n        </b>\n        <%= item %>\n    </a>\n</dd>");
+    SUMMARY_FORMATS = {
+      tab: 'tsv',
+      csv: 'csv',
+      xml: 'xml',
+      json: 'json'
+    };
+    ColumnSummary = (function(_super) {
+      __extends(ColumnSummary, _super);
+
+      function ColumnSummary() {
+        this.render = __bind(this.render, this);        _ref = ColumnSummary.__super__.constructor.apply(this, arguments);
+        return _ref;
+      }
+
+      ColumnSummary.prototype.tagName = 'div';
+
+      ColumnSummary.prototype.className = "im-column-summary";
+
+      ColumnSummary.prototype.initialize = function(query, facet) {
+        var fp,
+          _this = this;
+
+        this.query = query;
+        this.state = new Backbone.Model({
+          open: false
+        });
+        if (facet.path) {
+          return this.facet = facet;
+        } else {
+          fp = this.query.getPathInfo(facet);
+          return this.facet = {
+            path: fp,
+            title: fp.getDisplayName().then(function(name) {
+              return name.replace(/^[^>]+>\s*/, '');
+            }),
+            ignoreTitle: true
+          };
+        }
+      };
+
+      ColumnSummary.prototype.render = function() {
+        var attrType, clazz, initialLimit,
+          _this = this;
+
+        attrType = this.facet.path.getType();
+        clazz = __indexOf.call(intermine.Model.NUMERIC_TYPES, attrType) >= 0 ? NumericFacet : FrequencyFacet;
+        initialLimit = intermine.options.INITIAL_SUMMARY_ROWS;
+        this.fac = new clazz(this.query, this.facet, initialLimit, this.noTitle);
+        this.$el.append(this.fac.el);
+        this.fac.render();
+        this.fac.on('ready', function() {
+          return _this.trigger('ready', _this);
+        });
+        this.fac.on('toggled', function() {
+          return _this.state.set({
+            open: !_this.state.get('open')
+          });
+        });
+        this.fac.on('closed', function() {
+          return _this.state.set({
+            open: false
+          });
+        });
+        this.trigger('rendered', this);
+        return this;
+      };
+
+      ColumnSummary.prototype.toggle = function() {
+        var _ref1;
+
+        return (_ref1 = this.fac) != null ? _ref1.toggle() : void 0;
+      };
+
+      ColumnSummary.prototype.close = function() {
+        var _ref1;
+
+        return (_ref1 = this.fac) != null ? _ref1.close() : void 0;
+      };
+
+      ColumnSummary.prototype.remove = function() {
+        var _ref1;
+
+        if ((_ref1 = this.fac) != null) {
+          _ref1.remove();
+        }
+        return ColumnSummary.__super__.remove.call(this);
+      };
+
+      return ColumnSummary;
+
+    })(Backbone.View);
+    FacetView = (function(_super) {
+      __extends(FacetView, _super);
+
+      function FacetView() {
+        this.render = __bind(this.render, this);        _ref1 = FacetView.__super__.constructor.apply(this, arguments);
+        return _ref1;
+      }
+
+      FacetView.prototype.tagName = "dl";
+
+      FacetView.prototype.initialize = function(query, facet, limit, noTitle) {
+        this.query = query;
+        this.facet = facet;
+        this.limit = limit;
+        this.noTitle = noTitle;
+        this.query.on("change:constraints", this.render);
+        return this.query.on("filter:summary", this.render);
+      };
+
+      FacetView.prototype.events = function() {
+        return {
+          "click dt": "toggle"
+        };
+      };
+
+      FacetView.prototype.toggle = function() {
+        this.$('.im-facet').slideToggle();
+        this.$('dt i').first().toggleClass('icon-chevron-right icon-chevron-down');
+        return this.trigger('toggled', this);
+      };
+
+      FacetView.prototype.close = function() {
+        this.$('.im-facet').slideUp();
+        this.$('dt i').removeClass('icon-chevron-down').addClass('icon-chevron-right');
+        return this.trigger('close', this);
+      };
+
+      FacetView.prototype.render = function() {
+        var _this = this;
+
+        if (!this.noTitle) {
+          this.$el.prepend(FACET_TITLE);
+          $.when(this.facet.title).then(function(title) {
+            return _this.$('.im-facet-title').text(title);
+          });
+        }
+        return this;
+      };
+
+      return FacetView;
+
+    })(Backbone.View);
+    FrequencyFacet = (function(_super) {
+      __extends(FrequencyFacet, _super);
+
+      function FrequencyFacet() {
+        this.addItem = __bind(this.addItem, this);
+        this.showMore = __bind(this.showMore, this);        _ref2 = FrequencyFacet.__super__.constructor.apply(this, arguments);
+        return _ref2;
+      }
+
+      FrequencyFacet.prototype.showMore = function(e) {
+        var areVisible, got, more,
+          _this = this;
+
+        more = $(e.target);
+        got = this.$('dd').length();
+        areVisible = this.$('dd').first().is(':visible');
+        e.stopPropagation();
+        e.preventDefault();
+        return this.query.summarise(this.facet.path, function(items) {
+          var item, _i, _len, _ref3;
+
+          _ref3 = items.slice(got);
+          for (_i = 0, _len = _ref3.length; _i < _len; _i++) {
+            item = _ref3[_i];
+            _this.addItem(item).toggle(areVisible);
+          }
+          return more.tooltip('hide').remove();
+        });
+      };
+
+      FrequencyFacet.prototype.render = function(filterTerm) {
+        var $progress, getSummary, limit, placement,
+          _this = this;
+
+        if (filterTerm == null) {
+          filterTerm = "";
+        }
+        if (this.rendering) {
+          return;
+        }
+        this.filterTerm = filterTerm;
+        this.rendering = true;
+        this.$el.empty();
+        FrequencyFacet.__super__.render.call(this);
+        $progress = $("<div class=\"progress progress-info progress-striped active\">\n    <div class=\"bar\" style=\"width:100%\"></div>\n</div>");
+        $progress.appendTo(this.el);
+        getSummary = this.query.filterSummary(this.facet.path, filterTerm, this.limit);
+        getSummary.fail(this.remove);
+        limit = this.limit;
+        placement = 'left';
+        return getSummary.done(function(results, stats, count) {
+          var Vizualization, hasMore, summaryView;
+
+          _this.query.trigger('got:summary:total', _this.facet.path, stats.uniqueValues, results.length, count);
+          $progress.remove();
+          _this.$('.im-facet-count').text("(" + stats.uniqueValues + ")");
+          hasMore = results.length < limit ? false : stats.uniqueValues > limit;
+          if (hasMore) {
+            $(MORE_FACETS_HTML).appendTo(_this.$dt).tooltip({
+              placement: placement
+            }).click(_this.showMore);
+          }
+          summaryView = stats.uniqueValues <= 1 ? (_this.$el.empty(), stats.uniqueValues ? intermine.snippets.facets.OnlyOne(results[0]) : "No results") : (Vizualization = _this.getVizualization(stats), new Vizualization(_this.query, _this.facet, results, hasMore, filterTerm));
+          _this.$el.append(summaryView.el ? summaryView.el : summaryView);
+          if (typeof summaryView.render === "function") {
+            summaryView.render();
+          }
+          _this.rendering = false;
+          return _this.trigger('ready', _this);
+        });
+      };
+
+      FrequencyFacet.prototype.getVizualization = function(stats) {
+        var _ref3;
+
+        if (!this.query.canHaveMultipleValues(this.facet.path)) {
+          if (_ref3 = this.query.getType(this.facet.path), __indexOf.call(intermine.Model.BOOLEAN_TYPES, _ref3) >= 0) {
+            return BooleanFacet;
+          } else if (stats.uniqueValues <= intermine.options.MAX_PIE_SLICES) {
+            return PieFacet;
+          }
+        }
+        return HistoFacet;
+      };
+
+      FrequencyFacet.prototype.addItem = function(item) {
+        var $dd,
+          _this = this;
+
+        $dd = $(FACET_TEMPLATE(item)).appendTo(this.el);
+        $dd.click(function() {
+          return _this.query.addConstraint({
+            title: _this.facet.title,
+            path: _this.facet.path,
+            op: "=",
+            value: item.item
+          });
+        });
+        return $dd;
+      };
+
+      return FrequencyFacet;
+
+    })(FacetView);
+    NumericRange = (function(_super) {
+      __extends(NumericRange, _super);
+
+      function NumericRange() {
+        _ref3 = NumericRange.__super__.constructor.apply(this, arguments);
+        return _ref3;
+      }
+
+      NumericRange.prototype._defaults = {};
+
+      NumericRange.prototype.setLimits = function(limits) {
+        return this._defaults = limits;
+      };
+
+      NumericRange.prototype.get = function(prop) {
+        var ret;
+
+        ret = NumericRange.__super__.get.call(this, prop);
+        if (ret != null) {
+          return ret;
+        } else if (prop in this._defaults) {
+          return this._defaults[prop];
+        } else {
+          return null;
+        }
+      };
+
+      NumericRange.prototype.toJSON = function() {
+        return _.extend({}, this._defaults, this.attributes);
+      };
+
+      NumericRange.prototype.nullify = function() {
+        var evt, _i, _len, _ref4, _results;
+
+        this.set({
+          min: null,
+          max: null
+        });
+        this.nulled = true;
+        _ref4 = ['change:min', 'change:max', 'change'];
+        _results = [];
+        for (_i = 0, _len = _ref4.length; _i < _len; _i++) {
+          evt = _ref4[_i];
+          _results.push(this.trigger(evt, this));
+        }
+        return _results;
+      };
+
+      NumericRange.prototype.set = function(name, value) {
+        var meth;
+
+        this.nulled = false;
+        if (_.isString(name) && (name in this._defaults)) {
+          meth = name === 'min' ? 'max' : 'min';
+          return NumericRange.__super__.set.call(this, name, Math[meth](this._defaults[name], value));
+        } else {
+          return NumericRange.__super__.set.apply(this, arguments);
+        }
+      };
+
+      NumericRange.prototype.isNotAll = function() {
+        var max, min, _ref4;
+
+        if (this.nulled) {
+          return true;
+        }
+        _ref4 = this.toJSON(), min = _ref4.min, max = _ref4.max;
+        return ((min != null) && min !== this._defaults.min) || ((max != null) && max !== this._defaults.max);
+      };
+
+      return NumericRange;
+
+    })(Backbone.Model);
+    NumericFacet = (function(_super) {
+      var fracWithinRange, getPartialCount, inty, sumCounts;
+
+      __extends(NumericFacet, _super);
+
+      function NumericFacet() {
+        this.drawSelection = __bind(this.drawSelection, this);
+        this.drawChart = __bind(this.drawChart, this);
+        this.drawSlider = __bind(this.drawSlider, this);
+        this.drawStats = __bind(this.drawStats, this);
+        this.handleSummary = __bind(this.handleSummary, this);
+        this.valForX = __bind(this.valForX, this);
+        this.xForVal = __bind(this.xForVal, this);        _ref4 = NumericFacet.__super__.constructor.apply(this, arguments);
+        return _ref4;
+      }
+
+      NumericFacet.prototype.initialize = function() {
+        var idx, prop, _fn, _ref5,
+          _this = this;
+
+        NumericFacet.__super__.initialize.apply(this, arguments);
+        this.range = new NumericRange();
+        this.range.on('change', function() {
+          var width, x, _ref5;
+
+          if (_this.shouldDrawBox()) {
+            if (_this.range.nulled) {
+              return _this.drawSelection(0, 25);
+            } else {
+              x = _this.xForVal(_this.range.get('min'));
+              width = _this.xForVal(_this.range.get('max')) - x;
+              return _this.drawSelection(x, width);
+            }
+          } else {
+            if ((_ref5 = _this.selection) != null) {
+              _ref5.remove();
+            }
+            return _this.selection = null;
+          }
+        });
+        this.range.on('change', function() {
+          var _ref5;
+
+          if (_this.range.isNotAll()) {
+            return _this.drawEstCount();
+          } else {
+            if ((_ref5 = _this.estCount) != null) {
+              _ref5.remove();
+            }
+            return _this.estCount = null;
+          }
+        });
+        this.range.on('reset', function() {
+          var max, min, prop, val, _ref5, _ref6, _ref7, _results;
+
+          _ref5 = _this.range.toJSON(), min = _ref5.min, max = _ref5.max;
+          if ((_ref6 = _this.$slider) != null) {
+            _ref6.slider('option', 'values', [min, max]);
+          }
+          _ref7 = {
+            min: min,
+            max: max
+          };
+          _results = [];
+          for (prop in _ref7) {
+            val = _ref7[prop];
+            _results.push(_this.$("input.im-range-" + prop).val("" + val));
+          }
+          return _results;
+        });
+        _ref5 = {
+          min: 0,
+          max: 1
+        };
+        _fn = function(prop, idx) {
+          return _this.range.on("change:" + prop, function(m, val) {
+            var _ref6, _ref7;
+
+            if (m.nulled) {
+              _this.$("input.im-range-" + prop).val("null");
+            }
+            if (val == null) {
+              return;
+            }
+            val = _this.round(val);
+            _this.$("input.im-range-" + prop).val("" + val);
+            if (((_ref6 = _this.$slider) != null ? _ref6.slider('values', idx) : void 0) !== val) {
+              return (_ref7 = _this.$slider) != null ? _ref7.slider('values', idx, val) : void 0;
+            }
+          });
+        };
+        for (prop in _ref5) {
+          idx = _ref5[prop];
+          _fn(prop, idx);
+        }
+        return this.range.on('change', function() {
+          var changed;
+
+          changed = _this.range.isNotAll();
+          return _this.$('.btn').toggleClass("disabled", !changed);
+        });
+      };
+
+      NumericFacet.prototype.events = function() {
+        return _.extend(NumericFacet.__super__.events.apply(this, arguments), {
+          'click': function(e) {
+            return e.stopPropagation();
+          },
+          'keyup input.im-range-val': 'incRangeVal',
+          'change input.im-range-val': 'setRangeVal',
+          'click .btn-primary': 'changeConstraints',
+          'click .btn-cancel': 'clearRange'
+        });
+      };
+
+      NumericFacet.prototype.clearRange = function() {
+        var _ref5, _ref6;
+
+        if ((_ref5 = this.range) != null) {
+          _ref5.clear();
+        }
+        return (_ref6 = this.range) != null ? _ref6.trigger('reset') : void 0;
+      };
+
+      NumericFacet.prototype.changeConstraints = function(e) {
+        var fpath, newConstraints;
+
+        e.preventDefault();
+        e.stopPropagation();
+        fpath = this.facet.path.toString();
+        this.query.constraints = _(this.query.constraints).filter(function(c) {
+          return c.path !== fpath;
+        });
+        if (this.range.nulled) {
+          newConstraints = [
+            {
+              path: this.facet.path,
+              op: 'IS NULL'
+            }
+          ];
+        } else {
+          newConstraints = [
+            {
+              path: this.facet.path,
+              op: ">=",
+              value: this.range.get('min')
+            }, {
+              path: this.facet.path,
+              op: "<=",
+              value: this.range.get('max')
+            }
+          ];
+        }
+        return this.query.addConstraints(newConstraints);
+      };
+
+      NumericFacet.prototype.className = "im-numeric-facet";
+
+      NumericFacet.prototype.chartHeight = 70;
+
+      NumericFacet.prototype.leftMargin = 25;
+
+      NumericFacet.prototype.xForVal = function(val) {
+        var conversionRate;
+
+        if (val === this.min) {
+          return this.leftMargin;
+        }
+        if (val === this.max) {
+          return this.w;
+        }
+        conversionRate = (this.w - this.leftMargin) / (this.max - this.min);
+        return this.leftMargin + (conversionRate * (val - this.min));
+      };
+
+      NumericFacet.prototype.valForX = function(x) {
+        var conversionRate;
+
+        if (x <= this.leftMargin) {
+          return this.min;
+        }
+        if (x >= this.w) {
+          return this.max;
+        }
+        conversionRate = (this.max - this.min) / (this.w - this.leftMargin);
+        return this.min + (conversionRate * (x - this.leftMargin));
+      };
+
+      NumericFacet.prototype.shouldDrawBox = function() {
+        return this.range.isNotAll();
+      };
+
+      NumericFacet.prototype.render = function() {
+        var promise,
+          _this = this;
+
+        NumericFacet.__super__.render.call(this);
+        this.container = this.make("div", {
+          "class": "facet-content im-facet"
+        });
+        this.$el.append(this.container);
+        this.canvas = this.make("div");
+        $(this.canvas).mouseout(function() {
+          return _this._selecting_paths_ = false;
+        });
+        $(this.container).append(this.canvas);
+        this.throbber = $("<div class=\"progress progress-info progress-striped active\">\n    <div class=\"bar\" style=\"width:100%\"></div>\n</div>");
+        this.throbber.appendTo(this.el);
+        promise = this.query.summarise(this.facet.path, this.handleSummary);
+        promise.fail(this.remove);
+        promise.done(function() {
+          return _this.trigger('ready', _this);
+        });
+        return this;
+      };
+
+      NumericFacet.prototype.remove = function() {
+        var _ref5, _ref6;
+
+        if ((_ref5 = this.$slider) != null) {
+          _ref5.slider('destroy');
+        }
+        delete this.$slider;
+        if ((_ref6 = this.range) != null) {
+          _ref6.off();
+        }
+        delete this.range;
+        return NumericFacet.__super__.remove.call(this);
+      };
+
+      inty = function(type) {
+        return type === "int" || type === "Integer" || type === "long" || type === "Long";
+      };
+
+      NumericFacet.prototype.handleSummary = function(items, stats) {
+        var hasMore, hf, step, summary;
+
+        this.throbber.remove();
+        summary = items[0];
+        this.w = this.$el.closest(':visible').width() * 0.95;
+        if (summary.item != null) {
+          if (items.length > 1) {
+            hasMore = items.length < this.limit ? false : stats.uniqueValues > this.limit;
+            hf = new HistoFacet(this.query, this.facet, items, hasMore, "");
+            this.$el.append(hf.el);
+            return hf.render();
+          } else {
+            return this.$el.empty().append(intermine.snippets.facets.OnlyOne(summary));
+          }
+        }
+        this.mean = parseFloat(summary.average);
+        this.dev = parseFloat(summary.stdev);
+        this.range.setLimits(summary);
+        this.max = summary.max;
+        this.min = summary.min;
+        this.step = step = inty(this.query.getType(this.facet.path)) ? 1 : Math.abs((this.max - this.min) / 100);
+        this.round = function(x) {
+          if (step === 1) {
+            return Math.round(x);
+          } else {
+            return x;
+          }
+        };
+        if (summary.count != null) {
+          this.stepWidth = (this.w - (this.leftMargin + 1)) / items[0].buckets;
+          this.drawChart(items);
+        } else {
+          this.drawCurve();
+        }
+        this.drawStats();
+        return this.drawSlider();
+      };
+
+      NumericFacet.prototype.drawStats = function() {
+        return $(this.container).append("<table class=\"table table-condensed\">\n    <thead>\n        <tr>\n            <th>Min</th>\n            <th>Max</th>\n            <th>Mean</th>\n            <th>Standard Deviation</th>\n        </tr>\n    </thead>\n    <tbody>\n        <tr>\n            <td>" + this.min + "</td>\n            <td>" + this.max + "</td>\n            <td>" + (this.mean.toFixed(5)) + "</td>\n            <td>" + (this.dev.toFixed(5)) + "</td>\n        </tr>\n    </tbody>\n</table>");
+      };
+
+      NumericFacet.prototype.setRangeVal = function(e) {
+        var $input, current, next, prop, _ref5;
+
+        $input = $(e.target);
+        prop = $input.data('var');
+        current = (_ref5 = this.range.get(prop)) != null ? _ref5 : this[prop];
+        next = numeric($input.val());
+        if (current !== next) {
+          return this.range.set(prop, next);
+        }
+      };
+
+      NumericFacet.prototype.incRangeVal = function(e) {
+        var $input, current, next, prop, _ref5;
+
+        $input = $(e.target);
+        prop = $input.data('var');
+        current = next = (_ref5 = this.range.get(prop)) != null ? _ref5 : this[prop];
+        switch (e.keyCode) {
+          case 40:
+            next -= this.step;
+            break;
+          case 38:
+            next += this.step;
+        }
+        if (next !== current) {
+          return this.range.set(prop, next);
+        }
+      };
+
+      NumericFacet.prototype.drawSlider = function() {
+        var opts,
+          _this = this;
+
+        $(this.container).append("<div class=\"btn-group pull-right\">\n  <button class=\"btn btn-primary disabled\">Apply</button>\n  <button class=\"btn btn-cancel disabled\">Reset</button>\n</div>\n<input type=\"text\" data-var=\"min\" class=\"im-range-min input im-range-val\" value=\"" + this.min + "\">\n<span>...</span>\n<input type=\"text\" data-var=\"max\" class=\"im-range-max input im-range-val\" value=\"" + this.max + "\">\n<div class=\"slider\"></div>");
+        opts = {
+          range: true,
+          min: this.min,
+          max: this.max,
+          values: [this.min, this.max],
+          step: this.step,
+          slide: function(e, ui) {
+            var _ref5;
+
+            return (_ref5 = _this.range) != null ? _ref5.set({
+              min: ui.values[0],
+              max: ui.values[1]
+            }) : void 0;
+          }
+        };
+        return this.$slider = this.$('.slider').slider(opts);
+      };
+
+      NumericFacet.prototype.drawChart = function(items) {
+        var _this = this;
+
+        if (typeof d3 !== "undefined" && d3 !== null) {
+          return setTimeout((function() {
+            return _this._drawD3Chart(items);
+          }), 0);
+        }
+      };
+
+      NumericFacet.prototype._drawD3Chart = function(items) {
+        var axis, barClickHandler, bottomMargin, bucketRange, bucketVal, chart, container, getTitle, h, item, most, n, rects, rightMargin, val, x, xToVal, y, _i, _len,
+          _this = this;
+
+        this.items = items;
+        bottomMargin = 18;
+        rightMargin = 14;
+        n = items[0].buckets + 1;
+        h = this.chartHeight;
+        most = d3.max(items, function(d) {
+          return d.count;
+        });
+        x = d3.scale.linear().domain([1, n]).range([this.leftMargin, this.w - rightMargin]);
+        y = d3.scale.linear().domain([0, most]).rangeRound([0, h - bottomMargin]);
+        this.xForVal = d3.scale.linear().domain([this.min, this.max]).range([this.leftMargin, this.w - rightMargin]);
+        xToVal = d3.scale.linear().domain([1, n]).range([this.min, this.max]);
+        val = function(x) {
+          return _this.round(xToVal(x));
+        };
+        bucketVal = function(x) {
+          var raw;
+
+          raw = val(x);
+          if (raw < _this.min) {
+            return _this.min;
+          } else if (raw > _this.max) {
+            return _this.max;
+          } else {
+            return raw;
+          }
+        };
+        bucketRange = function(bucket) {
+          var delta, max, min, _ref5, _ref6;
+
+          if (bucket != null) {
+            _ref5 = (function() {
+              var _i, _len, _ref5, _results;
+
+              _ref5 = [0, 1];
+              _results = [];
+              for (_i = 0, _len = _ref5.length; _i < _len; _i++) {
+                delta = _ref5[_i];
+                _results.push(bucketVal(bucket + delta));
+              }
+              return _results;
+            })(), min = _ref5[0], max = _ref5[1];
+          } else {
+            _ref6 = [0 - bucketVal(2), bucketVal(1)], min = _ref6[0], max = _ref6[1];
+          }
+          return {
+            min: min,
+            max: max
+          };
+        };
+        getTitle = function(item) {
+          var brange, title;
+
+          return title = item.bucket != null ? (brange = bucketRange(item.bucket), "" + brange.min + " >= x < " + brange.max + ": " + item.count + " items") : "x is null: " + item.count + " items";
+        };
+        this.paper = chart = d3.select(this.canvas).append('svg').attr('class', 'chart').attr('width', this.w).attr('height', h);
+        container = this.canvas;
+        barClickHandler = function(d, i) {
+          var _ref5, _ref6;
+
+          if (d.bucket != null) {
+            return (_ref5 = _this.range) != null ? _ref5.set(bucketRange(d.bucket)) : void 0;
+          } else {
+            return (_ref6 = _this.range) != null ? _ref6.nullify() : void 0;
+          }
+        };
+        for (_i = 0, _len = items.length; _i < _len; _i++) {
+          item = items[_i];
+          if (item.bucket != null) {
+            item.brange = bucketRange(item.bucket);
+          }
+        }
+        chart.selectAll('rect').data(items).enter().append('rect').attr('x', function(d, i) {
+          return x(d.bucket) - 0.5;
+        }).attr('y', h - bottomMargin).attr('width', function(d) {
+          return Math.abs(x(d.bucket + 1) - x(d.bucket));
+        }).attr('height', 0).classed('im-null-bucket', function(d) {
+          return d.bucket === null;
+        }).on('click', barClickHandler).each(function(d, i) {
+          var title;
+
+          title = getTitle(d);
+          return $(this).tooltip({
+            title: title,
+            container: container
+          });
+        });
+        rects = chart.selectAll('rect').data(items).transition().duration(intermine.options.D3.Transition.Duration).ease(intermine.options.D3.Transition.Easing).attr('y', function(d) {
+          return h - bottomMargin - y(d.count) - 0.5;
+        }).attr('height', function(d) {
+          return y(d.count);
+        });
+        chart.append('line').attr('x1', 0).attr('x2', this.w).attr('y1', h - bottomMargin - .5).attr('y2', h - bottomMargin - .5).style('stroke', '#000');
+        axis = chart.append('svg:g');
+        axis.selectAll('line').data(x.ticks(n)).enter().append('svg:line').attr('x1', x).attr('x2', x).attr('y1', h - (bottomMargin * 0.75)).attr('y2', h - bottomMargin).attr('stroke', 'gray').attr('text-anchor', 'start');
+        return this;
+      };
+
+      NumericFacet.prototype.drawEstCount = function() {
+        var _ref5;
+
+        if ((_ref5 = this.estCount) != null) {
+          _ref5.remove();
+        }
+        if (typeof d3 === "undefined" || d3 === null) {
+          return false;
+        }
+        return this.estCount = this.paper.append('text').classed('im-est-count', true).attr('x', this.w * 0.75).attr('y', 22).text("~" + (this.estimateCount()));
+      };
+
+      sumCounts = function(xs) {
+        return _.reduce(xs, (function(total, x) {
+          return total + x.count;
+        }), 0);
+      };
+
+      fracWithinRange = function(range, min, max) {
+        var overlap, rangeSize;
+
+        if (!range) {
+          return 0;
+        }
+        rangeSize = range.max - range.min;
+        overlap = range.min < min ? Math.min(range.max, max) - min : max - Math.max(range.min, min);
+        return overlap / rangeSize;
+      };
+
+      getPartialCount = function(min, max) {
+        return function(item) {
+          if (item != null) {
+            return item.count * fracWithinRange(item.brange, min, max);
+          } else {
+            return 0;
+          }
+        };
+      };
+
+      NumericFacet.prototype.estimateCount = function() {
+        var fullBuckets, left, max, min, partialLeft, partialRight, right, _ref5, _ref6;
+
+        if (this.range.nulled) {
+          return sumCounts(this.items.filter(function(i) {
+            return i.bucket === null;
+          }));
+        } else {
+          _ref5 = this.range.toJSON(), min = _ref5.min, max = _ref5.max;
+          fullBuckets = sumCounts(this.items.filter(function(i) {
+            return (i.brange != null) && i.brange.min >= min && i.brange.max <= max;
+          }));
+          partialLeft = this.items.filter(function(i) {
+            return (i.brange != null) && i.brange.min < min && i.brange.max > min;
+          })[0];
+          partialRight = this.items.filter(function(i) {
+            return (i.brange != null) && i.brange.max > max && i.brange.min < max;
+          })[0];
+          _ref6 = [partialLeft, partialRight].map(getPartialCount(min, max)), left = _ref6[0], right = _ref6[1];
+          return this.round(fullBuckets + left + right);
+        }
+      };
+
+      NumericFacet.prototype.drawSelection = function(x, width) {
+        var _ref5;
+
+        if ((_ref5 = this.selection) != null) {
+          _ref5.remove();
+        }
+        if ((x <= 0) && (width >= this.w)) {
+          return;
+        }
+        if (typeof d3 !== "undefined" && d3 !== null) {
+          return this.selection = this.paper.append('svg:rect').attr('x', x).attr('y', 0).attr('width', width).attr('height', this.chartHeight * 0.9).classed('rubberband-selection', true);
+        } else {
+          return console.error("Cannot draw selection without SVG lib");
+        }
+      };
+
+      NumericFacet.prototype._selecting_paths_ = false;
+
+      return NumericFacet;
+
+    })(FacetView);
+    PieFacet = (function(_super) {
+      var IGNORE_E, basicOps, getChartPalette, negateOps;
+
+      __extends(PieFacet, _super);
+
+      function PieFacet() {
+        this.filterItems = __bind(this.filterItems, this);        _ref5 = PieFacet.__super__.constructor.apply(this, arguments);
+        return _ref5;
+      }
+
+      PieFacet.prototype.className = 'im-grouped-facet im-pie-facet im-facet';
+
+      PieFacet.prototype.chartHeight = 100;
+
+      PieFacet.prototype.initialize = function(query, facet, items, hasMore, filterTerm) {
+        var _ref6,
+          _this = this;
+
+        this.query = query;
+        this.facet = facet;
+        this.hasMore = hasMore;
+        this.filterTerm = filterTerm;
+        this.items = new Backbone.Collection(items);
+        this.items.each(function(item) {
+          return item.set({
+            visibility: true,
+            selected: false
+          });
+        });
+        this.items.maxCount = (_ref6 = this.items.first()) != null ? _ref6.get("count") : void 0;
+        this.items.on("change:selected", function() {
+          var allAreSelected, someAreSelected;
+
+          someAreSelected = _this.items.any(function(item) {
+            return !!item.get("selected");
+          });
+          allAreSelected = !_this.items.any(function(item) {
+            return !item.get("selected");
+          });
+          _this.$('.im-filter .btn-group .btn').attr("disabled", !someAreSelected);
+          return _this.$('.im-filter .btn-toggle-selection').attr("disabled", allAreSelected).toggleClass("im-invert", someAreSelected);
+        });
+        return this.items.on('add', this.addItemRow, this);
+      };
+
+      basicOps = {
+        single: '=',
+        multi: 'ONE OF',
+        absent: 'IS NULL'
+      };
+
+      negateOps = function(ops) {
+        var ret;
+
+        ret = {};
+        ret.multi = ops.multi === 'ONE OF' ? 'NONE OF' : 'ONE OF';
+        ret.single = ops.single === '=' ? '!=' : '=';
+        ret.absent = ops.absent === 'IS NULL' ? 'IS NOT NULL' : 'IS NULL';
+        return ret;
+      };
+
+      IGNORE_E = function(e) {
+        e.preventDefault();
+        return e.stopPropagation();
+      };
+
+      PieFacet.prototype.events = function() {
+        var _this = this;
+
+        return {
+          'submit .im-facet form': IGNORE_E,
+          'click .im-filter .btn-cancel': 'resetOptions',
+          'click .im-filter .btn-toggle-selection': 'toggleSelection',
+          'click .im-export-summary': 'exportSummary',
+          'click .im-load-more': 'loadMoreItems',
+          'click .im-filter .im-filter-in': function(e) {
+            return _this.addConstraint(e, basicOps);
+          },
+          'click .im-filter .im-filter-out': function(e) {
+            return _this.addConstraint(e, negateOps(basicOps));
+          },
+          'keyup .im-filter-values': _.throttle(this.filterItems, 750, {
+            leading: false
+          }),
+          'click .im-clear-value-filter': 'clearValueFilter',
+          'click': IGNORE_E
+        };
+      };
+
+      PieFacet.prototype.filterItems = function(e) {
+        var $input, current, parts, test,
+          _this = this;
+
+        $input = this.$('.im-filter-values');
+        current = $input.val();
+        if (this.hasMore || (this.filterTerm && current.length < this.filterTerm.length)) {
+          if (this._filter_queued) {
+            return;
+          }
+          this._filter_queued = true;
+          return _.delay((function() {
+            return _this.query.trigger('filter:summary', $input.val());
+          }), 750);
+        } else {
+          parts = (current != null ? current : '').toLowerCase().split(/\s+/);
+          test = function(str) {
+            return _.all(parts, function(part) {
+              return !!(str && ~str.toLowerCase().indexOf(part));
+            });
+          };
+          return this.items.each(function(x) {
+            return x.set({
+              visibility: test(x.get('item'))
+            });
+          });
+        }
+      };
+
+      PieFacet.prototype.clearValueFilter = function() {
+        var $input;
+
+        $input = this.$('.im-filter-values');
+        $input.val(this.filterTerm);
+        return this.items.each(function(x) {
+          return x.set({
+            visibility: true
+          });
+        });
+      };
+
+      PieFacet.prototype.loadMoreItems = function() {
+        var loader, text,
+          _this = this;
+
+        if (this.summarising) {
+          return;
+        }
+        loader = this.$('.im-load-more');
+        text = loader.text();
+        loader.html("<i class=\"icon-refresh icon-spin\"></i>");
+        this.limit *= 2;
+        this.summarising = this.query.filterSummary(this.facet.path, this.filterTerm, this.limit);
+        this.summarising.done(function(items, stats, fcount) {
+          var newItem, newItems, _i, _len;
+
+          _this.hasMore = stats.uniqueValues > _this.limit;
+          newItems = items.slice(_this.items.length);
+          for (_i = 0, _len = newItems.length; _i < _len; _i++) {
+            newItem = newItems[_i];
+            _this.items.add(_.extend(newItem, {
+              visibility: true,
+              selected: false
+            }));
+          }
+          return _this.query.trigger('got:summary:total', _this.facet.path, stats.uniqueValues, items.length, fcount);
+        });
+        this.summarising.done(function() {
+          loader.empty().text(text);
+          return loader.toggle(_this.hasMore);
+        });
+        return this.summarising.always(function() {
+          return delete _this.summarising;
+        });
+      };
+
+      PieFacet.prototype.exportSummary = function(e) {
+        e.stopImmediatePropagation();
+        return true;
+      };
+
+      PieFacet.prototype.changeSelection = function(f) {
+        var tbody,
+          _this = this;
+
+        tbody = this.$('.im-item-table tbody')[0];
+        return this.items.each(function(item) {
+          return _.defer(function() {
+            return f.call(_this, item);
+          });
+        });
+      };
+
+      PieFacet.prototype.resetOptions = function(e) {
+        return this.changeSelection(function(item) {
+          return item.set({
+            selected: false
+          });
+        });
+      };
+
+      PieFacet.prototype.toggleSelection = function(e) {
+        return this.changeSelection(function(item) {
+          if (item.get('visibility')) {
+            return item.set({
+              selected: !item.get('selected')
+            });
+          }
+        });
+      };
+
+      PieFacet.prototype.addConstraint = function(e, ops, vals) {
+        var item, newCon, unselected;
+
+        e.preventDefault();
+        e.stopPropagation();
+        newCon = {
+          path: this.facet.path
+        };
+        if (vals == null) {
+          vals = (function() {
+            var _i, _len, _ref6, _results;
+
+            _ref6 = this.items.where({
+              selected: true
+            });
+            _results = [];
+            for (_i = 0, _len = _ref6.length; _i < _len; _i++) {
+              item = _ref6[_i];
+              _results.push(item.get("item"));
+            }
+            return _results;
+          }).call(this);
+          unselected = this.items.where({
+            selected: false
+          });
+          if ((!this.hasMore) && vals.length > unselected.length) {
+            return this.addConstraint(e, negateOps(ops), (function() {
+              var _i, _len, _results;
+
+              _results = [];
+              for (_i = 0, _len = unselected.length; _i < _len; _i++) {
+                item = unselected[_i];
+                _results.push(item.get('item'));
+              }
+              return _results;
+            })());
+          }
+        }
+        if (vals.length === 1) {
+          if (vals[0] === null) {
+            newCon.op = ops.absent;
+          } else {
+            newCon.op = ops.single;
+            newCon.value = "" + vals[0];
+          }
+        } else {
+          newCon.op = ops.multi;
+          newCon.values = vals;
+        }
+        if (!this.facet.ignoreTitle) {
+          newCon.title = this.facet.title;
+        }
+        return this.query.addConstraint(newCon);
+      };
+
+      PieFacet.prototype.render = function() {
+        this.addChart();
+        this.addControls();
+        return this;
+      };
+
+      PieFacet.prototype.addChart = function() {
+        var _this = this;
+
+        this.chartElem = this.make("div");
+        this.$el.append(this.chartElem);
+        if (typeof d3 !== "undefined" && d3 !== null) {
+          setTimeout((function() {
+            return _this._drawD3Chart();
+          }), 0);
+        }
+        return this;
+      };
+
+      getChartPalette = function() {
+        var PieColors, paint;
+
+        PieColors = intermine.options.PieColors;
+        if (_.isFunction(PieColors)) {
+          paint = PieColors;
+        } else {
+          paint = d3.scale[PieColors]();
+        }
+        return function(d, i) {
+          return paint(i);
+        };
+      };
+
+      PieFacet.prototype._drawD3Chart = function() {
+        var arc, arc_group, centre_group, chart, colour, donut, getTween, h, ir, label_group, paths, percent, r, total, w, whiteCircle,
+          _this = this;
+
+        h = this.chartHeight;
+        w = this.$el.closest(':visible').width();
+        r = h * 0.4;
+        ir = h * 0.1;
+        donut = d3.layout.pie().value(function(d) {
+          return d.get('count');
+        });
+        colour = getChartPalette();
+        chart = d3.select(this.chartElem).append('svg').attr('class', 'chart').attr('height', h).attr('width', w);
+        arc = d3.svg.arc().startAngle(function(d) {
+          return d.startAngle;
+        }).endAngle(function(d) {
+          return d.endAngle;
+        }).innerRadius(function(d) {
+          if (d.data.get('selected')) {
+            return ir + 5;
+          } else {
+            return ir;
+          }
+        }).outerRadius(function(d) {
+          if (d.data.get('selected')) {
+            return r + 5;
+          } else {
+            return r;
+          }
+        });
+        arc_group = chart.append('svg:g').attr('class', 'arc').attr('transform', "translate(" + (w / 2) + "," + (h / 2) + ")");
+        centre_group = chart.append('svg:g').attr('class', 'center_group').attr('transform', "translate(" + (w / 2) + "," + (h / 2) + ")");
+        label_group = chart.append("svg:g").attr("class", "label_group").attr("transform", "translate(" + (w / 2) + "," + (h / 2) + ")");
+        whiteCircle = centre_group.append("svg:circle").attr("fill", "white").attr("r", ir);
+        getTween = function(d, i) {
+          var j;
+
+          j = d3.interpolate({
+            startAngle: 0,
+            endAngle: 0
+          }, d);
+          return function(t) {
+            return arc(j(t));
+          };
+        };
+        paths = arc_group.selectAll('path').data(donut(this.items.models));
+        paths.enter().append('svg:path').attr('class', 'donut-arc').attr('stroke', 'white').attr('stroke-width', 0.5).attr('fill', colour).on('click', function(d, i) {
+          return d.data.set({
+            selected: !d.data.get('selected')
+          });
+        }).on('mouseover', function(d, i) {
+          return d.data.trigger('hover');
+        }).on('mouseout', function(d, i) {
+          return d.data.trigger('unhover');
+        }).transition().duration(intermine.options.D3.Transition.Duration).attrTween('d', getTween);
+        total = this.items.reduce((function(sum, m) {
+          return sum + m.get('count');
+        }), 0);
+        percent = function(d) {
+          return (d.data.get('count') / total * 100).toFixed(1);
+        };
+        paths.each(function(d, i) {
+          var placement, title;
+
+          title = "" + (d.data.get('item')) + ": " + (percent(d)) + "%";
+          placement = (d.endAngle + d.startAngle) / 2 > Math.PI ? 'left' : 'right';
+          return $(this).tooltip({
+            title: title,
+            placement: placement,
+            container: this.chartElem
+          });
+        });
+        paths.transition().duration(intermine.options.D3.Transition.Duration).ease(intermine.options.D3.Transition.Easing).attrTween("d", getTween);
+        this.items.on('change:selected', function() {
+          paths.data(donut(_this.items.models)).attr('d', arc);
+          return paths.transition().duration(intermine.options.D3.Transition.Duration).ease(intermine.options.D3.Transition.Easing);
+        });
+        return this;
+      };
+
+      PieFacet.prototype.filterControls = "<div class=\"input-prepend\">\n    <span class=\"add-on im-clear-value-filter\">\n      <i class=\"icon-refresh\"></i>\n    </span>\n    <input type=\"text\" class=\"input-medium  im-filter-values\" placeholder=\"Filter values\">\n</div>";
+
+      PieFacet.prototype.getDownloadPopover = function() {
+        var href, i, icons, lis, name, param;
+
+        icons = intermine.icons;
+        lis = (function() {
+          var _results;
+
+          _results = [];
+          for (param in SUMMARY_FORMATS) {
+            name = SUMMARY_FORMATS[param];
+            href = "" + (this.query.getExportURI(param)) + "&summaryPath=" + this.facet.path;
+            i = "<i class=\"" + icons[name] + "\"></i>";
+            _results.push("<li><a href=\"" + href + "\"> " + i + " " + name + "</a></li>");
+          }
+          return _results;
+        }).call(this);
+        return "<ul class=\"im-export-summary\">" + (lis.join('')) + "</ul>";
+      };
+
+      PieFacet.prototype.addControls = function() {
+        var $btns, $grp, DownloadData, DownloadFormat, More, imd, tbody, _ref6,
+          _this = this;
+
+        _ref6 = intermine.messages.facets, More = _ref6.More, DownloadData = _ref6.DownloadData, DownloadFormat = _ref6.DownloadFormat;
+        $grp = $("<form class=\"form form-horizontal\">\n  " + this.filterControls + "\n  <div class=\"im-item-table\">\n    <table class=\"table table-condensed table-striped\">\n      <colgroup>\n        " + (this.colClasses.map(function(cl) {
+          return "<col class=" + cl + ">";
+        }).join('')) + "\n      </colgroup>\n      <thead>\n        <tr>" + (this.columnHeaders.map(function(h) {
+          return "<th>" + h + "</th>";
+        }).join('')) + "</tr>\n      </thead>\n      <tbody class=\"scrollable\"></tbody>\n    </table>\n    " + (this.hasMore ? '<div class="im-load-more">' + More + '</div>' : '') + "\n  </div>\n</form>");
+        $grp.button();
+        tbody = $grp.find('tbody')[0];
+        this.items.each(function(item) {
+          return _this.addItemRow(item, _this.items, {}, tbody);
+        });
+        $grp.append("<div class=\"im-filter\">\n  <button class=\"btn pull-right im-download\" >\n    <i class=\"" + intermine.icons.Download + "\"></i>\n    " + DownloadData + "\n  </button>\n  " + (this.buttons()) + "\n</div>");
+        $btns = $grp.find('.im-filter .btn').tooltip({
+          placement: 'top',
+          container: this.el
+        });
+        $btns.on('click', function(e) {
+          return $btns.tooltip('hide');
+        });
+        $grp.find('.dropdown-toggle').click(function(e) {
+          var $parent, $this;
+
+          $this = $(this);
+          $parent = $this.parent();
+          return $parent.toggleClass('open');
+        });
+        imd = $grp.find('.im-download').popover({
+          placement: 'top',
+          html: true,
+          container: this.el,
+          title: DownloadFormat,
+          content: this.getDownloadPopover(),
+          trigger: 'manual'
+        });
+        imd.click(function(e) {
+          return imd.popover('toggle');
+        });
+        this.initFilter($grp);
+        $grp.appendTo(this.el);
+        return this;
+      };
+
+      PieFacet.prototype.addItemRow = function(item, items, opts, tbody) {
+        if (tbody == null) {
+          tbody = this.$('.im-item-table tbody').get()[0];
+        }
+        return tbody.appendChild(this.makeRow(item));
+      };
+
+      PieFacet.prototype.buttons = function() {
+        return "<div class=\"btn-group\">\n  <button type=\"submit\" class=\"btn btn-primary im-filter-in\" disabled\n          title=\"" + intermine.messages.facets.Include + "\">\n    Filter\n  </button>\n  <button class=\"btn btn-primary dropdown-toggle\" \n          title=\"Select filter type\"  disabled>\n    <span class=\"caret\"></span>\n  </button>\n  <ul class=\"dropdown-menu\">\n    <li>\n      <a href=\"#\" class=\"im-filter-in\">\n        " + intermine.messages.facets.Include + "\n      </a>\n    </li>\n    <li>\n      <a href=\"#\" class=\"im-filter-out\">\n        " + intermine.messages.facets.Exclude + "\n      </a>\n    </li>\n  </ul>\n</div>\n\n<div class=\"btn-group\">\n  <button class=\"btn btn-cancel\" disabled\n            title=\"" + intermine.messages.facets.Reset + "\">\n    <i class=\"" + intermine.icons.Undo + "\"></i>\n  </button>\n  <button class=\"btn btn-toggle-selection\"\n          title=\"" + intermine.messages.facets.ToggleSelection + "\">\n    <i class=\"" + intermine.icons.Toggle + "\"></i>\n  </button>\n</div>";
+      };
+
+      PieFacet.prototype.initFilter = function($grp) {
+        var $valFilter, sel;
+
+        if (this.filterTerm == null) {
+          return;
+        }
+        sel = '.im-filter-values';
+        $valFilter = $grp != null ? $grp.find(sel) : this.$(sel);
+        return $valFilter.val(this.filterTerm);
+      };
+
+      PieFacet.prototype.colClasses = ["im-item-selector", "im-item-value", "im-item-count"];
+
+      PieFacet.prototype.columnHeaders = [' ', 'Item', 'Count'];
+
+      PieFacet.prototype.makeRow = function(item) {
+        var row;
+
+        row = new FacetRow(item, this.items);
+        return row.render().el;
+      };
+
+      return PieFacet;
+
+    })(Backbone.View);
+    FacetRow = (function(_super) {
+      __extends(FacetRow, _super);
+
+      function FacetRow() {
+        _ref6 = FacetRow.__super__.constructor.apply(this, arguments);
+        return _ref6;
+      }
+
+      FacetRow.prototype.tagName = "tr";
+
+      FacetRow.prototype.className = "im-facet-row";
+
+      FacetRow.prototype.isBelow = function() {
+        var parent;
+
+        parent = this.$el.closest('.im-item-table');
+        return this.$el.offset().top + this.$el.outerHeight() > parent.offset().top + parent.outerHeight();
+      };
+
+      FacetRow.prototype.isAbove = function() {
+        var parent;
+
+        parent = this.$el.closest('.im-item-table');
+        return this.$el.offset().top < parent.offset().top;
+      };
+
+      FacetRow.prototype.isVisible = function() {
+        return !(this.isAbove() || this.isBelow());
+      };
+
+      FacetRow.prototype.initialize = function(item, items) {
+        var _this = this;
+
+        this.item = item;
+        this.items = items;
+        this.item.facetRow = this;
+        this.listenTo(this.item, "change:selected", function() {
+          return _this.onChangeSelected();
+        });
+        this.listenTo(this.item, "change:visibility", function() {
+          return _this.onChangeVisibility();
+        });
+        this.listenTo(this.item, 'hover', function() {
+          var above, itemTable, newTop, surrogate;
+
+          _this.$el.addClass('hover');
+          if (!_this.isVisible()) {
+            above = _this.isAbove();
+            surrogate = $("<div class=\"im-facet-surrogate " + (above ? 'above' : 'below') + "\">\n    <i class=\"icon-caret-" + (above ? 'up' : 'down') + "\"></i>\n    " + (_this.item.get('item')) + ": " + (_this.item.get('count')) + "\n</div>");
+            itemTable = _this.$el.closest('.im-item-table').append(surrogate);
+            newTop = above ? itemTable.offset().top + itemTable.scrollTop() : itemTable.scrollTop() + itemTable.offset().top + itemTable.outerHeight() - surrogate.outerHeight();
+            return surrogate.offset({
+              top: newTop
+            });
+          }
+        });
+        return this.listenTo(this.item, 'unhover', function() {
+          var s;
+
+          _this.$el.removeClass('hover');
+          return s = _this.$el.closest('.im-item-table').find('.im-facet-surrogate').fadeOut('fast', function() {
+            return s.remove();
+          });
+        });
+      };
+
+      FacetRow.prototype.initState = function() {
+        this.onChangeVisibility();
+        return this.onChangeSelected();
+      };
+
+      FacetRow.prototype.onChangeVisibility = function() {
+        return this.$el.toggle(this.item.get("visibility"));
+      };
+
+      FacetRow.prototype.onChangeSelected = function() {
+        var f, isSelected,
+          _this = this;
+
+        isSelected = !!this.item.get("selected");
+        if (this.item.has("path")) {
+          item.get("path").node.setAttribute("class", isSelected ? "selected" : "");
+        }
+        f = function() {
+          _this.$el.toggleClass("active", isSelected);
+          if (isSelected !== _this.$('input').prop("checked")) {
+            return _this.$('input').prop("checked", isSelected);
+          }
+        };
+        return setTimeout(f, 0);
+      };
+
+      FacetRow.prototype.events = {
+        'click': 'handleClick',
+        'change input': 'handleChange'
+      };
+
+      FacetRow.prototype.render = function() {
+        var opacity, percent, ratio, _ref7;
+
+        ratio = parseInt(this.item.get("count"), 10) / this.items.maxCount;
+        opacity = ratio.toFixed(2) / 2 + 0.5;
+        percent = (ratio * 100).toFixed(1);
+        this.$el.append("<td class=\"im-selector-col\">\n    <span>" + ((this.item.get("symbol")) || "") + "</span>\n    <input type=\"checkbox\">\n</td>\n<td class=\"im-item-col\">\n  " + ((_ref7 = this.item.get("item")) != null ? _ref7 : '<span class=null-value>&nbsp;</span>') + "\n</td>\n<td class=\"im-count-col\">\n    <div class=\"im-facet-bar\"\n         style=\"width:" + percent + "%;background:rgba(206, 210, 222, " + opacity + ")\">\n      <span class=\"im-count\">\n        " + (this.item.get("count")) + "\n      </span>\n    </div>\n</td>");
+        if (this.item.get("percent")) {
+          this.$el.append("<td class=\"im-prop-col\"><i>" + (this.item.get("percent").toFixed()) + "%</i></td>");
+        }
+        this.initState();
+        return this;
+      };
+
+      FacetRow.prototype.handleClick = function(e) {
+        e.stopPropagation();
+        if (e.target.type !== 'checkbox') {
+          return this.$('input').trigger("click");
+        }
+      };
+
+      FacetRow.prototype.handleChange = function(e) {
+        var _this = this;
+
+        e.stopPropagation();
+        return setTimeout((function() {
+          return _this.item.set("selected", _this.$('input').is(':checked'));
+        }), 0);
+      };
+
+      return FacetRow;
+
+    })(Backbone.View);
+    HistoFacet = (function(_super) {
+      __extends(HistoFacet, _super);
+
+      function HistoFacet() {
+        _ref7 = HistoFacet.__super__.constructor.apply(this, arguments);
+        return _ref7;
+      }
+
+      HistoFacet.prototype.className = 'im-grouped-facet im-facet';
+
+      HistoFacet.prototype.chartHeight = 50;
+
+      HistoFacet.prototype.leftMargin = 25;
+
+      HistoFacet.prototype.colClasses = ["im-item-selector", "im-item-value", "im-item-count"];
+
+      HistoFacet.prototype.columnHeaders = [' ', 'Item', 'Count'];
+
+      HistoFacet.prototype._drawD3Chart = function() {
+        var chart, data, f, h, itemW, max, n, onSelection, rectClass, rects, w, x, y,
+          _this = this;
+
+        if (this.items.all(function(i) {
+          return 1 === i.get('count');
+        })) {
+          return this;
+        }
+        data = this.items.models;
+        w = this.$el.closest(':visible').width() * 0.95;
+        n = data.length;
+        itemW = (w - this.leftMargin) / data.length;
+        h = this.chartHeight;
+        f = this.items.first();
+        max = f.get("count");
+        x = d3.scale.linear().domain([0, n]).range([this.leftMargin, w]);
+        y = d3.scale.linear().domain([0, max]).rangeRound([0, h]);
+        chart = d3.select(this.chartElem).append('svg').attr('class', 'chart').attr('width', w).attr('height', h);
+        rectClass = n > w / 4 ? 'squashed' : 'bar';
+        rects = chart.selectAll('rect');
+        rects.data(data).enter().append('rect').attr('class', rectClass).attr('width', itemW).attr('y', h).attr('height', 0).attr('x', function(d, i) {
+          return x(i) - 0.5;
+        }).on('click', function(d, i) {
+          return d.set({
+            selected: !d.get('selected')
+          });
+        }).on('mouseover', function(d, i) {
+          return d.trigger('hover');
+        }).on('mouseout', function(d, i) {
+          return d.trigger('unhover');
+        });
+        chart.selectAll('rect').data(this.items.models).transition().duration(intermine.options.D3.Transition.Duration).ease(intermine.options.D3.Transition.Easing).attr('y', function(d) {
+          return h - y(d.get('count')) - 0.5;
+        }).attr('height', function(d) {
+          return y(d.get('count'));
+        });
+        chart.append('line').attr('x1', 0).attr('x2', w).attr('y1', h - .5).attr('y2', h - .5).style('stroke', '#000');
+        onSelection = function() {
+          return _.defer(function() {
+            return chart.selectAll('rect').data(_this.items.models).transition().duration(intermine.options.D3.Transition.Duration).ease(intermine.options.D3.Transition.Easing).attr('class', function(d) {
+              return rectClass + (d.get('selected') ? '-selected' : '');
+            });
+          });
+        };
+        this.items.on('change:selected', _.throttle(onSelection, 150));
+        return this;
+      };
+
+      return HistoFacet;
+
+    })(PieFacet);
+    BooleanFacet = (function(_super) {
+      __extends(BooleanFacet, _super);
+
+      function BooleanFacet() {
+        _ref8 = BooleanFacet.__super__.constructor.apply(this, arguments);
+        return _ref8;
+      }
+
+      BooleanFacet.prototype.initialize = function() {
+        var _this = this;
+
+        BooleanFacet.__super__.initialize.apply(this, arguments);
+        if (this.items.length === 2) {
+          return this.items.on('change:selected', function(x, selected) {
+            var someAreSelected;
+
+            _this.items.each(function(y) {
+              if (selected && x !== y) {
+                return y.set({
+                  selected: false
+                });
+              }
+            });
+            someAreSelected = _this.items.any(function(item) {
+              return !!item.get("selected");
+            });
+            return _this.$('.im-filtering.btn').attr("disabled", !someAreSelected);
+          });
+        }
+      };
+
+      BooleanFacet.prototype.filterControls = '';
+
+      BooleanFacet.prototype.initFilter = function() {};
+
+      BooleanFacet.prototype.buttons = function() {
+        return "<button type=\"submit\" class=\"btn btn-primary im-filtering im-filter-in\" disabled>Filter</button>\n<button class=\"btn btn-cancel im-filtering\" disabled>Reset</button>";
+      };
+
+      return BooleanFacet;
+
+    })(PieFacet);
+    return scope("intermine.results", {
+      ColumnSummary: ColumnSummary,
+      FacetView: FacetView,
+      FrequencyFacet: FrequencyFacet,
+      NumericFacet: NumericFacet,
+      PieFacet: PieFacet,
+      FacetRow: FacetRow,
+      HistoFacet: HistoFacet,
+      BooleanFacet: BooleanFacet
     });
   })();
 
@@ -4550,1257 +8951,6 @@
     });
   })();
 
-  scope('intermine.columns.snippets', {
-    ColumnsDialogue: "<div class=\"modal-header\">\n  <a class=\"close\" data-dismiss=\"modal\">close</a>\n  <h3>Manage Columns</h3>\n</div>\n<div class=\"modal-body\">\n  <ul class=\"nav nav-tabs\">\n    <li class=\"active\">\n      <a data-target=\".im-reordering\">\n        <span class=\"hidden-tablet\">\n          " + intermine.messages.columns.OrderVerb + "\n        </span>\n        " + intermine.messages.columns.OrderTitle + "\n      </a>\n    </li>\n    <li>\n      <a data-target=\".im-sorting\" >\n        <span class=\"hidden-tablet\">\n          " + intermine.messages.columns.SortVerb + "\n        </span>\n        " + intermine.messages.columns.SortTitle + "\n      </a>\n    </li>\n  </ul>\n  <div class=\"tab-content\">\n    <div class=\"tab-pane fade im-reordering active in\">\n      <div class=\"node-adder\"></div>\n      <div class=\"well\">\n      <ul class=\"im-reordering-container nav nav-tabs nav-stacked\"></ul>\n      </div>\n    </div>\n    <div class=\"tab-pane fade im-sorting\">\n      <div class=\"well\">\n      <ul class=\"im-sorting-container nav nav-tabs nav-stacked\"></ul>\n      </div>\n      <form class=\"form-search\">\n      <i class=\"" + intermine.icons.Help + " pull-right im-sorting-help\"></i>\n      <div class=\"input-prepend\">\n        <span class=\"add-on\">filter</span>\n        <input type=\"text\" class=\"search-query im-sortables-filter\">\n      </div>\n      <label class=\"im-only-in-view\">\n        " + intermine.messages.columns.OnlyColsInView + "\n        <input class=\"im-only-in-view\" type=\"checkbox\" checked>\n      </label>\n      </form>\n      <div class=\"well\">\n      <ul class=\"im-sorting-container-possibilities nav nav-tabs nav-stacked\"></ul>\n      </div>\n    </div>\n  </div>\n</div>\n<div class=\"modal-footer\">\n  <a class=\"btn btn-cancel\">\n    Cancel\n  </a>\n  <a class=\"btn pull-right btn-primary\">\n    Apply\n  </a>\n</div>"
-  });
-
-  (function() {
-    var PossibleColumns, _ref;
-
-    PossibleColumns = (function(_super) {
-      __extends(PossibleColumns, _super);
-
-      function PossibleColumns() {
-        _ref = PossibleColumns.__super__.constructor.apply(this, arguments);
-        return _ref;
-      }
-
-      PossibleColumns.prototype.initialize = function(_, _arg) {
-        var _this = this;
-
-        this.exported = _arg.exported;
-        return this.on('close', function() {
-          return _this.each(function(m) {
-            return m.destroy();
-          });
-        });
-      };
-
-      return PossibleColumns;
-
-    })(Backbone.Collection);
-    return scope('intermine.columns.models', {
-      PossibleColumns: PossibleColumns
-    });
-  })();
-
-  scope('intermine.messages.results', {
-    ReorderHelp: 'Drag the columns to reorder them'
-  });
-
-  scope('intermine.messages.columns', {
-    AllowRevRef: 'Allow reverse references',
-    CollapseAll: 'Collapse all branches'
-  });
-
-  (function() {
-    var ColumnAdder, ColumnsDialogue, NewViewNodes, Tab, ViewNode, byEl, _ref, _ref1, _ref2, _ref3;
-
-    byEl = function(el) {
-      return function(nv) {
-        return nv.el === el;
-      };
-    };
-    Tab = intermine.bootstrap.Tab;
-    ColumnAdder = (function(_super) {
-      __extends(ColumnAdder, _super);
-
-      function ColumnAdder() {
-        this.isDisabled = __bind(this.isDisabled, this);
-        this.handleSubmission = __bind(this.handleSubmission, this);
-        this.handleChoice = __bind(this.handleChoice, this);        _ref = ColumnAdder.__super__.constructor.apply(this, arguments);
-        return _ref;
-      }
-
-      ColumnAdder.prototype.className = "form node-adder form-horizontal";
-
-      ColumnAdder.prototype.initialize = function(query, newView) {
-        this.newView = newView;
-        ColumnAdder.__super__.initialize.call(this, query);
-        return this.chosen = [];
-      };
-
-      ColumnAdder.prototype.handleChoice = function(path) {
-        var $b;
-
-        if (__indexOf.call(this.chosen, path) >= 0) {
-          this.chosen = _.without(this.chosen, path);
-        } else {
-          this.chosen.push(path);
-        }
-        this.applyChanges();
-        $b = this.$('.btn-chooser');
-        if ($b.is('.active')) {
-          return $b.button('toggle');
-        }
-      };
-
-      ColumnAdder.prototype.handleSubmission = function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        return this.applyChanges();
-      };
-
-      ColumnAdder.prototype.applyChanges = function() {
-        this.newView.addPaths(this.chosen);
-        return this.reset();
-      };
-
-      ColumnAdder.prototype.reset = function() {
-        ColumnAdder.__super__.reset.call(this);
-        return this.chosen = [];
-      };
-
-      ColumnAdder.prototype.refsOK = false;
-
-      ColumnAdder.prototype.multiSelect = true;
-
-      ColumnAdder.prototype.isDisabled = function(path) {
-        var _ref1;
-
-        return _ref1 = path.toString(), __indexOf.call(this.query.views, _ref1) >= 0;
-      };
-
-      ColumnAdder.prototype.render = function() {
-        ColumnAdder.__super__.render.call(this);
-        this.$('input').remove();
-        this.$('.btn-chooser > span').text(intermine.messages.columns.FindColumnToAdd);
-        return this;
-      };
-
-      ColumnAdder.prototype.showTree = function(e) {
-        var _ref1;
-
-        ColumnAdder.__super__.showTree.call(this, e);
-        return (_ref1 = this.$pathfinder) != null ? _ref1.$el.removeClass(this.$pathfinder.dropDownClasses) : void 0;
-      };
-
-      return ColumnAdder;
-
-    })(intermine.query.ConstraintAdder);
-    ViewNode = (function(_super) {
-      __extends(ViewNode, _super);
-
-      function ViewNode() {
-        _ref1 = ViewNode.__super__.constructor.apply(this, arguments);
-        return _ref1;
-      }
-
-      ViewNode.prototype.initialize = function() {
-        if (!this.has('isNew')) {
-          this.set({
-            isNew: false
-          });
-        }
-        if (!this.has('replaces')) {
-          this.set({
-            replaces: []
-          });
-        }
-        if (!this.has('isFormatted')) {
-          return this.set({
-            isFormatted: intermine.results.shouldFormat(this.get('path'))
-          });
-        }
-      };
-
-      ViewNode.prototype.addPath = function(path) {
-        return this.set({
-          replaces: this.get('replaces').concat([path])
-        });
-      };
-
-      ViewNode.prototype.getViews = function() {
-        if (this.get('replaces').length) {
-          return this.get('replaces');
-        } else {
-          return [this.get('path')];
-        }
-      };
-
-      ViewNode.prototype.isAbove = function(path, query) {
-        var base, myformatter, theirformatter;
-
-        base = this.get('path');
-        if (base.isAttribute()) {
-          false;
-        }
-        if (path.toString().indexOf(base.toString()) !== 0) {
-          return false;
-        } else if (this.get('isFormatted') && intermine.results.shouldFormat(path)) {
-          myformatter = intermine.results.getFormatter(base.append('id'));
-          theirformatter = intermine.results.getFormatter(path);
-          return myformatter === theirformatter;
-        } else if (path.containsCollection() && query.isOuterJoined(path)) {
-          return true;
-        } else {
-          return false;
-        }
-      };
-
-      return ViewNode;
-
-    })(Backbone.Model);
-    NewViewNodes = (function(_super) {
-      var lengthOfPath;
-
-      __extends(NewViewNodes, _super);
-
-      function NewViewNodes() {
-        _ref2 = NewViewNodes.__super__.constructor.apply(this, arguments);
-        return _ref2;
-      }
-
-      NewViewNodes.prototype.model = ViewNode;
-
-      NewViewNodes.prototype.close = function() {
-        this.off();
-        return this.each(function(vn) {
-          if (vn != null) {
-            vn.off();
-          }
-          return vn != null ? vn.destroy() : void 0;
-        });
-      };
-
-      lengthOfPath = function(vn) {
-        return vn.get('path').allDescriptors().length;
-      };
-
-      NewViewNodes.prototype.initialize = function(_, options) {
-        this.options = options;
-      };
-
-      NewViewNodes.prototype.addPaths = function(paths) {
-        var group, path, _i, _len, _results;
-
-        _results = [];
-        for (_i = 0, _len = paths.length; _i < _len; _i++) {
-          path = paths[_i];
-          group = this.getGroup(path);
-          if (group != null) {
-            _results.push(group.addPath(path));
-          } else {
-            _results.push(this.add({
-              path: path,
-              isNew: true
-            }));
-          }
-        }
-        return _results;
-      };
-
-      NewViewNodes.prototype.getGroup = function(path) {
-        var bestMatch, matches, q;
-
-        q = this.options.query;
-        matches = this.filter(function(vn) {
-          return vn.isAbove(path, q);
-        });
-        bestMatch = _.last(_.sortBy(matches, lengthOfPath));
-        return bestMatch;
-      };
-
-      return NewViewNodes;
-
-    })(Backbone.Collection);
-    ColumnsDialogue = (function(_super) {
-      __extends(ColumnsDialogue, _super);
-
-      function ColumnsDialogue() {
-        this.addPossibleSortElement = __bind(this.addPossibleSortElement, this);
-        this.addSortElement = __bind(this.addSortElement, this);        _ref3 = ColumnsDialogue.__super__.constructor.apply(this, arguments);
-        return _ref3;
-      }
-
-      ColumnsDialogue.prototype.tagName = "div";
-
-      ColumnsDialogue.prototype.className = "im-column-dialogue modal";
-
-      ColumnsDialogue.prototype.initialize = function(query, columnHeaders) {
-        var _ref4,
-          _this = this;
-
-        this.query = query;
-        this.columnHeaders = columnHeaders;
-        if ((_ref4 = this.columnHeaders) == null) {
-          this.columnHeaders = new Backbone.Collection;
-        }
-        this.sortOpts = new Backbone.Model;
-        this.sortOrder = new intermine.columns.collections.SortOrder;
-        this.sortPossibles = new intermine.columns.collections.PossibleOrderElements;
-        this.newView = new NewViewNodes([], {
-          query: this.query
-        });
-        this.sortOrder.on('add', this.addSortElement);
-        this.sortPossibles.on('add', this.addPossibleSortElement);
-        this.sortOpts.on('change:onlyInView', function(m, only) {
-          return _this.sortPossibles.each(function(m) {
-            return m.trigger('only-in-view', only);
-          });
-        });
-        this.sortOpts.on('change:filterTerm', function(m, re) {
-          return _this.sortPossibles.each(function(m) {
-            return m.trigger('filter', re);
-          });
-        });
-        this.sortOrder.on('destroy', function(m) {
-          return _this.sortPossibles.add({
-            path: m.get('path'),
-            query: _this.query
-          });
-        });
-        this.newView.on('add remove change', this.drawOrder, this);
-        return this.newView.on('destroy', function(nv) {
-          return _this.newView.remove(nv);
-        });
-      };
-
-      ColumnsDialogue.prototype.html = function() {
-        return intermine.columns.snippets.ColumnsDialogue;
-      };
-
-      ColumnsDialogue.prototype.render = function() {
-        var _this = this;
-
-        this.$el.append(this.html());
-        this.initOrdering();
-        this.initSorting();
-        this.sortOpts.set({
-          onlyInView: true
-        });
-        this.$('i.im-sorting-help').popover({
-          placement: function(popover) {
-            $(popover).addClass('bootstrap');
-            return 'left';
-          },
-          trigger: 'hover',
-          html: true,
-          title: intermine.messages.columns.SortingHelpTitle,
-          content: intermine.messages.columns.SortingHelpContent
-        });
-        this.$('.nav-tabs li a').each(function(i, e) {
-          var $elem;
-
-          $elem = $(e);
-          return $elem.data({
-            target: _this.$($elem.data("target"))
-          });
-        });
-        return this;
-      };
-
-      ColumnsDialogue.prototype.events = {
-        'hidden': 'onHidden',
-        'click .btn-cancel': 'hideModal',
-        'click .btn-primary': 'applyChanges',
-        'click .nav-tabs li a': 'changeTab',
-        'change input.im-only-in-view': 'onlyShowOptionsInView',
-        'change .im-sortables-filter': 'filterSortables',
-        'keyup .im-sortables-filter': 'filterSortables',
-        'sortstop .im-sorting-container': 'onSortStop',
-        'sortupdate .im-reordering-container': 'updateOrder',
-        'sortupdate .im-sorting-container': 'updateSorting'
-      };
-
-      ColumnsDialogue.prototype.onSortStop = function(e, ui) {
-        var left, oe, removed, top, well, wtop, _ref4;
-
-        _ref4 = ui.offset, top = _ref4.top, left = _ref4.left;
-        well = ui.item.closest('.well');
-        wtop = well.offset().top;
-        removed = (top + ui.item.height() < wtop) || (top > wtop + well.height());
-        oe = this.sortOrder.find(byEl(ui.item[0]));
-        if (removed) {
-          return _.defer(function() {
-            return oe.destroy();
-          });
-        }
-      };
-
-      ColumnsDialogue.prototype.onHidden = function(e) {
-        if (this.el !== (e != null ? e.target : void 0)) {
-          return false;
-        }
-        return this.remove();
-      };
-
-      ColumnsDialogue.prototype.remove = function() {
-        this.sortOpts.off();
-        this.sortOrder.off();
-        this.sortPossibles.off();
-        this.newView.close();
-        delete this.newView;
-        delete this.columnHeaders;
-        delete this.sortOpts;
-        delete this.sortOrder;
-        delete this.sortPossibles;
-        this.$el.empty();
-        this.undelegateEvents();
-        this.off();
-        return ColumnsDialogue.__super__.remove.call(this);
-      };
-
-      ColumnsDialogue.prototype.getFilterTerm = function(e) {
-        var $input, pattern, term;
-
-        $input = $(e.currentTarget);
-        term = $input.val();
-        if (!term) {
-          return;
-        }
-        pattern = term.split(/\s+/).join('.*');
-        return new RegExp(pattern, 'i');
-      };
-
-      ColumnsDialogue.prototype.filterSortables = function(e) {
-        return this.sortOpts.set({
-          filterTerm: this.getFilterTerm(e)
-        });
-      };
-
-      ColumnsDialogue.prototype.onlyShowOptionsInView = function(e) {
-        return this.sortOpts.set({
-          onlyInView: $(e.currentTarget).is(':checked')
-        });
-      };
-
-      ColumnsDialogue.prototype.changeTab = function(e) {
-        return Tab.call($(e.currentTarget), "show");
-      };
-
-      ColumnsDialogue.prototype.initOrdering = function() {
-        var model;
-
-        this.newView.reset((function() {
-          var _i, _len, _ref4, _results;
-
-          _ref4 = this.columnHeaders.models;
-          _results = [];
-          for (_i = 0, _len = _ref4.length; _i < _len; _i++) {
-            model = _ref4[_i];
-            _results.push(model.toJSON());
-          }
-          return _results;
-        }).call(this));
-        this.drawOrder();
-        return this.drawSelector();
-      };
-
-      ColumnsDialogue.prototype.drawOrder = function() {
-        var colContainer,
-          _this = this;
-
-        colContainer = this.$('.im-reordering-container');
-        colContainer.empty();
-        colContainer.tooltip({
-          title: intermine.messages.results.ReorderHelp,
-          placement: intermine.utils.addStylePrefix('top')
-        });
-        this.newView.each(function(model) {
-          var view;
-
-          view = new intermine.columns.views.ViewElement({
-            model: model
-          });
-          return colContainer.append(view.render().el);
-        });
-        return colContainer.sortable({
-          items: 'li.im-reorderable',
-          axis: 'y',
-          forcePlaceholderSize: true,
-          placeholder: 'im-resorting-placeholder'
-        });
-      };
-
-      ColumnsDialogue.prototype.drawSelector = function() {
-        var ca, nodeAdder, selector, _ref4,
-          _this = this;
-
-        selector = '.im-reordering .well';
-        nodeAdder = this.$('.node-adder');
-        if ((_ref4 = this.ca) != null) {
-          _ref4.remove();
-        }
-        ca = new ColumnAdder(this.query, this.newView);
-        nodeAdder.empty().append(ca.render().el);
-        ca.on('showing:tree', function() {
-          return _this.$(selector).slideUp();
-        });
-        ca.on('resetting:tree', function() {
-          return _this.$(selector).slideDown();
-        });
-        return this.ca = ca;
-      };
-
-      ColumnsDialogue.prototype.updateOrder = function(e, ui) {
-        var el, lis, reorderedState;
-
-        lis = this.$('.im-view-element');
-        byEl = function(el) {
-          return function(nv) {
-            return nv.el === el;
-          };
-        };
-        reorderedState = (function() {
-          var _i, _len, _ref4, _results;
-
-          _ref4 = lis.get();
-          _results = [];
-          for (_i = 0, _len = _ref4.length; _i < _len; _i++) {
-            el = _ref4[_i];
-            _results.push(this.newView.find(byEl(el)));
-          }
-          return _results;
-        }).call(this);
-        return this.newView.reset(reorderedState);
-      };
-
-      ColumnsDialogue.prototype.updateSorting = function(e, ui) {
-        var el, lis, reorderedState;
-
-        lis = this.$('.im-in-order');
-        byEl = function(el) {
-          return function(oe) {
-            return oe.el === el;
-          };
-        };
-        reorderedState = (function() {
-          var _i, _len, _ref4, _results;
-
-          _ref4 = lis.get();
-          _results = [];
-          for (_i = 0, _len = _ref4.length; _i < _len; _i++) {
-            el = _ref4[_i];
-            _results.push(this.sortOrder.find(byEl(el)));
-          }
-          return _results;
-        }).call(this);
-        return this.sortOrder.reset(reorderedState);
-      };
-
-      ColumnsDialogue.prototype.sortingPlaceholder = "<div class=\"placeholder\">\n    Drop columns here.\n</div>";
-
-      ColumnsDialogue.prototype.makeSortOrderElem = function(model) {
-        var possibles, soe;
-
-        possibles = this.sortPossibles;
-        soe = new intermine.columns.views.OrderElement({
-          model: model,
-          possibles: possibles
-        });
-        return soe.render().el;
-      };
-
-      ColumnsDialogue.prototype.makeSortOption = function(model) {
-        var option;
-
-        option = new intermine.columns.views.PossibleOrderElement({
-          model: model,
-          sortOrder: this.sortOrder
-        });
-        return option.render().el;
-      };
-
-      ColumnsDialogue.prototype.initSorting = function() {
-        var container;
-
-        container = this.$('.im-sorting-container').empty().append(this.sortingPlaceholder);
-        this.$('.im-sorting-container-possibilities').empty();
-        container.sortable();
-        container.parent().droppable({
-          drop: function(event, ui) {
-            return $(ui.draggable).trigger('dropped');
-          }
-        });
-        this.buildSortOrder();
-        return this.buildPossibleSortOrder();
-      };
-
-      ColumnsDialogue.prototype.buildSortOrder = function() {
-        var direction, i, path, so, _i, _len, _ref4, _results;
-
-        this.sortOrder.reset([]);
-        _ref4 = this.query.sortOrder || [];
-        _results = [];
-        for (i = _i = 0, _len = _ref4.length; _i < _len; i = ++_i) {
-          so = _ref4[i];
-          path = so.path, direction = so.direction;
-          _results.push(this.sortOrder.add({
-            path: this.query.getPathInfo(path),
-            direction: direction
-          }));
-        }
-        return _results;
-      };
-
-      ColumnsDialogue.prototype.buildPossibleSortOrder = function() {
-        var inView, isOuter, isSorted, n, path, test0, test1, _i, _j, _len, _len1, _ref4, _ref5, _results,
-          _this = this;
-
-        this.sortPossibles.reset([]);
-        isSorted = function(v) {
-          return _this.query.getSortDirection(v);
-        };
-        isOuter = function(v) {
-          return _this.query.isOuterJoined(v);
-        };
-        inView = function(v) {
-          var _ref4;
-
-          return _ref4 = "" + v, __indexOf.call(_this.query.views, _ref4) >= 0;
-        };
-        test0 = function(path) {
-          return !isSorted(path) && !isOuter(path);
-        };
-        test1 = function(p) {
-          return p.isAttribute() && !inView(p) && !isSorted(p);
-        };
-        _ref4 = this.query.views;
-        for (_i = 0, _len = _ref4.length; _i < _len; _i++) {
-          path = _ref4[_i];
-          if (test0(path)) {
-            this.sortPossibles.add({
-              path: path,
-              query: this.query
-            });
-          }
-        }
-        _ref5 = this.query.getViewNodes();
-        _results = [];
-        for (_j = 0, _len1 = _ref5.length; _j < _len1; _j++) {
-          n = _ref5[_j];
-          if (!isOuter(n)) {
-            _results.push((function() {
-              var _k, _len2, _ref6, _results1;
-
-              _ref6 = n.getChildNodes();
-              _results1 = [];
-              for (_k = 0, _len2 = _ref6.length; _k < _len2; _k++) {
-                path = _ref6[_k];
-                if (test1(path)) {
-                  _results1.push(this.sortPossibles.add({
-                    path: path,
-                    query: this.query
-                  }));
-                }
-              }
-              return _results1;
-            }).call(this));
-          }
-        }
-        return _results;
-      };
-
-      ColumnsDialogue.prototype.addSortElement = function(m) {
-        var container, elem;
-
-        container = this.$('.im-sorting-container');
-        elem = this.makeSortOrderElem(m);
-        return container.append(elem);
-      };
-
-      ColumnsDialogue.prototype.addPossibleSortElement = function(m) {
-        var elem, possibilities;
-
-        possibilities = this.$('.im-sorting-container-possibilities');
-        elem = this.makeSortOption(m);
-        return possibilities.append(elem);
-      };
-
-      ColumnsDialogue.prototype.hideModal = function() {
-        return this.$el.modal('hide');
-      };
-
-      ColumnsDialogue.prototype.showModal = function() {
-        return this.$el.modal({
-          show: true
-        });
-      };
-
-      ColumnsDialogue.prototype.applyChanges = function(e) {
-        if (this.$('.im-reordering').is('.active')) {
-          return this.changeOrder(e);
-        } else {
-          return this.changeSorting(e);
-        }
-      };
-
-      ColumnsDialogue.prototype.changeOrder = function(e) {
-        var newViews;
-
-        newViews = _.flatten(this.newView.map(function(v) {
-          return v.getViews();
-        }));
-        this.hideModal();
-        return this.query.select(newViews);
-      };
-
-      ColumnsDialogue.prototype.changeSorting = function(e) {
-        var newSO, so;
-
-        newSO = (function() {
-          var _i, _len, _ref4, _results;
-
-          _ref4 = this.sortOrder.models;
-          _results = [];
-          for (_i = 0, _len = _ref4.length; _i < _len; _i++) {
-            so = _ref4[_i];
-            _results.push(so.toJSON());
-          }
-          return _results;
-        }).call(this);
-        this.hideModal();
-        return this.query.orderBy(newSO);
-      };
-
-      return ColumnsDialogue;
-
-    })(Backbone.View);
-    return scope("intermine.query.results.table", {
-      ColumnsDialogue: ColumnsDialogue
-    });
-  })();
-
-  (function() {
-    var NODE_TEMPLATE, PopOver, PossibleColumn, PossibleColumns, QueryNode, _ref, _ref1, _ref2, _ref3;
-
-    NODE_TEMPLATE = _.template("<h4><%- node %></h4>\n<ul class=\"im-possible-attributes\"></ul>");
-    PossibleColumn = (function(_super) {
-      __extends(PossibleColumn, _super);
-
-      function PossibleColumn() {
-        _ref = PossibleColumn.__super__.constructor.apply(this, arguments);
-        return _ref;
-      }
-
-      PossibleColumn.prototype.tagName = 'li';
-
-      PossibleColumn.prototype.className = 'im-possible-column';
-
-      PossibleColumn.prototype.initialize = function(options) {
-        this.options = options;
-        this.on('rendered', this.showDisplayName, this);
-        this.on('rendered', this.setClassName, this);
-        return this.model.on('destroy', this.remove, this);
-      };
-
-      PossibleColumn.prototype.events = {
-        'click': 'addToExportedList'
-      };
-
-      PossibleColumn.prototype.addToExportedList = function() {
-        if (!this.model.get('alreadySelected')) {
-          return this.model.trigger('selected', this.model);
-        }
-      };
-
-      PossibleColumn.prototype.setClassName = function() {
-        return this.$el.toggleClass('disabled', this.model.get('alreadySelected'));
-      };
-
-      PossibleColumn.prototype.showDisplayName = function() {
-        var basicPath, canonical, path,
-          _this = this;
-
-        path = this.model.get('path');
-        basicPath = "" + (path.getParent().getType().name) + "." + path.end.name;
-        canonical = path.model.getPathInfo(basicPath);
-        return canonical.getDisplayName().done(function(name) {
-          _this.$('.im-field-name').text(name.split(' > ').pop());
-          return _this.model.trigger('displayed-name');
-        });
-      };
-
-      PossibleColumn.prototype.template = _.template("<a>\n  <i class=\"<% if (alreadySelected) { %>" + intermine.icons.Check + "<% } else { %>" + intermine.icons.UnCheck + "<% } %>\"></i>\n  <span class=\"im-field-name\"><%- path %></span>\n</a>");
-
-      return PossibleColumn;
-
-    })(intermine.views.ItemView);
-    PopOver = (function(_super) {
-      __extends(PopOver, _super);
-
-      function PopOver() {
-        _ref1 = PopOver.__super__.constructor.apply(this, arguments);
-        return _ref1;
-      }
-
-      PopOver.prototype.tagName = 'ul';
-
-      PopOver.prototype.className = 'im-possible-attributes';
-
-      PopOver.prototype.initialize = function(options) {
-        this.options = options;
-        this.collection = new Backbone.Collection;
-        this.collection.on('selected', this.selectPathForExport, this);
-        this.collection.on('displayed-name', this.sortUL, this);
-        return this.initFields();
-      };
-
-      PopOver.prototype.initFields = function() {
-        var alreadySelected, path, _i, _len, _ref2, _results;
-
-        this.collection.reset();
-        _ref2 = this.options.node.getChildNodes();
-        _results = [];
-        for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
-          path = _ref2[_i];
-          if (!(this.isSuitable(path))) {
-            continue;
-          }
-          alreadySelected = this.options.exported.any(function(x) {
-            return path.equals(x.get('path'));
-          });
-          _results.push(this.collection.add({
-            path: path,
-            alreadySelected: alreadySelected
-          }));
-        }
-        return _results;
-      };
-
-      PopOver.prototype.isSuitable = function(p) {
-        var ok;
-
-        return ok = p.isAttribute() && (intermine.options.ShowId || (p.end.name !== 'id'));
-      };
-
-      PopOver.prototype.remove = function() {
-        this.collection.each(function(m) {
-          if (m != null) {
-            m.destroy();
-          }
-          return m != null ? m.off() : void 0;
-        });
-        this.collection.off();
-        return PopOver.__super__.remove.apply(this, arguments);
-      };
-
-      PopOver.prototype.sortUL = function() {
-        var $lis, lis, sorted;
-
-        $lis = this.$('li');
-        $lis.detach();
-        lis = $lis.get();
-        sorted = _.sortBy(lis, function(li) {
-          return $(li).find('.im-field-name').text();
-        });
-        this.$el.append(sorted);
-        return this.trigger('needs-repositioning');
-      };
-
-      PopOver.prototype.selectPathForExport = function(model) {
-        console.log("We want " + (model.get('path')));
-        this.collection.remove(model);
-        this.options.exported.add({
-          path: model.get('path')
-        });
-        model.destroy();
-        return model.off();
-      };
-
-      PopOver.prototype.render = function() {
-        var _this = this;
-
-        this.collection.each(function(model) {
-          var item;
-
-          item = new PossibleColumn({
-            model: model
-          });
-          item.render();
-          return _this.$el.append(item.el);
-        });
-        return this;
-      };
-
-      return PopOver;
-
-    })(Backbone.View);
-    QueryNode = (function(_super) {
-      __extends(QueryNode, _super);
-
-      function QueryNode() {
-        _ref2 = QueryNode.__super__.constructor.apply(this, arguments);
-        return _ref2;
-      }
-
-      QueryNode.prototype.tagName = 'div';
-
-      QueryNode.prototype.className = 'im-query-node btn';
-
-      QueryNode.prototype.initialize = function(options) {
-        var exported, node,
-          _this = this;
-
-        this.options = options;
-        exported = this.model.collection.exported;
-        node = this.model.get('node');
-        this.content = new PopOver({
-          node: node,
-          exported: exported
-        });
-        this.listenTo(exported, 'add remove', this.render, this);
-        this.listenTo(this.content, 'needs-repositioning', function() {
-          var _ref3;
-
-          return (_ref3 = _this.popover) != null ? _ref3.reposition() : void 0;
-        });
-        this.listenTo(this.model, 'destroy', this.remove, this);
-        this.listenTo(this.model.collection, 'popover-toggled', function(originator) {
-          var _ref3;
-
-          if (_this.model !== originator) {
-            return (_ref3 = _this.popover) != null ? _ref3.hide() : void 0;
-          }
-        });
-        return this.model.once('popover-toggled', function() {
-          return _this.content.render();
-        });
-      };
-
-      QueryNode.prototype.remove = function() {
-        var _ref3, _ref4, _ref5;
-
-        if ((_ref3 = this.popover) != null) {
-          _ref3.hide();
-        }
-        if ((_ref4 = this.popover) != null) {
-          _ref4.destroy();
-        }
-        if ((_ref5 = this.content) != null) {
-          _ref5.remove();
-        }
-        delete this.content;
-        delete this.popover;
-        return QueryNode.__super__.remove.apply(this, arguments);
-      };
-
-      QueryNode.prototype.events = function() {
-        var _this = this;
-
-        return {
-          shown: function() {
-            var _ref3;
-
-            if ((_ref3 = _this.popover) != null) {
-              _ref3.reposition();
-            }
-            return _this.model.trigger('popover-toggled', _this.model);
-          },
-          hide: function() {
-            return _this.content.$el.detach();
-          }
-        };
-      };
-
-      QueryNode.prototype.render = function() {
-        var data, options, ul,
-          _this = this;
-
-        data = this.model.toJSON();
-        this.$el.empty();
-        this.$el.html(NODE_TEMPLATE(data));
-        ul = this.$('ul');
-        data.node.getDisplayName().done(function(name) {
-          var end, parents, _i, _ref3;
-
-          _ref3 = name.split(' > '), parents = 2 <= _ref3.length ? __slice.call(_ref3, 0, _i = _ref3.length - 1) : (_i = 0, []), end = _ref3[_i++];
-          return _this.$('h4').text(end);
-        });
-        options = {
-          containment: '.tab-pane',
-          html: true,
-          trigger: 'click',
-          placement: 'top',
-          content: function() {
-            return _this.content.$el;
-          },
-          title: function() {
-            return _this.$('h4').text();
-          }
-        };
-        this.popover = new intermine.bootstrap.DynamicPopover(this.el, options);
-        return this;
-      };
-
-      return QueryNode;
-
-    })(Backbone.View);
-    PossibleColumns = (function(_super) {
-      __extends(PossibleColumns, _super);
-
-      function PossibleColumns() {
-        _ref3 = PossibleColumns.__super__.constructor.apply(this, arguments);
-        return _ref3;
-      }
-
-      PossibleColumns.prototype.tagName = 'div';
-
-      PossibleColumns.prototype.className = 'im-possible-columns btn-group';
-
-      PossibleColumns.prototype.initialize = function(options) {
-        this.options = options;
-        return this.nodes = [];
-      };
-
-      PossibleColumns.prototype.remove = function() {
-        var node;
-
-        while (node = this.nodes.pop()) {
-          node.remove();
-        }
-        return PossibleColumns.__super__.remove.apply(this, arguments);
-      };
-
-      PossibleColumns.prototype.render = function() {
-        var _this = this;
-
-        this.collection.each(function(model) {
-          var el, item;
-
-          item = new QueryNode({
-            model: model
-          });
-          _this.nodes.push(item);
-          el = item.render().$el;
-          return _this.$el.append(el);
-        });
-        return this;
-      };
-
-      return PossibleColumns;
-
-    })(Backbone.View);
-    return scope('intermine.columns.views', {
-      PossibleColumns: PossibleColumns
-    });
-  })();
-
-  (function() {
-    var ATTR_HTML, Columns, CurrentColumns, JOIN_TOGGLE_HTML, Selectable, _ref, _ref1, _ref2;
-
-    JOIN_TOGGLE_HTML = _.template("<form class=\"form-inline pull-right im-join\">\n<div class=\"btn-group\" data-toggle=\"buttons-radio\">\n    <button data-style=\"INNER\" class=\"btn btn-small <% print(outer ? \"\" : \"active\") %>\">\n    Required\n    </button>\n    <button data-style=\"OUTER\" class=\"btn btn-small <% print(outer ? \"active\" : \"\") %>\">\n    Optional\n    </button>\n</div></form>");
-    ATTR_HTML = _.template("<input type=\"checkbox\" \n    data-path=\"<%= path %>\"\n    <% inQuery ? print(\"checked\") : \"\" %> >\n<span class=\"im-view-option\">\n    <%= name %> (<% print(type.replace(\"java.lang.\", \"\")) %>)\n</span>");
-    CurrentColumns = (function(_super) {
-      __extends(CurrentColumns, _super);
-
-      function CurrentColumns() {
-        _ref = CurrentColumns.__super__.constructor.apply(this, arguments);
-        return _ref;
-      }
-
-      CurrentColumns.prototype.className = "node-remover";
-
-      CurrentColumns.prototype.tagName = "dl";
-
-      CurrentColumns.prototype.initialize = function(query) {
-        this.query = query;
-      };
-
-      CurrentColumns.prototype.render = function() {
-        var cd, rootSel, subnodes,
-          _this = this;
-
-        cd = this.query.service.model.classes[this.query.root];
-        rootSel = new Selectable(this.query, cd);
-        rootSel.render().$el.appendTo(this.el);
-        subnodes = _({}).extend(cd.references, cd.collections);
-        _(subnodes).chain().values().sortBy(function(f) {
-          return f.name;
-        }).each(function(f) {
-          var sel, type;
-
-          type = _this.query.getPathInfo(f).getEndClass();
-          sel = new Selectable(_this.query, type, f);
-          return sel.render().$el.appendTo(_this.el);
-        });
-        return this;
-      };
-
-      return CurrentColumns;
-
-    })(Backbone.View);
-    Selectable = (function(_super) {
-      __extends(Selectable, _super);
-
-      function Selectable() {
-        this.render = __bind(this.render, this);
-        this.setCheckBoxState = __bind(this.setCheckBoxState, this);        _ref1 = Selectable.__super__.constructor.apply(this, arguments);
-        return _ref1;
-      }
-
-      Selectable.prototype.tagName = "dl";
-
-      Selectable.prototype.className = "im-selectable-node";
-
-      Selectable.prototype.initialize = function(query, table, field) {
-        this.query = query;
-        this.table = table;
-        this.field = field;
-        this.path = this.query.root + (this.field ? "." + this.field.name : "");
-        return this.query.on("change:views", this.setCheckBoxState);
-      };
-
-      Selectable.prototype.events = {
-        'click dt': 'toggleFields',
-        'change input[type="checkbox"]': 'changeView'
-      };
-
-      Selectable.prototype.toggleFields = function(e) {
-        return this.$('dd').slideToggle();
-      };
-
-      Selectable.prototype.changeView = function(e) {
-        var $t, path;
-
-        $t = $(e.target);
-        path = $t.data("path");
-        if ($t.attr("checked")) {
-          return this.query.addToSelect(path);
-        } else {
-          return this.query.removeFromSelect(path);
-        }
-      };
-
-      Selectable.prototype.setCheckBoxState = function(e) {
-        var _this = this;
-
-        return this.$('dd input').each(function(i, cbx) {
-          var $cbx, path;
-
-          $cbx = $(cbx);
-          path = $cbx.data("path");
-          return $cbx.attr({
-            checked: _this.query.hasView(path)
-          });
-        });
-      };
-
-      Selectable.prototype.render = function() {
-        var attr, dt, icon, isInView, name, title, _fn, _ref2, _ref3,
-          _this = this;
-
-        this.$el.empty();
-        title = this.make("h4", {}, ((_ref2 = this.field) != null ? _ref2.name : void 0) || this.table.name);
-        dt = this.make("dt", {
-          "class": "im-column-group"
-        }, title);
-        this.$el.append(dt);
-        isInView = _(this.query.views).any(function(v) {
-          return this.path === v.substring(0, v.lastIndexOf("."));
-        });
-        icon = isInView ? "minus" : "plus";
-        $("<i class=\"icon-" + icon + "-sign\"></i>").css({
-          cursor: "pointer"
-        }).appendTo(title);
-        if (isInView && this.path !== this.query.root) {
-          $(JOIN_TOGGLE_HTML({
-            outer: this.query.isOuterJoin(this.path)
-          })).submit(function(e) {
-            var _this = this;
-
-            return e.preventDefault().css("display", "inline-block".appendTo(title.find(".btn".click(function(e) {
-              var style;
-
-              e.stopPropagation();
-              style = $(e.target).data("style");
-              return _this.query.setJoinStyle(_this.path, style.button());
-            }))));
-          });
-        }
-        _ref3 = this.table.attributes;
-        _fn = function(attr) {
-          return _this.addAttribute(attr);
-        };
-        for (name in _ref3) {
-          attr = _ref3[name];
-          _fn(attr);
-        }
-        return this;
-      };
-
-      Selectable.prototype.addAttribute = function(a) {
-        var ctx, dd, p;
-
-        if (a.name !== "id") {
-          dd = this.make("dd");
-          p = "" + this.path + "." + a.name;
-          ctx = {
-            path: p,
-            inQuery: __indexOf.call(this.query.views, p) >= 0
-          };
-          _(ctx).extend(a);
-          return $(dd).append(ATTR_HTML(ctx)).appendTo(this.el);
-        }
-      };
-
-      return Selectable;
-
-    })(Backbone.View);
-    Columns = (function(_super) {
-      __extends(Columns, _super);
-
-      function Columns() {
-        _ref2 = Columns.__super__.constructor.apply(this, arguments);
-        return _ref2;
-      }
-
-      Columns.prototype.className = "im-query-columns";
-
-      Columns.prototype.initialize = function(query) {
-        this.query = query;
-      };
-
-      Columns.prototype.render = function() {
-        var cls, _fn, _i, _len, _ref3,
-          _this = this;
-
-        _ref3 = [ColumnAdder, CurrentColumns];
-        _fn = function(cls) {
-          var inst;
-
-          inst = new cls(_this.query);
-          return _this.$el.append(inst.render().el);
-        };
-        for (_i = 0, _len = _ref3.length; _i < _len; _i++) {
-          cls = _ref3[_i];
-          _fn(cls);
-        }
-        return this;
-      };
-
-      return Columns;
-
-    })(Backbone.View);
-    return scope("intermine.query.columns", {
-      Columns: Columns
-    });
-  })();
-
-  (function() {
-    var DownloadDialogue;
-
-    DownloadDialogue = function() {
-      return "<div class=\"modal-header\">\n  <a  class=\"close im-closer\" data-dismiss=\"modal\">close</a>\n  <h2>\n    " + intermine.messages.actions.ExportTitle + "\n  </h2>\n</div>\n\n<div class=\"modal-body tab-content\">\n <div class=\"carousel slide\">\n  <div class=\"carousel-inner\">\n  <div class=\"active item\">\n\n   <div class=\"tabbable tabs-left\">\n     <ul class=\"nav nav-tabs\">\n       <li class=\"active\">\n         <a  class=\"im-export-format\">format</a>\n       </li>\n       <li>\n         <a  class=\"im-export-columns\">columns</a>\n       </li>\n       <li>\n         <a  class=\"im-export-rows\">Rows</a>\n       </li>\n       <li>\n         <a  class=\"im-export-output\">Output</a>\n       </li>\n       <li>\n         <a  class=\"im-export-destination\">\n          Destination: <span class=\"im-current\"></span>\n         </a>\n       </li>\n       <div class=\"alert alert-info\">\n         <p>\n          <i class=\"icon-info-sign\"></i>\n          " + intermine.messages.actions.ConfigureExportHelp + "\n         </p>\n       </div>\n     </ul>\n     <div class=\"tab-content\">\n       <div class=\"tab-pane active im-export-format\">\n          <h2>\n            " + intermine.messages.actions.ExportFormat + "\n          </h2>\n         <div class=\"im-export-formats\" data-toggle=\"buttons-radio\">\n         </div>\n       </div>\n       <div class=\"tab-pane im-export-columns\">\n           <button class=\"im-reset-cols btn disabled pull-right\">\n             <i class=\"" + intermine.icons.Undo + "\"></i>\n             " + intermine.messages.actions.ResetColumns + "\n           </button>\n          <h2>\n            " + intermine.messages.actions.WhichColumns + "\n          </h2>\n          <div class=\"im-col-options\">\n            <div class=\"well\">\n              <ul class=\"im-cols im-exported-cols nav nav-tabs nav-stacked\"></ul>\n            </div>\n            <h4>" + intermine.messages.actions.PossibleColumns + "</h4>\n            <div class=\"im-can-be-exported-cols\">\n            </div>\n            <div style=\"clear:both;\"></div>\n          </div>\n          <div class=\"im-col-options-bio\">\n          </div>\n       </div>\n       <div class=\"tab-pane im-export-rows\">\n         <h2>\n          " + intermine.messages.actions.WhichRows + "\n         </h2>\n          <div class=\"form-horizontal\">\n            <fieldset class=\"im-row-selection control-group\">\n              <label class=\"control-label\">\n                " + intermine.messages.actions.FirstRow + "\n                <input type=\"text\" value=\"1\"\n                        class=\"disabled input-mini im-first-row im-range-limit\">\n              </label>\n              <label class=\"control-label\">\n                " + intermine.messages.actions.LastRow + "\n                <input type=\"text\"\n                        class=\"disabled input-mini im-last-row im-range-limit\">\n              </label>\n              <div style=\"clear:both\"></div>\n              <div class=\"slider im-row-range-slider\"></div>\n            </fieldset>\n          </div>\n       </div>\n       <div class=\"tab-pane im-export-output\">\n          <label>\n            " + intermine.messages.actions.CompressResults + "\n          </label>\n          <div class=\"span11 im-compression-opts radio btn-group pull-right\"\n                data-toggle=\"buttons-radio\">\n            <button class=\"btn active im-no-compression span7\">\n              " + intermine.messages.actions.NoCompression + "\n            </button>\n            <button class=\"btn im-gzip-compression span2\">\n              " + intermine.messages.actions.GZIPCompression + "\n            </button>\n            <button class=\"btn im-zip-compression span2\">\n              " + intermine.messages.actions.ZIPCompression + "\n            </button>\n          </div>\n          <div style=\"clear:both\"></div>\n          <div class=\"im-output-options\">\n          </div>\n       </div>\n       <div class=\"tab-pane im-export-destination\">\n      <ul class=\"im-export-destinations nav nav-pills\">\n        <li class=\"active\">\n          <a  data-destination=\"download-file\">\n            <i class=\"" + intermine.icons.Download + "\"></i>\n            " + intermine.messages.actions.ExportLong + "\n          </a>\n        </li>\n      </ul>\n        <div class=\"row-fluid im-export-destination-options\">\n\n          <div class=\"im-download-file active\">\n            <div class=\"btn-group im-what-to-show\">\n              <button class=\"im-results-uri btn active\">\n                " + intermine.messages.actions.ResultsPermaLinkText + ":\n              </button>\n              <button class=\"im-query-xml btn\">\n                " + intermine.messages.actions.QueryXML + "\n              </button>\n            </div>\n            <span class=\"im-copy\">\n              <i class=\"icon " + intermine.icons.ClipBoard + "\"></i>\n              " + intermine.messages.actions.Copy + "\n            </span>\n\n            <div class=\"well im-perma-link-content active\"></div>\n            <div class=\"well im-query-xml\"></div>\n\n            <div class=\"alert alert-block im-private-query\">\n              <button type=\"button\" class=\"close im-closer\" data-dismiss=\"alert\">×</button>\n              <h4>nb:</h4>\n              " + intermine.messages.actions.IsPrivateData + "\n            </div>\n\n            <div class=\"alert alert-block alert-info im-long-uri\">\n              <button type=\"button\" class=\"close im-closer\" data-dismiss=\"alert\">×</button>\n              <h4>nb:</h4>\n              " + intermine.messages.actions.LongURI + "\n            </div>\n\n\n          </div>\n\n        </div>\n       </div>\n     </div>\n   </div>\n  \n  </div> <!-- End item -->\n  \n  <div class=\"item\">\n    <iframe class=\"gs-frame\" width=\"0\" height=\"0\" frameborder=\"0\"\n      id=\"im-to-gs-" + (new Date().getTime()) + "\">\n    </iframe>\n  </div>\n\n  </div> <!-- end inner -->\n  </div> <!-- end carousel -->\n\n</div>\n\n<!--\n-->\n\n<div class=\"modal-footer\">\n  <a  class=\"btn btn-primary im-download pull-right\">\n    <i class=\"icon " + intermine.icons.Export + "\"></i>\n    " + intermine.messages.actions.Export + "\n  </a>\n  <button class=\"btn btn-cancel pull-left im-cancel\">\n    " + intermine.messages.actions.Cancel + "\n  </button>\n</div>";
-    };
-    return scope('intermine.snippets.actions', {
-      DownloadDialogue: DownloadDialogue
-    });
-  })();
-
-  define('html/code-gen', function() {
-    return _.template("<div class=\"btn-group\">\n    <a class=\"btn btn-action\">\n        <i class=\"" + intermine.icons.Script + "\"></i>\n        <span class=\"im-only-widescreen\">Get</span>\n        <span class=\"im-code-lang hidden-tablet\"></span>\n        <span class=\"hidden-tablet\">Code</span>\n    </a>\n    <a class=\"btn dropdown-toggle\" data-toggle=\"dropdown\">\n        <span class=\"caret\"></span>\n    </a>\n    <ul class=\"dropdown-menu\">\n        <% _(langs).each(function(lang) { %>\n          <li>\n            <a data-lang=\"<%= lang.extension %>\">\n                <i class=\"icon-<%= lang.extension %>\"></i>\n                <%= lang.name %>\n            </a>\n          </li>\n        <% }); %>\n    </ul>\n</div>\n<div class=\"modal\">\n    <div class=\"modal-header\">\n        <a class=\"close im-closer\" data-dismiss=\"modal\">close</a>\n        <h3>Generated <span class=\"im-code-lang\"></span> Code</h3>\n    </div>\n    <div class=\"modal-body\">\n        <pre class=\"im-generated-code prettyprint linenums\">\n        </pre>\n    </div>\n    <div class=\"modal-footer\">\n        <a class=\"btn btn-save\"><i class=\"icon-file\"></i>Save</a>\n        <a data-dismiss=\"modal\" class=\"btn im-closer\">Close</a>\n    </div>\n</div>");
-  });
-
-  define('html/append-list', function() {
-    return "<div class=\"modal\">\n  <div class=\"modal-header\">\n    <a class=\"close btn-cancel\">close</a>\n    <h2>Add Items To Existing List</h2>\n  </div>\n  <div class=\"modal-body\">\n    <form class=\"form-horizontal form\">\n      <fieldset class=\"control-group\">\n        <label>\n          Add\n          <span class=\"im-item-count\"></span>\n          <span class=\"im-item-type\"></span>\n          to:\n          <select class=\"im-receiving-list input-xlarge\">\n              <option value=\"\"><i>Select a list</i></option>\n          </select>\n        </label>\n        <span class=\"help-inline\"></span>\n      </fieldset>\n    </form>\n    <div class=\"alert alert-error im-none-compatible-error\">\n      <b>Sorry!</b> You don't have access to any compatible lists.\n    </div>\n    <div class=\"alert alert-info im-selection-instruction\">\n      <b>Get started!</b> Choose items from the table below.\n      You can move this dialogue around by dragging it, if you \n      need access to a column it is covering up.\n    </div>\n  </div>\n  <div class=\"modal-footer\">\n    <div class=\"btn-group\">\n      <button disabled class=\"btn btn-primary\">Add to list</button>\n      <button class=\"btn btn-cancel\">Cancel</button>\n    </div>\n  </div>\n</div>";
-  });
-
-  define('html/new-list', function() {
-    return "<div class=\"modal im-list-creation-dialogue\">\n    <div class=\"modal-header\">\n        <a class=\"close btn-cancel\">close</a>\n        <a class=\"im-minimise\">&nbsp;</a>\n        <h2>List Details</h2>\n    </div>\n    <div class=\"modal-body\">\n        <form class=\"form form-horizontal\">\n            <p class=\"im-list-summary\"></p>\n            <fieldset class=\"control-group\">\n                <label>Name</label>\n                <input class=\"im-list-name span10\" type=\"text\" placeholder=\"required identifier\">\n                <span class=\"help-inline\"></span>\n            </fieldset>\n            <fieldset class=\"control-group\">\n                <label>Description</label>\n                <input class=\"im-list-desc span10\" type=\"text\" placeholder=\"an optional description\" >\n            </fieldset>\n            <fieldset class=\"control-group im-tag-options\">\n                <label>Add Tags</label>\n                <input type=\"text\" class=\"im-available-tags input-medium\" placeholder=\"categorize your list\">\n                <button class=\"btn im-confirm-tag\" disabled>Add</button>\n                <ul class=\"im-list-tags choices well\">\n                    <div style=\"clear:both\"></div>\n                </ul>\n                <h5><i class=\"icon-chevron-down\"></i>Suggested Tags</h5>\n                <ul class=\"im-list-tags suggestions well\">\n                    <div style=\"clear:both\"></div>\n                </ul>\n            </fieldset>\n            <input type=\"hidden\" class=\"im-list-type\">\n        </form>\n        <div class=\"alert alert-info im-selection-instruction\">\n            <b>Get started!</b> Choose items from the table below.\n            You can move this dialogue around by dragging it, if you \n            need access to a column it is covering up.\n        </div>\n    </div>\n    <div class=\"modal-footer\">\n        <div class=\"btn-group\">\n            <button class=\"btn btn-primary\">Create</button>\n            <button class=\"btn btn-cancel\">Cancel</button>\n            <button class=\"btn btn-reset\">Reset</button>\n        </div>\n    </div>\n</div>";
-  });
-
   define('formatters/bio/core/chromosome-location', function() {
     var ChrLocFormatter, fetch;
 
@@ -5854,29 +9004,6 @@
     })();
   });
 
-  define('formatters/bio/core/publication', function() {
-    var PublicationFormatter;
-
-    PublicationFormatter = function(model) {
-      var firstAuthor, id, title, year, _ref, _ref1;
-
-      id = model.get('id');
-      this.$el.addClass('publication');
-      if (!(model.has('title') && model.has('firstAuthor') && model.has('year'))) {
-        if ((_ref = model._formatter_promise) == null) {
-          model._formatter_promise = this.options.query.service.findById('Publication', id);
-        }
-        model._formatter_promise.done(function(pub) {
-          return model.set(pub);
-        });
-      }
-      _ref1 = model.toJSON(), title = _ref1.title, firstAuthor = _ref1.firstAuthor, year = _ref1.year;
-      return "" + title + " (" + firstAuthor + ", " + year + ")";
-    };
-    PublicationFormatter.replaces = ['title', 'firstAuthor', 'year'];
-    return PublicationFormatter;
-  });
-
   define('formatters/bio/core/organism', function() {
     var Organism, ensureData, getData, templ;
 
@@ -5916,6 +9043,29 @@
         return "<span class=\"null-value\">&nbsp;</span>";
       }
     };
+  });
+
+  define('formatters/bio/core/publication', function() {
+    var PublicationFormatter;
+
+    PublicationFormatter = function(model) {
+      var firstAuthor, id, title, year, _ref, _ref1;
+
+      id = model.get('id');
+      this.$el.addClass('publication');
+      if (!(model.has('title') && model.has('firstAuthor') && model.has('year'))) {
+        if ((_ref = model._formatter_promise) == null) {
+          model._formatter_promise = this.options.query.service.findById('Publication', id);
+        }
+        model._formatter_promise.done(function(pub) {
+          return model.set(pub);
+        });
+      }
+      _ref1 = model.toJSON(), title = _ref1.title, firstAuthor = _ref1.firstAuthor, year = _ref1.year;
+      return "" + title + " (" + firstAuthor + ", " + year + ")";
+    };
+    PublicationFormatter.replaces = ['title', 'firstAuthor', 'year'];
+    return PublicationFormatter;
   });
 
   define('formatters/bio/core/sequence', function() {
@@ -5984,273 +9134,417 @@
     });
   }])));
 
+  scope("intermine.results", {
+    getFormatter: function(path) {
+      var a, ancestors, cd, fieldName, formats, formatter, _i, _len, _ref;
+
+      if (path == null) {
+        return null;
+      }
+      cd = path.isAttribute() ? path.getParent().getType() : path.getType();
+      ancestors = [cd.name].concat(path.model.getAncestorsOf(cd.name));
+      formats = (_ref = intermine.results.formatsets[path.model.name]) != null ? _ref : {};
+      fieldName = path.end.name;
+      for (_i = 0, _len = ancestors.length; _i < _len; _i++) {
+        a = ancestors[_i];
+        formatter = formats["" + a + ".*"] || formats["" + a + "." + fieldName];
+        if (formatter === true) {
+          formatter = intermine.results.formatters[a];
+        }
+        if (formatter != null) {
+          return formatter;
+        }
+      }
+      return null;
+    },
+    shouldFormat: function(path, formatSet) {
+      var a, ancestors, cd, fieldName, formats, formatterAvailable, model, _i, _len, _ref;
+
+      if (!path.isAttribute()) {
+        return false;
+      }
+      model = path.model;
+      if (formatSet == null) {
+        formatSet = model.name;
+      }
+      cd = path.isAttribute() ? path.getParent().getType() : path.getType();
+      fieldName = path.end.name;
+      formatterAvailable = intermine.results.getFormatter(path) != null;
+      if (!formatterAvailable) {
+        return false;
+      }
+      if (fieldName === 'id') {
+        return true;
+      }
+      ancestors = [cd.name].concat(path.model.getAncestorsOf(cd.name));
+      formats = (_ref = intermine.results.formatsets[formatSet]) != null ? _ref : {};
+      for (_i = 0, _len = ancestors.length; _i < _len; _i++) {
+        a = ancestors[_i];
+        if (formats["" + a + ".*"] || formats["" + a + "." + fieldName]) {
+          return true;
+        }
+      }
+      return false;
+    }
+  });
+
+  define('html/append-list', function() {
+    return "<div class=\"modal\">\n  <div class=\"modal-header\">\n    <a class=\"close btn-cancel\">close</a>\n    <h2>Add Items To Existing List</h2>\n  </div>\n  <div class=\"modal-body\">\n    <form class=\"form-horizontal form\">\n      <fieldset class=\"control-group\">\n        <label>\n          Add\n          <span class=\"im-item-count\"></span>\n          <span class=\"im-item-type\"></span>\n          to:\n          <select class=\"im-receiving-list input-xlarge\">\n              <option value=\"\"><i>Select a list</i></option>\n          </select>\n        </label>\n        <span class=\"help-inline\"></span>\n      </fieldset>\n    </form>\n    <div class=\"alert alert-error im-none-compatible-error\">\n      <b>Sorry!</b> You don't have access to any compatible lists.\n    </div>\n    <div class=\"alert alert-info im-selection-instruction\">\n      <b>Get started!</b> Choose items from the table below.\n      You can move this dialogue around by dragging it, if you \n      need access to a column it is covering up.\n    </div>\n  </div>\n  <div class=\"modal-footer\">\n    <div class=\"btn-group\">\n      <button disabled class=\"btn btn-primary\">Add to list</button>\n      <button class=\"btn btn-cancel\">Cancel</button>\n    </div>\n  </div>\n</div>";
+  });
+
+  define('html/code-gen', function() {
+    return _.template("<div class=\"btn-group\">\n    <a class=\"btn btn-action\">\n        <i class=\"" + intermine.icons.Script + "\"></i>\n        <span class=\"im-only-widescreen\">Get</span>\n        <span class=\"im-code-lang hidden-tablet\"></span>\n        <span class=\"hidden-tablet\">Code</span>\n    </a>\n    <a class=\"btn dropdown-toggle\" data-toggle=\"dropdown\">\n        <span class=\"caret\"></span>\n    </a>\n    <ul class=\"dropdown-menu\">\n        <% _(langs).each(function(lang) { %>\n          <li>\n            <a data-lang=\"<%= lang.extension %>\">\n                <i class=\"icon-<%= lang.extension %>\"></i>\n                <%= lang.name %>\n            </a>\n          </li>\n        <% }); %>\n    </ul>\n</div>\n<div class=\"modal\">\n    <div class=\"modal-header\">\n        <a class=\"close im-closer\" data-dismiss=\"modal\">close</a>\n        <h3>Generated <span class=\"im-code-lang\"></span> Code</h3>\n    </div>\n    <div class=\"modal-body\">\n        <pre class=\"im-generated-code prettyprint linenums\">\n        </pre>\n    </div>\n    <div class=\"modal-footer\">\n        <a class=\"btn btn-save\"><i class=\"icon-file\"></i>Save</a>\n        <a data-dismiss=\"modal\" class=\"btn im-closer\">Close</a>\n    </div>\n</div>");
+  });
+
+  define('html/new-list', function() {
+    return "<div class=\"modal im-list-creation-dialogue\">\n    <div class=\"modal-header\">\n        <a class=\"close btn-cancel\">close</a>\n        <a class=\"im-minimise\">&nbsp;</a>\n        <h2>List Details</h2>\n    </div>\n    <div class=\"modal-body\">\n        <form class=\"form form-horizontal\">\n            <p class=\"im-list-summary\"></p>\n            <fieldset class=\"control-group\">\n                <label>Name</label>\n                <input class=\"im-list-name span10\" type=\"text\" placeholder=\"required identifier\">\n                <span class=\"help-inline\"></span>\n            </fieldset>\n            <fieldset class=\"control-group\">\n                <label>Description</label>\n                <input class=\"im-list-desc span10\" type=\"text\" placeholder=\"an optional description\" >\n            </fieldset>\n            <fieldset class=\"control-group im-tag-options\">\n                <label>Add Tags</label>\n                <input type=\"text\" class=\"im-available-tags input-medium\" placeholder=\"categorize your list\">\n                <button class=\"btn im-confirm-tag\" disabled>Add</button>\n                <ul class=\"im-list-tags choices well\">\n                    <div style=\"clear:both\"></div>\n                </ul>\n                <h5><i class=\"icon-chevron-down\"></i>Suggested Tags</h5>\n                <ul class=\"im-list-tags suggestions well\">\n                    <div style=\"clear:both\"></div>\n                </ul>\n            </fieldset>\n            <input type=\"hidden\" class=\"im-list-type\">\n        </form>\n        <div class=\"alert alert-info im-selection-instruction\">\n            <b>Get started!</b> Choose items from the table below.\n            You can move this dialogue around by dragging it, if you \n            need access to a column it is covering up.\n        </div>\n    </div>\n    <div class=\"modal-footer\">\n        <div class=\"btn-group\">\n            <button class=\"btn btn-primary\">Create</button>\n            <button class=\"btn btn-cancel\">Cancel</button>\n            <button class=\"btn btn-reset\">Reset</button>\n        </div>\n    </div>\n</div>";
+  });
+
   (function() {
-    var FormattedSorting, ICONS, INIT_CARETS, NEXT_DIRECTION_OF, ROW, _ref;
+    var FPObject, IMObject, NullObject, _ref, _ref1, _ref2;
 
-    ROW = "<li class=\"im-formatted-part im-subpath\"><a><i class=\"sort-icon\"></i></a></li>";
-    INIT_CARETS = /^\s*>\s*/;
-    ICONS = function() {
-      return {
-        ASC: intermine.css.sortedASC,
-        DESC: intermine.css.sortedDESC,
-        NONE: intermine.css.unsorted
-      };
-    };
-    NEXT_DIRECTION_OF = {
-      ASC: 'DESC',
-      DESC: 'ASC',
-      NONE: 'ASC'
-    };
-    FormattedSorting = (function(_super) {
-      __extends(FormattedSorting, _super);
+    IMObject = (function(_super) {
+      __extends(IMObject, _super);
 
-      function FormattedSorting() {
-        this.appendSortOption = __bind(this.appendSortOption, this);        _ref = FormattedSorting.__super__.constructor.apply(this, arguments);
+      function IMObject() {
+        _ref = IMObject.__super__.constructor.apply(this, arguments);
         return _ref;
       }
 
-      FormattedSorting.prototype.className = 'im-col-sort-menu no-margins';
-
-      FormattedSorting.prototype.tagName = 'ul';
-
-      FormattedSorting.prototype.initialize = function(query, path, model) {
-        this.query = query;
-        this.path = path;
-        this.model = model;
-      };
-
-      FormattedSorting.prototype.toggleSort = function(paths) {
-        var currentDir, direction, path;
-
-        console.log("Ordering by " + paths);
-        currentDir = this.currentDir(paths);
-        direction = NEXT_DIRECTION_OF[currentDir];
-        this.query.orderBy((function() {
-          var _i, _len, _results;
-
-          _results = [];
-          for (_i = 0, _len = paths.length; _i < _len; _i++) {
-            path = paths[_i];
-            _results.push({
-              path: path,
-              direction: direction
-            });
-          }
-          return _results;
-        })());
-        this.model.set({
-          direction: direction
-        });
-        return this.remove();
-      };
-
-      FormattedSorting.prototype.currentDir = function(paths) {
-        var current, dirs, p;
-
-        dirs = (function() {
-          var _i, _len, _results;
-
-          _results = [];
-          for (_i = 0, _len = paths.length; _i < _len; _i++) {
-            p = paths[_i];
-            _results.push(this.query.getSortDirection(p));
-          }
-          return _results;
-        }).call(this);
-        if (_.unique(dirs).length === 1) {
-          current = dirs[0];
-        }
-        return current != null ? current : 'NONE';
-      };
-
-      FormattedSorting.prototype.render = function() {
-        var paths, replaces;
-
-        console.log("Rendering FormattedSorting for " + this.path);
-        paths = [];
-        replaces = this.model.get('replaces');
-        if (replaces.length > 1) {
-          paths = [replaces].concat(replaces.map(function(x) {
-            return [x];
-          }));
-        } else {
-          paths = [this.path];
-        }
-        if (paths.length === 1) {
-          this.toggleSort(paths[0]);
-        } else {
-          paths.forEach(this.appendSortOption);
-        }
-        return this;
-      };
-
-      FormattedSorting.prototype.appendSortOption = function(paths) {
-        var $a, currentDir, icons, li, p, _fn, _i, _len,
+      IMObject.prototype.initialize = function(obj, query, field, base, history) {
+        var model,
           _this = this;
 
-        li = $(ROW);
-        $a = li.find('a');
-        icons = ICONS();
-        _fn = function(p) {
-          var $span, path;
-
-          console.log("Adding span for " + p);
-          $span = $("<span class=\"im-sort-path\">");
-          $a.append($span);
-          path = _this.query.getPathInfo(p);
-          return $.when(_this.path.getDisplayName(), path.getDisplayName()).done(function(pn, cn) {
-            return $span.text(cn.replace(pn, '').replace(INIT_CARETS, ''));
+        obj[field] = obj.value;
+        obj['obj:type'] = obj["class"];
+        obj['service:base'] = base;
+        obj['service:url'] = obj.url;
+        obj['is:selected'] = false;
+        obj['is:selectable'] = true;
+        obj['is:selecting'] = false;
+        this.set(obj);
+        model = query.model;
+        query.on("selection:cleared", function() {
+          return _this.set({
+            'is:selectable': true
           });
-        };
-        for (_i = 0, _len = paths.length; _i < _len; _i++) {
-          p = paths[_i];
-          _fn(p);
-        }
-        $a.click(function(e) {
-          e.stopPropagation();
-          e.preventDefault();
-          return _this.toggleSort(paths);
         });
-        currentDir = paths === this.model.get('replaces') ? this.currentDir(paths) : this.currentDir(this.model.get('replaces')) !== 'NONE' ? 'NONE' : this.currentDir(paths);
-        li.find('i').addClass(icons[currentDir]);
-        this.$el.append(li);
-        return null;
+        query.on("common:type:selected", function(type) {
+          var ok;
+
+          ok = !type || model.findSharedAncestor(type, _this.get('obj:type'));
+          return _this.set({
+            'is:selectable': !!ok
+          });
+        });
+        this.on("change:is:selected", function(self, selected) {
+          return query.trigger("imo:selected", _this.get("obj:type"), _this.get("id"), selected);
+        });
+        return this.on('click', function() {
+          return query.trigger('imo:click', _this.get('obj:type'), _this.get('id'), _this.toJSON());
+        });
       };
 
-      return FormattedSorting;
+      IMObject.prototype.selectionState = function() {
+        return {
+          selected: this.get('is:selected'),
+          selecting: this.get('is:selecting'),
+          selectable: this.get('is:selectable')
+        };
+      };
 
-    })(Backbone.View);
-    return scope("intermine.query", {
-      FormattedSorting: FormattedSorting
+      IMObject.prototype.merge = function(obj, field) {
+        return this.set(field, obj.value);
+      };
+
+      return IMObject;
+
+    })(Backbone.Model);
+    NullObject = (function(_super) {
+      __extends(NullObject, _super);
+
+      function NullObject() {
+        _ref1 = NullObject.__super__.constructor.apply(this, arguments);
+        return _ref1;
+      }
+
+      NullObject.prototype.initialize = function(_, _arg) {
+        var field, query, type;
+
+        query = _arg.query, field = _arg.field, type = _arg.type;
+        this.set({
+          'id': null,
+          'obj:type': type,
+          'is:selected': false,
+          'is:selectable': false,
+          'is:selecting': false,
+          'service:base': '',
+          'service:url': ''
+        });
+        if (field) {
+          return this.set(field, null);
+        }
+      };
+
+      NullObject.prototype.merge = function() {};
+
+      return NullObject;
+
+    })(IMObject);
+    FPObject = (function(_super) {
+      __extends(FPObject, _super);
+
+      function FPObject() {
+        _ref2 = FPObject.__super__.constructor.apply(this, arguments);
+        return _ref2;
+      }
+
+      FPObject.prototype.initialize = function(_arg, _arg1) {
+        var field, obj, query;
+
+        _arg;
+        query = _arg1.query, obj = _arg1.obj, field = _arg1.field;
+        this.set({
+          'id': null,
+          'obj:type': obj["class"],
+          'is:selected': false,
+          'is:selectable': false,
+          'is:selecting': false,
+          'service:base': '',
+          'service:url': ''
+        });
+        return this.set(field, obj.value);
+      };
+
+      return FPObject;
+
+    })(NullObject);
+    return scope("intermine.model", {
+      IMObject: IMObject,
+      NullObject: NullObject,
+      FPObject: FPObject
     });
   })();
 
   (function() {
-    var DynamicPopover;
+    var SVG, supportsSVG;
 
-    DynamicPopover = (function(_super) {
-      __extends(DynamicPopover, _super);
+    SVG = "http://www.w3.org/TR/SVG11/feature#Shape";
+    supportsSVG = function() {
+      var _ref;
 
-      function DynamicPopover(elem, opts) {
-        this.init('popover', elem, opts);
-        $(elem).data('popover', this);
-        if (opts != null ? opts.classes : void 0) {
-          this.tip().addClass(opts.classes);
+      return (typeof SVGAngle !== "undefined" && SVGAngle !== null) || (window.SVGAngle != null) || ((_ref = document.implementation) != null ? typeof _ref.hasFeature === "function" ? _ref.hasFeature(SVG, "1.0") : void 0 : void 0);
+    };
+    /*
+    # Add a 'destroyed' event on element removal.
+    */
+
+    jQuery.event.special.destroyed = {
+      remove: function(o) {
+        if (o.type !== 'destroyed') {
+          return typeof o.handler === "function" ? o.handler() : void 0;
         }
       }
+    };
+    /*
+    *
+    * A bridge between iPad and iPhone touch events and jquery draggable, 
+    * sortable etc. mouse interactions.
+    * @author Oleg Slobodskoi  
+    * 
+    * modified by John Hardy to use with any touch device
+    * fixed breakage caused by jquery.ui so that mouseHandled internal flag is reset 
+    * before each touchStart event
+    *
+    */
 
-      DynamicPopover.prototype.hasContent = function() {
-        return true;
-      };
+    (function($) {
+      var proto, _mouseInit;
 
-      DynamicPopover.prototype.getPlacement = function() {
-        if (typeof this.options.placement === 'function') {
-          return this.options.placement.call(this, this.tip()[0], this.$element[0]);
-        } else {
-          return this.options.placement;
+      $.support.touch = typeof Touch === 'object';
+      if (!$.support.touch) {
+        return false;
+      }
+      proto = $.ui.mouse.prototype;
+      _mouseInit = proto._mouseInit;
+      return $.extend(proto, {
+        _mouseInit: function() {
+          this.element.bind("touchstart." + this.widgetName, $.proxy(this, "_touchStart"));
+          return _mouseInit.apply(this, arguments);
+        },
+        _touchStart: function(event) {
+          if (event.originalEvent.targetTouches.length !== 1) {
+            return false;
+          }
+          this.element.bind("touchmove." + this.widgetName, $.proxy(this, "_touchMove")).bind("touchend." + this.widgetName, $.proxy(this, "_touchEnd"));
+          this._modifyEvent(event);
+          $(document).trigger($.Event("mouseup"));
+          this._mouseDown(event);
+          return false;
+        },
+        _touchMove: function(event) {
+          this._modifyEvent(event);
+          return this._mouseMove(event);
+        },
+        _touchEnd: function(event) {
+          this.element.unbind("touchmove." + this.widgetName).unbind("touchend." + this.widgetName);
+          return this._mouseUp(event);
+        },
+        _modifyEvent: function(event) {
+          var target;
+
+          event.which = 1;
+          target = event.originalEvent.targetTouches[0];
+          event.pageX = target.clientX;
+          return event.pageY = target.clientY;
         }
+      });
+    })(jQuery);
+    return jQuery.fn.imWidget = function(arg0, arg1) {
+      var cls, error, events, hasStyle, options, properties, query, service, token, type, url, view;
+
+      hasStyle = function(pattern) {
+        var found, links;
+
+        links = jQuery('link[rel="stylesheet"]');
+        found = false;
+        links.each(function() {
+          return found || (found = pattern.test(this.href));
+        });
+        return found;
       };
-
-      DynamicPopover.prototype.respectContainment = function(offset, pos, placement) {
-        var $containment, $tip, actualHeight, actualWidth, arrowHeight, arrowOffset, arrowWidth, bottom, diff, height, left, top, _ref;
-
-        $tip = this.tip();
-        arrowOffset = {};
-        actualWidth = $tip[0].offsetWidth;
-        actualHeight = $tip[0].offsetHeight;
-        $containment = this.$element.closest(this.options.containment);
-        _ref = $containment.offset(), top = _ref.top, left = _ref.left;
-        height = $containment[0].offsetHeight;
-        bottom = top + height;
-        arrowHeight = $tip.find('.arrow')[0].offsetHeight;
-        arrowWidth = $tip.find('.arrow')[0].offsetWidth;
-        if (actualHeight >= height) {
-          $tip.find('.arrow').css({
-            top: '',
-            left: ''
+      if (typeof arg0 === 'string') {
+        view = this.data('widget');
+        if (arg0 === 'option') {
+          switch (arg1) {
+            case 'query':
+              return view.query;
+            case 'service':
+              return view.service;
+            case 'events':
+              return view.queryEvents;
+            case 'type':
+              return this.data('widget-type');
+            case 'properties':
+              return this.data('widget-options');
+            default:
+              throw new Error("Unknown option " + arg1);
+          }
+        } else if (arg0 === 'table') {
+          return view;
+        } else {
+          throw new Error("Unknown method " + arg0);
+        }
+      } else {
+        type = arg0.type, service = arg0.service, url = arg0.url, token = arg0.token, query = arg0.query, events = arg0.events, properties = arg0.properties, error = arg0.error, options = arg0.options;
+        if (supportsSVG() && (typeof d3 === "undefined" || d3 === null)) {
+          intermine.cdn.load('d3');
+        }
+        if (!hasStyle(/font-awesome/)) {
+          intermine.cdn.load('font-awesome');
+        }
+        if (service == null) {
+          service = new intermine.Service({
+            root: url,
+            token: token
           });
-          return;
         }
-        if (placement === 'right' || placement === 'left') {
-          if (offset.top < top) {
-            diff = top - offset.top;
-            offset.top += diff;
-            arrowOffset.top = offset.top + (pos.top - offset.top) + (pos.height / 2) - (arrowHeight / 2);
-          } else if (offset.top + actualHeight > bottom) {
-            diff = offset.top + actualHeight - bottom;
-            offset.top -= diff;
-            arrowOffset.top = offset.top + (pos.top - offset.top) + (pos.height / 2) - (arrowHeight / 2);
-          }
-        } else {
-          if (offset.left < left) {
-            diff = left - offset.left;
-            offset.left += diff;
-            arrowOffset.left = pos.left + (pos.width / 2) - (arrowWidth / 2);
-          }
+        if (error != null) {
+          service.errorHandler = error;
         }
-        if (placement === 'right') {
-          offset.left += arrowWidth;
-        } else if (placement === 'top') {
-          offset.top -= arrowHeight;
-        } else if (placement === 'left') {
-          offset.left -= arrowWidth;
+        cls = type === 'table' ? intermine.query.results.CompactView : type === 'dashboard' ? intermine.query.results.DashBoard : type === 'minimal' ? intermine.query.results.Toolless : void 0;
+        if (!cls) {
+          console.error("" + type + " widgets are not supported");
+          return false;
         }
-        $tip.offset(offset);
-        return $tip.find('.arrow').offset(arrowOffset);
+        if (this.width() < jQuery('body').width() * 0.6) {
+          this.addClass('im-half');
+        }
+        if (options != null) {
+          intermine.setOptions(options);
+        }
+        view = new cls(service, query, events, properties);
+        this.empty().append(view.el);
+        view.render();
+        this.data('widget-options', properties);
+        this.data('widget-type', type);
+        this.data('widget', view);
+        return this.data('widget');
+      }
+    };
+  })();
+
+  scope('intermine.snippets.table', {
+    LargeTableDisuader: "<div class=\"modal im-page-size-sanity-check\">\n  <div class=\"modal-header\">\n    <h3>\n      Are you sure?\n    </h3>\n  </div>\n  <div class=\"modal-body\">\n    <p>\n      You have requested a very large table size. Your\n      browser may struggle to render such a large table,\n      and the page will probably become unresponsive. It\n      will be very difficult for you to read the whole table\n      in the page. We suggest the following alternatives:\n    </p>\n    <ul>\n      <li>\n         <p>\n            If you are looking for something specific, you can use the\n            <span class=\"label label-info\">filtering tools</span>\n            to narrow down the result set. Then you \n            might be able to fit the items you are interested in in a\n            single page.\n         </p>\n          <button class=\"btn im-alternative-action\" data-event=\"add-filter-dialogue:please\">\n          <i class=\"" + intermine.icons.Filter + "\"></i>\n          Add a new filter.\n          </button>\n        </li>\n        <li>\n          <p>\n            If you want to see all the data, you can page \n            <span class=\"label label-info\">\n             <i class=\"icon-chevron-left\"></i>\n              backwards\n            </span>\n            and \n            <span class=\"label label-info\">\n              forwards\n              <i class=\"icon-chevron-right\"></i>\n            </span>\n            through the results.\n          </p>\n          <div class=\"btn-group\">\n            <a class=\"btn im-alternative-action\" data-event=\"page:backwards\" href=\"#\">\n             <i class=\"icon-chevron-left\"></i>\n             go one page back\n           </a>\n           <a class=\"btn im-alternative-action\" data-event=\"page:forwards\" href=\"#\">\n             go one page forward\n             <i class=\"icon-chevron-right\"></i>\n           </a>\n          </div>\n        </li>\n        <li>\n            <p>\n                If you want to get and save the results, we suggest\n                <span class=\"label label-info\">downloading</span>\n                the results in a format that suits you. \n            <p>\n            <button class=\"btn im-alternative-action\" data-event=\"download-menu:open\">\n                <i class=\"" + intermine.icons.Export + "\"></i>\n                Open the download menu.\n            </buttn>\n        </li>\n    </ul>\n  </div>\n  <div class=\"modal-footer\">\n      <button class=\"btn btn-primary pull-right\">\n          I know what I'm doing.\n      </button>\n      <button class=\"btn pull-left im-alternative-action\">\n          OK, no worries then.\n      </button>\n  </div>\n</div>"
+  });
+
+  (function() {
+    var ManagementTools, _ref;
+
+    ManagementTools = (function(_super) {
+      __extends(ManagementTools, _super);
+
+      function ManagementTools() {
+        _ref = ManagementTools.__super__.constructor.apply(this, arguments);
+        return _ref;
+      }
+
+      ManagementTools.prototype.initialize = function(states, columnHeaders) {
+        this.states = states;
+        this.columnHeaders = columnHeaders;
+        return this.states.on('add reverted', this.checkHasFilters, this);
       };
 
-      DynamicPopover.prototype.applyPlacement = function(offset, placement) {
-        var $tip;
+      ManagementTools.prototype.checkHasFilters = function() {
+        var count, q;
 
-        $tip = this.tip();
-        $tip.removeClass('left right top bottom');
-        return DynamicPopover.__super__.applyPlacement.call(this, offset, placement);
-      };
-
-      DynamicPopover.prototype.reposition = function() {
-        var $tip, actualHeight, actualWidth, placement, pos, tp;
-
-        pos = this.getPosition();
-        $tip = this.tip();
-        actualWidth = $tip[0].offsetWidth;
-        actualHeight = $tip[0].offsetHeight;
-        placement = this.getPlacement();
-        tp = (function() {
-          switch (placement) {
-            case 'bottom':
-              return {
-                top: pos.top + pos.height,
-                left: pos.left + pos.width / 2 - actualWidth / 2
-              };
-            case 'top':
-              return {
-                top: pos.top - actualHeight,
-                left: pos.left + pos.width / 2 - actualWidth / 2
-              };
-            case 'left':
-              return {
-                top: pos.top + pos.height / 2 - actualHeight / 2,
-                left: pos.left - actualWidth
-              };
-            case 'right':
-              return {
-                top: pos.top + pos.height / 2 - actualHeight / 2,
-                left: pos.left + pos.width
-              };
-          }
-        })();
-        this.applyPlacement(tp, placement);
-        if (this.options.containment != null) {
-          this.respectContainment(tp, pos, placement);
+        if (q = this.states.currentQuery) {
+          count = q.constraints.length;
+          this.$('.im-filters').toggleClass("im-has-constraint", count > 0);
+          return this.$('.im-filters .im-action').text(count > 0 ? count : 'Add ');
         }
-        return this.$element.trigger('repositioned');
       };
 
-      return DynamicPopover;
+      ManagementTools.prototype.tagName = "div";
 
-    })(jQuery.fn.popover.Constructor);
-    return scope('intermine.bootstrap', {
-      DynamicPopover: DynamicPopover
+      ManagementTools.prototype.className = "im-management-tools";
+
+      ManagementTools.prototype.html = "<div class=\"btn-group\"> \n  <button class=\"btn im-columns\">\n      <i class=\"" + intermine.icons.Columns + "\"></i>\n      <span class=\"im-only-widescreen\">Manage </span>\n      <span class=\"hidden-tablet\">Columns</span>\n  </button>\n  <button class=\"btn im-filters\">\n      <i class=\"" + intermine.icons.Filter + "\"></i>\n      <span class=\"hidden-phone im-action\">Manage </span>\n      <span class=\"hidden-phone\">Filters</span>\n  </button>\n</div>";
+
+      ManagementTools.prototype.events = {
+        'click .im-columns': 'showColumnDialogue',
+        'click .im-filters': 'showFilterDialogue'
+      };
+
+      ManagementTools.prototype.showColumnDialogue = function(e) {
+        var dialogue, q;
+
+        q = this.states.currentQuery;
+        dialogue = new intermine.query.results.table.ColumnsDialogue(q, this.columnHeaders);
+        this.$el.append(dialogue.el);
+        return dialogue.render().showModal();
+      };
+
+      ManagementTools.prototype.showFilterDialogue = function(e) {
+        var dialogue, q;
+
+        q = this.states.currentQuery;
+        dialogue = new intermine.query.filters.FilterManager(q);
+        this.$el.append(dialogue.el);
+        return dialogue.render().showModal();
+      };
+
+      ManagementTools.prototype.render = function() {
+        this.$el.append(this.html);
+        this.checkHasFilters();
+        return this;
+      };
+
+      return ManagementTools;
+
+    })(Backbone.View);
+    return scope('intermine.query.tools', {
+      ManagementTools: ManagementTools
     });
   })();
 
@@ -6438,6 +9732,2052 @@
 
     })(Backbone.Collection);
     return UniqItems;
+  });
+
+  (function() {
+    var NewFilterDialogue, _ref;
+
+    NewFilterDialogue = (function(_super) {
+      __extends(NewFilterDialogue, _super);
+
+      function NewFilterDialogue() {
+        _ref = NewFilterDialogue.__super__.constructor.apply(this, arguments);
+        return _ref;
+      }
+
+      NewFilterDialogue.prototype.tagName = "div";
+
+      NewFilterDialogue.prototype.className = "im-constraint-dialogue modal";
+
+      NewFilterDialogue.prototype.html = "<div class=\"modal-header\">\n    <a href=\"#\" class=\"close pull-right im-close\">close</a>\n    <h3>Add New Filter</h3>\n</div>\n<div class=\"modal-body\">\n</div>\n<div class=\"modal-footer\">\n    <button class=\"disabled btn btn-primary pull-right im-add-constraint\">\n        Add Filter\n    </button>\n    <button class=\"btn im-close pull-left\">\n        Cancel\n    </button>\n</div>";
+
+      NewFilterDialogue.prototype.initialize = function(query) {
+        var _this = this;
+
+        this.query = query;
+        this.query.on('change:constraints', this.closeDialogue, this);
+        return this.query.on('editing-constraint', function() {
+          return _this.$('.im-add-constraint').removeClass('disabled');
+        });
+      };
+
+      NewFilterDialogue.prototype.events = {
+        'click .im-close': 'closeDialogue',
+        'hidden': 'onHidden',
+        'click .im-add-constraint': 'addConstraint'
+      };
+
+      NewFilterDialogue.prototype.onHidden = function(e) {
+        if (!(e && e.target === this.el)) {
+          return false;
+        }
+        return this.remove();
+      };
+
+      NewFilterDialogue.prototype.closeDialogue = function(e) {
+        return this.$el.modal('hide');
+      };
+
+      NewFilterDialogue.prototype.openDialogue = function() {
+        return this.$el.modal().modal('show');
+      };
+
+      NewFilterDialogue.prototype.addConstraint = function(e) {
+        var edited;
+
+        edited = this.conAdder.newCon.editConstraint(e);
+        if (edited) {
+          return this.$el.modal('hide');
+        }
+      };
+
+      NewFilterDialogue.prototype.render = function() {
+        this.$el.append(this.html);
+        this.conAdder = new intermine.query.ConstraintAdder(this.query);
+        this.$el.find('.modal-body').append(this.conAdder.render().el);
+        this.conAdder.showTree();
+        return this;
+      };
+
+      return NewFilterDialogue;
+
+    })(Backbone.View);
+    return scope('intermine.filters', {
+      NewFilterDialogue: NewFilterDialogue
+    });
+  })();
+
+  define('perma-query', function() {
+    var Deferred, any, defer, get, getPermaQuery, replaceIdConstraint, whenAll, zip;
+
+    get = intermine.funcutils.get;
+    any = _.any, zip = _.zip;
+    Deferred = jQuery.Deferred;
+    defer = function(x) {
+      return Deferred(function() {
+        return this.resolve(x);
+      });
+    };
+    whenAll = function(promises) {
+      return $.when.apply($, promises).then(function() {
+        var results;
+
+        results = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+        return results.slice();
+      });
+    };
+    replaceIdConstraint = function(classkeys, query) {
+      return function(c) {
+        var def, finding, keys, path, type, _ref;
+
+        path = query.makePath(c.path);
+        def = new Deferred;
+        if (!(((_ref = c.op) === '=' || _ref === '==') && path.end.name === 'id')) {
+          def.resolve(c);
+        } else {
+          type = path.getParent().getType().name;
+          keys = classkeys[type];
+          if (keys == null) {
+            def.reject("No class keys configured for " + type);
+          } else {
+            finding = query.service.rows({
+              select: keys,
+              where: {
+                id: c.value
+              }
+            }).then(get(0));
+            finding.fail(def.reject);
+            finding.then(function(values) {
+              var value, _i, _len, _ref1, _ref2;
+
+              if (!values) {
+                return def.reject("" + type + "@" + c.value + " not found");
+              }
+              _ref1 = zip(keys, values);
+              for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+                _ref2 = _ref1[_i], path = _ref2[0], value = _ref2[1];
+                if (value != null) {
+                  return def.resolve({
+                    path: path,
+                    value: value,
+                    op: '=='
+                  });
+                }
+              }
+              return def.reject("" + type + "@" + c.value + " has no identifying fields");
+            });
+          }
+        }
+        return def.promise();
+      };
+    };
+    return getPermaQuery = function(query) {
+      var applyNewCons, c, containsIdConstraint, copy, def, nodes;
+
+      nodes = (function() {
+        var _i, _len, _ref, _results;
+
+        _ref = query.constraints;
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          c = _ref[_i];
+          if (c.type == null) {
+            _results.push(query.makePath(c.path));
+          }
+        }
+        return _results;
+      })();
+      containsIdConstraint = nodes.length && any(nodes, function(n) {
+        var _ref;
+
+        return 'id' === ((_ref = n.end) != null ? _ref.name : void 0);
+      });
+      copy = query.clone();
+      if (!containsIdConstraint) {
+        return defer(copy);
+      }
+      def = new Deferred;
+      applyNewCons = function(newCons) {
+        copy.constraints = newCons;
+        return def.resolve(copy);
+      };
+      query.service.get('classkeys').then(function(_arg) {
+        var classes, replaceIdCon;
+
+        classes = _arg.classes;
+        replaceIdCon = replaceIdConstraint(classes, copy);
+        return whenAll((function() {
+          var _i, _len, _ref, _results;
+
+          _ref = copy.constraints;
+          _results = [];
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            c = _ref[_i];
+            _results.push(replaceIdCon(c));
+          }
+          return _results;
+        })()).then(applyNewCons).fail(def.reject);
+      });
+      return def.promise();
+    };
+  });
+
+  (function() {
+    var CompactView, DashBoard, Toolless, _ref, _ref1, _ref2;
+
+    DashBoard = (function(_super) {
+      __extends(DashBoard, _super);
+
+      function DashBoard() {
+        _ref = DashBoard.__super__.constructor.apply(this, arguments);
+        return _ref;
+      }
+
+      DashBoard.prototype.tagName = "div";
+
+      DashBoard.prototype.className = "query-display row-fluid";
+
+      DashBoard.prototype.initialize = function(service, query, queryEvents, tableProperties) {
+        var _ref1,
+          _this = this;
+
+        this.query = query;
+        this.queryEvents = queryEvents;
+        this.tableProperties = tableProperties;
+        this.columnHeaders = new Backbone.Collection;
+        this.states = new intermine.models.table.History;
+        if ((_ref1 = this.events) == null) {
+          this.events = {};
+        }
+        if (_(service).isString()) {
+          this.service = new intermine.Service({
+            root: service
+          });
+        } else if (service.fetchModel != null) {
+          this.service = service;
+        } else {
+          this.service = new intermine.Service(service);
+        }
+        return this.states.on('reverted add', function() {
+          return _this.loadQuery(_this.states.currentQuery);
+        });
+      };
+
+      DashBoard.prototype.TABLE_CLASSES = "span9 im-query-results";
+
+      DashBoard.prototype.loadQuery = function(q) {
+        var cb, currentPageSize, evt, k, v, _ref1, _ref2, _ref3, _ref4, _results;
+
+        currentPageSize = (_ref1 = this.table) != null ? _ref1.getCurrentPageSize() : void 0;
+        if ((_ref2 = this.table) != null) {
+          _ref2.remove();
+        }
+        this.main.empty();
+        this.table = new intermine.query.results.Table(q, this.main, this.columnHeaders);
+        _ref3 = this.tableProperties;
+        for (k in _ref3) {
+          v = _ref3[k];
+          this.table[k] = v;
+        }
+        if (currentPageSize != null) {
+          this.table.pageSize = currentPageSize;
+        }
+        this.table.render();
+        _ref4 = this.queryEvents;
+        _results = [];
+        for (evt in _ref4) {
+          cb = _ref4[evt];
+          _results.push(q.on(evt, cb));
+        }
+        return _results;
+      };
+
+      DashBoard.prototype.render = function() {
+        var queryPromise,
+          _this = this;
+
+        this.$el.addClass(intermine.options.StylePrefix);
+        this.tools = $("<div class=\"clearfix\">");
+        this.$el.append(this.tools);
+        this.main = $("<div class=\"" + this.TABLE_CLASSES + "\">");
+        this.$el.append(this.main);
+        queryPromise = this.service.query(this.query);
+        queryPromise.done(function(q) {
+          return _this.states.addStep('Original state', q);
+        });
+        queryPromise.done(function(q) {
+          _this.renderQueryManagement(q);
+          return _this.renderTools(q);
+        });
+        queryPromise.fail(function(xhr, err, msg) {
+          return _this.$el.append("<div class=\"alert alert-error\">\n  <h1>" + (err || xhr) + "</h1>\n  <p>Unable to construct query: " + (msg || xhr) + "</p>\n</div>");
+        });
+        return this;
+      };
+
+      DashBoard.prototype.renderTools = function(q) {
+        var tools;
+
+        tools = this.make("div", {
+          "class": "span3 im-query-toolbox"
+        });
+        this.$el.append(tools);
+        this.toolbar = new intermine.query.tools.Tools(this.states);
+        return this.toolbar.render().$el.appendTo(tools);
+      };
+
+      DashBoard.prototype.renderQueryManagement = function(q) {
+        var ManagementTools, Trail, managementGroup, trail, _ref1;
+
+        _ref1 = intermine.query.tools, ManagementTools = _ref1.ManagementTools, Trail = _ref1.Trail;
+        managementGroup = new ManagementTools(this.states, this.columnHeaders);
+        managementGroup.render().$el.appendTo(this.tools);
+        trail = new Trail(this.states);
+        return trail.render().$el.appendTo(managementGroup.el);
+      };
+
+      return DashBoard;
+
+    })(Backbone.View);
+    CompactView = (function(_super) {
+      __extends(CompactView, _super);
+
+      function CompactView() {
+        _ref1 = CompactView.__super__.constructor.apply(this, arguments);
+        return _ref1;
+      }
+
+      CompactView.prototype.className = "im-query-display compact";
+
+      CompactView.prototype.TABLE_CLASSES = "im-query-results";
+
+      CompactView.prototype.renderTools = function(q) {
+        this.toolbar = new intermine.query.tools.ToolBar(this.states);
+        return this.tools.append(this.toolbar.render().el);
+      };
+
+      return CompactView;
+
+    })(DashBoard);
+    Toolless = (function(_super) {
+      __extends(Toolless, _super);
+
+      function Toolless() {
+        _ref2 = Toolless.__super__.constructor.apply(this, arguments);
+        return _ref2;
+      }
+
+      Toolless.prototype.className = 'im-query-display im-toolless';
+
+      Toolless.prototype.TABLE_CLASSES = 'im-query-results';
+
+      Toolless.prototype.renderTools = function(q) {};
+
+      Toolless.prototype.renderQueryManagement = function(q) {
+        var Trail, trail;
+
+        Trail = intermine.query.tools.Trail;
+        trail = new Trail(this.states);
+        return this.$el.prepend(trail.render().el);
+      };
+
+      return Toolless;
+
+    })(DashBoard);
+    return scope("intermine.query.results", {
+      DashBoard: DashBoard,
+      CompactView: CompactView,
+      Toolless: Toolless
+    });
+  })();
+
+  scope('intermine.messages.columns', {
+    AddThisColumn: 'Add this column to the Sort Order'
+  });
+
+  (function() {
+    var OrderElement, PossibleOrderElements, PossibleSortOrder, SortOrder, _ref, _ref1, _ref2, _ref3;
+
+    OrderElement = (function(_super) {
+      __extends(OrderElement, _super);
+
+      function OrderElement() {
+        _ref = OrderElement.__super__.constructor.apply(this, arguments);
+        return _ref;
+      }
+
+      OrderElement.prototype.isNumeric = false;
+
+      OrderElement.prototype.initialize = function() {
+        var _ref1;
+
+        OrderElement.__super__.initialize.apply(this, arguments);
+        if (!this.has('direction')) {
+          this.set({
+            direction: 'ASC'
+          });
+        }
+        return this.isNumeric = (_ref1 = this.get('path').getType(), __indexOf.call(intermine.Model.NUMERIC_TYPES, _ref1) >= 0);
+      };
+
+      OrderElement.prototype.toJSON = function() {
+        return {
+          path: this.get('path').toString(),
+          direction: this.get('direction')
+        };
+      };
+
+      return OrderElement;
+
+    })(Backbone.Model);
+    SortOrder = (function(_super) {
+      __extends(SortOrder, _super);
+
+      function SortOrder() {
+        _ref1 = SortOrder.__super__.constructor.apply(this, arguments);
+        return _ref1;
+      }
+
+      SortOrder.prototype.model = OrderElement;
+
+      SortOrder.prototype.initialize = function() {
+        return this.on('destroy', this.remove, this);
+      };
+
+      return SortOrder;
+
+    })(Backbone.Collection);
+    PossibleSortOrder = (function(_super) {
+      __extends(PossibleSortOrder, _super);
+
+      function PossibleSortOrder() {
+        _ref2 = PossibleSortOrder.__super__.constructor.apply(this, arguments);
+        return _ref2;
+      }
+
+      PossibleSortOrder.prototype.toSortOrder = function() {
+        return {
+          path: this.get('path')
+        };
+      };
+
+      PossibleSortOrder.prototype.isInView = function() {
+        var _ref3;
+
+        return _ref3 = this.get('path').toString(), __indexOf.call(this.get('query').views, _ref3) >= 0;
+      };
+
+      PossibleSortOrder.prototype.initialize = function() {
+        this.set({
+          visibleInView: true,
+          matchesTerm: true
+        });
+        return this.set({
+          path: this.get('query').getPathInfo(this.get('path'))
+        });
+      };
+
+      PossibleSortOrder.prototype.toJSON = function() {
+        return {
+          isInView: this.isInView(),
+          path: this.get('path').toString()
+        };
+      };
+
+      return PossibleSortOrder;
+
+    })(Backbone.Model);
+    PossibleOrderElements = (function(_super) {
+      __extends(PossibleOrderElements, _super);
+
+      function PossibleOrderElements() {
+        _ref3 = PossibleOrderElements.__super__.constructor.apply(this, arguments);
+        return _ref3;
+      }
+
+      PossibleOrderElements.prototype.model = PossibleSortOrder;
+
+      PossibleOrderElements.prototype.initialize = function() {
+        return this.on('destroy', this.remove, this);
+      };
+
+      return PossibleOrderElements;
+
+    })(Backbone.Collection);
+    return scope('intermine.columns.collections', {
+      SortOrder: SortOrder,
+      PossibleOrderElements: PossibleOrderElements
+    });
+  })();
+
+  (function() {
+    var OrderElement, PossibleOrderElement, placement, _ref, _ref1;
+
+    placement = intermine.utils.addStylePrefix('top');
+    OrderElement = (function(_super) {
+      var TEMPLATE;
+
+      __extends(OrderElement, _super);
+
+      function OrderElement() {
+        _ref = OrderElement.__super__.constructor.apply(this, arguments);
+        return _ref;
+      }
+
+      OrderElement.prototype.tagName = 'li';
+
+      OrderElement.prototype.className = 'im-reorderable im-soe im-in-order';
+
+      TEMPLATE = _.template("<div>\n  <span class=\"im-sort-direction <%= direction.toLowerCase() %>\"></span>\n  <i class=\"icon-minus im-remove-soe\" title=\"Remove this column from the sort order\"></i>\n  <span class=\"im-path\" title=\"<%- path %>\"><%- path %></span>\n  <i class=\"icon-reorder pull-right\"></i>\n</div>");
+
+      OrderElement.prototype.initialize = function(options) {
+        var _this = this;
+
+        this.options = options != null ? options : {};
+        this.model.on('change:direction', function() {
+          return _this.$('.im-sort-direction').toggleClass('asc desc');
+        });
+        this.model.on('destroy', this.remove, this);
+        return this.model.el = this.el;
+      };
+
+      OrderElement.prototype.events = {
+        'click .im-sort-direction': 'changeDirection',
+        'click .im-remove-soe': 'deorder'
+      };
+
+      OrderElement.prototype.deorder = function() {
+        return this.model.destroy();
+      };
+
+      OrderElement.prototype.changeDirection = function() {
+        var direction;
+
+        direction = this.model.get('direction') === 'ASC' ? 'DESC' : 'ASC';
+        return this.model.set({
+          direction: direction
+        });
+      };
+
+      OrderElement.prototype.remove = function() {
+        this.model.off();
+        this.$('.im-remove-soe').tooltip('hide');
+        return OrderElement.__super__.remove.call(this);
+      };
+
+      OrderElement.prototype.render = function() {
+        var _this = this;
+
+        if (this.model.isNumeric) {
+          this.$el.addClass('numeric');
+        }
+        this.$el.append(TEMPLATE(this.model.toJSON()));
+        this.$('.im-remove-soe').tooltip({
+          placement: placement
+        });
+        this.model.get('path').getDisplayName().done(function(name) {
+          return _this.$('.im-path').text(name);
+        });
+        return this;
+      };
+
+      return OrderElement;
+
+    })(Backbone.View);
+    PossibleOrderElement = (function(_super) {
+      var TEMPLATE;
+
+      __extends(PossibleOrderElement, _super);
+
+      function PossibleOrderElement() {
+        _ref1 = PossibleOrderElement.__super__.constructor.apply(this, arguments);
+        return _ref1;
+      }
+
+      PossibleOrderElement.prototype.tagName = 'li';
+
+      PossibleOrderElement.prototype.className = 'im-soe';
+
+      TEMPLATE = _.template("<div>\n  <a class=\"im-add-soe\"\n     title=\"" + intermine.messages.columns.AddThisColumn + "\" >\n    <i class=\"icon-plus\"></i>\n    <span title=\"<%- path %>\"><%- path %></span>\n  </a>\n  <i class=\"icon-reorder pull-right\"></i>\n</div>");
+
+      PossibleOrderElement.prototype.events = {
+        'click .im-add-soe': 'addToOrderBy',
+        'dropped': 'addToOrderBy'
+      };
+
+      PossibleOrderElement.prototype.addToOrderBy = function() {
+        this.options.sortOrder.add(this.model.toSortOrder());
+        this.model.destroy();
+        return this.remove();
+      };
+
+      PossibleOrderElement.prototype.remove = function() {
+        this.model.off();
+        this.$('.im-add-soe').tooltip('hide');
+        return PossibleOrderElement.__super__.remove.call(this);
+      };
+
+      PossibleOrderElement.prototype.initialize = function(options) {
+        var _this = this;
+
+        this.options = options != null ? options : {};
+        this.model.on('only-in-view', function(only) {
+          return _this.model.set({
+            visibleInView: !only || _this.model.isInView()
+          });
+        });
+        this.model.on('filter', function(pattern) {
+          return _this.model.set({
+            matchesTerm: !pattern || pattern.test(_this.model.get('path'))
+          });
+        });
+        return this.model.on('change', function() {
+          var visible;
+
+          visible = _this.model.get('visibleInView') && _this.model.get('matchesTerm');
+          return _this.$el.toggle(visible);
+        });
+      };
+
+      PossibleOrderElement.prototype.render = function() {
+        var so,
+          _this = this;
+
+        so = this.model.toJSON();
+        this.$el.append(TEMPLATE(so));
+        if (!so.isInView) {
+          this.$el.addClass('im-not-in-view');
+        }
+        this.model.get('path').getDisplayName().done(function(name) {
+          return _this.$('span').text(name);
+        });
+        this.$el.draggable({
+          revert: 'invalid',
+          revertDuration: 100
+        });
+        this.$(".im-add-soe").tooltip({
+          placement: placement
+        });
+        return this;
+      };
+
+      return PossibleOrderElement;
+
+    })(Backbone.View);
+    return scope('intermine.columns.views', {
+      PossibleOrderElement: PossibleOrderElement,
+      OrderElement: OrderElement
+    });
+  })();
+
+  (function() {
+    var FormattedSorting, ICONS, INIT_CARETS, NEXT_DIRECTION_OF, ROW, _ref;
+
+    ROW = "<li class=\"im-formatted-part im-subpath\"><a><i class=\"sort-icon\"></i></a></li>";
+    INIT_CARETS = /^\s*>\s*/;
+    ICONS = function() {
+      return {
+        ASC: intermine.css.sortedASC,
+        DESC: intermine.css.sortedDESC,
+        NONE: intermine.css.unsorted
+      };
+    };
+    NEXT_DIRECTION_OF = {
+      ASC: 'DESC',
+      DESC: 'ASC',
+      NONE: 'ASC'
+    };
+    FormattedSorting = (function(_super) {
+      __extends(FormattedSorting, _super);
+
+      function FormattedSorting() {
+        this.appendSortOption = __bind(this.appendSortOption, this);        _ref = FormattedSorting.__super__.constructor.apply(this, arguments);
+        return _ref;
+      }
+
+      FormattedSorting.prototype.className = 'im-col-sort-menu no-margins';
+
+      FormattedSorting.prototype.tagName = 'ul';
+
+      FormattedSorting.prototype.initialize = function(query, path, model) {
+        this.query = query;
+        this.path = path;
+        this.model = model;
+      };
+
+      FormattedSorting.prototype.toggleSort = function(paths) {
+        var currentDir, direction, path;
+
+        console.log("Ordering by " + paths);
+        currentDir = this.currentDir(paths);
+        direction = NEXT_DIRECTION_OF[currentDir];
+        this.query.orderBy((function() {
+          var _i, _len, _results;
+
+          _results = [];
+          for (_i = 0, _len = paths.length; _i < _len; _i++) {
+            path = paths[_i];
+            _results.push({
+              path: path,
+              direction: direction
+            });
+          }
+          return _results;
+        })());
+        this.model.set({
+          direction: direction
+        });
+        return this.remove();
+      };
+
+      FormattedSorting.prototype.currentDir = function(paths) {
+        var current, dirs, p;
+
+        dirs = (function() {
+          var _i, _len, _results;
+
+          _results = [];
+          for (_i = 0, _len = paths.length; _i < _len; _i++) {
+            p = paths[_i];
+            _results.push(this.query.getSortDirection(p));
+          }
+          return _results;
+        }).call(this);
+        if (_.unique(dirs).length === 1) {
+          current = dirs[0];
+        }
+        return current != null ? current : 'NONE';
+      };
+
+      FormattedSorting.prototype.render = function() {
+        var paths, replaces;
+
+        console.log("Rendering FormattedSorting for " + this.path);
+        paths = [];
+        replaces = this.model.get('replaces');
+        if (replaces.length > 1) {
+          paths = [replaces].concat(replaces.map(function(x) {
+            return [x];
+          }));
+        } else {
+          paths = [this.path];
+        }
+        if (paths.length === 1) {
+          this.toggleSort(paths[0]);
+        } else {
+          paths.forEach(this.appendSortOption);
+        }
+        return this;
+      };
+
+      FormattedSorting.prototype.appendSortOption = function(paths) {
+        var $a, currentDir, icons, li, p, _fn, _i, _len,
+          _this = this;
+
+        li = $(ROW);
+        $a = li.find('a');
+        icons = ICONS();
+        _fn = function(p) {
+          var $span, path;
+
+          console.log("Adding span for " + p);
+          $span = $("<span class=\"im-sort-path\">");
+          $a.append($span);
+          path = _this.query.getPathInfo(p);
+          return $.when(_this.path.getDisplayName(), path.getDisplayName()).done(function(pn, cn) {
+            return $span.text(cn.replace(pn, '').replace(INIT_CARETS, ''));
+          });
+        };
+        for (_i = 0, _len = paths.length; _i < _len; _i++) {
+          p = paths[_i];
+          _fn(p);
+        }
+        $a.click(function(e) {
+          e.stopPropagation();
+          e.preventDefault();
+          return _this.toggleSort(paths);
+        });
+        currentDir = paths === this.model.get('replaces') ? this.currentDir(paths) : this.currentDir(this.model.get('replaces')) !== 'NONE' ? 'NONE' : this.currentDir(paths);
+        li.find('i').addClass(icons[currentDir]);
+        this.$el.append(li);
+        return null;
+      };
+
+      return FormattedSorting;
+
+    })(Backbone.View);
+    return scope("intermine.query", {
+      FormattedSorting: FormattedSorting
+    });
+  })();
+
+  (function() {
+    var CellCutoff, HIDDEN_FIELDS, NUM_CHUNK_SIZE, NUM_SEPARATOR, Preview, getLeaves, numToStr, sortTableByFieldName, toField, _ref, _ref1;
+
+    HIDDEN_FIELDS = ["class", "objectId"];
+    getLeaves = function(o) {
+      var leaf, leaves, name, values, _i, _len;
+
+      leaves = [];
+      values = (function() {
+        var _results;
+
+        _results = [];
+        for (name in o) {
+          leaf = o[name];
+          if (__indexOf.call(HIDDEN_FIELDS, name) < 0) {
+            _results.push(leaf);
+          }
+        }
+        return _results;
+      })();
+      for (_i = 0, _len = values.length; _i < _len; _i++) {
+        x = values[_i];
+        if (x['objectId']) {
+          leaves = leaves.concat(getLeaves(x));
+        } else {
+          leaves.push(x);
+        }
+      }
+      return leaves;
+    };
+    toField = function(row) {
+      return $(row).find('.im-field-name').text();
+    };
+    sortTableByFieldName = function(tbody) {
+      return tbody.html(_.sortBy(tbody.children('tr').get(), toField));
+    };
+    _ref = intermine.options, NUM_SEPARATOR = _ref.NUM_SEPARATOR, NUM_CHUNK_SIZE = _ref.NUM_CHUNK_SIZE, CellCutoff = _ref.CellCutoff;
+    numToStr = function(n) {
+      return intermine.utils.numToString(n, NUM_SEPARATOR, NUM_CHUNK_SIZE);
+    };
+    Preview = (function(_super) {
+      var ITEMS, ITEM_ROW, REFERENCE, RELATION, RELATIONS, THROBBER;
+
+      __extends(Preview, _super);
+
+      function Preview() {
+        this.handleItem = __bind(this.handleItem, this);        _ref1 = Preview.__super__.constructor.apply(this, arguments);
+        return _ref1;
+      }
+
+      Preview.prototype.className = 'im-cell-preview-inner';
+
+      ITEM_ROW = _.template("<tr>\n  <td class=\"im-field-name\"><%= field %></td>\n  <td class=\"im-field-value <%= field.toLowerCase() %>\">\n    <%- value %>\n    <span class=\"im-overspill\"><%- valueOverspill %></span>\n    <% if (tooLong) { %>\n      <a href=\"#\" class=\"im-too-long\">\n        <span class=\"im-ellipsis\">...</span>\n        <i class=\"" + intermine.icons.More + "\"></i>\n      </a>\n    <% } %>\n  </td>\n</tr>");
+
+      THROBBER = "<div class=\"progress progress-info progress-striped active\">\n  <div class=\"bar\" style=\"width: 100%\"></div>\n</div>";
+
+      ITEMS = "<table class=\"im-item-details table table-condensed table-bordered\">\n<colgroup>\n    <col class=\"im-item-field\"/>\n    <col class=\"im-item-value\"/>\n</colgroup>\n</table>";
+
+      RELATIONS = "<ul class=\"im-related-counts\"></ul>";
+
+      RELATION = _.template("<li class=\"im-relation\">\n  <span class=\"pull-left\"><%- label %></span>\n  <span class=\"pull-right im-count\"><%= count %></span>\n</li>");
+
+      REFERENCE = _.template("<tr>\n  <td class=\"im-field-name\"><%= field %></td>\n  <td class=\"im-field-value <%= field.toLowerCase() %>\">\n     <%- values.join(', ') %>\n  </td>\n</tr>");
+
+      Preview.prototype.events = {
+        'click .im-too-long': 'revealLongField'
+      };
+
+      Preview.prototype.revealLongField = function(e) {
+        var $overSpill, $tooLong;
+
+        if (e != null) {
+          e.preventDefault();
+        }
+        if (e != null) {
+          e.stopPropagation();
+        }
+        $tooLong = $(e.currentTarget);
+        $overSpill = $tooLong.siblings('.im-overspill');
+        $tooLong.remove();
+        return $overSpill.show();
+      };
+
+      Preview.prototype.template = _.template(THROBBER);
+
+      Preview.prototype.initialize = function(options) {
+        this.options = options != null ? options : {};
+        Preview.__super__.initialize.apply(this, arguments);
+        return this.on('rendered', this.insertRows, this);
+      };
+
+      Preview.prototype.formatName = function(field, row) {
+        var fv, p, type,
+          _this = this;
+
+        type = this.model.get('type');
+        p = this.options.schema.getPathInfo("" + type + "." + field);
+        fv = row.find('.im-field-value');
+        fv.addClass(p.getType().toString().toLowerCase());
+        return p.getDisplayName().done(function(name) {
+          row.find('.im-field-name').text(name.split(' > ').pop());
+          sortTableByFieldName(row.parent());
+          return _this.trigger('ready');
+        });
+      };
+
+      Preview.prototype.handleItem = function(item) {
+        var field, row, snipPoint, table, tooLong, v, value, valueOverspill, values, _results;
+
+        table = this.itemDetails;
+        for (field in item) {
+          v = item[field];
+          if (!(v && (__indexOf.call(HIDDEN_FIELDS, field) < 0) && !v['objectId'])) {
+            continue;
+          }
+          value = v + '';
+          tooLong = value.length > CellCutoff;
+          snipPoint = value.indexOf(' ', CellCutoff * 0.9);
+          if (snipPoint === -1) {
+            snipPoint = CellCutoff;
+          }
+          value = tooLong ? value.substring(0, snipPoint) : value;
+          valueOverspill = (v + '').substring(snipPoint);
+          row = $(ITEM_ROW({
+            field: field,
+            value: value,
+            tooLong: tooLong,
+            valueOverspill: valueOverspill
+          }));
+          this.formatName(field, row);
+          table.append(row);
+        }
+        _results = [];
+        for (field in item) {
+          value = item[field];
+          if (!(value && value['objectId'])) {
+            continue;
+          }
+          values = getLeaves(value);
+          row = $(REFERENCE({
+            field: field,
+            values: values
+          }));
+          this.formatName(field, row);
+          _results.push(table.append(row));
+        }
+        return _results;
+      };
+
+      Preview.prototype.fillRelationsTable = function(table) {
+        var settings, type, _i, _len, _ref2, _ref3, _ref4, _results;
+
+        type = this.model.get('type');
+        root = this.options.service.root;
+        _ref4 = (_ref2 = (_ref3 = intermine.options.preview.count[root]) != null ? _ref3[type] : void 0) != null ? _ref2 : [];
+        _results = [];
+        for (_i = 0, _len = _ref4.length; _i < _len; _i++) {
+          settings = _ref4[_i];
+          _results.push(this.handleRelationCount(settings));
+        }
+        return _results;
+      };
+
+      Preview.prototype.handleRelationCount = function(settings) {
+        var counter, id, label, query, table, type, _ref2;
+
+        table = this.relatedCounts;
+        _ref2 = this.model.toJSON(), type = _ref2.type, id = _ref2.id;
+        if (_.isObject(settings)) {
+          query = settings.query, label = settings.label;
+          counter = intermine.utils.copy(query);
+          intermine.utils.walk(counter, function(o, k, v) {
+            if (v === '{{ID}}') {
+              return o[k] = id;
+            }
+          });
+        } else {
+          label = settings;
+          counter = {
+            select: settings + '.id',
+            from: type,
+            where: {
+              id: id
+            }
+          };
+        }
+        return this.options.service.count(counter).done(function(c) {
+          return table.append(RELATION({
+            label: label,
+            count: numToStr(c)
+          }));
+        });
+      };
+
+      Preview.prototype.fillItemTable = function() {
+        var id, schema, service, t, table, type, types, _ref2, _ref3;
+
+        _ref2 = this.model.toJSON(), type = _ref2.type, id = _ref2.id;
+        _ref3 = this.options, schema = _ref3.schema, service = _ref3.service;
+        table = this.itemDetails;
+        types = [type].concat(schema.getAncestorsOf(type));
+        table.addClass(((function() {
+          var _i, _len, _results;
+
+          _results = [];
+          for (_i = 0, _len = types.length; _i < _len; _i++) {
+            t = types[_i];
+            _results.push(t.toLowerCase());
+          }
+          return _results;
+        })()).join(' '));
+        return service.findById(type, id, this.handleItem);
+      };
+
+      Preview.prototype.insertRows = function() {
+        var promise, ready, relations, _i, _len,
+          _this = this;
+
+        this.itemDetails = $(ITEMS);
+        this.relatedCounts = $(RELATIONS);
+        ready = this.fillItemTable();
+        relations = this.fillRelationsTable();
+        for (_i = 0, _len = relations.length; _i < _len; _i++) {
+          promise = relations[_i];
+          ready = ready.then(function() {
+            return promise;
+          });
+        }
+        ready.done(function() {
+          _this.$el.empty().append(_this.itemDetails);
+          if (relations.length) {
+            _this.$el.append("<h4>" + intermine.messages.cell.RelatedItems + "</h4>");
+            _this.$el.append(_this.relatedCounts);
+          }
+          return _this.trigger('ready');
+        });
+        return ready.fail(function(err) {
+          _this.renderError(err);
+          return _this.trigger('ready');
+        });
+      };
+
+      return Preview;
+
+    })(intermine.views.ItemView);
+    return scope('intermine.table.cell', {
+      Preview: Preview
+    });
+  })();
+
+  (function() {
+    var CELL_HTML, Cell, NullCell, SubTable, _CELL_HTML, _ref, _ref1, _ref2;
+
+    _CELL_HTML = _.template("<input class=\"list-chooser\" type=\"checkbox\"\n  <% if (checked) { %> checked <% } %>\n  <% if (disabled) { %> disabled <% } %>\n  style=\"display: <%= display %>\"\n>\n<a class=\"im-cell-link\" target=\"<%= target %>\" href=\"<%= url %>\">\n  <% if (isForeign) { %>\n    <% if (icon) { %>\n      <img src=\"<%= icon %>\" class=\"im-external-link\"></img>\n    <% } else { %>\n      <i class=\"icon-globe\"></i>\n    <% } %>\n  <% } %>\n  <% if (value == null) { %>\n    <span class=\"null-value\">&nbsp;</span>\n  <% } else { %>\n    <span class=\"im-displayed-value\">\n      <%= value %>\n    </span>\n  <% } %>\n</a>\n<% if (rawValue != null && field == 'url' && rawValue != url) { %>\n    <a class=\"im-cell-link external\" href=\"<%= rawValue %>\">\n      <i class=\"icon-globe\"></i>\n      link\n    </a>\n<% } %>");
+    CELL_HTML = function(data) {
+      var host, url;
+
+      url = data.url, host = data.host;
+      data.isForeign = url && !url.match(host);
+      data.target = data.isForeign ? '_blank' : '';
+      return _CELL_HTML(data);
+    };
+    SubTable = (function(_super) {
+      __extends(SubTable, _super);
+
+      function SubTable() {
+        this.appendRow = __bind(this.appendRow, this);        _ref = SubTable.__super__.constructor.apply(this, arguments);
+        return _ref;
+      }
+
+      SubTable.prototype.tagName = "td";
+
+      SubTable.prototype.className = "im-result-subtable";
+
+      SubTable.prototype.initialize = function(options) {
+        var subtable,
+          _this = this;
+
+        this.options = options != null ? options : {};
+        this.query = this.options.query;
+        this.cellify = this.options.cellify;
+        this.path = this.options.node;
+        subtable = this.options.subtable;
+        this.rows = subtable.rows;
+        this.view = subtable.view;
+        this.column = this.query.getPathInfo(subtable.column);
+        this.query.on('expand:subtables', function(path) {
+          if (path.toString() === _this.column.toString()) {
+            return _this.renderTable().slideDown();
+          }
+        });
+        return this.query.on('collapse:subtables', function(path) {
+          if (path.toString() === _this.column.toString()) {
+            return _this.$('.im-subtable').slideUp();
+          }
+        });
+      };
+
+      SubTable.prototype.getSummaryText = function() {
+        var def, level;
+
+        def = jQuery.Deferred();
+        if (this.column.isCollection()) {
+          def.resolve("" + this.rows.length + " " + (this.column.getType().name) + "s");
+        } else {
+          if (this.rows.length === 0) {
+            level = this.query.isOuterJoined(this.view[0]) ? this.query.getPathInfo(this.query.getOuterJoin(this.view[0])) : this.column;
+            def.resolve("<span class=\"im-no-value\">No " + (level.getType().name) + "</span>");
+          } else {
+            def.resolve("" + this.rows[0][0].value + " (" + (this.rows[0].slice(1).map(function(c) {
+              return c.value;
+            }).join(', ')) + ")");
+          }
+        }
+        return def.promise();
+      };
+
+      SubTable.prototype.getEffectiveView = function() {
+        var c, cell, col, columns, commonPrefix, explicitReplacements, fieldExpr, formatter, getFormatter, getReplacedTest, isReplaced, longestCommonPrefix, parent, path, r, replacedBy, replaces, row, shouldFormat, subPath, sv, view, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7;
+
+        _ref1 = intermine.utils, getReplacedTest = _ref1.getReplacedTest, longestCommonPrefix = _ref1.longestCommonPrefix;
+        _ref2 = intermine.results, shouldFormat = _ref2.shouldFormat, getFormatter = _ref2.getFormatter;
+        row = this.rows[0];
+        replacedBy = {};
+        explicitReplacements = {};
+        columns = (function() {
+          var _i, _len, _ref3, _results;
+
+          _results = [];
+          for (_i = 0, _len = row.length; _i < _len; _i++) {
+            cell = row[_i];
+            _ref3 = cell.view != null ? (commonPrefix = longestCommonPrefix(cell.view), path = this.query.getPathInfo(commonPrefix), [
+              path, (function() {
+                var _j, _len1, _ref3, _results1;
+
+                _ref3 = cell.view;
+                _results1 = [];
+                for (_j = 0, _len1 = _ref3.length; _j < _len1; _j++) {
+                  sv = _ref3[_j];
+                  _results1.push(this.query.getPathInfo(sv));
+                }
+                return _results1;
+              }).call(this)
+            ]) : (path = this.query.getPathInfo(cell.column), [path, [path]]), path = _ref3[0], replaces = _ref3[1];
+            _results.push({
+              path: path,
+              replaces: replaces
+            });
+          }
+          return _results;
+        }).call(this);
+        for (_i = 0, _len = columns.length; _i < _len; _i++) {
+          c = columns[_i];
+          if (!(c.path.isAttribute() && shouldFormat(c.path))) {
+            continue;
+          }
+          parent = c.path.getParent();
+          if ((_ref3 = replacedBy[parent]) == null) {
+            replacedBy[parent] = c;
+          }
+          formatter = getFormatter(c.path);
+          if (__indexOf.call(this.options.blacklistedFormatters, formatter) < 0) {
+            c.isFormatted = true;
+            c.formatter = formatter;
+            _ref5 = (_ref4 = formatter.replaces) != null ? _ref4 : [];
+            for (_j = 0, _len1 = _ref5.length; _j < _len1; _j++) {
+              fieldExpr = _ref5[_j];
+              subPath = this.query.getPathInfo("" + parent + "." + fieldExpr);
+              if ((_ref6 = replacedBy[subPath]) == null) {
+                replacedBy[subPath] = c;
+              }
+              c.replaces.push(subPath);
+            }
+          }
+          _ref7 = c.replaces;
+          for (_k = 0, _len2 = _ref7.length; _k < _len2; _k++) {
+            r = _ref7[_k];
+            explicitReplacements[r] = c;
+          }
+        }
+        isReplaced = getReplacedTest(replacedBy, explicitReplacements);
+        view = [];
+        for (_l = 0, _len3 = columns.length; _l < _len3; _l++) {
+          col = columns[_l];
+          if (!(!isReplaced(col))) {
+            continue;
+          }
+          if (col.isFormatted) {
+            col.path = col.path.getParent();
+          }
+          view.push(col);
+        }
+        return view;
+      };
+
+      SubTable.prototype.renderHead = function(headers, columns) {
+        var c, tableNamePromise, _i, _len, _results,
+          _this = this;
+
+        tableNamePromise = this.column.getDisplayName();
+        _results = [];
+        for (_i = 0, _len = columns.length; _i < _len; _i++) {
+          c = columns[_i];
+          _results.push((function(c) {
+            var th;
+
+            th = $("<th>\n    <i class=\"" + intermine.css.headerIconRemove + "\"></i>\n    <span></span>\n</th>");
+            th.find('i').click(function(e) {
+              return _this.query.removeFromSelect(c.replaces);
+            });
+            $.when(tableNamePromise, c.path.getDisplayName()).then(function(tableName, colName) {
+              var span, text;
+
+              text = colName.match(tableName) ? colName.replace(tableName, '').replace(/^\s*>?\s*/, '') : colName.replace(/^[^>]*\s*>\s*/, '');
+              return span = th.find('span').text(text);
+            });
+            return headers.append(th);
+          })(c));
+        }
+        return _results;
+      };
+
+      SubTable.prototype.appendRow = function(columns, row, tbody) {
+        var c, cell, cells, processed, r, replacedBy, tr, w, _fn, _i, _j, _k, _len, _len1, _len2, _ref1,
+          _this = this;
+
+        if (tbody == null) {
+          tbody = this.$('.im-subtable tbody');
+        }
+        tr = $('<tr>');
+        w = this.$el.width() / this.view.length;
+        processed = {};
+        replacedBy = {};
+        for (_i = 0, _len = columns.length; _i < _len; _i++) {
+          c = columns[_i];
+          _ref1 = c.replaces;
+          for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+            r = _ref1[_j];
+            replacedBy[r] = c;
+          }
+        }
+        cells = row.map(this.cellify);
+        _fn = function(tr, cell) {
+          var formatter, otherC, path, replaces, _l, _len3, _len4, _m, _ref2, _ref3;
+
+          if (processed[cell.path]) {
+            return;
+          }
+          processed[cell.path] = true;
+          _ref3 = (_ref2 = replacedBy[cell.path]) != null ? _ref2 : {}, replaces = _ref3.replaces, formatter = _ref3.formatter, path = _ref3.path;
+          if (replaces.length > 1) {
+            if (!path.equals(cell.path.getParent())) {
+              return;
+            }
+            if ((formatter != null ? formatter.merge : void 0) != null) {
+              for (_l = 0, _len3 = row.length; _l < _len3; _l++) {
+                otherC = row[_l];
+                if (_.any(replaces, function(repl) {
+                  return repl.equals(otherC.path);
+                })) {
+                  formatter.merge(cell.model, otherC.model);
+                }
+              }
+            }
+          }
+          for (_m = 0, _len4 = replaces.length; _m < _len4; _m++) {
+            r = replaces[_m];
+            processed[r] = true;
+          }
+          if (formatter != null) {
+            cell.formatter = formatter;
+          }
+          tr.append(cell.el);
+          return cell.render().setWidth(w);
+        };
+        for (_k = 0, _len2 = cells.length; _k < _len2; _k++) {
+          cell = cells[_k];
+          _fn(tr, cell);
+        }
+        tbody.append(tr);
+        return null;
+      };
+
+      SubTable.prototype.renderTable = function($table) {
+        var colRoot, colStr, columns, row, tbody, _i, _len, _ref1;
+
+        if ($table == null) {
+          $table = this.$('.im-subtable');
+        }
+        if (this.tableRendered) {
+          return $table;
+        }
+        colRoot = this.column.getType().name;
+        colStr = this.column.toString();
+        if (this.rows.length > 0) {
+          columns = this.getEffectiveView();
+          this.renderHead($table.find('thead tr'), columns);
+          tbody = $table.find('tbody');
+          if (this.column.isCollection()) {
+            _ref1 = this.rows;
+            for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+              row = _ref1[_i];
+              _.defer(this.appendRow, columns, row, tbody);
+            }
+          } else {
+            this.appendRow(columns, this.rows[0], tbody);
+          }
+        }
+        this.tableRendered = true;
+        return $table;
+      };
+
+      SubTable.prototype.events = {
+        'click .im-subtable-summary': 'toggleTable'
+      };
+
+      SubTable.prototype.toggleTable = function(e) {
+        var $table, evt;
+
+        if (e != null) {
+          e.stopPropagation();
+        }
+        $table = this.$('.im-subtable');
+        evt = $table.is(':visible') ? 'subtable:collapsed' : (this.renderTable($table), 'subtable:expanded');
+        $table.slideToggle();
+        return this.query.trigger(evt, this.column);
+      };
+
+      SubTable.prototype.render = function() {
+        var icon, summary;
+
+        icon = this.rows.length > 0 ? '<i class=icon-table></i>' : '<i class=icon-non-existent></i>';
+        summary = $("<span class=\"im-subtable-summary\">\n  " + icon + "&nbsp;\n</span>");
+        summary.appendTo(this.$el);
+        this.getSummaryText().done(function(content) {
+          return summary.append(content);
+        });
+        this.$el.append("<table class=\"im-subtable table table-condensed table-striped\">\n  <thead><tr></tr></thead>\n  <tbody></tbody>\n</table>");
+        if (intermine.options.SubtableInitialState === 'open' || this.options.mainTable.SubtableInitialState === 'open') {
+          this.toggleTable();
+        }
+        return this;
+      };
+
+      SubTable.prototype.getUnits = function() {
+        if (this.rows.length = 0) {
+          return this.view.length;
+        } else {
+          return _.reduce(this.rows[0], (function(a, item) {
+            return a + (item.view != null ? item.view.length : 1);
+          }), 0);
+        }
+      };
+
+      SubTable.prototype.setWidth = function(w) {
+        return this;
+      };
+
+      return SubTable;
+
+    })(Backbone.View);
+    Cell = (function(_super) {
+      __extends(Cell, _super);
+
+      function Cell() {
+        this.getPopoverPlacement = __bind(this.getPopoverPlacement, this);
+        this.getPopoverContent = __bind(this.getPopoverContent, this);        _ref1 = Cell.__super__.constructor.apply(this, arguments);
+        return _ref1;
+      }
+
+      Cell.prototype.tagName = "td";
+
+      Cell.prototype.className = "im-result-field";
+
+      Cell.prototype.getUnits = function() {
+        return 1;
+      };
+
+      Cell.prototype.formatter = function(model) {
+        if (model.get(this.options.field) != null) {
+          return model.escape(this.options.field);
+        } else {
+          return "<span class=\"null-value\">&nbsp;</span>";
+        }
+      };
+
+      Cell.prototype.initialize = function(options) {
+        var field, path;
+
+        this.options = options != null ? options : {};
+        this.model.on('change', this.selectingStateChange, this);
+        this.model.on('change', this.updateValue, this);
+        this.listenToQuery(this.options.query);
+        field = this.options.field;
+        path = this.path = this.options.node.append(field);
+        return this.$el.addClass('im-type-' + path.getType().toLowerCase());
+      };
+
+      Cell.prototype.events = function() {
+        var _this = this;
+
+        return {
+          'shown': function() {
+            var _ref2;
+
+            return (_ref2 = _this.cellPreview) != null ? _ref2.reposition() : void 0;
+          },
+          'show': function(e) {
+            _this.options.query.trigger('showing:preview', _this.el);
+            if (_this.model.get('is:selecting')) {
+              return e != null ? e.preventDefault() : void 0;
+            }
+          },
+          'hide': function(e) {
+            var _ref2;
+
+            return (_ref2 = _this.model.cachedPopover) != null ? _ref2.detach() : void 0;
+          },
+          'click': 'activateChooser',
+          'click a.im-cell-link': function(e) {
+            return e != null ? e.stopPropagation() : void 0;
+          }
+        };
+      };
+
+      Cell.prototype.reportClick = function() {
+        return this.model.trigger('click', this.model);
+      };
+
+      Cell.prototype.listenToQuery = function(q) {
+        var _this = this;
+
+        q.on("start:list-creation", function() {
+          return _this.model.set({
+            'is:selecting': true
+          });
+        });
+        q.on("stop:list-creation", function() {
+          return _this.model.set({
+            'is:selecting': false,
+            'is:selected': false
+          });
+        });
+        q.on('showing:preview', function(el) {
+          var _ref2;
+
+          if (el !== _this.el) {
+            return (_ref2 = _this.cellPreview) != null ? _ref2.hide() : void 0;
+          }
+        });
+        q.on("start:highlight:node", function(node) {
+          var _ref2;
+
+          if (((_ref2 = _this.options.node) != null ? _ref2.toPathString() : void 0) === node.toPathString()) {
+            return _this.$el.addClass("im-highlight");
+          }
+        });
+        q.on("stop:highlight", function() {
+          return _this.$el.removeClass("im-highlight");
+        });
+        return q.on("replaced:by", function(replacement) {
+          return _this.listenToQuery(replacement);
+        });
+      };
+
+      Cell.prototype.getPopoverContent = function() {
+        var content, id, popover, type,
+          _this = this;
+
+        if (this.model.cachedPopover != null) {
+          return this.model.cachedPopover;
+        }
+        type = this.model.get('obj:type');
+        id = this.model.get('id');
+        popover = new intermine.table.cell.Preview({
+          service: this.options.query.service,
+          schema: this.options.query.model,
+          model: {
+            type: type,
+            id: id
+          }
+        });
+        content = popover.$el;
+        popover.on('ready', function() {
+          return _this.cellPreview.reposition();
+        });
+        popover.render();
+        return this.model.cachedPopover = content;
+      };
+
+      Cell.prototype.getPopoverPlacement = function(popover) {
+        var elPos, fitsOnLeft, fitsOnRight, h, left, limits, ph, pw, table, w;
+
+        table = this.$el.closest(".im-table-container");
+        left = this.$el.offset().left;
+        limits = table.offset();
+        _.extend(limits, {
+          right: limits.left + table.width(),
+          bottom: limits.top + table.height()
+        });
+        w = this.$el.width();
+        h = this.$el.height();
+        elPos = this.$el.offset();
+        pw = $(popover).outerWidth();
+        ph = $(popover)[0].offsetHeight;
+        fitsOnRight = left + w + pw <= limits.right;
+        fitsOnLeft = limits.left <= left - pw;
+        if (fitsOnLeft) {
+          return 'left';
+        }
+        if (fitsOnRight) {
+          return 'right';
+        } else {
+          return 'top';
+        }
+      };
+
+      Cell.prototype.setupPreviewOverlay = function() {
+        var options;
+
+        options = {
+          container: this.el,
+          containment: '.im-query-results',
+          html: true,
+          title: this.model.get('obj:type'),
+          trigger: intermine.options.CellPreviewTrigger,
+          delay: {
+            show: 700,
+            hide: 250
+          },
+          classes: 'im-cell-preview',
+          content: this.getPopoverContent,
+          placement: this.getPopoverPlacement
+        };
+        return this.cellPreview = new intermine.bootstrap.DynamicPopover(this.el, options);
+      };
+
+      Cell.prototype.updateValue = function() {
+        var _this = this;
+
+        return _.defer(function() {
+          return _this.$('.im-displayed-value').html(_this.formatter(_this.model));
+        });
+      };
+
+      Cell.prototype.getInputState = function() {
+        var checked, disabled, display, selectable, selected, selecting, _ref2;
+
+        _ref2 = this.model.selectionState(), selected = _ref2.selected, selectable = _ref2.selectable, selecting = _ref2.selecting;
+        checked = selected;
+        disabled = !selectable;
+        display = selecting && selectable ? 'inline' : 'none';
+        return {
+          checked: checked,
+          disabled: disabled,
+          display: display
+        };
+      };
+
+      Cell.prototype.selectingStateChange = function() {
+        var checked, disabled, display, _ref2;
+
+        _ref2 = this.getInputState(), checked = _ref2.checked, disabled = _ref2.disabled, display = _ref2.display;
+        this.$el.toggleClass("active", checked);
+        return this.$('input').attr({
+          checked: checked,
+          disabled: disabled
+        }).css({
+          display: display
+        });
+      };
+
+      Cell.prototype.getData = function() {
+        var ExternalLinkIcons, IndicateOffHostLinks, data, domain, field, url, _ref2, _ref3;
+
+        _ref2 = intermine.options, IndicateOffHostLinks = _ref2.IndicateOffHostLinks, ExternalLinkIcons = _ref2.ExternalLinkIcons;
+        field = this.options.field;
+        data = {
+          value: this.formatter(this.model),
+          rawValue: this.model.get(field),
+          field: field,
+          url: this.model.get('service:url'),
+          host: IndicateOffHostLinks ? window.location.host : /.*/,
+          icon: null
+        };
+        _.extend(data, this.getInputState());
+        if (!/^http/.test(data.url)) {
+          data.url = this.model.get('service:base') + data.url;
+        }
+        for (domain in ExternalLinkIcons) {
+          url = ExternalLinkIcons[domain];
+          if (data.url.match(domain)) {
+            if ((_ref3 = data.icon) == null) {
+              data.icon = url;
+            }
+          }
+        }
+        return data;
+      };
+
+      Cell.prototype.render = function() {
+        var data,
+          _this = this;
+
+        data = this.getData();
+        _.defer(function() {
+          return _this.$el.html(CELL_HTML(data));
+        });
+        if (data.checked) {
+          this.$el.addClass('active');
+        }
+        if (this.model.get('id')) {
+          this.setupPreviewOverlay();
+        }
+        return this;
+      };
+
+      Cell.prototype.setWidth = function(w) {
+        return this;
+      };
+
+      Cell.prototype.activateChooser = function() {
+        var selectable, selected, selecting, _ref2;
+
+        this.reportClick();
+        _ref2 = this.model.selectionState(), selected = _ref2.selected, selectable = _ref2.selectable, selecting = _ref2.selecting;
+        if (selectable && selecting) {
+          return this.model.set({
+            'is:selected': !selected
+          });
+        }
+      };
+
+      return Cell;
+
+    })(Backbone.View);
+    NullCell = (function(_super) {
+      __extends(NullCell, _super);
+
+      function NullCell() {
+        _ref2 = NullCell.__super__.constructor.apply(this, arguments);
+        return _ref2;
+      }
+
+      NullCell.prototype.setupPreviewOverlay = function() {};
+
+      NullCell.prototype.initialize = function(options) {
+        this.options = options != null ? options : {};
+        this.model = new intermine.model.NullObject();
+        return NullCell.__super__.initialize.call(this);
+      };
+
+      return NullCell;
+
+    })(Cell);
+    return scope("intermine.results.table", {
+      NullCell: NullCell,
+      SubTable: SubTable,
+      Cell: Cell
+    });
+  })();
+
+  (function() {
+    var COL_FILTER_TITLE, ColumnHeader, ICONS, NEXT_DIRECTION_OF, RENDER_TITLE, TEMPLATE, ignore, _ref;
+
+    ignore = function(e) {
+      if (e != null) {
+        e.preventDefault();
+      }
+      if (e != null) {
+        e.stopPropagation();
+      }
+      return false;
+    };
+    ICONS = function() {
+      return {
+        ASC: intermine.css.sortedASC,
+        DESC: intermine.css.sortedDESC,
+        css_unsorted: intermine.css.unsorted,
+        css_header: intermine.css.headerIcon,
+        css_remove: intermine.css.headerIconRemove,
+        css_hide: intermine.css.headerIconHide,
+        css_reveal: intermine.css.headerIconReveal,
+        css_filter: intermine.icons.Filter,
+        css_summary: intermine.icons.Summary,
+        css_composed: intermine.icons.Composed
+      };
+    };
+    TEMPLATE = _.template(" \n<div class=\"im-column-header\">\n  <div class=\"im-th-buttons\">\n    <% if (sortable) { %>\n      <span class=\"im-th-dropdown im-col-sort dropdown\">\n        <a class=\"im-th-button im-col-sort-indicator\" title=\"sort this column\">\n          <i class=\"icon-sorting <%- css_unsorted %> <%- css_header %>\"></i>\n        </a>\n        <div class=\"dropdown-menu\">\n          <div>Could not intitialise the sorting menu.</div>\n        </div>\n      </span>\n    <% }; %>\n    <a class=\"im-th-button im-col-remover\"\n       title=\"remove this column\">\n      <i class=\"<%- css_remove %> <%- css_header %>\"></i>\n    </a>\n    <a class=\"im-th-button im-col-minumaximiser\"\n       title=\"Toggle column visibility\">\n      <i class=\"<%- css_hide %> <%- css_header %>\"></i>\n    </a>\n    <span class=\"dropdown im-filter-summary im-th-dropdown\">\n      <a class=\"im-th-button im-col-filters dropdown-toggle\"\n         title=\"\"\n         data-toggle=\"dropdown\" >\n        <i class=\"<%- css_filter %> <%- css_header %>\"></i>\n      </a>\n      <div class=\"dropdown-menu\">\n        <div>Could not ititialise the filter summary.</div>\n      </div>\n    </span>\n    <span class=\"dropdown im-summary im-th-dropdown\">\n      <a class=\"im-th-button summary-img dropdown-toggle\" title=\"column summary\"\n        data-toggle=\"dropdown\" >\n        <i class=\"<%- css_summary %> <%- css_header %>\"></i>\n      </a>\n      <div class=\"dropdown-menu\">\n        <div>Could not ititialise the column summary.</div>\n      </div>\n    </span>\n    <a class=\"im-th-button im-col-composed\"\n        title=\"Toggle formatting\">\n      <i class=\"<%- css_composed %> <%- css_header %>\"></i>\n    </a>\n  </div>\n  <div class=\"im-col-title\">\n    <%- path %>\n  </div>\n</div>");
+    COL_FILTER_TITLE = function(count) {
+      if (count > 0) {
+        return "" + count + " active filters";
+      } else {
+        return "Filter by values in this column";
+      }
+    };
+    RENDER_TITLE = _.template("<div\n  class=\"im-title-part im-parent im-<%= parentType %>-parent<% if (!last) { %> im-last<% } %>\">\n    <%- penult %>\n</div>\n<% if (last) { %>\n  <div class=\"im-title-part im-last\"><%- last %></div>\n<% } %>");
+    NEXT_DIRECTION_OF = {
+      ASC: 'DESC',
+      DESC: 'ASC'
+    };
+    ColumnHeader = (function(_super) {
+      var firstResult, getCompositionTitle;
+
+      __extends(ColumnHeader, _super);
+
+      function ColumnHeader() {
+        this.toggleSubTable = __bind(this.toggleSubTable, this);
+        this.setSortOrder = __bind(this.setSortOrder, this);
+        this.minumaximise = __bind(this.minumaximise, this);
+        this.toggleColumnVisibility = __bind(this.toggleColumnVisibility, this);
+        this.showFilterSummary = __bind(this.showFilterSummary, this);
+        this.showColumnSummary = __bind(this.showColumnSummary, this);
+        this.showSummary = __bind(this.showSummary, this);
+        this.bestFit = __bind(this.bestFit, this);
+        this.displaySortDirection = __bind(this.displaySortDirection, this);
+        this.displayConCount = __bind(this.displayConCount, this);
+        this.updateModel = __bind(this.updateModel, this);
+        this.renderName = __bind(this.renderName, this);        _ref = ColumnHeader.__super__.constructor.apply(this, arguments);
+        return _ref;
+      }
+
+      ColumnHeader.prototype.tagName = 'th';
+
+      ColumnHeader.prototype.className = 'im-column-th';
+
+      ColumnHeader.prototype.initialize = function(_arg) {
+        var query,
+          _this = this;
+
+        query = _arg.query;
+        this.query = query;
+        this.view = this.model.get('path').toString();
+        if (this.model.get('replaces').length === 1 && this.model.get('isFormatted')) {
+          this.view = this.model.get('replaces')[0].toString();
+        }
+        this.namePromise = this.model.get('path').getDisplayName();
+        this.namePromise.done(function(name) {
+          return _this.model.set({
+            name: name
+          });
+        });
+        this.updateModel();
+        this.query.on('change:sortorder', this.updateModel);
+        this.query.on('change:joins', this.updateModel);
+        this.query.on('change:constraints', this.updateModel);
+        this.query.on('change:minimisedCols', this.minumaximise);
+        this.query.on('subtable:expanded', function(node) {
+          if (node.toString().match(_this.view)) {
+            return _this.model.set({
+              expanded: true
+            });
+          }
+        });
+        this.query.on('subtable:collapsed', function(node) {
+          if (node.toString().match(_this.view)) {
+            return _this.model.set({
+              expanded: false
+            });
+          }
+        });
+        this.query.on('showing:column-summary', function(path) {
+          var _ref1;
+
+          if (!path.equals(_this.model.get('path'))) {
+            return (_ref1 = _this.summary) != null ? _ref1.remove() : void 0;
+          }
+        });
+        this.model.on('change:conCount', this.displayConCount);
+        return this.model.on('change:direction', this.displaySortDirection);
+      };
+
+      getCompositionTitle = function(replaces) {
+        return "This column replaces " + replaces.length + " others. Click here\nto show the individual columns separately.";
+      };
+
+      ColumnHeader.prototype.renderName = function() {
+        var ancestors, content, last, p, parentType, parts, penult, title, _i, _ref1;
+
+        _ref1 = parts = this.model.get('name').split(' > '), ancestors = 3 <= _ref1.length ? __slice.call(_ref1, 0, _i = _ref1.length - 2) : (_i = 0, []), penult = _ref1[_i++], last = _ref1[_i++];
+        parentType = ancestors.length ? 'non-root' : 'root';
+        parts = (function() {
+          var _j, _len, _results;
+
+          _results = [];
+          for (_j = 0, _len = parts.length; _j < _len; _j++) {
+            p = parts[_j];
+            _results.push("<span class=\"im-name-part\">" + p + "</span>");
+          }
+          return _results;
+        })();
+        content = RENDER_TITLE({
+          penult: penult,
+          last: last,
+          parentType: parentType
+        });
+        title = parts.join('');
+        return this.$('.im-col-title').html(content).popover({
+          title: title,
+          placement: 'bottom',
+          html: true
+        });
+      };
+
+      ColumnHeader.prototype.isComposed = function() {
+        if (this.query.isOuterJoined(this.view)) {
+          return false;
+        }
+        return (this.model.get('replaces') || []).length > 1;
+      };
+
+      ColumnHeader.prototype.render = function() {
+        var replaces,
+          _this = this;
+
+        this.$el.empty();
+        this.$el.append(this.html());
+        this.displayConCount();
+        this.displaySortDirection();
+        this.namePromise.done(this.renderName);
+        this.$('.summary-img').click(this.showColumnSummary);
+        this.$('.im-col-filters').click(this.showFilterSummary);
+        replaces = this.model.get('replaces');
+        this.$('.im-col-composed').attr({
+          title: getCompositionTitle(replaces)
+        }).click(function() {
+          return _this.query.trigger('formatter:blacklist', _this.view, _this.model.get('formatter'));
+        });
+        this.$el.toggleClass('im-is-composed', this.isComposed());
+        this.$('.im-th-button').tooltip({
+          placement: this.bestFit,
+          container: this.el
+        });
+        this.$('.dropdown .dropdown-toggle').dropdown();
+        if (!this.model.get('path').isAttribute() && this.query.isOuterJoined(this.view)) {
+          this.addExpander();
+        }
+        return this;
+      };
+
+      firstResult = _.compose(_.first, _.compact, _.map);
+
+      ColumnHeader.prototype.updateModel = function() {
+        var direction,
+          _this = this;
+
+        direction = firstResult(this.model.get('replaces').concat(this.view), function(p) {
+          return _this.query.getSortDirection(p);
+        });
+        return this.model.set({
+          direction: direction,
+          sortable: !this.query.isOuterJoined(this.view),
+          conCount: _.size(_.filter(this.query.constraints, function(c) {
+            return !!c.path.match(_this.view);
+          }))
+        });
+      };
+
+      ColumnHeader.prototype.displayConCount = function() {
+        var conCount;
+
+        conCount = this.model.get('conCount');
+        if (conCount) {
+          this.$el.addClass('im-has-constraint');
+        }
+        return this.$('.im-col-filters').attr({
+          title: COL_FILTER_TITLE(conCount)
+        });
+      };
+
+      ColumnHeader.prototype.html = function() {
+        var data;
+
+        data = _.extend({}, ICONS(), this.model.toJSON());
+        return TEMPLATE(data);
+      };
+
+      ColumnHeader.prototype.displaySortDirection = function() {
+        var ASC, DESC, css_unsorted, icons, sortButton, _ref1;
+
+        sortButton = this.$('.icon-sorting');
+        _ref1 = icons = ICONS(), css_unsorted = _ref1.css_unsorted, ASC = _ref1.ASC, DESC = _ref1.DESC;
+        sortButton.addClass(css_unsorted);
+        sortButton.removeClass(ASC + ' ' + DESC);
+        if (this.model.has('direction')) {
+          return sortButton.toggleClass(css_unsorted + ' ' + icons[this.model.get('direction')]);
+        }
+      };
+
+      ColumnHeader.prototype.events = {
+        'click .im-col-sort': 'setSortOrder',
+        'click .im-col-minumaximiser': 'toggleColumnVisibility',
+        'click .im-col-filters': 'showFilterSummary',
+        'click .im-subtable-expander': 'toggleSubTable',
+        'click .im-col-remover': 'removeColumn',
+        'toggle .im-th-button': 'summaryToggled'
+      };
+
+      ColumnHeader.prototype.summaryToggled = function(e, isOpen) {
+        var _ref1;
+
+        ignore(e);
+        if (e.target !== e.currentTarget) {
+          return;
+        }
+        if (!isOpen) {
+          return (_ref1 = this.summary) != null ? _ref1.remove() : void 0;
+        }
+      };
+
+      ColumnHeader.prototype.hideTooltips = function() {
+        return this.$('.im-th-button').tooltip('hide');
+      };
+
+      ColumnHeader.prototype.removeColumn = function(e) {
+        var unwanted, v;
+
+        this.hideTooltips();
+        unwanted = (function() {
+          var _i, _len, _ref1, _results;
+
+          _ref1 = this.query.views;
+          _results = [];
+          for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+            v = _ref1[_i];
+            if (v.match(this.view)) {
+              _results.push(v);
+            }
+          }
+          return _results;
+        }).call(this);
+        this.query.removeFromSelect(unwanted);
+        return false;
+      };
+
+      ColumnHeader.prototype.bestFit = function(tip, elem) {
+        $(tip).addClass(intermine.options.StylePrefix);
+        return 'top';
+      };
+
+      ColumnHeader.prototype.checkHowFarOver = function(el) {
+        var bounds;
+
+        bounds = this.$el.closest('.im-table-container');
+        if ((el.offset().left + 350) >= (bounds.offset().left + bounds.width())) {
+          return this.$el.addClass('too-far-over');
+        }
+      };
+
+      ColumnHeader.prototype.showSummary = function(selector, View) {
+        var _this = this;
+
+        return function(e) {
+          var $menu, summary;
+
+          ignore(e);
+          _this.checkHowFarOver(e != null ? $(e.currentTarget) : _this.$el);
+          if (!_this.$(selector).hasClass('open')) {
+            _this.query.trigger('showing:column-summary', _this.model.get('path'));
+            summary = new View(_this.query, _this.model.get('path'), _this.model);
+            $menu = _this.$(selector + ' .dropdown-menu');
+            if (!$menu.length) {
+              console.log("" + selector + " not found");
+            }
+            $menu.html(summary.el);
+            summary.render();
+            _this.summary = summary;
+          }
+          return false;
+        };
+      };
+
+      ColumnHeader.prototype.showColumnSummary = function(e) {
+        var cls;
+
+        cls = this.path().isAttribute() ? intermine.query.results.DropDownColumnSummary : intermine.query.results.OuterJoinDropDown;
+        return this.showSummary('.im-summary', cls)(e);
+      };
+
+      ColumnHeader.prototype.showFilterSummary = function(e) {
+        return this.showSummary('.im-filter-summary', intermine.query.filters.SingleColumnConstraints)(e);
+      };
+
+      ColumnHeader.prototype.toggleColumnVisibility = function(e) {
+        if (e != null) {
+          e.preventDefault();
+        }
+        if (e != null) {
+          e.stopPropagation();
+        }
+        return this.query.trigger('columnvis:toggle', this.view);
+      };
+
+      ColumnHeader.prototype.minumaximise = function(minimisedCols) {
+        var $i, css_hide, css_reveal, minimised, _ref1;
+
+        _ref1 = ICONS(), css_hide = _ref1.css_hide, css_reveal = _ref1.css_reveal;
+        $i = this.$('.im-col-minumaximiser i').removeClass(css_hide + ' ' + css_reveal);
+        minimised = minimisedCols[this.view];
+        $i.addClass(minimised ? css_reveal : css_hide);
+        this.$el.toggleClass('im-minimised-th', !!minimised);
+        return this.$('.im-col-title').toggle(!minimised);
+      };
+
+      ColumnHeader.prototype.path = function() {
+        return this.model.get('path');
+      };
+
+      ColumnHeader.prototype.setSortOrder = function(e) {
+        var direction, formatter, replaces, _ref1, _ref2;
+
+        _ref1 = this.model.toJSON(), direction = _ref1.direction, replaces = _ref1.replaces;
+        direction = (_ref2 = NEXT_DIRECTION_OF[direction]) != null ? _ref2 : 'ASC';
+        formatter = intermine.results.getFormatter(this.path());
+        if (replaces.length) {
+          this.showSummary('.im-col-sort', intermine.query.FormattedSorting)(e);
+          return this.$('.im-col-sort').toggleClass('open');
+        } else {
+          this.$('.im-col-sort').removeClass('open');
+          return this.query.orderBy([
+            {
+              path: this.view,
+              direction: direction
+            }
+          ]);
+        }
+      };
+
+      ColumnHeader.prototype.addExpander = function() {
+        var expandAll;
+
+        expandAll = $("<a href=\"#\" \n   class=\"im-subtable-expander im-th-button\"\n   title=\"Expand/Collapse all subtables\">\n  <i class=\"icon-table icon-white\"></i>\n</a>");
+        expandAll.tooltip({
+          placement: this.bestFit
+        });
+        return this.$('.im-th-buttons').prepend(expandAll);
+      };
+
+      ColumnHeader.prototype.toggleSubTable = function(e) {
+        var cmd;
+
+        ignore(e);
+        cmd = this.model.get('expanded') ? 'collapse' : 'expand';
+        this.query.trigger(cmd + ':subtables', this.model.get('path'));
+        return this.model.set({
+          expanded: !this.model.get('expanded')
+        });
+      };
+
+      return ColumnHeader;
+
+    })(Backbone.View);
+    return scope('intermine.query.results', {
+      ColumnHeader: ColumnHeader
+    });
+  })();
+
+  scope('intermine.snippets.table', {
+    NoResults: function(query) {
+      return _.template("<tr>\n  <td colspan=\"<%= views.length %>\">\n    <div class=\"im-no-results alert alert-info\">\n      <div <% if (revision === 0) { %> style=\"display:none;\" <% } %> >\n        " + intermine.snippets.query.UndoButton + "\n      </div>\n      <strong>NO RESULTS</strong>\n      This query returned 0 results.\n      <div style=\"clear:both\"></div>\n    </div>\n  </td>\n</tr>", query);
+    },
+    CountSummary: _.template("<span class=\"hidden-phone\">\n<span class=\"im-only-widescreen\">Showing</span>\n<span>\n  <% if (last == 0) { %>\n      All\n  <% } else { %>\n      <%= first %> to <%= last %> of\n  <% } %>\n  <%= count %> <span class=\"visible-desktop\"><%= roots %></span>\n</span>\n</span>"),
+    Pagination: "<div class=\"pagination pagination-right\">\n  <ul>\n    <li title=\"Go to start\">\n      <a class=\"im-pagination-button\" data-goto=start>&#x21e4;</a>\n    </li>\n    <li title=\"Go back five pages\" class=\"visible-desktop\">\n      <a class=\"im-pagination-button\" data-goto=fast-rewind>&#x219e;</a>\n    </li>\n    <li title=\"Go to previous page\">\n      <a class=\"im-pagination-button\" data-goto=prev>&larr;</a>\n    </li>\n    <li class=\"im-current-page\">\n      <a data-goto=here  href=\"#\">&hellip;</a>\n      <form class=\"im-page-form input-append form form-horizontal\" style=\"display:none;\">\n      <div class=\"control-group\"></div>\n    </form>\n    </li>\n    <li title=\"Go to next page\">\n      <a class=\"im-pagination-button\" data-goto=next>&rarr;</a>\n    </li>\n    <li title=\"Go forward five pages\" class=\"visible-desktop\">\n      <a class=\"im-pagination-button\" data-goto=fast-forward>&#x21a0;</a>\n    </li>\n    <li title=\"Go to last page\">\n      <a class=\"im-pagination-button\" data-goto=end>&#x21e5;</a>\n    </li>\n  </ul>\n</div>"
+  });
+
+  scope('intermine.snippets.query', {
+    UndoButton: '<button class="btn btn-primary pull-right"><i class="icon-undo"></i> undo</button>'
   });
 
   scope('intermine.css', {
@@ -7690,5799 +13030,459 @@
   })();
 
   (function() {
-    var CELL_HTML, Cell, NullCell, SubTable, _CELL_HTML, _ref, _ref1, _ref2;
+    var PANE_HTML, Step, TAB_HTML, ToolBar, Tools, Trail, curry, _ref, _ref1, _ref2, _ref3;
 
-    _CELL_HTML = _.template("<input class=\"list-chooser\" type=\"checkbox\"\n  <% if (checked) { %> checked <% } %>\n  <% if (disabled) { %> disabled <% } %>\n  style=\"display: <%= display %>\"\n>\n<a class=\"im-cell-link\" target=\"<%= target %>\" href=\"<%= url %>\">\n  <% if (isForeign) { %>\n    <% if (icon) { %>\n      <img src=\"<%= icon %>\" class=\"im-external-link\"></img>\n    <% } else { %>\n      <i class=\"icon-globe\"></i>\n    <% } %>\n  <% } %>\n  <% if (value == null) { %>\n    <span class=\"null-value\">&nbsp;</span>\n  <% } else { %>\n    <span class=\"im-displayed-value\">\n      <%= value %>\n    </span>\n  <% } %>\n</a>\n<% if (rawValue != null && field == 'url' && rawValue != url) { %>\n    <a class=\"im-cell-link external\" href=\"<%= rawValue %>\">\n      <i class=\"icon-globe\"></i>\n      link\n    </a>\n<% } %>");
-    CELL_HTML = function(data) {
-      var host, url;
+    curry = intermine.funcutils.curry;
+    TAB_HTML = _.template("<li>\n    <a href=\"#<%= ref %>\" data-toggle=\"tab\">\n        <%= title %>\n    </a>\n</li>");
+    PANE_HTML = _.template("<div class=\"tab-pane\" id=\"<%= ref %>\"></div>");
+    Tools = (function(_super) {
+      __extends(Tools, _super);
 
-      url = data.url, host = data.host;
-      data.isForeign = url && !url.match(host);
-      data.target = data.isForeign ? '_blank' : '';
-      return _CELL_HTML(data);
-    };
-    SubTable = (function(_super) {
-      __extends(SubTable, _super);
-
-      function SubTable() {
-        this.appendRow = __bind(this.appendRow, this);        _ref = SubTable.__super__.constructor.apply(this, arguments);
+      function Tools() {
+        _ref = Tools.__super__.constructor.apply(this, arguments);
         return _ref;
       }
 
-      SubTable.prototype.tagName = "td";
+      Tools.prototype.className = "im-query-tools";
 
-      SubTable.prototype.className = "im-result-subtable";
+      Tools.prototype.initialize = function(states) {
+        this.states = states;
+      };
 
-      SubTable.prototype.initialize = function(options) {
-        var subtable,
-          _this = this;
+      Tools.prototype.render = function() {
+        var $pane, actions, c, columns, conf, content, filters, tabs, view, _i, _j, _len, _len1;
 
-        this.options = options != null ? options : {};
-        this.query = this.options.query;
-        this.cellify = this.options.cellify;
-        this.path = this.options.node;
-        subtable = this.options.subtable;
-        this.rows = subtable.rows;
-        this.view = subtable.view;
-        this.column = this.query.getPathInfo(subtable.column);
-        this.query.on('expand:subtables', function(path) {
-          if (path.toString() === _this.column.toString()) {
-            return _this.renderTable().slideDown();
-          }
+        tabs = this.make("ul", {
+          "class": "nav nav-tabs"
         });
-        return this.query.on('collapse:subtables', function(path) {
-          if (path.toString() === _this.column.toString()) {
-            return _this.$('.im-subtable').slideUp();
+        conf = [
+          filters = {
+            title: "Filters",
+            ref: "filters",
+            view: intermine.query.filters.Filters
+          }, columns = {
+            title: "Columns",
+            ref: "columns",
+            view: intermine.query.columns.Columns
+          }, actions = {
+            title: "Actions",
+            ref: "actions",
+            view: intermine.query.actions.Actions
           }
+        ];
+        for (_i = 0, _len = conf.length; _i < _len; _i++) {
+          c = conf[_i];
+          $(tabs).append(TAB_HTML(c));
+        }
+        this.$el.append(tabs);
+        content = this.make("div", {
+          "class": "tab-content"
         });
-      };
-
-      SubTable.prototype.getSummaryText = function() {
-        var def, level;
-
-        def = jQuery.Deferred();
-        if (this.column.isCollection()) {
-          def.resolve("" + this.rows.length + " " + (this.column.getType().name) + "s");
-        } else {
-          if (this.rows.length === 0) {
-            level = this.query.isOuterJoined(this.view[0]) ? this.query.getPathInfo(this.query.getOuterJoin(this.view[0])) : this.column;
-            def.resolve("<span class=\"im-no-value\">No " + (level.getType().name) + "</span>");
-          } else {
-            def.resolve("" + this.rows[0][0].value + " (" + (this.rows[0].slice(1).map(function(c) {
-              return c.value;
-            }).join(', ')) + ")");
-          }
+        for (_j = 0, _len1 = conf.length; _j < _len1; _j++) {
+          c = conf[_j];
+          $pane = $(PANE_HTML(c)).appendTo(content);
+          view = new c.view(this.query);
+          $pane.append(view.render().el);
         }
-        return def.promise();
-      };
-
-      SubTable.prototype.getEffectiveView = function() {
-        var c, cell, col, columns, commonPrefix, explicitReplacements, fieldExpr, formatter, getFormatter, getReplacedTest, isReplaced, longestCommonPrefix, parent, path, r, replacedBy, replaces, row, shouldFormat, subPath, sv, view, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7;
-
-        _ref1 = intermine.utils, getReplacedTest = _ref1.getReplacedTest, longestCommonPrefix = _ref1.longestCommonPrefix;
-        _ref2 = intermine.results, shouldFormat = _ref2.shouldFormat, getFormatter = _ref2.getFormatter;
-        row = this.rows[0];
-        replacedBy = {};
-        explicitReplacements = {};
-        columns = (function() {
-          var _i, _len, _ref3, _results;
-
-          _results = [];
-          for (_i = 0, _len = row.length; _i < _len; _i++) {
-            cell = row[_i];
-            _ref3 = cell.view != null ? (commonPrefix = longestCommonPrefix(cell.view), path = this.query.getPathInfo(commonPrefix), [
-              path, (function() {
-                var _j, _len1, _ref3, _results1;
-
-                _ref3 = cell.view;
-                _results1 = [];
-                for (_j = 0, _len1 = _ref3.length; _j < _len1; _j++) {
-                  sv = _ref3[_j];
-                  _results1.push(this.query.getPathInfo(sv));
-                }
-                return _results1;
-              }).call(this)
-            ]) : (path = this.query.getPathInfo(cell.column), [path, [path]]), path = _ref3[0], replaces = _ref3[1];
-            _results.push({
-              path: path,
-              replaces: replaces
-            });
-          }
-          return _results;
-        }).call(this);
-        for (_i = 0, _len = columns.length; _i < _len; _i++) {
-          c = columns[_i];
-          if (!(c.path.isAttribute() && shouldFormat(c.path))) {
-            continue;
-          }
-          parent = c.path.getParent();
-          if ((_ref3 = replacedBy[parent]) == null) {
-            replacedBy[parent] = c;
-          }
-          formatter = getFormatter(c.path);
-          if (__indexOf.call(this.options.blacklistedFormatters, formatter) < 0) {
-            c.isFormatted = true;
-            c.formatter = formatter;
-            _ref5 = (_ref4 = formatter.replaces) != null ? _ref4 : [];
-            for (_j = 0, _len1 = _ref5.length; _j < _len1; _j++) {
-              fieldExpr = _ref5[_j];
-              subPath = this.query.getPathInfo("" + parent + "." + fieldExpr);
-              if ((_ref6 = replacedBy[subPath]) == null) {
-                replacedBy[subPath] = c;
-              }
-              c.replaces.push(subPath);
-            }
-          }
-          _ref7 = c.replaces;
-          for (_k = 0, _len2 = _ref7.length; _k < _len2; _k++) {
-            r = _ref7[_k];
-            explicitReplacements[r] = c;
-          }
-        }
-        isReplaced = getReplacedTest(replacedBy, explicitReplacements);
-        view = [];
-        for (_l = 0, _len3 = columns.length; _l < _len3; _l++) {
-          col = columns[_l];
-          if (!(!isReplaced(col))) {
-            continue;
-          }
-          if (col.isFormatted) {
-            col.path = col.path.getParent();
-          }
-          view.push(col);
-        }
-        return view;
-      };
-
-      SubTable.prototype.renderHead = function(headers, columns) {
-        var c, tableNamePromise, _i, _len, _results,
-          _this = this;
-
-        tableNamePromise = this.column.getDisplayName();
-        _results = [];
-        for (_i = 0, _len = columns.length; _i < _len; _i++) {
-          c = columns[_i];
-          _results.push((function(c) {
-            var th;
-
-            th = $("<th>\n    <i class=\"" + intermine.css.headerIconRemove + "\"></i>\n    <span></span>\n</th>");
-            th.find('i').click(function(e) {
-              return _this.query.removeFromSelect(c.replaces);
-            });
-            $.when(tableNamePromise, c.path.getDisplayName()).then(function(tableName, colName) {
-              var span, text;
-
-              text = colName.match(tableName) ? colName.replace(tableName, '').replace(/^\s*>?\s*/, '') : colName.replace(/^[^>]*\s*>\s*/, '');
-              return span = th.find('span').text(text);
-            });
-            return headers.append(th);
-          })(c));
-        }
-        return _results;
-      };
-
-      SubTable.prototype.appendRow = function(columns, row, tbody) {
-        var c, cell, cells, processed, r, replacedBy, tr, w, _fn, _i, _j, _k, _len, _len1, _len2, _ref1,
-          _this = this;
-
-        if (tbody == null) {
-          tbody = this.$('.im-subtable tbody');
-        }
-        tr = $('<tr>');
-        w = this.$el.width() / this.view.length;
-        processed = {};
-        replacedBy = {};
-        for (_i = 0, _len = columns.length; _i < _len; _i++) {
-          c = columns[_i];
-          _ref1 = c.replaces;
-          for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-            r = _ref1[_j];
-            replacedBy[r] = c;
-          }
-        }
-        cells = row.map(this.cellify);
-        _fn = function(tr, cell) {
-          var formatter, otherC, path, replaces, _l, _len3, _len4, _m, _ref2, _ref3;
-
-          if (processed[cell.path]) {
-            return;
-          }
-          processed[cell.path] = true;
-          _ref3 = (_ref2 = replacedBy[cell.path]) != null ? _ref2 : {}, replaces = _ref3.replaces, formatter = _ref3.formatter, path = _ref3.path;
-          if (replaces.length > 1) {
-            if (!path.equals(cell.path.getParent())) {
-              return;
-            }
-            if ((formatter != null ? formatter.merge : void 0) != null) {
-              for (_l = 0, _len3 = row.length; _l < _len3; _l++) {
-                otherC = row[_l];
-                if (_.any(replaces, function(repl) {
-                  return repl.equals(otherC.path);
-                })) {
-                  formatter.merge(cell.model, otherC.model);
-                }
-              }
-            }
-          }
-          for (_m = 0, _len4 = replaces.length; _m < _len4; _m++) {
-            r = replaces[_m];
-            processed[r] = true;
-          }
-          if (formatter != null) {
-            cell.formatter = formatter;
-          }
-          tr.append(cell.el);
-          return cell.render().setWidth(w);
-        };
-        for (_k = 0, _len2 = cells.length; _k < _len2; _k++) {
-          cell = cells[_k];
-          _fn(tr, cell);
-        }
-        tbody.append(tr);
-        return null;
-      };
-
-      SubTable.prototype.renderTable = function($table) {
-        var colRoot, colStr, columns, row, tbody, _i, _len, _ref1;
-
-        if ($table == null) {
-          $table = this.$('.im-subtable');
-        }
-        if (this.tableRendered) {
-          return $table;
-        }
-        colRoot = this.column.getType().name;
-        colStr = this.column.toString();
-        if (this.rows.length > 0) {
-          columns = this.getEffectiveView();
-          this.renderHead($table.find('thead tr'), columns);
-          tbody = $table.find('tbody');
-          if (this.column.isCollection()) {
-            _ref1 = this.rows;
-            for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-              row = _ref1[_i];
-              _.defer(this.appendRow, columns, row, tbody);
-            }
-          } else {
-            this.appendRow(columns, this.rows[0], tbody);
-          }
-        }
-        this.tableRendered = true;
-        return $table;
-      };
-
-      SubTable.prototype.events = {
-        'click .im-subtable-summary': 'toggleTable'
-      };
-
-      SubTable.prototype.toggleTable = function(e) {
-        var $table, evt;
-
-        if (e != null) {
-          e.stopPropagation();
-        }
-        $table = this.$('.im-subtable');
-        evt = $table.is(':visible') ? 'subtable:collapsed' : (this.renderTable($table), 'subtable:expanded');
-        $table.slideToggle();
-        return this.query.trigger(evt, this.column);
-      };
-
-      SubTable.prototype.render = function() {
-        var icon, summary;
-
-        icon = this.rows.length > 0 ? '<i class=icon-table></i>' : '<i class=icon-non-existent></i>';
-        summary = $("<span class=\"im-subtable-summary\">\n  " + icon + "&nbsp;\n</span>");
-        summary.appendTo(this.$el);
-        this.getSummaryText().done(function(content) {
-          return summary.append(content);
-        });
-        this.$el.append("<table class=\"im-subtable table table-condensed table-striped\">\n  <thead><tr></tr></thead>\n  <tbody></tbody>\n</table>");
-        if (intermine.options.SubtableInitialState === 'open' || this.options.mainTable.SubtableInitialState === 'open') {
-          this.toggleTable();
-        }
+        $(content).find('.tab-pane').first().addClass("active");
+        $(tabs).find("a").first().tab('show');
+        this.$el.append(content);
         return this;
       };
 
-      SubTable.prototype.getUnits = function() {
-        if (this.rows.length = 0) {
-          return this.view.length;
-        } else {
-          return _.reduce(this.rows[0], (function(a, item) {
-            return a + (item.view != null ? item.view.length : 1);
-          }), 0);
-        }
-      };
-
-      SubTable.prototype.setWidth = function(w) {
-        return this;
-      };
-
-      return SubTable;
+      return Tools;
 
     })(Backbone.View);
-    Cell = (function(_super) {
-      __extends(Cell, _super);
+    ToolBar = (function(_super) {
+      __extends(ToolBar, _super);
 
-      function Cell() {
-        this.getPopoverPlacement = __bind(this.getPopoverPlacement, this);
-        this.getPopoverContent = __bind(this.getPopoverContent, this);        _ref1 = Cell.__super__.constructor.apply(this, arguments);
+      function ToolBar() {
+        _ref1 = ToolBar.__super__.constructor.apply(this, arguments);
         return _ref1;
       }
 
-      Cell.prototype.tagName = "td";
+      ToolBar.prototype.className = "im-query-actionbar";
 
-      Cell.prototype.className = "im-result-field";
-
-      Cell.prototype.getUnits = function() {
-        return 1;
+      ToolBar.prototype.initialize = function(states) {
+        this.states = states;
       };
 
-      Cell.prototype.formatter = function(model) {
-        if (model.get(this.options.field) != null) {
-          return model.escape(this.options.field);
-        } else {
-          return "<span class=\"null-value\">&nbsp;</span>";
-        }
-      };
+      ToolBar.prototype.render = function() {
+        var actions, e;
 
-      Cell.prototype.initialize = function(options) {
-        var field, path;
-
-        this.options = options != null ? options : {};
-        this.model.on('change', this.selectingStateChange, this);
-        this.model.on('change', this.updateValue, this);
-        this.listenToQuery(this.options.query);
-        field = this.options.field;
-        path = this.path = this.options.node.append(field);
-        return this.$el.addClass('im-type-' + path.getType().toLowerCase());
-      };
-
-      Cell.prototype.events = function() {
-        var _this = this;
-
-        return {
-          'shown': function() {
-            var _ref2;
-
-            return (_ref2 = _this.cellPreview) != null ? _ref2.reposition() : void 0;
-          },
-          'show': function(e) {
-            _this.options.query.trigger('showing:preview', _this.el);
-            if (_this.model.get('is:selecting')) {
-              return e != null ? e.preventDefault() : void 0;
-            }
-          },
-          'hide': function(e) {
-            var _ref2;
-
-            return (_ref2 = _this.model.cachedPopover) != null ? _ref2.detach() : void 0;
-          },
-          'click': 'activateChooser',
-          'click a.im-cell-link': function(e) {
-            return e != null ? e.stopPropagation() : void 0;
-          }
-        };
-      };
-
-      Cell.prototype.reportClick = function() {
-        return this.model.trigger('click', this.model);
-      };
-
-      Cell.prototype.listenToQuery = function(q) {
-        var _this = this;
-
-        q.on("start:list-creation", function() {
-          return _this.model.set({
-            'is:selecting': true
-          });
-        });
-        q.on("stop:list-creation", function() {
-          return _this.model.set({
-            'is:selecting': false,
-            'is:selected': false
-          });
-        });
-        q.on('showing:preview', function(el) {
-          var _ref2;
-
-          if (el !== _this.el) {
-            return (_ref2 = _this.cellPreview) != null ? _ref2.hide() : void 0;
-          }
-        });
-        q.on("start:highlight:node", function(node) {
-          var _ref2;
-
-          if (((_ref2 = _this.options.node) != null ? _ref2.toPathString() : void 0) === node.toPathString()) {
-            return _this.$el.addClass("im-highlight");
-          }
-        });
-        q.on("stop:highlight", function() {
-          return _this.$el.removeClass("im-highlight");
-        });
-        return q.on("replaced:by", function(replacement) {
-          return _this.listenToQuery(replacement);
-        });
-      };
-
-      Cell.prototype.getPopoverContent = function() {
-        var content, id, popover, type,
-          _this = this;
-
-        if (this.model.cachedPopover != null) {
-          return this.model.cachedPopover;
-        }
-        type = this.model.get('obj:type');
-        id = this.model.get('id');
-        popover = new intermine.table.cell.Preview({
-          service: this.options.query.service,
-          schema: this.options.query.model,
-          model: {
-            type: type,
-            id: id
-          }
-        });
-        content = popover.$el;
-        popover.on('ready', function() {
-          return _this.cellPreview.reposition();
-        });
-        popover.render();
-        return this.model.cachedPopover = content;
-      };
-
-      Cell.prototype.getPopoverPlacement = function(popover) {
-        var elPos, fitsOnLeft, fitsOnRight, h, left, limits, ph, pw, table, w;
-
-        table = this.$el.closest(".im-table-container");
-        left = this.$el.offset().left;
-        limits = table.offset();
-        _.extend(limits, {
-          right: limits.left + table.width(),
-          bottom: limits.top + table.height()
-        });
-        w = this.$el.width();
-        h = this.$el.height();
-        elPos = this.$el.offset();
-        pw = $(popover).outerWidth();
-        ph = $(popover)[0].offsetHeight;
-        fitsOnRight = left + w + pw <= limits.right;
-        fitsOnLeft = limits.left <= left - pw;
-        if (fitsOnLeft) {
-          return 'left';
-        }
-        if (fitsOnRight) {
-          return 'right';
-        } else {
-          return 'top';
-        }
-      };
-
-      Cell.prototype.setupPreviewOverlay = function() {
-        var options;
-
-        options = {
-          container: this.el,
-          containment: '.im-query-results',
-          html: true,
-          title: this.model.get('obj:type'),
-          trigger: intermine.options.CellPreviewTrigger,
-          delay: {
-            show: 700,
-            hide: 250
-          },
-          classes: 'im-cell-preview',
-          content: this.getPopoverContent,
-          placement: this.getPopoverPlacement
-        };
-        return this.cellPreview = new intermine.bootstrap.DynamicPopover(this.el, options);
-      };
-
-      Cell.prototype.updateValue = function() {
-        var _this = this;
-
-        return _.defer(function() {
-          return _this.$('.im-displayed-value').html(_this.formatter(_this.model));
-        });
-      };
-
-      Cell.prototype.getInputState = function() {
-        var checked, disabled, display, selectable, selected, selecting, _ref2;
-
-        _ref2 = this.model.selectionState(), selected = _ref2.selected, selectable = _ref2.selectable, selecting = _ref2.selecting;
-        checked = selected;
-        disabled = !selectable;
-        display = selecting && selectable ? 'inline' : 'none';
-        return {
-          checked: checked,
-          disabled: disabled,
-          display: display
-        };
-      };
-
-      Cell.prototype.selectingStateChange = function() {
-        var checked, disabled, display, _ref2;
-
-        _ref2 = this.getInputState(), checked = _ref2.checked, disabled = _ref2.disabled, display = _ref2.display;
-        this.$el.toggleClass("active", checked);
-        return this.$('input').attr({
-          checked: checked,
-          disabled: disabled
-        }).css({
-          display: display
-        });
-      };
-
-      Cell.prototype.getData = function() {
-        var ExternalLinkIcons, IndicateOffHostLinks, data, domain, field, url, _ref2, _ref3;
-
-        _ref2 = intermine.options, IndicateOffHostLinks = _ref2.IndicateOffHostLinks, ExternalLinkIcons = _ref2.ExternalLinkIcons;
-        field = this.options.field;
-        data = {
-          value: this.formatter(this.model),
-          rawValue: this.model.get(field),
-          field: field,
-          url: this.model.get('service:url'),
-          host: IndicateOffHostLinks ? window.location.host : /.*/,
-          icon: null
-        };
-        _.extend(data, this.getInputState());
-        if (!/^http/.test(data.url)) {
-          data.url = this.model.get('service:base') + data.url;
-        }
-        for (domain in ExternalLinkIcons) {
-          url = ExternalLinkIcons[domain];
-          if (data.url.match(domain)) {
-            if ((_ref3 = data.icon) == null) {
-              data.icon = url;
-            }
-          }
-        }
-        return data;
-      };
-
-      Cell.prototype.render = function() {
-        var data,
-          _this = this;
-
-        data = this.getData();
-        _.defer(function() {
-          return _this.$el.html(CELL_HTML(data));
-        });
-        if (data.checked) {
-          this.$el.addClass('active');
-        }
-        if (this.model.get('id')) {
-          this.setupPreviewOverlay();
+        actions = new intermine.query.actions.ActionBar(this.states);
+        try {
+          actions.render().$el.appendTo(this.el);
+        } catch (_error) {
+          e = _error;
+          console.error("Failed to set up toolbar because: " + e.message, e.stack);
         }
         return this;
       };
 
-      Cell.prototype.setWidth = function(w) {
-        return this;
-      };
-
-      Cell.prototype.activateChooser = function() {
-        var selectable, selected, selecting, _ref2;
-
-        this.reportClick();
-        _ref2 = this.model.selectionState(), selected = _ref2.selected, selectable = _ref2.selectable, selecting = _ref2.selecting;
-        if (selectable && selecting) {
-          return this.model.set({
-            'is:selected': !selected
-          });
-        }
-      };
-
-      return Cell;
+      return ToolBar;
 
     })(Backbone.View);
-    NullCell = (function(_super) {
-      __extends(NullCell, _super);
+    Step = (function(_super) {
+      var cell, nts, toInfoLabel, toLabel, toPathLabel, toValLabel;
 
-      function NullCell() {
-        _ref2 = NullCell.__super__.constructor.apply(this, arguments);
+      __extends(Step, _super);
+
+      function Step() {
+        _ref2 = Step.__super__.constructor.apply(this, arguments);
         return _ref2;
       }
 
-      NullCell.prototype.setupPreviewOverlay = function() {};
+      Step.prototype.className = 'im-step';
 
-      NullCell.prototype.initialize = function(options) {
-        this.options = options != null ? options : {};
-        this.model = new intermine.model.NullObject();
-        return NullCell.__super__.initialize.call(this);
+      Step.prototype.tagName = 'li';
+
+      nts = function(n) {
+        return intermine.utils.numToString(n, ',', 3);
       };
 
-      return NullCell;
+      Step.prototype.initialize = function(opts) {
+        var _this = this;
 
-    })(Cell);
-    return scope("intermine.results.table", {
-      NullCell: NullCell,
-      SubTable: SubTable,
-      Cell: Cell
-    });
-  })();
-
-  scope('intermine.snippets.table', {
-    NoResults: function(query) {
-      return _.template("<tr>\n  <td colspan=\"<%= views.length %>\">\n    <div class=\"im-no-results alert alert-info\">\n      <div <% if (revision === 0) { %> style=\"display:none;\" <% } %> >\n        " + intermine.snippets.query.UndoButton + "\n      </div>\n      <strong>NO RESULTS</strong>\n      This query returned 0 results.\n      <div style=\"clear:both\"></div>\n    </div>\n  </td>\n</tr>", query);
-    },
-    CountSummary: _.template("<span class=\"hidden-phone\">\n<span class=\"im-only-widescreen\">Showing</span>\n<span>\n  <% if (last == 0) { %>\n      All\n  <% } else { %>\n      <%= first %> to <%= last %> of\n  <% } %>\n  <%= count %> <span class=\"visible-desktop\"><%= roots %></span>\n</span>\n</span>"),
-    Pagination: "<div class=\"pagination pagination-right\">\n  <ul>\n    <li title=\"Go to start\">\n      <a class=\"im-pagination-button\" data-goto=start>&#x21e4;</a>\n    </li>\n    <li title=\"Go back five pages\" class=\"visible-desktop\">\n      <a class=\"im-pagination-button\" data-goto=fast-rewind>&#x219e;</a>\n    </li>\n    <li title=\"Go to previous page\">\n      <a class=\"im-pagination-button\" data-goto=prev>&larr;</a>\n    </li>\n    <li class=\"im-current-page\">\n      <a data-goto=here  href=\"#\">&hellip;</a>\n      <form class=\"im-page-form input-append form form-horizontal\" style=\"display:none;\">\n      <div class=\"control-group\"></div>\n    </form>\n    </li>\n    <li title=\"Go to next page\">\n      <a class=\"im-pagination-button\" data-goto=next>&rarr;</a>\n    </li>\n    <li title=\"Go forward five pages\" class=\"visible-desktop\">\n      <a class=\"im-pagination-button\" data-goto=fast-forward>&#x21a0;</a>\n    </li>\n    <li title=\"Go to last page\">\n      <a class=\"im-pagination-button\" data-goto=end>&#x21e5;</a>\n    </li>\n  </ul>\n</div>"
-  });
-
-  scope('intermine.snippets.query', {
-    UndoButton: '<button class="btn btn-primary pull-right"><i class="icon-undo"></i> undo</button>'
-  });
-
-  (function() {
-    var CellCutoff, HIDDEN_FIELDS, NUM_CHUNK_SIZE, NUM_SEPARATOR, Preview, getLeaves, numToStr, sortTableByFieldName, toField, _ref, _ref1;
-
-    HIDDEN_FIELDS = ["class", "objectId"];
-    getLeaves = function(o) {
-      var leaf, leaves, name, values, _i, _len;
-
-      leaves = [];
-      values = (function() {
-        var _results;
-
-        _results = [];
-        for (name in o) {
-          leaf = o[name];
-          if (__indexOf.call(HIDDEN_FIELDS, name) < 0) {
-            _results.push(leaf);
-          }
-        }
-        return _results;
-      })();
-      for (_i = 0, _len = values.length; _i < _len; _i++) {
-        x = values[_i];
-        if (x['objectId']) {
-          leaves = leaves.concat(getLeaves(x));
-        } else {
-          leaves.push(x);
-        }
-      }
-      return leaves;
-    };
-    toField = function(row) {
-      return $(row).find('.im-field-name').text();
-    };
-    sortTableByFieldName = function(tbody) {
-      return tbody.html(_.sortBy(tbody.children('tr').get(), toField));
-    };
-    _ref = intermine.options, NUM_SEPARATOR = _ref.NUM_SEPARATOR, NUM_CHUNK_SIZE = _ref.NUM_CHUNK_SIZE, CellCutoff = _ref.CellCutoff;
-    numToStr = function(n) {
-      return intermine.utils.numToString(n, NUM_SEPARATOR, NUM_CHUNK_SIZE);
-    };
-    Preview = (function(_super) {
-      var ITEMS, ITEM_ROW, REFERENCE, RELATION, RELATIONS, THROBBER;
-
-      __extends(Preview, _super);
-
-      function Preview() {
-        this.handleItem = __bind(this.handleItem, this);        _ref1 = Preview.__super__.constructor.apply(this, arguments);
-        return _ref1;
-      }
-
-      Preview.prototype.className = 'im-cell-preview-inner';
-
-      ITEM_ROW = _.template("<tr>\n  <td class=\"im-field-name\"><%= field %></td>\n  <td class=\"im-field-value <%= field.toLowerCase() %>\">\n    <%- value %>\n    <span class=\"im-overspill\"><%- valueOverspill %></span>\n    <% if (tooLong) { %>\n      <a href=\"#\" class=\"im-too-long\">\n        <span class=\"im-ellipsis\">...</span>\n        <i class=\"" + intermine.icons.More + "\"></i>\n      </a>\n    <% } %>\n  </td>\n</tr>");
-
-      THROBBER = "<div class=\"progress progress-info progress-striped active\">\n  <div class=\"bar\" style=\"width: 100%\"></div>\n</div>";
-
-      ITEMS = "<table class=\"im-item-details table table-condensed table-bordered\">\n<colgroup>\n    <col class=\"im-item-field\"/>\n    <col class=\"im-item-value\"/>\n</colgroup>\n</table>";
-
-      RELATIONS = "<ul class=\"im-related-counts\"></ul>";
-
-      RELATION = _.template("<li class=\"im-relation\">\n  <span class=\"pull-left\"><%- label %></span>\n  <span class=\"pull-right im-count\"><%= count %></span>\n</li>");
-
-      REFERENCE = _.template("<tr>\n  <td class=\"im-field-name\"><%= field %></td>\n  <td class=\"im-field-value <%= field.toLowerCase() %>\">\n     <%- values.join(', ') %>\n  </td>\n</tr>");
-
-      Preview.prototype.events = {
-        'click .im-too-long': 'revealLongField'
-      };
-
-      Preview.prototype.revealLongField = function(e) {
-        var $overSpill, $tooLong;
-
-        if (e != null) {
-          e.preventDefault();
-        }
-        if (e != null) {
-          e.stopPropagation();
-        }
-        $tooLong = $(e.currentTarget);
-        $overSpill = $tooLong.siblings('.im-overspill');
-        $tooLong.remove();
-        return $overSpill.show();
-      };
-
-      Preview.prototype.template = _.template(THROBBER);
-
-      Preview.prototype.initialize = function(options) {
-        this.options = options != null ? options : {};
-        Preview.__super__.initialize.apply(this, arguments);
-        return this.on('rendered', this.insertRows, this);
-      };
-
-      Preview.prototype.formatName = function(field, row) {
-        var fv, p, type,
-          _this = this;
-
-        type = this.model.get('type');
-        p = this.options.schema.getPathInfo("" + type + "." + field);
-        fv = row.find('.im-field-value');
-        fv.addClass(p.getType().toString().toLowerCase());
-        return p.getDisplayName().done(function(name) {
-          row.find('.im-field-name').text(name.split(' > ').pop());
-          sortTableByFieldName(row.parent());
-          return _this.trigger('ready');
+        Step.__super__.initialize.call(this, opts);
+        this.model.on('change:count', function(m, count) {
+          return _this.$('.im-step-count .count').text(nts(count));
+        });
+        this.model.on('change:current', this.renderCurrency, this);
+        return this.model.on('remove', function() {
+          return _this.remove();
         });
       };
 
-      Preview.prototype.handleItem = function(item) {
-        var field, row, snipPoint, table, tooLong, v, value, valueOverspill, values, _results;
-
-        table = this.itemDetails;
-        for (field in item) {
-          v = item[field];
-          if (!(v && (__indexOf.call(HIDDEN_FIELDS, field) < 0) && !v['objectId'])) {
-            continue;
-          }
-          value = v + '';
-          tooLong = value.length > CellCutoff;
-          snipPoint = value.indexOf(' ', CellCutoff * 0.9);
-          if (snipPoint === -1) {
-            snipPoint = CellCutoff;
-          }
-          value = tooLong ? value.substring(0, snipPoint) : value;
-          valueOverspill = (v + '').substring(snipPoint);
-          row = $(ITEM_ROW({
-            field: field,
-            value: value,
-            tooLong: tooLong,
-            valueOverspill: valueOverspill
-          }));
-          this.formatName(field, row);
-          table.append(row);
-        }
-        _results = [];
-        for (field in item) {
-          value = item[field];
-          if (!(value && value['objectId'])) {
-            continue;
-          }
-          values = getLeaves(value);
-          row = $(REFERENCE({
-            field: field,
-            values: values
-          }));
-          this.formatName(field, row);
-          _results.push(table.append(row));
-        }
-        return _results;
+      Step.prototype.events = {
+        'click .icon-info-sign': 'showDetails',
+        'click h4': 'toggleSection',
+        'click .btn': 'revertToThisState'
       };
 
-      Preview.prototype.fillRelationsTable = function(table) {
-        var settings, type, _i, _len, _ref2, _ref3, _ref4, _results;
-
-        type = this.model.get('type');
-        root = this.options.service.root;
-        _ref4 = (_ref2 = (_ref3 = intermine.options.preview.count[root]) != null ? _ref3[type] : void 0) != null ? _ref2 : [];
-        _results = [];
-        for (_i = 0, _len = _ref4.length; _i < _len; _i++) {
-          settings = _ref4[_i];
-          _results.push(this.handleRelationCount(settings));
-        }
-        return _results;
-      };
-
-      Preview.prototype.handleRelationCount = function(settings) {
-        var counter, id, label, query, table, type, _ref2;
-
-        table = this.relatedCounts;
-        _ref2 = this.model.toJSON(), type = _ref2.type, id = _ref2.id;
-        if (_.isObject(settings)) {
-          query = settings.query, label = settings.label;
-          counter = intermine.utils.copy(query);
-          intermine.utils.walk(counter, function(o, k, v) {
-            if (v === '{{ID}}') {
-              return o[k] = id;
-            }
-          });
-        } else {
-          label = settings;
-          counter = {
-            select: settings + '.id',
-            from: type,
-            where: {
-              id: id
-            }
-          };
-        }
-        return this.options.service.count(counter).done(function(c) {
-          return table.append(RELATION({
-            label: label,
-            count: numToStr(c)
-          }));
-        });
-      };
-
-      Preview.prototype.fillItemTable = function() {
-        var id, schema, service, t, table, type, types, _ref2, _ref3;
-
-        _ref2 = this.model.toJSON(), type = _ref2.type, id = _ref2.id;
-        _ref3 = this.options, schema = _ref3.schema, service = _ref3.service;
-        table = this.itemDetails;
-        types = [type].concat(schema.getAncestorsOf(type));
-        table.addClass(((function() {
-          var _i, _len, _results;
-
-          _results = [];
-          for (_i = 0, _len = types.length; _i < _len; _i++) {
-            t = types[_i];
-            _results.push(t.toLowerCase());
-          }
-          return _results;
-        })()).join(' '));
-        return service.findById(type, id, this.handleItem);
-      };
-
-      Preview.prototype.insertRows = function() {
-        var promise, ready, relations, _i, _len,
-          _this = this;
-
-        this.itemDetails = $(ITEMS);
-        this.relatedCounts = $(RELATIONS);
-        ready = this.fillItemTable();
-        relations = this.fillRelationsTable();
-        for (_i = 0, _len = relations.length; _i < _len; _i++) {
-          promise = relations[_i];
-          ready = ready.then(function() {
-            return promise;
-          });
-        }
-        ready.done(function() {
-          _this.$el.empty().append(_this.itemDetails);
-          if (relations.length) {
-            _this.$el.append("<h4>" + intermine.messages.cell.RelatedItems + "</h4>");
-            _this.$el.append(_this.relatedCounts);
-          }
-          return _this.trigger('ready');
-        });
-        return ready.fail(function(err) {
-          _this.renderError(err);
-          return _this.trigger('ready');
-        });
-      };
-
-      return Preview;
-
-    })(intermine.views.ItemView);
-    return scope('intermine.table.cell', {
-      Preview: Preview
-    });
-  })();
-
-  (function() {
-    var COL_FILTER_TITLE, ColumnHeader, ICONS, NEXT_DIRECTION_OF, RENDER_TITLE, TEMPLATE, ignore, _ref;
-
-    ignore = function(e) {
-      if (e != null) {
-        e.preventDefault();
-      }
-      if (e != null) {
+      Step.prototype.toggleSection = function(e) {
         e.stopPropagation();
-      }
-      return false;
-    };
-    ICONS = function() {
-      return {
-        ASC: intermine.css.sortedASC,
-        DESC: intermine.css.sortedDESC,
-        css_unsorted: intermine.css.unsorted,
-        css_header: intermine.css.headerIcon,
-        css_remove: intermine.css.headerIconRemove,
-        css_hide: intermine.css.headerIconHide,
-        css_reveal: intermine.css.headerIconReveal,
-        css_filter: intermine.icons.Filter,
-        css_summary: intermine.icons.Summary,
-        css_composed: intermine.icons.Composed
+        $(e.target).find('i').toggleClass("icon-chevron-right icon-chevron-down");
+        return $(e.target).next().children().toggle();
       };
-    };
-    TEMPLATE = _.template(" \n<div class=\"im-column-header\">\n  <div class=\"im-th-buttons\">\n    <% if (sortable) { %>\n      <span class=\"im-th-dropdown im-col-sort dropdown\">\n        <a class=\"im-th-button im-col-sort-indicator\" title=\"sort this column\">\n          <i class=\"icon-sorting <%- css_unsorted %> <%- css_header %>\"></i>\n        </a>\n        <div class=\"dropdown-menu\">\n          <div>Could not intitialise the sorting menu.</div>\n        </div>\n      </span>\n    <% }; %>\n    <a class=\"im-th-button im-col-remover\"\n       title=\"remove this column\">\n      <i class=\"<%- css_remove %> <%- css_header %>\"></i>\n    </a>\n    <a class=\"im-th-button im-col-minumaximiser\"\n       title=\"Toggle column visibility\">\n      <i class=\"<%- css_hide %> <%- css_header %>\"></i>\n    </a>\n    <span class=\"dropdown im-filter-summary im-th-dropdown\">\n      <a class=\"im-th-button im-col-filters dropdown-toggle\"\n         title=\"\"\n         data-toggle=\"dropdown\" >\n        <i class=\"<%- css_filter %> <%- css_header %>\"></i>\n      </a>\n      <div class=\"dropdown-menu\">\n        <div>Could not ititialise the filter summary.</div>\n      </div>\n    </span>\n    <span class=\"dropdown im-summary im-th-dropdown\">\n      <a class=\"im-th-button summary-img dropdown-toggle\" title=\"column summary\"\n        data-toggle=\"dropdown\" >\n        <i class=\"<%- css_summary %> <%- css_header %>\"></i>\n      </a>\n      <div class=\"dropdown-menu\">\n        <div>Could not ititialise the column summary.</div>\n      </div>\n    </span>\n    <a class=\"im-th-button im-col-composed\"\n        title=\"Toggle formatting\">\n      <i class=\"<%- css_composed %> <%- css_header %>\"></i>\n    </a>\n  </div>\n  <div class=\"im-col-title\">\n    <%- path %>\n  </div>\n</div>");
-    COL_FILTER_TITLE = function(count) {
-      if (count > 0) {
-        return "" + count + " active filters";
-      } else {
-        return "Filter by values in this column";
-      }
-    };
-    RENDER_TITLE = _.template("<div\n  class=\"im-title-part im-parent im-<%= parentType %>-parent<% if (!last) { %> im-last<% } %>\">\n    <%- penult %>\n</div>\n<% if (last) { %>\n  <div class=\"im-title-part im-last\"><%- last %></div>\n<% } %>");
-    NEXT_DIRECTION_OF = {
-      ASC: 'DESC',
-      DESC: 'ASC'
-    };
-    ColumnHeader = (function(_super) {
-      var firstResult, getCompositionTitle;
 
-      __extends(ColumnHeader, _super);
+      Step.prototype.showDetails = function(e) {
+        e.stopPropagation();
+        return this.$('.im-step-details').toggle();
+      };
 
-      function ColumnHeader() {
-        this.toggleSubTable = __bind(this.toggleSubTable, this);
-        this.setSortOrder = __bind(this.setSortOrder, this);
-        this.minumaximise = __bind(this.minumaximise, this);
-        this.toggleColumnVisibility = __bind(this.toggleColumnVisibility, this);
-        this.showFilterSummary = __bind(this.showFilterSummary, this);
-        this.showColumnSummary = __bind(this.showColumnSummary, this);
-        this.showSummary = __bind(this.showSummary, this);
-        this.bestFit = __bind(this.bestFit, this);
-        this.displaySortDirection = __bind(this.displaySortDirection, this);
-        this.displayConCount = __bind(this.displayConCount, this);
-        this.updateModel = __bind(this.updateModel, this);
-        this.renderName = __bind(this.renderName, this);        _ref = ColumnHeader.__super__.constructor.apply(this, arguments);
-        return _ref;
-      }
+      Step.prototype.revertToThisState = function(e) {
+        this.model.trigger('revert', this.model);
+        return this.$('.btn-small').tooltip('hide');
+      };
 
-      ColumnHeader.prototype.tagName = 'th';
+      Step.prototype.renderCurrency = function() {
+        var isCurrent;
 
-      ColumnHeader.prototype.className = 'im-column-th';
+        isCurrent = this.model.get('current');
+        this.$('.btn').toggleClass('btn-inverse', !isCurrent).attr({
+          disabled: isCurrent
+        });
+        this.$('.btn-main').text(isCurrent ? "Current State" : "Revert to this State");
+        return this.$('.btn i').toggleClass('icon-white', !isCurrent);
+      };
 
-      ColumnHeader.prototype.initialize = function(_arg) {
-        var query,
-          _this = this;
+      Step.prototype.sectionTempl = _.template("<div>\n  <h4>\n    <i class=\"icon-chevron-right\"></i>\n    <%= n %> <%= things %>\n  </h4>\n  <table></table>\n</div>");
 
-        query = _arg.query;
-        this.query = query;
-        this.view = this.model.get('path').toString();
-        if (this.model.get('replaces').length === 1 && this.model.get('isFormatted')) {
-          this.view = this.model.get('replaces')[0].toString();
+      cell = function(content) {
+        return $('<td>').html(content);
+      };
+
+      toLabel = function(type) {
+        return function(text) {
+          return cell("<span class=\"label label-" + type + "\">" + text + "</span>");
+        };
+      };
+
+      toPathLabel = toLabel('path');
+
+      toInfoLabel = toLabel('info');
+
+      toValLabel = toLabel('value');
+
+      Step.prototype.template = _.template("<button class=\"btn btn-small im-state-revert\" disabled\n    title=\"Revert to this state\">\n    <i class=icon-undo></i>\n</button>\n<h3><%- title %></h3>\n<i class=\"icon-info-sign\"></i>\n</div>\n<span class=\"im-step-count\">\n    <span class=\"count\"><%- count %></span> rows\n</span>\n<div class=\"im-step-details\">\n<div style=\"clear:both\"></div>");
+
+      Step.prototype.addSection = function(xs, things, toPath, f) {
+        var k, n, q, table, v, _results;
+
+        n = _.size(xs);
+        if (n < 1) {
+          return;
         }
-        this.namePromise = this.model.get('path').getDisplayName();
-        this.namePromise.done(function(name) {
-          return _this.model.set({
-            name: name
-          });
-        });
-        this.updateModel();
-        this.query.on('change:sortorder', this.updateModel);
-        this.query.on('change:joins', this.updateModel);
-        this.query.on('change:constraints', this.updateModel);
-        this.query.on('change:minimisedCols', this.minumaximise);
-        this.query.on('subtable:expanded', function(node) {
-          if (node.toString().match(_this.view)) {
-            return _this.model.set({
-              expanded: true
-            });
-          }
-        });
-        this.query.on('subtable:collapsed', function(node) {
-          if (node.toString().match(_this.view)) {
-            return _this.model.set({
-              expanded: false
-            });
-          }
-        });
-        this.query.on('showing:column-summary', function(path) {
-          var _ref1;
+        q = this.model.get('query');
+        table = $(this.sectionTempl({
+          n: n,
+          things: things
+        })).appendTo(this.$('.im-step-details')).find('table');
+        _results = [];
+        for (k in xs) {
+          if (!__hasProp.call(xs, k)) continue;
+          v = xs[k];
+          _results.push((function(k, v) {
+            var row;
 
-          if (!path.equals(_this.model.get('path'))) {
-            return (_ref1 = _this.summary) != null ? _ref1.remove() : void 0;
-          }
-        });
-        this.model.on('change:conCount', this.displayConCount);
-        return this.model.on('change:direction', this.displaySortDirection);
+            row = $('<tr>');
+            table.append(row);
+            return q.getPathInfo(toPath(k, v)).getDisplayName(function(name) {
+              return f(row, name, k, v);
+            });
+          })(k, v));
+        }
+        return _results;
       };
 
-      getCompositionTitle = function(replaces) {
-        return "This column replaces " + replaces.length + " others. Click here\nto show the individual columns separately.";
+      Step.prototype.getData = function() {
+        var data;
+
+        data = {
+          count: this.model.has('count') ? nts(this.model.get('count')) : ''
+        };
+        return _.defaults(data, this.model.toJSON());
       };
 
-      ColumnHeader.prototype.renderName = function() {
-        var ancestors, content, last, p, parentType, parts, penult, title, _i, _ref1;
+      Step.prototype.render = function() {
+        var ps, q, v;
 
-        _ref1 = parts = this.model.get('name').split(' > '), ancestors = 3 <= _ref1.length ? __slice.call(_ref1, 0, _i = _ref1.length - 2) : (_i = 0, []), penult = _ref1[_i++], last = _ref1[_i++];
-        parentType = ancestors.length ? 'non-root' : 'root';
-        parts = (function() {
-          var _j, _len, _results;
+        this.$el.attr({
+          step: this.model.get('stepNo')
+        });
+        this.$el.append(this.template(this.getData()));
+        this.renderCurrency();
+        q = this.model.get('query');
+        this.$('.btn-small').tooltip({
+          placement: 'right'
+        });
+        ps = (function() {
+          var _i, _len, _ref3, _results;
 
+          _ref3 = q.views;
           _results = [];
-          for (_j = 0, _len = parts.length; _j < _len; _j++) {
-            p = parts[_j];
-            _results.push("<span class=\"im-name-part\">" + p + "</span>");
+          for (_i = 0, _len = _ref3.length; _i < _len; _i++) {
+            v = _ref3[_i];
+            _results.push(q.getPathInfo(v));
           }
           return _results;
         })();
-        content = RENDER_TITLE({
-          penult: penult,
-          last: last,
-          parentType: parentType
+        this.addSection(ps, 'Columns', (function(i, x) {
+          return x;
+        }), function(row, name) {
+          return row.append(toPathLabel(name));
         });
-        title = parts.join('');
-        return this.$('.im-col-title').html(content).popover({
-          title: title,
-          placement: 'bottom',
-          html: true
-        });
-      };
-
-      ColumnHeader.prototype.isComposed = function() {
-        if (this.query.isOuterJoined(this.view)) {
-          return false;
-        }
-        return (this.model.get('replaces') || []).length > 1;
-      };
-
-      ColumnHeader.prototype.render = function() {
-        var replaces,
-          _this = this;
-
-        this.$el.empty();
-        this.$el.append(this.html());
-        this.displayConCount();
-        this.displaySortDirection();
-        this.namePromise.done(this.renderName);
-        this.$('.summary-img').click(this.showColumnSummary);
-        this.$('.im-col-filters').click(this.showFilterSummary);
-        replaces = this.model.get('replaces');
-        this.$('.im-col-composed').attr({
-          title: getCompositionTitle(replaces)
-        }).click(function() {
-          return _this.query.trigger('formatter:blacklist', _this.view, _this.model.get('formatter'));
-        });
-        this.$el.toggleClass('im-is-composed', this.isComposed());
-        this.$('.im-th-button').tooltip({
-          placement: this.bestFit,
-          container: this.el
-        });
-        this.$('.dropdown .dropdown-toggle').dropdown();
-        if (!this.model.get('path').isAttribute() && this.query.isOuterJoined(this.view)) {
-          this.addExpander();
-        }
-        return this;
-      };
-
-      firstResult = _.compose(_.first, _.compact, _.map);
-
-      ColumnHeader.prototype.updateModel = function() {
-        var direction,
-          _this = this;
-
-        direction = firstResult(this.model.get('replaces').concat(this.view), function(p) {
-          return _this.query.getSortDirection(p);
-        });
-        return this.model.set({
-          direction: direction,
-          sortable: !this.query.isOuterJoined(this.view),
-          conCount: _.size(_.filter(this.query.constraints, function(c) {
-            return !!c.path.match(_this.view);
-          }))
-        });
-      };
-
-      ColumnHeader.prototype.displayConCount = function() {
-        var conCount;
-
-        conCount = this.model.get('conCount');
-        if (conCount) {
-          this.$el.addClass('im-has-constraint');
-        }
-        return this.$('.im-col-filters').attr({
-          title: COL_FILTER_TITLE(conCount)
-        });
-      };
-
-      ColumnHeader.prototype.html = function() {
-        var data;
-
-        data = _.extend({}, ICONS(), this.model.toJSON());
-        return TEMPLATE(data);
-      };
-
-      ColumnHeader.prototype.displaySortDirection = function() {
-        var ASC, DESC, css_unsorted, icons, sortButton, _ref1;
-
-        sortButton = this.$('.icon-sorting');
-        _ref1 = icons = ICONS(), css_unsorted = _ref1.css_unsorted, ASC = _ref1.ASC, DESC = _ref1.DESC;
-        sortButton.addClass(css_unsorted);
-        sortButton.removeClass(ASC + ' ' + DESC);
-        if (this.model.has('direction')) {
-          return sortButton.toggleClass(css_unsorted + ' ' + icons[this.model.get('direction')]);
-        }
-      };
-
-      ColumnHeader.prototype.events = {
-        'click .im-col-sort': 'setSortOrder',
-        'click .im-col-minumaximiser': 'toggleColumnVisibility',
-        'click .im-col-filters': 'showFilterSummary',
-        'click .im-subtable-expander': 'toggleSubTable',
-        'click .im-col-remover': 'removeColumn',
-        'toggle .im-th-button': 'summaryToggled'
-      };
-
-      ColumnHeader.prototype.summaryToggled = function(e, isOpen) {
-        var _ref1;
-
-        ignore(e);
-        if (e.target !== e.currentTarget) {
-          return;
-        }
-        if (!isOpen) {
-          return (_ref1 = this.summary) != null ? _ref1.remove() : void 0;
-        }
-      };
-
-      ColumnHeader.prototype.hideTooltips = function() {
-        return this.$('.im-th-button').tooltip('hide');
-      };
-
-      ColumnHeader.prototype.removeColumn = function(e) {
-        var unwanted, v;
-
-        this.hideTooltips();
-        unwanted = (function() {
-          var _i, _len, _ref1, _results;
-
-          _ref1 = this.query.views;
-          _results = [];
-          for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-            v = _ref1[_i];
-            if (v.match(this.view)) {
-              _results.push(v);
-            }
+        this.addSection(q.constraints, 'Filters', (function(i, c) {
+          return c.path;
+        }), function(row, name, i, c) {
+          row.append(toPathLabel(name));
+          if (c.type != null) {
+            row.append(toInfoLabel('isa'));
+            row.append(toValLabel(c.type));
           }
-          return _results;
-        }).call(this);
-        this.query.removeFromSelect(unwanted);
-        return false;
-      };
-
-      ColumnHeader.prototype.bestFit = function(tip, elem) {
-        $(tip).addClass(intermine.options.StylePrefix);
-        return 'top';
-      };
-
-      ColumnHeader.prototype.checkHowFarOver = function(el) {
-        var bounds;
-
-        bounds = this.$el.closest('.im-table-container');
-        if ((el.offset().left + 350) >= (bounds.offset().left + bounds.width())) {
-          return this.$el.addClass('too-far-over');
-        }
-      };
-
-      ColumnHeader.prototype.showSummary = function(selector, View) {
-        var _this = this;
-
-        return function(e) {
-          var $menu, summary;
-
-          ignore(e);
-          _this.checkHowFarOver(e != null ? $(e.currentTarget) : _this.$el);
-          if (!_this.$(selector).hasClass('open')) {
-            _this.query.trigger('showing:column-summary', _this.model.get('path'));
-            summary = new View(_this.query, _this.model.get('path'), _this.model);
-            $menu = _this.$(selector + ' .dropdown-menu');
-            if (!$menu.length) {
-              console.log("" + selector + " not found");
-            }
-            $menu.html(summary.el);
-            summary.render();
-            _this.summary = summary;
+          if (c.op != null) {
+            row.append(toInfoLabel(c.op));
           }
-          return false;
-        };
-      };
-
-      ColumnHeader.prototype.showColumnSummary = function(e) {
-        var cls;
-
-        cls = this.path().isAttribute() ? intermine.query.results.DropDownColumnSummary : intermine.query.results.OuterJoinDropDown;
-        return this.showSummary('.im-summary', cls)(e);
-      };
-
-      ColumnHeader.prototype.showFilterSummary = function(e) {
-        return this.showSummary('.im-filter-summary', intermine.query.filters.SingleColumnConstraints)(e);
-      };
-
-      ColumnHeader.prototype.toggleColumnVisibility = function(e) {
-        if (e != null) {
-          e.preventDefault();
-        }
-        if (e != null) {
-          e.stopPropagation();
-        }
-        return this.query.trigger('columnvis:toggle', this.view);
-      };
-
-      ColumnHeader.prototype.minumaximise = function(minimisedCols) {
-        var $i, css_hide, css_reveal, minimised, _ref1;
-
-        _ref1 = ICONS(), css_hide = _ref1.css_hide, css_reveal = _ref1.css_reveal;
-        $i = this.$('.im-col-minumaximiser i').removeClass(css_hide + ' ' + css_reveal);
-        minimised = minimisedCols[this.view];
-        $i.addClass(minimised ? css_reveal : css_hide);
-        this.$el.toggleClass('im-minimised-th', !!minimised);
-        return this.$('.im-col-title').toggle(!minimised);
-      };
-
-      ColumnHeader.prototype.path = function() {
-        return this.model.get('path');
-      };
-
-      ColumnHeader.prototype.setSortOrder = function(e) {
-        var direction, formatter, replaces, _ref1, _ref2;
-
-        _ref1 = this.model.toJSON(), direction = _ref1.direction, replaces = _ref1.replaces;
-        direction = (_ref2 = NEXT_DIRECTION_OF[direction]) != null ? _ref2 : 'ASC';
-        formatter = intermine.results.getFormatter(this.path());
-        if (replaces.length) {
-          this.showSummary('.im-col-sort', intermine.query.FormattedSorting)(e);
-          return this.$('.im-col-sort').toggleClass('open');
-        } else {
-          this.$('.im-col-sort').removeClass('open');
-          return this.query.orderBy([
-            {
-              path: this.view,
-              direction: direction
-            }
-          ]);
-        }
-      };
-
-      ColumnHeader.prototype.addExpander = function() {
-        var expandAll;
-
-        expandAll = $("<a href=\"#\" \n   class=\"im-subtable-expander im-th-button\"\n   title=\"Expand/Collapse all subtables\">\n  <i class=\"icon-table icon-white\"></i>\n</a>");
-        expandAll.tooltip({
-          placement: this.bestFit
-        });
-        return this.$('.im-th-buttons').prepend(expandAll);
-      };
-
-      ColumnHeader.prototype.toggleSubTable = function(e) {
-        var cmd;
-
-        ignore(e);
-        cmd = this.model.get('expanded') ? 'collapse' : 'expand';
-        this.query.trigger(cmd + ':subtables', this.model.get('path'));
-        return this.model.set({
-          expanded: !this.model.get('expanded')
-        });
-      };
-
-      return ColumnHeader;
-
-    })(Backbone.View);
-    return scope('intermine.query.results', {
-      ColumnHeader: ColumnHeader
-    });
-  })();
-
-  define('actions', using('actions/list-manager', 'actions/code-gen', function(ListManager, CodeGenerator) {
-    var Actions, _ref;
-
-    Actions = (function(_super) {
-      __extends(Actions, _super);
-
-      function Actions() {
-        _ref = Actions.__super__.constructor.apply(this, arguments);
-        return _ref;
-      }
-
-      Actions.prototype.className = "im-query-actions row-fluid";
-
-      Actions.prototype.tagName = "ul";
-
-      Actions.prototype.initialize = function(states) {
-        this.states = states;
-      };
-
-      Actions.prototype.actionClasses = function() {
-        return [ListManager, CodeGenerator];
-      };
-
-      Actions.prototype.extraClass = "im-action";
-
-      Actions.prototype.render = function() {
-        var action, cls, _i, _len, _ref1;
-
-        _ref1 = this.actionClasses();
-        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-          cls = _ref1[_i];
-          action = new cls(this.states);
-          if (!action.disabled) {
-            action.render().$el.addClass(this.extraClass).appendTo(this.el);
+          if (c.value != null) {
+            return row.append(toValLabel(c.value));
+          } else if (c.values != null) {
+            return row.append(toValLabel(c.values.join(', ')));
           }
-        }
-        return this;
-      };
-
-      return Actions;
-
-    })(Backbone.View);
-    scope("intermine.query.actions", {
-      Actions: Actions
-    });
-    return Actions;
-  }));
-
-  (function() {
-    var FPObject, IMObject, NullObject, _ref, _ref1, _ref2;
-
-    IMObject = (function(_super) {
-      __extends(IMObject, _super);
-
-      function IMObject() {
-        _ref = IMObject.__super__.constructor.apply(this, arguments);
-        return _ref;
-      }
-
-      IMObject.prototype.initialize = function(obj, query, field, base, history) {
-        var model,
-          _this = this;
-
-        obj[field] = obj.value;
-        obj['obj:type'] = obj["class"];
-        obj['service:base'] = base;
-        obj['service:url'] = obj.url;
-        obj['is:selected'] = false;
-        obj['is:selectable'] = true;
-        obj['is:selecting'] = false;
-        this.set(obj);
-        model = query.model;
-        query.on("selection:cleared", function() {
-          return _this.set({
-            'is:selectable': true
-          });
         });
-        query.on("common:type:selected", function(type) {
-          var ok;
-
-          ok = !type || model.findSharedAncestor(type, _this.get('obj:type'));
-          return _this.set({
-            'is:selectable': !!ok
-          });
+        this.addSection(q.joins, 'Joins', (function(p, style) {
+          return p;
+        }), function(row, name, p, style) {
+          row.append(toPathLabel(name));
+          return row.append(toInfoLabel(style));
         });
-        this.on("change:is:selected", function(self, selected) {
-          return query.trigger("imo:selected", _this.get("obj:type"), _this.get("id"), selected);
-        });
-        return this.on('click', function() {
-          return query.trigger('imo:click', _this.get('obj:type'), _this.get('id'), _this.toJSON());
-        });
-      };
+        this.addSection(q.sortOrder, 'Sort Order Elements', (function(i, so) {
+          return so.path;
+        }), function(row, name, i, _arg) {
+          var direction;
 
-      IMObject.prototype.selectionState = function() {
-        return {
-          selected: this.get('is:selected'),
-          selecting: this.get('is:selecting'),
-          selectable: this.get('is:selectable')
-        };
-      };
-
-      IMObject.prototype.merge = function(obj, field) {
-        return this.set(field, obj.value);
-      };
-
-      return IMObject;
-
-    })(Backbone.Model);
-    NullObject = (function(_super) {
-      __extends(NullObject, _super);
-
-      function NullObject() {
-        _ref1 = NullObject.__super__.constructor.apply(this, arguments);
-        return _ref1;
-      }
-
-      NullObject.prototype.initialize = function(_, _arg) {
-        var field, query, type;
-
-        query = _arg.query, field = _arg.field, type = _arg.type;
-        this.set({
-          'id': null,
-          'obj:type': type,
-          'is:selected': false,
-          'is:selectable': false,
-          'is:selecting': false,
-          'service:base': '',
-          'service:url': ''
-        });
-        if (field) {
-          return this.set(field, null);
-        }
-      };
-
-      NullObject.prototype.merge = function() {};
-
-      return NullObject;
-
-    })(IMObject);
-    FPObject = (function(_super) {
-      __extends(FPObject, _super);
-
-      function FPObject() {
-        _ref2 = FPObject.__super__.constructor.apply(this, arguments);
-        return _ref2;
-      }
-
-      FPObject.prototype.initialize = function(_arg, _arg1) {
-        var field, obj, query;
-
-        _arg;
-        query = _arg1.query, obj = _arg1.obj, field = _arg1.field;
-        this.set({
-          'id': null,
-          'obj:type': obj["class"],
-          'is:selected': false,
-          'is:selectable': false,
-          'is:selecting': false,
-          'service:base': '',
-          'service:url': ''
-        });
-        return this.set(field, obj.value);
-      };
-
-      return FPObject;
-
-    })(NullObject);
-    return scope("intermine.model", {
-      IMObject: IMObject,
-      NullObject: NullObject,
-      FPObject: FPObject
-    });
-  })();
-
-  (function() {
-    var CompactView, DashBoard, Toolless, _ref, _ref1, _ref2;
-
-    DashBoard = (function(_super) {
-      __extends(DashBoard, _super);
-
-      function DashBoard() {
-        _ref = DashBoard.__super__.constructor.apply(this, arguments);
-        return _ref;
-      }
-
-      DashBoard.prototype.tagName = "div";
-
-      DashBoard.prototype.className = "query-display row-fluid";
-
-      DashBoard.prototype.initialize = function(service, query, queryEvents, tableProperties) {
-        var _ref1,
-          _this = this;
-
-        this.query = query;
-        this.queryEvents = queryEvents;
-        this.tableProperties = tableProperties;
-        this.columnHeaders = new Backbone.Collection;
-        this.states = new intermine.models.table.History;
-        if ((_ref1 = this.events) == null) {
-          this.events = {};
-        }
-        if (_(service).isString()) {
-          this.service = new intermine.Service({
-            root: service
-          });
-        } else if (service.fetchModel != null) {
-          this.service = service;
-        } else {
-          this.service = new intermine.Service(service);
-        }
-        return this.states.on('reverted add', function() {
-          return _this.loadQuery(_this.states.currentQuery);
-        });
-      };
-
-      DashBoard.prototype.TABLE_CLASSES = "span9 im-query-results";
-
-      DashBoard.prototype.loadQuery = function(q) {
-        var cb, currentPageSize, evt, k, v, _ref1, _ref2, _ref3, _ref4, _results;
-
-        currentPageSize = (_ref1 = this.table) != null ? _ref1.getCurrentPageSize() : void 0;
-        if ((_ref2 = this.table) != null) {
-          _ref2.remove();
-        }
-        this.main.empty();
-        this.table = new intermine.query.results.Table(q, this.main, this.columnHeaders);
-        _ref3 = this.tableProperties;
-        for (k in _ref3) {
-          v = _ref3[k];
-          this.table[k] = v;
-        }
-        if (currentPageSize != null) {
-          this.table.pageSize = currentPageSize;
-        }
-        this.table.render();
-        _ref4 = this.queryEvents;
-        _results = [];
-        for (evt in _ref4) {
-          cb = _ref4[evt];
-          _results.push(q.on(evt, cb));
-        }
-        return _results;
-      };
-
-      DashBoard.prototype.render = function() {
-        var queryPromise,
-          _this = this;
-
-        this.$el.addClass(intermine.options.StylePrefix);
-        this.tools = $("<div class=\"clearfix\">");
-        this.$el.append(this.tools);
-        this.main = $("<div class=\"" + this.TABLE_CLASSES + "\">");
-        this.$el.append(this.main);
-        queryPromise = this.service.query(this.query);
-        queryPromise.done(function(q) {
-          return _this.states.addStep('Original state', q);
-        });
-        queryPromise.done(function(q) {
-          _this.renderQueryManagement(q);
-          return _this.renderTools(q);
-        });
-        queryPromise.fail(function(xhr, err, msg) {
-          return _this.$el.append("<div class=\"alert alert-error\">\n  <h1>" + (err || xhr) + "</h1>\n  <p>Unable to construct query: " + (msg || xhr) + "</p>\n</div>");
+          direction = _arg.direction;
+          row.append(toPathLabel(name));
+          return row.append(toInfoLabel(direction));
         });
         return this;
       };
 
-      DashBoard.prototype.renderTools = function(q) {
-        var tools;
-
-        tools = this.make("div", {
-          "class": "span3 im-query-toolbox"
-        });
-        this.$el.append(tools);
-        this.toolbar = new intermine.query.tools.Tools(this.states);
-        return this.toolbar.render().$el.appendTo(tools);
-      };
-
-      DashBoard.prototype.renderQueryManagement = function(q) {
-        var ManagementTools, Trail, managementGroup, trail, _ref1;
-
-        _ref1 = intermine.query.tools, ManagementTools = _ref1.ManagementTools, Trail = _ref1.Trail;
-        managementGroup = new ManagementTools(this.states, this.columnHeaders);
-        managementGroup.render().$el.appendTo(this.tools);
-        trail = new Trail(this.states);
-        return trail.render().$el.appendTo(managementGroup.el);
-      };
-
-      return DashBoard;
+      return Step;
 
     })(Backbone.View);
-    CompactView = (function(_super) {
-      __extends(CompactView, _super);
+    Trail = (function(_super) {
+      __extends(Trail, _super);
 
-      function CompactView() {
-        _ref1 = CompactView.__super__.constructor.apply(this, arguments);
-        return _ref1;
-      }
-
-      CompactView.prototype.className = "im-query-display compact";
-
-      CompactView.prototype.TABLE_CLASSES = "im-query-results";
-
-      CompactView.prototype.renderTools = function(q) {
-        this.toolbar = new intermine.query.tools.ToolBar(this.states);
-        return this.tools.append(this.toolbar.render().el);
-      };
-
-      return CompactView;
-
-    })(DashBoard);
-    Toolless = (function(_super) {
-      __extends(Toolless, _super);
-
-      function Toolless() {
-        _ref2 = Toolless.__super__.constructor.apply(this, arguments);
-        return _ref2;
-      }
-
-      Toolless.prototype.className = 'im-query-display im-toolless';
-
-      Toolless.prototype.TABLE_CLASSES = 'im-query-results';
-
-      Toolless.prototype.renderTools = function(q) {};
-
-      Toolless.prototype.renderQueryManagement = function(q) {
-        var Trail, trail;
-
-        Trail = intermine.query.tools.Trail;
-        trail = new Trail(this.states);
-        return this.$el.prepend(trail.render().el);
-      };
-
-      return Toolless;
-
-    })(DashBoard);
-    return scope("intermine.query.results", {
-      DashBoard: DashBoard,
-      CompactView: CompactView,
-      Toolless: Toolless
-    });
-  })();
-
-  scope('intermine.snippets.facets', {
-    OnlyOne: _.template("<div class=\"alert alert-info im-all-same\">\n    All <%= count %> values are the same: <strong><%= item %></strong>\n</div>")
-  });
-
-  (function() {
-    var BooleanFacet, ColumnSummary, FACET_TEMPLATE, FACET_TITLE, FacetRow, FacetView, FrequencyFacet, HistoFacet, Int, MORE_FACETS_HTML, NormalCurve, NumericFacet, NumericRange, PieFacet, SUMMARY_FORMATS, numeric, _ref, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8;
-
-    NormalCurve = function(mean, stdev) {
-      return function(x) {
-        var a;
-
-        a = x - mean;
-        return Math.exp(-(a * a) / (2 * stdev * stdev)) / (Math.sqrt(2 * Math.PI) * stdev);
-      };
-    };
-    Int = function(x) {
-      return parseInt(x, 10);
-    };
-    numeric = function(x) {
-      return +x;
-    };
-    MORE_FACETS_HTML = "<i class=\"icon-plus-sign pull-right\" title=\"Showing top ten. Click to see all values\"></i>";
-    FACET_TITLE = "<dt>\n  <i class=\"icon-chevron-right\"></i>\n  <span class=\"im-facet-title\"></span>\n  &nbsp;<span class=\"im-facet-count\"></span>\n</dt>";
-    FACET_TEMPLATE = _.template("<dd>\n    <a href=#>\n        <b class=\"im-facet-count pull-right\">\n            (<%= count %>)\n        </b>\n        <%= item %>\n    </a>\n</dd>");
-    SUMMARY_FORMATS = {
-      tab: 'tsv',
-      csv: 'csv',
-      xml: 'xml',
-      json: 'json'
-    };
-    ColumnSummary = (function(_super) {
-      __extends(ColumnSummary, _super);
-
-      function ColumnSummary() {
-        this.render = __bind(this.render, this);        _ref = ColumnSummary.__super__.constructor.apply(this, arguments);
-        return _ref;
-      }
-
-      ColumnSummary.prototype.tagName = 'div';
-
-      ColumnSummary.prototype.className = "im-column-summary";
-
-      ColumnSummary.prototype.initialize = function(query, facet) {
-        var fp,
-          _this = this;
-
-        this.query = query;
-        this.state = new Backbone.Model({
-          open: false
-        });
-        if (facet.path) {
-          return this.facet = facet;
-        } else {
-          fp = this.query.getPathInfo(facet);
-          return this.facet = {
-            path: fp,
-            title: fp.getDisplayName().then(function(name) {
-              return name.replace(/^[^>]+>\s*/, '');
-            }),
-            ignoreTitle: true
-          };
-        }
-      };
-
-      ColumnSummary.prototype.render = function() {
-        var attrType, clazz, initialLimit,
-          _this = this;
-
-        attrType = this.facet.path.getType();
-        clazz = __indexOf.call(intermine.Model.NUMERIC_TYPES, attrType) >= 0 ? NumericFacet : FrequencyFacet;
-        initialLimit = intermine.options.INITIAL_SUMMARY_ROWS;
-        this.fac = new clazz(this.query, this.facet, initialLimit, this.noTitle);
-        this.$el.append(this.fac.el);
-        this.fac.render();
-        this.fac.on('ready', function() {
-          return _this.trigger('ready', _this);
-        });
-        this.fac.on('toggled', function() {
-          return _this.state.set({
-            open: !_this.state.get('open')
-          });
-        });
-        this.fac.on('closed', function() {
-          return _this.state.set({
-            open: false
-          });
-        });
-        this.trigger('rendered', this);
-        return this;
-      };
-
-      ColumnSummary.prototype.toggle = function() {
-        var _ref1;
-
-        return (_ref1 = this.fac) != null ? _ref1.toggle() : void 0;
-      };
-
-      ColumnSummary.prototype.close = function() {
-        var _ref1;
-
-        return (_ref1 = this.fac) != null ? _ref1.close() : void 0;
-      };
-
-      ColumnSummary.prototype.remove = function() {
-        var _ref1;
-
-        if ((_ref1 = this.fac) != null) {
-          _ref1.remove();
-        }
-        return ColumnSummary.__super__.remove.call(this);
-      };
-
-      return ColumnSummary;
-
-    })(Backbone.View);
-    FacetView = (function(_super) {
-      __extends(FacetView, _super);
-
-      function FacetView() {
-        this.render = __bind(this.render, this);        _ref1 = FacetView.__super__.constructor.apply(this, arguments);
-        return _ref1;
-      }
-
-      FacetView.prototype.tagName = "dl";
-
-      FacetView.prototype.initialize = function(query, facet, limit, noTitle) {
-        this.query = query;
-        this.facet = facet;
-        this.limit = limit;
-        this.noTitle = noTitle;
-        this.query.on("change:constraints", this.render);
-        return this.query.on("filter:summary", this.render);
-      };
-
-      FacetView.prototype.events = function() {
-        return {
-          "click dt": "toggle"
-        };
-      };
-
-      FacetView.prototype.toggle = function() {
-        this.$('.im-facet').slideToggle();
-        this.$('dt i').first().toggleClass('icon-chevron-right icon-chevron-down');
-        return this.trigger('toggled', this);
-      };
-
-      FacetView.prototype.close = function() {
-        this.$('.im-facet').slideUp();
-        this.$('dt i').removeClass('icon-chevron-down').addClass('icon-chevron-right');
-        return this.trigger('close', this);
-      };
-
-      FacetView.prototype.render = function() {
-        var _this = this;
-
-        if (!this.noTitle) {
-          this.$el.prepend(FACET_TITLE);
-          $.when(this.facet.title).then(function(title) {
-            return _this.$('.im-facet-title').text(title);
-          });
-        }
-        return this;
-      };
-
-      return FacetView;
-
-    })(Backbone.View);
-    FrequencyFacet = (function(_super) {
-      __extends(FrequencyFacet, _super);
-
-      function FrequencyFacet() {
-        this.addItem = __bind(this.addItem, this);
-        this.showMore = __bind(this.showMore, this);        _ref2 = FrequencyFacet.__super__.constructor.apply(this, arguments);
-        return _ref2;
-      }
-
-      FrequencyFacet.prototype.showMore = function(e) {
-        var areVisible, got, more,
-          _this = this;
-
-        more = $(e.target);
-        got = this.$('dd').length();
-        areVisible = this.$('dd').first().is(':visible');
-        e.stopPropagation();
-        e.preventDefault();
-        return this.query.summarise(this.facet.path, function(items) {
-          var item, _i, _len, _ref3;
-
-          _ref3 = items.slice(got);
-          for (_i = 0, _len = _ref3.length; _i < _len; _i++) {
-            item = _ref3[_i];
-            _this.addItem(item).toggle(areVisible);
-          }
-          return more.tooltip('hide').remove();
-        });
-      };
-
-      FrequencyFacet.prototype.render = function(filterTerm) {
-        var $progress, getSummary, limit, placement,
-          _this = this;
-
-        if (filterTerm == null) {
-          filterTerm = "";
-        }
-        if (this.rendering) {
-          return;
-        }
-        this.filterTerm = filterTerm;
-        this.rendering = true;
-        this.$el.empty();
-        FrequencyFacet.__super__.render.call(this);
-        $progress = $("<div class=\"progress progress-info progress-striped active\">\n    <div class=\"bar\" style=\"width:100%\"></div>\n</div>");
-        $progress.appendTo(this.el);
-        getSummary = this.query.filterSummary(this.facet.path, filterTerm, this.limit);
-        getSummary.fail(this.remove);
-        limit = this.limit;
-        placement = 'left';
-        return getSummary.done(function(results, stats, count) {
-          var Vizualization, hasMore, summaryView;
-
-          _this.query.trigger('got:summary:total', _this.facet.path, stats.uniqueValues, results.length, count);
-          $progress.remove();
-          _this.$('.im-facet-count').text("(" + stats.uniqueValues + ")");
-          hasMore = results.length < limit ? false : stats.uniqueValues > limit;
-          if (hasMore) {
-            $(MORE_FACETS_HTML).appendTo(_this.$dt).tooltip({
-              placement: placement
-            }).click(_this.showMore);
-          }
-          summaryView = stats.uniqueValues <= 1 ? (_this.$el.empty(), stats.uniqueValues ? intermine.snippets.facets.OnlyOne(results[0]) : "No results") : (Vizualization = _this.getVizualization(stats), new Vizualization(_this.query, _this.facet, results, hasMore, filterTerm));
-          _this.$el.append(summaryView.el ? summaryView.el : summaryView);
-          if (typeof summaryView.render === "function") {
-            summaryView.render();
-          }
-          _this.rendering = false;
-          return _this.trigger('ready', _this);
-        });
-      };
-
-      FrequencyFacet.prototype.getVizualization = function(stats) {
-        var _ref3;
-
-        if (!this.query.canHaveMultipleValues(this.facet.path)) {
-          if (_ref3 = this.query.getType(this.facet.path), __indexOf.call(intermine.Model.BOOLEAN_TYPES, _ref3) >= 0) {
-            return BooleanFacet;
-          } else if (stats.uniqueValues <= intermine.options.MAX_PIE_SLICES) {
-            return PieFacet;
-          }
-        }
-        return HistoFacet;
-      };
-
-      FrequencyFacet.prototype.addItem = function(item) {
-        var $dd,
-          _this = this;
-
-        $dd = $(FACET_TEMPLATE(item)).appendTo(this.el);
-        $dd.click(function() {
-          return _this.query.addConstraint({
-            title: _this.facet.title,
-            path: _this.facet.path,
-            op: "=",
-            value: item.item
-          });
-        });
-        return $dd;
-      };
-
-      return FrequencyFacet;
-
-    })(FacetView);
-    NumericRange = (function(_super) {
-      __extends(NumericRange, _super);
-
-      function NumericRange() {
-        _ref3 = NumericRange.__super__.constructor.apply(this, arguments);
+      function Trail() {
+        _ref3 = Trail.__super__.constructor.apply(this, arguments);
         return _ref3;
       }
 
-      NumericRange.prototype._defaults = {};
+      Trail.prototype.className = "im-query-trail";
 
-      NumericRange.prototype.setLimits = function(limits) {
-        return this._defaults = limits;
-      };
+      Trail.prototype.tagName = "div";
 
-      NumericRange.prototype.get = function(prop) {
-        var ret;
-
-        ret = NumericRange.__super__.get.call(this, prop);
-        if (ret != null) {
-          return ret;
-        } else if (prop in this._defaults) {
-          return this._defaults[prop];
-        } else {
-          return null;
-        }
-      };
-
-      NumericRange.prototype.toJSON = function() {
-        return _.extend({}, this._defaults, this.attributes);
-      };
-
-      NumericRange.prototype.nullify = function() {
-        var evt, _i, _len, _ref4, _results;
-
-        this.set({
-          min: null,
-          max: null
-        });
-        this.nulled = true;
-        _ref4 = ['change:min', 'change:max', 'change'];
-        _results = [];
-        for (_i = 0, _len = _ref4.length; _i < _len; _i++) {
-          evt = _ref4[_i];
-          _results.push(this.trigger(evt, this));
-        }
-        return _results;
-      };
-
-      NumericRange.prototype.set = function(name, value) {
-        var meth;
-
-        this.nulled = false;
-        if (_.isString(name) && (name in this._defaults)) {
-          meth = name === 'min' ? 'max' : 'min';
-          return NumericRange.__super__.set.call(this, name, Math[meth](this._defaults[name], value));
-        } else {
-          return NumericRange.__super__.set.apply(this, arguments);
-        }
-      };
-
-      NumericRange.prototype.isNotAll = function() {
-        var max, min, _ref4;
-
-        if (this.nulled) {
-          return true;
-        }
-        _ref4 = this.toJSON(), min = _ref4.min, max = _ref4.max;
-        return ((min != null) && min !== this._defaults.min) || ((max != null) && max !== this._defaults.max);
-      };
-
-      return NumericRange;
-
-    })(Backbone.Model);
-    NumericFacet = (function(_super) {
-      var fracWithinRange, getPartialCount, inty, sumCounts;
-
-      __extends(NumericFacet, _super);
-
-      function NumericFacet() {
-        this.drawSelection = __bind(this.drawSelection, this);
-        this.drawChart = __bind(this.drawChart, this);
-        this.drawSlider = __bind(this.drawSlider, this);
-        this.drawStats = __bind(this.drawStats, this);
-        this.handleSummary = __bind(this.handleSummary, this);
-        this.valForX = __bind(this.valForX, this);
-        this.xForVal = __bind(this.xForVal, this);        _ref4 = NumericFacet.__super__.constructor.apply(this, arguments);
-        return _ref4;
-      }
-
-      NumericFacet.prototype.initialize = function() {
-        var idx, prop, _fn, _ref5,
-          _this = this;
-
-        NumericFacet.__super__.initialize.apply(this, arguments);
-        this.range = new NumericRange();
-        this.range.on('change', function() {
-          var width, _ref5;
-
-          if (_this.shouldDrawBox()) {
-            if (_this.range.nulled) {
-              return _this.drawSelection(0, 25);
-            } else {
-              x = _this.xForVal(_this.range.get('min'));
-              width = _this.xForVal(_this.range.get('max')) - x;
-              return _this.drawSelection(x, width);
-            }
-          } else {
-            if ((_ref5 = _this.selection) != null) {
-              _ref5.remove();
-            }
-            return _this.selection = null;
-          }
-        });
-        this.range.on('change', function() {
-          var _ref5;
-
-          if (_this.range.isNotAll()) {
-            return _this.drawEstCount();
-          } else {
-            if ((_ref5 = _this.estCount) != null) {
-              _ref5.remove();
-            }
-            return _this.estCount = null;
-          }
-        });
-        this.range.on('reset', function() {
-          var max, min, prop, val, _ref5, _ref6, _ref7, _results;
-
-          _ref5 = _this.range.toJSON(), min = _ref5.min, max = _ref5.max;
-          if ((_ref6 = _this.$slider) != null) {
-            _ref6.slider('option', 'values', [min, max]);
-          }
-          _ref7 = {
-            min: min,
-            max: max
-          };
-          _results = [];
-          for (prop in _ref7) {
-            val = _ref7[prop];
-            _results.push(_this.$("input.im-range-" + prop).val("" + val));
-          }
-          return _results;
-        });
-        _ref5 = {
-          min: 0,
-          max: 1
-        };
-        _fn = function(prop, idx) {
-          return _this.range.on("change:" + prop, function(m, val) {
-            var _ref6, _ref7;
-
-            if (m.nulled) {
-              _this.$("input.im-range-" + prop).val("null");
-            }
-            if (val == null) {
-              return;
-            }
-            val = _this.round(val);
-            _this.$("input.im-range-" + prop).val("" + val);
-            if (((_ref6 = _this.$slider) != null ? _ref6.slider('values', idx) : void 0) !== val) {
-              return (_ref7 = _this.$slider) != null ? _ref7.slider('values', idx, val) : void 0;
-            }
-          });
-        };
-        for (prop in _ref5) {
-          idx = _ref5[prop];
-          _fn(prop, idx);
-        }
-        return this.range.on('change', function() {
-          var changed;
-
-          changed = _this.range.isNotAll();
-          return _this.$('.btn').toggleClass("disabled", !changed);
-        });
-      };
-
-      NumericFacet.prototype.events = function() {
-        return _.extend(NumericFacet.__super__.events.apply(this, arguments), {
-          'click': function(e) {
-            return e.stopPropagation();
-          },
-          'keyup input.im-range-val': 'incRangeVal',
-          'change input.im-range-val': 'setRangeVal',
-          'click .btn-primary': 'changeConstraints',
-          'click .btn-cancel': 'clearRange'
-        });
-      };
-
-      NumericFacet.prototype.clearRange = function() {
-        var _ref5, _ref6;
-
-        if ((_ref5 = this.range) != null) {
-          _ref5.clear();
-        }
-        return (_ref6 = this.range) != null ? _ref6.trigger('reset') : void 0;
-      };
-
-      NumericFacet.prototype.changeConstraints = function(e) {
-        var fpath, newConstraints;
-
-        e.preventDefault();
-        e.stopPropagation();
-        fpath = this.facet.path.toString();
-        this.query.constraints = _(this.query.constraints).filter(function(c) {
-          return c.path !== fpath;
-        });
-        if (this.range.nulled) {
-          newConstraints = [
-            {
-              path: this.facet.path,
-              op: 'IS NULL'
-            }
-          ];
-        } else {
-          newConstraints = [
-            {
-              path: this.facet.path,
-              op: ">=",
-              value: this.range.get('min')
-            }, {
-              path: this.facet.path,
-              op: "<=",
-              value: this.range.get('max')
-            }
-          ];
-        }
-        return this.query.addConstraints(newConstraints);
-      };
-
-      NumericFacet.prototype.className = "im-numeric-facet";
-
-      NumericFacet.prototype.chartHeight = 70;
-
-      NumericFacet.prototype.leftMargin = 25;
-
-      NumericFacet.prototype.xForVal = function(val) {
-        var conversionRate;
-
-        if (val === this.min) {
-          return this.leftMargin;
-        }
-        if (val === this.max) {
-          return this.w;
-        }
-        conversionRate = (this.w - this.leftMargin) / (this.max - this.min);
-        return this.leftMargin + (conversionRate * (val - this.min));
-      };
-
-      NumericFacet.prototype.valForX = function(x) {
-        var conversionRate;
-
-        if (x <= this.leftMargin) {
-          return this.min;
-        }
-        if (x >= this.w) {
-          return this.max;
-        }
-        conversionRate = (this.max - this.min) / (this.w - this.leftMargin);
-        return this.min + (conversionRate * (x - this.leftMargin));
-      };
-
-      NumericFacet.prototype.shouldDrawBox = function() {
-        return this.range.isNotAll();
-      };
-
-      NumericFacet.prototype.render = function() {
-        var promise,
-          _this = this;
-
-        NumericFacet.__super__.render.call(this);
-        this.container = this.make("div", {
-          "class": "facet-content im-facet"
-        });
-        this.$el.append(this.container);
-        this.canvas = this.make("div");
-        $(this.canvas).mouseout(function() {
-          return _this._selecting_paths_ = false;
-        });
-        $(this.container).append(this.canvas);
-        this.throbber = $("<div class=\"progress progress-info progress-striped active\">\n    <div class=\"bar\" style=\"width:100%\"></div>\n</div>");
-        this.throbber.appendTo(this.el);
-        promise = this.query.summarise(this.facet.path, this.handleSummary);
-        promise.fail(this.remove);
-        promise.done(function() {
-          return _this.trigger('ready', _this);
-        });
-        return this;
-      };
-
-      NumericFacet.prototype.remove = function() {
-        var _ref5, _ref6;
-
-        if ((_ref5 = this.$slider) != null) {
-          _ref5.slider('destroy');
-        }
-        delete this.$slider;
-        if ((_ref6 = this.range) != null) {
-          _ref6.off();
-        }
-        delete this.range;
-        return NumericFacet.__super__.remove.call(this);
-      };
-
-      inty = function(type) {
-        return type === "int" || type === "Integer" || type === "long" || type === "Long";
-      };
-
-      NumericFacet.prototype.handleSummary = function(items, stats) {
-        var hasMore, hf, step, summary;
-
-        this.throbber.remove();
-        summary = items[0];
-        this.w = this.$el.closest(':visible').width() * 0.95;
-        if (summary.item != null) {
-          if (items.length > 1) {
-            hasMore = items.length < this.limit ? false : stats.uniqueValues > this.limit;
-            hf = new HistoFacet(this.query, this.facet, items, hasMore, "");
-            this.$el.append(hf.el);
-            return hf.render();
-          } else {
-            return this.$el.empty().append(intermine.snippets.facets.OnlyOne(summary));
-          }
-        }
-        this.mean = parseFloat(summary.average);
-        this.dev = parseFloat(summary.stdev);
-        this.range.setLimits(summary);
-        this.max = summary.max;
-        this.min = summary.min;
-        this.step = step = inty(this.query.getType(this.facet.path)) ? 1 : Math.abs((this.max - this.min) / 100);
-        this.round = function(x) {
-          if (step === 1) {
-            return Math.round(x);
-          } else {
-            return x;
-          }
-        };
-        if (summary.count != null) {
-          this.stepWidth = (this.w - (this.leftMargin + 1)) / items[0].buckets;
-          this.drawChart(items);
-        } else {
-          this.drawCurve();
-        }
-        this.drawStats();
-        return this.drawSlider();
-      };
-
-      NumericFacet.prototype.drawStats = function() {
-        return $(this.container).append("<table class=\"table table-condensed\">\n    <thead>\n        <tr>\n            <th>Min</th>\n            <th>Max</th>\n            <th>Mean</th>\n            <th>Standard Deviation</th>\n        </tr>\n    </thead>\n    <tbody>\n        <tr>\n            <td>" + this.min + "</td>\n            <td>" + this.max + "</td>\n            <td>" + (this.mean.toFixed(5)) + "</td>\n            <td>" + (this.dev.toFixed(5)) + "</td>\n        </tr>\n    </tbody>\n</table>");
-      };
-
-      NumericFacet.prototype.setRangeVal = function(e) {
-        var $input, current, next, prop, _ref5;
-
-        $input = $(e.target);
-        prop = $input.data('var');
-        current = (_ref5 = this.range.get(prop)) != null ? _ref5 : this[prop];
-        next = numeric($input.val());
-        if (current !== next) {
-          return this.range.set(prop, next);
-        }
-      };
-
-      NumericFacet.prototype.incRangeVal = function(e) {
-        var $input, current, next, prop, _ref5;
-
-        $input = $(e.target);
-        prop = $input.data('var');
-        current = next = (_ref5 = this.range.get(prop)) != null ? _ref5 : this[prop];
-        switch (e.keyCode) {
-          case 40:
-            next -= this.step;
-            break;
-          case 38:
-            next += this.step;
-        }
-        if (next !== current) {
-          return this.range.set(prop, next);
-        }
-      };
-
-      NumericFacet.prototype.drawSlider = function() {
-        var opts,
-          _this = this;
-
-        $(this.container).append("<div class=\"btn-group pull-right\">\n  <button class=\"btn btn-primary disabled\">Apply</button>\n  <button class=\"btn btn-cancel disabled\">Reset</button>\n</div>\n<input type=\"text\" data-var=\"min\" class=\"im-range-min input im-range-val\" value=\"" + this.min + "\">\n<span>...</span>\n<input type=\"text\" data-var=\"max\" class=\"im-range-max input im-range-val\" value=\"" + this.max + "\">\n<div class=\"slider\"></div>");
-        opts = {
-          range: true,
-          min: this.min,
-          max: this.max,
-          values: [this.min, this.max],
-          step: this.step,
-          slide: function(e, ui) {
-            var _ref5;
-
-            return (_ref5 = _this.range) != null ? _ref5.set({
-              min: ui.values[0],
-              max: ui.values[1]
-            }) : void 0;
-          }
-        };
-        return this.$slider = this.$('.slider').slider(opts);
-      };
-
-      NumericFacet.prototype.drawChart = function(items) {
-        var _this = this;
-
-        if (typeof d3 !== "undefined" && d3 !== null) {
-          return setTimeout((function() {
-            return _this._drawD3Chart(items);
-          }), 0);
-        }
-      };
-
-      NumericFacet.prototype._drawD3Chart = function(items) {
-        var axis, barClickHandler, bottomMargin, bucketRange, bucketVal, chart, container, getTitle, h, item, most, n, rects, rightMargin, val, xToVal, y, _i, _len,
-          _this = this;
-
-        this.items = items;
-        bottomMargin = 18;
-        rightMargin = 14;
-        n = items[0].buckets + 1;
-        h = this.chartHeight;
-        most = d3.max(items, function(d) {
-          return d.count;
-        });
-        x = d3.scale.linear().domain([1, n]).range([this.leftMargin, this.w - rightMargin]);
-        y = d3.scale.linear().domain([0, most]).rangeRound([0, h - bottomMargin]);
-        this.xForVal = d3.scale.linear().domain([this.min, this.max]).range([this.leftMargin, this.w - rightMargin]);
-        xToVal = d3.scale.linear().domain([1, n]).range([this.min, this.max]);
-        val = function(x) {
-          return _this.round(xToVal(x));
-        };
-        bucketVal = function(x) {
-          var raw;
-
-          raw = val(x);
-          if (raw < _this.min) {
-            return _this.min;
-          } else if (raw > _this.max) {
-            return _this.max;
-          } else {
-            return raw;
-          }
-        };
-        bucketRange = function(bucket) {
-          var delta, max, min, _ref5, _ref6;
-
-          if (bucket != null) {
-            _ref5 = (function() {
-              var _i, _len, _ref5, _results;
-
-              _ref5 = [0, 1];
-              _results = [];
-              for (_i = 0, _len = _ref5.length; _i < _len; _i++) {
-                delta = _ref5[_i];
-                _results.push(bucketVal(bucket + delta));
-              }
-              return _results;
-            })(), min = _ref5[0], max = _ref5[1];
-          } else {
-            _ref6 = [0 - bucketVal(2), bucketVal(1)], min = _ref6[0], max = _ref6[1];
-          }
-          return {
-            min: min,
-            max: max
-          };
-        };
-        getTitle = function(item) {
-          var brange, title;
-
-          return title = item.bucket != null ? (brange = bucketRange(item.bucket), "" + brange.min + " >= x < " + brange.max + ": " + item.count + " items") : "x is null: " + item.count + " items";
-        };
-        this.paper = chart = d3.select(this.canvas).append('svg').attr('class', 'chart').attr('width', this.w).attr('height', h);
-        container = this.canvas;
-        barClickHandler = function(d, i) {
-          var _ref5, _ref6;
-
-          if (d.bucket != null) {
-            return (_ref5 = _this.range) != null ? _ref5.set(bucketRange(d.bucket)) : void 0;
-          } else {
-            return (_ref6 = _this.range) != null ? _ref6.nullify() : void 0;
-          }
-        };
-        for (_i = 0, _len = items.length; _i < _len; _i++) {
-          item = items[_i];
-          if (item.bucket != null) {
-            item.brange = bucketRange(item.bucket);
-          }
-        }
-        chart.selectAll('rect').data(items).enter().append('rect').attr('x', function(d, i) {
-          return x(d.bucket) - 0.5;
-        }).attr('y', h - bottomMargin).attr('width', function(d) {
-          return Math.abs(x(d.bucket + 1) - x(d.bucket));
-        }).attr('height', 0).classed('im-null-bucket', function(d) {
-          return d.bucket === null;
-        }).on('click', barClickHandler).each(function(d, i) {
-          var title;
-
-          title = getTitle(d);
-          return $(this).tooltip({
-            title: title,
-            container: container
-          });
-        });
-        rects = chart.selectAll('rect').data(items).transition().duration(intermine.options.D3.Transition.Duration).ease(intermine.options.D3.Transition.Easing).attr('y', function(d) {
-          return h - bottomMargin - y(d.count) - 0.5;
-        }).attr('height', function(d) {
-          return y(d.count);
-        });
-        chart.append('line').attr('x1', 0).attr('x2', this.w).attr('y1', h - bottomMargin - .5).attr('y2', h - bottomMargin - .5).style('stroke', '#000');
-        axis = chart.append('svg:g');
-        axis.selectAll('line').data(x.ticks(n)).enter().append('svg:line').attr('x1', x).attr('x2', x).attr('y1', h - (bottomMargin * 0.75)).attr('y2', h - bottomMargin).attr('stroke', 'gray').attr('text-anchor', 'start');
-        return this;
-      };
-
-      NumericFacet.prototype.drawEstCount = function() {
-        var _ref5;
-
-        if ((_ref5 = this.estCount) != null) {
-          _ref5.remove();
-        }
-        if (typeof d3 === "undefined" || d3 === null) {
-          return false;
-        }
-        return this.estCount = this.paper.append('text').classed('im-est-count', true).attr('x', this.w * 0.75).attr('y', 22).text("~" + (this.estimateCount()));
-      };
-
-      sumCounts = function(xs) {
-        return _.reduce(xs, (function(total, x) {
-          return total + x.count;
-        }), 0);
-      };
-
-      fracWithinRange = function(range, min, max) {
-        var overlap, rangeSize;
-
-        if (!range) {
-          return 0;
-        }
-        rangeSize = range.max - range.min;
-        overlap = range.min < min ? Math.min(range.max, max) - min : max - Math.max(range.min, min);
-        return overlap / rangeSize;
-      };
-
-      getPartialCount = function(min, max) {
-        return function(item) {
-          if (item != null) {
-            return item.count * fracWithinRange(item.brange, min, max);
-          } else {
-            return 0;
-          }
-        };
-      };
-
-      NumericFacet.prototype.estimateCount = function() {
-        var fullBuckets, left, max, min, partialLeft, partialRight, right, _ref5, _ref6;
-
-        if (this.range.nulled) {
-          return sumCounts(this.items.filter(function(i) {
-            return i.bucket === null;
-          }));
-        } else {
-          _ref5 = this.range.toJSON(), min = _ref5.min, max = _ref5.max;
-          fullBuckets = sumCounts(this.items.filter(function(i) {
-            return (i.brange != null) && i.brange.min >= min && i.brange.max <= max;
-          }));
-          partialLeft = this.items.filter(function(i) {
-            return (i.brange != null) && i.brange.min < min && i.brange.max > min;
-          })[0];
-          partialRight = this.items.filter(function(i) {
-            return (i.brange != null) && i.brange.max > max && i.brange.min < max;
-          })[0];
-          _ref6 = [partialLeft, partialRight].map(getPartialCount(min, max)), left = _ref6[0], right = _ref6[1];
-          return this.round(fullBuckets + left + right);
-        }
-      };
-
-      NumericFacet.prototype.drawSelection = function(x, width) {
-        var _ref5;
-
-        if ((_ref5 = this.selection) != null) {
-          _ref5.remove();
-        }
-        if ((x <= 0) && (width >= this.w)) {
-          return;
-        }
-        if (typeof d3 !== "undefined" && d3 !== null) {
-          return this.selection = this.paper.append('svg:rect').attr('x', x).attr('y', 0).attr('width', width).attr('height', this.chartHeight * 0.9).classed('rubberband-selection', true);
-        } else {
-          return console.error("Cannot draw selection without SVG lib");
-        }
-      };
-
-      NumericFacet.prototype._selecting_paths_ = false;
-
-      return NumericFacet;
-
-    })(FacetView);
-    PieFacet = (function(_super) {
-      var IGNORE_E, basicOps, getChartPalette, negateOps;
-
-      __extends(PieFacet, _super);
-
-      function PieFacet() {
-        this.filterItems = __bind(this.filterItems, this);        _ref5 = PieFacet.__super__.constructor.apply(this, arguments);
-        return _ref5;
-      }
-
-      PieFacet.prototype.className = 'im-grouped-facet im-pie-facet im-facet';
-
-      PieFacet.prototype.chartHeight = 100;
-
-      PieFacet.prototype.initialize = function(query, facet, items, hasMore, filterTerm) {
-        var _ref6,
-          _this = this;
-
-        this.query = query;
-        this.facet = facet;
-        this.hasMore = hasMore;
-        this.filterTerm = filterTerm;
-        this.items = new Backbone.Collection(items);
-        this.items.each(function(item) {
-          return item.set({
-            visibility: true,
-            selected: false
-          });
-        });
-        this.items.maxCount = (_ref6 = this.items.first()) != null ? _ref6.get("count") : void 0;
-        this.items.on("change:selected", function() {
-          var allAreSelected, someAreSelected;
-
-          someAreSelected = _this.items.any(function(item) {
-            return !!item.get("selected");
-          });
-          allAreSelected = !_this.items.any(function(item) {
-            return !item.get("selected");
-          });
-          _this.$('.im-filter .btn-group .btn').attr("disabled", !someAreSelected);
-          return _this.$('.im-filter .btn-toggle-selection').attr("disabled", allAreSelected).toggleClass("im-invert", someAreSelected);
-        });
-        return this.items.on('add', this.addItemRow, this);
-      };
-
-      basicOps = {
-        single: '=',
-        multi: 'ONE OF',
-        absent: 'IS NULL'
-      };
-
-      negateOps = function(ops) {
-        var ret;
-
-        ret = {};
-        ret.multi = ops.multi === 'ONE OF' ? 'NONE OF' : 'ONE OF';
-        ret.single = ops.single === '=' ? '!=' : '=';
-        ret.absent = ops.absent === 'IS NULL' ? 'IS NOT NULL' : 'IS NULL';
-        return ret;
-      };
-
-      IGNORE_E = function(e) {
-        e.preventDefault();
-        return e.stopPropagation();
-      };
-
-      PieFacet.prototype.events = function() {
-        var _this = this;
-
-        return {
-          'submit .im-facet form': IGNORE_E,
-          'click .im-filter .btn-cancel': 'resetOptions',
-          'click .im-filter .btn-toggle-selection': 'toggleSelection',
-          'click .im-export-summary': 'exportSummary',
-          'click .im-load-more': 'loadMoreItems',
-          'click .im-filter .im-filter-in': function(e) {
-            return _this.addConstraint(e, basicOps);
-          },
-          'click .im-filter .im-filter-out': function(e) {
-            return _this.addConstraint(e, negateOps(basicOps));
-          },
-          'keyup .im-filter-values': _.throttle(this.filterItems, 750, {
-            leading: false
-          }),
-          'click .im-clear-value-filter': 'clearValueFilter',
-          'click': IGNORE_E
-        };
-      };
-
-      PieFacet.prototype.filterItems = function(e) {
-        var $input, current, parts, test,
-          _this = this;
-
-        $input = this.$('.im-filter-values');
-        current = $input.val();
-        if (this.hasMore || (this.filterTerm && current.length < this.filterTerm.length)) {
-          if (this._filter_queued) {
-            return;
-          }
-          this._filter_queued = true;
-          return _.delay((function() {
-            return _this.query.trigger('filter:summary', $input.val());
-          }), 750);
-        } else {
-          parts = (current != null ? current : '').toLowerCase().split(/\s+/);
-          test = function(str) {
-            return _.all(parts, function(part) {
-              return !!(str && ~str.toLowerCase().indexOf(part));
-            });
-          };
-          return this.items.each(function(x) {
-            return x.set({
-              visibility: test(x.get('item'))
-            });
-          });
-        }
-      };
-
-      PieFacet.prototype.clearValueFilter = function() {
-        var $input;
-
-        $input = this.$('.im-filter-values');
-        $input.val(this.filterTerm);
-        return this.items.each(function(x) {
-          return x.set({
-            visibility: true
-          });
-        });
-      };
-
-      PieFacet.prototype.loadMoreItems = function() {
-        var loader, text,
-          _this = this;
-
-        if (this.summarising) {
-          return;
-        }
-        loader = this.$('.im-load-more');
-        text = loader.text();
-        loader.html("<i class=\"icon-refresh icon-spin\"></i>");
-        this.limit *= 2;
-        this.summarising = this.query.filterSummary(this.facet.path, this.filterTerm, this.limit);
-        this.summarising.done(function(items, stats, fcount) {
-          var newItem, newItems, _i, _len;
-
-          _this.hasMore = stats.uniqueValues > _this.limit;
-          newItems = items.slice(_this.items.length);
-          for (_i = 0, _len = newItems.length; _i < _len; _i++) {
-            newItem = newItems[_i];
-            _this.items.add(_.extend(newItem, {
-              visibility: true,
-              selected: false
-            }));
-          }
-          return _this.query.trigger('got:summary:total', _this.facet.path, stats.uniqueValues, items.length, fcount);
-        });
-        this.summarising.done(function() {
-          loader.empty().text(text);
-          return loader.toggle(_this.hasMore);
-        });
-        return this.summarising.always(function() {
-          return delete _this.summarising;
-        });
-      };
-
-      PieFacet.prototype.exportSummary = function(e) {
-        e.stopImmediatePropagation();
-        return true;
-      };
-
-      PieFacet.prototype.changeSelection = function(f) {
-        var tbody,
-          _this = this;
-
-        tbody = this.$('.im-item-table tbody')[0];
-        return this.items.each(function(item) {
-          return _.defer(function() {
-            return f.call(_this, item);
-          });
-        });
-      };
-
-      PieFacet.prototype.resetOptions = function(e) {
-        return this.changeSelection(function(item) {
-          return item.set({
-            selected: false
-          });
-        });
-      };
-
-      PieFacet.prototype.toggleSelection = function(e) {
-        return this.changeSelection(function(item) {
-          if (item.get('visibility')) {
-            return item.set({
-              selected: !item.get('selected')
-            });
-          }
-        });
-      };
-
-      PieFacet.prototype.addConstraint = function(e, ops, vals) {
-        var item, newCon, unselected;
-
-        e.preventDefault();
-        e.stopPropagation();
-        newCon = {
-          path: this.facet.path
-        };
-        if (vals == null) {
-          vals = (function() {
-            var _i, _len, _ref6, _results;
-
-            _ref6 = this.items.where({
-              selected: true
-            });
-            _results = [];
-            for (_i = 0, _len = _ref6.length; _i < _len; _i++) {
-              item = _ref6[_i];
-              _results.push(item.get("item"));
-            }
-            return _results;
-          }).call(this);
-          unselected = this.items.where({
-            selected: false
-          });
-          if ((!this.hasMore) && vals.length > unselected.length) {
-            return this.addConstraint(e, negateOps(ops), (function() {
-              var _i, _len, _results;
-
-              _results = [];
-              for (_i = 0, _len = unselected.length; _i < _len; _i++) {
-                item = unselected[_i];
-                _results.push(item.get('item'));
-              }
-              return _results;
-            })());
-          }
-        }
-        if (vals.length === 1) {
-          if (vals[0] === null) {
-            newCon.op = ops.absent;
-          } else {
-            newCon.op = ops.single;
-            newCon.value = "" + vals[0];
-          }
-        } else {
-          newCon.op = ops.multi;
-          newCon.values = vals;
-        }
-        if (!this.facet.ignoreTitle) {
-          newCon.title = this.facet.title;
-        }
-        return this.query.addConstraint(newCon);
-      };
-
-      PieFacet.prototype.render = function() {
-        this.addChart();
-        this.addControls();
-        return this;
-      };
-
-      PieFacet.prototype.addChart = function() {
-        var _this = this;
-
-        this.chartElem = this.make("div");
-        this.$el.append(this.chartElem);
-        if (typeof d3 !== "undefined" && d3 !== null) {
-          setTimeout((function() {
-            return _this._drawD3Chart();
-          }), 0);
-        }
-        return this;
-      };
-
-      getChartPalette = function() {
-        var PieColors, paint;
-
-        PieColors = intermine.options.PieColors;
-        if (_.isFunction(PieColors)) {
-          paint = PieColors;
-        } else {
-          paint = d3.scale[PieColors]();
-        }
-        return function(d, i) {
-          return paint(i);
-        };
-      };
-
-      PieFacet.prototype._drawD3Chart = function() {
-        var arc, arc_group, centre_group, chart, colour, donut, getTween, h, ir, label_group, paths, percent, r, total, w, whiteCircle,
-          _this = this;
-
-        h = this.chartHeight;
-        w = this.$el.closest(':visible').width();
-        r = h * 0.4;
-        ir = h * 0.1;
-        donut = d3.layout.pie().value(function(d) {
-          return d.get('count');
-        });
-        colour = getChartPalette();
-        chart = d3.select(this.chartElem).append('svg').attr('class', 'chart').attr('height', h).attr('width', w);
-        arc = d3.svg.arc().startAngle(function(d) {
-          return d.startAngle;
-        }).endAngle(function(d) {
-          return d.endAngle;
-        }).innerRadius(function(d) {
-          if (d.data.get('selected')) {
-            return ir + 5;
-          } else {
-            return ir;
-          }
-        }).outerRadius(function(d) {
-          if (d.data.get('selected')) {
-            return r + 5;
-          } else {
-            return r;
-          }
-        });
-        arc_group = chart.append('svg:g').attr('class', 'arc').attr('transform', "translate(" + (w / 2) + "," + (h / 2) + ")");
-        centre_group = chart.append('svg:g').attr('class', 'center_group').attr('transform', "translate(" + (w / 2) + "," + (h / 2) + ")");
-        label_group = chart.append("svg:g").attr("class", "label_group").attr("transform", "translate(" + (w / 2) + "," + (h / 2) + ")");
-        whiteCircle = centre_group.append("svg:circle").attr("fill", "white").attr("r", ir);
-        getTween = function(d, i) {
-          var j;
-
-          j = d3.interpolate({
-            startAngle: 0,
-            endAngle: 0
-          }, d);
-          return function(t) {
-            return arc(j(t));
-          };
-        };
-        paths = arc_group.selectAll('path').data(donut(this.items.models));
-        paths.enter().append('svg:path').attr('class', 'donut-arc').attr('stroke', 'white').attr('stroke-width', 0.5).attr('fill', colour).on('click', function(d, i) {
-          return d.data.set({
-            selected: !d.data.get('selected')
-          });
-        }).on('mouseover', function(d, i) {
-          return d.data.trigger('hover');
-        }).on('mouseout', function(d, i) {
-          return d.data.trigger('unhover');
-        }).transition().duration(intermine.options.D3.Transition.Duration).attrTween('d', getTween);
-        total = this.items.reduce((function(sum, m) {
-          return sum + m.get('count');
-        }), 0);
-        percent = function(d) {
-          return (d.data.get('count') / total * 100).toFixed(1);
-        };
-        paths.each(function(d, i) {
-          var placement, title;
-
-          title = "" + (d.data.get('item')) + ": " + (percent(d)) + "%";
-          placement = (d.endAngle + d.startAngle) / 2 > Math.PI ? 'left' : 'right';
-          return $(this).tooltip({
-            title: title,
-            placement: placement,
-            container: this.chartElem
-          });
-        });
-        paths.transition().duration(intermine.options.D3.Transition.Duration).ease(intermine.options.D3.Transition.Easing).attrTween("d", getTween);
-        this.items.on('change:selected', function() {
-          paths.data(donut(_this.items.models)).attr('d', arc);
-          return paths.transition().duration(intermine.options.D3.Transition.Duration).ease(intermine.options.D3.Transition.Easing);
-        });
-        return this;
-      };
-
-      PieFacet.prototype.filterControls = "<div class=\"input-prepend\">\n    <span class=\"add-on im-clear-value-filter\">\n      <i class=\"icon-refresh\"></i>\n    </span>\n    <input type=\"text\" class=\"input-medium  im-filter-values\" placeholder=\"Filter values\">\n</div>";
-
-      PieFacet.prototype.getDownloadPopover = function() {
-        var href, i, icons, lis, name, param;
-
-        icons = intermine.icons;
-        lis = (function() {
-          var _results;
-
-          _results = [];
-          for (param in SUMMARY_FORMATS) {
-            name = SUMMARY_FORMATS[param];
-            href = "" + (this.query.getExportURI(param)) + "&summaryPath=" + this.facet.path;
-            i = "<i class=\"" + icons[name] + "\"></i>";
-            _results.push("<li><a href=\"" + href + "\"> " + i + " " + name + "</a></li>");
-          }
-          return _results;
-        }).call(this);
-        return "<ul class=\"im-export-summary\">" + (lis.join('')) + "</ul>";
-      };
-
-      PieFacet.prototype.addControls = function() {
-        var $btns, $grp, DownloadData, DownloadFormat, More, imd, tbody, _ref6,
-          _this = this;
-
-        _ref6 = intermine.messages.facets, More = _ref6.More, DownloadData = _ref6.DownloadData, DownloadFormat = _ref6.DownloadFormat;
-        $grp = $("<form class=\"form form-horizontal\">\n  " + this.filterControls + "\n  <div class=\"im-item-table\">\n    <table class=\"table table-condensed table-striped\">\n      <colgroup>\n        " + (this.colClasses.map(function(cl) {
-          return "<col class=" + cl + ">";
-        }).join('')) + "\n      </colgroup>\n      <thead>\n        <tr>" + (this.columnHeaders.map(function(h) {
-          return "<th>" + h + "</th>";
-        }).join('')) + "</tr>\n      </thead>\n      <tbody class=\"scrollable\"></tbody>\n    </table>\n    " + (this.hasMore ? '<div class="im-load-more">' + More + '</div>' : '') + "\n  </div>\n</form>");
-        $grp.button();
-        tbody = $grp.find('tbody')[0];
-        this.items.each(function(item) {
-          return _this.addItemRow(item, _this.items, {}, tbody);
-        });
-        $grp.append("<div class=\"im-filter\">\n  <button class=\"btn pull-right im-download\" >\n    <i class=\"" + intermine.icons.Download + "\"></i>\n    " + DownloadData + "\n  </button>\n  " + (this.buttons()) + "\n</div>");
-        $btns = $grp.find('.im-filter .btn').tooltip({
-          placement: 'top',
-          container: this.el
-        });
-        $btns.on('click', function(e) {
-          return $btns.tooltip('hide');
-        });
-        $grp.find('.dropdown-toggle').click(function(e) {
-          var $parent, $this;
-
-          $this = $(this);
-          $parent = $this.parent();
-          return $parent.toggleClass('open');
-        });
-        imd = $grp.find('.im-download').popover({
-          placement: 'top',
-          html: true,
-          container: this.el,
-          title: DownloadFormat,
-          content: this.getDownloadPopover(),
-          trigger: 'manual'
-        });
-        imd.click(function(e) {
-          return imd.popover('toggle');
-        });
-        this.initFilter($grp);
-        $grp.appendTo(this.el);
-        return this;
-      };
-
-      PieFacet.prototype.addItemRow = function(item, items, opts, tbody) {
-        if (tbody == null) {
-          tbody = this.$('.im-item-table tbody').get()[0];
-        }
-        return tbody.appendChild(this.makeRow(item));
-      };
-
-      PieFacet.prototype.buttons = function() {
-        return "<div class=\"btn-group\">\n  <button type=\"submit\" class=\"btn btn-primary im-filter-in\" disabled\n          title=\"" + intermine.messages.facets.Include + "\">\n    Filter\n  </button>\n  <button class=\"btn btn-primary dropdown-toggle\" \n          title=\"Select filter type\"  disabled>\n    <span class=\"caret\"></span>\n  </button>\n  <ul class=\"dropdown-menu\">\n    <li>\n      <a href=\"#\" class=\"im-filter-in\">\n        " + intermine.messages.facets.Include + "\n      </a>\n    </li>\n    <li>\n      <a href=\"#\" class=\"im-filter-out\">\n        " + intermine.messages.facets.Exclude + "\n      </a>\n    </li>\n  </ul>\n</div>\n\n<div class=\"btn-group\">\n  <button class=\"btn btn-cancel\" disabled\n            title=\"" + intermine.messages.facets.Reset + "\">\n    <i class=\"" + intermine.icons.Undo + "\"></i>\n  </button>\n  <button class=\"btn btn-toggle-selection\"\n          title=\"" + intermine.messages.facets.ToggleSelection + "\">\n    <i class=\"" + intermine.icons.Toggle + "\"></i>\n  </button>\n</div>";
-      };
-
-      PieFacet.prototype.initFilter = function($grp) {
-        var $valFilter, sel;
-
-        if (this.filterTerm == null) {
-          return;
-        }
-        sel = '.im-filter-values';
-        $valFilter = $grp != null ? $grp.find(sel) : this.$(sel);
-        return $valFilter.val(this.filterTerm);
-      };
-
-      PieFacet.prototype.colClasses = ["im-item-selector", "im-item-value", "im-item-count"];
-
-      PieFacet.prototype.columnHeaders = [' ', 'Item', 'Count'];
-
-      PieFacet.prototype.makeRow = function(item) {
-        var row;
-
-        row = new FacetRow(item, this.items);
-        return row.render().el;
-      };
-
-      return PieFacet;
-
-    })(Backbone.View);
-    FacetRow = (function(_super) {
-      __extends(FacetRow, _super);
-
-      function FacetRow() {
-        _ref6 = FacetRow.__super__.constructor.apply(this, arguments);
-        return _ref6;
-      }
-
-      FacetRow.prototype.tagName = "tr";
-
-      FacetRow.prototype.className = "im-facet-row";
-
-      FacetRow.prototype.isBelow = function() {
-        var parent;
-
-        parent = this.$el.closest('.im-item-table');
-        return this.$el.offset().top + this.$el.outerHeight() > parent.offset().top + parent.outerHeight();
-      };
-
-      FacetRow.prototype.isAbove = function() {
-        var parent;
-
-        parent = this.$el.closest('.im-item-table');
-        return this.$el.offset().top < parent.offset().top;
-      };
-
-      FacetRow.prototype.isVisible = function() {
-        return !(this.isAbove() || this.isBelow());
-      };
-
-      FacetRow.prototype.initialize = function(item, items) {
-        var _this = this;
-
-        this.item = item;
-        this.items = items;
-        this.item.facetRow = this;
-        this.listenTo(this.item, "change:selected", function() {
-          return _this.onChangeSelected();
-        });
-        this.listenTo(this.item, "change:visibility", function() {
-          return _this.onChangeVisibility();
-        });
-        this.listenTo(this.item, 'hover', function() {
-          var above, itemTable, newTop, surrogate;
-
-          _this.$el.addClass('hover');
-          if (!_this.isVisible()) {
-            above = _this.isAbove();
-            surrogate = $("<div class=\"im-facet-surrogate " + (above ? 'above' : 'below') + "\">\n    <i class=\"icon-caret-" + (above ? 'up' : 'down') + "\"></i>\n    " + (_this.item.get('item')) + ": " + (_this.item.get('count')) + "\n</div>");
-            itemTable = _this.$el.closest('.im-item-table').append(surrogate);
-            newTop = above ? itemTable.offset().top + itemTable.scrollTop() : itemTable.scrollTop() + itemTable.offset().top + itemTable.outerHeight() - surrogate.outerHeight();
-            return surrogate.offset({
-              top: newTop
-            });
-          }
-        });
-        return this.listenTo(this.item, 'unhover', function() {
-          var s;
-
-          _this.$el.removeClass('hover');
-          return s = _this.$el.closest('.im-item-table').find('.im-facet-surrogate').fadeOut('fast', function() {
-            return s.remove();
-          });
-        });
-      };
-
-      FacetRow.prototype.initState = function() {
-        this.onChangeVisibility();
-        return this.onChangeSelected();
-      };
-
-      FacetRow.prototype.onChangeVisibility = function() {
-        return this.$el.toggle(this.item.get("visibility"));
-      };
-
-      FacetRow.prototype.onChangeSelected = function() {
-        var f, isSelected,
-          _this = this;
-
-        isSelected = !!this.item.get("selected");
-        if (this.item.has("path")) {
-          item.get("path").node.setAttribute("class", isSelected ? "selected" : "");
-        }
-        f = function() {
-          _this.$el.toggleClass("active", isSelected);
-          if (isSelected !== _this.$('input').prop("checked")) {
-            return _this.$('input').prop("checked", isSelected);
-          }
-        };
-        return setTimeout(f, 0);
-      };
-
-      FacetRow.prototype.events = {
-        'click': 'handleClick',
-        'change input': 'handleChange'
-      };
-
-      FacetRow.prototype.render = function() {
-        var opacity, percent, ratio, _ref7;
-
-        ratio = parseInt(this.item.get("count"), 10) / this.items.maxCount;
-        opacity = ratio.toFixed(2) / 2 + 0.5;
-        percent = (ratio * 100).toFixed(1);
-        this.$el.append("<td class=\"im-selector-col\">\n    <span>" + ((this.item.get("symbol")) || "") + "</span>\n    <input type=\"checkbox\">\n</td>\n<td class=\"im-item-col\">\n  " + ((_ref7 = this.item.get("item")) != null ? _ref7 : '<span class=null-value>&nbsp;</span>') + "\n</td>\n<td class=\"im-count-col\">\n    <div class=\"im-facet-bar\"\n         style=\"width:" + percent + "%;background:rgba(206, 210, 222, " + opacity + ")\">\n      <span class=\"im-count\">\n        " + (this.item.get("count")) + "\n      </span>\n    </div>\n</td>");
-        if (this.item.get("percent")) {
-          this.$el.append("<td class=\"im-prop-col\"><i>" + (this.item.get("percent").toFixed()) + "%</i></td>");
-        }
-        this.initState();
-        return this;
-      };
-
-      FacetRow.prototype.handleClick = function(e) {
-        e.stopPropagation();
-        if (e.target.type !== 'checkbox') {
-          return this.$('input').trigger("click");
-        }
-      };
-
-      FacetRow.prototype.handleChange = function(e) {
-        var _this = this;
-
-        e.stopPropagation();
-        return setTimeout((function() {
-          return _this.item.set("selected", _this.$('input').is(':checked'));
-        }), 0);
-      };
-
-      return FacetRow;
-
-    })(Backbone.View);
-    HistoFacet = (function(_super) {
-      __extends(HistoFacet, _super);
-
-      function HistoFacet() {
-        _ref7 = HistoFacet.__super__.constructor.apply(this, arguments);
-        return _ref7;
-      }
-
-      HistoFacet.prototype.className = 'im-grouped-facet im-facet';
-
-      HistoFacet.prototype.chartHeight = 50;
-
-      HistoFacet.prototype.leftMargin = 25;
-
-      HistoFacet.prototype.colClasses = ["im-item-selector", "im-item-value", "im-item-count"];
-
-      HistoFacet.prototype.columnHeaders = [' ', 'Item', 'Count'];
-
-      HistoFacet.prototype._drawD3Chart = function() {
-        var chart, data, f, h, itemW, max, n, onSelection, rectClass, rects, w, y,
-          _this = this;
-
-        if (this.items.all(function(i) {
-          return 1 === i.get('count');
-        })) {
-          return this;
-        }
-        data = this.items.models;
-        w = this.$el.closest(':visible').width() * 0.95;
-        n = data.length;
-        itemW = (w - this.leftMargin) / data.length;
-        h = this.chartHeight;
-        f = this.items.first();
-        max = f.get("count");
-        x = d3.scale.linear().domain([0, n]).range([this.leftMargin, w]);
-        y = d3.scale.linear().domain([0, max]).rangeRound([0, h]);
-        chart = d3.select(this.chartElem).append('svg').attr('class', 'chart').attr('width', w).attr('height', h);
-        rectClass = n > w / 4 ? 'squashed' : 'bar';
-        rects = chart.selectAll('rect');
-        rects.data(data).enter().append('rect').attr('class', rectClass).attr('width', itemW).attr('y', h).attr('height', 0).attr('x', function(d, i) {
-          return x(i) - 0.5;
-        }).on('click', function(d, i) {
-          return d.set({
-            selected: !d.get('selected')
-          });
-        }).on('mouseover', function(d, i) {
-          return d.trigger('hover');
-        }).on('mouseout', function(d, i) {
-          return d.trigger('unhover');
-        });
-        chart.selectAll('rect').data(this.items.models).transition().duration(intermine.options.D3.Transition.Duration).ease(intermine.options.D3.Transition.Easing).attr('y', function(d) {
-          return h - y(d.get('count')) - 0.5;
-        }).attr('height', function(d) {
-          return y(d.get('count'));
-        });
-        chart.append('line').attr('x1', 0).attr('x2', w).attr('y1', h - .5).attr('y2', h - .5).style('stroke', '#000');
-        onSelection = function() {
-          return _.defer(function() {
-            return chart.selectAll('rect').data(_this.items.models).transition().duration(intermine.options.D3.Transition.Duration).ease(intermine.options.D3.Transition.Easing).attr('class', function(d) {
-              return rectClass + (d.get('selected') ? '-selected' : '');
-            });
-          });
-        };
-        this.items.on('change:selected', _.throttle(onSelection, 150));
-        return this;
-      };
-
-      return HistoFacet;
-
-    })(PieFacet);
-    BooleanFacet = (function(_super) {
-      __extends(BooleanFacet, _super);
-
-      function BooleanFacet() {
-        _ref8 = BooleanFacet.__super__.constructor.apply(this, arguments);
-        return _ref8;
-      }
-
-      BooleanFacet.prototype.initialize = function() {
-        var _this = this;
-
-        BooleanFacet.__super__.initialize.apply(this, arguments);
-        if (this.items.length === 2) {
-          return this.items.on('change:selected', function(x, selected) {
-            var someAreSelected;
-
-            _this.items.each(function(y) {
-              if (selected && x !== y) {
-                return y.set({
-                  selected: false
-                });
-              }
-            });
-            someAreSelected = _this.items.any(function(item) {
-              return !!item.get("selected");
-            });
-            return _this.$('.im-filtering.btn').attr("disabled", !someAreSelected);
-          });
-        }
-      };
-
-      BooleanFacet.prototype.filterControls = '';
-
-      BooleanFacet.prototype.initFilter = function() {};
-
-      BooleanFacet.prototype.buttons = function() {
-        return "<button type=\"submit\" class=\"btn btn-primary im-filtering im-filter-in\" disabled>Filter</button>\n<button class=\"btn btn-cancel im-filtering\" disabled>Reset</button>";
-      };
-
-      return BooleanFacet;
-
-    })(PieFacet);
-    return scope("intermine.results", {
-      ColumnSummary: ColumnSummary,
-      FacetView: FacetView,
-      FrequencyFacet: FrequencyFacet,
-      NumericFacet: NumericFacet,
-      PieFacet: PieFacet,
-      FacetRow: FacetRow,
-      HistoFacet: HistoFacet,
-      BooleanFacet: BooleanFacet
-    });
-  })();
-
-  define('actions/list-manager', using('actions/list-append-dialogue', 'actions/new-list-dialogue', function(ListAppender, ListCreator) {
-    var ListManager, _ref;
-
-    return ListManager = (function(_super) {
-      var descendedFrom, pathOf;
-
-      __extends(ListManager, _super);
-
-      function ListManager() {
-        this.updateTypeOptions = __bind(this.updateTypeOptions, this);
-        this.changeAction = __bind(this.changeAction, this);        _ref = ListManager.__super__.constructor.apply(this, arguments);
-        return _ref;
-      }
-
-      ListManager.prototype.tagName = "li";
-
-      ListManager.prototype.className = "im-list-management dropdown";
-
-      ListManager.prototype.initialize = function(states) {
+      Trail.prototype.initialize = function(states) {
         this.states = states;
-        this.states.on('add reverted', this.updateTypeOptions);
-        this.action = ListManager.actions.create;
-        return this.disabled = this.states.currentQuery.service.token == null;
+        this.subViews = [];
+        this.states.on('add', this.appendState, this);
+        return this.states.on('reverted', this.render, this);
       };
 
-      ListManager.prototype.html = "<a class=\"btn\" data-toggle=\"dropdown\">\n    <i class=\"icon-list-alt\"></i>\n    <span class=\"im-only-widescreen\">Create / Add to</span>\n    List\n    <b class=\"caret\"></b>\n</a>\n<ul class=\"dropdown-menu im-type-options pull-right\">\n    <div class=\"btn-group\" data-toggle=\"buttons-radio\">\n        <button class=\"btn active im-list-action-chooser\" data-action=\"create\">\n            Create New List\n        </button>\n        <button class=\"btn im-list-action-chooser\" data-action=\"append\">\n            Add to Existing List\n        </button>\n    </div>\n</ul>";
-
-      ListManager.prototype.events = {
-        'click .btn-group > .im-list-action-chooser': 'changeAction',
-        'click .im-pick-and-choose': 'startPicking'
+      Trail.prototype.events = {
+        'click a.details': 'minumaximise',
+        'click a.shade': 'toggle',
+        'click a.im-undo': 'undo'
       };
 
-      ListManager.actions = {
-        create: ListCreator,
-        append: ListAppender
-      };
-
-      ListManager.prototype.changeAction = function(e) {
-        var $t;
-
-        e.stopPropagation();
-        e.preventDefault();
-        $t = $(e.target).button("toggle");
-        return this.action = ListManager.actions[$t.data('action')];
-      };
-
-      ListManager.prototype.openDialogue = function(type, q) {
-        var dialog;
-
-        dialog = new this.action(this.states.currentQuery);
-        dialog.render().$el.appendTo(this.el);
-        return dialog.openDialogue(type, q);
-      };
-
-      ListManager.prototype.startPicking = function() {
-        var dialog;
-
-        dialog = new this.action(this.states.currentQuery);
-        dialog.render().$el.appendTo(this.el);
-        return dialog.startPicking();
-      };
-
-      descendedFrom = function(putativeParent) {
-        var prefix;
-
-        if (putativeParent.isAttribute()) {
-          return function() {
-            return false;
-          };
-        } else {
-          prefix = putativeParent + '.';
-          return function(suspectedChild) {
-            return suspectedChild.substring(0, prefix.length) === prefix;
-          };
-        }
-      };
-
-      pathOf = intermine.funcutils.get('path');
-
-      ListManager.prototype.updateTypeOptions = function() {
-        var node, query, ul, viewNodes, _fn, _i, _len,
-          _this = this;
-
-        ul = this.$('.im-type-options');
-        ul.find("li").remove();
-        query = this.states.currentQuery;
-        viewNodes = query.getViewNodes();
-        _fn = function(node) {
-          var countQuery, err, inCons, li, missingNode, needsAsserting, unselected, _j, _len1;
-
-          li = $("<li></li>");
-          ul.append(li);
-          countQuery = query.clone();
-          try {
-            countQuery.select([node.append("id").toPathString()]);
-          } catch (_error) {
-            err = _error;
-            console.error(err);
-            return;
-          }
-          if (query.isOuterJoined(countQuery.views[0])) {
-            (function(path) {
-              var style, _results;
-
-              style = 'INNER';
-              _results = [];
-              while (!path.isRoot()) {
-                countQuery.addJoin({
-                  path: path,
-                  style: style
-                });
-                _results.push(path = path.getParent());
-              }
-              return _results;
-            })(node);
-          }
-          unselected = viewNodes.filter(function(n) {
-            return n !== node;
-          });
-          for (_j = 0, _len1 = unselected.length; _j < _len1; _j++) {
-            missingNode = unselected[_j];
-            inCons = _.any(countQuery.constraints, _.compose(descendedFrom(missingNode), pathOf));
-            needsAsserting = (!inCons) || (query.isOuterJoined(missingNode));
-            if (needsAsserting) {
-              countQuery.addConstraint([missingNode.append("id"), "IS NOT NULL"]);
-            }
-          }
-          countQuery.orderBy([]);
-          li.click(function() {
-            return _this.openDialogue(node.getType().name, countQuery);
-          });
-          li.mouseover(function() {
-            return query.trigger("start:highlight:node", node);
-          });
-          li.mouseout(function() {
-            return query.trigger("stop:highlight");
-          });
-          return countQuery.count().then(function(n) {
-            var quantifier, typeName;
-
-            if (n < 1) {
-              return li.remove();
-            }
-            quantifier = (function() {
-              switch (n) {
-                case 1:
-                  return "The";
-                case 2:
-                  return "Both";
-                default:
-                  return "All " + n;
-              }
-            })();
-            typeName = intermine.utils.pluralise(node.getType().name, n);
-            return li.append("<a>" + quantifier + " " + typeName + "</a>");
-          });
-        };
-        for (_i = 0, _len = viewNodes.length; _i < _len; _i++) {
-          node = viewNodes[_i];
-          _fn(node);
-        }
-        return ul.append("<li class=\"im-pick-and-choose\">\n    <a>Choose individual items from the table</a>\n</li>");
-      };
-
-      ListManager.prototype.render = function() {
-        this.$el.append(this.html);
-        this.updateTypeOptions();
-        return this;
-      };
-
-      return ListManager;
-
-    })(Backbone.View);
-  }));
-
-  reqs = ['actions', 'actions/list-manager', 'actions/code-gen', 'actions/export-manager'];
-
-  define('actions/actionbar', using.apply(null, __slice.call(reqs).concat([function(Actions, Lists, CodeGen, Exports) {
-    var ActionBar, _ref;
-
-    ActionBar = (function(_super) {
-      __extends(ActionBar, _super);
-
-      function ActionBar() {
-        _ref = ActionBar.__super__.constructor.apply(this, arguments);
-        return _ref;
-      }
-
-      ActionBar.prototype.extraClass = "im-action";
-
-      ActionBar.prototype.actionClasses = function() {
-        return [Lists, CodeGen, Exports];
-      };
-
-      return ActionBar;
-
-    })(Actions);
-    scope("intermine.query.actions", {
-      ActionBar: ActionBar
-    });
-    return ActionBar;
-  }])));
-
-  define('actions/new-list-dialogue', using('actions/list-dialogue', 'models/uniq-items', 'html/new-list', function(ListDialogue, UniqItems, HTML) {
-    var CATEGORY_FROM_ROWS, CATEGORY_FROM_SUMMARY, ILLEGAL_LIST_NAME_CHARS, ListCreator, _ref;
-
-    ILLEGAL_LIST_NAME_CHARS = /[^\w\s\(\):+\.-]/g;
-    CATEGORY_FROM_SUMMARY = function(items, _arg) {
-      var uniqueValues;
-
-      uniqueValues = _arg.uniqueValues;
-      return [uniqueValues, items, 'item'];
-    };
-    CATEGORY_FROM_ROWS = function(rows) {
-      return [rows.length, rows, 0];
-    };
-    ListCreator = (function(_super) {
-      var TAG_ILLEGALS;
-
-      __extends(ListCreator, _super);
-
-      function ListCreator() {
-        this.updateTagBox = __bind(this.updateTagBox, this);
-        this.handleFailure = __bind(this.handleFailure, this);
-        this.handleSuccess = __bind(this.handleSuccess, this);        _ref = ListCreator.__super__.constructor.apply(this, arguments);
-        return _ref;
-      }
-
-      ListCreator.prototype.html = HTML;
-
-      ListCreator.prototype.initialize = function(query) {
+      Trail.prototype.toggle = function() {
         var _this = this;
 
-        this.query = query;
-        ListCreator.__super__.initialize.call(this, this.query);
-        this.query.service.whoami(function(me) {
-          _this.canTag = me.username != null;
-          if (_this.rendered && !_this.canTag) {
-            return _this.hideTagOptions();
-          }
+        return this.$('.im-step').slideToggle('fast', function() {
+          return _this.$el.toggleClass("toggled");
         });
-        this.tags = new UniqItems();
-        this.suggestedTags = new UniqItems();
-        this.tags.on("add", this.updateTagBox);
-        this.suggestedTags.on("add", this.updateTagBox);
-        this.tags.on("remove", this.updateTagBox);
-        return this.initTags();
       };
 
-      ListCreator.prototype.hideTagOptions = function() {
-        return this.$('.im-tag-options').hide();
+      Trail.prototype.minumaximise = function() {
+        return this.$el.toggleClass("minimised");
       };
 
-      ListCreator.prototype.newCommonType = function() {
-        var categoriser, cd, dateStr, first, ids, model, now, oq, querying, rest, service, summPath, text, type, viewNode, _i, _len, _ref1, _ref2, _ref3,
+      Trail.prototype.undo = function() {
+        return this.states.popState();
+      };
+
+      Trail.prototype.appendState = function(state) {
+        var step;
+
+        step = new Step({
+          model: state
+        });
+        this.subViews.push(step);
+        this.$('.im-state-list').append(step.render().el);
+        return this.$el.addClass('im-has-history');
+      };
+
+      Trail.prototype.render = function() {
+        var step,
           _this = this;
 
-        ListCreator.__super__.newCommonType.call(this);
-        if (this.listOptions.get('customName')) {
-          return;
+        while (step = this.subViews.pop()) {
+          step.remove();
         }
-        type = this.listOptions.get('type');
-        _ref1 = this.query, service = _ref1.service, model = _ref1.model;
-        now = new Date();
-        dateStr = ("" + now).replace(/\s\d\d:\d\d:\d\d\s.*$/, '');
-        text = "" + type + " list - " + dateStr;
-        cd = model.classes[type];
-        ids = _.keys(this.types);
-        this.listOptions.set({
-          name: text,
-          customName: false
+        this.$el.html("<div class=\"btn-group\">\n  <a class=\"btn im-undo\">\n    <i class=\"" + intermine.icons.Undo + "\"></i>\n    <span class=\"visible-desktop\">Undo</span>\n  </a>\n  <a class=\"btn dropdown-toggle\" data-toggle=\"dropdown\">\n    <span class=\"caret\"></span>\n  </a>\n  <ul class=\"dropdown-menu im-state-list\">\n  </ul>\n</div>\n<div style=\"clear:both\"></div>");
+        this.states.each(function(s) {
+          return _this.appendState(s);
         });
-        _ref2 = intermine.options.ListCategorisers;
-        for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
-          categoriser = _ref2[_i];
-          _ref3 = categoriser.split(/\./), first = _ref3[0], rest = 2 <= _ref3.length ? __slice.call(_ref3, 1) : [];
-          if (first in cd.fields) {
-            if (ids != null ? ids.length : void 0) {
-              oq = {
-                select: categoriser,
-                from: type,
-                where: {
-                  id: ids
-                }
-              };
-              querying = service.rows(oq).then(CATEGORY_FROM_ROWS);
-            } else {
-              oq = (this.listOptions.get('query') || this.query).clone();
-              viewNode = oq.getViewNodes()[0];
-              summPath = "" + viewNode + "." + categoriser;
-              if (first in viewNode.getType().fields) {
-                querying = oq.summarise(summPath, 1).then(CATEGORY_FROM_SUMMARY);
-              }
-            }
-            querying.done(function(_arg) {
-              var category, key, n, name, xs;
-
-              n = _arg[0], xs = _arg[1], key = _arg[2];
-              if (n === 1) {
-                category = xs[0][key];
-                name = "" + type + " list for " + category + " - " + dateStr;
-                return _this.listOptions.set({
-                  name: name,
-                  customName: false
-                });
-              }
-            });
-            querying.always(function() {
-              return _this.avoidNameDuplication();
-            });
-            return;
-          }
-        }
-        return this.avoidNameDuplication();
-      };
-
-      ListCreator.prototype.avoidNameDuplication = function() {
-        var copyNo, model, service, text, textBase, _ref1,
-          _this = this;
-
-        text = textBase = this.listOptions.get('name');
-        copyNo = 1;
-        _ref1 = this.query, service = _ref1.service, model = _ref1.model;
-        return this.getLists().done(function(ls) {
-          var l, _i, _len, _ref2, _results;
-
-          _ref2 = _.sortBy(ls, function(l) {
-            return l.name;
-          });
-          _results = [];
-          for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
-            l = _ref2[_i];
-            if (l.name === text) {
-              text = "" + textBase + " (" + (copyNo++) + ")";
-              _results.push(_this.listOptions.set({
-                name: text,
-                customName: false
-              }));
-            } else {
-              _results.push(void 0);
-            }
-          }
-          return _results;
-        });
-      };
-
-      ListCreator.prototype.openDialogue = function(type, q) {
-        ListCreator.__super__.openDialogue.call(this, type, q);
-        return this.initTags();
-      };
-
-      TAG_ILLEGALS = /[^\w\d\s.,:-]/g;
-
-      ListCreator.prototype.initTags = function() {
-        var add, c, now, _fn, _i, _len, _ref1,
-          _this = this;
-
-        this.tags.reset();
-        this.suggestedTags.reset();
-        add = function(tag) {
-          return _this.suggestedTags.add(tag.replace(TAG_ILLEGALS, ' '), {
-            silent: true
-          });
-        };
-        _ref1 = this.query.constraints;
-        _fn = function(c) {
-          var title;
-
-          title = c.title || c.path.replace(/^[^\.]+\./, "");
-          if (c.op === "IN") {
-            return add("source: " + c.value);
-          } else if (c.op === "=") {
-            return add("" + title + ": " + c.value);
-          } else if (c.op === "<") {
-            return add("" + title + " below " + c.value);
-          } else if (c.op === ">") {
-            return add("" + title + " above " + c.value);
-          } else if (c.type) {
-            return add("" + title + " is a " + c.type);
-          } else {
-            return add("" + title + " " + c.op + " " + (c.value || c.values));
-          }
-        };
-        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-          c = _ref1[_i];
-          _fn(c);
-        }
-        now = new Date();
-        add("month: " + (now.getFullYear()) + "-" + (now.getMonth() + 1));
-        add("year: " + (now.getFullYear()));
-        add("day: " + (now.getFullYear()) + "-" + (now.getMonth() + 1) + "-" + (now.getDate()));
-        return this.updateTagBox();
-      };
-
-      ListCreator.prototype.events = function() {
-        return _.extend(ListCreator.__super__.events.call(this), {
-          'click .remove-tag': 'removeTag',
-          'click .accept-tag': 'acceptTag',
-          'click .im-confirm-tag': 'addTag',
-          'click .btn-reset': 'reset',
-          'click .control-group h5': 'rollUpNext',
-          'change .im-list-desc': 'updateDesc'
-        });
-      };
-
-      ListCreator.prototype.updateDesc = function(e) {
-        return this.listOptions.set({
-          description: $(e.target).val()
-        });
-      };
-
-      ListCreator.prototype.rollUpNext = function(e) {
-        $(e.target).next().slideToggle();
-        return $(e.target).find("i").toggleClass("icon-chevron-right icon-chevron-down");
-      };
-
-      ListCreator.prototype.reset = function() {
-        var field, _i, _len, _ref1;
-
-        _ref1 = ["name", "desc", "type"];
-        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-          field = _ref1[_i];
-          this.$(".im-list-" + field).val("");
-        }
-        return this.initTags();
-      };
-
-      ListCreator.prototype.create = function() {
-        var description, illegals, listQ, name, opts, query, tags, type, _ref1;
-
-        _ref1 = this.listOptions.toJSON(), query = _ref1.query, name = _ref1.name, type = _ref1.type, description = _ref1.description;
-        tags = this.tags.map(function(t) {
-          return t.get("item");
-        });
-        if (!(name && /\w/.test(name))) {
-          return this.setError('.im-list-name', intermine.messages.actions.ListNameEmpty);
-        }
-        if (illegals = name.match(ILLEGAL_LIST_NAME_CHARS)) {
-          return this.setError('.im-list-name', intermine.messages.actions.ListNameIllegal({
-            illegals: illegals
-          }));
-        }
-        listQ = query || {
-          select: ["id"],
-          from: type,
-          where: {
-            id: _(this.types).keys()
-          }
-        };
-        opts = {
-          name: name,
-          description: description,
-          tags: tags
-        };
-        return this.makeNewList(listQ, opts);
-      };
-
-      ListCreator.prototype.makeNewList = function(query, opts) {
-        var saving,
-          _this = this;
-
-        if (query.saveAsList != null) {
-          saving = query.saveAsList(opts);
-          saving.done(this.handleSuccess);
-          saving.fail(this.handleFailure);
-          return this.stop();
-        } else {
-          return this.query.service.query(query, function(q) {
-            return _this.makeNewList(q, opts);
-          });
-        }
-      };
-
-      ListCreator.prototype.handleSuccess = function(list) {
-        console.log("Created a list", list);
-        return this.query.trigger("list-creation:success", list);
-      };
-
-      ListCreator.prototype.handleFailure = function(xhr, level, message) {
-        if (xhr.responseText) {
-          message = (JSON.parse(xhr.responseText)).error;
-        }
-        return this.query.trigger("list-creation:failure", message);
-      };
-
-      ListCreator.prototype.removeTag = function(e) {
-        var tag;
-
-        tag = $(e.target).closest('.label').find('.tag-text').text();
-        this.tags.remove(tag);
-        this.suggestedTags.add(tag);
-        return $('.tooltip').remove();
-      };
-
-      ListCreator.prototype.acceptTag = function(e) {
-        var tag;
-
-        console.log("Accepting", e);
-        tag = $(e.target).closest('.label').find('.tag-text').text();
-        $('.tooltip').remove();
-        this.suggestedTags.remove(tag);
-        return this.tags.add(tag);
-      };
-
-      ListCreator.prototype.updateTagBox = function() {
-        var box;
-
-        box = this.$('.im-list-tags.choices');
-        box.empty();
-        this.tags.each(function(t) {
-          var $li;
-
-          $li = $("<li title=\"" + (t.escape("item")) + "\">\n    <span class=\"label label-warning\">\n        <i class=\"icon-tag icon-white\"></i>\n        <span class=\"tag-text\">" + (t.escape("item")) + "</span>\n        <a href=\"#\">\n            <i class=\"icon-remove-circle icon-white remove-tag\"></i>\n        </a>\n    </span>\n</li>");
-          return $li.tooltip({
-            placement: "top"
-          }).appendTo(box);
-        });
-        box.append("<div style=\"clear:both\"></div>");
-        box = this.$('.im-list-tags.suggestions');
-        box.empty();
-        this.suggestedTags.each(function(t) {
-          var $li;
-
-          $li = $("<li title=\"This tag is a suggestion. Click the 'ok' sign to add it\">\n    <span class=\"label\">\n        <i class=\"icon-tag icon-white\"></i>\n        <span class=\"tag-text\">" + (t.escape("item")) + "</span>\n        <a href=\"#\" class=\"accept-tag\">\n            <i class=\"icon-ok-circle icon-white\"></i>\n        </a>\n    </span>\n</li>");
-          return $li.tooltip({
-            placement: "top"
-          }).appendTo(box);
-        });
-        return box.append("<div style=\"clear:both\"></div>");
-      };
-
-      ListCreator.prototype.addTag = function(e) {
-        var tagAdder;
-
-        e.preventDefault();
-        tagAdder = this.$('.im-available-tags');
-        this.tags.add(tagAdder.val());
-        tagAdder.val("");
-        return tagAdder.next().attr({
-          disabled: true
-        });
-      };
-
-      ListCreator.prototype.rendered = false;
-
-      ListCreator.prototype.render = function() {
-        var tagAdder,
-          _this = this;
-
-        ListCreator.__super__.render.call(this);
-        this.updateTagBox();
-        tagAdder = this.$('.im-available-tags');
-        this.$('a').button();
-        this.getLists().done(function(ls) {
-          return tagAdder.typeahead({
-            source: _.reduce(ls, (function(a, l) {
-              return _.union(a, l.tags);
-            }), []),
-            items: 10,
-            matcher: function(item) {
-              if (!this.query) {
-                return true;
-              }
-              return this.constructor.prototype.matcher.call(this, item);
-            }
-          });
-        });
-        tagAdder.keyup(function(e) {
-          _this.$('.im-confirm-tag').attr("disabled", false);
-          if (e.which === 13) {
-            return _this.addTag(e);
-          }
-        });
-        if ((this.canTag != null) && !this.canTag) {
-          this.hideTagOptions();
-        }
-        this.rendered = true;
+        this.$el.toggleClass('im-has-history', this.states.size() > 1);
         return this;
       };
 
-      return ListCreator;
-
-    })(ListDialogue);
-    scope('intermine.query.actions', {
-      ListCreator: ListCreator
-    });
-    scope('intermine.actions.lists', {
-      ListCreator: ListCreator
-    });
-    return ListCreator;
-  }));
-
-  define('actions/list-append-dialogue', using('actions/list-dialogue', 'html/append-list', function(ListDialogue, HTML) {
-    var ListAppender, OPTION_TEMPLATE, makeOption, _ref;
-
-    OPTION_TEMPLATE = _.template("<option value=\"<%- name %>\">\n  <%- name %> (<%= size %> <%- things %>)\n</option>");
-    makeOption = function(list) {
-      return OPTION_TEMPLATE(_.extend({}, list, {
-        things: intermine.utils.pluralise(list.type, list.size)
-      }));
-    };
-    ListAppender = (function(_super) {
-      __extends(ListAppender, _super);
-
-      function ListAppender() {
-        _ref = ListAppender.__super__.constructor.apply(this, arguments);
-        return _ref;
-      }
-
-      ListAppender.prototype.html = HTML;
-
-      ListAppender.prototype.events = function() {
-        return _.extend(ListAppender.__super__.events.call(this), {
-          'change select': 'setTarget'
-        });
-      };
-
-      ListAppender.prototype.setTarget = function() {
-        var l, name;
-
-        name = this.$('select').val();
-        return this.listOptions.set({
-          list: ((function() {
-            var _i, _len, _ref1, _results;
-
-            _ref1 = this.__ls;
-            _results = [];
-            for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-              l = _ref1[_i];
-              if (name === l.name) {
-                _results.push(l);
-              }
-            }
-            return _results;
-          }).call(this))[0]
-        });
-      };
-
-      ListAppender.prototype.displayType = function() {
-        var estSize, type, _ref1;
-
-        _ref1 = this.listOptions.toJSON(), estSize = _ref1.estSize, type = _ref1.type;
-        return this.$('.im-item-type').text(intermine.utils.pluralise(type, estSize));
-      };
-
-      ListAppender.prototype.initialize = function() {
-        var _this = this;
-
-        ListAppender.__super__.initialize.apply(this, arguments);
-        this.listOptions.on('change:estSize', function(opts, n) {
-          return _this.$('.im-item-count').text(n);
-        });
-        this.listOptions.on('change:type', this.displayType, this);
-        return this.listOptions.on('change:type', this.onlyShowCompatibleOptions, this);
-      };
-
-      ListAppender.prototype.nothingSelected = function() {
-        var _this = this;
-
-        ListAppender.__super__.nothingSelected.call(this);
-        return this.$('form select option').each(function(i, elem) {
-          return $(elem).attr({
-            disabled: false
-          });
-        });
-      };
-
-      ListAppender.prototype.getSuitabilityFilter = function() {
-        var model, pi, type;
-
-        model = this.query.model;
-        type = this.listOptions.toJSON().type;
-        pi = model.getPathInfo(type);
-        return function(list) {
-          return list.authorized && pi.isa(list.type);
-        };
-      };
-
-      ListAppender.prototype.onlyShowCompatibleOptions = function() {
-        var list, select, service, type, _ref1,
-          _this = this;
-
-        _ref1 = this.listOptions.toJSON(), list = _ref1.list, type = _ref1.type;
-        service = this.query.service;
-        select = this.$('form select');
-        select.empty();
-        return service.fetchLists().done(function(ls) {
-          var l, opt, suitable, _i, _len;
-
-          _this.__ls = ls;
-          suitable = ls.filter(_this.getSuitabilityFilter());
-          for (_i = 0, _len = suitable.length; _i < _len; _i++) {
-            l = suitable[_i];
-            opt = $(makeOption(l));
-            select.append(opt);
-          }
-          if (list) {
-            select.val(list.name);
-          } else {
-            _this.listOptions.set({
-              list: suitable[0]
-            });
-          }
-          _this.$('.btn-primary').attr({
-            disabled: suitable.length < 1
-          });
-          return _this.$('.im-none-compatible-error').toggle(suitable.length < 1);
-        });
-      };
-
-      ListAppender.prototype.doAppend = function() {
-        var ids, list, listQ, query, service, _ref1;
-
-        ids = _.keys(this.types);
-        _ref1 = this.listOptions.toJSON(), query = _ref1.query, list = _ref1.list;
-        service = this.query.service;
-        listQ = query || {
-          select: ["id"],
-          from: list.type,
-          where: {
-            id: ids
-          }
-        };
-        return service.query(listQ).then(function(q) {
-          return q.appendToList(list.name);
-        });
-      };
-
-      ListAppender.prototype.create = function() {
-        var backToNormal, cg, ilh, promise,
-          _this = this;
-
-        if (!this.listOptions.has('list')) {
-          cg = this.$('.im-receiving-list').closest('.control-group').addClass('error');
-          ilh = this.$('.help-inline').text("No receiving list selected").show();
-          backToNormal = function() {
-            return ilh.fadeOut(1000, function() {
-              ilh.text("");
-              return cg.removeClass("error");
-            });
-          };
-          _.delay(backToNormal, 5000);
-          return false;
-        }
-        promise = this.doAppend();
-        promise.done(function(updated) {
-          var added;
-
-          added = updated.size - _this.listOptions.get('list').size;
-          _this.query.trigger("list-update:success", updated, added);
-          return _this.stop();
-        });
-        return promise.fail(function(xhr, level, message) {
-          var e, err;
-
-          err = (function() {
-            try {
-              return JSON.parse(xhr.responseText).error;
-            } catch (_error) {
-              e = _error;
-              return message;
-            }
-          })();
-          return _this.query.trigger("list-update:failure", err);
-        });
-      };
-
-      ListAppender.prototype.render = function() {
-        ListAppender.__super__.render.call(this);
-        return this;
-      };
-
-      ListAppender.prototype.startPicking = function() {
-        ListAppender.__super__.startPicking.call(this);
-        return this.$('.im-none-compatible-error').hide();
-      };
-
-      return ListAppender;
-
-    })(ListDialogue);
-    scope('intermine.actions.lists', {
-      ListAppender: ListAppender
-    });
-    return ListAppender;
-  }));
-
-  define('actions/export-manager', function() {
-    var ExportManager, _ref;
-
-    return ExportManager = (function(_super) {
-      __extends(ExportManager, _super);
-
-      function ExportManager() {
-        _ref = ExportManager.__super__.constructor.apply(this, arguments);
-        return _ref;
-      }
-
-      ExportManager.prototype.tagName = 'li';
-
-      ExportManager.prototype.className = 'im-data-export';
-
-      ExportManager.prototype.initialize = function(states) {
-        this.states = states;
-        return ExportManager.__super__.initialize.call(this);
-      };
-
-      ExportManager.prototype.template = _.template("<a class=\"btn im-open-dialogue\">\n  <i class=\"" + intermine.icons.Export + "\"></i>\n  <span class=\"visible-desktop\">" + intermine.messages.actions.ExportButton + "</span>\n</a>");
-
-      ExportManager.prototype.events = function() {
-        return {
-          'click .im-open-dialogue': 'openDialogue'
-        };
-      };
-
-      ExportManager.prototype.openDialogue = function() {
-        var _ref1;
-
-        if ((_ref1 = this.dialogue) != null) {
-          _ref1.remove();
-        }
-        this.dialogue = new intermine.query["export"].ExportDialogue(this.states.currentQuery);
-        this.$el.append(this.dialogue.render().el);
-        return this.dialogue.show();
-      };
-
-      return ExportManager;
-
-    })(intermine.views.ItemView);
-  });
-
-  define('actions/code-gen', using('perma-query', 'html/code-gen', function(getPermaQuery, HTML) {
-    var CODE_GEN_LANGS, CodeGenerator, alreadyDone, alreadyRejected, defer, get, indent, invoke, _ref, _ref1;
-
-    CODE_GEN_LANGS = [
-      {
-        name: "Perl",
-        extension: "pl"
-      }, {
-        name: "Python",
-        extension: "py"
-      }, {
-        name: "Ruby",
-        extension: "rb"
-      }, {
-        name: "Java",
-        extension: "java"
-      }, {
-        name: "JavaScript",
-        extension: "js"
-      }, {
-        name: "XML",
-        extension: "xml"
-      }
-    ];
-    indent = function(xml) {
-      var buffer, indentLevel, isClosing, isOneLiner, isOpening, line, lines, _i, _len;
-
-      lines = xml.split(/></);
-      indentLevel = 1;
-      buffer = [];
-      for (_i = 0, _len = lines.length; _i < _len; _i++) {
-        line = lines[_i];
-        if (!/>$/.test(line)) {
-          line = line + '>';
-        }
-        if (!/^</.test(line)) {
-          line = '<' + line;
-        }
-        isClosing = /^<\/\w+\s*>/.test(line);
-        isOneLiner = /\/>$/.test(line) || (!isClosing && /<\/\w+>$/.test(line));
-        isOpening = !(isOneLiner || isClosing);
-        if (isClosing) {
-          indentLevel--;
-        }
-        buffer.push(new Array(indentLevel).join('  ') + line);
-        if (isOpening) {
-          indentLevel++;
-        }
-      }
-      return buffer.join("\n");
-    };
-    _ref = intermine.funcutils, get = _ref.get, invoke = _ref.invoke;
-    defer = function(x) {
-      return jQuery.Deferred(function() {
-        return this.resolve(x);
-      });
-    };
-    alreadyDone = defer(true);
-    alreadyRejected = jQuery.Deferred(function() {
-      return this.reject('not available');
-    });
-    return CodeGenerator = (function(_super) {
-      var canSaveFromMemory;
-
-      __extends(CodeGenerator, _super);
-
-      function CodeGenerator() {
-        this.expand = __bind(this.expand, this);
-        this.compact = __bind(this.compact, this);
-        this.doMainAction = __bind(this.doMainAction, this);
-        this.displayLang = __bind(this.displayLang, this);
-        this.showComments = __bind(this.showComments, this);
-        this.render = __bind(this.render, this);        _ref1 = CodeGenerator.__super__.constructor.apply(this, arguments);
-        return _ref1;
-      }
-
-      CodeGenerator.prototype.tagName = "li";
-
-      CodeGenerator.prototype.className = "im-code-gen";
-
-      CodeGenerator.prototype.html = HTML({
-        langs: CODE_GEN_LANGS
-      });
-
-      CodeGenerator.prototype.initialize = function(states) {
-        this.states = states;
-        this.model = new Backbone.Model;
-        return this.model.on('set:lang', this.displayLang);
-      };
-
-      CodeGenerator.prototype.render = function() {
-        this.$el.append(this.html);
-        this.$('.modal').hide();
-        return this;
-      };
-
-      CodeGenerator.prototype.events = {
-        'click .im-show-comments': 'showComments',
-        'click .dropdown-menu a': 'setLang',
-        'click .btn-action': 'doMainAction'
-      };
-
-      CodeGenerator.prototype.showComments = function(e) {
-        if ($(e.target).is('.active')) {
-          return this.compact();
-        } else {
-          return this.expand();
-        }
-      };
-
-      CodeGenerator.prototype.setLang = function(e) {
-        var $t;
-
-        $t = $(e.target);
-        this.model.set({
-          lang: $t.data('lang') || this.model.get('lang')
-        }, {
-          silent: true
-        });
-        return this.model.trigger('set:lang');
-      };
-
-      canSaveFromMemory = function() {
-        if (typeof Blob === "undefined" || Blob === null) {
-          alreadyRejected;
-        }
-        if (typeof saveAs !== "undefined" && saveAs !== null) {
-          return alreadyDone;
-        } else {
-          return intermine.cdn.load('filesaver');
-        }
-      };
-
-      CodeGenerator.prototype.displayLang = function() {
-        var $m, code, ext, href, lang, pq, query, ready, saveBtn,
-          _this = this;
-
-        $m = this.$('.modal');
-        lang = this.model.get('lang');
-        query = this.states.currentQuery;
-        pq = getPermaQuery(query);
-        ext = lang === 'js' ? 'html' : lang;
-        href = lang === 'xml' ? '' : query.getCodeURI(lang);
-        ready = typeof prettyPrintOne !== "undefined" && prettyPrintOne !== null ? alreadyDone : intermine.cdn.load('prettify');
-        code = lang === 'xml' ? pq.then(invoke('toXML')).then(indent) : pq.then(invoke('fetchCode', lang));
-        this.$('a .im-code-lang').text(lang);
-        this.$('.modal h3 .im-code-lang').text(lang);
-        saveBtn = this.$('.modal .btn-save').removeClass('disabled').unbind('click').attr({
-          href: null
-        });
-        if (lang === 'xml') {
-          saveBtn.addClass('disabled');
-          canSaveFromMemory().done(function() {
-            return saveBtn.removeClass('disabled').click(function() {
-              var blob;
-
-              blob = new Blob([code], {
-                type: 'application/xml;charset=utf8'
-              });
-              return saveAs(blob, 'query.xml');
-            });
-          });
-        } else {
-          pq.then(invoke('getCodeURI', lang)).then(function(href) {
-            return saveBtn.attr({
-              href: href
-            });
-          });
-        }
-        this.states.on('error', console.error.bind(console));
-        return jQuery.when(code, ready).fail(function(e) {
-          return _this.states.trigger('error', e);
-        }).then(function(code) {
-          var formatted;
-
-          formatted = prettyPrintOne(_.escape(code), ext);
-          $m.find('pre').html(formatted);
-          return $m.modal('show');
-        });
-      };
-
-      CodeGenerator.prototype.doMainAction = function(e) {
-        if (this.model.has('lang')) {
-          return this.displayLang();
-        } else {
-          return $(e.target).next().dropdown('toggle');
-        }
-      };
-
-      CodeGenerator.prototype.compact = function() {
-        var $m;
-
-        $m = this.$('.modal');
-        $m.find('span.com').closest('li').slideUp();
-        return $m.find('.linenums li').filter(function() {
-          return $(this).text().replace(/\s+/g, "") === "";
-        }).slideUp();
-      };
-
-      CodeGenerator.prototype.expand = function() {
-        var $m;
-
-        $m = this.$('.modal');
-        return $m.find('linenums li').slideDown();
-      };
-
-      return CodeGenerator;
+      return Trail;
 
     })(Backbone.View);
-  }));
-
-  define('actions/list-dialogue', function() {
-    var ListDialogue, _ref;
-
-    return ListDialogue = (function(_super) {
-      __extends(ListDialogue, _super);
-
-      function ListDialogue() {
-        _ref = ListDialogue.__super__.constructor.apply(this, arguments);
-        return _ref;
-      }
-
-      ListDialogue.prototype.tagName = "li";
-
-      ListDialogue.prototype.className = "im-list-dialogue dropdown";
-
-      ListDialogue.prototype.usingDefaultName = true;
-
-      ListDialogue.prototype.initialize = function(query) {
-        var opts,
-          _this = this;
-
-        this.query = query;
-        this.listOptions = opts = new Backbone.Model;
-        this.types = {};
-        this.query.on("imo:selected", function(type, id, selected) {
-          var commonType, m, types;
-
-          if (_this.listOptions == null) {
-            return;
-          }
-          if (selected) {
-            _this.types[id] = type;
-          } else {
-            delete _this.types[id];
-          }
-          types = _.values(_this.types);
-          opts.set({
-            estSize: types.length
-          });
-          if (types.length > 0) {
-            m = _this.query.model;
-            commonType = m.findCommonTypeOfMultipleClasses(types);
-            return opts.set({
-              type: commonType
-            });
-          }
-        });
-        opts.on('change:query', function(_, q) {
-          return q.count(function(n) {
-            return opts.set({
-              estSize: n
-            });
-          });
-        });
-        opts.on('change:query', function() {
-          return _this.$('.modal').modal('show').find('form').show();
-        });
-        opts.on('change:name', this.updateNameDisplay, this);
-        opts.on('change:name', this.checkName, this);
-        opts.on('change:type', this.newCommonType, this);
-        return opts.on('change:estSize', this.bindEstSize, this);
-      };
-
-      ListDialogue.prototype.updateNameDisplay = function() {
-        console.log("Updating name to " + (this.listOptions.get('name')));
-        return this.$('.im-list-name').val(this.listOptions.get('name'));
-      };
-
-      ListDialogue.prototype.remove = function() {
-        var thing, _i, _len, _ref1;
-
-        _ref1 = ['listOptions'];
-        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-          thing = _ref1[_i];
-          this[thing].off();
-          delete this[thing];
-        }
-        return ListDialogue.__super__.remove.call(this);
-      };
-
-      ListDialogue.prototype.bindEstSize = function() {
-        var estSize, hasSelectedItems;
-
-        estSize = this.listOptions.get('estSize');
-        hasSelectedItems = estSize > 0;
-        this.$('.btn-primary').attr({
-          disabled: !hasSelectedItems
-        });
-        this.$('.im-selection-instruction').hide();
-        this.$('form').show();
-        this.$el.addClass('im-picked');
-        if (!hasSelectedItems) {
-          return this.nothingSelected();
-        }
-      };
-
-      ListDialogue.prototype.newCommonType = function() {
-        return this.query.trigger("common:type:selected", this.listOptions.get('type'));
-      };
-
-      ListDialogue.prototype.nothingSelected = function() {
-        this.$('.im-selection-instruction').slideDown();
-        this.$('form').hide();
-        this.$el.removeClass('im-picked');
-        return this.query.trigger("selection:cleared");
-      };
-
-      ListDialogue.prototype.events = function() {
-        return {
-          'hidden': 'onHidden',
-          'change .im-list-name': 'listNameChanged',
-          'submit form': 'ignore',
-          'click form': 'ignore',
-          'click .btn-cancel': 'stop',
-          'click .btn-primary': 'create',
-          'click .im-minimise': 'minimise'
-        };
-      };
-
-      ListDialogue.prototype.minimise = function() {
-        this.$('.control-group').slice(1).slideToggle();
-        return this.$('.im-minimise').toggleClass('im-collapsed');
-      };
-
-      ListDialogue.prototype.onHidden = function(e) {
-        if (e && $(e.target).is('.modal')) {
-          return this.remove();
-        }
-      };
-
-      ListDialogue.prototype.startPicking = function() {
-        var headAndFoot, m;
-
-        this.$('.modal').addClass('im-picking-list-items');
-        headAndFoot = this.$('.modal-header').add('.modal-footer', this.el).addClass('im-handle');
-        this.query.trigger("start:list-creation");
-        this.nothingSelected();
-        m = this.$('.modal').show(function() {
-          return $(this).addClass("in").draggable({
-            handle: ".im-handle"
-          });
-        });
-        return headAndFoot.css({
-          cursor: "move"
-        }).tooltip({
-          title: "Drag me around!",
-          placement: 'bottom'
-        });
-      };
-
-      ListDialogue.prototype.stop = function(e) {
-        var modal;
-
-        this.query.trigger("stop:list-creation");
-        modal = this.$('.modal');
-        if (modal.is('.ui-draggable')) {
-          return this.remove();
-        } else {
-          return modal.modal('hide');
-        }
-      };
-
-      ListDialogue.prototype.ignore = function(e) {
-        e.preventDefault();
-        return e.stopPropagation();
-      };
-
-      ListDialogue.prototype.listNameChanged = function(e) {
-        return this.listOptions.set({
-          customName: true,
-          name: $(e.target).val()
-        });
-      };
-
-      ListDialogue.prototype.getLists = function() {
-        var now;
-
-        now = new Date().getTime();
-        if (!this.listPromise || this.listPromise.made_at < now - intermine.options.ListFreshness) {
-          this.listPromise = this.query.service.fetchLists();
-          this.listPromise.made_at = now;
-        }
-        return this.listPromise;
-      };
-
-      ListDialogue.prototype.checkName = function() {
-        var message, selector,
-          _this = this;
-
-        selector = '.im-list-name';
-        message = intermine.messages.actions.ListNameDuplicate;
-        this.clearError(selector);
-        return this.getLists().done(function(ls) {
-          var chosen, isDup;
-
-          chosen = _this.listOptions.get('name');
-          isDup = _.any(ls, function(l) {
-            return l.authorized && l.name === chosen;
-          });
-          if (isDup) {
-            return _this.setError(selector, message);
-          }
-        });
-      };
-
-      ListDialogue.prototype.setError = function(selector, message) {
-        var $input;
-
-        $input = this.$(selector);
-        $input.next().text(message);
-        return $input.parent().addClass('error');
-      };
-
-      ListDialogue.prototype.clearError = function(selector) {
-        var $input;
-
-        $input = this.$(selector);
-        $input.next().text('');
-        return $input.parent().removeClass('error');
-      };
-
-      ListDialogue.prototype.create = function() {
-        throw new Error("Override me!");
-      };
-
-      ListDialogue.prototype.openDialogue = function(type, q) {
-        if (type == null) {
-          type = this.query.root;
-        }
-        if (q == null) {
-          q = this.query.clone();
-        }
-        return this.listOptions.set({
-          query: q,
-          type: type
-        });
-      };
-
-      ListDialogue.prototype.render = function() {
-        this.$el.append(this.html);
-        this.$('.modal').modal({
-          show: false
-        });
-        return this;
-      };
-
-      return ListDialogue;
-
-    })(Backbone.View);
-  });
-
-  scope("intermine.results", {
-    getFormatter: function(path) {
-      var a, ancestors, cd, fieldName, formats, formatter, _i, _len, _ref;
-
-      if (path == null) {
-        return null;
-      }
-      cd = path.isAttribute() ? path.getParent().getType() : path.getType();
-      ancestors = [cd.name].concat(path.model.getAncestorsOf(cd.name));
-      formats = (_ref = intermine.results.formatsets[path.model.name]) != null ? _ref : {};
-      fieldName = path.end.name;
-      for (_i = 0, _len = ancestors.length; _i < _len; _i++) {
-        a = ancestors[_i];
-        formatter = formats["" + a + ".*"] || formats["" + a + "." + fieldName];
-        if (formatter === true) {
-          formatter = intermine.results.formatters[a];
-        }
-        if (formatter != null) {
-          return formatter;
-        }
-      }
-      return null;
-    },
-    shouldFormat: function(path, formatSet) {
-      var a, ancestors, cd, fieldName, formats, formatterAvailable, model, _i, _len, _ref;
-
-      if (!path.isAttribute()) {
-        return false;
-      }
-      model = path.model;
-      if (formatSet == null) {
-        formatSet = model.name;
-      }
-      cd = path.isAttribute() ? path.getParent().getType() : path.getType();
-      fieldName = path.end.name;
-      formatterAvailable = intermine.results.getFormatter(path) != null;
-      if (!formatterAvailable) {
-        return false;
-      }
-      if (fieldName === 'id') {
-        return true;
-      }
-      ancestors = [cd.name].concat(path.model.getAncestorsOf(cd.name));
-      formats = (_ref = intermine.results.formatsets[formatSet]) != null ? _ref : {};
-      for (_i = 0, _len = ancestors.length; _i < _len; _i++) {
-        a = ancestors[_i];
-        if (formats["" + a + ".*"] || formats["" + a + "." + fieldName]) {
-          return true;
-        }
-      }
-      return false;
-    }
-  });
-
-  scope('intermine.messages.columns', {
-    AddThisColumn: 'Add this column to the Sort Order'
-  });
-
-  (function() {
-    var OrderElement, PossibleOrderElements, PossibleSortOrder, SortOrder, _ref, _ref1, _ref2, _ref3;
-
-    OrderElement = (function(_super) {
-      __extends(OrderElement, _super);
-
-      function OrderElement() {
-        _ref = OrderElement.__super__.constructor.apply(this, arguments);
-        return _ref;
-      }
-
-      OrderElement.prototype.isNumeric = false;
-
-      OrderElement.prototype.initialize = function() {
-        var _ref1;
-
-        OrderElement.__super__.initialize.apply(this, arguments);
-        if (!this.has('direction')) {
-          this.set({
-            direction: 'ASC'
-          });
-        }
-        return this.isNumeric = (_ref1 = this.get('path').getType(), __indexOf.call(intermine.Model.NUMERIC_TYPES, _ref1) >= 0);
-      };
-
-      OrderElement.prototype.toJSON = function() {
-        return {
-          path: this.get('path').toString(),
-          direction: this.get('direction')
-        };
-      };
-
-      return OrderElement;
-
-    })(Backbone.Model);
-    SortOrder = (function(_super) {
-      __extends(SortOrder, _super);
-
-      function SortOrder() {
-        _ref1 = SortOrder.__super__.constructor.apply(this, arguments);
-        return _ref1;
-      }
-
-      SortOrder.prototype.model = OrderElement;
-
-      SortOrder.prototype.initialize = function() {
-        return this.on('destroy', this.remove, this);
-      };
-
-      return SortOrder;
-
-    })(Backbone.Collection);
-    PossibleSortOrder = (function(_super) {
-      __extends(PossibleSortOrder, _super);
-
-      function PossibleSortOrder() {
-        _ref2 = PossibleSortOrder.__super__.constructor.apply(this, arguments);
-        return _ref2;
-      }
-
-      PossibleSortOrder.prototype.toSortOrder = function() {
-        return {
-          path: this.get('path')
-        };
-      };
-
-      PossibleSortOrder.prototype.isInView = function() {
-        var _ref3;
-
-        return _ref3 = this.get('path').toString(), __indexOf.call(this.get('query').views, _ref3) >= 0;
-      };
-
-      PossibleSortOrder.prototype.initialize = function() {
-        this.set({
-          visibleInView: true,
-          matchesTerm: true
-        });
-        return this.set({
-          path: this.get('query').getPathInfo(this.get('path'))
-        });
-      };
-
-      PossibleSortOrder.prototype.toJSON = function() {
-        return {
-          isInView: this.isInView(),
-          path: this.get('path').toString()
-        };
-      };
-
-      return PossibleSortOrder;
-
-    })(Backbone.Model);
-    PossibleOrderElements = (function(_super) {
-      __extends(PossibleOrderElements, _super);
-
-      function PossibleOrderElements() {
-        _ref3 = PossibleOrderElements.__super__.constructor.apply(this, arguments);
-        return _ref3;
-      }
-
-      PossibleOrderElements.prototype.model = PossibleSortOrder;
-
-      PossibleOrderElements.prototype.initialize = function() {
-        return this.on('destroy', this.remove, this);
-      };
-
-      return PossibleOrderElements;
-
-    })(Backbone.Collection);
-    return scope('intermine.columns.collections', {
-      SortOrder: SortOrder,
-      PossibleOrderElements: PossibleOrderElements
+    return scope("intermine.query.tools", {
+      Tools: Tools,
+      ToolBar: ToolBar,
+      Trail: Trail
     });
   })();
 
   (function() {
-    var OrderElement, PossibleOrderElement, placement, _ref, _ref1;
+    var ViewElement, _ref;
 
-    placement = intermine.utils.addStylePrefix('top');
-    OrderElement = (function(_super) {
-      var TEMPLATE;
+    ViewElement = (function(_super) {
+      var TEMPLATE, namePart, splitName;
 
-      __extends(OrderElement, _super);
+      __extends(ViewElement, _super);
 
-      function OrderElement() {
-        _ref = OrderElement.__super__.constructor.apply(this, arguments);
+      function ViewElement() {
+        _ref = ViewElement.__super__.constructor.apply(this, arguments);
         return _ref;
       }
 
-      OrderElement.prototype.tagName = 'li';
+      TEMPLATE = _.template("<div>\n  <a class=\"im-col-remover\" title=\"Remove this column\">\n    <i class=\"" + intermine.icons.Remove + "\"></i>\n  </a>\n  <i class=\"icon-reorder pull-right\"></i>\n  <% if (replaces.length) { %>\n    <i class=\"" + intermine.icons.Collapsed + " im-expander pull-right\"></i>\n  <% } %>\n  <span class=\"im-display-name\"><%- path %></span>\n  <ul class=\"im-sub-views\"></ul>\n</div>");
 
-      OrderElement.prototype.className = 'im-reorderable im-soe im-in-order';
+      ViewElement.prototype.placement = 'top';
 
-      TEMPLATE = _.template("<div>\n  <span class=\"im-sort-direction <%= direction.toLowerCase() %>\"></span>\n  <i class=\"icon-minus im-remove-soe\" title=\"Remove this column from the sort order\"></i>\n  <span class=\"im-path\" title=\"<%- path %>\"><%- path %></span>\n  <i class=\"icon-reorder pull-right\"></i>\n</div>");
+      ViewElement.prototype.tagName = 'li';
 
-      OrderElement.prototype.initialize = function(options) {
-        var _this = this;
+      ViewElement.prototype.className = 'im-view-element im-reorderable';
 
-        this.options = options != null ? options : {};
-        this.model.on('change:direction', function() {
-          return _this.$('.im-sort-direction').toggleClass('asc desc');
-        });
-        this.model.on('destroy', this.remove, this);
-        return this.model.el = this.el;
+      ViewElement.prototype.events = {
+        'click .im-col-remover': 'remove',
+        'click': 'toggleSubViews'
       };
 
-      OrderElement.prototype.events = {
-        'click .im-sort-direction': 'changeDirection',
-        'click .im-remove-soe': 'deorder'
+      ViewElement.prototype.toggleSubViews = function() {
+        this.$('.im-sub-views').slideToggle();
+        return this.$('.im-expander').toggleClass(intermine.icons.ExpandCollapse);
       };
 
-      OrderElement.prototype.deorder = function() {
-        return this.model.destroy();
-      };
-
-      OrderElement.prototype.changeDirection = function() {
-        var direction;
-
-        direction = this.model.get('direction') === 'ASC' ? 'DESC' : 'ASC';
-        return this.model.set({
-          direction: direction
-        });
-      };
-
-      OrderElement.prototype.remove = function() {
-        this.model.off();
-        this.$('.im-remove-soe').tooltip('hide');
-        return OrderElement.__super__.remove.call(this);
-      };
-
-      OrderElement.prototype.render = function() {
-        var _this = this;
-
-        if (this.model.isNumeric) {
-          this.$el.addClass('numeric');
-        }
-        this.$el.append(TEMPLATE(this.model.toJSON()));
-        this.$('.im-remove-soe').tooltip({
-          placement: placement
-        });
-        this.model.get('path').getDisplayName().done(function(name) {
-          return _this.$('.im-path').text(name);
-        });
-        return this;
-      };
-
-      return OrderElement;
-
-    })(Backbone.View);
-    PossibleOrderElement = (function(_super) {
-      var TEMPLATE;
-
-      __extends(PossibleOrderElement, _super);
-
-      function PossibleOrderElement() {
-        _ref1 = PossibleOrderElement.__super__.constructor.apply(this, arguments);
-        return _ref1;
-      }
-
-      PossibleOrderElement.prototype.tagName = 'li';
-
-      PossibleOrderElement.prototype.className = 'im-soe';
-
-      TEMPLATE = _.template("<div>\n  <a class=\"im-add-soe\"\n     title=\"" + intermine.messages.columns.AddThisColumn + "\" >\n    <i class=\"icon-plus\"></i>\n    <span title=\"<%- path %>\"><%- path %></span>\n  </a>\n  <i class=\"icon-reorder pull-right\"></i>\n</div>");
-
-      PossibleOrderElement.prototype.events = {
-        'click .im-add-soe': 'addToOrderBy',
-        'dropped': 'addToOrderBy'
-      };
-
-      PossibleOrderElement.prototype.addToOrderBy = function() {
-        this.options.sortOrder.add(this.model.toSortOrder());
+      ViewElement.prototype.remove = function() {
         this.model.destroy();
-        return this.remove();
+        this.$('.im-col-remover').tooltip('hide');
+        return ViewElement.__super__.remove.apply(this, arguments);
       };
 
-      PossibleOrderElement.prototype.remove = function() {
-        this.model.off();
-        this.$('.im-add-soe').tooltip('hide');
-        return PossibleOrderElement.__super__.remove.call(this);
+      namePart = _.template("<span class=\"im-name-part\"><%- part %></span>");
+
+      splitName = function($elem) {
+        return function(name) {
+          var part, parts, _i, _len, _results;
+
+          parts = name.split(' > ');
+          _results = [];
+          for (_i = 0, _len = parts.length; _i < _len; _i++) {
+            part = parts[_i];
+            _results.push($elem.append(namePart({
+              part: part
+            })));
+          }
+          return _results;
+        };
       };
 
-      PossibleOrderElement.prototype.initialize = function(options) {
-        var _this = this;
+      ViewElement.prototype.render = function() {
+        var $name, path, replaced, ul, _i, _len, _ref1;
 
-        this.options = options != null ? options : {};
-        this.model.on('only-in-view', function(only) {
-          return _this.model.set({
-            visibleInView: !only || _this.model.isInView()
-          });
+        path = this.model.get('path');
+        this.model.el = this.el;
+        this.$el.append(TEMPLATE(this.model.toJSON()));
+        this.$('.im-col-remover').tooltip({
+          placement: this.placement,
+          container: this.el
         });
-        this.model.on('filter', function(pattern) {
-          return _this.model.set({
-            matchesTerm: !pattern || pattern.test(_this.model.get('path'))
-          });
-        });
-        return this.model.on('change', function() {
-          var visible;
+        $name = this.$('.im-display-name').empty();
+        path.getDisplayName(splitName($name));
+        ul = this.$('.im-sub-views');
+        _ref1 = this.model.get('replaces');
+        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+          replaced = _ref1[_i];
+          if (replaced.isAttribute()) {
+            (function(ul) {
+              var li, span;
 
-          visible = _this.model.get('visibleInView') && _this.model.get('matchesTerm');
-          return _this.$el.toggle(visible);
-        });
-      };
-
-      PossibleOrderElement.prototype.render = function() {
-        var so,
-          _this = this;
-
-        so = this.model.toJSON();
-        this.$el.append(TEMPLATE(so));
-        if (!so.isInView) {
-          this.$el.addClass('im-not-in-view');
+              li = $('<li></li>');
+              ul.append(li);
+              span = document.createElement('span');
+              li.append(span);
+              span.className = 'im-display-name';
+              return replaced.getDisplayName(splitName($(span)));
+            })(ul);
+          }
         }
-        this.model.get('path').getDisplayName().done(function(name) {
-          return _this.$('span').text(name);
-        });
-        this.$el.draggable({
-          revert: 'invalid',
-          revertDuration: 100
-        });
-        this.$(".im-add-soe").tooltip({
-          placement: placement
-        });
+        if (!ul.children().length) {
+          ul.remove();
+        }
         return this;
       };
 
-      return PossibleOrderElement;
+      return ViewElement;
 
     })(Backbone.View);
     return scope('intermine.columns.views', {
-      PossibleOrderElement: PossibleOrderElement,
-      OrderElement: OrderElement
-    });
-  })();
-
-  (function() {
-    var ManagementTools, _ref;
-
-    ManagementTools = (function(_super) {
-      __extends(ManagementTools, _super);
-
-      function ManagementTools() {
-        _ref = ManagementTools.__super__.constructor.apply(this, arguments);
-        return _ref;
-      }
-
-      ManagementTools.prototype.initialize = function(states, columnHeaders) {
-        this.states = states;
-        this.columnHeaders = columnHeaders;
-        return this.states.on('add reverted', this.checkHasFilters, this);
-      };
-
-      ManagementTools.prototype.checkHasFilters = function() {
-        var count, q;
-
-        if (q = this.states.currentQuery) {
-          count = q.constraints.length;
-          this.$('.im-filters').toggleClass("im-has-constraint", count > 0);
-          return this.$('.im-filters .im-action').text(count > 0 ? count : 'Add ');
-        }
-      };
-
-      ManagementTools.prototype.tagName = "div";
-
-      ManagementTools.prototype.className = "im-management-tools";
-
-      ManagementTools.prototype.html = "<div class=\"btn-group\"> \n  <button class=\"btn im-columns\">\n      <i class=\"" + intermine.icons.Columns + "\"></i>\n      <span class=\"im-only-widescreen\">Manage </span>\n      <span class=\"hidden-tablet\">Columns</span>\n  </button>\n  <button class=\"btn im-filters\">\n      <i class=\"" + intermine.icons.Filter + "\"></i>\n      <span class=\"hidden-phone im-action\">Manage </span>\n      <span class=\"hidden-phone\">Filters</span>\n  </button>\n</div>";
-
-      ManagementTools.prototype.events = {
-        'click .im-columns': 'showColumnDialogue',
-        'click .im-filters': 'showFilterDialogue'
-      };
-
-      ManagementTools.prototype.showColumnDialogue = function(e) {
-        var dialogue, q;
-
-        q = this.states.currentQuery;
-        dialogue = new intermine.query.results.table.ColumnsDialogue(q, this.columnHeaders);
-        this.$el.append(dialogue.el);
-        return dialogue.render().showModal();
-      };
-
-      ManagementTools.prototype.showFilterDialogue = function(e) {
-        var dialogue, q;
-
-        q = this.states.currentQuery;
-        dialogue = new intermine.query.filters.FilterManager(q);
-        this.$el.append(dialogue.el);
-        return dialogue.render().showModal();
-      };
-
-      ManagementTools.prototype.render = function() {
-        this.$el.append(this.html);
-        this.checkHasFilters();
-        return this;
-      };
-
-      return ManagementTools;
-
-    })(Backbone.View);
-    return scope('intermine.query.tools', {
-      ManagementTools: ManagementTools
-    });
-  })();
-
-  define('perma-query', function() {
-    var Deferred, any, defer, get, getPermaQuery, replaceIdConstraint, whenAll, zip;
-
-    get = intermine.funcutils.get;
-    any = _.any, zip = _.zip;
-    Deferred = jQuery.Deferred;
-    defer = function(x) {
-      return Deferred(function() {
-        return this.resolve(x);
-      });
-    };
-    whenAll = function(promises) {
-      return $.when.apply($, promises).then(function() {
-        var results;
-
-        results = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-        return results.slice();
-      });
-    };
-    replaceIdConstraint = function(classkeys, query) {
-      return function(c) {
-        var def, finding, keys, path, type, _ref;
-
-        path = query.makePath(c.path);
-        def = new Deferred;
-        if (!(((_ref = c.op) === '=' || _ref === '==') && path.end.name === 'id')) {
-          def.resolve(c);
-        } else {
-          type = path.getParent().getType().name;
-          keys = classkeys[type];
-          if (keys == null) {
-            def.reject("No class keys configured for " + type);
-          } else {
-            finding = query.service.rows({
-              select: keys,
-              where: {
-                id: c.value
-              }
-            }).then(get(0));
-            finding.fail(def.reject);
-            finding.then(function(values) {
-              var value, _i, _len, _ref1, _ref2;
-
-              if (!values) {
-                return def.reject("" + type + "@" + c.value + " not found");
-              }
-              _ref1 = zip(keys, values);
-              for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-                _ref2 = _ref1[_i], path = _ref2[0], value = _ref2[1];
-                if (value != null) {
-                  return def.resolve({
-                    path: path,
-                    value: value,
-                    op: '=='
-                  });
-                }
-              }
-              return def.reject("" + type + "@" + c.value + " has no identifying fields");
-            });
-          }
-        }
-        return def.promise();
-      };
-    };
-    return getPermaQuery = function(query) {
-      var applyNewCons, c, containsIdConstraint, copy, def, nodes;
-
-      nodes = (function() {
-        var _i, _len, _ref, _results;
-
-        _ref = query.constraints;
-        _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          c = _ref[_i];
-          if (c.type == null) {
-            _results.push(query.makePath(c.path));
-          }
-        }
-        return _results;
-      })();
-      containsIdConstraint = nodes.length && any(nodes, function(n) {
-        var _ref;
-
-        return 'id' === ((_ref = n.end) != null ? _ref.name : void 0);
-      });
-      copy = query.clone();
-      if (!containsIdConstraint) {
-        return defer(copy);
-      }
-      def = new Deferred;
-      applyNewCons = function(newCons) {
-        copy.constraints = newCons;
-        return def.resolve(copy);
-      };
-      query.service.get('classkeys').then(function(_arg) {
-        var classes, replaceIdCon;
-
-        classes = _arg.classes;
-        replaceIdCon = replaceIdConstraint(classes, copy);
-        return whenAll((function() {
-          var _i, _len, _ref, _results;
-
-          _ref = copy.constraints;
-          _results = [];
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            c = _ref[_i];
-            _results.push(replaceIdCon(c));
-          }
-          return _results;
-        })()).then(applyNewCons).fail(def.reject);
-      });
-      return def.promise();
-    };
-  });
-
-  scope("intermine.conbuilder.messages", {
-    ValuePlaceholder: 'David*',
-    ExtraPlaceholder: 'Wernham-Hogg',
-    ExtraLabel: 'within',
-    IsA: 'is a',
-    NoValue: 'No value selected. Please enter a value.',
-    Duplicate: 'This constraint is already on the query',
-    TooManySuggestions: 'We cannot show you all the possible values'
-  });
-
-  (function() {
-    var ActiveConstraint, HIGHLIGHTER, MATCHER, NewConstraint, PATH_SEGMENT_DIVIDER, TOO_MANY_SUGGESTIONS, UPDATER, aeql, basicEql, _ref, _ref1;
-
-    PATH_SEGMENT_DIVIDER = "&rarr;";
-    MATCHER = function(tooMany) {
-      return function(item) {
-        var parts, _ref;
-
-        if ((item === tooMany) || (!this.query) || /^\s+$/.test(this.query)) {
-          return true;
-        } else {
-          parts = (_ref = this.query.toLowerCase().split(' ')) != null ? _ref : [];
-          return _.all(parts, function(p) {
-            return item.toLowerCase().indexOf(p) >= 0;
-          });
-        }
-      };
-    };
-    HIGHLIGHTER = function(tooMany) {
-      return function(item) {
-        if (item === tooMany) {
-          return tooMany;
-        } else {
-          return this.constructor.prototype.highlighter.call(this, item);
-        }
-      };
-    };
-    UPDATER = function(tooMany) {
-      return function(item) {
-        if (item === tooMany) {
-          return null;
-        } else {
-          return item;
-        }
-      };
-    };
-    TOO_MANY_SUGGESTIONS = _.template("<span class=\"alert alert-info\">\n  <i class=\"icon-info-sign\"></i>\n  " + intermine.conbuilder.messages.TooManySuggestions + "\n  There are <%= extra %> values we could not include.\n</span>");
-    aeql = function(xs, ys) {
-      var longer, shorter, _ref;
-
-      if (!xs && !ys) {
-        return true;
-      }
-      if (!xs || !ys) {
-        return false;
-      }
-      _ref = _.sortBy([xs, ys], function(a) {
-        return a.length;
-      }), shorter = _ref[0], longer = _ref[1];
-      return _.all(longer, function(x) {
-        return __indexOf.call(shorter, x) >= 0;
-      });
-    };
-    basicEql = function(a, b) {
-      var k, keys, same, va, vb, _i, _len, _ref;
-
-      if (!(a && b)) {
-        return a === b;
-      }
-      keys = _.union.apply(_, [a, b].map(_.keys));
-      same = true;
-      for (_i = 0, _len = keys.length; _i < _len; _i++) {
-        k = keys[_i];
-        _ref = (function() {
-          var _j, _len1, _ref, _results;
-
-          _ref = [a, b];
-          _results = [];
-          for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
-            x = _ref[_j];
-            _results.push(x[k]);
-          }
-          return _results;
-        })(), va = _ref[0], vb = _ref[1];
-        same && (same = (_.isArray(va) ? aeql(va, vb) : va === vb));
-      }
-      return same;
-    };
-    ActiveConstraint = (function(_super) {
-      var BASIC_OPS, CON_OPTS, IS_BLANK, toLabel;
-
-      __extends(ActiveConstraint, _super);
-
-      function ActiveConstraint() {
-        this.changeMultiValues = __bind(this.changeMultiValues, this);        _ref = ActiveConstraint.__super__.constructor.apply(this, arguments);
-        return _ref;
-      }
-
-      ActiveConstraint.prototype.tagName = "form";
-
-      ActiveConstraint.prototype.className = "form-inline im-constraint row-fluid";
-
-      BASIC_OPS = intermine.Query.ATTRIBUTE_VALUE_OPS.concat(intermine.Query.NULL_OPS);
-
-      ActiveConstraint.prototype.initialize = function(query, orig) {
-        var _ref1, _ref2;
-
-        this.query = query;
-        this.orig = orig;
-        this.typeaheads = [];
-        this.path = this.query.getPathInfo(this.orig.path);
-        this.type = this.path.getType();
-        this.cast = (_ref1 = this.type, __indexOf.call(intermine.Model.NUMERIC_TYPES, _ref1) >= 0) ? (function(x) {
-          return 1 * x;
-        }) : (function(x) {
-          return '' + x;
-        });
-        this.con = new Backbone.Model(_.extend({}, this.orig));
-        if (this.path.isReference() || this.path.isRoot()) {
-          this.ops = intermine.Query.REFERENCE_OPS;
-        } else if (_ref2 = this.path.getType(), __indexOf.call(intermine.Model.BOOLEAN_TYPES, _ref2) >= 0) {
-          this.ops = ["=", "!="].concat(intermine.Query.NULL_OPS);
-        } else if (this.con.has('values')) {
-          this.ops = intermine.Query.ATTRIBUTE_OPS;
-        } else {
-          this.ops = BASIC_OPS;
-        }
-        return this.con.on('change', this.fillConSummaryLabel, this);
-      };
-
-      ActiveConstraint.prototype.events = {
-        'change .im-ops': 'drawValueOptions',
-        'click .im-edit': 'toggleEditForm',
-        'click .btn-cancel': 'hideEditForm',
-        'click .btn-primary': 'editConstraint',
-        'click .icon-remove-sign': 'removeConstraint',
-        'click td.im-multi-value': 'toggleRowCheckbox',
-        'submit': function(e) {
-          e.preventDefault();
-          return e.stopPropagation();
-        }
-      };
-
-      ActiveConstraint.prototype.toggleRowCheckbox = function(e) {
-        var $td, input;
-
-        $td = $(e.target);
-        input = $td.prev().find('input')[0];
-        input.checked = !input.checked;
-        return $(input).trigger('change');
-      };
-
-      ActiveConstraint.prototype.toggleEditForm = function() {
-        this.$('.im-constraint-options').show();
-        this.$('.im-con-buttons').show();
-        this.$('.im-value-options').show();
-        this.$el.siblings('.im-constraint').slideUp();
-        return this.$el.closest('.well').addClass('im-editing');
-      };
-
-      ActiveConstraint.prototype.hideEditForm = function(e) {
-        var ta, _results;
-
-        if (e != null) {
-          e.preventDefault();
-        }
-        if (e != null) {
-          e.stopPropagation();
-        }
-        this.$el.removeClass('error');
-        this.$el.siblings('.im-constraint').slideDown();
-        this.$el.closest('.well').removeClass('im-editing');
-        this.$('.im-con-overview').siblings('[class*="im-con"]').slideUp(200);
-        this.$('.im-multi-value-table input').prop('checked', true);
-        this.con.set(_.extend({}, this.orig));
-        _results = [];
-        while ((ta = this.typeaheads.shift())) {
-          _results.push(ta.remove());
-        }
-        return _results;
-      };
-
-      IS_BLANK = /^\s*$/;
-
-      ActiveConstraint.prototype.valid = function() {
-        var e, ok, op, val;
-
-        if (this.con.has('type')) {
-          return true;
-        }
-        if (!this.con.get('op') || IS_BLANK.test(this.con.get('op'))) {
-          return false;
-        }
-        op = this.con.get('op');
-        if (this.path.isReference() && (op === '=' || op === '!=')) {
-          ok = (function() {
-            try {
-              this.query.getPathInfo(this.con.get('value'));
-              return true;
-            } catch (_error) {
-              e = _error;
-              return false;
-            }
-          }).call(this);
-          return ok;
-        }
-        if (__indexOf.call(intermine.Query.ATTRIBUTE_VALUE_OPS.concat(intermine.Query.REFERENCE_OPS), op) >= 0) {
-          val = this.con.get('value');
-          return (val != null) && (!IS_BLANK.test(val)) && (!_.isNaN(val));
-        }
-        if (__indexOf.call(intermine.Query.MULTIVALUE_OPS, op) >= 0) {
-          return this.con.has('values') && this.con.get('values').length > 0;
-        }
-        return true;
-      };
-
-      ActiveConstraint.prototype.isDuplicate = function() {
-        return _.any(this.query.constraints, _.partial(basicEql, this.con.toJSON()));
-      };
-
-      ActiveConstraint.prototype.setError = function(key) {
-        this.$el.addClass('error');
-        this.$('.im-conbuilder-error').text(intermine.conbuilder.messages[key]);
-        return false;
-      };
-
-      ActiveConstraint.prototype.editConstraint = function(e) {
-        var silently, ta, _ref1, _ref2, _ref3;
-
-        if (e != null) {
-          e.stopPropagation();
-        }
-        if (e != null) {
-          e.preventDefault();
-        }
-        if (!this.valid()) {
-          return this.setError('NoValue');
-        }
-        if (this.isDuplicate()) {
-          return this.setError('Duplicate');
-        }
-        this.removeConstraint(e, silently = true);
-        if (_ref1 = this.con.get('op'), __indexOf.call(intermine.Query.MULTIVALUE_OPS.concat(intermine.Query.NULL_OPS), _ref1) >= 0) {
-          this.con.unset('value');
-        }
-        if (_ref2 = this.con.get('op'), __indexOf.call(intermine.Query.ATTRIBUTE_VALUE_OPS.concat(intermine.Query.NULL_OPS), _ref2) >= 0) {
-          this.con.unset('values');
-        }
-        if ((_ref3 = this.con.get('op'), __indexOf.call(intermine.Query.MULTIVALUE_OPS, _ref3) >= 0) && this.con.get('values').length === 0) {
-          this.query.trigger("change:constraints");
-        } else {
-          this.query.addConstraint(this.con.toJSON());
-        }
-        while ((ta = this.typeaheads.shift())) {
-          ta.remove();
-        }
-        return true;
-      };
-
-      ActiveConstraint.prototype.removeConstraint = function(e, silently) {
-        if (silently == null) {
-          silently = false;
-        }
-        return this.query.removeConstraint(this.orig, silently);
-      };
-
-      ActiveConstraint.prototype.addIcons = function($label) {
-        $label.append("<a><i class=\"icon-remove-sign\"></i></a>");
-        if (this.con.locked) {
-          return $label.append("<a><i class=\"icon-lock\" title=\"this constraint is not editable\"></i></a>");
-        } else {
-          return $label.append("<a><i class=\"im-edit " + intermine.icons.Edit + "\"></i></a>");
-        }
-      };
-
-      ActiveConstraint.prototype.buttons = [
-        {
-          text: "Update",
-          "class": "btn btn-primary"
-        }, {
-          text: "Cancel",
-          "class": "btn btn-cancel"
-        }
-      ];
-
-      ActiveConstraint.prototype.addButtons = function() {
-        var btns, c, t, _fn, _i, _len, _ref1, _ref2;
-
-        btns = $("<div class=\"btn-group im-con-buttons\">\n</div>");
-        _ref1 = this.buttons;
-        _fn = function() {
-          return btns.append("<button class=\"" + c + "\">" + t + "</button>");
-        };
-        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-          _ref2 = _ref1[_i], t = _ref2.text, c = _ref2["class"];
-          _fn();
-        }
-        return this.$el.append(btns);
-      };
-
-      ActiveConstraint.prototype.getTitleOp = function() {
-        return this.con.get('op') || intermine.conbuilder.messages.IsA;
-      };
-
-      ActiveConstraint.prototype.getTitleVal = function() {
-        if (this.con.get('values')) {
-          return this.con.get('values').length + " values";
-        } else if (this.con.has('value')) {
-          return this.con.get('value');
-        } else {
-          return this.con.get('type');
-        }
-      };
-
-      toLabel = function(content, type) {
-        return $("<span class=\"label label-" + type + "\">" + content + "</span>");
-      };
-
-      ActiveConstraint.prototype.fillConSummaryLabel = function() {
-        var op, sp, ul, val, _ref1,
-          _this = this;
-
-        if (this.label == null) {
-          return;
-        }
-        this.label.empty();
-        this.addIcons(this.label);
-        ul = $('<ul class="breadcrumb">').appendTo(this.label);
-        if (this.con.has('title')) {
-          ul.append(toLabel(this.con.get('title'), 'path'));
-        } else {
-          sp = toLabel(this.path, 'path');
-          (function(sp) {
-            return _this.path.getDisplayName(function(name) {
-              return sp.text(name);
-            });
-          })(sp);
-          ul.append(sp);
-        }
-        if ((op = this.getTitleOp())) {
-          ul.append(toLabel(op, 'op'));
-        }
-        if (_ref1 = this.con.get('op'), __indexOf.call(intermine.Query.NULL_OPS, _ref1) < 0) {
-          val = this.getTitleVal();
-          if (val != null) {
-            ul.append(toLabel(val, 'value'));
-          }
-          if (this.con.has('extraValue')) {
-            ul.append(intermine.conbuilder.messages.ExtraLabel);
-            return ul.append(toLabel(this.con.get('extraValue'), 'extra'));
-          }
-        }
-      };
-
-      CON_OPTS = "<fieldset class=\"im-constraint-options\"></fieldset>";
-
-      ActiveConstraint.prototype.render = function() {
-        var fs;
-
-        this.label = $("<label class=\"im-con-overview\">\n</label>");
-        this.fillConSummaryLabel();
-        this.$el.append(this.label);
-        fs = $(CON_OPTS).appendTo(this.el);
-        if (this.con.has('op')) {
-          this.drawOperatorSelector(fs);
-        }
-        this.drawValueOptions();
-        this.$el.append("<div class=\"alert alert-error im-hidden\">\n  <i class=\"icon-warning-sign\"></i>\n  <span class=\"im-conbuilder-error\">\n  </span>\n</div>");
-        this.addButtons();
-        return this;
-      };
-
-      ActiveConstraint.prototype.drawOperatorSelector = function(fs) {
-        var $select, current,
-          _this = this;
-
-        current = this.con.get('op');
-        $select = $("<select class=\"span4 im-ops\"><option>" + current + "</option></select>");
-        $select.appendTo(fs);
-        _(this.ops).chain().without(current).each(function(op) {
-          return $select.append("<option>" + op + "</select>");
-        });
-        return $select.change(function(e) {
-          return _this.con.set({
-            op: $select.val()
-          });
-        });
-      };
-
-      ActiveConstraint.prototype.btnGroup = "<div class=\"im-value-options btn-group\" data-toggle=\"buttons-radio\"></div>";
-
-      ActiveConstraint.prototype.drawTypeOpts = function(fs) {
-        var baseType, label, schema, select, subclasses, t, type, types, _fn, _i, _len,
-          _this = this;
-
-        label = "<label class=\"span4\">IS A</label>";
-        select = $("<select class=\"span7\">\n</select>");
-        fs.append(label);
-        fs.append(select);
-        type = this.con.get('type');
-        subclasses = this.query.getSubclasses();
-        schema = this.query.model;
-        delete subclasses[this.path];
-        baseType = schema.getPathInfo(this.path, subclasses).getType();
-        types = [type].concat(schema.getSubclassesOf(baseType));
-        _fn = function(t) {
-          var option;
-
-          option = $('<option>');
-          option.attr({
-            value: t
-          });
-          select.append(option);
-          return schema.getPathInfo(t).getDisplayName().done(function(name) {
-            return option.text(name);
-          });
-        };
-        for (_i = 0, _len = types.length; _i < _len; _i++) {
-          t = types[_i];
-          _fn(t);
-        }
-        return select.change(function() {
-          return _this.con.set({
-            type: select.val()
-          });
-        });
-      };
-
-      ActiveConstraint.prototype.drawBooleanOpts = function(fs) {
-        var con, current, grp, val, _i, _len, _ref1, _results,
-          _this = this;
-
-        current = this.con.get('value');
-        con = this.con;
-        grp = $(this.btnGroup).appendTo(fs);
-        _ref1 = ['true', 'false'];
-        _results = [];
-        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-          val = _ref1[_i];
-          _results.push((function(val) {
-            var button;
-
-            button = $("<button class=\"btn " + (current === val ? 'active' : '') + "\">\n    " + val + "\n</button>");
-            button.appendTo(grp);
-            return button.click(function(e) {
-              var wasActive;
-
-              wasActive = button.is('.active');
-              grp.find('button').removeClass('active');
-              if (!wasActive) {
-                button.addClass('active');
-                return _this.con.set({
-                  value: val
-                });
-              } else {
-                return _this.con.unset('value');
-              }
-            });
-          })(val));
-        }
-        return _results;
-      };
-
-      ActiveConstraint.prototype.valueSelect = "<select class=\"span7 im-value-options im-con-value\"></select>";
-
-      ActiveConstraint.prototype.listOptionTempl = _.template("<option value=\"<%- name %>\">\n    <%- name %> (<%- size %> <%- type %>s)\n</option>");
-
-      ActiveConstraint.prototype.multiValueTable = "<div class=\"im-value-options im-multi-value-table\">\n  <table class=\"table table-condensed\"></table>\n</div>";
-
-      ActiveConstraint.prototype.multiValueOptTempl = _.template("<tr>\n    <td><input type=checkbox checked data-value=\"<%- value %>\"></td>\n    <td class=\"im-multi-value\"><%- value %></td>\n</tr>");
-
-      ActiveConstraint.prototype.clearer = '<div class="im-value-options" style="clear:both;">';
-
-      ActiveConstraint.prototype.drawMultiValueOps = function(fs) {
-        var $multiValues, con, table, values,
-          _this = this;
-
-        con = this.con;
-        if (!con.has('values')) {
-          con.set({
-            values: []
-          });
-        }
-        values = con.get('values');
-        $multiValues = $(this.multiValueTable).appendTo(fs);
-        table = $multiValues.find('table');
-        _(values).each(function(v) {
-          return table.append(_this.multiValueOptTempl({
-            value: v
-          }));
-        });
-        return $multiValues.find('input').change(this.changeMultiValues);
-      };
-
-      ActiveConstraint.prototype.changeMultiValues = function(e) {
-        var changed, value, values;
-
-        changed = $(e.target);
-        values = this.con.get('values');
-        value = changed.data('value');
-        if (changed.prop('checked')) {
-          values = _.union(values, [value]);
-        } else {
-          values = _.without(values, value);
-        }
-        return this.con.set({
-          values: values
-        });
-      };
-
-      ActiveConstraint.prototype.drawListOptions = function(fs) {
-        var $lists,
-          _this = this;
-
-        $lists = $(this.valueSelect).appendTo(fs);
-        this.query.service.fetchLists(function(ls) {
-          var selectables, sl, _i, _len;
-
-          selectables = _(ls).filter(function(l) {
-            return l.size && _this.path.isa(l.type);
-          });
-          for (_i = 0, _len = selectables.length; _i < _len; _i++) {
-            sl = selectables[_i];
-            $lists.append(_this.listOptionTempl(sl));
-          }
-          if (_this.con.has('value')) {
-            $lists.val(_this.con.get('value'));
-          }
-          if (selectables.length === 0) {
-            $lists.attr({
-              disabled: true
-            });
-            return $lists.append('No lists of this type available');
-          } else {
-            return _this.con.set({
-              value: $lists.val()
-            });
-          }
-        });
-        return $lists.change(function(e) {
-          return _this.con.set({
-            value: $lists.val()
-          });
-        });
-      };
-
-      ActiveConstraint.prototype.drawLoopOpts = function(fs) {
-        var $loops, lc, loopCandidates, opt, _i, _len, _results,
-          _this = this;
-
-        $loops = $(this.valueSelect).appendTo(fs);
-        loopCandidates = this.query.getQueryNodes().filter(function(lc) {
-          return lc.isa(_this.type) || _this.path.isa(lc.getType());
-        });
-        _results = [];
-        for (_i = 0, _len = loopCandidates.length; _i < _len; _i++) {
-          lc = loopCandidates[_i];
-          opt = $("<option value=\"" + (lc.toString()) + "\">");
-          opt.appendTo($loops);
-          _results.push((function(opt, lc) {
-            return lc.getDisplayName(function(name) {
-              return opt.text(name);
-            });
-          })(opt, lc));
-        }
-        return _results;
-      };
-
-      ActiveConstraint.prototype.handleSummary = function(input, items, total) {
-        var MaxSuggestions, item, suggestions, tooMany;
-
-        suggestions = (function() {
-          var _i, _len, _ref1, _results;
-
-          _ref1 = _.pluck(items, 'item');
-          _results = [];
-          for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-            item = _ref1[_i];
-            _results.push('' + item);
-          }
-          return _results;
-        })();
-        MaxSuggestions = intermine.options.MaxSuggestions;
-        if (total > MaxSuggestions) {
-          tooMany = TOO_MANY_SUGGESTIONS({
-            extra: total - MaxSuggestions
-          });
-          suggestions.push(tooMany);
-        }
-        input.typeahead({
-          source: suggestions,
-          items: 20,
-          minLength: 0,
-          updater: UPDATER(tooMany),
-          highlighter: HIGHLIGHTER(tooMany),
-          matcher: MATCHER(tooMany)
-        });
-        this.typeaheads.push(input.data('typeahead').$menu);
-        this.query.on('cancel:add-constraint', function() {
-          var _ref1;
-
-          return (_ref1 = input.data('typeahead')) != null ? _ref1.$menu.remove() : void 0;
-        });
-        return input.attr({
-          placeholder: items[0].item
-        });
-      };
-
-      ActiveConstraint.prototype.handleNumericSummary = function(input, _arg) {
-        var $slider, average, caster, fs, isInt, max, min, step, _ref1;
-
-        min = _arg.min, max = _arg.max, average = _arg.average;
-        isInt = (_ref1 = this.path.getType(), __indexOf.call(intermine.Model.INTEGRAL_TYPES, _ref1) >= 0);
-        step = isInt ? 1 : max - min / 100;
-        caster = isInt ? parseInt : parseFloat;
-        fs = input.closest('fieldset');
-        fs.append(this.clearer);
-        $slider = $('<div class="im-value-options">');
-        $slider.appendTo(fs).slider({
-          min: min,
-          max: max,
-          value: (this.con.has('value') ? this.con.get('value') : caster(average)),
-          step: step,
-          slide: function(e, ui) {
-            return input.val(ui.value).change();
-          }
-        });
-        input.attr({
-          placeholder: caster(average)
-        });
-        fs.append(this.clearer);
-        return input.change(function(e) {
-          return $slider.slider('value', caster(input.val()));
-        });
-      };
-
-      ActiveConstraint.prototype.drawAttributeOpts = function(fs) {
-        var input, setValue,
-          _this = this;
-
-        input = $("<input class=\"span7 im-constraint-value im-value-options im-con-value\" type=\"text\"\n    placeholder=\"" + intermine.conbuilder.messages.ValuePlaceholder + "\"\n    value=\"" + (this.con.get('value') || '') + "\"\n>");
-        fs.append(input);
-        setValue = function() {
-          var _ref1;
-
-          return _this.con.set({
-            value: _this.cast((_ref1 = input.val()) != null ? _ref1.trim() : void 0)
-          });
-        };
-        input.keyup(setValue);
-        input.change(setValue);
-        this.con.on('change:value', function() {
-          var current;
-
-          current = _this.con.get('value');
-          if (current !== _this.cast(input.val())) {
-            return input.val(current).change();
-          }
-        });
-        if (this.path.isAttribute()) {
-          return this.provideSuggestions(input);
-        }
-      };
-
-      ActiveConstraint.prototype.provideSuggestions = function(input) {
-        var c, clone, filtering, pstr, value,
-          _this = this;
-
-        clone = this.query.clone();
-        pstr = this.path.toString();
-        value = this.con.get('value');
-        clone.constraints = (function() {
-          var _i, _len, _ref1, _results;
-
-          _ref1 = clone.constraints;
-          _results = [];
-          for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-            c = _ref1[_i];
-            if (!(c.path === pstr && c.value === value)) {
-              _results.push(c);
-            }
-          }
-          return _results;
-        })();
-        filtering = clone.filterSummary(pstr, "", intermine.options.MaxSuggestions);
-        return filtering.done(function(items, stats) {
-          if ((items != null ? items.length : void 0) > 0) {
-            if (items[0].item != null) {
-              return _this.handleSummary(input, items, stats.uniqueValues);
-            } else if (items[0].max != null) {
-              return _this.handleNumericSummary(input, items[0]);
-            }
-          }
-        });
-      };
-
-      ActiveConstraint.prototype.drawExtraOpts = function(fs) {
-        var input,
-          _this = this;
-
-        fs.append("<label class=\"im-value-options\">\n    " + intermine.conbuilder.messages.ExtraLabel + "\n    <input type=\"text\" class=\"im-extra-value\"\n        placeholder=\"" + intermine.conbuilder.messages.ExtraPlaceholder + "\"\n        value=\"" + (this.con.get('extraValue') || '') + "\"\n    >\n</label>");
-        return input = fs.find('input.im-extra-value').change(function(e) {
-          return _this.con.set({
-            extraValue: input.val()
-          });
-        });
-      };
-
-      ActiveConstraint.prototype.drawValueOptions = function() {
-        var currentOp, fs, _ref1;
-
-        this.$('.im-value-options').remove();
-        fs = this.$('.im-constraint-options');
-        currentOp = this.con.get('op');
-        if (!currentOp && this.con.has('type')) {
-          this.drawTypeOpts(fs);
-        } else if ((_ref1 = this.path.getType(), __indexOf.call(intermine.Model.BOOLEAN_TYPES, _ref1) >= 0) && !(__indexOf.call(intermine.Query.NULL_OPS, currentOp) >= 0)) {
-          this.drawBooleanOpts(fs);
-        } else if (__indexOf.call(intermine.Query.MULTIVALUE_OPS, currentOp) >= 0) {
-          this.drawMultiValueOps(fs);
-        } else if (__indexOf.call(intermine.Query.LIST_OPS, currentOp) >= 0) {
-          this.drawListOptions(fs);
-        } else if (this.path.isReference() && (currentOp === '=' || currentOp === '!=')) {
-          this.drawLoopOpts(fs);
-        } else if (!(__indexOf.call(intermine.Query.NULL_OPS, currentOp) >= 0)) {
-          this.drawAttributeOpts(fs);
-        }
-        if (__indexOf.call(intermine.Query.TERNARY_OPS, currentOp) >= 0) {
-          return this.drawExtraOpts(fs);
-        }
-      };
-
-      return ActiveConstraint;
-
-    })(Backbone.View);
-    NewConstraint = (function(_super) {
-      __extends(NewConstraint, _super);
-
-      function NewConstraint() {
-        _ref1 = NewConstraint.__super__.constructor.apply(this, arguments);
-        return _ref1;
-      }
-
-      NewConstraint.prototype.initialize = function(q, c) {
-        NewConstraint.__super__.initialize.call(this, q, c);
-        this.$el.addClass("new");
-        this.buttons[0].text = "Apply";
-        return this.con.set({
-          op: (this.path.isReference() ? 'LOOKUP' : '=')
-        });
-      };
-
-      NewConstraint.prototype.addIcons = function() {};
-
-      NewConstraint.prototype.valueChanged = function(value) {
-        return this.fillConSummaryLabel(_.extend({}, this.con, {
-          value: "" + value
-        }));
-      };
-
-      NewConstraint.prototype.opChanged = function(op) {
-        return this.$('.label-op').text(op);
-      };
-
-      NewConstraint.prototype.removeConstraint = function() {};
-
-      NewConstraint.prototype.hideEditForm = function(e) {
-        NewConstraint.__super__.hideEditForm.call(this, e);
-        this.query.trigger("cancel:add-constraint");
-        return this.remove();
-      };
-
-      return NewConstraint;
-
-    })(ActiveConstraint);
-    return scope("intermine.query", {
-      ActiveConstraint: ActiveConstraint,
-      NewConstraint: NewConstraint
+      ViewElement: ViewElement
     });
   })();
 
