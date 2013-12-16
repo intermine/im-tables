@@ -366,22 +366,6 @@ do ->
             else
               @table.changePageSize size
         
-        # Set the sort order of a query so that it matches the parameters 
-        # passed from DataTables.
-        #
-        # @param params An array of {name: x, value: y} objects passed from DT.
-        #
-        adjustSortOrder: (params) ->
-            viewIndices = for i in [0 .. intermine.utils.getParameter(params, "iColumns")]
-                intermine.utils.getParameter(params, "mDataProp_" + i)
-            noOfSortColumns = intermine.utils.getParameter(params, "iSortingCols")
-            if noOfSortColumns
-                @query.orderBy (for i in [0 ... noOfSortColumns] then do (i) =>
-                    displayed = intermine.utils.getParameter(params, "iSortCol_" + i)
-                    so =
-                        path: @query.views[viewIndices[displayed]]
-                        direction: intermine.utils.getParameter(params, "sSortDir_" + i)
-                    so)
 
         # Take a bad response and present the error somewhere visible to the user.
         # @param resp An ajax response.
@@ -391,7 +375,6 @@ do ->
                 @table?.handleError(data.error, data.executionTime)
             catch err
                 @table?.handleError("Internal error", new Date().toString())
-
 
         ##
         ## Function for buffering data for a request. Each request fetches a page of
