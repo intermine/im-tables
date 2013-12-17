@@ -23,6 +23,8 @@
 $ = require 'jquery'
 _ = require 'underscore'
 
+transition = require '../transition'
+
 class Tooltip
 
   constructor: (element, options = {}) ->
@@ -174,9 +176,9 @@ class Tooltip
 
     $tip.removeClass('in')
 
-    if $.support.transition and $tip.hasClass 'fade'
-      timeout = setTimeout (-> $tip.off($.support.transition.end).detach()), 500
-      $tip.one $.support.transition.end, ->
+    if transition.supported and $tip.hasClass 'fade'
+      timeout = setTimeout (-> $tip.off(transition.end).detach()), 500
+      $tip.one transition.end, ->
         clearTimeout timeout
         $tip.detach()
     else
@@ -196,7 +198,8 @@ class Tooltip
   getPosition: ->
     el = @$element[0]
     bounds = el.getBoundingClientRect?() ? {width: el.offsetWidth, height: el.offsetHeight}
-    _.extend {}, bounds, @$element.offset()
+    pos = _.extend {}, bounds, @$element.offset()
+    return pos
 
   getTitle: ->
     $e = @$element

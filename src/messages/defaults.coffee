@@ -1,5 +1,12 @@
 _ = require 'underscore'
 
+exports.filters =
+  AddNew: "Add Filter"
+  DefineNew: 'Define a new filter'
+  EditOrRemove: 'edit or remove the currently active filters'
+  None: 'No active filters'
+  Heading: "Active Filters"
+
 exports.conbuilder =
   Apply: 'Apply'
   ValuePlaceholder: 'David*'

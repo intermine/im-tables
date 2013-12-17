@@ -20,6 +20,8 @@
 $ = require 'jquery'
 _ = require 'underscore'
 
+transition = require '../transition'
+
 class Modal
 
   constructor: (element, @options) ->
@@ -47,7 +49,7 @@ class Modal
     @escape()
 
     @backdrop =>
-      canTransition = $.support.transition and @$element.hasClass 'fade'
+      canTransition = transition.supported and @$element.hasClass 'fade'
 
       unless @$element.parent().length
         @$element.appendTo document.body
@@ -63,7 +65,7 @@ class Modal
       @enforceFocus()
 
       if canTransition
-        @$element.one $.support.transition.end, => @$element.focus().trigger('shown')
+        @$element.one transition.end, => @$element.focus().trigger('shown')
       else
         @$element.focus().trigger 'shown'
 
@@ -83,7 +85,7 @@ class Modal
     @$element.removeClass('in')
              .attr('aria-hidden', true)
 
-    if $.support.transition and @$element.hasClass 'fade'
+    if transition.supported and @$element.hasClass 'fade'
       @hideWithTransition()
     else
       @hideModal()
@@ -101,8 +103,8 @@ class Modal
 
   hideWithTransition: ->
     $e = @$element
-    timeout = setTimeout (=> $e.off($.support.transition.end); @hideModal()), 500
-    @$element.one $.support.transition.end, =>
+    timeout = setTimeout (=> $e.off(transition.end); @hideModal()), 500
+    @$element.one transition.end, =>
       clearTimeout timeout
       @hideModal()
 
@@ -121,7 +123,7 @@ class Modal
 
     if @isShown and @options.backdrop
 
-      doAnimate = $.support.transition and animate
+      doAnimate = transition.supported and animate
       @$backdrop = b = $ """<div class="modal-backdrop #{ animate }"/>"""
       b.appendTo document.body
 
@@ -135,15 +137,15 @@ class Modal
       return unless cb?
 
       if doAnimate
-        b.one $.support.transition.end, cb
+        b.one transition.end, cb
       else
         cb()
     
     else if (not @isShown) and @$backdrop
 
       @$backdrop.removeClass 'in'
-      if $.support.transition and @$element.hasClass 'fade'
-        @$backdrop.one $.support.transition.end, cb
+      if transition.supported and @$element.hasClass 'fade'
+        @$backdrop.one transition.end, cb
       else
         cb()
 

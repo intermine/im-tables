@@ -11,8 +11,6 @@ module.exports = -> """
   </div>
 
   <div class="modal-body tab-content">
-    <div class="carousel slide">
-    <div class="carousel-inner">
     <div class="active item">
 
       <div class="tabbable tabs-left">
@@ -165,10 +163,6 @@ module.exports = -> """
         id="im-to-gs-#{ new Date().getTime() }">
       </iframe>
     </div>
-
-    </div> <!-- end inner -->
-    </div> <!-- end carousel -->
-
   </div>
 
   <!--
