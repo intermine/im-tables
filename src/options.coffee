@@ -15,10 +15,10 @@ scope "intermine.options",
     GalaxyMain: "http://main.g2.bx.psu.edu"
     GalaxyCurrent: null
     GalaxyTool: 'flymine'
-    GenomeSpaceUpload: "https://identitytest.genomespace.org/jsui/upload/loadUrlToGenomespace.html"
+    GenomeSpaceUpload: "https://gsui.genomespace.org/jsui/upload/loadUrlToGenomespace.html"
     ExternalExportDestinations: # Setting these to false disables them
       Galaxy: true
-      Genomespace: false
+      Genomespace: true
     ShowId: false
     TableWidgets: ['Pagination', 'PageSizer', 'TableSummary', 'ManagementTools', 'ScrollBar']
     CellCutoff: 100

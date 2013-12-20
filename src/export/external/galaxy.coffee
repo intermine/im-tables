@@ -3,7 +3,7 @@ do ->
   yielding = (x) -> $.Deferred(-> @resolve x).promise()
 
   # (Query) -> Promise<String>
-  getResultClass = (query) ->
+  getResultClass = (q) -> $.when(q).then (query) ->
     viewNodes = query.getViewNodes()
     {model} = query
     if viewNodes.length is 1

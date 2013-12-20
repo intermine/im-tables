@@ -402,7 +402,7 @@ jQuery(document).ready(function($) {
         });
     };
 
-    intermine.setOptions({GalaxyCurrent: 'https://demo.g2.bx.psu.edu'});
+    // intermine.setOptions({GalaxyCurrent: 'https://demo.g2.bx.psu.edu'});
 
     var query_events = {
         "imo:click": function(type, id) {
