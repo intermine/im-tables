@@ -63,6 +63,7 @@ jQuery(document).ready(function($) {
       return !any(things, invertedTest);
     }
 
+    intermine.options.CDN.server = "http://localhost/cdn";
     intermine.scope("intermine.results.formatters", {
       Manager: function(model) {
         var id, needs, p, data;
@@ -90,6 +91,78 @@ jQuery(document).ready(function($) {
     });
 
     var services = {
+        MouseMine: {
+          root: "http://www.mousemine.org/mousemine",
+          q: {
+            "orderBy" : [
+                {
+                  "Gene.symbol" : "ASC"
+                }
+            ],
+            "name" : "Disease -> Mouse Models",
+            "constraintLogic" : "B and A and C and D and E and F and G",
+            "where" : [
+                {
+                  "type" : "MedicTerm",
+                  "path" : "Gene.alleles.genotypes.ontologyAnnotations.ontologyTerm.parents"
+                },
+                {
+                  "type" : "MedicTerm",
+                  "path" : "Gene.alleles.genotypes.ontologyAnnotations.ontologyTerm"
+                },
+                {
+                  "value" : "IS NULL",
+                  "path" : "Gene.alleles.genotypes.ontologyAnnotations.qualifier",
+                  "code" : "G",
+                  "op" : "IS NULL"
+                },
+                {
+                  "value" : "MGI:104735",
+                  "path" : "Gene.primaryIdentifier",
+                  "code" : "F",
+                  "op" : "!="
+                },
+                {
+                  "value" : "false",
+                  "path" : "Gene.alleles.isRecombinase",
+                  "code" : "E",
+                  "op" : "="
+                },
+                {
+                  "value" : "cx",
+                  "path" : "Gene.alleles.genotypes.zygosity",
+                  "code" : "D",
+                  "op" : "!="
+                },
+                {
+                  "value" : "false",
+                  "path" : "Gene.alleles.isWildType",
+                  "code" : "C",
+                  "op" : "="
+                },
+                {
+                  "value" : "DiseaseTerm to Mouse Genotype Annotations from MGI",
+                  "path" : "Gene.alleles.genotypes.ontologyAnnotations.dataSets.name",
+                  "code" : "B",
+                  "op" : "="
+                },
+                {
+                  "value" : "parkinson*",
+                  "path" : "Gene.alleles.genotypes.ontologyAnnotations.ontologyTerm.parents",
+                  "code" : "A",
+                  "op" : "LOOKUP"
+                }
+            ],
+            "select" : [
+                "Gene.alleles.genotypes.ontologyAnnotations.ontologyTerm.identifier",
+                "Gene.alleles.genotypes.ontologyAnnotations.ontologyTerm.name",
+                "Gene.primaryIdentifier",
+                "Gene.symbol",
+                "Gene.alleles.genotypes.symbol",
+                "Gene.alleles.genotypes.background.name"
+            ]
+          }
+        },
         YeastMineNext: {
           root: "http://yeastmine-test.yeastgenome.org/yeastmine-dev",
           token: "E1S3edN5Jed3qe53mdMa",
@@ -239,7 +312,7 @@ jQuery(document).ready(function($) {
         TestModel: {
           help: 'alex@intermine.org',
           //root: "http://demo.intermine.org/intermine-test-dev",
-          root: "http://localhost/intermine-test",
+          root: "http://localhost:8080/intermine-test",
           token: "test-user-token",
           q: {
               select: ["*", "age"],
@@ -592,6 +665,7 @@ jQuery(document).ready(function($) {
     })();
 
     var initial = $('.entry-points li.active a').text();
+    console.log("Loading " + initial);
     login(initial || "Gene-Prot-Exons");
     
 });
