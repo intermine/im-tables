@@ -6088,8 +6088,8 @@ form tr.active {
     background: #D9EDF7;
 }
 
-.im-query-display .im-item-table > table.table > tbody > tr.hover > td,
-.im-query-display .im-item-table > table.table > tbody > tr.active > td {
+.intermine .im-item-table > table.table > tbody > tr.hover > td,
+.intermine .im-item-table > table.table > tbody > tr.active > td {
     background-color: transparent;
 }
 
