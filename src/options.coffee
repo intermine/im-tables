@@ -7,7 +7,7 @@ scope "intermine.options",
     MaxSuggestions: 1000 # Max number of suggestions to fetch and show when editing constraints.
     ListCategorisers: ['organism.name', 'department.company.name']
     PieColors: 'category20'
-    CellPreviewTrigger: 'click' # hover
+    CellPreviewTrigger: 'hover' # click
     IndicateOffHostLinks: true
     ExternalLinkIcons:
       "http://some.host.somewhere": "http://some.host.somewhere/logo.png"
