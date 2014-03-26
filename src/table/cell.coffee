@@ -40,7 +40,7 @@ do ->
         tagName: "td"
         className: "im-result-subtable"
 
-        initialize: ->
+        initialize: (@options = {}) ->
             @query = @options.query
             @cellify = @options.cellify
             @path = @options.node
@@ -49,10 +49,10 @@ do ->
             @view = subtable.view
             @column = @query.getPathInfo(subtable.column)
             @query.on 'expand:subtables', (path) =>
-                if path.toString() is @column.toString()
+                if path.getParent().toString() is @column.toString()
                   @renderTable().slideDown()
             @query.on 'collapse:subtables', (path) =>
-                if path.toString() is @column.toString()
+                if path.getParent().toString() is @column.toString()
                   @$('.im-subtable').slideUp()
 
         getSummaryText: () ->
@@ -164,7 +164,7 @@ do ->
             tr.append cell.el
             cell.render().setWidth w
 
-          tbody.append tr
+          tr.appendTo tbody
           null
 
         renderTable: ($table) ->
@@ -176,11 +176,13 @@ do ->
             columns = @getEffectiveView()
             @renderHead $table.find('thead tr'), columns
             tbody = $table.find 'tbody'
+            docfrag = document.createDocumentFragment()
 
             if @column.isCollection()
-                _.defer @appendRow, columns, row, tbody for row in @rows
+                @appendRow(columns, row, docfrag) for row in @rows
             else
-                @appendRow(columns, @rows[0], tbody) # Odd hack to fix multiple repeated rows.
+                @appendRow(columns, @rows[0], docfrag) # Odd hack to fix multiple repeated rows.
+            tbody.html docfrag
           @tableRendered = true
           $table
 
@@ -199,7 +201,11 @@ do ->
           @query.trigger evt, @column
 
         render: () ->
-            icon = if @rows.length > 0 then '<i class=icon-table></i>' else '<i class=icon-non-existent></i>'
+            icon = if @rows.length > 0
+              """<i class="#{ intermine.icons.Table }"></i>"""
+            else
+              '<i class=icon-non-existent></i>'
+
             summary = $ """
               <span class="im-subtable-summary">
                 #{ icon }&nbsp;
@@ -243,7 +249,7 @@ do ->
           else
             """<span class="null-value">&nbsp;</span>"""
 
-        initialize: ->
+        initialize: (@options = {}) ->
             @model.on 'change', @selectingStateChange, @
             @model.on 'change', @updateValue, @
 
@@ -330,13 +336,12 @@ do ->
             html: true
             title: @model.get 'obj:type'
             trigger: intermine.options.CellPreviewTrigger
-            delay: {show: 700, hide: 250} # Slight delays to prevent jumpiness.
+            delay: {show: 250, hide: 250} # Slight delays to prevent jumpiness.
             classes: 'im-cell-preview'
             content: @getPopoverContent
             placement: @getPopoverPlacement
 
           @cellPreview = new intermine.bootstrap.DynamicPopover @el, options
-
 
         updateValue: -> _.defer =>
           @$('.im-displayed-value').html @formatter(@model)
@@ -374,7 +379,7 @@ do ->
 
         render: ->
           data = @getData()
-          _.defer => @$el.html CELL_HTML data
+          @$el.html CELL_HTML data
           @$el.addClass 'active' if data.checked
           @setupPreviewOverlay() if @model.get('id')
           this
@@ -391,7 +396,7 @@ do ->
     class NullCell extends Cell
         setupPreviewOverlay: ->
 
-        initialize: ->
+        initialize: (@options = {}) ->
           @model = new intermine.model.NullObject()
           super()
 

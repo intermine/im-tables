@@ -39,7 +39,13 @@ do ->
       </span>
     """
 
-    aeql = (xs, ys) -> (not xs and not ys) or (xs and ys and _.all xs, (x) -> x in ys)
+    aeql = (xs, ys) ->
+      if not xs and not ys
+        return true
+      if not xs or not ys
+        return false
+      [shorter, longer] = _.sortBy [xs, ys], (a) -> a.length
+      _.all longer, (x) -> x in shorter
 
     basicEql = (a, b) ->
       return a is b unless (a and b)
@@ -49,7 +55,6 @@ do ->
         [va, vb] = (x[k] for x in [a, b])
         same and= (if _.isArray va then aeql va, vb else va is vb)
       return same
-
 
     class ActiveConstraint extends Backbone.View
         tagName: "form"
@@ -168,11 +173,11 @@ do ->
             @query.removeConstraint @orig, silently
 
         addIcons: ($label) ->
-            $label.append """<a href="#"><i class="icon-remove-sign"></i></a>"""
+            $label.append """<a><i class="icon-remove-sign"></i></a>"""
             if @con.locked
-                $label.append """<a href="#"><i class="icon-lock" title="this constraint is not editable"></i></a>"""
+                $label.append """<a><i class="icon-lock" title="this constraint is not editable"></i></a>"""
             else
-                $label.append """<a href="#"><i class="im-edit #{ intermine.icons.Edit }"></i></a>"""
+                $label.append """<a><i class="im-edit #{ intermine.icons.Edit }"></i></a>"""
 
         buttons: [
             {

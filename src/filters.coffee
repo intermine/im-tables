@@ -107,7 +107,7 @@ do ->
 
         html: """
            <div class="modal-header">
-               <a href="#" class="close im-closer">close</a>
+               <a class="close im-closer">close</a>
                <h3>#{ intermine.messages.filters.Heading }</h3>
            </div>
            <div class="modal-body">

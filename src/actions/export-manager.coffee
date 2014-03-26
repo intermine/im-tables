@@ -9,7 +9,7 @@ define 'actions/export-manager', ->
     initialize: (@states) -> super()
 
     template: _.template """
-      <a class="btn im-open-dialogue" href="#">
+      <a class="btn im-open-dialogue">
         <i class="#{ intermine.icons.Export }"></i>
         <span class="visible-desktop">#{ intermine.messages.actions.ExportButton }</span>
       </a>

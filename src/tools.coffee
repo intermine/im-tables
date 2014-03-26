@@ -135,7 +135,7 @@ do ->
         template: _.template """
           <button class="btn btn-small im-state-revert" disabled
               title="Revert to this state">
-              <i class=icon-undo></i>
+              <i class="#{ intermine.icons.Undo }"></i>
           </button>
           <h3><%- title %></h3>
           <i class="icon-info-sign"></i>
@@ -229,11 +229,11 @@ do ->
             step.remove()
           @$el.html """
             <div class="btn-group">
-              <a class="btn im-undo" href="#">
+              <a class="btn im-undo">
                 <i class="#{ intermine.icons.Undo }"></i>
                 <span class="visible-desktop">Undo</span>
               </a>
-              <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+              <a class="btn dropdown-toggle" data-toggle="dropdown">
                 <span class="caret"></span>
               </a>
               <ul class="dropdown-menu im-state-list">

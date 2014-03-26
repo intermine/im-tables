@@ -5,7 +5,8 @@ jQuery(document).ready(function($) {
     for (formatsets in intermine.results.formatsets) {
       formatset = intermine.results.formatsets[formatsets];
       for (fsKey in formatset) {
-        formatset[fsKey] = true;
+        if (formatset[fsKey] === false)
+          formatset[fsKey] = true;
       }
     }
 
@@ -141,15 +142,21 @@ jQuery(document).ready(function($) {
           }
         },
         Production: {
-            root: "www.flymine.org/query", 
-            token: "21k3D5x5B8pdd8T9yeY24fG8th2",
+            // root: "www.flymine.org/query", 
+            // token: "21k3D5x5B8pdd8T9yeY24fG8th2",
+            // q: {
+            //    select: ["symbol", "organism.name", "chromosomeLocation.start"], 
+            //    from: "Gene", 
+            //    where: {
+            //    //    Gene: {IN: "an awesome list"}, 
+            //        length: {lt: 5000}
+            //    }
+            //}
+            root: "localhost/squirrelmine",
             q: {
-                select: ["symbol", "organism.name", "chromosomeLocation.start"], 
-                from: "Gene", 
-                where: {
-                //    Gene: {IN: "an awesome list"}, 
-                    length: {lt: 5000}
-                }
+              select: ["symbol"],
+              from: "Gene",
+              where: {"Gene.goAnnotation": null}
             }
         },
         Pubs: {
@@ -228,8 +235,8 @@ jQuery(document).ready(function($) {
           }
         },
         'Gene-Prot-Exons': {
-          "root": "preview.flymine.org/preview",
-          //root: "beta.flymine.org/beta",
+          root: "beta.flymine.org/beta",
+          //"root": "localhost/squirrelmine",
           //token: "M1n3x2ydw4icj140pbBcffIgR4Q",
           q: {
               select: [
@@ -241,6 +248,7 @@ jQuery(document).ready(function($) {
                 "proteins.name", 
                 "exons.primaryIdentifier"
               ], 
+              orderBy: ["proteins.name"],
               from: "Gene", 
               where: {
                   // Aesthetic - means we can render the type correctly.
@@ -249,6 +257,22 @@ jQuery(document).ready(function($) {
                   "pathways.name": ["Metabolic pathways", "Gene Expression", "Transcription", "mRNA Processing"],
                   "chromosomeLocation.locatedOn.primaryIdentifier": "2L"
               }
+          }
+        },
+        MouseColumnHeaders: {
+          help: "alex@intermine.org",
+          root: "http://beta.mousemine.org/mousemine",
+          q: {
+            "select":[
+              "GXDExpression.assayType","GXDExpression.feature.symbol",
+              "GXDExpression.assayId","GXDExpression.probe","GXDExpression.image",
+              "GXDExpression.publication.mgiJnum"
+            ],
+            "orderBy":[{"GXDExpression.assayId":"ASC"}],
+            "where":[
+              {"path":"GXDExpression.feature.organism.taxonId","op":"=","code":"B","value":"10090"},
+              {"path":"GXDExpression.feature","op":"LOOKUP","code":"A","value":"Pax6"}
+            ]
           }
         },
         TestModel: {
@@ -378,7 +402,7 @@ jQuery(document).ready(function($) {
         });
     };
 
-    intermine.setOptions({GalaxyCurrent: 'https://demo.g2.bx.psu.edu'});
+    // intermine.setOptions({GalaxyCurrent: 'https://demo.g2.bx.psu.edu'});
 
     var query_events = {
         "imo:click": function(type, id) {

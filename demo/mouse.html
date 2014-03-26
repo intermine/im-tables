@@ -1,16 +1,18 @@
 <!DOCTYPE html>
 <html>
-  <head profile="http://http://www.w3.org/2005/10/profile">
-    <title>InterMine Table Demo</title>
-    <link rel="icon" type="image/ico" href="favicon.ico">
-    <meta http-equiv="Content-Type" content="text/html;charset=ISO-8859-1" />
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+  <head>
+      <meta http-equiv="Content-Type" content="text/html;charset=ISO-8859-1" />
+      <meta http-equiv="X-UA-Compatible" content="IE=Edge">
 
     <link rel="stylesheet" type="text/css" href="../css/imtables.css">
     <link rel="stylesheet" type="text/css" href="css/style.css">
 
     <!-- im code -->
     <script charset="UTF-8" type="text/javascript" src="../js/imtables-bundled.js"></script>
+    <script charset="UTF-8" type="text/javascript" src="lib/mouse-formatters.js"></script>
+
+    <!-- Demo webapp -->
+    <script type="text/javascript" src="demo.js"></script>
 
   </head>
  
@@ -25,31 +27,28 @@
             <div class="nav-collapse">
                 <a id="entry-dropdowns" href="#">Service</a>
                 <ul class="nav entry-points">
-                    <li><a href="#">Gene-Homologues</a></li>
-                    <li><a href="#">Gene-Prot-Exons</a></li>
-                    <li><a href="#">Production</a></li>
-                    <li><a href="#">Pubs</a></li>
-                    <li><a href="#">TestModel</a></li>
+                    <li><a href="#">MouseColumnHeaders</a></li>
                     <!--
+                    <li><a href="#">TestModel</a></li>
                     <li><a href="#">OJC</a></li>
                     <li><a href="#">DeepOJC</a></li>
                     -->
 
-                    <div class="intermine">
+                    <!--
                     <li class="dropdown visible-desktop">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                             Layout
                             <span class="caret"></span>
                         </a>
                         <ul class="dropdown-menu layout-chooser">
-                            <li><a id="select-wide-layout" href="#">Wide</a></li>
-                            <li><a class="active" id="select-compact-layout" href="#">Compact</a></li>
+                            <li class="active"><a id="select-wide-layout" href="#">Wide</a></li>
+                            <li><a id="select-compact-layout" href="#">Compact</a></li>
                             <li><a id="select-minimal-layout" href="#">Minimal</a></li>
                         </ul>
                     </li>
-                    </div>
+                    -->
                     <li>
-                      <a id="demo-settings">
+                      <a>
                         <i class="icon-cog"></i>
                       </a>
                     </li>
@@ -130,35 +129,6 @@
      <!--
      <div class="right gh-ribbon"><a href="#" class="red"><span class="text"></span></a></div>
      -->
-     <div class="intermine">
-         <div class="modal hide" id="settings-dialogue">
-             <div class="modal-header">
-                 <a data-dismiss="modal" class="close" href="#">close</a>
-                 <h2>Settings</h2>
-             </div>
-             <div class="modal-body">
-                 <form class="form">
-                     <label>Import Query</label>
-                     <textarea name="query"></textarea>
-                     <label>For service</label>
-                     <select name="service" id="query-service"></select>
-                 </form>
-             </div>
-             <div class="modal-footer">
-                <div class="btn-group pull-right">
-                    <button class="btn btn-primary">
-                        Apply
-                    </button>
-                    <button class="btn btn-cancel" data-dismiss="modal">
-                        Cancel
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <ul id="error-messages">
-    </ul>
 
   </body>
 
@@ -175,9 +145,6 @@
         jQuery('.navbar-fixed-top').toggleClass('navbar-covering', jQuery(this).scrollTop() > 0);
     });
   </script>
-  <!-- Demo webapp -->
-  <script type="text/javascript" src="demo.js"></script>
-
 
 </html>
 

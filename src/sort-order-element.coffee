@@ -67,7 +67,7 @@ do ->
       </div>
     """
 
-    initialize: ->
+    initialize: (@options = {}) ->
       @model.on 'change:direction', =>
         @$('.im-sort-direction').toggleClass 'asc desc'
       @model.on 'destroy', @remove, @
@@ -87,7 +87,6 @@ do ->
       @model.off()
       @$('.im-remove-soe').tooltip 'hide'
       super()
-
 
     render: ->
 
@@ -109,7 +108,7 @@ do ->
 
     TEMPLATE = _.template """
       <div>
-        <a href="#" class="im-add-soe"
+        <a class="im-add-soe"
            title="#{ intermine.messages.columns.AddThisColumn }" >
           <i class="icon-plus"></i>
           <span title="<%- path %>"><%- path %></span>
@@ -132,7 +131,7 @@ do ->
       @$('.im-add-soe').tooltip 'hide'
       super()
 
-    initialize: ->
+    initialize: (@options = {}) ->
 
       @model.on 'only-in-view', (only) =>
         @model.set visibleInView: not only or @model.isInView()

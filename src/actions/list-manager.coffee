@@ -11,7 +11,7 @@ define 'actions/list-manager', using 'actions/list-append-dialogue', 'actions/ne
       @disabled = not @states.currentQuery.service.token?
 
     html: """
-        <a href="#" class="btn" data-toggle="dropdown">
+        <a class="btn" data-toggle="dropdown">
             <i class="icon-list-alt"></i>
             <span class="im-only-widescreen">Create / Add to</span>
             List
@@ -110,15 +110,11 @@ define 'actions/list-manager', using 'actions/list-append-dialogue', 'actions/ne
                   else "All #{n}"
               typeName = intermine.utils.pluralise(node.getType().name, n)
               
-              li.append """
-                  <a href="#">
-                      #{quantifier} #{typeName}
-                  </a>
-              """
+              li.append "<a>#{quantifier} #{typeName}</a>"
 
       ul.append """
         <li class="im-pick-and-choose">
-            <a href="#">Choose individual items from the table</a>
+            <a>Choose individual items from the table</a>
         </li>
       """
 

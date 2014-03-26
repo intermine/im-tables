@@ -2,7 +2,7 @@ do ->
   DownloadDialogue = -> """
 
     <div class="modal-header">
-      <a href="#" class="close" data-dismiss="modal">close</a>
+      <a  class="close im-closer" data-dismiss="modal">close</a>
       <h2>
         #{ intermine.messages.actions.ExportTitle }
       </h2>
@@ -16,19 +16,19 @@ do ->
        <div class="tabbable tabs-left">
          <ul class="nav nav-tabs">
            <li class="active">
-             <a href="#" class="im-export-format">format</a>
+             <a  class="im-export-format">format</a>
            </li>
            <li>
-             <a href="#" class="im-export-columns">columns</a>
+             <a  class="im-export-columns">columns</a>
            </li>
            <li>
-             <a href="#" class="im-export-rows">Rows</a>
+             <a  class="im-export-rows">Rows</a>
            </li>
            <li>
-             <a href="#" class="im-export-output">Output</a>
+             <a  class="im-export-output">Output</a>
            </li>
            <li>
-             <a href="#" class="im-export-destination">
+             <a  class="im-export-destination">
               Destination: <span class="im-current"></span>
              </a>
            </li>
@@ -111,7 +111,7 @@ do ->
            <div class="tab-pane im-export-destination">
           <ul class="im-export-destinations nav nav-pills">
             <li class="active">
-              <a href="#" data-destination="download-file">
+              <a  data-destination="download-file">
                 <i class="#{ intermine.icons.Download }"></i>
                 #{ intermine.messages.actions.ExportLong }
               </a>
@@ -137,13 +137,13 @@ do ->
                 <div class="well im-query-xml"></div>
 
                 <div class="alert alert-block im-private-query">
-                  <button type="button" class="close" data-dismiss="alert">×</button>
+                  <button type="button" class="close im-closer" data-dismiss="alert">×</button>
                   <h4>nb:</h4>
                   #{ intermine.messages.actions.IsPrivateData }
                 </div>
 
                 <div class="alert alert-block alert-info im-long-uri">
-                  <button type="button" class="close" data-dismiss="alert">×</button>
+                  <button type="button" class="close im-closer" data-dismiss="alert">×</button>
                   <h4>nb:</h4>
                   #{ intermine.messages.actions.LongURI }
                 </div>
@@ -173,7 +173,7 @@ do ->
     -->
 
     <div class="modal-footer">
-      <a href="#" class="btn btn-primary im-download pull-right">
+      <a  class="btn btn-primary im-download pull-right">
         <i class="icon #{ intermine.icons.Export }"></i>
         #{ intermine.messages.actions.Export }
       </a>

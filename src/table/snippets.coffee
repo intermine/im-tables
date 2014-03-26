@@ -31,13 +31,13 @@ scope 'intermine.snippets.table',
       <div class="pagination pagination-right">
         <ul>
           <li title="Go to start">
-            <a href="#" class="im-pagination-button" data-goto=start>&#x21e4;</a>
+            <a class="im-pagination-button" data-goto=start>&#x21e4;</a>
           </li>
           <li title="Go back five pages" class="visible-desktop">
-            <a href="#" class="im-pagination-button" data-goto=fast-rewind>&#x219e;</a>
+            <a class="im-pagination-button" data-goto=fast-rewind>&#x219e;</a>
           </li>
           <li title="Go to previous page">
-            <a href="#" class="im-pagination-button" data-goto=prev>&larr;</a>
+            <a class="im-pagination-button" data-goto=prev>&larr;</a>
           </li>
           <li class="im-current-page">
             <a data-goto=here  href="#">&hellip;</a>
@@ -46,18 +46,22 @@ scope 'intermine.snippets.table',
           </form>
           </li>
           <li title="Go to next page">
-            <a href="#" class="im-pagination-button" data-goto=next>&rarr;</a>
+            <a class="im-pagination-button" data-goto=next>&rarr;</a>
           </li>
           <li title="Go forward five pages" class="visible-desktop">
-            <a href="#" class="im-pagination-button" data-goto=fast-forward>&#x21a0;</a>
+            <a class="im-pagination-button" data-goto=fast-forward>&#x21a0;</a>
           </li>
           <li title="Go to last page">
-            <a href="#" class="im-pagination-button" data-goto=end>&#x21e5;</a>
+            <a class="im-pagination-button" data-goto=end>&#x21e5;</a>
           </li>
         </ul>
       </div>
     """
 
 scope 'intermine.snippets.query', {
-    UndoButton: '<button class="btn btn-primary pull-right"><i class="icon-undo"></i> undo</button>'
+    UndoButton: """
+          <button class="btn btn-primary pull-right">
+            <i class="#{ intermine.icons.Undo }"></i> undo
+          </button>
+        """
 }

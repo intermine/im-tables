@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html>
   <head profile="http://http://www.w3.org/2005/10/profile">
-    <title>InterMine Table Demo</title>
     <link rel="icon" type="image/ico" href="favicon.ico">
     <meta http-equiv="Content-Type" content="text/html;charset=ISO-8859-1" />
     <meta http-equiv="X-UA-Compatible" content="IE=Edge">
@@ -11,6 +10,23 @@
 
     <!-- im code -->
     <script charset="UTF-8" type="text/javascript" src="../js/imtables-bundled.js"></script>
+
+    <!-- Demo webapp -->
+    <script type="text/javascript" src="demo.js"></script>
+
+    <style type="text/css">
+        #spacer {
+            width: 100%;
+            height: 600px;
+            background: red;
+            color: white;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+        #table-display {
+            min-height: 1000px;
+        }
+    </style>
 
   </head>
  
@@ -125,6 +141,8 @@
     </div>
   </div>
 
+     <div id="spacer">intentional spacer</div>
+
      <div id="table-display"></div>
 
      <!--
@@ -174,10 +192,8 @@
     jQuery(window).scroll(function() {
         jQuery('.navbar-fixed-top').toggleClass('navbar-covering', jQuery(this).scrollTop() > 0);
     });
+    jQuery(document).ready(function () { jQuery('body').animate({scrollTop: 600}, 2000); });
   </script>
-  <!-- Demo webapp -->
-  <script type="text/javascript" src="demo.js"></script>
-
 
 </html>
 

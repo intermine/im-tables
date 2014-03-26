@@ -83,31 +83,31 @@ do ($ = jQuery) ->
       replacer ?= replacedBy[p.getParent()] if p.isAttribute() and p.end.name is 'id'
       replacer and replacer.formatter? and col isnt replacer
     
-    getOrganisms = (query, cb) ->
-        def = $.Deferred()
-        def.done cb if cb?
-        done = _.compose def.resolve, uniquelyFlat
+    getOrganisms = (q, cb) -> $.when(q).then (query) ->
+      def = $.Deferred()
+      def.done cb if cb?
+      done = _.compose def.resolve, uniquelyFlat
 
-        mustBe = ((c.value or c.values) for c in query.constraints when (
-          (c.op in ['=', 'ONE OF', 'LOOKUP']) and c.path.match(/(o|O)rganism(\.\w+)?$/)))
+      mustBe = ((c.value or c.values) for c in query.constraints when (
+        (c.op in ['=', 'ONE OF', 'LOOKUP']) and c.path.match(/(o|O)rganism(\.\w+)?$/)))
 
-        if mustBe.length
-          done mustBe
+      if mustBe.length
+        done mustBe
+      else
+        toRun = query.clone()
+        newView = for n in toRun.getViewNodes() when organisable n
+          opath = if n.getEndClass().name is 'Organism' then n else n.append('organism')
+          opath.append 'shortName'
+
+        if newView.length
+          toRun.select(_.uniq newView, String)
+                .orderBy([])
+                .rows()
+                .then(done, -> done [])
         else
-          toRun = query.clone()
-          newView = for n in toRun.getViewNodes() when organisable n
-            opath = if n.getEndClass().name is 'Organism' then n else n.append('organism')
-            opath.append 'shortName'
+          done []
 
-          if newView.length
-            toRun.select(_.uniq newView, String)
-                 .orderBy([])
-                 .rows()
-                 .then(done, -> done [])
-          else
-            done []
-
-        return def.promise()
+      return def.promise()
 
     openWindowWithPost = (uri, name, params) ->
 

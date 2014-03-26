@@ -11,7 +11,7 @@ do ->
 
     className: 'im-possible-column'
 
-    initialize: ->
+    initialize: (@options) ->
       @on 'rendered', @showDisplayName, @
       @on 'rendered', @setClassName, @
       @model.on 'destroy', @remove, @
@@ -38,7 +38,7 @@ do ->
         @model.trigger 'displayed-name'
 
     template: _.template """
-      <a href="#">
+      <a>
         <i class="<% if (alreadySelected) { %>#{ intermine.icons.Check }<% } else { %>#{ intermine.icons.UnCheck }<% } %>"></i>
         <span class="im-field-name"><%- path %></span>
       </a>
@@ -49,7 +49,7 @@ do ->
     tagName: 'ul'
     className: 'im-possible-attributes'
 
-    initialize: ->
+    initialize: (@options) ->
       @collection = new Backbone.Collection
       @collection.on 'selected', @selectPathForExport, @
       @collection.on 'displayed-name', @sortUL, @
@@ -100,7 +100,7 @@ do ->
 
     className: 'im-query-node btn'
 
-    initialize: ->
+    initialize: (@options) ->
       exported = @model.collection.exported
       node = @model.get 'node'
       @content = new PopOver({node, exported})
@@ -153,8 +153,7 @@ do ->
 
     className: 'im-possible-columns btn-group'
 
-    initialize: ->
-      @nodes = []
+    initialize: (@options) -> @nodes = []
 
     remove: ->
       while node = @nodes.pop()

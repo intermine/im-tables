@@ -24,7 +24,7 @@ do ->
       <div class="im-th-buttons">
         <% if (sortable) { %>
           <span class="im-th-dropdown im-col-sort dropdown">
-            <a href="#" class="im-th-button im-col-sort-indicator" title="sort this column">
+            <a class="im-th-button im-col-sort-indicator" title="sort this column">
               <i class="icon-sorting <%- css_unsorted %> <%- css_header %>"></i>
             </a>
             <div class="dropdown-menu">
@@ -32,16 +32,16 @@ do ->
             </div>
           </span>
         <% }; %>
-        <a href="#" class="im-th-button im-col-remover"
+        <a class="im-th-button im-col-remover"
            title="remove this column">
           <i class="<%- css_remove %> <%- css_header %>"></i>
         </a>
-        <a href="#" class="im-th-button im-col-minumaximiser"
+        <a class="im-th-button im-col-minumaximiser"
            title="Toggle column visibility">
           <i class="<%- css_hide %> <%- css_header %>"></i>
         </a>
         <span class="dropdown im-filter-summary im-th-dropdown">
-          <a href="#" class="im-th-button im-col-filters dropdown-toggle"
+          <a class="im-th-button im-col-filters dropdown-toggle"
              title=""
              data-toggle="dropdown" >
             <i class="<%- css_filter %> <%- css_header %>"></i>
@@ -51,7 +51,7 @@ do ->
           </div>
         </span>
         <span class="dropdown im-summary im-th-dropdown">
-          <a href="#" class="im-th-button summary-img dropdown-toggle" title="column summary"
+          <a class="im-th-button summary-img dropdown-toggle" title="column summary"
             data-toggle="dropdown" >
             <i class="<%- css_summary %> <%- css_header %>"></i>
           </a>
@@ -59,7 +59,7 @@ do ->
             <div>Could not ititialise the column summary.</div>
           </div>
         </span>
-        <a href="#" class="im-th-button im-col-composed"
+        <a class="im-th-button im-col-composed"
             title="Toggle formatting">
           <i class="<%- css_composed %> <%- css_header %>"></i>
         </a>
@@ -74,8 +74,13 @@ do ->
       if (count > 0) then "#{ count } active filters" else "Filter by values in this column"
 
   RENDER_TITLE = _.template """
-    <div class="im-title-part im-parent im-<%= parentType %>-parent"><%- penult %></div>
-    <div class="im-title-part im-last"><%- last %></div>
+    <div
+      class="im-title-part im-parent im-<%= parentType %>-parent<% if (!last) { %> im-last<% } %>">
+        <%- penult %>
+    </div>
+    <% if (last) { %>
+      <div class="im-title-part im-last"><%- last %></div>
+    <% } %>
   """
 
   NEXT_DIRECTION_OF =
@@ -88,8 +93,8 @@ do ->
 
     className: 'im-column-th'
 
-    initialize: ->
-      @query = @options.query
+    initialize: ({query}) ->
+      @query = query
       # Store this, as it will be needed several times.
       @view = @model.get('path').toString()
       if @model.get('replaces').length is 1 and @model.get('isFormatted')
@@ -161,6 +166,9 @@ do ->
       if not @model.get('path').isAttribute() and @query.isOuterJoined(@view)
         @addExpander()
 
+      if @model.get 'expanded'
+        @query.trigger 'expand:subtables', @model.get 'path'
+
       this
 
     firstResult = _.compose _.first, _.compact, _.map
@@ -197,8 +205,6 @@ do ->
       'click .im-subtable-expander': 'toggleSubTable'
       'click .im-col-remover': 'removeColumn'
       'toggle .im-th-button': 'summaryToggled'
-
-    #'click .im-summary': 'showColumnSummary'
 
     summaryToggled: (e, isOpen) ->
       ignore e
@@ -282,7 +288,7 @@ do ->
         <a href="#" 
            class="im-subtable-expander im-th-button"
            title="Expand/Collapse all subtables">
-          <i class="icon-table icon-white"></i>
+          <i class="#{ intermine.icons.Table }"></i>
         </a>
       """
       expandAll.tooltip placement: @bestFit
@@ -290,8 +296,9 @@ do ->
 
     toggleSubTable: (e) =>
       ignore e
-      cmd = if @model.get 'expanded' then 'collapse' else 'expand'
+      isExpanded = @model.get 'expanded'
+      cmd = if isExpanded then 'collapse' else 'expand'
       @query.trigger cmd + ':subtables', @model.get 'path'
-      @model.set expanded: not @model.get 'expanded'
+      @model.set expanded: not isExpanded
 
   scope 'intermine.query.results', {ColumnHeader}

@@ -1,11 +1,11 @@
-define 'actions/code-gen', using 'html/code-gen', (HTML) ->
+define 'actions/code-gen', using 'perma-query', 'html/code-gen', (getPermaQuery, HTML) ->
 
   CODE_GEN_LANGS = [
       {name: "Perl", extension: "pl"},
       {name: "Python", extension: "py"},
       {name: "Ruby", extension: "rb"},
       {name: "Java", extension: "java"},
-      {name: "JavaScript", extension: "js"}
+      {name: "JavaScript", extension: "js"},
       {name: "XML", extension: "xml"}
   ]
     
@@ -33,7 +33,9 @@ define 'actions/code-gen', using 'html/code-gen', (HTML) ->
 
     return buffer.join("\n")
 
-  alreadyDone = jQuery.Deferred -> @resolve(true)
+  {get, invoke} = intermine.funcutils
+  defer = (x) -> jQuery.Deferred -> @resolve x
+  alreadyDone = defer true
   alreadyRejected = jQuery.Deferred -> @reject 'not available'
 
   class CodeGenerator extends Backbone.View
@@ -44,6 +46,9 @@ define 'actions/code-gen', using 'html/code-gen', (HTML) ->
 
     initialize: (@states) ->
       @model = new Backbone.Model
+      lang = l for l in CODE_GEN_LANGS when l.extension is intermine.options.DefaultCodeLang
+      lang ?= CODE_GEN_LANGS[0]
+      @model.set {lang}
       @model.on 'set:lang', @displayLang
 
     render: =>
@@ -64,8 +69,11 @@ define 'actions/code-gen', using 'html/code-gen', (HTML) ->
 
     setLang: (e) ->
       $t = $ e.target
-      @model.set {lang: $t.data('lang') or @model.get('lang')}, {silent: true}
-      @model.trigger 'set:lang'
+      desired = $t.data 'lang'
+      lang = l for l in CODE_GEN_LANGS when l.extension is desired
+      if lang?
+        @model.set {lang}, {silent: true}
+        @model.trigger 'set:lang'
 
     canSaveFromMemory = ->
       if not Blob?
@@ -76,32 +84,36 @@ define 'actions/code-gen', using 'html/code-gen', (HTML) ->
         intermine.cdn.load 'filesaver'
 
     displayLang: =>
-      $m    = @$ '.modal'
-      lang  = @model.get('lang')
-
-      query = @states.currentQuery
-
-      ext   = if lang is 'js'  then 'html' else lang
-      href  = if lang is 'xml' then '#'    else query.getCodeURI lang
-      code  = if lang is 'xml' then indent(query.toXML()) else query.fetchCode lang
-      ready = if prettyPrintOne? then alreadyDone else intermine.cdn.load 'prettify'
-
-      @$('a .im-code-lang').text lang
-      @$('.modal h3 .im-code-lang').text lang
-
+      lang    = @model.get('lang') or CODE_GEN_LANGS[0]
+      query   = @states.currentQuery
+      pq      = getPermaQuery query
+      isJS    = lang.extension is 'js'
+      isXML   = lang.extension is 'xml'
+      ext     = if isJS then 'html' else lang.extension
+      href    = if isXML then '' else query.getCodeURI lang.extension
+      ready   = if prettyPrintOne? then alreadyDone else intermine.cdn.load 'prettify'
+      $modal  = @$ '.modal'
       saveBtn = @$('.modal .btn-save').removeClass('disabled').unbind('click').attr href: null
-      if lang is 'xml'
-        saveBtn.addClass 'disabled'
-        canSaveFromMemory().done -> saveBtn.removeClass('disabled').click ->
-          blob = new Blob [code], type: 'application/xml;charset=utf8'
-          saveAs blob, 'query.xml'
+      code    = if isXML
+        pq.then(invoke 'toXML').then(indent)
       else
-        saveBtn.attr href: query.getCodeURI lang
+        pq.then(invoke 'fetchCode', lang.extension)
 
-      jQuery.when(code, ready).then (code) ->
+      @$('.im-code-lang').text lang.name
+
+      if isXML
+        saveBtn.addClass 'disabled'
+        jQuery.when(code, canSaveFromMemory()).done (xml) ->
+          saveBtn.removeClass('disabled').click ->
+            blob = new Blob [xml], type: 'application/xml;charset=utf8'
+            saveAs blob, 'query.xml'
+      else
+        pq.then(invoke 'getCodeURI', lang.extension).then (href) -> saveBtn.attr {href}
+
+      jQuery.when(code, ready).fail((e) => @states.trigger 'error', e).then (code) ->
         formatted = prettyPrintOne(_.escape(code), ext)
-        $m.find('pre').html formatted
-        $m.modal 'show'
+        $modal.find('pre').html formatted
+        $modal.modal 'show'
 
     doMainAction: (e) =>
       if @model.has('lang') then @displayLang() else $(e.target).next().dropdown 'toggle'
