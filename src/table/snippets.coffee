@@ -59,5 +59,9 @@ scope 'intermine.snippets.table',
     """
 
 scope 'intermine.snippets.query', {
-    UndoButton: '<button class="btn btn-primary pull-right"><i class="icon-undo"></i> undo</button>'
+    UndoButton: """
+          <button class="btn btn-primary pull-right">
+            <i class="#{ intermine.icons.Undo }"></i> undo
+          </button>
+        """
 }

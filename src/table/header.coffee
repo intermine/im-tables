@@ -166,6 +166,9 @@ do ->
       if not @model.get('path').isAttribute() and @query.isOuterJoined(@view)
         @addExpander()
 
+      if @model.get 'expanded'
+        @query.trigger 'expand:subtables', @model.get 'path'
+
       this
 
     firstResult = _.compose _.first, _.compact, _.map
@@ -202,8 +205,6 @@ do ->
       'click .im-subtable-expander': 'toggleSubTable'
       'click .im-col-remover': 'removeColumn'
       'toggle .im-th-button': 'summaryToggled'
-
-    #'click .im-summary': 'showColumnSummary'
 
     summaryToggled: (e, isOpen) ->
       ignore e
@@ -287,7 +288,7 @@ do ->
         <a href="#" 
            class="im-subtable-expander im-th-button"
            title="Expand/Collapse all subtables">
-          <i class="icon-table icon-white"></i>
+          <i class="#{ intermine.icons.Table }"></i>
         </a>
       """
       expandAll.tooltip placement: @bestFit
@@ -295,8 +296,9 @@ do ->
 
     toggleSubTable: (e) =>
       ignore e
-      cmd = if @model.get 'expanded' then 'collapse' else 'expand'
+      isExpanded = @model.get 'expanded'
+      cmd = if isExpanded then 'collapse' else 'expand'
       @query.trigger cmd + ':subtables', @model.get 'path'
-      @model.set expanded: not @model.get 'expanded'
+      @model.set expanded: not isExpanded
 
   scope 'intermine.query.results', {ColumnHeader}

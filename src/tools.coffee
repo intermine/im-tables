@@ -135,7 +135,7 @@ do ->
         template: _.template """
           <button class="btn btn-small im-state-revert" disabled
               title="Revert to this state">
-              <i class=icon-undo></i>
+              <i class="#{ intermine.icons.Undo }"></i>
           </button>
           <h3><%- title %></h3>
           <i class="icon-info-sign"></i>
