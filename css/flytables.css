@@ -1712,9 +1712,6 @@
 .intermine .table th {
   font-weight: bold;
 }
-.intermine .table thead th {
-  vertical-align: bottom;
-}
 .intermine .table caption + thead tr:first-child th,
 .intermine .table caption + thead tr:first-child td,
 .intermine .table colgroup + thead tr:first-child th,
@@ -3948,13 +3945,6 @@
 .intermine .pager .disabled > a:focus,
 .intermine .pager .disabled > span {
   color: #999999;
-  cursor: default;
-  background-color: #fff;
-}
-.modal-backdrop {
-  position: fixed;
-  top: 0;
-  right: 0;
   bottom: 0;
   left: 0;
   z-index: 1040;
@@ -4782,13 +4772,6 @@
     margin-right: 1em;
 }
 
-.intermine .im-facet > .popover .im-export-summary i,
-.intermine .im-export-formats [class^="icon-"],
-.intermine .im-export-formats [class*=" icon-"],
-.intermine i.icon-xml,
-.intermine i.icon-json {
-    width: 2em;
-}
 .intermine i.icon-xml:before,
 .intermine i.icon-json:before {
     font-weight: bold;
@@ -4884,6 +4867,9 @@
 
 .intermine .im-column-th .tooltip.left {
     margin-left: -10px;
+}
+.intermine .table-bordered > thead > tr > .im-column-th {
+    border-bottom: 1px solid #acacac;
 }
 .intermine .im-column-th .dropdown-menu:before {
   position: absolute;
@@ -5362,7 +5348,13 @@ li.im-subpath > a:before {
 }
 
 .intermine .im-table-container .table-striped > thead > tr > th.im-has-constraint {
-    border: 1px dashed #ccc;
+    border-left: 1px dashed #ccc;
+}
+.intermine .im-table-container .table-striped > thead > tr > th.im-has-constraint:last-child {
+    border-right: 1px dashed #ccc;
+}
+.intermine .im-table-container .table-striped > thead > tr > th.im-has-constraint + th {
+    border-left: 1px dashed #ccc;
 }
 
 .im-query-display th .im-col-filters {
@@ -6784,18 +6776,18 @@ form.im-join {
     margin-right: 0.5em;
 }
 
-.im-table-container > .table > thead > tr > th {
-    height: 5.8em;
-}
-
 .im-th-buttons {
     min-width: 4em;
-    max-height: 1em;
+    max-height: 1.5em;
     display: block;
     width: 100%;
     position: absolute;
-    top: 0.6em;
-    left: 0.2em;
+    top: 0em;
+    left: 0em;
+    box-sizing: border-box;
+    padding: 0.2em;
+    background: #f7f7f7;
+    border-bottom: 1px solid rgb(225, 225, 225);
 }
 
 .im-th-button {
@@ -6822,7 +6814,7 @@ form.im-join {
 
 .im-column-header {
     padding: 1em 4px 0px 6px;
-    height: 100%;
+    min-height: 62px;
     padding-top: 1.5em;
     position: relative;
 }
@@ -6896,6 +6888,7 @@ form.im-join {
 .im-th-button i {
     position: relative;
     top: -3px;
+    left: -3px;
 }
 
 .modal-body .im-col-remover {
