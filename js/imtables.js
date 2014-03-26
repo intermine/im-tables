@@ -7,7 +7,7 @@
  * Copyright 2012, 2013, Alex Kalderimis and InterMine
  * Released under the LGPL license.
  * 
- * Built at Wed Mar 19 2014 14:45:42 GMT+0000 (GMT)
+ * Built at Wed Mar 26 2014 13:47:19 GMT+0000 (GMT)
 */
 
 
@@ -608,6 +608,7 @@
     NUM_SEPARATOR: ',',
     NUM_CHUNK_SIZE: 3,
     MAX_PIE_SLICES: 15,
+    DefaultCodeLang: 'py',
     ListFreshness: 250,
     MaxSuggestions: 1000,
     ListCategorisers: ['organism.name', 'department.company.name'],
@@ -629,13 +630,21 @@
     ShowId: false,
     TableWidgets: ['Pagination', 'PageSizer', 'TableSummary', 'ManagementTools', 'ScrollBar'],
     CellCutoff: 100,
+    Style: {
+      icons: 'glyphicons'
+    },
     CDN: {
       server: 'http://cdn.intermine.org',
+      tests: {
+        fontawesome: /font-awesome/,
+        glyphicons: /bootstrap-icons/
+      },
       resources: {
         prettify: ['/js/google-code-prettify/latest/prettify.js', '/js/google-code-prettify/latest/prettify.css'],
         d3: '/js/d3/3.0.6/d3.v3.min.js',
-        'font-awesome': "/css/font-awesome/3.0.2/css/font-awesome.css",
-        'filesaver': '/js/filesaver.js/FileSaver.min.js'
+        glyphicons: "/css/bootstrap/2.3.2/css/bootstrap-icons.css",
+        fontawesome: "/css/font-awesome/3.0.2/css/font-awesome.css",
+        filesaver: '/js/filesaver.js/FileSaver.min.js'
       }
     },
     D3: {
@@ -698,23 +707,41 @@
   })();
 
   (function() {
-    var loader, parallel;
+    var asArray, hasStyle, loader, parallel;
 
+    asArray = function(things) {
+      return [].slice.call(things);
+    };
+    hasStyle = function(pattern) {
+      var links;
+
+      if (pattern == null) {
+        return false;
+      }
+      links = asArray(document.querySelectorAll('link[rel="stylesheet"]'));
+      return _.any(links, function(link) {
+        return pattern.test(link.href);
+      });
+    };
     parallel = function(promises) {
       return jQuery.when.apply(jQuery, promises);
     };
     loader = function(server) {
-      return function(resource) {
-        var fetch, link;
+      return function(resource, resourceRegex) {
+        var fetch, link, resolution;
 
+        resolution = jQuery.Deferred(function() {
+          return _.delay(this.resolve, 50, true);
+        });
         if (/\.css$/.test(resource)) {
+          if (hasStyle(resourceRegex)) {
+            return resolution;
+          }
           link = jQuery('<link type="text/css" rel="stylesheet">');
           link.appendTo('head').attr({
             href: server + resource
           });
-          return jQuery.Deferred(function() {
-            return this.resolve();
-          });
+          return resolution;
         } else {
           fetch = jQuery.ajax({
             url: server + resource,
@@ -722,63 +749,76 @@
             dataType: 'script'
           });
           return fetch.then(function() {
-            return jQuery.Deferred(function() {
-              return _.delay(this.resolve, 50, true);
-            });
+            return resolution;
           });
         }
       };
     };
     return scope('intermine.cdn', {
       load: function(ident) {
-        var conf, load, resources, server, _ref;
+        var conf, load, resources, server, test, tests, _ref;
 
-        _ref = intermine.options.CDN, server = _ref.server, resources = _ref.resources;
+        _ref = intermine.options.CDN, server = _ref.server, tests = _ref.tests, resources = _ref.resources;
         conf = resources[ident];
+        test = tests[ident];
+        console.log("Loading from CDN", ident, conf, test);
         load = loader(server);
         if (!conf) {
           return jQuery.Deferred(function() {
             return this.reject("No resource is configured for " + ident);
           });
         } else if (_.isArray(conf)) {
-          return parallel(conf.map(load));
+          return parallel(conf.map(function(c) {
+            return load(c);
+          }));
         } else {
-          return load(conf);
+          return load(conf, test);
         }
       }
     });
   })();
 
+  scope('intermine.css', {
+    unsorted: "icon-resize-vertical",
+    sortedASC: "icon-arrow-up",
+    sortedDESC: "icon-arrow-down",
+    headerIcon: "icon",
+    headerIconRemove: "icon-remove",
+    headerIconHide: "icon-minus",
+    headerIconReveal: 'icon-fullscreen'
+  });
+
   scope("intermine.icons", {
     Yes: "icon-star",
     No: "icon-star-empty",
-    Script: "icon-beaker",
+    Table: 'icon-list',
+    Script: "icon-cog",
     Export: "icon-download-alt",
     Remove: "icon-minus-sign",
-    Check: "icon-circle",
-    UnCheck: "icon-circle-blank",
-    CheckUnCheck: "icon-circle icon-circle-blank",
+    Check: "icon-ok",
+    UnCheck: "icon-none",
+    CheckUnCheck: "icon-ok icon-none",
     Add: "icon-plus-sign",
-    Move: "icon-reorder",
-    More: "icon-plus-sign-alt",
+    Move: "icon-move",
+    More: "icon-plus-sign",
     Filter: "icon-filter",
-    Summary: "icon-bar-chart",
-    Undo: "icon-undo",
-    Columns: "icon-table",
-    Collapsed: "icon-angle-right",
-    Expanded: "icon-angle-down",
-    MoveDown: "icon-angle-down",
-    MoveUp: "icon-angle-up",
-    Toggle: "icon-exchange",
+    Summary: "icon-eye-open",
+    Undo: "icon-refresh",
+    Columns: "icon-wrench",
+    Collapsed: "icon-chevron-right",
+    Expanded: "icon-chevron-down",
+    MoveDown: "icon-chevron-down",
+    MoveUp: "icon-chevron-up",
+    Toggle: "icon-retweet",
     ExpandCollapse: "icon-angle-right icon-angle-down",
     Help: "icon-question-sign",
     ReverseRef: 'icon-retweet',
-    Edit: 'icon-cogs',
-    Download: 'icon-file-alt',
+    Edit: 'icon-edit',
+    Download: 'icon-file',
     ClipBoard: 'icon-paper-clip',
-    Composed: 'icon-columns',
-    tsv: 'icon-table',
-    csv: 'icon-table',
+    Composed: 'icon-tags',
+    tsv: 'icon-list',
+    csv: 'icon-list',
     xml: 'icon-xml',
     json: 'icon-json'
   });
@@ -1723,8 +1763,22 @@
       });
 
       CodeGenerator.prototype.initialize = function(states) {
+        var l, lang, _i, _len;
+
         this.states = states;
         this.model = new Backbone.Model;
+        for (_i = 0, _len = CODE_GEN_LANGS.length; _i < _len; _i++) {
+          l = CODE_GEN_LANGS[_i];
+          if (l.extension === intermine.options.DefaultCodeLang) {
+            lang = l;
+          }
+        }
+        if (lang == null) {
+          lang = CODE_GEN_LANGS[0];
+        }
+        this.model.set({
+          lang: lang
+        });
         return this.model.on('set:lang', this.displayLang);
       };
 
@@ -1749,15 +1803,24 @@
       };
 
       CodeGenerator.prototype.setLang = function(e) {
-        var $t;
+        var $t, desired, l, lang, _i, _len;
 
         $t = $(e.target);
-        this.model.set({
-          lang: $t.data('lang') || this.model.get('lang')
-        }, {
-          silent: true
-        });
-        return this.model.trigger('set:lang');
+        desired = $t.data('lang');
+        for (_i = 0, _len = CODE_GEN_LANGS.length; _i < _len; _i++) {
+          l = CODE_GEN_LANGS[_i];
+          if (l.extension === desired) {
+            lang = l;
+          }
+        }
+        if (lang != null) {
+          this.model.set({
+            lang: lang
+          }, {
+            silent: true
+          });
+          return this.model.trigger('set:lang');
+        }
       };
 
       canSaveFromMemory = function() {
@@ -1772,23 +1835,24 @@
       };
 
       CodeGenerator.prototype.displayLang = function() {
-        var $m, code, ext, href, lang, pq, query, ready, saveBtn,
+        var $modal, code, ext, href, isJS, isXML, lang, pq, query, ready, saveBtn,
           _this = this;
 
-        $m = this.$('.modal');
-        lang = this.model.get('lang');
+        lang = this.model.get('lang') || CODE_GEN_LANGS[0];
         query = this.states.currentQuery;
         pq = getPermaQuery(query);
-        ext = lang === 'js' ? 'html' : lang;
-        href = lang === 'xml' ? '' : query.getCodeURI(lang);
+        isJS = lang.extension === 'js';
+        isXML = lang.extension === 'xml';
+        ext = isJS ? 'html' : lang.extension;
+        href = isXML ? '' : query.getCodeURI(lang.extension);
         ready = typeof prettyPrintOne !== "undefined" && prettyPrintOne !== null ? alreadyDone : intermine.cdn.load('prettify');
-        code = lang === 'xml' ? pq.then(invoke('toXML')).then(indent) : pq.then(invoke('fetchCode', lang));
-        this.$('a .im-code-lang').text(lang);
-        this.$('.modal h3 .im-code-lang').text(lang);
+        $modal = this.$('.modal');
         saveBtn = this.$('.modal .btn-save').removeClass('disabled').unbind('click').attr({
           href: null
         });
-        if (lang === 'xml') {
+        code = isXML ? pq.then(invoke('toXML')).then(indent) : pq.then(invoke('fetchCode', lang.extension));
+        this.$('.im-code-lang').text(lang.name);
+        if (isXML) {
           saveBtn.addClass('disabled');
           jQuery.when(code, canSaveFromMemory()).done(function(xml) {
             return saveBtn.removeClass('disabled').click(function() {
@@ -1801,21 +1865,20 @@
             });
           });
         } else {
-          pq.then(invoke('getCodeURI', lang)).then(function(href) {
+          pq.then(invoke('getCodeURI', lang.extension)).then(function(href) {
             return saveBtn.attr({
               href: href
             });
           });
         }
-        this.states.on('error', console.error.bind(console));
         return jQuery.when(code, ready).fail(function(e) {
           return _this.states.trigger('error', e);
         }).then(function(code) {
           var formatted;
 
           formatted = prettyPrintOne(_.escape(code), ext);
-          $m.find('pre').html(formatted);
-          return $m.modal('show');
+          $modal.find('pre').html(formatted);
+          return $modal.modal('show');
         });
       };
 
@@ -9405,18 +9468,8 @@
       });
     })(jQuery);
     return jQuery.fn.imWidget = function(arg0, arg1) {
-      var cls, error, events, hasStyle, options, properties, query, service, token, type, url, view;
+      var cls, error, events, icons, options, properties, query, service, token, type, url, view;
 
-      hasStyle = function(pattern) {
-        var found, links;
-
-        links = jQuery('link[rel="stylesheet"]');
-        found = false;
-        links.each(function() {
-          return found || (found = pattern.test(this.href));
-        });
-        return found;
-      };
       if (typeof arg0 === 'string') {
         view = this.data('widget');
         if (arg0 === 'option') {
@@ -9444,9 +9497,8 @@
         if (supportsSVG() && (typeof d3 === "undefined" || d3 === null)) {
           intermine.cdn.load('d3');
         }
-        if (!hasStyle(/font-awesome/)) {
-          intermine.cdn.load('font-awesome');
-        }
+        icons = intermine.options.Style.icons;
+        intermine.cdn.load(icons);
         if (service == null) {
           service = new intermine.Service({
             root: url,
@@ -10802,12 +10854,12 @@
         this.view = subtable.view;
         this.column = this.query.getPathInfo(subtable.column);
         this.query.on('expand:subtables', function(path) {
-          if (path.toString() === _this.column.toString()) {
+          if (path.getParent().toString() === _this.column.toString()) {
             return _this.renderTable().slideDown();
           }
         });
         return this.query.on('collapse:subtables', function(path) {
-          if (path.toString() === _this.column.toString()) {
+          if (path.getParent().toString() === _this.column.toString()) {
             return _this.$('.im-subtable').slideUp();
           }
         });
@@ -10994,12 +11046,12 @@
           cell = cells[_k];
           _fn(tr, cell);
         }
-        tbody.append(tr);
+        tr.appendTo(tbody);
         return null;
       };
 
       SubTable.prototype.renderTable = function($table) {
-        var colRoot, colStr, columns, row, tbody, _i, _len, _ref1;
+        var colRoot, colStr, columns, docfrag, row, tbody, _i, _len, _ref1;
 
         if ($table == null) {
           $table = this.$('.im-subtable');
@@ -11013,15 +11065,17 @@
           columns = this.getEffectiveView();
           this.renderHead($table.find('thead tr'), columns);
           tbody = $table.find('tbody');
+          docfrag = document.createDocumentFragment();
           if (this.column.isCollection()) {
             _ref1 = this.rows;
             for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
               row = _ref1[_i];
-              _.defer(this.appendRow, columns, row, tbody);
+              this.appendRow(columns, row, docfrag);
             }
           } else {
-            this.appendRow(columns, this.rows[0], tbody);
+            this.appendRow(columns, this.rows[0], docfrag);
           }
+          tbody.html(docfrag);
         }
         this.tableRendered = true;
         return $table;
@@ -11046,7 +11100,7 @@
       SubTable.prototype.render = function() {
         var icon, summary;
 
-        icon = this.rows.length > 0 ? '<i class=icon-table></i>' : '<i class=icon-non-existent></i>';
+        icon = this.rows.length > 0 ? "<i class=\"" + intermine.icons.Table + "\"></i>" : '<i class=icon-non-existent></i>';
         summary = $("<span class=\"im-subtable-summary\">\n  " + icon + "&nbsp;\n</span>");
         summary.appendTo(this.$el);
         this.getSummaryText().done(function(content) {
@@ -11242,7 +11296,7 @@
           title: this.model.get('obj:type'),
           trigger: intermine.options.CellPreviewTrigger,
           delay: {
-            show: 700,
+            show: 250,
             hide: 250
           },
           classes: 'im-cell-preview',
@@ -11316,13 +11370,10 @@
       };
 
       Cell.prototype.render = function() {
-        var data,
-          _this = this;
+        var data;
 
         data = this.getData();
-        _.defer(function() {
-          return _this.$el.html(CELL_HTML(data));
-        });
+        this.$el.html(CELL_HTML(data));
         if (data.checked) {
           this.$el.addClass('active');
         }
@@ -11552,6 +11603,9 @@
         if (!this.model.get('path').isAttribute() && this.query.isOuterJoined(this.view)) {
           this.addExpander();
         }
+        if (this.model.get('expanded')) {
+          this.query.trigger('expand:subtables', this.model.get('path'));
+        }
         return this;
       };
 
@@ -11746,7 +11800,7 @@
       ColumnHeader.prototype.addExpander = function() {
         var expandAll;
 
-        expandAll = $("<a href=\"#\" \n   class=\"im-subtable-expander im-th-button\"\n   title=\"Expand/Collapse all subtables\">\n  <i class=\"icon-table icon-white\"></i>\n</a>");
+        expandAll = $("<a href=\"#\" \n   class=\"im-subtable-expander im-th-button\"\n   title=\"Expand/Collapse all subtables\">\n  <i class=\"" + intermine.icons.Table + "\"></i>\n</a>");
         expandAll.tooltip({
           placement: this.bestFit
         });
@@ -11754,13 +11808,14 @@
       };
 
       ColumnHeader.prototype.toggleSubTable = function(e) {
-        var cmd;
+        var cmd, isExpanded;
 
         ignore(e);
-        cmd = this.model.get('expanded') ? 'collapse' : 'expand';
+        isExpanded = this.model.get('expanded');
+        cmd = isExpanded ? 'collapse' : 'expand';
         this.query.trigger(cmd + ':subtables', this.model.get('path'));
         return this.model.set({
-          expanded: !this.model.get('expanded')
+          expanded: !isExpanded
         });
       };
 
@@ -11781,17 +11836,7 @@
   });
 
   scope('intermine.snippets.query', {
-    UndoButton: '<button class="btn btn-primary pull-right"><i class="icon-undo"></i> undo</button>'
-  });
-
-  scope('intermine.css', {
-    unsorted: "icon-sort",
-    sortedASC: "icon-sort-up",
-    sortedDESC: "icon-sort-down",
-    headerIcon: "icon-white",
-    headerIconRemove: "icon-remove-sign",
-    headerIconHide: "icon-eye-open",
-    headerIconReveal: 'icon-eye-close'
+    UndoButton: "<button class=\"btn btn-primary pull-right\">\n  <i class=\"" + intermine.icons.Undo + "\"></i> undo\n</button>"
   });
 
   (function() {
@@ -11892,13 +11937,14 @@
         var promise;
 
         this.$el.empty();
+        this.$el.append(document.createElement('thead'));
         this.$el.append(document.createElement('tbody'));
         promise = this.fill();
         return promise.done(this.addColumnHeaders);
       };
 
       ResultsTable.prototype.goTo = function(start) {
-        this.pageStart = parseInt(start);
+        this.pageStart = parseInt(start, 10);
         return this.fill();
       };
 
@@ -11932,18 +11978,19 @@
       };
 
       ResultsTable.prototype.appendRows = function(res) {
-        var row, tbody, _i, _len, _ref1;
+        var docfrag, row, _i, _len, _ref1;
 
-        this.$("tbody > tr").remove();
-        tbody = this.$('tbody')[0];
         if (res.rows.length === 0) {
+          this.$("tbody > tr").remove();
           this.handleEmptyTable();
         } else {
+          docfrag = document.createDocumentFragment();
           _ref1 = res.rows;
           for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
             row = _ref1[_i];
-            _.defer(this.appendRow, tbody, row);
+            this.appendRow(docfrag, row);
           }
+          this.$el.children('tbody').html(docfrag);
         }
         return this.query.trigger("table:filled");
       };
@@ -12183,17 +12230,16 @@
       };
 
       ResultsTable.prototype.addColumnHeaders = function() {
-        var thead, tr,
+        var docfrag, tr,
           _this = this;
 
-        thead = $("<thead>");
-        tr = $("<tr>");
-        thead.append(tr);
+        docfrag = document.createDocumentFragment();
+        tr = document.createElement('tr');
+        docfrag.appendChild(tr);
         this.columnHeaders.each(function(model) {
           return _this.buildColumnHeader(model, tr);
         });
-        this.$el.children('thead').remove();
-        return thead.appendTo(this.el);
+        return this.$el.children('thead').html(docfrag);
       };
 
       return ResultsTable;
@@ -13209,7 +13255,7 @@
 
       toValLabel = toLabel('value');
 
-      Step.prototype.template = _.template("<button class=\"btn btn-small im-state-revert\" disabled\n    title=\"Revert to this state\">\n    <i class=icon-undo></i>\n</button>\n<h3><%- title %></h3>\n<i class=\"icon-info-sign\"></i>\n</div>\n<span class=\"im-step-count\">\n    <span class=\"count\"><%- count %></span> rows\n</span>\n<div class=\"im-step-details\">\n<div style=\"clear:both\"></div>");
+      Step.prototype.template = _.template("<button class=\"btn btn-small im-state-revert\" disabled\n    title=\"Revert to this state\">\n    <i class=\"" + intermine.icons.Undo + "\"></i>\n</button>\n<h3><%- title %></h3>\n<i class=\"icon-info-sign\"></i>\n</div>\n<span class=\"im-step-count\">\n    <span class=\"count\"><%- count %></span> rows\n</span>\n<div class=\"im-step-details\">\n<div style=\"clear:both\"></div>");
 
       Step.prototype.addSection = function(xs, things, toPath, f) {
         var k, n, q, table, v, _results;
