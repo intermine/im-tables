@@ -26,6 +26,69 @@ jQuery(document).ready(function($) {
         }
     };
 
+    var merge = function() {
+      var toMerge, key, value
+        , len = arguments.length
+        , i   = 1
+        , obj = arguments[0];
+      if (obj == null) obj = {}; // Null target is {}
+      for (;i < len;i++) {
+        toMerge = arguments[i];
+        if (toMerge != null) { // Skip null mergends
+          for (key in toMerge) {
+            value = toMerge[key];
+            obj[key] = value;
+          }
+        }
+      }
+      return obj;
+    }
+    var any = function(things, test, context) {
+      if (things == null) throw new Error("no things provided to test");
+      if (test == null) test = function (x) { return x };
+      if (!test.call) throw new Error("test is not callable");
+      var elem, i = 0, len = things.length;
+      for (;i < len; i++) {
+        elem = things[i];
+        if (test.call(context, elem)) {
+          return true;
+        }
+      }
+      return false;
+    }
+    var all = function(things, test, context) {
+      if (test == null) test = function (x) { return x };
+      if (!test.call) throw new Error("test is not callable");
+      var invertedTest = function (x) { return !test.call(context, x) };
+      return !any(things, invertedTest);
+    }
+
+    intermine.scope("intermine.results.formatters", {
+      Manager: function(model) {
+        var id, needs, p, data;
+        id = model.get('id');
+        needs = ['title', 'name'];
+        if (model._fetching || any(needs, function (n) { return !model.has(n); })) {
+          model._fetching = p = this.options.query.service.findById('Manager', id);
+          p.done(function(manager) { model.set(manager) });
+        }
+        data = merge({title: '', name: ''}, model.toJSON());
+        return data.title + " " + data.name;
+      }
+    });
+    var employeeNameFormatter = function(model) {
+      return "<strong>" + model.get('name') + "</strong>";
+    };
+    var employeeAgeFormatter = function(model) {
+      return "<i>" + model.get('age') + "</i>";
+    };
+
+    intermine.scope('intermine.results.formatsets.testmodel', {
+      'Manager.name': true,
+      'Employee.age': employeeAgeFormatter,
+      'Employee.name': employeeNameFormatter
+    });
+
     var services = {
         YeastMineNext: {
           root: "http://yeastmine-test.yeastgenome.org/yeastmine-dev",
@@ -43,6 +106,21 @@ jQuery(document).ready(function($) {
             "where": {
               "observable": "Protein secretion"
             }
+          }
+        },
+        MetabolicTest: {
+          root: "http://test.metabolicmine.org/test",
+          q: {
+            "name": "SNPS and their doubles",
+            "select":[
+              "GWASResult.SNP.primaryIdentifier",
+              "GWASResult.SNP.alleles",
+              "GWASResult.SNP.chromosomeLocation.start",
+              "GWASResult.SNP.chromosome.primaryIdentifier",
+              "GWASResult.phenotype","GWASResult.pValue",
+              "GWASResult.study.firstAuthor"
+            ],
+            "orderBy":[{"GWASResult.SNP.primaryIdentifier":"ASC"}]
           }
         },
         WormMine: {
@@ -118,7 +196,7 @@ jQuery(document).ready(function($) {
           "root": "preview.flymine.org/preview"
         },
         'Gene-Homologues': {
-          "root": "preview.flymine.org/preview",
+          "root": "beta.flymine.org/beta",
           q: {
             "title":"Gene --> Orthologues + GO terms of these orthologues.","description":"Show GO terms applied to orthologues of a specific gene. (Data Source: InParanoid, TreeFam, Drosophila Consortium, GO Consortium).",
             "select":[
@@ -132,6 +210,7 @@ jQuery(document).ready(function($) {
         },
         'CDSs': {
           "root": "beta.flymine.org/beta",
+          "token": "M1n3x2ydw4icj140pbBcffIgR4Q",
           q: {
             "name":"CDSs",
             "title":"a query for the features overlapping the cdss",
@@ -189,7 +268,7 @@ jQuery(document).ready(function($) {
         },
         OJC: {
           help: 'alex@intermine.org',
-          root: "http://demo.intermine.org/intermine-test-dev",
+          root: "http://localhost/intermine-test",
           token: "test-user-token",
           q: {
               select: ['name', 'company.name', 'employees.name', 'employees.age', 'employees.end', 'employees.address.address' ],
@@ -198,6 +277,9 @@ jQuery(document).ready(function($) {
               where: [
                   ["employees.age", "lt", 50 ]
               ]
+          },
+          properties: {
+            SubtableInitialState: 'open'
           }
         },
         MultiOJC: {
@@ -213,7 +295,7 @@ jQuery(document).ready(function($) {
           }
         },
         DeepOJC: {
-          root: "http://demo.intermine.org/intermine-test-dev",
+          root: "http://localhost/intermine-test",
           token: "test-user-token",
           q: {
               select: [
@@ -233,18 +315,43 @@ jQuery(document).ready(function($) {
         }
     };
 
-    window.notifier = {
+    var notifier, errorHandler, noop;
+    noop = function () {};
+    notifier = window.notifier = {
       notify: function(o) {
         console.log(arguments);
         alert(o.text);
       }
     };
-      
-      
-    //new growlr.NotificationContainer({
-    //    extraClasses: "withnav",
-    //    timeout: 7000
-    //});
+    errorHandler = function(err) {
+      if (err.responseText || /whoami/.test(err)) {
+        return;
+      }
+      console.log("Error", err);
+      var messages, div, closer;
+
+      messages = document.getElementById('error-messages');
+      div = document.createElement('div');
+      closer = document.createElement('button');
+
+      if (!messages) {
+        messages =  document.createElement('ul');
+        messages.id = 'error-messages';
+        document.querySelector('body').appendChild(messages);
+      }
+
+      closer.innerHTML = 'dismiss';
+      closer.className = 'dismiss';
+      closer.addEventListener('click', function(event) {
+        messages.removeChild(div);
+      });
+      div.appendChild(closer);
+      div.className = 'error-message';
+      div.appendChild(document.createTextNode('ERROR: ' + err));
+
+      messages.appendChild(div);
+        
+    };
 
     var messageTemplate = function(list) {
       return list.name + ": " + list.description + " (" + list.size + " " + list.type + ")";
@@ -311,31 +418,34 @@ jQuery(document).ready(function($) {
         var token = (noToken ? null : services[serviceArgs].token);
         var url = services[serviceArgs].root;
         var query = services[serviceArgs].q;
-        doLogin(url, token, query);
+        doLogin(url, token, query, services[serviceArgs].properties);
     };
-    var doLogin = function(url, token, query) {
+    var doLogin = function(url, token, query, props) {
+        jQuery('#error-messages').empty();
+        console.log(props);
 
         display.imWidget({
             type: displayType,
             url: url,
             token: token,
+            error: errorHandler,
             query: query,
             events: query_events,
-            properties: tableProps
+            properties: merge({}, tableProps, props)
         });
-
-        $('.login-controls').toggleClass("logged-in", !!token);
 
         var service = display.imWidget('option', 'service');
 
-        service.whoami()
+        $('.login-controls').toggleClass("logged-in", !!token);
+
+        var p1 = service.whoami()
           .done(function(u) {$('#logged-in-notice').show().find('a.username').text(u.username);})
           .fail(function() {$('#logged-in-notice').hide()});
 
-        service.fetchVersion()
+        var p2 = service.fetchVersion()
           .done(function(v) {$('.v9').toggleClass('unsupported', (v < 9))})
           .fail(function() {$('.v9').addClass('unsupported');});
-
+        
     };
 
     $('#log-out').on('click', function(e) {
@@ -407,7 +517,6 @@ jQuery(document).ready(function($) {
         var token = ret.token;
         var query = display.imWidget('option', 'query');
         doLogin(url, token, query);
-        console.log(ret);
         notifier.notify({
           title: "Logged in",
           text: "logged in as " + username,
@@ -493,7 +602,7 @@ jQuery(document).ready(function($) {
           return [param.name, param.value];
         }));
         var service = serviceCombinations[form.service];
-        doLogin(service.root, service.token, intermine.Query.fromXML(form.query));
+        doLogin(service.root, service.token, intermine.Query.fromXML(form.query), service.properties);
       });
     })();
 

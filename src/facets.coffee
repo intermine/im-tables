@@ -25,8 +25,12 @@ do ->
     MORE_FACETS_HTML = """
         <i class="icon-plus-sign pull-right" title="Showing top ten. Click to see all values"></i>
     """
-    FACET_TITLE = _.template """
-        <dt><i class="icon-chevron-right"></i><%= title %></dt>
+    FACET_TITLE = """
+        <dt>
+          <i class="icon-chevron-right"></i>
+          <span class="im-facet-title"></span>
+          &nbsp;<span class="im-facet-count"></span>
+        </dt>
     """
     FACET_TEMPLATE = _.template """
         <dd>
@@ -52,12 +56,14 @@ do ->
         tagName: 'div'
         className: "im-column-summary"
         initialize: (@query, facet) ->
+            @state = new Backbone.Model({open: false})
             if facet.path
               @facet = facet
             else
+              fp = @query.getPathInfo facet
               @facet =
-                path: (@query.getPathInfo facet)
-                title: facet.toString().replace(/^[^\.]+\./, "").replace(/\./g, " > ")
+                path: fp
+                title: fp.getDisplayName().then (name) => name.replace(/^[^>]+>\s*/, '')
                 ignoreTitle: true
 
         render: =>
@@ -70,7 +76,15 @@ do ->
             @fac = new clazz(@query, @facet, initialLimit, @noTitle)
             @$el.append @fac.el
             @fac.render()
+            @fac.on 'ready', => @trigger 'ready', @
+            @fac.on 'toggled', => @state.set open: !@state.get('open')
+            @fac.on 'closed', => @state.set open: false
+            @trigger 'rendered', @
             this
+
+        toggle: -> @fac?.toggle()
+
+        close: -> @fac?.close()
 
         remove: ->
           @fac?.remove()
@@ -82,12 +96,23 @@ do ->
             @query.on "change:constraints", @render
             @query.on "filter:summary", @render
 
+        events: ->
+          "click dt": "toggle"
+
+        toggle: ->
+            @$('.im-facet').slideToggle()
+            @$('dt i').first().toggleClass 'icon-chevron-right icon-chevron-down'
+            @trigger 'toggled', @
+
+        close: ->
+            @$('.im-facet').slideUp()
+            @$('dt i').removeClass('icon-chevron-down').addClass('icon-chevron-right')
+            @trigger 'close', @
+
         render: =>
             unless @noTitle
-                @$dt = $(FACET_TITLE @facet).appendTo @el
-                @$dt.click =>
-                    @$dt.siblings().slideToggle()
-                    @$dt.find('i').first().toggleClass 'icon-chevron-right icon-chevron-down'
+              @$el.prepend FACET_TITLE
+              $.when(@facet.title).then (title) => @$('.im-facet-title').text title
             this
 
     class FrequencyFacet extends FacetView
@@ -106,6 +131,7 @@ do ->
 
         render: (filterTerm = "") ->
             return if @rendering
+            @filterTerm = filterTerm
             @rendering = true
             @$el.empty()
             super()
@@ -122,7 +148,7 @@ do ->
             getSummary.done (results, stats, count) =>
               @query.trigger 'got:summary:total', @facet.path, stats.uniqueValues, results.length, count
               $progress.remove()
-              @$dt?.append " (#{stats.uniqueValues})"
+              @$('.im-facet-count').text("(#{stats.uniqueValues})")
               hasMore = if results.length < limit then false else (stats.uniqueValues > limit)
               if hasMore
                 $(MORE_FACETS_HTML).appendTo(@$dt).tooltip({placement}).click @showMore
@@ -140,6 +166,7 @@ do ->
               summaryView.render?()
 
               @rendering = false
+              @trigger 'ready', @
         
         getVizualization: (stats) ->
           unless @query.canHaveMultipleValues @facet.path
@@ -240,12 +267,14 @@ do ->
             changed = @range.isNotAll() #@range.get('min') > @min or @range.get('max') < @max
             @$('.btn').toggleClass "disabled", !changed
 
-        events:
+        events: ->
+          _.extend (super arguments...), {
             'click': (e) -> e.stopPropagation()
             'keyup input.im-range-val': 'incRangeVal'
             'change input.im-range-val': 'setRangeVal'
             'click .btn-primary': 'changeConstraints'
             'click .btn-cancel': 'clearRange'
+          }
 
         clearRange: -> @range?.clear(); @range?.trigger 'reset'
 
@@ -314,6 +343,7 @@ do ->
             @throbber.appendTo @el
             promise = @query.summarise @facet.path, @handleSummary
             promise.fail @remove
+            promise.done => @trigger 'ready', @
             this
 
         remove: ->
@@ -322,6 +352,8 @@ do ->
           @range?.off()
           delete @range
           super()
+
+        inty = (type) -> type in ["int", "Integer", "long", "Long"]
 
         handleSummary: (items, stats) =>
             @throbber.remove()
@@ -342,7 +374,7 @@ do ->
             @range.setLimits(summary)
             @max = summary.max
             @min = summary.min
-            @step = step = if @query.getType(@facet.path) in ["int", "Integer"] then 1 else 0.1
+            @step = step = if inty(@query.getType @facet.path) then 1 else Math.abs((@max - @min) / 100)
             @round = (x) -> if step is 1 then Math.round(x) else x
             if summary.count?
               @stepWidth = (@w - (@leftMargin + 1)) / items[0].buckets
@@ -387,8 +419,8 @@ do ->
           prop = $input.data 'var'
           current = next = (@range.get(prop) ? @[prop])
           switch e.keyCode
-            when 40 then next--
-            when 38 then next++
+            when 40 then next -= @step
+            when 38 then next += @step
 
           @range.set(prop, next) unless next is current
 
@@ -404,13 +436,16 @@ do ->
                 <div class="slider"></div>
               """
 
-            @$slider = @$('.slider').slider
+            opts =
               range: true
               min: @min
               max: @max
               values: [@min, @max]
               step: @step
-              slide: (e, ui) => @range?.set min: ui.values[0], max: ui.values[1]
+              slide: (e, ui) =>
+                @range?.set min: ui.values[0], max: ui.values[1]
+
+            @$slider = @$('.slider').slider opts
 
         drawChart: (items) =>
           if d3?
@@ -422,7 +457,6 @@ do ->
           bottomMargin = 18
           rightMargin = 14
           n = items[0].buckets + 1
-          console.log items
           h = @chartHeight
           most = d3.max items, (d) -> d.count
           x = d3.scale.linear().domain([1, n]).range([@leftMargin, @w - rightMargin])
@@ -476,7 +510,7 @@ do ->
             .enter().append('rect')
               .attr('x', (d, i) -> x(d.bucket) - 0.5)
               .attr('y', h - bottomMargin)
-              .attr('width', (d) -> x(d.bucket + 1) - x(d.bucket))
+              .attr('width', (d) -> Math.abs(x(d.bucket + 1) - x(d.bucket)))
               .attr('height', 0)
               .classed('im-null-bucket', (d) -> d.bucket is null)
               .on('click', barClickHandler)
@@ -594,9 +628,7 @@ do ->
           ret.absent = if ops.absent is 'IS NULL' then 'IS NOT NULL' else 'IS NULL'
           ret
 
-        IGNORE_E = (e) ->
-          console.log "Ignoring an event"
-          e.preventDefault(); e.stopPropagation()
+        IGNORE_E = (e) -> e.preventDefault(); e.stopPropagation()
 
         events: ->
           'submit .im-facet form': IGNORE_E
@@ -606,15 +638,17 @@ do ->
           'click .im-load-more': 'loadMoreItems'
           'click .im-filter .im-filter-in': (e) => @addConstraint e, basicOps
           'click .im-filter .im-filter-out': (e) => @addConstraint e, negateOps basicOps
-          'keyup .im-filter-values': 'filterItems'
+          'keyup .im-filter-values': _.throttle @filterItems, 750, {leading: false}
           'click .im-clear-value-filter': 'clearValueFilter'
           'click': IGNORE_E
 
-        filterItems: (e) ->
+        filterItems: (e) =>
           $input = @$ '.im-filter-values'
           current = $input.val()
-          if @hasMore or (@filterTerm and current < @filterTerm.length)
-              _.delay (-> @query.trigger 'filter:summary', current), 750
+          if @hasMore or (@filterTerm and current.length < @filterTerm.length)
+            return if @_filter_queued
+            @_filter_queued = true
+            _.delay (=> @query.trigger 'filter:summary', $input.val()), 750
           else
             parts = (current ? '').toLowerCase().split /\s+/
             test = (str) -> _.all parts, (part) -> !!(str and ~str.toLowerCase().indexOf(part))
@@ -635,7 +669,6 @@ do ->
           @summarising.done (items, stats, fcount) =>
             @hasMore = stats.uniqueValues > @limit
             newItems = items.slice @items.length
-            console.log "Adding #{ newItems.length }"
             for newItem in newItems
               @items.add _.extend newItem, {visibility: true, selected: false}
             @query.trigger 'got:summary:total', @facet.path, stats.uniqueValues, items.length, fcount
@@ -847,7 +880,7 @@ do ->
 
             imd.click (e) -> imd.popover 'toggle'
 
-            @initFilter()
+            @initFilter($grp)
 
             $grp.appendTo @el
 
@@ -893,11 +926,11 @@ do ->
           </div>
         """
 
-        initFilter: ->
-            xs = @items
-            $valFilter = @$ '.im-filter-values'
-            if @filterTerm
-                $valFilter.val @filterTerm
+        initFilter: ($grp) ->
+          return unless @filterTerm?
+          sel = '.im-filter-values'
+          $valFilter = if $grp? then $grp.find(sel) else @$ sel
+          $valFilter.val @filterTerm
 
         colClasses: ["im-item-selector", "im-item-value", "im-item-count"]
 

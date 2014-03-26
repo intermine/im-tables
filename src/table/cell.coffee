@@ -188,7 +188,7 @@ do ->
           'click .im-subtable-summary': 'toggleTable'
 
         toggleTable: (e) ->
-          e.stopPropagation()
+          e?.stopPropagation()
           $table = @$ '.im-subtable'
           evt = if $table.is ':visible'
             'subtable:collapsed'
@@ -214,6 +214,9 @@ do ->
                 <tbody></tbody>
               </table>
             """
+
+            if intermine.options.SubtableInitialState is 'open' or @options.mainTable.SubtableInitialState is 'open'
+              @toggleTable()
 
             this
 

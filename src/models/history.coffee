@@ -8,8 +8,8 @@ do ->
       @on 'revert', @revert, @
 
     unwatch: ->
-      #if @currentQuery?
-      #  @stopListening @currentQuery
+      if @currentQuery?.off?
+        @stopListening @currentQuery
 
     watch: ->
       if q = @currentQuery
