@@ -3,6 +3,7 @@ scope "intermine.options",
     NUM_SEPARATOR: ',',
     NUM_CHUNK_SIZE: 3,
     MAX_PIE_SLICES: 15
+    DefaultCodeLang: 'py'
     ListFreshness: 250 # Number of milliseconds lists requests will be considered fresh for.
     MaxSuggestions: 1000 # Max number of suggestions to fetch and show when editing constraints.
     ListCategorisers: ['organism.name', 'department.company.name']
@@ -104,12 +105,11 @@ do ->
       {server, tests, resources} = intermine.options.CDN
       conf = resources[ident]
       test = tests[ident]
-      console.log "Loading from CDN", ident, conf, test
       load = loader server
       if not conf
         jQuery.Deferred -> @reject "No resource is configured for #{ ident }"
       else if _.isArray(conf)
-        parallel conf.map load
+        parallel conf.map (c) -> load c
       else
         load conf, test
 

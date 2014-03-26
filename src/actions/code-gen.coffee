@@ -5,7 +5,7 @@ define 'actions/code-gen', using 'perma-query', 'html/code-gen', (getPermaQuery,
       {name: "Python", extension: "py"},
       {name: "Ruby", extension: "rb"},
       {name: "Java", extension: "java"},
-      {name: "JavaScript", extension: "js"}
+      {name: "JavaScript", extension: "js"},
       {name: "XML", extension: "xml"}
   ]
     
@@ -46,6 +46,9 @@ define 'actions/code-gen', using 'perma-query', 'html/code-gen', (getPermaQuery,
 
     initialize: (@states) ->
       @model = new Backbone.Model
+      lang = l for l in CODE_GEN_LANGS when l.extension is intermine.options.DefaultCodeLang
+      lang ?= CODE_GEN_LANGS[0]
+      @model.set {lang}
       @model.on 'set:lang', @displayLang
 
     render: =>
@@ -66,8 +69,11 @@ define 'actions/code-gen', using 'perma-query', 'html/code-gen', (getPermaQuery,
 
     setLang: (e) ->
       $t = $ e.target
-      @model.set {lang: $t.data('lang') or @model.get('lang')}, {silent: true}
-      @model.trigger 'set:lang'
+      desired = $t.data 'lang'
+      lang = l for l in CODE_GEN_LANGS when l.extension is desired
+      if lang?
+        @model.set {lang}, {silent: true}
+        @model.trigger 'set:lang'
 
     canSaveFromMemory = ->
       if not Blob?
@@ -78,39 +84,36 @@ define 'actions/code-gen', using 'perma-query', 'html/code-gen', (getPermaQuery,
         intermine.cdn.load 'filesaver'
 
     displayLang: =>
-      $m    = @$ '.modal'
-      lang  = @model.get('lang')
-
-      query = @states.currentQuery
-      pq = getPermaQuery query
-
-      ext   = if lang is 'js'  then 'html' else lang
-      href  = if lang is 'xml' then ''    else query.getCodeURI lang
-      ready = if prettyPrintOne? then alreadyDone else intermine.cdn.load 'prettify'
-      code  = if lang is 'xml'
+      lang    = @model.get('lang') or CODE_GEN_LANGS[0]
+      query   = @states.currentQuery
+      pq      = getPermaQuery query
+      isJS    = lang.extension is 'js'
+      isXML   = lang.extension is 'xml'
+      ext     = if isJS then 'html' else lang.extension
+      href    = if isXML then '' else query.getCodeURI lang.extension
+      ready   = if prettyPrintOne? then alreadyDone else intermine.cdn.load 'prettify'
+      $modal  = @$ '.modal'
+      saveBtn = @$('.modal .btn-save').removeClass('disabled').unbind('click').attr href: null
+      code    = if isXML
         pq.then(invoke 'toXML').then(indent)
       else
-        pq.then(invoke 'fetchCode', lang)
+        pq.then(invoke 'fetchCode', lang.extension)
 
-      @$('a .im-code-lang').text lang
-      @$('.modal h3 .im-code-lang').text lang
+      @$('.im-code-lang').text lang.name
 
-      saveBtn = @$('.modal .btn-save').removeClass('disabled').unbind('click').attr href: null
-      if lang is 'xml'
+      if isXML
         saveBtn.addClass 'disabled'
         jQuery.when(code, canSaveFromMemory()).done (xml) ->
           saveBtn.removeClass('disabled').click ->
             blob = new Blob [xml], type: 'application/xml;charset=utf8'
             saveAs blob, 'query.xml'
       else
-        pq.then(invoke 'getCodeURI', lang).then (href) -> saveBtn.attr {href}
-
-      @states.on 'error', console.error.bind(console)
+        pq.then(invoke 'getCodeURI', lang.extension).then (href) -> saveBtn.attr {href}
 
       jQuery.when(code, ready).fail((e) => @states.trigger 'error', e).then (code) ->
         formatted = prettyPrintOne(_.escape(code), ext)
-        $m.find('pre').html formatted
-        $m.modal 'show'
+        $modal.find('pre').html formatted
+        $modal.modal 'show'
 
     doMainAction: (e) =>
       if @model.has('lang') then @displayLang() else $(e.target).next().dropdown 'toggle'
