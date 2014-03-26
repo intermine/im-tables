@@ -1,13 +1,3 @@
-scope 'intermine.css', {
-    unsorted: "icon-sort",
-    sortedASC: "icon-sort-up",
-    sortedDESC: "icon-sort-down",
-    headerIcon: "icon-white"
-    headerIconRemove: "icon-remove-sign"
-    headerIconHide: "icon-eye-open"
-    headerIconReveal: 'icon-eye-close'
-}
-
 do ->
 
     NUMERIC_TYPES = ["int", "Integer", "double", "Double", "float", "Float"]
@@ -65,12 +55,13 @@ do ->
 
         render: ->
             @$el.empty()
+            @$el.append document.createElement 'thead'
             @$el.append document.createElement 'tbody'
             promise = @fill()
             promise.done(@addColumnHeaders)
 
         goTo: (start) ->
-            @pageStart = parseInt(start)
+            @pageStart = parseInt(start, 10)
             @fill()
 
         goToPage: (page) ->
@@ -91,13 +82,15 @@ do ->
             @$el.find('.btn-primary').click => @query.trigger 'undo'
 
         appendRows: (res) =>
-          @$("tbody > tr").remove()
-          tbody = @$('tbody')[0]
-
           if res.rows.length is 0
+            @$("tbody > tr").remove()
             @handleEmptyTable()
           else
-            _.defer @appendRow, tbody, row for row in res.rows
+            docfrag = document.createDocumentFragment()
+            for row in res.rows
+              @appendRow docfrag, row
+            # Careful - there might be subtables out there - be specific.
+            @$el.children('tbody').html docfrag
 
           @query.trigger "table:filled"
 
@@ -241,15 +234,13 @@ do ->
         # Read the result returned from the service, and add headers for 
         # the columns it represents to the table.
         addColumnHeaders: =>
-            thead = $ "<thead>"
-            tr    = $ "<tr>"
-            thead.append tr
+          docfrag = document.createDocumentFragment()
+          tr = document.createElement 'tr'
+          docfrag.appendChild tr
 
-            @columnHeaders.each (model) =>
-              @buildColumnHeader model, tr
-                    
-            @$el.children('thead').remove()
-            thead.appendTo @el
+          @columnHeaders.each (model) => @buildColumnHeader model, tr
+                  
+          @$el.children('thead').html docfrag
 
     class PageSizer extends Backbone.View
 
