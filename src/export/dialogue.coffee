@@ -226,7 +226,7 @@ define 'export/dialogue', using 'perma-query', (getPermaQuery) ->
         events
       
       readFastaExt: (e) ->
-        ext = @$('input.im-fasta-extension')
+        ext = @$('input.im-fasta-extension').val()
         if ext and /\S/.test ext
           @requestInfo.set extension: ext
         else
