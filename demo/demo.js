@@ -142,17 +142,17 @@ jQuery(document).ready(function($) {
           }
         },
         Production: {
-            // root: "www.flymine.org/query", 
-            // token: "21k3D5x5B8pdd8T9yeY24fG8th2",
-            // q: {
-            //    select: ["symbol", "organism.name", "chromosomeLocation.start"], 
-            //    from: "Gene", 
-            //    where: {
-            //    //    Gene: {IN: "an awesome list"}, 
-            //        length: {lt: 5000}
-            //    }
-            //}
-            root: "localhost/squirrelmine",
+            root: "www.flymine.org/query", 
+            q: {
+                select: ["symbol", "organism.name", "chromosomeLocation.start"], 
+                from: "Gene", 
+                where: {
+                    length: {lt: 5000}
+                }
+            }
+        },
+        ProductionNoRef: {
+            root: "www.flymine.org/query", 
             q: {
               select: ["symbol"],
               from: "Gene",
