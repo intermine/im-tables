@@ -20,6 +20,7 @@ do ->
           user.setPreference 'galaxy-url', uri
 
   doGalaxy = (galaxy) ->
+    uri = if /tool_runner/.test(galaxy) then galaxy else "#{ galaxy }/tool_runner"
     query = @getExportQuery()
     endpoint = @getExportEndPoint()
     format = @requestInfo.get 'format'
@@ -43,9 +44,13 @@ do ->
                 #{ if qLists.length then ' source: ' + lists.join(', ') else '' }
                 #{ if orgs.length then ' organisms: ' + orgs.join(', ') else '' }
             """
-        for k, v of @getExportParams()
-            params[k] = v
-        intermine.utils.openWindowWithPost "#{ galaxy }/tool_runner", "Upload", params
+        @getExportParams().then (exportParams) ->
+
+          # These parameters get echoed back to intermine.
+          for k, v of exportParams
+              params[k] = v
+
+          intermine.utils.openWindowWithPost uri, "Upload", params
 
   changeGalaxyURI = (e) -> @requestInfo.set galaxy: @$('.im-galaxy-uri').val()
 
