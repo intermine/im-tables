@@ -153,10 +153,15 @@ do ->
       {schema, service} = @options
       table = @itemDetails
 
-      types = [type].concat schema.getAncestorsOf type
+      types = type.split ','
+      for t in types
+        types = types.concat schema.getAncestorsOf t
       table.addClass (t.toLowerCase() for t in types).join ' '
 
-      service.findById type, id, @handleItem
+      fetches = for t in type.split ','
+        service.findById t, id, @handleItem
+
+      fetches.reduce (p, p2) -> p.then -> p2
 
     insertRows: ->
 
