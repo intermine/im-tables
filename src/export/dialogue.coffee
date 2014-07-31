@@ -411,6 +411,7 @@ define 'export/dialogue', using 'perma-query', (getPermaQuery) ->
 
           if noIdCons then getPermaQuery(q) else defer q
 
+      # :: bool -> Promise<Object<String, String>>
       getExportParams: (noIdCons = false) ->
           params = @requestInfo.toJSON()
           params.token = @service.token
