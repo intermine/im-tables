@@ -12,6 +12,8 @@ do ->
         leaves.push(x)
     leaves
 
+  sortByName = (model) -> model.get 'name'
+
   toField = (row) -> $(row).find('.im-field-name').text()
 
   sortTableByFieldName = (tbody) -> tbody.html _.sortBy tbody.children('tr').get(), toField
@@ -20,14 +22,29 @@ do ->
 
   numToStr = (n) -> intermine.utils.numToString n, NUM_SEPARATOR, NUM_CHUNK_SIZE
 
-  class Preview extends intermine.views.ItemView
+  class ItemDetails extends intermine.views.ItemView
 
-    className: 'im-cell-preview-inner'
+    ITEMS = """
+      <table class="im-item-details table table-condensed table-bordered">
+      <colgroup>
+          <col class="im-item-field"/>
+          <col class="im-item-value"/>
+      </colgroup>
+      </table>
+    """
 
-
-    ITEM_ROW = _.template """
+    REFERENCE = _.template """
       <tr>
-        <td class="im-field-name"><%= field %></td>
+        <td class="im-field-name"><%= name %></td>
+        <td class="im-field-value <%= field.toLowerCase() %>">
+           <%- values.join(', ') %>
+        </td>
+      </tr>
+    """
+
+    ATTR = _.template """
+      <tr>
+        <td class="im-field-name"><%= name %></td>
         <td class="im-field-value <%= field.toLowerCase() %>">
           <%- value %>
           <span class="im-overspill"><%- valueOverspill %></span>
@@ -41,41 +58,17 @@ do ->
       </tr>
     """
 
-    THROBBER = """
-      <div class="progress progress-info progress-striped active">
-        <div class="bar" style="width: 100%"></div>
-      </div>
-    """
+    initialize: ->
+      super
+      @collection.on 'add', @render, @
 
-    ITEMS = """
-      <table class="im-item-details table table-condensed table-bordered">
-      <colgroup>
-          <col class="im-item-field"/>
-          <col class="im-item-value"/>
-      </colgroup>
-      </table>
-    """
+    template: ->
+      table = $ ITEMS
+      @collection.each (details) ->
+        f = if details.get('fieldType') is 'ATTR' then ATTR else REFERENCE
+        table.append f details.toJSON()
+      return table
 
-    RELATIONS = """
-      <ul class="im-related-counts"></ul>
-    """
-
-    RELATION = _.template """
-      <li class="im-relation">
-        <span class="pull-left"><%- label %></span>
-        <span class="pull-right im-count"><%= count %></span>
-      </li>
-    """
-
-    REFERENCE = _.template """
-      <tr>
-        <td class="im-field-name"><%= field %></td>
-        <td class="im-field-value <%= field.toLowerCase() %>">
-           <%- values.join(', ') %>
-        </td>
-      </tr>
-    """
-    
     events:
       'click .im-too-long': 'revealLongField'
 
@@ -87,54 +80,135 @@ do ->
       $tooLong.remove()
       $overSpill.show()
 
-    template: _.template THROBBER
+  class ReferenceCounts extends intermine.views.ItemView
+
+    RELATIONS = """
+      <ul class="im-related-counts"></ul>
+    """
+
+    RELATION = _.template """
+      <li class="im-relation">
+        <span class="pull-left"><%- name %></span>
+        <span class="pull-right im-count"><%= count %></span>
+      </li>
+    """
+     
+    initialize: ->
+      super
+      @collection.on 'add', @render, @
+
+    template: ->
+      relations = $ RELATIONS
+      @collection.each (details) ->
+        data = details.toJSON()
+        data.count = numToStr data.count
+        relations.append RELATION data
+      return relations
+
+  class Preview extends intermine.views.ItemView
+
+    className: 'im-cell-preview-inner'
+
+    THROBBER = """
+      <div class="progress progress-info progress-striped active">
+        <div class="bar" style="width: 100%"></div>
+      </div>
+    """
 
     initialize: (@options = {}) ->
       super arguments...
-      @on 'rendered', @insertRows, @
+      @fieldDetails = new Backbone.Collection
+      @fieldDetails.model = Backbone.Model
+      @fieldDetails.comparator = sortByName
+      @fieldDetails.on 'add', @render, @
+      @referenceFields = new Backbone.Collection
+      @referenceFields.model = Backbone.Model
+      @referenceFields.comparator = sortByName
+      @referenceFields.on 'add', @render, @
 
-    formatName: (field, row) ->
-      type = @model.get('type')
-      p = @options.schema.getPathInfo "#{ type }.#{ field }"
-      fv = row.find '.im-field-value'
-      fv.addClass p.getType().toString().toLowerCase()
-      p.getDisplayName().done (name) =>
-        row.find('.im-field-name').text name.split(' > ').pop()
-        sortTableByFieldName row.parent()
-        @trigger 'ready'
+      @itemDetailsTable = new ItemDetails collection: @fieldDetails
+      @referenceCounts = new ReferenceCounts collection: @referenceFields
 
+    remove: ->
+      @fieldDetails.off()
+      @fieldDetails.reset()
+      @referenceFields.off()
+      @referenceFields.reset()
+      @itemDetailsTable.remove()
+      @referenceCounts.remove()
+      super arguments...
+
+    # Return a promise for the name
+    formatName: (field) ->
+      p = null
+      for t in @model.get('type').split ','
+        p ?= try
+          @options.schema.getPathInfo "#{ t }.#{ field }"
+        catch e
+          null
+      throw new Error("invalid field (#{ field }) for #{ @model.get('type') }") unless p
+      return p.getDisplayName().then (name) -> name.split(' > ').pop()
+
+    # TODO: We should probably make sure we add these classes to the method.
+    # fv = row.find '.im-field-value'
+    # fv.addClass p.getType().toString().toLowerCase()
+    # p.getDisplayName().done (name) =>
+    #   row.find('.im-field-name').text name.split(' > ').pop()
+    #   sortTableByFieldName row.parent()
+    #   @trigger 'ready'
+
+    # Reads values from the returned items and adds details objects to the 
+    # fieldDetails and referenceFields collections, avoiding duplicates.
     handleItem: (item) =>
-      table = @itemDetails
+      field = null
+      byField = (model) -> model.get('field') is field
 
       # Attribute fields.
       for field, v of item when v and (field not in HIDDEN_FIELDS) and not v['objectId']
-        value = v + ''
-        tooLong = value.length > CellCutoff
-        snipPoint = value.indexOf ' ', CellCutoff * 0.9 # Try and break on whitespace
-        snipPoint = CellCutoff if snipPoint is -1
-        value = if tooLong then value.substring(0, snipPoint) else value
-        valueOverspill = (v + '').substring(snipPoint)
-        row = $ ITEM_ROW {field, value, tooLong, valueOverspill}
-
-        @formatName field, row
-        table.append row
-          
+        if not @fieldDetails.find(byField) then do (field, v) =>
+          value = "#{ v }"
+          tooLong = value.length > CellCutoff
+          snipPoint = value.indexOf ' ', CellCutoff * 0.9 # Try and break on whitespace
+          snipPoint = CellCutoff if snipPoint is -1
+          value = if tooLong then value.substring(0, snipPoint) else value
+          valueOverspill = (v + '').substring(snipPoint)
+          details = {fieldType: 'ATTR', field, value, tooLong, valueOverspill}
+          @formatName(field).then (name) =>
+            details.name = name
+            @fieldDetails.add details
+        
       # Reference fields.
       for field, value of item when value and value['objectId']
-        values = getLeaves(value)
-        row = $ REFERENCE {field, values}
+        if not @fieldDetails.find(byField) then do (field, value) =>
+          values = getLeaves(value)
+          details = {fieldType: 'REF', field, values}
+          @formatName(field).then (name) =>
+            details.name = name
+            @fieldDetails.add details
 
-        @formatName field, row
-        table.append row
+      this
 
-    fillRelationsTable: (table) ->
-      type = @model.get 'type'
-      {service: {root}} = @options
+    fetchData: ->
+      {type, id} = @model.toJSON()
+      {schema, service} = @options
+      types = type.split ','
 
-      for settings in (intermine.options.preview.count[root]?[type] ? [])
-        @handleRelationCount settings
+      fetches = for t in type.split ','
+        service.findById t, id, @handleItem
 
-    handleRelationCount: (settings) ->
+      fetches.concat(@getRelationCounts()).reduce (p1, p2) -> p1.then -> p2
+
+    getRelationCounts: ->
+      types = @model.get 'type'
+      root = @options.service.root
+
+      countSets = for type in types.split(',')
+        for settings in (intermine.options.preview.count[root]?[type] ? [])
+          @getRelationCount settings
+      countSets.reduce ((a, s) -> a.concat(s)), []
+
+    # TODO - move into fetch data. correct the model!
+    getRelationCount: (settings) ->
       table = @relatedCounts
       {type, id} = @model.toJSON()
 
@@ -146,44 +220,27 @@ do ->
         label = settings
         counter = select: settings + '.id', from: type, where: {id: id}
 
-      @options.service.count(counter).done (c) -> table.append RELATION {label, count: numToStr c}
+      @options.service.count(counter).then (c) => @referenceFields.add {name: label, count: c}
 
-    fillItemTable: ->
-      {type, id} = @model.toJSON()
-      {schema, service} = @options
-      table = @itemDetails
+    template: (data) ->
 
-      types = type.split ','
-      for t in types
-        types = types.concat schema.getAncestorsOf t
-      table.addClass (t.toLowerCase() for t in types).join ' '
+      frag = document.createDocumentFragment()
+      itemDetailsTable = @itemDetailsTable.el
 
-      fetches = for t in type.split ','
-        service.findById t, id, @handleItem
+      frag.appendChild itemDetailsTable
 
-      fetches.reduce (p, p2) -> p.then -> p2
+      if @referenceFields.length
+        h4 = document.createElement('h4')
+        h4.text = intermine.messages.cell.RelatedItems
+        frag.appendChild h4
+        relationCountTable = @referenceCounts.el
+        frag.appendChild relationCountTable
 
-    insertRows: ->
+      @fetching ?= @fetchData()
 
-      @itemDetails = $ ITEMS
-      @relatedCounts = $ RELATIONS
+      @itemDetailsTable.render()
+      @referenceCounts.render()
 
-      ready = @fillItemTable()
-
-      relations = @fillRelationsTable()
-
-      for promise in relations
-        ready = ready.then -> promise
-
-      ready.done =>
-        @$el.empty().append(@itemDetails)
-        if relations.length
-          @$el.append """<h4>#{ intermine.messages.cell.RelatedItems }</h4>"""
-          @$el.append(@relatedCounts)
-        @trigger 'ready'
-
-      ready.fail (err) =>
-        @renderError err
-        @trigger 'ready'
+      return frag
         
   scope 'intermine.table.cell', {Preview}

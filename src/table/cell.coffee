@@ -250,14 +250,20 @@ do ->
             """<span class="null-value">&nbsp;</span>"""
 
         initialize: (@options = {}) ->
-            @model.on 'change', @selectingStateChange, @
-            @model.on 'change', @updateValue, @
+          @model.on 'change', @selectingStateChange, @
+          @model.on 'change', @updateValue, @
 
-            @listenToQuery @options.query
+          @listenToQuery @options.query
 
-            field = @options.field
-            path = @path = @options.node.append field
-            @$el.addClass 'im-type-' + path.getType().toLowerCase()
+          field = @options.field
+          path = @path = @options.node.append field
+          @$el.addClass 'im-type-' + path.getType().toLowerCase()
+
+        remove: ->
+          @model.off 'change', @selectingStateChange
+          @model.off 'change', @updateValue
+          @popover?.remove()
+          super
 
         events: ->
           'shown': => @cellPreview?.reposition()
@@ -291,14 +297,14 @@ do ->
           type = @model.get 'obj:type'
           id = @model.get 'id'
 
-          popover = new intermine.table.cell.Preview
+          popover = @popover = new intermine.table.cell.Preview
             service: @options.query.service
             schema: @options.query.model
             model: {type, id}
 
           content = popover.$el
 
-          popover.on 'ready', => @cellPreview.reposition()
+          popover.on 'rendered', => @cellPreview.reposition()
           popover.render()
 
           @model.cachedPopover = content

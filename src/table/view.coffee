@@ -82,6 +82,9 @@ do ->
             @$el.find('.btn-primary').click => @query.trigger 'undo'
 
         appendRows: (res) =>
+          previousCells = (@currentCells || []).slice()
+          for cell in previousCells
+            cell.remove()
           if res.rows.length is 0
             @$("tbody > tr").remove()
             @handleEmptyTable()
@@ -89,6 +92,7 @@ do ->
             docfrag = document.createDocumentFragment()
             for row in res.rows
               @appendRow docfrag, row
+            @currentCells = res.rows.reduce ((a, r) -> a.concat(r)), []
             # Careful - there might be subtables out there - be specific.
             @$el.children('tbody').html docfrag
 
