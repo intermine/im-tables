@@ -24,7 +24,7 @@ scope "intermine.options",
     TableWidgets: ['Pagination', 'PageSizer', 'TableSummary', 'ManagementTools', 'ScrollBar']
     CellCutoff: 100
     Style:
-      icons: 'glyphicons'
+      icons: 'fontawesome' # 'glyphicons' or 'fontawesome'
     CDN: # CDN resources that can be configured.
       server: 'http://cdn.intermine.org'
       tests:
