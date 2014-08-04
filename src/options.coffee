@@ -48,22 +48,7 @@ scope "intermine.options",
       "http://www.flymine.org": "FlyMine"
       "http://preview.flymine.org": "FlyMine-Preview"
       "http://www.mousemine.org": "MouseMine (MGI)"
-    preview:
-      count:
-        'http://localhost/intermine-test/service/':
-          Department: [ 'employees' ]
-          Company: [
-            'departments',
-            {label: 'employees', query: {select: '*', from: 'Employee', where: {'department.company.id': '{{ID}}'}} }
-          ]
-
-        'http://preview.flymine.org/preview/service/':
-          Organism: [
-            {label: 'Genes', query: {select: '*', from: 'Gene', where: {'organism.id': '{{ID}}'}} }
-          ],
-          Gene: [
-            'pathways', 'proteins', 'publications', 'transcripts', 'homologues'
-          ]
+    preview: {count: {}}
 
 do ->
 
