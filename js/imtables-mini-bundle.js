@@ -13,10 +13,10 @@
   (function(jQuery) {
     var $ = jQuery;
     /*!
- * jQuery UI Core 1.10.2
+ * jQuery UI Core 1.10.4
  * http://jqueryui.com
  *
- * Copyright 2013 jQuery Foundation and other contributors
+ * Copyright 2014 jQuery Foundation and other contributors
  * Released under the MIT license.
  * http://jquery.org/license
  *
@@ -31,7 +31,7 @@ var uuid = 0,
 $.ui = $.ui || {};
 
 $.extend( $.ui, {
-	version: "1.10.2",
+	version: "1.10.4",
 
 	keyCode: {
 		BACKSPACE: 8,
@@ -281,7 +281,7 @@ $.fn.extend({
 });
 
 $.extend( $.ui, {
-	// $.ui.plugin is deprecated.  Use the proxy pattern instead.
+	// $.ui.plugin is deprecated. Use $.widget() extensions instead.
 	plugin: {
 		add: function( module, option, set ) {
 			var i,
@@ -335,10 +335,10 @@ $.extend( $.ui, {
 
 
 /*!
- * jQuery UI Widget 1.10.2
+ * jQuery UI Widget 1.10.4
  * http://jqueryui.com
  *
- * Copyright 2013 jQuery Foundation and other contributors
+ * Copyright 2014 jQuery Foundation and other contributors
  * Released under the MIT license.
  * http://jquery.org/license
  *
@@ -442,7 +442,7 @@ $.widget = function( name, base, prototype ) {
 		// TODO: remove support for widgetEventPrefix
 		// always use the name + a colon as the prefix, e.g., draggable:start
 		// don't prefix for widgets that aren't DOM-based
-		widgetEventPrefix: existingConstructor ? basePrototype.widgetEventPrefix : name
+		widgetEventPrefix: existingConstructor ? (basePrototype.widgetEventPrefix || name) : name
 	}, proxiedPrototype, {
 		constructor: constructor,
 		namespace: namespace,
@@ -651,12 +651,12 @@ $.Widget.prototype = {
 					curOption = curOption[ parts[ i ] ];
 				}
 				key = parts.pop();
-				if ( value === undefined ) {
+				if ( arguments.length === 1 ) {
 					return curOption[ key ] === undefined ? null : curOption[ key ];
 				}
 				curOption[ key ] = value;
 			} else {
-				if ( value === undefined ) {
+				if ( arguments.length === 1 ) {
 					return this.options[ key ] === undefined ? null : this.options[ key ];
 				}
 				options[ key ] = value;
@@ -858,10 +858,10 @@ $.each( { show: "fadeIn", hide: "fadeOut" }, function( method, defaultEffect ) {
 
 
 /*!
- * jQuery UI Mouse 1.10.2
+ * jQuery UI Mouse 1.10.4
  * http://jqueryui.com
  *
- * Copyright 2013 jQuery Foundation and other contributors
+ * Copyright 2014 jQuery Foundation and other contributors
  * Released under the MIT license.
  * http://jquery.org/license
  *
@@ -878,7 +878,7 @@ $( document ).mouseup( function() {
 });
 
 $.widget("ui.mouse", {
-	version: "1.10.2",
+	version: "1.10.4",
 	options: {
 		cancel: "input,textarea,button,select,option",
 		distance: 1,
@@ -1029,10 +1029,10 @@ $.widget("ui.mouse", {
 
 
 /*!
- * jQuery UI Draggable 1.10.2
+ * jQuery UI Draggable 1.10.4
  * http://jqueryui.com
  *
- * Copyright 2013 jQuery Foundation and other contributors
+ * Copyright 2014 jQuery Foundation and other contributors
  * Released under the MIT license.
  * http://jquery.org/license
  *
@@ -1046,7 +1046,7 @@ $.widget("ui.mouse", {
 (function( $, undefined ) {
 
 $.widget("ui.draggable", $.ui.mouse, {
-	version: "1.10.2",
+	version: "1.10.4",
 	widgetEventPrefix: "drag",
 	options: {
 		addClasses: true,
@@ -1155,8 +1155,10 @@ $.widget("ui.draggable", $.ui.mouse, {
 		this._cacheMargins();
 
 		//Store the helper's css position
-		this.cssPosition = this.helper.css("position");
+		this.cssPosition = this.helper.css( "position" );
 		this.scrollParent = this.helper.scrollParent();
+		this.offsetParent = this.helper.offsetParent();
+		this.offsetParentCssPosition = this.offsetParent.css( "position" );
 
 		//The element's absolute position on the page minus margins
 		this.offset = this.positionAbs = this.element.offset();
@@ -1164,6 +1166,9 @@ $.widget("ui.draggable", $.ui.mouse, {
 			top: this.offset.top - this.margins.top,
 			left: this.offset.left - this.margins.left
 		};
+
+		//Reset scroll cache
+		this.offset.scroll = false;
 
 		$.extend(this.offset, {
 			click: { //Where the click happened, relative to the element
@@ -1183,9 +1188,7 @@ $.widget("ui.draggable", $.ui.mouse, {
 		(o.cursorAt && this._adjustOffsetFromHelper(o.cursorAt));
 
 		//Set a containment if given in the options
-		if(o.containment) {
-			this._setContainment();
-		}
+		this._setContainment();
 
 		//Trigger event + callbacks
 		if(this._trigger("start", event) === false) {
@@ -1213,6 +1216,10 @@ $.widget("ui.draggable", $.ui.mouse, {
 	},
 
 	_mouseDrag: function(event, noPropagation) {
+		// reset any necessary cached properties (see #5009)
+		if ( this.offsetParentCssPosition === "fixed" ) {
+			this.offset.parent = this._getParentOffset();
+		}
 
 		//Compute the helpers position
 		this.position = this._generatePosition(event);
@@ -1244,9 +1251,7 @@ $.widget("ui.draggable", $.ui.mouse, {
 	_mouseStop: function(event) {
 
 		//If we are using droppables, inform the manager about the drop
-		var element,
-			that = this,
-			elementInDom = false,
+		var that = this,
 			dropped = false;
 		if ($.ui.ddmanager && !this.options.dropBehaviour) {
 			dropped = $.ui.ddmanager.drop(this, event);
@@ -1259,13 +1264,7 @@ $.widget("ui.draggable", $.ui.mouse, {
 		}
 
 		//if the original element is no longer in the DOM don't bother to continue (see #8269)
-		element = this.element[0];
-		while ( element && (element = element.parentNode) ) {
-			if (element === document ) {
-				elementInDom = true;
-			}
-		}
-		if ( !elementInDom && this.options.helper === "original" ) {
+		if ( this.options.helper === "original" && !$.contains( this.element[ 0 ].ownerDocument, this.element[ 0 ] ) ) {
 			return false;
 		}
 
@@ -1357,7 +1356,6 @@ $.widget("ui.draggable", $.ui.mouse, {
 	_getParentOffset: function() {
 
 		//Get the offsetParent and cache its position
-		this.offsetParent = this.helper.offsetParent();
 		var po = this.offsetParent.offset();
 
 		// This is a special case where we need to modify a offset calculated on start, since the following happened:
@@ -1418,40 +1416,56 @@ $.widget("ui.draggable", $.ui.mouse, {
 		var over, c, ce,
 			o = this.options;
 
-		if(o.containment === "parent") {
-			o.containment = this.helper[0].parentNode;
-		}
-		if(o.containment === "document" || o.containment === "window") {
-			this.containment = [
-				o.containment === "document" ? 0 : $(window).scrollLeft() - this.offset.relative.left - this.offset.parent.left,
-				o.containment === "document" ? 0 : $(window).scrollTop() - this.offset.relative.top - this.offset.parent.top,
-				(o.containment === "document" ? 0 : $(window).scrollLeft()) + $(o.containment === "document" ? document : window).width() - this.helperProportions.width - this.margins.left,
-				(o.containment === "document" ? 0 : $(window).scrollTop()) + ($(o.containment === "document" ? document : window).height() || document.body.parentNode.scrollHeight) - this.helperProportions.height - this.margins.top
-			];
+		if ( !o.containment ) {
+			this.containment = null;
+			return;
 		}
 
-		if(!(/^(document|window|parent)$/).test(o.containment) && o.containment.constructor !== Array) {
-			c = $(o.containment);
-			ce = c[0];
-
-			if(!ce) {
-				return;
-			}
-
-			over = ($(ce).css("overflow") !== "hidden");
-
+		if ( o.containment === "window" ) {
 			this.containment = [
-				(parseInt($(ce).css("borderLeftWidth"),10) || 0) + (parseInt($(ce).css("paddingLeft"),10) || 0),
-				(parseInt($(ce).css("borderTopWidth"),10) || 0) + (parseInt($(ce).css("paddingTop"),10) || 0),
-				(over ? Math.max(ce.scrollWidth,ce.offsetWidth) : ce.offsetWidth) - (parseInt($(ce).css("borderRightWidth"),10) || 0) - (parseInt($(ce).css("paddingRight"),10) || 0) - this.helperProportions.width - this.margins.left - this.margins.right,
-				(over ? Math.max(ce.scrollHeight,ce.offsetHeight) : ce.offsetHeight) - (parseInt($(ce).css("borderBottomWidth"),10) || 0) - (parseInt($(ce).css("paddingBottom"),10) || 0) - this.helperProportions.height - this.margins.top  - this.margins.bottom
+				$( window ).scrollLeft() - this.offset.relative.left - this.offset.parent.left,
+				$( window ).scrollTop() - this.offset.relative.top - this.offset.parent.top,
+				$( window ).scrollLeft() + $( window ).width() - this.helperProportions.width - this.margins.left,
+				$( window ).scrollTop() + ( $( window ).height() || document.body.parentNode.scrollHeight ) - this.helperProportions.height - this.margins.top
 			];
-			this.relative_container = c;
+			return;
+		}
 
-		} else if(o.containment.constructor === Array) {
+		if ( o.containment === "document") {
+			this.containment = [
+				0,
+				0,
+				$( document ).width() - this.helperProportions.width - this.margins.left,
+				( $( document ).height() || document.body.parentNode.scrollHeight ) - this.helperProportions.height - this.margins.top
+			];
+			return;
+		}
+
+		if ( o.containment.constructor === Array ) {
 			this.containment = o.containment;
+			return;
 		}
 
+		if ( o.containment === "parent" ) {
+			o.containment = this.helper[ 0 ].parentNode;
+		}
+
+		c = $( o.containment );
+		ce = c[ 0 ];
+
+		if( !ce ) {
+			return;
+		}
+
+		over = c.css( "overflow" ) !== "hidden";
+
+		this.containment = [
+			( parseInt( c.css( "borderLeftWidth" ), 10 ) || 0 ) + ( parseInt( c.css( "paddingLeft" ), 10 ) || 0 ),
+			( parseInt( c.css( "borderTopWidth" ), 10 ) || 0 ) + ( parseInt( c.css( "paddingTop" ), 10 ) || 0 ) ,
+			( over ? Math.max( ce.scrollWidth, ce.offsetWidth ) : ce.offsetWidth ) - ( parseInt( c.css( "borderRightWidth" ), 10 ) || 0 ) - ( parseInt( c.css( "paddingRight" ), 10 ) || 0 ) - this.helperProportions.width - this.margins.left - this.margins.right,
+			( over ? Math.max( ce.scrollHeight, ce.offsetHeight ) : ce.offsetHeight ) - ( parseInt( c.css( "borderBottomWidth" ), 10 ) || 0 ) - ( parseInt( c.css( "paddingBottom" ), 10 ) || 0 ) - this.helperProportions.height - this.margins.top  - this.margins.bottom
+		];
+		this.relative_container = c;
 	},
 
 	_convertPositionTo: function(d, pos) {
@@ -1461,20 +1475,25 @@ $.widget("ui.draggable", $.ui.mouse, {
 		}
 
 		var mod = d === "absolute" ? 1 : -1,
-			scroll = this.cssPosition === "absolute" && !(this.scrollParent[0] !== document && $.contains(this.scrollParent[0], this.offsetParent[0])) ? this.offsetParent : this.scrollParent, scrollIsRootNode = (/(html|body)/i).test(scroll[0].tagName);
+			scroll = this.cssPosition === "absolute" && !( this.scrollParent[ 0 ] !== document && $.contains( this.scrollParent[ 0 ], this.offsetParent[ 0 ] ) ) ? this.offsetParent : this.scrollParent;
+
+		//Cache the scroll
+		if (!this.offset.scroll) {
+			this.offset.scroll = {top : scroll.scrollTop(), left : scroll.scrollLeft()};
+		}
 
 		return {
 			top: (
 				pos.top	+																// The absolute mouse position
 				this.offset.relative.top * mod +										// Only for relative positioned nodes: Relative offset from element to offset parent
 				this.offset.parent.top * mod -										// The offsetParent's offset without borders (offset + border)
-				( ( this.cssPosition === "fixed" ? -this.scrollParent.scrollTop() : ( scrollIsRootNode ? 0 : scroll.scrollTop() ) ) * mod)
+				( ( this.cssPosition === "fixed" ? -this.scrollParent.scrollTop() : this.offset.scroll.top ) * mod )
 			),
 			left: (
 				pos.left +																// The absolute mouse position
 				this.offset.relative.left * mod +										// Only for relative positioned nodes: Relative offset from element to offset parent
 				this.offset.parent.left * mod	-										// The offsetParent's offset without borders (offset + border)
-				( ( this.cssPosition === "fixed" ? -this.scrollParent.scrollLeft() : scrollIsRootNode ? 0 : scroll.scrollLeft() ) * mod)
+				( ( this.cssPosition === "fixed" ? -this.scrollParent.scrollLeft() : this.offset.scroll.left ) * mod )
 			)
 		};
 
@@ -1484,28 +1503,35 @@ $.widget("ui.draggable", $.ui.mouse, {
 
 		var containment, co, top, left,
 			o = this.options,
-			scroll = this.cssPosition === "absolute" && !(this.scrollParent[0] !== document && $.contains(this.scrollParent[0], this.offsetParent[0])) ? this.offsetParent : this.scrollParent,
-			scrollIsRootNode = (/(html|body)/i).test(scroll[0].tagName),
+			scroll = this.cssPosition === "absolute" && !( this.scrollParent[ 0 ] !== document && $.contains( this.scrollParent[ 0 ], this.offsetParent[ 0 ] ) ) ? this.offsetParent : this.scrollParent,
 			pageX = event.pageX,
 			pageY = event.pageY;
+
+		//Cache the scroll
+		if (!this.offset.scroll) {
+			this.offset.scroll = {top : scroll.scrollTop(), left : scroll.scrollLeft()};
+		}
 
 		/*
 		 * - Position constraining -
 		 * Constrain the position to a mix of grid, containment.
 		 */
 
-		if(this.originalPosition) { //If we are not dragging yet, we won't check for options
-			if(this.containment) {
-			if (this.relative_container){
-				co = this.relative_container.offset();
-				containment = [ this.containment[0] + co.left,
-					this.containment[1] + co.top,
-					this.containment[2] + co.left,
-					this.containment[3] + co.top ];
-			}
-			else {
-				containment = this.containment;
-			}
+		// If we are not dragging yet, we won't check for options
+		if ( this.originalPosition ) {
+			if ( this.containment ) {
+				if ( this.relative_container ){
+					co = this.relative_container.offset();
+					containment = [
+						this.containment[ 0 ] + co.left,
+						this.containment[ 1 ] + co.top,
+						this.containment[ 2 ] + co.left,
+						this.containment[ 3 ] + co.top
+					];
+				}
+				else {
+					containment = this.containment;
+				}
 
 				if(event.pageX - this.offset.click.left < containment[0]) {
 					pageX = containment[0] + this.offset.click.left;
@@ -1538,14 +1564,14 @@ $.widget("ui.draggable", $.ui.mouse, {
 				this.offset.click.top	-												// Click offset (relative to the element)
 				this.offset.relative.top -												// Only for relative positioned nodes: Relative offset from element to offset parent
 				this.offset.parent.top +												// The offsetParent's offset without borders (offset + border)
-				( ( this.cssPosition === "fixed" ? -this.scrollParent.scrollTop() : ( scrollIsRootNode ? 0 : scroll.scrollTop() ) ))
+				( this.cssPosition === "fixed" ? -this.scrollParent.scrollTop() : this.offset.scroll.top )
 			),
 			left: (
 				pageX -																	// The absolute mouse position
 				this.offset.click.left -												// Click offset (relative to the element)
 				this.offset.relative.left -												// Only for relative positioned nodes: Relative offset from element to offset parent
 				this.offset.parent.left +												// The offsetParent's offset without borders (offset + border)
-				( ( this.cssPosition === "fixed" ? -this.scrollParent.scrollLeft() : scrollIsRootNode ? 0 : scroll.scrollLeft() ))
+				( this.cssPosition === "fixed" ? -this.scrollParent.scrollLeft() : this.offset.scroll.left )
 			)
 		};
 
@@ -1867,8 +1893,7 @@ $.ui.plugin.add("draggable", "snap", {
 			t = inst.snapElements[i].top;
 			b = t + inst.snapElements[i].height;
 
-			//Yes, I know, this is insane ;)
-			if(!((l-d < x1 && x1 < r+d && t-d < y1 && y1 < b+d) || (l-d < x1 && x1 < r+d && t-d < y2 && y2 < b+d) || (l-d < x2 && x2 < r+d && t-d < y1 && y1 < b+d) || (l-d < x2 && x2 < r+d && t-d < y2 && y2 < b+d))) {
+			if ( x2 < l - d || x1 > r + d || y2 < t - d || y1 > b + d || !$.contains( inst.snapElements[ i ].item.ownerDocument, inst.snapElements[ i ].item ) ) {
 				if(inst.snapElements[i].snapping) {
 					(inst.options.snap.release && inst.options.snap.release.call(inst.element, event, $.extend(inst._uiHash(), { snapItem: inst.snapElements[i].item })));
 				}
@@ -1964,10 +1989,10 @@ $.ui.plugin.add("draggable", "zIndex", {
 
 
 /*!
- * jQuery UI Droppable 1.10.2
+ * jQuery UI Droppable 1.10.4
  * http://jqueryui.com
  *
- * Copyright 2013 jQuery Foundation and other contributors
+ * Copyright 2014 jQuery Foundation and other contributors
  * Released under the MIT license.
  * http://jquery.org/license
  *
@@ -1986,7 +2011,7 @@ function isOverAxis( x, reference, size ) {
 }
 
 $.widget("ui.droppable", {
-	version: "1.10.2",
+	version: "1.10.4",
 	widgetEventPrefix: "drop",
 	options: {
 		accept: "*",
@@ -2006,7 +2031,8 @@ $.widget("ui.droppable", {
 	},
 	_create: function() {
 
-		var o = this.options,
+		var proportions,
+			o = this.options,
 			accept = o.accept;
 
 		this.isover = false;
@@ -2016,8 +2042,20 @@ $.widget("ui.droppable", {
 			return d.is(accept);
 		};
 
-		//Store the droppable's proportions
-		this.proportions = { width: this.element[0].offsetWidth, height: this.element[0].offsetHeight };
+		this.proportions = function( /* valueToWrite */ ) {
+			if ( arguments.length ) {
+				// Store the droppable's proportions
+				proportions = arguments[ 0 ];
+			} else {
+				// Retrieve or derive the droppable's proportions
+				return proportions ?
+					proportions :
+					proportions = {
+						width: this.element[ 0 ].offsetWidth,
+						height: this.element[ 0 ].offsetHeight
+					};
+			}
+		};
 
 		// Add the reference and positions to the manager
 		$.ui.ddmanager.droppables[o.scope] = $.ui.ddmanager.droppables[o.scope] || [];
@@ -2163,10 +2201,14 @@ $.ui.intersect = function(draggable, droppable, toleranceMode) {
 	}
 
 	var draggableLeft, draggableTop,
-		x1 = (draggable.positionAbs || draggable.position.absolute).left, x2 = x1 + draggable.helperProportions.width,
-		y1 = (draggable.positionAbs || draggable.position.absolute).top, y2 = y1 + draggable.helperProportions.height,
-		l = droppable.offset.left, r = l + droppable.proportions.width,
-		t = droppable.offset.top, b = t + droppable.proportions.height;
+		x1 = (draggable.positionAbs || draggable.position.absolute).left,
+		y1 = (draggable.positionAbs || draggable.position.absolute).top,
+		x2 = x1 + draggable.helperProportions.width,
+		y2 = y1 + draggable.helperProportions.height,
+		l = droppable.offset.left,
+		t = droppable.offset.top,
+		r = l + droppable.proportions().width,
+		b = t + droppable.proportions().height;
 
 	switch (toleranceMode) {
 		case "fit":
@@ -2179,7 +2221,7 @@ $.ui.intersect = function(draggable, droppable, toleranceMode) {
 		case "pointer":
 			draggableLeft = ((draggable.positionAbs || draggable.position.absolute).left + (draggable.clickOffset || draggable.offset.click).left);
 			draggableTop = ((draggable.positionAbs || draggable.position.absolute).top + (draggable.clickOffset || draggable.offset.click).top);
-			return isOverAxis( draggableTop, t, droppable.proportions.height ) && isOverAxis( draggableLeft, l, droppable.proportions.width );
+			return isOverAxis( draggableTop, t, droppable.proportions().height ) && isOverAxis( draggableLeft, l, droppable.proportions().width );
 		case "touch":
 			return (
 				(y1 >= t && y1 <= b) ||	// Top edge touching
@@ -2219,7 +2261,7 @@ $.ui.ddmanager = {
 			// Filter out elements in the current dragged item
 			for (j=0; j < list.length; j++) {
 				if(list[j] === m[i].element[0]) {
-					m[i].proportions.height = 0;
+					m[i].proportions().height = 0;
 					continue droppablesLoop;
 				}
 			}
@@ -2234,8 +2276,8 @@ $.ui.ddmanager = {
 				m[i]._activate.call(m[i], event);
 			}
 
-			m[i].offset = m[i].element.offset();
-			m[i].proportions = { width: m[i].element[0].offsetWidth, height: m[i].element[0].offsetHeight };
+			m[ i ].offset = m[ i ].element.offset();
+			m[ i ].proportions({ width: m[ i ].element[ 0 ].offsetWidth, height: m[ i ].element[ 0 ].offsetHeight });
 
 		}
 
@@ -2338,10 +2380,10 @@ $.ui.ddmanager = {
 
 
 /*!
- * jQuery UI Position 1.10.2
+ * jQuery UI Position 1.10.4
  * http://jqueryui.com
  *
- * Copyright 2013 jQuery Foundation and other contributors
+ * Copyright 2014 jQuery Foundation and other contributors
  * Released under the MIT license.
  * http://jquery.org/license
  *
@@ -2409,7 +2451,7 @@ $.position = {
 			return cachedScrollbarWidth;
 		}
 		var w1, w2,
-			div = $( "<div style='display:block;width:50px;height:50px;overflow:hidden;'><div style='height:100px;width:auto;'></div></div>" ),
+			div = $( "<div style='display:block;position:absolute;width:50px;height:50px;overflow:hidden;'><div style='height:100px;width:auto;'></div></div>" ),
 			innerDiv = div.children()[0];
 
 		$( "body" ).append( div );
@@ -2427,8 +2469,10 @@ $.position = {
 		return (cachedScrollbarWidth = w1 - w2);
 	},
 	getScrollInfo: function( within ) {
-		var overflowX = within.isWindow ? "" : within.element.css( "overflow-x" ),
-			overflowY = within.isWindow ? "" : within.element.css( "overflow-y" ),
+		var overflowX = within.isWindow || within.isDocument ? "" :
+				within.element.css( "overflow-x" ),
+			overflowY = within.isWindow || within.isDocument ? "" :
+				within.element.css( "overflow-y" ),
 			hasOverflowX = overflowX === "scroll" ||
 				( overflowX === "auto" && within.width < within.element[0].scrollWidth ),
 			hasOverflowY = overflowY === "scroll" ||
@@ -2440,10 +2484,12 @@ $.position = {
 	},
 	getWithinInfo: function( element ) {
 		var withinElement = $( element || window ),
-			isWindow = $.isWindow( withinElement[0] );
+			isWindow = $.isWindow( withinElement[0] ),
+			isDocument = !!withinElement[ 0 ] && withinElement[ 0 ].nodeType === 9;
 		return {
 			element: withinElement,
 			isWindow: isWindow,
+			isDocument: isDocument,
 			offset: withinElement.offset() || { left: 0, top: 0 },
 			scrollLeft: withinElement.scrollLeft(),
 			scrollTop: withinElement.scrollTop(),
@@ -2775,7 +2821,7 @@ $.ui.position = {
 				}
 			}
 			else if ( overBottom > 0 ) {
-				newOverTop = position.top -  data.collisionPosition.marginTop + myOffset + atOffset + offset - offsetTop;
+				newOverTop = position.top - data.collisionPosition.marginTop + myOffset + atOffset + offset - offsetTop;
 				if ( ( position.top + myOffset + atOffset + offset) > overBottom && ( newOverTop > 0 || abs( newOverTop ) < overBottom ) ) {
 					position.top += myOffset + atOffset + offset;
 				}
@@ -2837,10 +2883,10 @@ $.ui.position = {
 
 
 /*!
- * jQuery UI Selectable 1.10.2
+ * jQuery UI Selectable 1.10.4
  * http://jqueryui.com
  *
- * Copyright 2013 jQuery Foundation and other contributors
+ * Copyright 2014 jQuery Foundation and other contributors
  * Released under the MIT license.
  * http://jquery.org/license
  *
@@ -2854,7 +2900,7 @@ $.ui.position = {
 (function( $, undefined ) {
 
 $.widget("ui.selectable", $.ui.mouse, {
-	version: "1.10.2",
+	version: "1.10.4",
 	options: {
 		appendTo: "body",
 		autoRefresh: true,
@@ -3116,10 +3162,10 @@ $.widget("ui.selectable", $.ui.mouse, {
 
 
 /*!
- * jQuery UI Slider 1.10.2
+ * jQuery UI Slider 1.10.4
  * http://jqueryui.com
  *
- * Copyright 2013 jQuery Foundation and other contributors
+ * Copyright 2014 jQuery Foundation and other contributors
  * Released under the MIT license.
  * http://jquery.org/license
  *
@@ -3137,7 +3183,7 @@ $.widget("ui.selectable", $.ui.mouse, {
 var numPages = 5;
 
 $.widget( "ui.slider", $.ui.mouse, {
-	version: "1.10.2",
+	version: "1.10.4",
 	widgetEventPrefix: "slide",
 
 	options: {
@@ -3248,7 +3294,10 @@ $.widget( "ui.slider", $.ui.mouse, {
 			this.range.addClass( classes +
 				( ( options.range === "min" || options.range === "max" ) ? " ui-slider-range-" + options.range : "" ) );
 		} else {
-			this.range = $([]);
+			if ( this.range ) {
+				this.range.remove();
+			}
+			this.range = null;
 		}
 	},
 
@@ -3262,7 +3311,9 @@ $.widget( "ui.slider", $.ui.mouse, {
 
 	_destroy: function() {
 		this.handles.remove();
-		this.range.remove();
+		if ( this.range ) {
+			this.range.remove();
+		}
 
 		this.element
 			.removeClass( "ui-slider" +
@@ -3434,7 +3485,7 @@ $.widget( "ui.slider", $.ui.mouse, {
 				} );
 				otherVal = this.values( index ? 0 : 1 );
 				if ( allowed !== false ) {
-					this.values( index, newVal, true );
+					this.values( index, newVal );
 				}
 			}
 		} else {
@@ -3706,7 +3757,6 @@ $.widget( "ui.slider", $.ui.mouse, {
 
 	_handleEvents: {
 		keydown: function( event ) {
-			/*jshint maxcomplexity:25*/
 			var allowed, curVal, newVal, step,
 				index = $( event.target ).data( "ui-slider-handle-index" );
 
@@ -3790,10 +3840,10 @@ $.widget( "ui.slider", $.ui.mouse, {
 
 
 /*!
- * jQuery UI Sortable 1.10.2
+ * jQuery UI Sortable 1.10.4
  * http://jqueryui.com
  *
- * Copyright 2013 jQuery Foundation and other contributors
+ * Copyright 2014 jQuery Foundation and other contributors
  * Released under the MIT license.
  * http://jquery.org/license
  *
@@ -3806,8 +3856,6 @@ $.widget( "ui.slider", $.ui.mouse, {
  */
 (function( $, undefined ) {
 
-/*jshint loopfunc: true */
-
 function isOverAxis( x, reference, size ) {
 	return ( x > reference ) && ( x < ( reference + size ) );
 }
@@ -3817,7 +3865,7 @@ function isFloating(item) {
 }
 
 $.widget("ui.sortable", $.ui.mouse, {
-	version: "1.10.2",
+	version: "1.10.4",
 	widgetEventPrefix: "sort",
 	ready: false,
 	options: {
@@ -4158,12 +4206,12 @@ $.widget("ui.sortable", $.ui.mouse, {
 			}
 
 			// Only put the placeholder inside the current Container, skip all
-			// items form other containers. This works because when moving
+			// items from other containers. This works because when moving
 			// an item from one container to another the
 			// currentContainer is switched before the placeholder is moved.
 			//
-			// Without this moving items in "sub-sortables" can cause the placeholder to jitter
-			// beetween the outer and inner container.
+			// Without this, moving items in "sub-sortables" can cause
+			// the placeholder to jitter beetween the outer and inner container.
 			if (item.instance !== this.currentContainer) {
 				continue;
 			}
@@ -4337,7 +4385,9 @@ $.widget("ui.sortable", $.ui.mouse, {
 			b = t + item.height,
 			dyClick = this.offset.click.top,
 			dxClick = this.offset.click.left,
-			isOverElement = (y1 + dyClick) > t && (y1 + dyClick) < b && (x1 + dxClick) > l && (x1 + dxClick) < r;
+			isOverElementHeight = ( this.options.axis === "x" ) || ( ( y1 + dyClick ) > t && ( y1 + dyClick ) < b ),
+			isOverElementWidth = ( this.options.axis === "y" ) || ( ( x1 + dxClick ) > l && ( x1 + dxClick ) < r ),
+			isOverElement = isOverElementHeight && isOverElementWidth;
 
 		if ( this.options.tolerance === "pointer" ||
 			this.options.forcePointerForContainers ||
@@ -4429,10 +4479,11 @@ $.widget("ui.sortable", $.ui.mouse, {
 
 		queries.push([$.isFunction(this.options.items) ? this.options.items.call(this.element, null, { options: this.options, item: this.currentItem }) : $(this.options.items, this.element).not(".ui-sortable-helper").not(".ui-sortable-placeholder"), this]);
 
+		function addItems() {
+			items.push( this );
+		}
 		for (i = queries.length - 1; i >= 0; i--){
-			queries[i][0].each(function() {
-				items.push(this);
-			});
+			queries[i][0].each( addItems );
 		}
 
 		return $(items);
@@ -4552,15 +4603,16 @@ $.widget("ui.sortable", $.ui.mouse, {
 				element: function() {
 
 					var nodeName = that.currentItem[0].nodeName.toLowerCase(),
-						element = $( that.document[0].createElement( nodeName ) )
+						element = $( "<" + nodeName + ">", that.document[0] )
 							.addClass(className || that.currentItem[0].className+" ui-sortable-placeholder")
 							.removeClass("ui-sortable-helper");
 
 					if ( nodeName === "tr" ) {
-						// Use a high colspan to force the td to expand the full
-						// width of the table (browsers are smart enough to
-						// handle this properly)
-						element.append( "<td colspan='99'>&#160;</td>" );
+						that.currentItem.children().each(function() {
+							$( "<td>&#160;</td>", that.document[0] )
+								.attr( "colspan", $( this ).attr( "colspan" ) || 1 )
+								.appendTo( element );
+						});
 					} else if ( nodeName === "img" ) {
 						element.attr( "src", that.currentItem.attr( "src" ) );
 					}
@@ -4989,12 +5041,17 @@ $.widget("ui.sortable", $.ui.mouse, {
 
 
 		//Post events to containers
+		function delayEvent( type, instance, container ) {
+			return function( event ) {
+				container._trigger( type, event, instance._uiHash( instance ) );
+			};
+		}
 		for (i = this.containers.length - 1; i >= 0; i--){
-			if(!noPropagation) {
-				delayedTriggers.push((function(c) { return function(event) { c._trigger("deactivate", event, this._uiHash(this)); };  }).call(this, this.containers[i]));
+			if (!noPropagation) {
+				delayedTriggers.push( delayEvent( "deactivate", this, this.containers[ i ] ) );
 			}
 			if(this.containers[i].containerCache.over) {
-				delayedTriggers.push((function(c) { return function(event) { c._trigger("out", event, this._uiHash(this)); };  }).call(this, this.containers[i]));
+				delayedTriggers.push( delayEvent( "out", this, this.containers[ i ] ) );
 				this.containers[i].containerCache.over = 0;
 			}
 		}
@@ -5076,10 +5133,10 @@ $.widget("ui.sortable", $.ui.mouse, {
 
   (function(window) {
     /* ===================================================
- * bootstrap-transition.js v2.3.1
- * http://twitter.github.com/bootstrap/javascript.html#transitions
+ * bootstrap-transition.js v2.3.2
+ * http://twbs.github.com/bootstrap/javascript.html#transitions
  * ===================================================
- * Copyright 2012 Twitter, Inc.
+ * Copyright 2013 Twitter, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -5135,10 +5192,10 @@ $.widget("ui.sortable", $.ui.mouse, {
   })
 
 }(window.jQuery);/* ==========================================================
- * bootstrap-alert.js v2.3.1
- * http://twitter.github.com/bootstrap/javascript.html#alerts
+ * bootstrap-alert.js v2.3.2
+ * http://twbs.github.com/bootstrap/javascript.html#alerts
  * ==========================================================
- * Copyright 2012 Twitter, Inc.
+ * Copyright 2013 Twitter, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -5233,10 +5290,10 @@ $.widget("ui.sortable", $.ui.mouse, {
   $(document).on('click.alert.data-api', dismiss, Alert.prototype.close)
 
 }(window.jQuery);/* ============================================================
- * bootstrap-button.js v2.3.1
- * http://twitter.github.com/bootstrap/javascript.html#buttons
+ * bootstrap-button.js v2.3.2
+ * http://twbs.github.com/bootstrap/javascript.html#buttons
  * ============================================================
- * Copyright 2012 Twitter, Inc.
+ * Copyright 2013 Twitter, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -5337,10 +5394,10 @@ $.widget("ui.sortable", $.ui.mouse, {
   })
 
 }(window.jQuery);/* ==========================================================
- * bootstrap-carousel.js v2.3.1
- * http://twitter.github.com/bootstrap/javascript.html#carousel
+ * bootstrap-carousel.js v2.3.2
+ * http://twbs.github.com/bootstrap/javascript.html#carousel
  * ==========================================================
- * Copyright 2012 Twitter, Inc.
+ * Copyright 2013 Twitter, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -5543,10 +5600,10 @@ $.widget("ui.sortable", $.ui.mouse, {
   })
 
 }(window.jQuery);/* =============================================================
- * bootstrap-collapse.js v2.3.1
- * http://twitter.github.com/bootstrap/javascript.html#collapse
+ * bootstrap-collapse.js v2.3.2
+ * http://twbs.github.com/bootstrap/javascript.html#collapse
  * =============================================================
- * Copyright 2012 Twitter, Inc.
+ * Copyright 2013 Twitter, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -5709,10 +5766,10 @@ $.widget("ui.sortable", $.ui.mouse, {
   })
 
 }(window.jQuery);/* ============================================================
- * bootstrap-dropdown.js v2.3.1
- * http://twitter.github.com/bootstrap/javascript.html#dropdowns
+ * bootstrap-dropdown.js v2.3.2
+ * http://twbs.github.com/bootstrap/javascript.html#dropdowns
  * ============================================================
- * Copyright 2012 Twitter, Inc.
+ * Copyright 2013 Twitter, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -5762,6 +5819,10 @@ $.widget("ui.sortable", $.ui.mouse, {
       clearMenus()
 
       if (!isActive) {
+        if ('ontouchstart' in document.documentElement) {
+          // if mobile we we use a backdrop because click events don't delegate
+          $('<div class="dropdown-backdrop"/>').insertBefore($(this)).on('click', clearMenus)
+        }
         $parent.toggleClass('open')
       }
 
@@ -5814,6 +5875,7 @@ $.widget("ui.sortable", $.ui.mouse, {
   }
 
   function clearMenus() {
+    $('.dropdown-backdrop').remove()
     $(toggle).each(function () {
       getParent($(this)).removeClass('open')
     })
@@ -5868,16 +5930,15 @@ $.widget("ui.sortable", $.ui.mouse, {
   $(document)
     .on('click.dropdown.data-api', clearMenus)
     .on('click.dropdown.data-api', '.dropdown form', function (e) { e.stopPropagation() })
-    .on('click.dropdown-menu', function (e) { e.stopPropagation() })
     .on('click.dropdown.data-api'  , toggle, Dropdown.prototype.toggle)
     .on('keydown.dropdown.data-api', toggle + ', [role=menu]' , Dropdown.prototype.keydown)
 
 }(window.jQuery);
 /* =========================================================
- * bootstrap-modal.js v2.3.1
- * http://twitter.github.com/bootstrap/javascript.html#modals
+ * bootstrap-modal.js v2.3.2
+ * http://twbs.github.com/bootstrap/javascript.html#modals
  * =========================================================
- * Copyright 2012 Twitter, Inc.
+ * Copyright 2013 Twitter, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -6121,11 +6182,11 @@ $.widget("ui.sortable", $.ui.mouse, {
 
 }(window.jQuery);
 /* ===========================================================
- * bootstrap-tooltip.js v2.3.1
- * http://twitter.github.com/bootstrap/javascript.html#tooltips
+ * bootstrap-tooltip.js v2.3.2
+ * http://twbs.github.com/bootstrap/javascript.html#tooltips
  * Inspired by the original jQuery.tipsy by Jason Frame
  * ===========================================================
- * Copyright 2012 Twitter, Inc.
+ * Copyright 2013 Twitter, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -6482,10 +6543,10 @@ $.widget("ui.sortable", $.ui.mouse, {
 
 }(window.jQuery);
 /* ===========================================================
- * bootstrap-popover.js v2.3.1
- * http://twitter.github.com/bootstrap/javascript.html#popovers
+ * bootstrap-popover.js v2.3.2
+ * http://twbs.github.com/bootstrap/javascript.html#popovers
  * ===========================================================
- * Copyright 2012 Twitter, Inc.
+ * Copyright 2013 Twitter, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -6596,10 +6657,10 @@ $.widget("ui.sortable", $.ui.mouse, {
 
 }(window.jQuery);
 /* =============================================================
- * bootstrap-scrollspy.js v2.3.1
- * http://twitter.github.com/bootstrap/javascript.html#scrollspy
+ * bootstrap-scrollspy.js v2.3.2
+ * http://twbs.github.com/bootstrap/javascript.html#scrollspy
  * =============================================================
- * Copyright 2012 Twitter, Inc.
+ * Copyright 2013 Twitter, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -6757,10 +6818,10 @@ $.widget("ui.sortable", $.ui.mouse, {
   })
 
 }(window.jQuery);/* ========================================================
- * bootstrap-tab.js v2.3.1
- * http://twitter.github.com/bootstrap/javascript.html#tabs
+ * bootstrap-tab.js v2.3.2
+ * http://twbs.github.com/bootstrap/javascript.html#tabs
  * ========================================================
- * Copyright 2012 Twitter, Inc.
+ * Copyright 2013 Twitter, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -6900,10 +6961,10 @@ $.widget("ui.sortable", $.ui.mouse, {
   })
 
 }(window.jQuery);/* =============================================================
- * bootstrap-typeahead.js v2.3.1
- * http://twitter.github.com/bootstrap/javascript.html#typeahead
+ * bootstrap-typeahead.js v2.3.2
+ * http://twbs.github.com/bootstrap/javascript.html#typeahead
  * =============================================================
- * Copyright 2012 Twitter, Inc.
+ * Copyright 2013 Twitter, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -7235,10 +7296,10 @@ $.widget("ui.sortable", $.ui.mouse, {
 
 }(window.jQuery);
 /* ==========================================================
- * bootstrap-affix.js v2.3.1
- * http://twitter.github.com/bootstrap/javascript.html#affix
+ * bootstrap-affix.js v2.3.2
+ * http://twbs.github.com/bootstrap/javascript.html#affix
  * ==========================================================
- * Copyright 2012 Twitter, Inc.
+ * Copyright 2013 Twitter, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -7362,14 +7423,14 @@ $.widget("ui.sortable", $.ui.mouse, {
 
     // Generated by CoffeeScript 1.6.2
 /*
- * InterMine Results Tables Library v1.6.2
+ * InterMine Results Tables Library v1.6.3
  * web: http://www.intermine.org
  * repo: git://github.com/alexkalderimis/im-tables.git
  *
  * Copyright 2012, 2013, Alex Kalderimis and InterMine
  * Released under the LGPL license.
  * 
- * Built at Mon Aug 04 2014 13:52:36 GMT+0100 (BST)
+ * Built at Tue Aug 05 2014 14:51:20 GMT+0100 (BST)
 */
 
 
@@ -8005,7 +8066,7 @@ $.widget("ui.sortable", $.ui.mouse, {
         prettify: ['/js/google-code-prettify/latest/prettify.js', '/js/google-code-prettify/latest/prettify.css'],
         d3: '/js/d3/3.0.6/d3.v3.min.js',
         glyphicons: "/css/bootstrap/2.3.2/css/bootstrap-icons.css",
-        fontawesome: "/css/font-awesome/3.0.2/css/font-awesome.css",
+        fontawesome: "/css/font-awesome/4.x/css/font-awesome.min.css",
         filesaver: '/js/filesaver.js/FileSaver.min.js'
       }
     },
@@ -8140,48 +8201,49 @@ $.widget("ui.sortable", $.ui.mouse, {
   })();
 
   scope('intermine.css', {
-    unsorted: "icon-resize-vertical",
-    sortedASC: "icon-arrow-up",
-    sortedDESC: "icon-arrow-down",
-    headerIcon: "icon",
-    headerIconRemove: "icon-remove",
-    headerIconHide: "icon-minus",
-    headerIconReveal: 'icon-fullscreen'
+    unsorted: "icon-resize-vertical fa-unsorted",
+    sortedASC: "icon-arrow-up fa-sort-up",
+    sortedDESC: "icon-arrow-down fa-sort-down",
+    headerIcon: "icon fa",
+    headerIconRemove: "icon-remove fa-times",
+    headerIconHide: "icon-minus fa-ellipsis-h",
+    headerIconReveal: 'icon-fullscreen fa-arrows-h'
   });
 
   scope("intermine.icons", {
-    Yes: "icon-star",
-    No: "icon-star-empty",
-    Table: 'icon-list',
-    Script: "icon-cog",
-    Export: "icon-download-alt",
-    Remove: "icon-minus-sign",
-    Check: "icon-ok",
-    UnCheck: "icon-none",
-    CheckUnCheck: "icon-ok icon-none",
-    Add: "icon-plus-sign",
-    Move: "icon-move",
-    More: "icon-plus-sign",
-    Filter: "icon-filter",
-    Summary: "icon-eye-open",
-    Undo: "icon-refresh",
-    Columns: "icon-wrench",
-    Collapsed: "icon-chevron-right",
-    Expanded: "icon-chevron-down",
-    MoveDown: "icon-chevron-down",
-    MoveUp: "icon-chevron-up",
-    Toggle: "icon-retweet",
-    ExpandCollapse: "icon-angle-right icon-angle-down",
-    Help: "icon-question-sign",
-    ReverseRef: 'icon-retweet',
-    Edit: 'icon-edit',
-    Download: 'icon-file',
-    ClipBoard: 'icon-paper-clip',
-    Composed: 'icon-tags',
-    tsv: 'icon-list',
-    csv: 'icon-list',
-    xml: 'icon-xml',
-    json: 'icon-json'
+    Yes: "icon-star fa fa-star",
+    No: "icon-star-empty fa fa-star-o",
+    Table: 'icon-list fa fa-list',
+    Script: "icon-cog fa fa-cog",
+    Export: "icon-download-alt fa fa-cloud-download",
+    Remove: "icon-minus-sign fa fa-minus-sign",
+    Check: "icon-ok fa fa-ok",
+    UnCheck: "icon-none fa fa-none",
+    CheckUnCheck: "icon-ok icon-none fa-none fa-ok",
+    Add: "icon-plus-sign fa fa-plus",
+    Move: "icon-move fa fa-move",
+    More: "icon-plus-sign fa fa-plus-sign",
+    Filter: "icon-filter fa fa-filter",
+    Summary: "icon-eye-open fa fa-bar-chart-o",
+    Undo: "icon-refresh fa fa-refresh",
+    Columns: "icon-wrench fa fa-wrench",
+    Collapsed: "icon-chevron-right fa fa-chevron-right",
+    Expanded: "icon-chevron-down fa fa-chevron-down",
+    MoveDown: "icon-chevron-down fa fa-chevron-down",
+    MoveUp: "icon-chevron-up fa fa-chevron-up",
+    Toggle: "icon-retweet fa fa-retweet",
+    ExpandCollapse: "icon-angle-right icon-angle-down fa-angle-right fa-angle-down",
+    Help: "icon-question-sign fa fa-question-sign",
+    ReverseRef: 'icon-retweet fa fa-retweet',
+    Reorder: "icon-reorder fa fa-reorder",
+    Edit: 'icon-edit fa fa-edit',
+    Download: 'icon-file fa fa-file-archive-o',
+    ClipBoard: 'icon-paper-clip fa fa-paper-clip',
+    Composed: 'icon-tags fa fa-tags',
+    tsv: 'icon-list fa fa-list',
+    csv: 'icon-list fa fa-list',
+    xml: 'icon-xml fa fa-xml',
+    json: 'icon-json fa fa-json'
   });
 
   scope("intermine.messages.actions", {
@@ -8582,7 +8644,7 @@ $.widget("ui.sortable", $.ui.mouse, {
 
       Reference.prototype.openSubFinder = function() {
         this.$el.addClass('open');
-        this.$('i.im-has-fields').addClass(intermine.icons.Expanded).removeClass(intermine.icons.Collapsed);
+        this.$('i.im-has-fields').removeClass(intermine.icons.Collapsed).addClass(intermine.icons.Expanded);
         this.subfinder = new PathChooser(this.query, this.path, this.depth + 1, this.evts, this.getDisabled, this.isSelectable, this.multiSelect);
         this.subfinder.allowRevRefs(this.allowRevRefs);
         return this.$el.append(this.subfinder.render().el);
@@ -17649,7 +17711,7 @@ $.widget("ui.sortable", $.ui.mouse, {
 
       OrderElement.prototype.className = 'im-reorderable im-soe im-in-order';
 
-      TEMPLATE = _.template("<div>\n  <span class=\"im-sort-direction <%= direction.toLowerCase() %>\"></span>\n  <i class=\"icon-minus im-remove-soe\" title=\"Remove this column from the sort order\"></i>\n  <span class=\"im-path\" title=\"<%- path %>\"><%- path %></span>\n  <i class=\"icon-reorder pull-right\"></i>\n</div>");
+      TEMPLATE = _.template("<div>\n  <span class=\"im-sort-direction <%= direction.toLowerCase() %>\"></span>\n  <i class=\"" + intermine.css.headerIcon + " " + intermine.css.headerIconRemove + " im-remove-soe\" t\n     title=\"Remove this column from the sort order\"></i>\n  <span class=\"im-path\" title=\"<%- path %>\"><%- path %></span>\n  <i class=\"" + intermine.icons.Reorder + " pull-right\"></i>\n</div>");
 
       OrderElement.prototype.initialize = function(options) {
         var _this = this;
@@ -17719,7 +17781,7 @@ $.widget("ui.sortable", $.ui.mouse, {
 
       PossibleOrderElement.prototype.className = 'im-soe';
 
-      TEMPLATE = _.template("<div>\n  <a class=\"im-add-soe\"\n     title=\"" + intermine.messages.columns.AddThisColumn + "\" >\n    <i class=\"icon-plus\"></i>\n    <span title=\"<%- path %>\"><%- path %></span>\n  </a>\n  <i class=\"icon-reorder pull-right\"></i>\n</div>");
+      TEMPLATE = _.template("<div>\n  <a class=\"im-add-soe\"\n     title=\"" + intermine.messages.columns.AddThisColumn + "\" >\n    <i class=\"" + intermine.icons.Add + "\"></i>\n    <span title=\"<%- path %>\"><%- path %></span>\n  </a>\n  <i class=\"" + intermine.icons.Reorder + " pull-right\"></i>\n</div>");
 
       PossibleOrderElement.prototype.events = {
         'click .im-add-soe': 'addToOrderBy',

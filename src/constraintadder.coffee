@@ -151,8 +151,8 @@ do ->
         openSubFinder: () ->
           @$el.addClass('open')
           @$('i.im-has-fields')
-            .addClass(intermine.icons.Expanded)
             .removeClass(intermine.icons.Collapsed)
+            .addClass(intermine.icons.Expanded)
           @subfinder = new PathChooser(@query, @path, @depth + 1, @evts, @getDisabled, @isSelectable, @multiSelect)
           @subfinder.allowRevRefs @allowRevRefs
 
@@ -200,7 +200,7 @@ do ->
 
         toggleFields: () -> # no-op
 
-        handleClick: (e) -> 
+        handleClick: (e) ->
           e.preventDefault()
           e.stopPropagation()
           @$el.tooltip 'hide'
