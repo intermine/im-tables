@@ -2,13 +2,14 @@ scope 'intermine.css', {
     unsorted: "icon-resize-vertical fa-unsorted",
     sortedASC: "icon-arrow-up fa-sort-up",
     sortedDESC: "icon-arrow-down fa-sort-down",
-    headerIcon: "icon fa"
+    headerIcon: "im-header-icon"
     headerIconRemove: "icon-remove fa-times"
     headerIconHide: "icon-minus fa-ellipsis-h"
     headerIconReveal: 'icon-fullscreen fa-arrows-h'
 }
 
 scope "intermine.icons", {
+    Base: "icon fa",
     Yes: "icon-star fa fa-star",
     No: "icon-star-empty fa fa-star-o",
     Table: 'icon-list fa fa-list',

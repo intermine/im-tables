@@ -7,7 +7,7 @@
  * Copyright 2012, 2013, Alex Kalderimis and InterMine
  * Released under the LGPL license.
  * 
- * Built at Tue Aug 05 2014 14:51:20 GMT+0100 (BST)
+ * Built at Tue Aug 05 2014 15:30:16 GMT+0100 (BST)
 */
 
 
@@ -781,13 +781,14 @@
     unsorted: "icon-resize-vertical fa-unsorted",
     sortedASC: "icon-arrow-up fa-sort-up",
     sortedDESC: "icon-arrow-down fa-sort-down",
-    headerIcon: "icon fa",
+    headerIcon: "im-header-icon",
     headerIconRemove: "icon-remove fa-times",
     headerIconHide: "icon-minus fa-ellipsis-h",
     headerIconReveal: 'icon-fullscreen fa-arrows-h'
   });
 
   scope("intermine.icons", {
+    Base: "icon fa",
     Yes: "icon-star fa fa-star",
     No: "icon-star-empty fa fa-star-o",
     Table: 'icon-list fa fa-list',
@@ -11449,7 +11450,7 @@
         ASC: intermine.css.sortedASC,
         DESC: intermine.css.sortedDESC,
         css_unsorted: intermine.css.unsorted,
-        css_header: intermine.css.headerIcon,
+        css_header: intermine.icons.Base + ' ' + intermine.css.headerIcon,
         css_remove: intermine.css.headerIconRemove,
         css_hide: intermine.css.headerIconHide,
         css_reveal: intermine.css.headerIconReveal,

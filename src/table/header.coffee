@@ -10,7 +10,7 @@ do ->
     ASC: intermine.css.sortedASC
     DESC: intermine.css.sortedDESC
     css_unsorted: intermine.css.unsorted
-    css_header: intermine.css.headerIcon
+    css_header: intermine.icons.Base + ' ' + intermine.css.headerIcon
     css_remove: intermine.css.headerIconRemove
     css_hide: intermine.css.headerIconHide
     css_reveal: intermine.css.headerIconReveal
