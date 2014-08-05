@@ -37,7 +37,7 @@ scope "intermine.options",
         ]
         d3: '/js/d3/3.0.6/d3.v3.min.js'
         glyphicons: "/css/bootstrap/2.3.2/css/bootstrap-icons.css"
-        fontawesome: "/css/font-awesome/3.0.2/css/font-awesome.css"
+        fontawesome: "/css/font-awesome/4.x/css/font-awesome.min.css"
         filesaver: '/js/filesaver.js/FileSaver.min.js'
     
     D3:

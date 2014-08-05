@@ -61,9 +61,10 @@ do ->
     TEMPLATE = _.template """
       <div>
         <span class="im-sort-direction <%= direction.toLowerCase() %>"></span>
-        <i class="icon-minus im-remove-soe" title="Remove this column from the sort order"></i>
+        <i class="#{ intermine.css.headerIcon } #{ intermine.css.headerIconRemove } im-remove-soe" t
+           title="Remove this column from the sort order"></i>
         <span class="im-path" title="<%- path %>"><%- path %></span>
-        <i class="icon-reorder pull-right"></i>
+        <i class="#{ intermine.icons.Reorder } pull-right"></i>
       </div>
     """
 
@@ -110,10 +111,10 @@ do ->
       <div>
         <a class="im-add-soe"
            title="#{ intermine.messages.columns.AddThisColumn }" >
-          <i class="icon-plus"></i>
+          <i class="#{ intermine.icons.Add }"></i>
           <span title="<%- path %>"><%- path %></span>
         </a>
-        <i class="icon-reorder pull-right"></i>
+        <i class="#{ intermine.icons.Reorder } pull-right"></i>
       </div>
     """
 
