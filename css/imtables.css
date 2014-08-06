@@ -4139,6 +4139,7 @@
 
 .im-cell-preview .popover-content table.table tr td {
     background: white;
+    white-space: normal;
 }
 
 .im-cell-preview .im-overspill {
