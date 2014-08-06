@@ -1,4 +1,4 @@
-define 'html/code-gen', -> _.template """
+define 'html/code-gen', -> (data) -> _.template """
   <div class="btn-group">
       <a class="btn btn-action">
           <i class="#{ intermine.icons.Script }"></i>
@@ -30,8 +30,8 @@ define 'html/code-gen', -> _.template """
           </pre>
       </div>
       <div class="modal-footer">
-          <a class="btn btn-save"><i class="icon-file"></i>Save</a>
+          <a class="btn btn-save"><i class="#{ intermine.icons.File }"></i>Save</a>
           <a data-dismiss="modal" class="btn im-closer">Close</a>
       </div>
   </div>
-"""
+""", data

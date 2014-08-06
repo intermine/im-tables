@@ -7,7 +7,7 @@
  * Copyright 2012, 2013, Alex Kalderimis and InterMine
  * Released under the LGPL license.
  * 
- * Built at Tue Aug 05 2014 16:59:43 GMT+0100 (BST)
+ * Built at Wed Aug 06 2014 17:25:54 GMT+0100 (BST)
 */
 
 
@@ -773,14 +773,8 @@
   (function() {
     var CSS_ICONS, ICONS;
 
-    ICONS = {
-      fontawesome: {},
-      glyphicons: {}
-    };
-    CSS_ICONS = {
-      fontawesome: {},
-      glyphicons: {}
-    };
+    ICONS = {};
+    CSS_ICONS = {};
     CSS_ICONS.glyphicons = {
       unsorted: "icon-resize-vertical",
       sortedASC: "icon-arrow-up",
@@ -822,14 +816,17 @@
       MoveDown: "icon-chevron-down",
       MoveUp: "icon-chevron-up",
       Toggle: "icon-retweet",
-      ExpandCollapse: "icon-angle-right icon-angle-down",
+      ExpandCollapse: "icon-chevron-right icon-chevron-down",
       Help: "icon-question-sign",
       ReverseRef: "icon-retweet",
       Reorder: "icon-reorder",
       Edit: 'icon-edit',
+      Tree: 'icon-plus',
       Download: 'icon-file',
       ClipBoard: 'icon-paper-clip',
       Composed: 'icon-tags',
+      RemoveConstraint: 'icon-remove-sign',
+      Lock: 'icon-lock',
       tsv: 'icon-list',
       csv: 'icon-list',
       xml: 'icon-xml',
@@ -842,7 +839,7 @@
       Table: 'fa fa-list',
       Script: "fa fa-cog",
       Export: "fa fa-cloud-download",
-      Remove: "fa fa-minus-sign",
+      Remove: "fa fa-minus-circle",
       Check: "fa fa-ok",
       UnCheck: "fa fa-none",
       CheckUnCheck: "fa-none fa-ok",
@@ -858,14 +855,17 @@
       MoveDown: "fa fa-chevron-down",
       MoveUp: "fa fa-chevron-up",
       Toggle: "fa fa-retweet",
-      ExpandCollapse: "fa-angle-right fa-angle-down",
+      ExpandCollapse: "fa-chevron-right fa-chevron-down",
       Help: "fa fa-question-sign",
+      Tree: 'fa fa-sitemap',
       ReverseRef: 'fa fa-retweet',
       Reorder: "fa fa-reorder",
       Edit: 'fa fa-edit',
       Download: 'fa fa-file-archive-o',
       ClipBoard: 'fa fa-paper-clip',
       Composed: 'fa fa-tags',
+      RemoveConstraint: 'fa fa-times-circle',
+      Lock: 'fa fa-lock',
       tsv: 'fa fa-list',
       csv: 'fa fa-list',
       xml: 'fa fa-xml',
@@ -874,7 +874,6 @@
     scope("intermine.icons", ICONS[intermine.options.Style.icons], true);
     scope("intermine.css", CSS_ICONS[intermine.options.Style.icons], true);
     return intermine.onChangeOption('Style.icons', function(iconStyle) {
-      console.log("Icons are now " + iconStyle);
       scope("intermine.icons", ICONS[iconStyle], true);
       scope("intermine.css", CSS_ICONS[iconStyle], true);
       return intermine.cdn.load(iconStyle);
@@ -1285,7 +1284,9 @@
         return this.$el.append(this.subfinder.render().el);
       };
 
-      Reference.prototype.template = _.template("<a href=\"#\">\n  <i class=\"" + intermine.icons.Collapsed + " im-has-fields\"></i>\n  <% if (isLoop) { %>\n    <i class=\"" + intermine.icons.ReverseRef + "\"></i>\n  <% } %>\n  <span><%- name %></span>\n</a>");
+      Reference.prototype.template = function(data) {
+        return _.template("<a href=\"#\">\n  <i class=\"" + intermine.icons.Collapsed + " im-has-fields\"></i>\n  <% if (isLoop) { %>\n    <i class=\"" + intermine.icons.ReverseRef + "\"></i>\n  <% } %>\n  <span><%- name %></span>\n</a>", data);
+      };
 
       Reference.prototype.iconClasses = intermine.icons.ExpandCollapse;
 
@@ -1684,7 +1685,7 @@
       ConstraintAdder.prototype.render = function() {
         var approver, browser;
 
-        browser = $("<button type=\"button\" class=\"btn btn-chooser\" data-toggle=\"button\">\n  <i class=\"icon-sitemap\"></i>\n  <span>" + intermine.messages.constraints.BrowseForColumn + "</span>\n</button>");
+        browser = $("<button type=\"button\" class=\"btn btn-chooser\" data-toggle=\"button\">\n  <i class=\"" + intermine.icons.Tree + "\"></i>\n  <span>" + intermine.messages.constraints.BrowseForColumn + "</span>\n</button>");
         approver = $(this.make('button', {
           type: "button",
           "class": "btn btn-primary"
@@ -1816,9 +1817,11 @@
 
       CodeGenerator.prototype.className = "im-code-gen";
 
-      CodeGenerator.prototype.html = HTML({
-        langs: CODE_GEN_LANGS
-      });
+      CodeGenerator.prototype.html = function() {
+        return HTML({
+          langs: CODE_GEN_LANGS
+        });
+      };
 
       CodeGenerator.prototype.initialize = function(states) {
         var l, lang, _i, _len;
@@ -1837,11 +1840,12 @@
         this.model.set({
           lang: lang
         });
-        return this.model.on('set:lang', this.displayLang);
+        this.model.on('set:lang', this.displayLang);
+        return intermine.onChangeOption('Style.icons', this.render, this);
       };
 
       CodeGenerator.prototype.render = function() {
-        this.$el.append(this.html);
+        this.$el.html(this.html());
         this.$('.modal').hide();
         return this;
       };
@@ -1987,10 +1991,13 @@
 
       ExportManager.prototype.initialize = function(states) {
         this.states = states;
-        return ExportManager.__super__.initialize.call(this);
+        ExportManager.__super__.initialize.call(this);
+        return intermine.onChangeOption('Style.icons', this.render, this);
       };
 
-      ExportManager.prototype.template = _.template("<a class=\"btn im-open-dialogue\">\n  <i class=\"" + intermine.icons.Export + "\"></i>\n  <span class=\"visible-desktop\">" + intermine.messages.actions.ExportButton + "</span>\n</a>");
+      ExportManager.prototype.template = function(data) {
+        return _.template("<a class=\"btn im-open-dialogue\">\n  <i class=\"" + intermine.icons.Export + "\"></i>\n  <span class=\"visible-desktop\">" + intermine.messages.actions.ExportButton + "</span>\n</a>", data);
+      };
 
       ExportManager.prototype.events = function() {
         return {
@@ -4429,17 +4436,19 @@
         return this.con.on('change', this.fillConSummaryLabel, this);
       };
 
-      ActiveConstraint.prototype.events = {
-        'change .im-ops': 'drawValueOptions',
-        'click .im-edit': 'toggleEditForm',
-        'click .btn-cancel': 'hideEditForm',
-        'click .btn-primary': 'editConstraint',
-        'click .icon-remove-sign': 'removeConstraint',
-        'click td.im-multi-value': 'toggleRowCheckbox',
-        'submit': function(e) {
-          e.preventDefault();
-          return e.stopPropagation();
-        }
+      ActiveConstraint.prototype.events = function() {
+        return {
+          'change .im-ops': 'drawValueOptions',
+          'click .im-edit': 'toggleEditForm',
+          'click .btn-cancel': 'hideEditForm',
+          'click .btn-primary': 'editConstraint',
+          'click .im-remove-constraint': 'removeConstraint',
+          'click td.im-multi-value': 'toggleRowCheckbox',
+          'submit': function(e) {
+            e.preventDefault();
+            return e.stopPropagation();
+          }
+        };
       };
 
       ActiveConstraint.prototype.toggleRowCheckbox = function(e) {
@@ -4566,9 +4575,9 @@
       };
 
       ActiveConstraint.prototype.addIcons = function($label) {
-        $label.append("<a><i class=\"icon-remove-sign\"></i></a>");
+        $label.append("<a><i class=\"im-remove-constraint " + intermine.icons.RemoveConstraint + "\"></i></a>");
         if (this.con.locked) {
-          return $label.append("<a><i class=\"icon-lock\" title=\"this constraint is not editable\"></i></a>");
+          return $label.append("<a>\n  <i class=\"" + intermine.icons.Lock + "\" title=\"this constraint is not editable\">\n  </i>\n</a>");
         } else {
           return $label.append("<a><i class=\"im-edit " + intermine.icons.Edit + "\"></i></a>");
         }
@@ -9322,7 +9331,9 @@
   });
 
   define('html/code-gen', function() {
-    return _.template("<div class=\"btn-group\">\n    <a class=\"btn btn-action\">\n        <i class=\"" + intermine.icons.Script + "\"></i>\n        <span class=\"im-only-widescreen\">Get</span>\n        <span class=\"im-code-lang hidden-tablet\"></span>\n        <span class=\"hidden-tablet\">Code</span>\n    </a>\n    <a class=\"btn dropdown-toggle\" data-toggle=\"dropdown\">\n        <span class=\"caret\"></span>\n    </a>\n    <ul class=\"dropdown-menu\">\n        <% _(langs).each(function(lang) { %>\n          <li>\n            <a data-lang=\"<%= lang.extension %>\">\n                <i class=\"icon-<%= lang.extension %>\"></i>\n                <%= lang.name %>\n            </a>\n          </li>\n        <% }); %>\n    </ul>\n</div>\n<div class=\"modal\">\n    <div class=\"modal-header\">\n        <a class=\"close im-closer\" data-dismiss=\"modal\">close</a>\n        <h3>Generated <span class=\"im-code-lang\"></span> Code</h3>\n    </div>\n    <div class=\"modal-body\">\n        <pre class=\"im-generated-code prettyprint linenums\">\n        </pre>\n    </div>\n    <div class=\"modal-footer\">\n        <a class=\"btn btn-save\"><i class=\"icon-file\"></i>Save</a>\n        <a data-dismiss=\"modal\" class=\"btn im-closer\">Close</a>\n    </div>\n</div>");
+    return function(data) {
+      return _.template("<div class=\"btn-group\">\n    <a class=\"btn btn-action\">\n        <i class=\"" + intermine.icons.Script + "\"></i>\n        <span class=\"im-only-widescreen\">Get</span>\n        <span class=\"im-code-lang hidden-tablet\"></span>\n        <span class=\"hidden-tablet\">Code</span>\n    </a>\n    <a class=\"btn dropdown-toggle\" data-toggle=\"dropdown\">\n        <span class=\"caret\"></span>\n    </a>\n    <ul class=\"dropdown-menu\">\n        <% _(langs).each(function(lang) { %>\n          <li>\n            <a data-lang=\"<%= lang.extension %>\">\n                <i class=\"icon-<%= lang.extension %>\"></i>\n                <%= lang.name %>\n            </a>\n          </li>\n        <% }); %>\n    </ul>\n</div>\n<div class=\"modal\">\n    <div class=\"modal-header\">\n        <a class=\"close im-closer\" data-dismiss=\"modal\">close</a>\n        <h3>Generated <span class=\"im-code-lang\"></span> Code</h3>\n    </div>\n    <div class=\"modal-body\">\n        <pre class=\"im-generated-code prettyprint linenums\">\n        </pre>\n    </div>\n    <div class=\"modal-footer\">\n        <a class=\"btn btn-save\"><i class=\"" + intermine.icons.File + "\"></i>Save</a>\n        <a data-dismiss=\"modal\" class=\"btn im-closer\">Close</a>\n    </div>\n</div>", data);
+    };
   });
 
   define('html/new-list', function() {
@@ -9611,7 +9622,8 @@
       ManagementTools.prototype.initialize = function(states, columnHeaders) {
         this.states = states;
         this.columnHeaders = columnHeaders;
-        return this.states.on('add reverted', this.checkHasFilters, this);
+        this.states.on('add reverted', this.checkHasFilters, this);
+        return intermine.onChangeOption('Style.icons', this.render, this);
       };
 
       ManagementTools.prototype.checkHasFilters = function() {
@@ -9628,7 +9640,9 @@
 
       ManagementTools.prototype.className = "im-management-tools";
 
-      ManagementTools.prototype.html = "<div class=\"btn-group\"> \n  <button class=\"btn im-columns\">\n      <i class=\"" + intermine.icons.Columns + "\"></i>\n      <span class=\"im-only-widescreen\">Manage </span>\n      <span class=\"hidden-tablet\">Columns</span>\n  </button>\n  <button class=\"btn im-filters\">\n      <i class=\"" + intermine.icons.Filter + "\"></i>\n      <span class=\"hidden-phone im-action\">Manage </span>\n      <span class=\"hidden-phone\">Filters</span>\n  </button>\n</div>";
+      ManagementTools.prototype.html = function() {
+        return "<div class=\"btn-group\"> \n  <button class=\"btn im-columns\">\n      <i class=\"" + intermine.icons.Columns + "\"></i>\n      <span class=\"im-only-widescreen\">Manage </span>\n      <span class=\"hidden-tablet\">Columns</span>\n  </button>\n  <button class=\"btn im-filters\">\n      <i class=\"" + intermine.icons.Filter + "\"></i>\n      <span class=\"hidden-phone im-action\">Manage </span>\n      <span class=\"hidden-phone\">Filters</span>\n  </button>\n</div>";
+      };
 
       ManagementTools.prototype.events = {
         'click .im-columns': 'showColumnDialogue',
@@ -9654,7 +9668,7 @@
       };
 
       ManagementTools.prototype.render = function() {
-        this.$el.append(this.html);
+        this.$el.html(this.html());
         this.checkHasFilters();
         return this;
       };
@@ -11741,7 +11755,8 @@
           }
         });
         this.model.on('change:conCount', this.displayConCount);
-        return this.model.on('change:direction', this.displaySortDirection);
+        this.model.on('change:direction', this.displaySortDirection);
+        return intermine.onChangeOption('Style.icons', this.render, this);
       };
 
       getCompositionTitle = function(replaces) {
@@ -13665,7 +13680,9 @@
         return _ref;
       }
 
-      TEMPLATE = _.template("<div>\n  <a class=\"im-col-remover\" title=\"Remove this column\">\n    <i class=\"" + intermine.icons.Remove + "\"></i>\n  </a>\n  <i class=\"icon-reorder pull-right\"></i>\n  <% if (replaces.length) { %>\n    <i class=\"" + intermine.icons.Collapsed + " im-expander pull-right\"></i>\n  <% } %>\n  <span class=\"im-display-name\"><%- path %></span>\n  <ul class=\"im-sub-views\"></ul>\n</div>");
+      TEMPLATE = function(data) {
+        return _.template("<div>\n  <a class=\"im-col-remover\" title=\"Remove this column\">\n    <i class=\"" + intermine.icons.Remove + "\"></i>\n  </a>\n  <i class=\"icon-reorder pull-right\"></i>\n  <% if (replaces.length) { %>\n    <i class=\"" + intermine.icons.Collapsed + " im-expander pull-right\"></i>\n  <% } %>\n  <span class=\"im-display-name\"><%- path %></span>\n  <ul class=\"im-sub-views\"></ul>\n</div>", data);
+      };
 
       ViewElement.prototype.placement = 'top';
 

@@ -78,12 +78,12 @@ do ->
                 @ops = BASIC_OPS
             @con.on 'change', @fillConSummaryLabel, @
 
-        events:
+        events: ->
             'change .im-ops': 'drawValueOptions'
             'click .im-edit': 'toggleEditForm'
             'click .btn-cancel': 'hideEditForm'
             'click .btn-primary': 'editConstraint'
-            'click .icon-remove-sign': 'removeConstraint'
+            'click .im-remove-constraint': 'removeConstraint'
             'click td.im-multi-value': 'toggleRowCheckbox'
             'submit': (e) -> e.preventDefault(); e.stopPropagation()
 
@@ -173,9 +173,16 @@ do ->
             @query.removeConstraint @orig, silently
 
         addIcons: ($label) ->
-            $label.append """<a><i class="icon-remove-sign"></i></a>"""
+            $label.append """
+              <a><i class="im-remove-constraint #{ intermine.icons.RemoveConstraint }"></i></a>
+            """
             if @con.locked
-                $label.append """<a><i class="icon-lock" title="this constraint is not editable"></i></a>"""
+                $label.append """
+                  <a>
+                    <i class="#{ intermine.icons.Lock }" title="this constraint is not editable">
+                    </i>
+                  </a>
+                """
             else
                 $label.append """<a><i class="im-edit #{ intermine.icons.Edit }"></i></a>"""
 

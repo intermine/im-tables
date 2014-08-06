@@ -6,14 +6,16 @@ define 'actions/export-manager', ->
 
     className: 'im-data-export'
 
-    initialize: (@states) -> super()
+    initialize: (@states) ->
+      super()
+      intermine.onChangeOption 'Style.icons', @render, @
 
-    template: _.template """
+    template: (data) -> _.template """
       <a class="btn im-open-dialogue">
         <i class="#{ intermine.icons.Export }"></i>
         <span class="visible-desktop">#{ intermine.messages.actions.ExportButton }</span>
       </a>
-    """
+    """, data
 
     events: ->
       'click .im-open-dialogue': 'openDialogue'

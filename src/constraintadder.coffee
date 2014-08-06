@@ -158,14 +158,14 @@ do ->
 
           @$el.append @subfinder.render().el
 
-        template: _.template """<a href="#">
+        template: (data) -> _.template """<a href="#">
               <i class="#{ intermine.icons.Collapsed } im-has-fields"></i>
               <% if (isLoop) { %>
                 <i class="#{ intermine.icons.ReverseRef }"></i>
               <% } %>
               <span><%- name %></span>
             </a>
-            """
+            """, data
 
         iconClasses: intermine.icons.ExpandCollapse
 
@@ -377,7 +377,7 @@ do ->
         render: ->
             browser = $ """
               <button type="button" class="btn btn-chooser" data-toggle="button">
-                <i class="icon-sitemap"></i>
+                <i class="#{ intermine.icons.Tree }"></i>
                 <span>#{ intermine.messages.constraints.BrowseForColumn }</span>
               </button>
             """

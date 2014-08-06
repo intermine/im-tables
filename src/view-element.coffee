@@ -2,7 +2,7 @@ do ->
 
   class ViewElement extends Backbone.View
 
-    TEMPLATE = _.template """
+    TEMPLATE = (data) -> _.template """
       <div>
         <a class="im-col-remover" title="Remove this column">
           <i class="#{ intermine.icons.Remove }"></i>
@@ -14,7 +14,7 @@ do ->
         <span class="im-display-name"><%- path %></span>
         <ul class="im-sub-views"></ul>
       </div>
-    """
+    """, data
 
     placement: 'top'
 

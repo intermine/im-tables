@@ -42,7 +42,7 @@ define 'actions/code-gen', using 'perma-query', 'html/code-gen', (getPermaQuery,
     tagName: "li"
     className: "im-code-gen"
 
-    html: HTML {langs: CODE_GEN_LANGS}
+    html: -> HTML {langs: CODE_GEN_LANGS}
 
     initialize: (@states) ->
       @model = new Backbone.Model
@@ -50,9 +50,10 @@ define 'actions/code-gen', using 'perma-query', 'html/code-gen', (getPermaQuery,
       lang ?= CODE_GEN_LANGS[0]
       @model.set {lang}
       @model.on 'set:lang', @displayLang
+      intermine.onChangeOption 'Style.icons', @render, @
 
     render: =>
-      @$el.append @html
+      @$el.html @html()
       @$('.modal').hide() # I have no idea why this is needed.
       this
 

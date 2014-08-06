@@ -119,6 +119,7 @@ do ->
 
       @model.on 'change:conCount', @displayConCount
       @model.on 'change:direction', @displaySortDirection
+      intermine.onChangeOption 'Style.icons', @render, @
 
     getCompositionTitle = (replaces) -> """
       This column replaces #{ replaces.length } others. Click here

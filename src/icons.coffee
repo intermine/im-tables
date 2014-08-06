@@ -1,12 +1,12 @@
 do ->
 
-  ICONS = {fontawesome: {}, glyphicons: {}}
-  CSS_ICONS = {fontawesome: {}, glyphicons: {}}
+  ICONS = {}
+  CSS_ICONS = {}
 
   CSS_ICONS.glyphicons = {
-    unsorted: "icon-resize-vertical",
-    sortedASC: "icon-arrow-up",
-    sortedDESC: "icon-arrow-down",
+    unsorted: "icon-resize-vertical"
+    sortedASC: "icon-arrow-up"
+    sortedDESC: "icon-arrow-down"
     headerIcon: "icon"
     headerIconRemove: "icon-remove"
     headerIconHide: "icon-minus"
@@ -14,9 +14,9 @@ do ->
   }
 
   CSS_ICONS.fontawesome = {
-      unsorted: "fa-unsorted",
-      sortedASC: "fa-sort-up",
-      sortedDESC: "fa-sort-down",
+      unsorted: "fa-unsorted"
+      sortedASC: "fa-sort-up"
+      sortedDESC: "fa-sort-down"
       headerIcon: "fa"
       headerIconRemove: "fa-times"
       headerIconHide: "fa-ellipsis-h"
@@ -46,14 +46,17 @@ do ->
     MoveDown: "icon-chevron-down",
     MoveUp: "icon-chevron-up",
     Toggle: "icon-retweet",
-    ExpandCollapse: "icon-angle-right icon-angle-down",
+    ExpandCollapse: "icon-chevron-right icon-chevron-down",
     Help: "icon-question-sign",
     ReverseRef: "icon-retweet",
     Reorder: "icon-reorder",
     Edit: 'icon-edit',
+    Tree: 'icon-plus',
     Download: 'icon-file',
     ClipBoard: 'icon-paper-clip',
     Composed: 'icon-tags',
+    RemoveConstraint: 'icon-remove-sign',
+    Lock: 'icon-lock',
     tsv: 'icon-list',
     csv: 'icon-list',
     xml: 'icon-xml',
@@ -67,7 +70,7 @@ do ->
     Table: 'fa fa-list',
     Script: "fa fa-cog",
     Export: "fa fa-cloud-download",
-    Remove: "fa fa-minus-sign",
+    Remove: "fa fa-minus-circle",
     Check: "fa fa-ok",
     UnCheck: "fa fa-none",
     CheckUnCheck: "fa-none fa-ok",
@@ -83,14 +86,17 @@ do ->
     MoveDown: "fa fa-chevron-down",
     MoveUp: "fa fa-chevron-up",
     Toggle: "fa fa-retweet",
-    ExpandCollapse: "fa-angle-right fa-angle-down",
+    ExpandCollapse: "fa-chevron-right fa-chevron-down",
     Help: "fa fa-question-sign",
+    Tree: 'fa fa-sitemap',
     ReverseRef: 'fa fa-retweet',
     Reorder: "fa fa-reorder",
     Edit: 'fa fa-edit',
     Download: 'fa fa-file-archive-o',
     ClipBoard: 'fa fa-paper-clip',
     Composed: 'fa fa-tags',
+    RemoveConstraint: 'fa fa-times-circle',
+    Lock: 'fa fa-lock',
     tsv: 'fa fa-list',
     csv: 'fa fa-list',
     xml: 'fa fa-xml',
@@ -101,7 +107,6 @@ do ->
   scope "intermine.css", CSS_ICONS[intermine.options.Style.icons], true
 
   intermine.onChangeOption 'Style.icons', (iconStyle) ->
-    console.log "Icons are now #{ iconStyle }"
     scope "intermine.icons", ICONS[iconStyle], true
     scope "intermine.css", CSS_ICONS[iconStyle], true
     intermine.cdn.load iconStyle

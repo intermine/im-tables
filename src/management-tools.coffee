@@ -3,6 +3,7 @@ do ->
 
         initialize: (@states, @columnHeaders) ->
           @states.on 'add reverted', @checkHasFilters, @
+          intermine.onChangeOption 'Style.icons', @render, @
 
         checkHasFilters: () ->
           if q = @states.currentQuery
@@ -13,7 +14,7 @@ do ->
         tagName: "div"
         className: "im-management-tools"
 
-        html: """
+        html: -> """
           <div class="btn-group"> 
             <button class="btn im-columns">
                 <i class="#{ intermine.icons.Columns }"></i>
@@ -45,7 +46,7 @@ do ->
           dialogue.render().showModal()
 
         render: () ->
-            @$el.append @html
+            @$el.html @html()
             @checkHasFilters()
             this
 
