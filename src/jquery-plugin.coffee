@@ -87,8 +87,7 @@ do ->
             # Can be loaded late, as only needed for summaries, which the
             # user will have to click on.
             intermine.cdn.load 'd3'
-          {icons} = intermine.options.Style
-          intermine.cdn.load icons
+          intermine.setOptions {Style: intermine.options.Style}
             
           service ?= new intermine.Service root: url, token: token
           service.errorHandler = error if error?

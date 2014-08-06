@@ -52,10 +52,25 @@ scope "intermine.options",
 
 do ->
 
+  events = _.extend {}, Backbone.Events
+
+  events.on 'change:intermine.options.Style.icons', (iconStyle) ->
+
+
   scope 'intermine',
-    setOptions: (opts, ns = '') ->
+
+    onChangeOption: (name, cb, ctx) -> events.on "change:intermine.options.#{ name }", cb, ctx
+
+    setOptions: set = (opts, ns = '') ->
       ns = if ns is '' or /^\./.test(ns) then 'intermine.options' + ns else ns
-      scope ns, opts, true
+      for key, value of opts
+        if _.isObject value
+          set value, "#{ ns }.#{ key }"
+        else
+          o = {}
+          o[key] = value
+          scope ns, o, true
+          events.trigger "change:#{ ns }.#{ key }", value
 
 do ->
 

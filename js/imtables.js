@@ -7,7 +7,7 @@
  * Copyright 2012, 2013, Alex Kalderimis and InterMine
  * Released under the LGPL license.
  * 
- * Built at Tue Aug 05 2014 16:02:05 GMT+0100 (BST)
+ * Built at Tue Aug 05 2014 16:59:43 GMT+0100 (BST)
 */
 
 
@@ -667,13 +667,34 @@
   });
 
   (function() {
+    var events, set;
+
+    events = _.extend({}, Backbone.Events);
+    events.on('change:intermine.options.Style.icons', function(iconStyle) {});
     return scope('intermine', {
-      setOptions: function(opts, ns) {
+      onChangeOption: function(name, cb, ctx) {
+        return events.on("change:intermine.options." + name, cb, ctx);
+      },
+      setOptions: set = function(opts, ns) {
+        var key, o, value, _results;
+
         if (ns == null) {
           ns = '';
         }
         ns = ns === '' || /^\./.test(ns) ? 'intermine.options' + ns : ns;
-        return scope(ns, opts, true);
+        _results = [];
+        for (key in opts) {
+          value = opts[key];
+          if (_.isObject(value)) {
+            _results.push(set(value, "" + ns + "." + key));
+          } else {
+            o = {};
+            o[key] = value;
+            scope(ns, o, true);
+            _results.push(events.trigger("change:" + ns + "." + key, value));
+          }
+        }
+        return _results;
       }
     });
   })();
@@ -749,51 +770,116 @@
     });
   })();
 
-  scope('intermine.css', {
-    unsorted: "icon-resize-vertical fa-unsorted",
-    sortedASC: "icon-arrow-up fa-sort-up",
-    sortedDESC: "icon-arrow-down fa-sort-down",
-    headerIcon: "icon fa",
-    headerIconRemove: "icon-remove fa-times",
-    headerIconHide: "icon-minus fa-ellipsis-h",
-    headerIconReveal: 'icon-fullscreen fa-arrows-h'
-  });
+  (function() {
+    var CSS_ICONS, ICONS;
 
-  scope("intermine.icons", {
-    Yes: "icon-star fa fa-star",
-    No: "icon-star-empty fa fa-star-o",
-    Table: 'icon-list fa fa-list',
-    Script: "icon-cog fa fa-cog",
-    Export: "icon-download-alt fa fa-cloud-download",
-    Remove: "icon-minus-sign fa fa-minus-sign",
-    Check: "icon-ok fa fa-ok",
-    UnCheck: "icon-none fa fa-none",
-    CheckUnCheck: "icon-ok icon-none fa-none fa-ok",
-    Add: "icon-plus-sign fa fa-plus",
-    Move: "icon-move fa fa-move",
-    More: "icon-plus-sign fa fa-plus-sign",
-    Filter: "icon-filter fa fa-filter",
-    Summary: "icon-eye-open fa fa-bar-chart-o",
-    Undo: "icon-refresh fa fa-refresh",
-    Columns: "icon-wrench fa fa-wrench",
-    Collapsed: "icon-chevron-right fa fa-chevron-right",
-    Expanded: "icon-chevron-down fa fa-chevron-down",
-    MoveDown: "icon-chevron-down fa fa-chevron-down",
-    MoveUp: "icon-chevron-up fa fa-chevron-up",
-    Toggle: "icon-retweet fa fa-retweet",
-    ExpandCollapse: "icon-angle-right icon-angle-down fa-angle-right fa-angle-down",
-    Help: "icon-question-sign fa fa-question-sign",
-    ReverseRef: 'icon-retweet fa fa-retweet',
-    Reorder: "icon-reorder fa fa-reorder",
-    Edit: 'icon-edit fa fa-edit',
-    Download: 'icon-file fa fa-file-archive-o',
-    ClipBoard: 'icon-paper-clip fa fa-paper-clip',
-    Composed: 'icon-tags fa fa-tags',
-    tsv: 'icon-list fa fa-list',
-    csv: 'icon-list fa fa-list',
-    xml: 'icon-xml fa fa-xml',
-    json: 'icon-json fa fa-json'
-  });
+    ICONS = {
+      fontawesome: {},
+      glyphicons: {}
+    };
+    CSS_ICONS = {
+      fontawesome: {},
+      glyphicons: {}
+    };
+    CSS_ICONS.glyphicons = {
+      unsorted: "icon-resize-vertical",
+      sortedASC: "icon-arrow-up",
+      sortedDESC: "icon-arrow-down",
+      headerIcon: "icon",
+      headerIconRemove: "icon-remove",
+      headerIconHide: "icon-minus",
+      headerIconReveal: 'icon-fullscreen'
+    };
+    CSS_ICONS.fontawesome = {
+      unsorted: "fa-unsorted",
+      sortedASC: "fa-sort-up",
+      sortedDESC: "fa-sort-down",
+      headerIcon: "fa",
+      headerIconRemove: "fa-times",
+      headerIconHide: "fa-ellipsis-h",
+      headerIconReveal: 'fa-arrows-h'
+    };
+    ICONS.glyphicons = {
+      Base: 'icon',
+      Yes: "icon-star",
+      No: "icon-star-empty",
+      Table: 'icon-list',
+      Script: "icon-cog",
+      Export: "icon-download-alt",
+      Remove: "icon-minus-sign",
+      Check: "icon-ok",
+      UnCheck: "icon-none",
+      CheckUnCheck: "icon-ok-none",
+      Add: "icon-plus-sign",
+      Move: "icon-move",
+      More: "icon-plus-sign",
+      Filter: "icon-filter",
+      Summary: "icon-eye-open",
+      Undo: "icon-refresh",
+      Columns: "icon-wrench",
+      Collapsed: "icon-chevron-right",
+      Expanded: "icon-chevron-down",
+      MoveDown: "icon-chevron-down",
+      MoveUp: "icon-chevron-up",
+      Toggle: "icon-retweet",
+      ExpandCollapse: "icon-angle-right icon-angle-down",
+      Help: "icon-question-sign",
+      ReverseRef: "icon-retweet",
+      Reorder: "icon-reorder",
+      Edit: 'icon-edit',
+      Download: 'icon-file',
+      ClipBoard: 'icon-paper-clip',
+      Composed: 'icon-tags',
+      tsv: 'icon-list',
+      csv: 'icon-list',
+      xml: 'icon-xml',
+      json: 'icon-json'
+    };
+    ICONS.fontawesome = {
+      Base: 'fa',
+      Yes: "fa fa-star",
+      No: "fa fa-star-o",
+      Table: 'fa fa-list',
+      Script: "fa fa-cog",
+      Export: "fa fa-cloud-download",
+      Remove: "fa fa-minus-sign",
+      Check: "fa fa-ok",
+      UnCheck: "fa fa-none",
+      CheckUnCheck: "fa-none fa-ok",
+      Add: "fa fa-plus",
+      Move: "fa fa-move",
+      More: "fa fa-plus-sign",
+      Filter: "fa fa-filter",
+      Summary: "fa fa-bar-chart-o",
+      Undo: "fa fa-refresh",
+      Columns: "fa fa-wrench",
+      Collapsed: "fa fa-chevron-right",
+      Expanded: "fa fa-chevron-down",
+      MoveDown: "fa fa-chevron-down",
+      MoveUp: "fa fa-chevron-up",
+      Toggle: "fa fa-retweet",
+      ExpandCollapse: "fa-angle-right fa-angle-down",
+      Help: "fa fa-question-sign",
+      ReverseRef: 'fa fa-retweet',
+      Reorder: "fa fa-reorder",
+      Edit: 'fa fa-edit',
+      Download: 'fa fa-file-archive-o',
+      ClipBoard: 'fa fa-paper-clip',
+      Composed: 'fa fa-tags',
+      tsv: 'fa fa-list',
+      csv: 'fa fa-list',
+      xml: 'fa fa-xml',
+      json: 'fa fa-json'
+    };
+    scope("intermine.icons", ICONS[intermine.options.Style.icons], true);
+    scope("intermine.css", CSS_ICONS[intermine.options.Style.icons], true);
+    return intermine.onChangeOption('Style.icons', function(iconStyle) {
+      console.log("Icons are now " + iconStyle);
+      scope("intermine.icons", ICONS[iconStyle], true);
+      scope("intermine.css", CSS_ICONS[iconStyle], true);
+      return intermine.cdn.load(iconStyle);
+    });
+  })();
 
   scope("intermine.messages.actions", {
     ListNameDuplicate: 'List names must be unique. This name is already taken',
@@ -9444,7 +9530,7 @@
       });
     })(jQuery);
     return jQuery.fn.imWidget = function(arg0, arg1) {
-      var cls, error, events, icons, options, properties, query, service, token, type, url, view;
+      var cls, error, events, options, properties, query, service, token, type, url, view;
 
       if (typeof arg0 === 'string') {
         view = this.data('widget');
@@ -9473,8 +9559,9 @@
         if (supportsSVG() && (typeof d3 === "undefined" || d3 === null)) {
           intermine.cdn.load('d3');
         }
-        icons = intermine.options.Style.icons;
-        intermine.cdn.load(icons);
+        intermine.setOptions({
+          Style: intermine.options.Style
+        });
         if (service == null) {
           service = new intermine.Service({
             root: url,
