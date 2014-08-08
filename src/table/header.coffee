@@ -186,9 +186,7 @@ do ->
 
       @$('.im-col-filters').attr(title: COL_FILTER_TITLE conCount)
 
-    html: ->
-      data = _.extend {}, ICONS(), @model.toJSON()
-      TEMPLATE data
+    html: -> TEMPLATE _.extend {}, ICONS(), @model.toJSON()
 
     displaySortDirection: =>
       sortButton = @$ '.icon-sorting'
