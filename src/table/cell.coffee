@@ -49,11 +49,8 @@ do ->
             @view = subtable.view
             @column = @query.getPathInfo(subtable.column)
             @query.on 'expand:subtables', (path) =>
-              console.group "User wants #{ path } expanded, I am #{ @column }"
               if path.toString() is @column.toString()
-                console.log "Showing table"
                 @renderTable().slideDown()
-              console.groupEnd()
             @query.on 'collapse:subtables', (path) =>
               if path.toString() is @column.toString()
                 @$('.im-subtable').slideUp()
