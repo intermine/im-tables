@@ -7430,7 +7430,7 @@ $.widget("ui.sortable", $.ui.mouse, {
  * Copyright 2012, 2013, Alex Kalderimis and InterMine
  * Released under the LGPL license.
  * 
- * Built at Wed Aug 06 2014 17:25:54 GMT+0100 (BST)
+ * Built at Fri Aug 08 2014 11:32:16 GMT+0100 (BST)
 */
 
 
@@ -18486,12 +18486,12 @@ $.widget("ui.sortable", $.ui.mouse, {
         this.view = subtable.view;
         this.column = this.query.getPathInfo(subtable.column);
         this.query.on('expand:subtables', function(path) {
-          if (path.getParent().toString() === _this.column.toString()) {
+          if (path.toString() === _this.column.toString()) {
             return _this.renderTable().slideDown();
           }
         });
         return this.query.on('collapse:subtables', function(path) {
-          if (path.getParent().toString() === _this.column.toString()) {
+          if (path.toString() === _this.column.toString()) {
             return _this.$('.im-subtable').slideUp();
           }
         });
@@ -18648,7 +18648,9 @@ $.widget("ui.sortable", $.ui.mouse, {
             return;
           }
           processed[cell.path] = true;
-          _ref3 = (_ref2 = replacedBy[cell.path]) != null ? _ref2 : {}, replaces = _ref3.replaces, formatter = _ref3.formatter, path = _ref3.path;
+          _ref3 = (_ref2 = replacedBy[cell.path]) != null ? _ref2 : {
+            replaces: []
+          }, replaces = _ref3.replaces, formatter = _ref3.formatter, path = _ref3.path;
           if (replaces.length > 1) {
             if (!path.equals(cell.path.getParent())) {
               return;

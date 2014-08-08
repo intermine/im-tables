@@ -49,11 +49,11 @@ do ->
             @view = subtable.view
             @column = @query.getPathInfo(subtable.column)
             @query.on 'expand:subtables', (path) =>
-                if path.getParent().toString() is @column.toString()
-                  @renderTable().slideDown()
+              if path.toString() is @column.toString()
+                @renderTable().slideDown()
             @query.on 'collapse:subtables', (path) =>
-                if path.getParent().toString() is @column.toString()
-                  @$('.im-subtable').slideUp()
+              if path.toString() is @column.toString()
+                @$('.im-subtable').slideUp()
 
         getSummaryText: () ->
           def = jQuery.Deferred()
@@ -149,7 +149,7 @@ do ->
           for cell in cells then do (tr, cell) =>
             return if processed[cell.path]
             processed[cell.path] = true
-            {replaces, formatter, path} = replacedBy[cell.path] ? {}
+            {replaces, formatter, path} = replacedBy[cell.path] ? {replaces: []}
             if replaces.length > 1
               # Only accept if it is the right type - otherwise break (aka return)
               # this is required because formatters need to be based on a model of the
