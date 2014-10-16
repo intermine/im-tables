@@ -23,6 +23,7 @@ scope "intermine.options",
     ShowId: false
     TableWidgets: ['Pagination', 'PageSizer', 'TableSummary', 'ManagementTools', 'ScrollBar']
     CellCutoff: 100
+    ShowHistory: true
     Style:
       icons: 'glyphicons'
     CDN: # CDN resources that can be configured.

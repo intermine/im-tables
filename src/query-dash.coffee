@@ -66,8 +66,9 @@ do ->
           {ManagementTools, Trail} = intermine.query.tools
           managementGroup = new ManagementTools(@states, @columnHeaders)
           managementGroup.render().$el.appendTo @tools
-          trail = new Trail(@states)
-          trail.render().$el.appendTo managementGroup.el
+          if intermine.options.ShowHistory
+            trail = new Trail(@states)
+            trail.render().$el.appendTo managementGroup.el
 
     class CompactView extends DashBoard
 
@@ -87,7 +88,7 @@ do ->
 
       renderTools: (q) ->
 
-      renderQueryManagement: (q) ->
+      renderQueryManagement: (q) -> if intermine.options.ShowHistory
         {Trail} = intermine.query.tools
         trail = new Trail(@states)
         @$el.prepend trail.render().el

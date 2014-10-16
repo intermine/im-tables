@@ -1098,10 +1098,15 @@ do ->
             .attr('y2', h - .5)
             .style('stroke', '#000')
 
-          onSelection = => _.defer => chart.selectAll('rect').data(@items.models).transition()
-            .duration(intermine.options.D3.Transition.Duration)
-            .ease(intermine.options.D3.Transition.Easing)
-            .attr('class', (d) -> rectClass + (if d.get('selected') then '-selected' else ''))
+          onSelection = =>
+            _.defer =>
+              chart.selectAll('rect')
+                   .data(@items.models)
+                   .transition()
+                    .duration(intermine.options.D3.Transition.Duration)
+                    .ease(intermine.options.D3.Transition.Easing)
+                    .attr('class', (d) ->
+                      rectClass + (if d.get('selected') then '-selected' else ''))
           
           @items.on 'change:selected', _.throttle onSelection, 150
           this
