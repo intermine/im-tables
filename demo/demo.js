@@ -259,7 +259,7 @@ jQuery(document).ready(function($) {
           }
         },
         'Gene-Prot-Exons': {
-          root: "beta.flymine.org/beta",
+          root: "www.flymine.org/query",
           //"root": "localhost/squirrelmine",
           //token: "M1n3x2ydw4icj140pbBcffIgR4Q",
           q: {
@@ -382,7 +382,7 @@ jQuery(document).ready(function($) {
     notifier = window.notifier = {
       notify: function(o) {
         console.log(arguments);
-        alert(o.text);
+        alert(o.title + '\n\n' + o.text);
       }
     };
     errorHandler = function(err) {
@@ -445,6 +445,17 @@ jQuery(document).ready(function($) {
     var query_events = {
         "imo:click": function(type, id) {
           console.log("The user is interested in " + type + "(" + id + ")");
+        },
+        "object:view": function (event) {
+          if (event.object.get('obj:type') === 'Organism') {
+            var org = event.object.toJSON();
+            event.preventDefault();
+            notifier.notify({
+              text: 'Nothing to see here - ' + org.shortName + ' is pretty boring',
+              title: "You chose a boring object!",
+              level: "success"
+            });
+          }
         },
         "list-creation:success": function(list) {
             notifier.notify({

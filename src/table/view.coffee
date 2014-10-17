@@ -573,7 +573,7 @@ do ->
                   node = @query.getPathInfo(obj.column).getParent()
                   field = obj.column.replace(/^.*\./, '')
                   model = if obj.id?
-                      @itemModels[obj.id] or= (new intermine.model.IMObject(obj, @query, field, base))
+                    @itemModels[obj.id] or= (new intermine.model.IMObject(obj, @query, field, base))
                   else if not obj.class?
                     type = node.getParent().name
                     new intermine.model.NullObject {}, {@query, field, type}

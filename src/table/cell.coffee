@@ -272,7 +272,13 @@ do ->
             e?.preventDefault() if @model.get 'is:selecting'
           'hide': (e) => @model.cachedPopover?.detach()
           'click': 'activateChooser'
-          'click a.im-cell-link': (e) -> e?.stopPropagation()
+          'click a.im-cell-link': (e) =>
+            # Prevent bootstrap from closing dropdowns, etc.
+            e?.stopPropagation()
+            # Allow the table to handle this event, if
+            # it chooses to.
+            e.object = @model # one arg good, more args bad.
+            @options.query.trigger 'object:view', e
 
         reportClick: -> @model.trigger 'click', @model
 
