@@ -21,7 +21,7 @@ do ->
           li = $ """<li class="im-subpath im-outer-joined-path"><a href="#"></a></li>"""
           @$el.append li
           $.when(node.getDisplayName(), @query.getPathInfo(v).getDisplayName()).done (parent, name) ->
-          li.find('a').text name.replace(parent, '').replace(/^\s*>\s*/, '')
+            li.find('a').text name.replace(parent, '').replace(/^\s*>\s*/, '')
           li.click (e) =>
             e.stopPropagation()
             e.preventDefault()
