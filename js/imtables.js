@@ -8,7 +8,7 @@
  * Copyright 2012, 2013, Alex Kalderimis and InterMine
  * Released under the LGPL license.
  * 
- * Built at Fri Oct 17 2014 17:43:00 GMT+0100 (BST)
+ * Built at Tue Nov 18 2014 16:08:00 GMT+0000 (GMT)
  */
 
 (function() {
@@ -4967,9 +4967,8 @@
               var li;
               li = $("<li class=\"im-subpath im-outer-joined-path\"><a href=\"#\"></a></li>");
               _this.$el.append(li);
-              $.when(node.getDisplayName(), _this.query.getPathInfo(v).getDisplayName()).done(function(parent, name) {
-                return li.find('a').text(name.replace(parent, '').replace(/^\s*>\s*/, ''));
-              });
+              $.when(node.getDisplayName(), _this.query.getPathInfo(v).getDisplayName()).done(function(parent, name) {});
+              li.find('a').text(name.replace(parent, '').replace(/^\s*>\s*/, ''));
               return li.click(function(e) {
                 e.stopPropagation();
                 e.preventDefault();
@@ -5076,7 +5075,7 @@
         })(this));
       };
 
-      SummaryHeading.prototype.template = _.template("<h3>\n    <span class=\"im-item-got\"></span>\n    <span class=\"im-item-available\"></span>\n    <span class=\"im-type-name\"></span>\n    <span class=\"im-attr-name\"></span>\n    <span class=\"im-item-total\"></span>\n</h3>");
+      SummaryHeading.prototype.template = _.template("<h3>\n  <span class=\"im-item-got\"></span>\n  <span class=\"im-item-available\"></span>\n  <span class=\"im-type-name\"></span>\n  <span class=\"im-attr-name\"></span>\n  <span class=\"im-item-total\"></span>\n</h3>");
 
       SummaryHeading.prototype.render = function() {
         var attr, s, type;
@@ -6907,7 +6906,7 @@
   });
 
   scope('intermine.snippets.facets', {
-    OnlyOne: _.template("<div class=\"alert alert-info im-all-same\">\n    All <%= count %> values are the same: <strong><%= item %></strong>\n</div>")
+    OnlyOne: _.template("<div class=\"alert alert-info im-all-same\">\n  All <%= count %> values are the same: <strong><%= item %></strong>\n</div>")
   });
 
   (function() {
@@ -6927,7 +6926,7 @@
     };
     MORE_FACETS_HTML = "<i class=\"icon-plus-sign pull-right\" title=\"Showing top ten. Click to see all values\"></i>";
     FACET_TITLE = "<dt>\n  <i class=\"icon-chevron-right\"></i>\n  <span class=\"im-facet-title\"></span>\n  &nbsp;<span class=\"im-facet-count\"></span>\n</dt>";
-    FACET_TEMPLATE = _.template("<dd>\n    <a href=#>\n        <b class=\"im-facet-count pull-right\">\n            (<%= count %>)\n        </b>\n        <%= item %>\n    </a>\n</dd>");
+    FACET_TEMPLATE = _.template("<dd>\n  <a href=#>\n    <b class=\"im-facet-count pull-right\">\n      (<%= count %>)\n    </b>\n    <%= item %>\n  </a>\n</dd>");
     SUMMARY_FORMATS = {
       tab: 'tsv',
       csv: 'csv',
@@ -7082,23 +7081,21 @@
       }
 
       FrequencyFacet.prototype.showMore = function(e) {
-        var areVisible, got, more;
+        var areVisible, got, item, more, _i, _len, _ref;
         more = $(e.target);
         got = this.$('dd').length();
         areVisible = this.$('dd').first().is(':visible');
         e.stopPropagation();
         e.preventDefault();
-        return this.query.summarise(this.facet.path, (function(_this) {
-          return function(items) {
-            var item, _i, _len, _ref;
-            _ref = items.slice(got);
-            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-              item = _ref[_i];
-              _this.addItem(item).toggle(areVisible);
-            }
-            return more.tooltip('hide').remove();
-          };
+        this.query.summarise(this.facet.path, (function(_this) {
+          return function(items) {};
         })(this));
+        _ref = items.slice(got);
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          item = _ref[_i];
+          this.addItem(item).toggle(areVisible);
+        }
+        return more.tooltip('hide').remove();
       };
 
       FrequencyFacet.prototype.render = function(filterTerm) {
@@ -7113,7 +7110,7 @@
         this.rendering = true;
         this.$el.empty();
         FrequencyFacet.__super__.render.call(this);
-        $progress = $("<div class=\"progress progress-info progress-striped active\">\n    <div class=\"bar\" style=\"width:100%\"></div>\n</div>");
+        $progress = $("<div class=\"progress progress-info progress-striped active\">\n  <div class=\"bar\" style=\"width:100%\"></div>\n</div>");
         $progress.appendTo(this.el);
         getSummary = this.query.filterSummary(this.facet.path, filterTerm, this.limit);
         getSummary.fail(this.remove);
@@ -7218,6 +7215,11 @@
         return _results;
       };
 
+      NumericRange.prototype.reset = function() {
+        this.clear();
+        return this.trigger('reset', this);
+      };
+
       NumericRange.prototype.set = function(name, value) {
         var meth;
         this.nulled = false;
@@ -7258,7 +7260,7 @@
       }
 
       NumericFacet.prototype.initialize = function() {
-        var idx, prop, _fn, _ref;
+        var idx, prop, _fn, _ref, _ref1;
         NumericFacet.__super__.initialize.apply(this, arguments);
         this.range = new NumericRange();
         this.range.on('change', (function(_this) {
@@ -7281,45 +7283,43 @@
           };
         })(this));
         this.range.on('change', (function(_this) {
-          return function() {
-            var _ref;
-            if (_this.range.isNotAll()) {
-              return _this.drawEstCount();
-            } else {
-              if ((_ref = _this.estCount) != null) {
-                _ref.remove();
-              }
-              return _this.estCount = null;
-            }
-          };
+          return function() {};
         })(this));
+        if (this.range.isNotAll()) {
+          this.drawEstCount();
+        } else {
+          if ((_ref = this.estCount) != null) {
+            _ref.remove();
+          }
+          this.estCount = null;
+        }
         this.range.on('reset', (function(_this) {
           return function() {
-            var max, min, prop, val, _ref, _ref1, _ref2, _results;
-            _ref = _this.range.toJSON(), min = _ref.min, max = _ref.max;
-            if ((_ref1 = _this.$slider) != null) {
-              _ref1.slider('option', 'values', [min, max]);
+            var max, min, prop, val, _ref1, _ref2, _ref3, _results;
+            _ref1 = _this.range.toJSON(), min = _ref1.min, max = _ref1.max;
+            if ((_ref2 = _this.$slider) != null) {
+              _ref2.slider('option', 'values', [min, max]);
             }
-            _ref2 = {
+            _ref3 = {
               min: min,
               max: max
             };
             _results = [];
-            for (prop in _ref2) {
-              val = _ref2[prop];
+            for (prop in _ref3) {
+              val = _ref3[prop];
               _results.push(_this.$("input.im-range-" + prop).val("" + val));
             }
             return _results;
           };
         })(this));
-        _ref = {
+        _ref1 = {
           min: 0,
           max: 1
         };
         _fn = (function(_this) {
           return function(prop, idx) {
             return _this.range.on("change:" + prop, function(m, val) {
-              var _ref1, _ref2;
+              var _ref2, _ref3;
               if (m.nulled) {
                 _this.$("input.im-range-" + prop).val("null");
               }
@@ -7328,14 +7328,14 @@
               }
               val = _this.round(val);
               _this.$("input.im-range-" + prop).val("" + val);
-              if (((_ref1 = _this.$slider) != null ? _ref1.slider('values', idx) : void 0) !== val) {
-                return (_ref2 = _this.$slider) != null ? _ref2.slider('values', idx, val) : void 0;
+              if (((_ref2 = _this.$slider) != null ? _ref2.slider('values', idx) : void 0) !== val) {
+                return (_ref3 = _this.$slider) != null ? _ref3.slider('values', idx, val) : void 0;
               }
             });
           };
         })(this);
-        for (prop in _ref) {
-          idx = _ref[prop];
+        for (prop in _ref1) {
+          idx = _ref1[prop];
           _fn(prop, idx);
         }
         return this.range.on('change', (function(_this) {
@@ -7360,11 +7360,8 @@
       };
 
       NumericFacet.prototype.clearRange = function() {
-        var _ref, _ref1;
-        if ((_ref = this.range) != null) {
-          _ref.clear();
-        }
-        return (_ref1 = this.range) != null ? _ref1.trigger('reset') : void 0;
+        var _ref;
+        return (_ref = this.range) != null ? _ref.reset() : void 0;
       };
 
       NumericFacet.prototype.changeConstraints = function(e) {
@@ -7446,7 +7443,7 @@
           };
         })(this));
         $(this.container).append(this.canvas);
-        this.throbber = $("<div class=\"progress progress-info progress-striped active\">\n    <div class=\"bar\" style=\"width:100%\"></div>\n</div>");
+        this.throbber = $("<div class=\"progress progress-info progress-striped active\">\n  <div class=\"bar\" style=\"width:100%\"></div>\n</div>");
         this.throbber.appendTo(this.el);
         promise = this.query.summarise(this.facet.path, this.handleSummary);
         promise.fail(this.remove);
@@ -7514,7 +7511,7 @@
       };
 
       NumericFacet.prototype.drawStats = function() {
-        return $(this.container).append("<table class=\"table table-condensed\">\n    <thead>\n        <tr>\n            <th>Min</th>\n            <th>Max</th>\n            <th>Mean</th>\n            <th>Standard Deviation</th>\n        </tr>\n    </thead>\n    <tbody>\n        <tr>\n            <td>" + this.min + "</td>\n            <td>" + this.max + "</td>\n            <td>" + (this.mean.toFixed(5)) + "</td>\n            <td>" + (this.dev.toFixed(5)) + "</td>\n        </tr>\n    </tbody>\n</table>");
+        return $(this.container).append("<table class=\"table table-condensed\">\n  <thead>\n    <tr>\n      <th>Min</th>\n      <th>Max</th>\n      <th>Mean</th>\n      <th>Standard Deviation</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <td>" + this.min + "</td>\n      <td>" + this.max + "</td>\n      <td>" + (this.mean.toFixed(5)) + "</td>\n      <td>" + (this.dev.toFixed(5)) + "</td>\n    </tr>\n  </tbody>\n</table>");
       };
 
       NumericFacet.prototype.setRangeVal = function(e) {
@@ -7659,11 +7656,9 @@
         }).attr('height', 0).classed('im-null-bucket', function(d) {
           return d.bucket === null;
         }).on('click', barClickHandler).each(function(d, i) {
-          var title;
-          title = getTitle(d);
           return $(this).tooltip({
-            title: title,
-            container: container
+            container: container,
+            title: getTitle(d)
           });
         });
         rects = chart.selectAll('rect').data(items).transition().duration(intermine.options.D3.Transition.Duration).ease(intermine.options.D3.Transition.Easing).attr('y', function(d) {
@@ -7886,7 +7881,7 @@
       };
 
       PieFacet.prototype.loadMoreItems = function() {
-        var loader, text;
+        var loader, newItem, newItems, text, _i, _len;
         if (this.summarising) {
           return;
         }
@@ -7896,26 +7891,23 @@
         this.limit *= 2;
         this.summarising = this.query.filterSummary(this.facet.path, this.filterTerm, this.limit);
         this.summarising.done((function(_this) {
-          return function(items, stats, fcount) {
-            var newItem, newItems, _i, _len;
-            _this.hasMore = stats.uniqueValues > _this.limit;
-            newItems = items.slice(_this.items.length);
-            for (_i = 0, _len = newItems.length; _i < _len; _i++) {
-              newItem = newItems[_i];
-              _this.items.add(_.extend(newItem, {
-                visibility: true,
-                selected: false
-              }));
-            }
-            return _this.query.trigger('got:summary:total', _this.facet.path, stats.uniqueValues, items.length, fcount);
-          };
+          return function(items, stats, fcount) {};
         })(this));
+        this.hasMore = stats.uniqueValues > this.limit;
+        newItems = items.slice(this.items.length);
+        for (_i = 0, _len = newItems.length; _i < _len; _i++) {
+          newItem = newItems[_i];
+          this.items.add(_.extend(newItem, {
+            visibility: true,
+            selected: false
+          }));
+        }
+        this.query.trigger('got:summary:total', this.facet.path, stats.uniqueValues, items.length, fcount);
         this.summarising.done((function(_this) {
-          return function() {
-            loader.empty().text(text);
-            return loader.toggle(_this.hasMore);
-          };
+          return function() {};
         })(this));
+        loader.empty().text(text);
+        loader.toggle(this.hasMore);
         return this.summarising.always((function(_this) {
           return function() {
             return delete _this.summarising;
@@ -7978,20 +7970,20 @@
             }
             return _results;
           }).call(this);
-          unselected = this.items.where({
-            selected: false
-          });
-          if ((!this.hasMore) && vals.length > unselected.length) {
-            return this.addConstraint(e, negateOps(ops), (function() {
-              var _i, _len, _results;
-              _results = [];
-              for (_i = 0, _len = unselected.length; _i < _len; _i++) {
-                item = unselected[_i];
-                _results.push(item.get('item'));
-              }
-              return _results;
-            })());
-          }
+        }
+        unselected = this.items.where({
+          selected: false
+        });
+        if ((!this.hasMore) && vals.length > unselected.length) {
+          return this.addConstraint(e, negateOps(ops), (function() {
+            var _i, _len, _results;
+            _results = [];
+            for (_i = 0, _len = unselected.length; _i < _len; _i++) {
+              item = unselected[_i];
+              _results.push(item.get('item'));
+            }
+            return _results;
+          })());
         }
         if (vals.length === 1) {
           if (vals[0] === null) {
@@ -8120,7 +8112,7 @@
         return this;
       };
 
-      PieFacet.prototype.filterControls = "<div class=\"input-prepend\">\n    <span class=\"add-on im-clear-value-filter\">\n      <i class=\"icon-refresh\"></i>\n    </span>\n    <input type=\"text\" class=\"input-medium  im-filter-values\" placeholder=\"Filter values\">\n</div>";
+      PieFacet.prototype.filterControls = "<div class=\"input-prepend\">\n  <span class=\"add-on im-clear-value-filter\">\n  <i class=\"icon-refresh\"></i>\n  </span>\n  <input type=\"text\" class=\"input-medium  im-filter-values\" placeholder=\"Filter values\">\n</div>";
 
       PieFacet.prototype.getDownloadPopover = function() {
         var href, i, icons, lis, name, param;
@@ -8142,11 +8134,11 @@
       PieFacet.prototype.addControls = function() {
         var $btns, $grp, DownloadData, DownloadFormat, More, imd, tbody, _ref;
         _ref = intermine.messages.facets, More = _ref.More, DownloadData = _ref.DownloadData, DownloadFormat = _ref.DownloadFormat;
-        $grp = $("<form class=\"form form-horizontal\">\n  " + this.filterControls + "\n  <div class=\"im-item-table\">\n    <table class=\"table table-condensed table-striped\">\n      <colgroup>\n        " + (this.colClasses.map(function(cl) {
+        $grp = $("<form class=\"form form-horizontal\">\n  " + this.filterControls + "\n  <div class=\"im-item-table\">\n  <table class=\"table table-condensed table-striped\">\n    <colgroup>\n    " + (this.colClasses.map(function(cl) {
           return "<col class=" + cl + ">";
-        }).join('')) + "\n      </colgroup>\n      <thead>\n        <tr>" + (this.columnHeaders.map(function(h) {
+        }).join('')) + "\n    </colgroup>\n    <thead>\n    <tr>" + (this.columnHeaders.map(function(h) {
           return "<th>" + h + "</th>";
-        }).join('')) + "</tr>\n      </thead>\n      <tbody class=\"scrollable\"></tbody>\n    </table>\n    " + (this.hasMore ? '<div class="im-load-more">' + More + '</div>' : '') + "\n  </div>\n</form>");
+        }).join('')) + "</tr>\n    </thead>\n    <tbody class=\"scrollable\"></tbody>\n  </table>\n  " + (this.hasMore ? '<div class="im-load-more">' + More + '</div>' : '') + "\n  </div>\n</form>");
         $grp.button();
         tbody = $grp.find('tbody')[0];
         this.items.each((function(_this) {
@@ -8154,7 +8146,7 @@
             return _this.addItemRow(item, _this.items, {}, tbody);
           };
         })(this));
-        $grp.append("<div class=\"im-filter\">\n  <button class=\"btn pull-right im-download\" >\n    <i class=\"" + intermine.icons.Download + "\"></i>\n    " + DownloadData + "\n  </button>\n  " + (this.buttons()) + "\n</div>");
+        $grp.append("<div class=\"im-filter\">\n<button class=\"btn pull-right im-download\" >\n  <i class=\"" + intermine.icons.Download + "\"></i>\n  " + DownloadData + "\n</button>\n" + (this.buttons()) + "\n</div>");
         $btns = $grp.find('.im-filter .btn').tooltip({
           placement: 'top',
           container: this.el
@@ -8192,7 +8184,7 @@
       };
 
       PieFacet.prototype.buttons = function() {
-        return "<div class=\"btn-group\">\n  <button type=\"submit\" class=\"btn btn-primary im-filter-in\" disabled\n          title=\"" + intermine.messages.facets.Include + "\">\n    Filter\n  </button>\n  <button class=\"btn btn-primary dropdown-toggle\" \n          title=\"Select filter type\"  disabled>\n    <span class=\"caret\"></span>\n  </button>\n  <ul class=\"dropdown-menu\">\n    <li>\n      <a href=\"#\" class=\"im-filter-in\">\n        " + intermine.messages.facets.Include + "\n      </a>\n    </li>\n    <li>\n      <a href=\"#\" class=\"im-filter-out\">\n        " + intermine.messages.facets.Exclude + "\n      </a>\n    </li>\n  </ul>\n</div>\n\n<div class=\"btn-group\">\n  <button class=\"btn btn-cancel\" disabled\n            title=\"" + intermine.messages.facets.Reset + "\">\n    <i class=\"" + intermine.icons.Undo + "\"></i>\n  </button>\n  <button class=\"btn btn-toggle-selection\"\n          title=\"" + intermine.messages.facets.ToggleSelection + "\">\n    <i class=\"" + intermine.icons.Toggle + "\"></i>\n  </button>\n</div>";
+        return "<div class=\"btn-group\">\n<button type=\"submit\" class=\"btn btn-primary im-filter-in\" disabled\n    title=\"" + intermine.messages.facets.Include + "\">\n  Filter\n</button>\n<button class=\"btn btn-primary dropdown-toggle\" \n    title=\"Select filter type\"  disabled>\n  <span class=\"caret\"></span>\n</button>\n<ul class=\"dropdown-menu\">\n  <li>\n  <a href=\"#\" class=\"im-filter-in\">\n    " + intermine.messages.facets.Include + "\n  </a>\n  </li>\n  <li>\n  <a href=\"#\" class=\"im-filter-out\">\n    " + intermine.messages.facets.Exclude + "\n  </a>\n  </li>\n</ul>\n</div>\n\n<div class=\"btn-group\">\n<button class=\"btn btn-cancel\" disabled\n      title=\"" + intermine.messages.facets.Reset + "\">\n  <i class=\"" + intermine.icons.Undo + "\"></i>\n</button>\n<button class=\"btn btn-toggle-selection\"\n    title=\"" + intermine.messages.facets.ToggleSelection + "\">\n  <i class=\"" + intermine.icons.Toggle + "\"></i>\n</button>\n</div>";
       };
 
       PieFacet.prototype.initFilter = function($grp) {
@@ -8219,6 +8211,8 @@
 
     })(Backbone.View);
     FacetRow = (function(_super) {
+      var rowTemplate;
+
       __extends(FacetRow, _super);
 
       function FacetRow() {
@@ -8265,7 +8259,7 @@
             _this.$el.addClass('hover');
             if (!_this.isVisible()) {
               above = _this.isAbove();
-              surrogate = $("<div class=\"im-facet-surrogate " + (above ? 'above' : 'below') + "\">\n    <i class=\"icon-caret-" + (above ? 'up' : 'down') + "\"></i>\n    " + (_this.item.get('item')) + ": " + (_this.item.get('count')) + "\n</div>");
+              surrogate = $("<div class=\"im-facet-surrogate " + (above ? 'above' : 'below') + "\">\n  <i class=\"icon-caret-" + (above ? 'up' : 'down') + "\"></i>\n  " + (_this.item.escape('item')) + ": " + (_this.item.escape('count')) + "\n</div>");
               itemTable = _this.$el.closest('.im-item-table').append(surrogate);
               newTop = above ? itemTable.offset().top + itemTable.scrollTop() : itemTable.scrollTop() + itemTable.offset().top + itemTable.outerHeight() - surrogate.outerHeight();
               return surrogate.offset({
@@ -8301,13 +8295,12 @@
           item.get("path").node.setAttribute("class", isSelected ? "selected" : "");
         }
         f = (function(_this) {
-          return function() {
-            _this.$el.toggleClass("active", isSelected);
-            if (isSelected !== _this.$('input').prop("checked")) {
-              return _this.$('input').prop("checked", isSelected);
-            }
-          };
+          return function() {};
         })(this);
+        this.$el.toggleClass("active", isSelected);
+        if (isSelected !== this.$('input').prop("checked")) {
+          this.$('input').prop("checked", isSelected);
+        }
         return setTimeout(f, 0);
       };
 
@@ -8316,12 +8309,18 @@
         'change input': 'handleChange'
       };
 
+      rowTemplate = _.template("<td class=\"im-selector-col\">\n  <span><%= symbol %></span>\n  <input type=\"checkbox\">\n</td>\n<td class=\"im-item-col\">\n  <% if (item != null) { %><%= item %><% } else { %><span class=null-value>&nbsp;</span><% } %>\n</td>\n<td class=\"im-count-col\">\n  <div class=\"im-facet-bar\"\n     style=\"width:<%= percent %>%;background:rgba(206, 210, 222, <%= opacity %>})\">\n    <span class=\"im-count\">\n    <%= count %>\n    </span>\n  </div>\n</td>");
+
       FacetRow.prototype.render = function() {
-        var opacity, percent, ratio, _ref;
+        var opacity, percent, ratio;
         ratio = parseInt(this.item.get("count"), 10) / this.items.maxCount;
         opacity = ratio.toFixed(2) / 2 + 0.5;
         percent = (ratio * 100).toFixed(1);
-        this.$el.append("<td class=\"im-selector-col\">\n    <span>" + ((this.item.get("symbol")) || "") + "</span>\n    <input type=\"checkbox\">\n</td>\n<td class=\"im-item-col\">\n  " + ((_ref = this.item.get("item")) != null ? _ref : '<span class=null-value>&nbsp;</span>') + "\n</td>\n<td class=\"im-count-col\">\n    <div class=\"im-facet-bar\"\n         style=\"width:" + percent + "%;background:rgba(206, 210, 222, " + opacity + ")\">\n      <span class=\"im-count\">\n        " + (this.item.get("count")) + "\n      </span>\n    </div>\n</td>");
+        this.$el.append(rowTemplate(_.extend({
+          opacity: opacity,
+          percent: percent,
+          symbol: ''
+        }, this.item.toJSON())));
         if (this.item.get("percent")) {
           this.$el.append("<td class=\"im-prop-col\"><i>" + (this.item.get("percent").toFixed()) + "%</i></td>");
         }

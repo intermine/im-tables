@@ -3,3 +3,6 @@ oldsrc
 node_modules
 components
 *.tgz
+bower_components
+bundle.*
+js/imtables-bundled.*
