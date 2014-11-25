@@ -453,11 +453,6 @@ define 'export/dialogue', using 'perma-query', (getPermaQuery) ->
         format.param or format.extension
 
       getExtraOptions: () ->
-          ret = ""
-          fileName=@$('im-download-file-name-text').val()
-          alert(fileName);
-          ret += "&fileName=#{fileName}"
-          
           if @requestInfo.get 'columnHeaders'
               ret += "&columnheaders=1"
           unless @requestInfo.get 'allRows'
