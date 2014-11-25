@@ -120,6 +120,10 @@ do ->
             <div class="row-fluid im-export-destination-options">
 
               <div class="im-download-file active">
+                <label>
+                #{ intermine.messages.actions.DownloadFileName } 
+                <input type="text" class="im-download-file-name-txt">
+                </label>
                 <div class="btn-group im-what-to-show">
                   <button class="im-results-uri btn active">
                     #{ intermine.messages.actions.ResultsPermaLinkText }:
