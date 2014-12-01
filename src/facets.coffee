@@ -1120,7 +1120,7 @@ do ->
 
     initialize: ->
       super(arguments...)
-      if @items.length is 2
+      if @items.length > 1 
         @items.on 'change:selected', (x, selected) =>
           @items.each (y) -> y.set(selected: false) if (selected and x isnt y)
           someAreSelected = @items.any((item) -> !! item.get "selected")
