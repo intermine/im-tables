@@ -46,11 +46,11 @@ do ->
            @renderQueryManagement(q)
            @renderTools(q)
 
-          queryPromise.fail (xhr, err, msg) =>
+          queryPromise.then null, (err) =>
             @$el.append """
               <div class="alert alert-error">
-                <h1>#{err or xhr}</h1>
-                <p>Unable to construct query: #{msg or xhr}</p>
+                <h1>Error</h1>
+                <p>Unable to construct query: #{ err }</p>
               </div>
             """
 

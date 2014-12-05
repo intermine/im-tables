@@ -61,20 +61,19 @@ do ->
             promise.done(@addColumnHeaders)
 
         goTo: (start) ->
-            @pageStart = parseInt(start, 10)
-            @fill()
+          @pageStart = parseInt(start, 10)
+          @fill()
 
         goToPage: (page) ->
-            @pageStart = page * @pageSize
-            @fill()
+          @pageStart = page * @pageSize
+          @fill()
 
-        fill: () ->
-            promise = @getData(@pageStart, @pageSize).then @readHeaderInfo
-            promise.done @appendRows
-            promise.fail @handleError
-            promise.done () =>
-                @query.trigger "imtable:change:page", @pageStart, @pageSize
-            promise
+        fill: ->
+          notifyOfFill = => @query.trigger "imtable:change:page", @pageStart, @pageSize
+          @getData(@pageStart, @pageSize)
+            .then(@readHeaderInfo)
+            .then(@appendRows)
+            .then notifyOfFill, @handleError
 
         handleEmptyTable: () ->
             apology = _.template intermine.snippets.table.NoResults @query
@@ -148,38 +147,52 @@ do ->
         """
 
         handleError: (err, time) =>
-            notice = $ @errorTempl error: err
-            notice.append """<p>Time: #{ time }</p>""" if time?
-            notice.append """<p>
-                This is most likely related to the query that was just run. If you have
-                time, please send us an email with details of this query to help us diagnose and
-                fix this bug.
-            </p>"""
-            btn = $ '<button class="btn btn-error">'
-            notice.append btn
-            p = $ '<p style="display:none" class="well">'
-            btn.text 'show query'
-            p.text @query.toXML()
-            btn.click () -> p.slideToggle()
-            mailto = @query.service.help + "?" + $.param {
-                subject: "Error running embedded table query"
-                body: """
-                    We encountered an error running a query from an
-                    embedded result table.
-                    
-                    page:       #{ window.location }
-                    service:    #{ @query.service.root }
-                    error:      #{ err }
-                    date-stamp: #{ time }
-                    query:      #{ @query.toXML() }
-                """
-            }, true
-            mailto = mailto.replace(/\+/g, '%20') # stupid jquery 'wontfix' indeed. grumble
-            notice.append """<a class="btn btn-primary pull-right" href="mailto:#{ mailto }">
-                    Email the help-desk
-                </a>"""
-            notice.append p
-            @$el.append notice
+          time ?= new Date()
+          console.error(err, err?.stack)
+          if /TypeError/.test(String(err))
+            errConf = intermine.options.ClientApplicationError
+            message = errConf.Heading
+          else
+            errConf = intermine.options.ServerApplicationError
+            message = (err?.message ? errConf.Heading)
+
+          notice = $ @errorTempl error: message
+          explanation = errConf.Body
+
+          notice.append """<p>#{ errConf.Body }</p>"""
+          btn = $ '<button class="btn btn-error">'
+          notice.append btn
+          p = $ '<p style="display:none" class="well">'
+          btn.text 'show query'
+          p.text @query.toXML()
+          btn.click () -> p.slideToggle()
+          mailto = @query.service.help + "?" + $.param {
+              subject: "Error running embedded table query"
+              body: """
+                  We encountered an error running a query from an
+                  embedded result table.
+                  
+                  page:       #{ window.location }
+                  service:    #{ @query.service.root }
+                  error:      #{ err }
+                  date-stamp: #{ time }
+
+                  -------------------------------
+                  IMJS:       #{ intermine.imjs.VERSION }
+                  -------------------------------
+                  IMTABLES:   #{ intermine.imtables.VERSION }
+                  -------------------------------
+                  QUERY:      #{ @query.toXML() }
+                  -------------------------------
+                  STACK:      #{ err?.stack }
+              """
+          }, true
+          mailto = mailto.replace(/\+/g, '%20') # stupid jquery 'wontfix' indeed. grumble
+          notice.append """<a class="btn btn-primary pull-right" href="mailto:#{ mailto }">
+                  Email the help-desk
+              </a>"""
+          notice.append p
+          @$el.append notice
 
         buildColumnHeader: (model, tr) -> #view, i, title, tr) ->
           header = new intermine.query.results.ColumnHeader {model, @query}
@@ -415,22 +428,24 @@ do ->
                     end   > @cache.upperBound or
                     size  <= 0
 
-            promise = new jQuery.Deferred()
+            serve = => @serveResultsFromCache start, size
+
+            # Return a promise for results.
             if isStale or isOutOfRange
                 page = @getPage start, size
+                updateCacheAndServe = (res) =>
+                  console.log page, res
+                  @addRowsToCache page, res
+                  @cache.freshness = freshness
+                  serve()
+
                 @overlayTable()
-
-                req = @query[@fetchMethod] {start: page.start, size: page.size}
-                req.fail @showError
-                req.done (rows, rs) =>
-                    @addRowsToCache page, rs
-                    @cache.freshness = freshness
-                    promise.resolve @serveResultsFromCache start, size
-                req.always @removeOverlay
+                promise = @query[@fetchMethod] {start: page.start, size: page.size}
+                # Always remove the overlay
+                promise.then @removeOverlay, @removeOverlay
+                promise.then updateCacheAndServe, @showError
             else
-                promise.resolve @serveResultsFromCache start, size
-
-            return promise
+                jQuery.Deferred -> @resolve serve()
 
         overlayTable: =>
             return unless @table and @drawn
@@ -510,13 +525,12 @@ do ->
         ## @param result The resultset returned from the server.
         ##
         ##
-        addRowsToCache: (page, result) ->
+        addRowsToCache: (page, rows) ->
             unless @cache.lastResult
-                @cache.lastResult = result
-                @cache.lowerBound = result.start
+                @cache.lastResult = results: rows.slice()
+                @cache.lowerBound = page.start
                 @cache.upperBound = page.end()
             else
-                rows = result.results
                 merged = @cache.lastResult.results.slice()
                 # Add rows we don't have to the front
                 if page.start < @cache.lowerBound
@@ -557,7 +571,7 @@ do ->
 
             # TODO - make sure cells know their node...
 
-            fields = ([@query.getPathInfo(v).getParent(), v.replace(/^.*\./, "")] for v in result.views)
+            fields = ([@query.getPathInfo(v).getParent(), v.replace(/^.*\./, "")] for v in @query.views)
 
             makeCell = (obj) =>
                 if _.has(obj, 'rows')
@@ -628,9 +642,13 @@ do ->
                     <div class="bar" style="width: 100%"></div>
                 </div>
             """
-            @query.service.fetchVersion(@doRender(tel)).fail @onSetupError(tel)
+            @query.service.fetchVersion (err, version) =>
+              if err
+                @onSetupError tel, err
+              else
+                @doRender tel, version
 
-        doRender: (tel) -> (version) =>
+        doRender: (tel, version) ->
             @fetchMethod = if version >= 10
                 'tableRows'
             else
@@ -642,7 +660,9 @@ do ->
                 query: @query.toXML()
                 token: @query.service.token
             @$el.appendTo @$parent
-            @query.service.post(path, setupParams).then @onSetupSuccess(tel), @onSetupError(tel)
+            @query.service.post(path, setupParams)
+                          .then(@onSetupSuccess(tel), ((e) => @onSetupError tel, e))
+                          .then(null, console.error.bind(console))
             this
 
         horizontalScroller: """
@@ -698,22 +718,23 @@ do ->
                 <span class="im-table-summary"></div>
             """
 
-        onSetupSuccess: (telem) -> (result) =>
-            $telem = jQuery(telem).empty()
-            $widgets = $('<div>').insertBefore(telem)
+        onSetupSuccess: (elem) -> (result) =>
+          console.log("Success", result)
+          $telem = jQuery(elem).empty()
+          $widgets = $('<div>').insertBefore elem
 
-            @table = new ResultsTable @query, @getRowData, @columnHeaders
-            @table.setElement telem
-            @table.pageSize = @pageSize if @pageSize?
-            @table.pageStart = @pageStart if @pageStart?
-            @table.render()
-            @query.on "imtable:change:page", @updatePageDisplay
+          @table = new ResultsTable @query, @getRowData, @columnHeaders
+          @table.setElement elem
+          @table.pageSize = @pageSize if @pageSize?
+          @table.pageStart = @pageStart if @pageStart?
+          @table.render()
+          @query.on "imtable:change:page", @updatePageDisplay
 
-            for component in intermine.options.TableWidgets when "place#{ component }" of @
-                method = "place#{ component }"
-                @[ method ]( $widgets )
+          for component in intermine.options.TableWidgets when "place#{ component }" of @
+              method = "place#{ component }"
+              @[ method ]( $widgets )
 
-            $widgets.append """<div style="clear:both"></div>"""
+          $widgets.append """<div style="clear:both"></div>"""
 
         getCurrentPageSize: -> @table?.pageSize ? @pageSize
 
@@ -822,22 +843,13 @@ do ->
         """
         badJson = "What we do know is that the server did not return a valid JSON response."
 
-        onSetupError: (telem) -> (resp) =>
+        onSetupError: (telem, err) =>
             $(telem).empty()
             console.error "SETUP FAILURE", arguments
             notice = @make "div", class: "alert alert-error"
 
             # Depending on the imjs version, we the xhr may have been parsed for us, or not.
-            reasonStr = if text = resp?.responseText
-              try
-                  JSON?.parse(text).error or genericExplanation
-              catch e
-                  console.error text
-                  genericExplanation + "\n" + badJson
-            else if resp?
-              String resp
-            else
-              genericExplanation
+            reasonStr = (err?.message or genericExplanation)
 
             reasons = reasonStr.split "\n"
 

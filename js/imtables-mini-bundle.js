@@ -7431,7 +7431,7 @@ $.widget("ui.sortable", $.ui.mouse, {
  * Copyright 2012, 2013, Alex Kalderimis and InterMine
  * Released under the LGPL license.
  * 
- * Built at Tue Nov 18 2014 18:05:51 GMT+0000 (GMT)
+ * Built at Fri Dec 05 2014 13:57:10 GMT+0000 (GMT)
  */
 
 (function() {
@@ -8023,6 +8023,14 @@ $.widget("ui.sortable", $.ui.mouse, {
     TableWidgets: ['Pagination', 'PageSizer', 'TableSummary', 'ManagementTools', 'ScrollBar'],
     CellCutoff: 100,
     ShowHistory: true,
+    ServerApplicationError: {
+      Heading: "There was a problem with the request to the server",
+      Body: "This is most likely related to the query that was just run. If you have\ntime, please send us an email with details of this query to help us diagnose and\nfix this bug."
+    },
+    ClientApplicationError: {
+      Heading: 'Client application error',
+      Body: "This is due to an unexpected error in the tables\napplication - we are sorry for the inconvenience"
+    },
     Style: {
       icons: 'glyphicons'
     },
@@ -9872,7 +9880,7 @@ $.widget("ui.sortable", $.ui.mouse, {
         }
       };
 
-      pathOf = intermine.funcutils.get('path');
+      pathOf = intermine.utils.get('path');
 
       ListManager.prototype.updateTypeOptions = function() {
         var node, query, ul, viewNodes, _fn, _i, _len;
@@ -17257,9 +17265,9 @@ $.widget("ui.sortable", $.ui.mouse, {
             return _this.renderTools(q);
           };
         })(this));
-        queryPromise.fail((function(_this) {
-          return function(xhr, err, msg) {
-            return _this.$el.append("<div class=\"alert alert-error\">\n  <h1>" + (err || xhr) + "</h1>\n  <p>Unable to construct query: " + (msg || xhr) + "</p>\n</div>");
+        queryPromise.then(null, (function(_this) {
+          return function(err) {
+            return _this.$el.append("<div class=\"alert alert-error\">\n  <h1>Error</h1>\n  <p>Unable to construct query: " + err + "</p>\n</div>");
           };
         })(this));
         return this;
@@ -19251,16 +19259,13 @@ $.widget("ui.sortable", $.ui.mouse, {
       };
 
       ResultsTable.prototype.fill = function() {
-        var promise;
-        promise = this.getData(this.pageStart, this.pageSize).then(this.readHeaderInfo);
-        promise.done(this.appendRows);
-        promise.fail(this.handleError);
-        promise.done((function(_this) {
+        var notifyOfFill;
+        notifyOfFill = (function(_this) {
           return function() {
             return _this.query.trigger("imtable:change:page", _this.pageStart, _this.pageSize);
           };
-        })(this));
-        return promise;
+        })(this);
+        return this.getData(this.pageStart, this.pageSize).then(this.readHeaderInfo).then(this.appendRows).then(notifyOfFill, this.handleError);
       };
 
       ResultsTable.prototype.handleEmptyTable = function() {
@@ -19393,14 +19398,23 @@ $.widget("ui.sortable", $.ui.mouse, {
       ResultsTable.prototype.errorTempl = _.template("<div class=\"alert alert-error\">\n    <h2>Oops!</h2>\n    <p><i><%- error %></i></p>\n</div>");
 
       ResultsTable.prototype.handleError = function(err, time) {
-        var btn, mailto, notice, p;
-        notice = $(this.errorTempl({
-          error: err
-        }));
-        if (time != null) {
-          notice.append("<p>Time: " + time + "</p>");
+        var btn, errConf, explanation, mailto, message, notice, p, _ref;
+        if (time == null) {
+          time = new Date();
         }
-        notice.append("<p>\n    This is most likely related to the query that was just run. If you have\n    time, please send us an email with details of this query to help us diagnose and\n    fix this bug.\n</p>");
+        console.error(err, err != null ? err.stack : void 0);
+        if (/TypeError/.test(String(err))) {
+          errConf = intermine.options.ClientApplicationError;
+          message = errConf.Heading;
+        } else {
+          errConf = intermine.options.ServerApplicationError;
+          message = (_ref = err != null ? err.message : void 0) != null ? _ref : errConf.Heading;
+        }
+        notice = $(this.errorTempl({
+          error: message
+        }));
+        explanation = errConf.Body;
+        notice.append("<p>" + errConf.Body + "</p>");
         btn = $('<button class="btn btn-error">');
         notice.append(btn);
         p = $('<p style="display:none" class="well">');
@@ -19411,7 +19425,7 @@ $.widget("ui.sortable", $.ui.mouse, {
         });
         mailto = this.query.service.help + "?" + $.param({
           subject: "Error running embedded table query",
-          body: "We encountered an error running a query from an\nembedded result table.\n\npage:       " + window.location + "\nservice:    " + this.query.service.root + "\nerror:      " + err + "\ndate-stamp: " + time + "\nquery:      " + (this.query.toXML())
+          body: "We encountered an error running a query from an\nembedded result table.\n\npage:       " + window.location + "\nservice:    " + this.query.service.root + "\nerror:      " + err + "\ndate-stamp: " + time + "\n\n-------------------------------\nIMJS:       " + intermine.imjs.VERSION + "\n-------------------------------\nIMTABLES:   " + intermine.imtables.VERSION + "\n-------------------------------\nQUERY:      " + (this.query.toXML()) + "\n-------------------------------\nSTACK:      " + (err != null ? err.stack : void 0)
         }, true);
         mailto = mailto.replace(/\+/g, '%20');
         notice.append("<a class=\"btn btn-primary pull-right\" href=\"mailto:" + mailto + "\">\n    Email the help-desk\n</a>");
@@ -19604,6 +19618,7 @@ $.widget("ui.sortable", $.ui.mouse, {
       __extends(Table, _super);
 
       function Table() {
+        this.onSetupError = __bind(this.onSetupError, this);
         this.updatePageDisplay = __bind(this.updatePageDisplay, this);
         this.removeOverlay = __bind(this.removeOverlay, this);
         this.overlayTable = __bind(this.overlayTable, this);
@@ -19784,7 +19799,7 @@ $.widget("ui.sortable", $.ui.mouse, {
       };
 
       Table.prototype.getRowData = function(start, size) {
-        var end, freshness, isOutOfRange, isStale, page, promise, req;
+        var end, freshness, isOutOfRange, isStale, page, promise, serve, updateCacheAndServe;
         end = start + size;
         isOutOfRange = false;
         freshness = this.query.getSorting() + this.query.getConstraintXML() + this.query.views.join();
@@ -19794,27 +19809,33 @@ $.widget("ui.sortable", $.ui.mouse, {
         } else {
           isOutOfRange = this.cache.lowerBound < 0 || start < this.cache.lowerBound || end > this.cache.upperBound || size <= 0;
         }
-        promise = new jQuery.Deferred();
+        serve = (function(_this) {
+          return function() {
+            return _this.serveResultsFromCache(start, size);
+          };
+        })(this);
         if (isStale || isOutOfRange) {
           page = this.getPage(start, size);
+          updateCacheAndServe = (function(_this) {
+            return function(res) {
+              console.log(page, res);
+              _this.addRowsToCache(page, res);
+              _this.cache.freshness = freshness;
+              return serve();
+            };
+          })(this);
           this.overlayTable();
-          req = this.query[this.fetchMethod]({
+          promise = this.query[this.fetchMethod]({
             start: page.start,
             size: page.size
           });
-          req.fail(this.showError);
-          req.done((function(_this) {
-            return function(rows, rs) {
-              _this.addRowsToCache(page, rs);
-              _this.cache.freshness = freshness;
-              return promise.resolve(_this.serveResultsFromCache(start, size));
-            };
-          })(this));
-          req.always(this.removeOverlay);
+          promise.then(this.removeOverlay, this.removeOverlay);
+          return promise.then(updateCacheAndServe, this.showError);
         } else {
-          promise.resolve(this.serveResultsFromCache(start, size));
+          return jQuery.Deferred(function() {
+            return this.resolve(serve());
+          });
         }
-        return promise;
       };
 
       Table.prototype.overlayTable = function() {
@@ -19891,14 +19912,15 @@ $.widget("ui.sortable", $.ui.mouse, {
         return page;
       };
 
-      Table.prototype.addRowsToCache = function(page, result) {
-        var merged, rows;
+      Table.prototype.addRowsToCache = function(page, rows) {
+        var merged;
         if (!this.cache.lastResult) {
-          this.cache.lastResult = result;
-          this.cache.lowerBound = result.start;
+          this.cache.lastResult = {
+            results: rows.slice()
+          };
+          this.cache.lowerBound = page.start;
           return this.cache.upperBound = page.end();
         } else {
-          rows = result.results;
           merged = this.cache.lastResult.results.slice();
           if (page.start < this.cache.lowerBound) {
             merged = rows.concat(merged.slice(page.end() - this.cache.lowerBound));
@@ -19936,7 +19958,7 @@ $.widget("ui.sortable", $.ui.mouse, {
         this.updateSummary(start, size, result);
         fields = (function() {
           var _i, _len, _ref, _results;
-          _ref = result.views;
+          _ref = this.query.views;
           _results = [];
           for (_i = 0, _len = _ref.length; _i < _len; _i++) {
             v = _ref[_i];
@@ -20027,25 +20049,33 @@ $.widget("ui.sortable", $.ui.mouse, {
         tel = this.make("table", this.tableAttrs);
         this.$el.append(tel);
         jQuery(tel).append("<h2>Building table</h2>\n<div class=\"progress progress-striped active progress-info\">\n    <div class=\"bar\" style=\"width: 100%\"></div>\n</div>");
-        return this.query.service.fetchVersion(this.doRender(tel)).fail(this.onSetupError(tel));
+        return this.query.service.fetchVersion((function(_this) {
+          return function(err, version) {
+            if (err) {
+              return _this.onSetupError(tel, err);
+            } else {
+              return _this.doRender(tel, version);
+            }
+          };
+        })(this));
       };
 
-      Table.prototype.doRender = function(tel) {
-        return (function(_this) {
-          return function(version) {
-            var path, setupParams;
-            _this.fetchMethod = version >= 10 ? 'tableRows' : 'table';
-            path = "query/results";
-            setupParams = {
-              format: "jsontable",
-              query: _this.query.toXML(),
-              token: _this.query.service.token
-            };
-            _this.$el.appendTo(_this.$parent);
-            _this.query.service.post(path, setupParams).then(_this.onSetupSuccess(tel), _this.onSetupError(tel));
-            return _this;
+      Table.prototype.doRender = function(tel, version) {
+        var path, setupParams;
+        this.fetchMethod = version >= 10 ? 'tableRows' : 'table';
+        path = "query/results";
+        setupParams = {
+          format: "jsontable",
+          query: this.query.toXML(),
+          token: this.query.service.token
+        };
+        this.$el.appendTo(this.$parent);
+        this.query.service.post(path, setupParams).then(this.onSetupSuccess(tel), ((function(_this) {
+          return function(e) {
+            return _this.onSetupError(tel, e);
           };
-        })(this);
+        })(this))).then(null, console.error.bind(console));
+        return this;
       };
 
       Table.prototype.horizontalScroller = "<div class=\"scroll-bar-wrap well\">\n    <div class=\"scroll-bar-containment\">\n        <div class=\"scroll-bar alert-info alert\"></div>\n    </div>\n</div>";
@@ -20124,14 +20154,15 @@ $.widget("ui.sortable", $.ui.mouse, {
         return $widgets.append("<span class=\"im-table-summary\"></div>");
       };
 
-      Table.prototype.onSetupSuccess = function(telem) {
+      Table.prototype.onSetupSuccess = function(elem) {
         return (function(_this) {
           return function(result) {
             var $telem, $widgets, component, method, _i, _len, _ref;
-            $telem = jQuery(telem).empty();
-            $widgets = $('<div>').insertBefore(telem);
+            console.log("Success", result);
+            $telem = jQuery(elem).empty();
+            $widgets = $('<div>').insertBefore(elem);
             _this.table = new ResultsTable(_this.query, _this.getRowData, _this.columnHeaders);
-            _this.table.setElement(telem);
+            _this.table.setElement(elem);
             if (_this.pageSize != null) {
               _this.table.pageSize = _this.pageSize;
             }
@@ -20307,49 +20338,31 @@ $.widget("ui.sortable", $.ui.mouse, {
 
       badJson = "What we do know is that the server did not return a valid JSON response.";
 
-      Table.prototype.onSetupError = function(telem) {
-        return (function(_this) {
-          return function(resp) {
-            var content, e, issue, notice, reasonStr, reasons, text;
-            $(telem).empty();
-            console.error("SETUP FAILURE", arguments);
-            notice = _this.make("div", {
-              "class": "alert alert-error"
-            });
-            reasonStr = (function() {
-              if (text = resp != null ? resp.responseText : void 0) {
-                try {
-                  return (typeof JSON !== "undefined" && JSON !== null ? JSON.parse(text).error : void 0) || genericExplanation;
-                } catch (_error) {
-                  e = _error;
-                  console.error(text);
-                  return genericExplanation + "\n" + badJson;
-                }
-              } else if (resp != null) {
-                return String(resp);
-              } else {
-                return genericExplanation;
-              }
-            })();
-            reasons = reasonStr.split("\n");
-            content = [_this.make("span", {}, errorIntro)];
-            if (reasons.length) {
-              content.push(_this.make("ul", {}, (function() {
-                var _i, _len, _results;
-                _results = [];
-                for (_i = 0, _len = reasons.length; _i < _len; _i++) {
-                  issue = reasons[_i];
-                  _results.push(this.make("li", {}, issue));
-                }
-                return _results;
-              }).call(_this)));
+      Table.prototype.onSetupError = function(telem, err) {
+        var content, issue, notice, reasonStr, reasons;
+        $(telem).empty();
+        console.error("SETUP FAILURE", arguments);
+        notice = this.make("div", {
+          "class": "alert alert-error"
+        });
+        reasonStr = (err != null ? err.message : void 0) || genericExplanation;
+        reasons = reasonStr.split("\n");
+        content = [this.make("span", {}, errorIntro)];
+        if (reasons.length) {
+          content.push(this.make("ul", {}, (function() {
+            var _i, _len, _results;
+            _results = [];
+            for (_i = 0, _len = reasons.length; _i < _len; _i++) {
+              issue = reasons[_i];
+              _results.push(this.make("li", {}, issue));
             }
-            return $(notice).append(_this.make("a", {
-              "class": "close",
-              "data-dismiss": "alert"
-            }, "close")).append(_this.make("strong", {}, "Ooops...! ")).append(content).appendTo(telem);
-          };
-        })(this);
+            return _results;
+          }).call(this)));
+        }
+        return $(notice).append(this.make("a", {
+          "class": "close",
+          "data-dismiss": "alert"
+        }, "close")).append(this.make("strong", {}, "Ooops...! ")).append(content).appendTo(telem);
       };
 
       return Table;

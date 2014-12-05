@@ -60,7 +60,7 @@ define 'actions/list-manager', using 'actions/list-append-dialogue', 'actions/ne
         prefix = putativeParent + '.'
         (suspectedChild) -> suspectedChild.substring(0, prefix.length) is prefix
     
-    pathOf = intermine.funcutils.get 'path'
+    pathOf = intermine.utils.get 'path'
 
     updateTypeOptions: =>
       ul = @$ '.im-type-options'

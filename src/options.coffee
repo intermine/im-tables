@@ -24,6 +24,19 @@ scope "intermine.options",
     TableWidgets: ['Pagination', 'PageSizer', 'TableSummary', 'ManagementTools', 'ScrollBar']
     CellCutoff: 100
     ShowHistory: true
+    ServerApplicationError:
+      Heading: "There was a problem with the request to the server"
+      Body: """
+        This is most likely related to the query that was just run. If you have
+        time, please send us an email with details of this query to help us diagnose and
+        fix this bug.
+      """
+    ClientApplicationError:
+      Heading: 'Client application error'
+      Body: """
+        This is due to an unexpected error in the tables
+        application - we are sorry for the inconvenience
+      """
     Style:
       icons: 'glyphicons'
     CDN: # CDN resources that can be configured.

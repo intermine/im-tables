@@ -495,7 +495,6 @@ jQuery(document).ready(function($) {
     };
     var doLogin = function(url, token, query, props) {
         jQuery('#error-messages').empty();
-        console.log(props);
 
         display.imWidget({
             type: displayType,
@@ -511,13 +510,15 @@ jQuery(document).ready(function($) {
 
         $('.login-controls').toggleClass("logged-in", !!token);
 
-        var p1 = service.whoami()
-          .done(function(u) {$('#logged-in-notice').show().find('a.username').text(u.username);})
-          .fail(function() {$('#logged-in-notice').hide()});
+        var p1 = service.whoami().then(
+          function(u) {$('#logged-in-notice').show().find('a.username').text(u.username)},
+          function() {$('#logged-in-notice').hide()}
+        );
 
-        var p2 = service.fetchVersion()
-          .done(function(v) {$('.v9').toggleClass('unsupported', (v < 9))})
-          .fail(function() {$('.v9').addClass('unsupported');});
+        var p2 = service.fetchVersion().then(
+          function(v) {$('.v9').toggleClass('unsupported', (v < 9))},
+          function() {$('.v9').addClass('unsupported');}
+        );
         
     };
 
@@ -570,7 +571,7 @@ jQuery(document).ready(function($) {
       var root = service.root;
       $('#log-out').dropdown('toggle');
       var authP = makeBasicAuth(username, password);
-      authP.fail(function() {
+      authP.then(null, function() {
         notifier.notify({
           title: "Log in failed",
           text: 'Cannot fetch base64 encoder',
@@ -597,7 +598,7 @@ jQuery(document).ready(function($) {
         });
       });
 
-      promise.fail(function(xhr) {
+      promise.then(null, function(xhr) {
         notifier.notify({
           title: "Log in failed",
           text: 'Incorrect username/password',

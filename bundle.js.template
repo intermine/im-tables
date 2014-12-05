@@ -1,14 +1,23 @@
-(function() {
+(function(window) {
 
-  var root = this;
-  var context = {};
+  var root = this, context = window;
+
+  // Bind things which must be on the window itself.
+  ['addEventListener', 'removeEventListener', 'getComputedStyle'].forEach(function (name) {
+    window[name] = root[name].bind(root);
+  });
+  
+  (function() {
+    <%= imjs %>;
+  }).call(window);
+  // Aliases
+  window.intermine = window.imjs;
+  window.intermine.funcutils = window.intermine.utils;
+
   var define = function(name, deps, f) {
     context[name] = f();
   };
   define.amd = {jQuery: true};
-
-  context.document = root.document;
-  context.location = root.location;
 
   (function() {
     <%= jq %>
@@ -35,10 +44,6 @@
   }).call(context, context);
 
   (function() {
-    <%= imjs %>
-  }).call(context);
-
-  (function() {
     var jQuery = context.jQuery;
     var Backbone = context.Backbone;
     var $ = jQuery;
@@ -48,6 +53,10 @@
     <%= imt %>
   }).call(context);
 
-  window.intermine = context._.extend((window.intermine || {}), context.intermine);
+  (function (extend, intermine) {
+    context.intermine.imtables = extend((context.intermine.imtables || {}), {VERSION: '<%= VERSION %>'});
+    root.intermine = extend(intermine, context.intermine);
+  })(context._.extend, (root.intermine || {}));
+  intermine.jQuery = intermine.$ = context.jQuery; // Re-export jQuery if others want our version.
 
-}).call(window);
+}).call(window, Object.create(window));

@@ -9,6 +9,8 @@ BLACKLIST = [
   '.modal-body', '.modal-form', '.tooltip', '.tooltip-inner', '.popover', '.popover-title'
 ]
 
+packageInfo = require './package.json'
+
 prefix = require('prefix-css-node')#.prefixer '.bootstrap', BLACKLIST
 
 header = """
@@ -63,9 +65,9 @@ execP = (cmd) ->
 DEFAULT_ERR_HANDLER = (err) -> console.error err
 
 promiserToNode = (promiser) -> (cb) ->
-    done = promiser()
-    cb ?= DEFAULT_ERR_HANDLER
-    done.then( -> cont cb).done()
+  done = promiser()
+  cb ?= DEFAULT_ERR_HANDLER
+  done.then(-> cont cb).done()
 
 FULL_BUNDLE = 'bundle.js.template'
 BUNDLE_NAME = 'js/imtables-bundled.js'
@@ -86,7 +88,8 @@ bundle = (templateFileName, outFileName) -> promiserToNode ->
   imtp = read 'js/imtables.js'
 
   wrap = (wrapper, data) -> _.template wrapper, data
-  bundleUp = ([bundle, jq, _, bb, bs, ui, imjs, imt]) -> wrap bundle, {jq, _, bb, bs, ui, imjs, imt}
+  bundleUp = ([bundle, jq, _, bb, bs, ui, imjs, imt]) ->
+    wrap bundle, {jq, _, bb, bs, ui, imjs, imt, VERSION: packageInfo.version}
   writeOut = writer outFileName
   uglyOutName = outFileName.replace /js$/, 'min.js'
   uglify = -> execP "./node_modules/.bin/uglifyjs -o #{ uglyOutName } #{ outFileName }"
