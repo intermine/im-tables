@@ -8,7 +8,7 @@
  * Copyright 2012, 2013, Alex Kalderimis and InterMine
  * Released under the LGPL license.
  * 
- * Built at Mon Dec 08 2014 17:35:54 GMT+0000 (GMT)
+ * Built at Mon Dec 08 2014 17:45:49 GMT+0000 (GMT)
  */
 
 (function() {
@@ -11711,7 +11711,7 @@
           time = new Date();
         }
         console.error(err, err != null ? err.stack : void 0);
-        if (/TypeError/.test(String(err))) {
+        if (/(Type|Reference)Error/.test(String(err))) {
           errConf = intermine.options.ClientApplicationError;
           message = errConf.Heading;
         } else {
@@ -12135,20 +12135,15 @@
         });
       };
 
+      PageSizer.prototype.template = _.template("<label>\n  <span class=\"im-only-widescreen\">Rows per page:</span>\n  <select class=\"span\" title=\"Rows per page\">\n    <% sizes.forEach(function (s) { %>\n      <option value=\"<%= s[0] %>\" <%= (s[0] === size) && 'selected' %>>\n        <%= s[1] || s[0] %>\n      </option>\n    <% }); %>\n  </select>\n</label>");
+
       PageSizer.prototype.render = function() {
-        var frag, label, select, size, value, _i, _len, _ref, _ref1;
+        var frag, size;
         frag = $(document.createDocumentFragment());
         size = this.model.get('size');
-        frag.append("<label>\n  <span class=\"im-only-widescreen\">Rows per page:</span>\n  <select class=\"span\" title=\"Rows per page\"></select>\n</label>");
-        select = this.$('select');
-        _ref = this.sizes;
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          _ref1 = _ref[_i], value = _ref1[0], label = _ref1[1];
-          select.append(this.make('option', {
-            value: value,
-            selected: value === size
-          }, label || value));
-        }
+        frag.append(this.template(_.extend(this.model.toJSON(), {
+          sizes: this.sizes
+        })));
         this.$el.html(frag);
         return this;
       };

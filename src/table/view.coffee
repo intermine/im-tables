@@ -18,7 +18,7 @@ do ->
     renderError = (query, err, time) =>
       time ?= new Date()
       console.error(err, err?.stack)
-      if /TypeError/.test(String(err))
+      if /(Type|Reference)Error/.test(String(err))
         errConf = intermine.options.ClientApplicationError
         message = errConf.Heading
       else
@@ -260,19 +260,23 @@ do ->
           size = parseInt($(evt.target).val(), 10)
           @model.set size: size
 
+        template: _.template """
+          <label>
+            <span class="im-only-widescreen">Rows per page:</span>
+            <select class="span" title="Rows per page">
+              <% sizes.forEach(function (s) { %>
+                <option value="<%= s[0] %>" <%= (s[0] === size) && 'selected' %>>
+                  <%= s[1] || s[0] %>
+                </option>
+              <% }); %>
+            </select>
+          </label>
+        """
+
         render: ->
           frag = $ document.createDocumentFragment()
           size = @model.get 'size'
-          frag.append """
-            <label>
-              <span class="im-only-widescreen">Rows per page:</span>
-              <select class="span" title="Rows per page"></select>
-            </label>
-          """
-          select = @$('select')
-          for [value, label] in @sizes
-            select.append @make 'option', {value, selected: value is size}, (label or value)
-
+          frag.append @template _.extend @model.toJSON(), {@sizes}
           @$el.html frag
 
           this
