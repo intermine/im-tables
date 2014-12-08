@@ -754,6 +754,7 @@ do ->
           </div>
         """
 
+        # TODO - like PageSizer, make this its own view.
         placePagination: ($widgets) ->
           $pagination = $(intermine.snippets.table.Pagination).appendTo($widgets)
           $pagination.find('li').tooltip(placement: "top")
@@ -788,7 +789,9 @@ do ->
           correction = if count % size is 0 then -1 else 0
           Math.floor(count / size) + correction
 
-        goTo: (start) -> @model.set start: start
+        goTo: (start) ->
+          console.debug 'Going to', start
+          @model.set start: start
 
         goToPage: (page) -> @model.set start: (page * @model.get('size'))
 
@@ -797,7 +800,7 @@ do ->
           @goTo Math.max 0, start - (pages * size)
 
         goForward: (pages) ->
-          {start, size} = @model.get 'start'
+          {start, size} = @model.toJSON()
           @goTo Math.min @getMaxPage() * size, start + (pages * size)
 
         pageButtonClick: (e) ->

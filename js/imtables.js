@@ -8,7 +8,7 @@
  * Copyright 2012, 2013, Alex Kalderimis and InterMine
  * Released under the LGPL license.
  * 
- * Built at Mon Dec 08 2014 18:23:52 GMT+0000 (GMT)
+ * Built at Mon Dec 08 2014 18:28:06 GMT+0000 (GMT)
  */
 
 (function() {
@@ -12858,6 +12858,7 @@
       };
 
       Table.prototype.goTo = function(start) {
+        console.debug('Going to', start);
         return this.model.set({
           start: start
         });
@@ -12877,7 +12878,7 @@
 
       Table.prototype.goForward = function(pages) {
         var size, start, _ref;
-        _ref = this.model.get('start'), start = _ref.start, size = _ref.size;
+        _ref = this.model.toJSON(), start = _ref.start, size = _ref.size;
         return this.goTo(Math.min(this.getMaxPage() * size, start + (pages * size)));
       };
 
