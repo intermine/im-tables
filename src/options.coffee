@@ -3,6 +3,7 @@ scope "intermine.options",
     NUM_SEPARATOR: ',',
     NUM_CHUNK_SIZE: 3,
     MAX_PIE_SLICES: 15
+    DefaultPageSize: 25
     DefaultCodeLang: 'py'
     ListFreshness: 250 # Number of milliseconds lists requests will be considered fresh for.
     MaxSuggestions: 1000 # Max number of suggestions to fetch and show when editing constraints.

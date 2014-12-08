@@ -8,7 +8,7 @@
  * Copyright 2012, 2013, Alex Kalderimis and InterMine
  * Released under the LGPL license.
  * 
- * Built at Fri Dec 05 2014 13:57:10 GMT+0000 (GMT)
+ * Built at Mon Dec 08 2014 17:17:19 GMT+0000 (GMT)
  */
 
 (function() {
@@ -577,6 +577,7 @@
     NUM_SEPARATOR: ',',
     NUM_CHUNK_SIZE: 3,
     MAX_PIE_SLICES: 15,
+    DefaultPageSize: 25,
     DefaultCodeLang: 'py',
     ListFreshness: 250,
     MaxSuggestions: 1000,
@@ -9798,22 +9799,23 @@
       DashBoard.prototype.TABLE_CLASSES = "span9 im-query-results";
 
       DashBoard.prototype.loadQuery = function(q) {
-        var cb, currentPageSize, evt, k, v, _ref, _ref1, _ref2, _ref3, _results;
-        currentPageSize = (_ref = this.table) != null ? _ref.getCurrentPageSize() : void 0;
+        var cb, evt, k, size, v, _ref, _ref1, _ref2, _ref3, _results;
+        size = (_ref = this.table) != null ? _ref.getPage().size : void 0;
+        if (this.main == null) {
+          this.render();
+        }
         if ((_ref1 = this.table) != null) {
           _ref1.remove();
         }
-        this.main.empty();
-        this.table = new intermine.query.results.Table(q, this.main, this.columnHeaders);
+        this.table = new intermine.query.results.Table(q, this.columnHeaders, {
+          size: size
+        });
         _ref2 = this.tableProperties;
         for (k in _ref2) {
           v = _ref2[k];
           this.table[k] = v;
         }
-        if (currentPageSize != null) {
-          this.table.pageSize = currentPageSize;
-        }
-        this.table.render();
+        this.main.html(this.table.render());
         _ref3 = this.queryEvents;
         _results = [];
         for (evt in _ref3) {
@@ -9825,6 +9827,7 @@
 
       DashBoard.prototype.render = function() {
         var queryPromise;
+        this.$el.empty();
         this.$el.addClass(intermine.options.StylePrefix);
         this.tools = $("<div class=\"clearfix\">");
         this.$el.append(this.tools);
@@ -10698,7 +10701,7 @@
   })();
 
   (function() {
-    var CELL_HTML, Cell, NullCell, SubTable, _CELL_HTML;
+    var CELL_HTML, Cell, SubTable, _CELL_HTML;
     _CELL_HTML = _.template("<input class=\"list-chooser\" type=\"checkbox\"\n  <% if (checked) { %> checked <% } %>\n  <% if (disabled) { %> disabled <% } %>\n  style=\"display: <%= display %>\"\n>\n<a class=\"im-cell-link\" target=\"<%= target %>\" href=\"<%= url %>\">\n  <% if (isForeign) { %>\n    <% if (icon) { %>\n      <img src=\"<%= icon %>\" class=\"im-external-link\"></img>\n    <% } else { %>\n      <i class=\"icon-globe\"></i>\n    <% } %>\n  <% } %>\n  <% if (value == null) { %>\n    <span class=\"null-value\">&nbsp;</span>\n  <% } else { %>\n    <span class=\"im-displayed-value\">\n      <%= value %>\n    </span>\n  <% } %>\n</a>\n<% if (rawValue != null && field == 'url' && rawValue != url) { %>\n    <a class=\"im-cell-link external\" href=\"<%= rawValue %>\">\n      <i class=\"icon-globe\"></i>\n      link\n    </a>\n<% } %>");
     CELL_HTML = function(data) {
       var host, url;
@@ -10711,7 +10714,6 @@
       __extends(SubTable, _super);
 
       function SubTable() {
-        this.appendRow = __bind(this.appendRow, this);
         return SubTable.__super__.constructor.apply(this, arguments);
       }
 
@@ -10720,54 +10722,58 @@
       SubTable.prototype.className = "im-result-subtable";
 
       SubTable.prototype.initialize = function(options) {
-        var subtable;
         this.options = options != null ? options : {};
-        this.query = this.options.query;
         this.cellify = this.options.cellify;
-        this.path = this.options.node;
-        subtable = this.options.subtable;
-        this.rows = subtable.rows;
-        this.view = subtable.view;
-        this.column = this.query.getPathInfo(subtable.column);
-        this.query.on('expand:subtables', (function(_this) {
-          return function(path) {
-            if (path.toString() === _this.column.toString()) {
-              return _this.renderTable().slideDown();
-            }
+        this.path = this.get('column');
+        this.model.on('expand', (function(_this) {
+          return function() {
+            return _this.renderTable().slideDown();
           };
         })(this));
-        return this.query.on('collapse:subtables', (function(_this) {
-          return function(path) {
-            if (path.toString() === _this.column.toString()) {
-              return _this.$('.im-subtable').slideUp();
-            }
+        return this.model.on('collapse', (function(_this) {
+          return function() {
+            return _this.$('.im-subtable').slideUp();
           };
         })(this));
       };
 
+      SubTable.prototype.get = function(key) {
+        return this.model.get(key);
+      };
+
       SubTable.prototype.getSummaryText = function() {
-        var def, level;
+        var attrs, column, def, first_row, level, main, query, rows, typePath, view_0, _ref;
         def = jQuery.Deferred();
-        if (this.column.isCollection()) {
-          def.resolve("" + this.rows.length + " " + (this.column.getType().name) + "s");
+        column = this.get('column');
+        rows = this.get('rows');
+        query = this.get('query');
+        if (column.isCollection()) {
+          def.resolve("" + rows.length + " " + (this.get('columnTypeName')) + "s");
         } else {
-          if (this.rows.length === 0) {
-            level = this.query.isOuterJoined(this.view[0]) ? this.query.getPathInfo(this.query.getOuterJoin(this.view[0])) : this.column;
-            def.resolve("<span class=\"im-no-value\">No " + (level.getType().name) + "</span>");
+          if (rows.length === 0) {
+            view_0 = this.get('view')[0];
+            level = query.isOuterJoined(view_0) ? query.getPathInfo(query.getOuterJoin(view_0)) : column;
+            typePath = query.model.getPathInfo(level.getType());
+            typePath.getDisplayName().then(function(name) {
+              return def.resolve("<span class=\"im-no-value\">No " + name + "</span>");
+            });
           } else {
-            def.resolve("" + this.rows[0][0].value + " (" + (this.rows[0].slice(1).map(function(c) {
-              return c.value;
-            }).join(', ')) + ")");
+            first_row = this.get('rows')[0];
+            _ref = first_row.map(function(c) {
+              return c.get('value');
+            }), main = _ref[0], attrs = 2 <= _ref.length ? __slice.call(_ref, 1) : [];
+            def.resolve("" + main + " (" + (attrs.join(', ')) + ")");
           }
         }
         return def.promise();
       };
 
       SubTable.prototype.getEffectiveView = function() {
-        var c, cell, col, columns, commonPrefix, explicitReplacements, fieldExpr, formatter, getFormatter, getReplacedTest, isReplaced, longestCommonPrefix, parent, path, r, replacedBy, replaces, row, shouldFormat, subPath, sv, view, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref, _ref1, _ref2, _ref3, _ref4;
+        var c, cell, col, columns, commonPrefix, explicitReplacements, fieldExpr, formatter, getFormatter, getReplacedTest, isReplaced, longestCommonPrefix, parent, path, query, r, replacedBy, replaces, row, shouldFormat, subPath, sv, view, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref, _ref1, _ref2, _ref3, _ref4;
         _ref = intermine.utils, getReplacedTest = _ref.getReplacedTest, longestCommonPrefix = _ref.longestCommonPrefix;
         _ref1 = intermine.results, shouldFormat = _ref1.shouldFormat, getFormatter = _ref1.getFormatter;
-        row = this.rows[0];
+        query = this.get('query');
+        row = this.get('rows')[0];
         replacedBy = {};
         explicitReplacements = {};
         columns = (function() {
@@ -10775,25 +10781,25 @@
           _results = [];
           for (_i = 0, _len = row.length; _i < _len; _i++) {
             cell = row[_i];
-            _ref2 = cell.view != null ? (commonPrefix = longestCommonPrefix(cell.view), path = this.query.getPathInfo(commonPrefix), [
+            _ref2 = cell.has('view') ? (commonPrefix = longestCommonPrefix(cell.get('view')), path = query.getPathInfo(commonPrefix), [
               path, (function() {
                 var _j, _len1, _ref2, _results1;
                 _ref2 = cell.view;
                 _results1 = [];
                 for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
                   sv = _ref2[_j];
-                  _results1.push(this.query.getPathInfo(sv));
+                  _results1.push(query.getPathInfo(sv));
                 }
                 return _results1;
-              }).call(this)
-            ]) : (path = this.query.getPathInfo(cell.column), [path, [path]]), path = _ref2[0], replaces = _ref2[1];
+              })()
+            ]) : (path = cell.get('column'), [path, [path]]), path = _ref2[0], replaces = _ref2[1];
             _results.push({
               path: path,
               replaces: replaces
             });
           }
           return _results;
-        }).call(this);
+        })();
         for (_i = 0, _len = columns.length; _i < _len; _i++) {
           c = columns[_i];
           if (!(c.path.isAttribute() && shouldFormat(c.path))) {
@@ -10804,13 +10810,13 @@
             replacedBy[parent] = c;
           }
           formatter = getFormatter(c.path);
-          if (__indexOf.call(this.options.blacklistedFormatters, formatter) < 0) {
+          if (this.options.canUseFormatter(formatter)) {
             c.isFormatted = true;
             c.formatter = formatter;
             _ref3 = (_ref2 = formatter.replaces) != null ? _ref2 : [];
             for (_j = 0, _len1 = _ref3.length; _j < _len1; _j++) {
               fieldExpr = _ref3[_j];
-              subPath = this.query.getPathInfo("" + parent + "." + fieldExpr);
+              subPath = query.getPathInfo("" + parent + "." + fieldExpr);
               if (replacedBy[subPath] == null) {
                 replacedBy[subPath] = c;
               }
@@ -10839,37 +10845,36 @@
       };
 
       SubTable.prototype.renderHead = function(headers, columns) {
-        var c, tableNamePromise, _i, _len, _results;
-        tableNamePromise = this.column.getDisplayName();
+        var c, columnName, query, _i, _len, _results;
+        columnName = this.get('columnName');
+        query = this.get('query');
         _results = [];
         for (_i = 0, _len = columns.length; _i < _len; _i++) {
           c = columns[_i];
-          _results.push((function(_this) {
-            return function(c) {
-              var th;
-              th = $("<th>\n    <i class=\"" + intermine.css.headerIconRemove + "\"></i>\n    <span></span>\n</th>");
-              th.find('i').click(function(e) {
-                return _this.query.removeFromSelect(c.replaces);
-              });
-              $.when(tableNamePromise, c.path.getDisplayName()).then(function(tableName, colName) {
-                var span, text;
-                text = colName.match(tableName) ? colName.replace(tableName, '').replace(/^\s*>?\s*/, '') : colName.replace(/^[^>]*\s*>\s*/, '');
-                return span = th.find('span').text(text);
-              });
-              return headers.append(th);
-            };
-          })(this)(c));
+          _results.push((function(c) {
+            var th;
+            th = $("<th>\n    <i class=\"" + intermine.css.headerIconRemove + "\"></i>\n    <span></span>\n</th>");
+            th.find('i').click(function() {
+              return query.removeFromSelect(c.replaces);
+            });
+            $.when(columnName, c.path.getDisplayName()).then(function(tableName, colName) {
+              var span, text;
+              text = colName.match(tableName) ? colName.replace(tableName, '').replace(/^\s*>?\s*/, '') : colName.replace(/^[^>]*\s*>\s*/, '');
+              return span = th.find('span').text(text);
+            });
+            return th.appendTo(headers);
+          })(c));
         }
         return _results;
       };
 
       SubTable.prototype.appendRow = function(columns, row, tbody) {
-        var c, cell, cells, processed, r, replacedBy, tr, w, _fn, _i, _j, _k, _len, _len1, _len2, _ref;
+        var c, cell, cellViews, processed, r, replacedBy, tr, w, _fn, _i, _j, _k, _len, _len1, _len2, _ref;
         if (tbody == null) {
           tbody = this.$('.im-subtable tbody');
         }
         tr = $('<tr>');
-        w = this.$el.width() / this.view.length;
+        w = this.$el.width() / this.get('view').length;
         processed = {};
         replacedBy = {};
         for (_i = 0, _len = columns.length; _i < _len; _i++) {
@@ -10880,45 +10885,43 @@
             replacedBy[r] = c;
           }
         }
-        cells = row.map(this.cellify);
-        _fn = (function(_this) {
-          return function(tr, cell) {
-            var formatter, otherC, path, replaces, _l, _len3, _len4, _m, _ref1, _ref2;
-            if (processed[cell.path]) {
+        cellViews = row.map(this.cellify);
+        _fn = function(tr, cell) {
+          var formatter, otherC, path, replaces, _l, _len3, _len4, _m, _ref1, _ref2;
+          if (processed[cell.path]) {
+            return;
+          }
+          processed[cell.path] = true;
+          _ref2 = (_ref1 = replacedBy[cell.path]) != null ? _ref1 : {
+            replaces: []
+          }, replaces = _ref2.replaces, formatter = _ref2.formatter, path = _ref2.path;
+          if (replaces.length > 1) {
+            if (!path.equals(cell.path.getParent())) {
               return;
             }
-            processed[cell.path] = true;
-            _ref2 = (_ref1 = replacedBy[cell.path]) != null ? _ref1 : {
-              replaces: []
-            }, replaces = _ref2.replaces, formatter = _ref2.formatter, path = _ref2.path;
-            if (replaces.length > 1) {
-              if (!path.equals(cell.path.getParent())) {
-                return;
-              }
-              if ((formatter != null ? formatter.merge : void 0) != null) {
-                for (_l = 0, _len3 = row.length; _l < _len3; _l++) {
-                  otherC = row[_l];
-                  if (_.any(replaces, function(repl) {
-                    return repl.equals(otherC.path);
-                  })) {
-                    formatter.merge(cell.model, otherC.model);
-                  }
+            if ((formatter != null ? formatter.merge : void 0) != null) {
+              for (_l = 0, _len3 = row.length; _l < _len3; _l++) {
+                otherC = row[_l];
+                if (_.any(replaces, function(repl) {
+                  return repl.equals(otherC.path);
+                })) {
+                  formatter.merge(cell.model, otherC.model);
                 }
               }
             }
-            for (_m = 0, _len4 = replaces.length; _m < _len4; _m++) {
-              r = replaces[_m];
-              processed[r] = true;
-            }
-            if (formatter != null) {
-              cell.formatter = formatter;
-            }
-            tr.append(cell.el);
-            return cell.render().setWidth(w);
-          };
-        })(this);
-        for (_k = 0, _len2 = cells.length; _k < _len2; _k++) {
-          cell = cells[_k];
+          }
+          for (_m = 0, _len4 = replaces.length; _m < _len4; _m++) {
+            r = replaces[_m];
+            processed[r] = true;
+          }
+          if (formatter != null) {
+            cell.formatter = formatter;
+          }
+          tr.append(cell.el);
+          return cell.render();
+        };
+        for (_k = 0, _len2 = cellViews.length; _k < _len2; _k++) {
+          cell = cellViews[_k];
           _fn(tr, cell);
         }
         tr.appendTo(tbody);
@@ -10926,30 +10929,31 @@
       };
 
       SubTable.prototype.renderTable = function($table) {
-        var colRoot, colStr, columns, docfrag, row, tbody, _i, _len, _ref;
+        var columns, row, rows, tbody, tbodyFrag, thead, theadFrag, _i, _len;
         if ($table == null) {
           $table = this.$('.im-subtable');
         }
         if (this.tableRendered) {
           return $table;
         }
-        colRoot = this.column.getType().name;
-        colStr = this.column.toString();
-        if (this.rows.length > 0) {
+        tbody = $table.find('tbody');
+        thead = $table.find('thead tr');
+        rows = this.get('rows');
+        if (rows.length > 0) {
+          tbodyFrag = document.createDocumentFragment();
+          theadFrag = document.createDocumentFragment();
           columns = this.getEffectiveView();
-          this.renderHead($table.find('thead tr'), columns);
-          tbody = $table.find('tbody');
-          docfrag = document.createDocumentFragment();
+          this.renderHead(theadFrag, columns);
           if (this.column.isCollection()) {
-            _ref = this.rows;
-            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-              row = _ref[_i];
-              this.appendRow(columns, row, docfrag);
+            for (_i = 0, _len = rows.length; _i < _len; _i++) {
+              row = rows[_i];
+              this.appendRow(columns, row, tbodyFrag);
             }
           } else {
-            this.appendRow(columns, this.rows[0], docfrag);
+            this.appendRow(columns, rows[0], tbodyFrag);
           }
-          tbody.html(docfrag);
+          thead.html(theadFrag);
+          tbody.html(tbodyFrag);
         }
         this.tableRendered = true;
         return $table;
@@ -10965,14 +10969,14 @@
           e.stopPropagation();
         }
         $table = this.$('.im-subtable');
-        evt = $table.is(':visible') ? 'subtable:collapsed' : (this.renderTable($table), 'subtable:expanded');
+        evt = $table.is(':visible') ? 'collapsed' : (this.renderTable($table), 'expanded');
         $table.slideToggle();
-        return this.query.trigger(evt, this.column);
+        return this.model.trigger('evt');
       };
 
       SubTable.prototype.render = function() {
         var icon, summary;
-        icon = this.rows.length > 0 ? "<i class=\"" + intermine.icons.Table + "\"></i>" : '<i class=icon-non-existent></i>';
+        icon = this.get('rows').length > 0 ? "<i class=\"" + intermine.icons.Table + "\"></i>" : '<i class=icon-non-existent></i>';
         summary = $("<span class=\"im-subtable-summary\">\n  " + icon + "&nbsp;\n</span>");
         summary.appendTo(this.$el);
         this.getSummaryText().done(function(content) {
@@ -10982,20 +10986,6 @@
         if (intermine.options.SubtableInitialState === 'open' || this.options.mainTable.SubtableInitialState === 'open') {
           this.toggleTable();
         }
-        return this;
-      };
-
-      SubTable.prototype.getUnits = function() {
-        if (this.rows.length = 0) {
-          return this.view.length;
-        } else {
-          return _.reduce(this.rows[0], (function(a, item) {
-            return a + (item.view != null ? item.view.length : 1);
-          }), 0);
-        }
-      };
-
-      SubTable.prototype.setWidth = function(w) {
         return this;
       };
 
@@ -11015,10 +11005,6 @@
 
       Cell.prototype.className = "im-result-field";
 
-      Cell.prototype.getUnits = function() {
-        return 1;
-      };
-
       Cell.prototype.formatter = function(model) {
         if (model.get(this.options.field) != null) {
           return model.escape(this.options.field);
@@ -11027,21 +11013,18 @@
         }
       };
 
-      Cell.prototype.initialize = function(options) {
-        var field, path;
-        this.options = options != null ? options : {};
-        this.model.on('change', this.selectingStateChange, this);
-        this.model.on('change', this.updateValue, this);
-        this.listenToQuery(this.options.query);
-        field = this.options.field;
-        path = this.path = this.options.node.append(field);
-        return this.$el.addClass('im-type-' + path.getType().toLowerCase());
+      Cell.prototype.initialize = function() {
+        this.model.get('cell').on('change', this.selectingStateChange, this);
+        this.model.get('cell').on('change', this.updateValue, this);
+        this.listenToQuery(this.model.get('query'));
+        return this.path = this.model.get('column');
       };
 
       Cell.prototype.remove = function() {
         var _ref;
-        this.model.off('change', this.selectingStateChange);
-        this.model.off('change', this.updateValue);
+        this.model.off();
+        this.model.get('cell').off('change', this.selectingStateChange);
+        this.model.get('cell').off('change', this.updateValue);
         if ((_ref = this.popover) != null) {
           _ref.remove();
         }
@@ -11058,8 +11041,8 @@
           })(this),
           'show': (function(_this) {
             return function(e) {
-              _this.options.query.trigger('showing:preview', _this.el);
-              if (_this.model.get('is:selecting')) {
+              _this.model.get('query').trigger('showing:preview', _this.el);
+              if (_this.model.get('cell').get('is:selecting')) {
                 return e != null ? e.preventDefault() : void 0;
               }
             };
@@ -11067,7 +11050,7 @@
           'hide': (function(_this) {
             return function(e) {
               var _ref;
-              return (_ref = _this.model.cachedPopover) != null ? _ref.detach() : void 0;
+              return (_ref = _this.model.get('cell').cachedPopover) != null ? _ref.detach() : void 0;
             };
           })(this),
           'click': 'activateChooser',
@@ -11084,63 +11067,77 @@
       };
 
       Cell.prototype.reportClick = function() {
-        return this.model.trigger('click', this.model);
+        return this.model.get('cell').trigger('click', this.model.get('cell'));
       };
 
       Cell.prototype.listenToQuery = function(q) {
-        q.on("start:list-creation", (function(_this) {
+        var listenToReplacement, onListCreation, onShowingPreview, onStartHighlightNode, onStopHighlight, onStopListCreation;
+        onListCreation = (function(_this) {
           return function() {
-            return _this.model.set({
+            return _this.model.get('cell').set({
               'is:selecting': true
             });
           };
-        })(this));
-        q.on("stop:list-creation", (function(_this) {
+        })(this);
+        onStopListCreation = (function(_this) {
           return function() {
-            return _this.model.set({
+            return _this.model.get('cell').set({
               'is:selecting': false,
               'is:selected': false
             });
           };
-        })(this));
-        q.on('showing:preview', (function(_this) {
+        })(this);
+        onShowingPreview = (function(_this) {
           return function(el) {
             var _ref;
             if (el !== _this.el) {
               return (_ref = _this.cellPreview) != null ? _ref.hide() : void 0;
             }
           };
-        })(this));
-        q.on("start:highlight:node", (function(_this) {
+        })(this);
+        onStartHighlightNode = (function(_this) {
           return function(node) {
             var _ref;
-            if (((_ref = _this.options.node) != null ? _ref.toPathString() : void 0) === node.toPathString()) {
+            if (((_ref = _this.model.get('node')) != null ? _ref.toString() : void 0) === node.toString()) {
               return _this.$el.addClass("im-highlight");
             }
           };
-        })(this));
-        q.on("stop:highlight", (function(_this) {
+        })(this);
+        onStopHighlight = (function(_this) {
           return function() {
             return _this.$el.removeClass("im-highlight");
           };
-        })(this));
-        return q.on("replaced:by", (function(_this) {
+        })(this);
+        listenToReplacement = (function(_this) {
           return function(replacement) {
+            q.off("start:list-creation", onListCreation);
+            q.off("stop:list-creation", onStopListCreation);
+            q.off('showing:preview', onShowingPreview);
+            q.off("start:highlight:node", onStartHighlightNode);
+            q.off("stop:highlight", onStopHighlight);
+            q.off("replaced:by", listenToReplacement);
             return _this.listenToQuery(replacement);
           };
-        })(this));
+        })(this);
+        q.on("start:list-creation", onListCreation);
+        q.on("stop:list-creation", onStopListCreation);
+        q.on('showing:preview', onShowingPreview);
+        q.on("start:highlight:node", onStartHighlightNode);
+        q.on("stop:highlight", onStopHighlight);
+        return q.on("replaced:by", listenToReplacement);
       };
 
       Cell.prototype.getPopoverContent = function() {
-        var content, id, popover, type;
-        if (this.model.cachedPopover != null) {
-          return this.model.cachedPopover;
+        var cell, content, id, popover, type;
+        cell = this.model.get('cell');
+        if (cell.cachedPopover != null) {
+          return cell.cachedPopover;
         }
-        type = this.model.get('obj:type');
-        id = this.model.get('id');
+        type = cell.get('obj:type');
+        id = cell.get('id');
         popover = this.popover = new intermine.table.cell.Preview({
-          service: this.options.query.service,
-          schema: this.options.query.model,
+          service: this.model.get('query').service,
+          schema: this.model.get('query').model,
           model: {
             type: type,
             id: id
@@ -11153,7 +11150,7 @@
           };
         })(this));
         popover.render();
-        return this.model.cachedPopover = content;
+        return cell.cachedPopover = content;
       };
 
       Cell.prototype.getPopoverPlacement = function(popover) {
@@ -11188,7 +11185,7 @@
           container: this.el,
           containment: '.im-query-results',
           html: true,
-          title: this.model.get('obj:type'),
+          title: this.model.get('typeName'),
           trigger: intermine.options.CellPreviewTrigger,
           delay: {
             show: 250,
@@ -11204,14 +11201,14 @@
       Cell.prototype.updateValue = function() {
         return _.defer((function(_this) {
           return function() {
-            return _this.$('.im-displayed-value').html(_this.formatter(_this.model));
+            return _this.$('.im-displayed-value').html(_this.formatter(_this.model.get('cell')));
           };
         })(this));
       };
 
       Cell.prototype.getInputState = function() {
         var checked, disabled, display, selectable, selected, selecting, _ref;
-        _ref = this.model.selectionState(), selected = _ref.selected, selectable = _ref.selectable, selecting = _ref.selecting;
+        _ref = this.model.get('cell').selectionState(), selected = _ref.selected, selectable = _ref.selectable, selecting = _ref.selecting;
         checked = selected;
         disabled = !selectable;
         display = selecting && selectable ? 'inline' : 'none';
@@ -11237,18 +11234,18 @@
       Cell.prototype.getData = function() {
         var ExternalLinkIcons, IndicateOffHostLinks, data, domain, field, url, _ref;
         _ref = intermine.options, IndicateOffHostLinks = _ref.IndicateOffHostLinks, ExternalLinkIcons = _ref.ExternalLinkIcons;
-        field = this.options.field;
+        field = this.model.get('field');
         data = {
-          value: this.formatter(this.model),
-          rawValue: this.model.get(field),
+          value: this.formatter(this.model.get('cell')),
+          rawValue: this.model.get('value'),
           field: field,
-          url: this.model.get('service:url'),
+          url: this.model.get('cell').get('service:url'),
           host: IndicateOffHostLinks ? window.location.host : /.*/,
           icon: null
         };
         _.extend(data, this.getInputState());
         if (!/^http/.test(data.url)) {
-          data.url = this.model.get('service:base') + data.url;
+          data.url = this.model.get('cell').get('service:base') + data.url;
         }
         for (domain in ExternalLinkIcons) {
           url = ExternalLinkIcons[domain];
@@ -11264,24 +11261,21 @@
       Cell.prototype.render = function() {
         var data;
         data = this.getData();
-        this.$el.html(CELL_HTML(data));
+        this.$el.addClass('im-type-' + this.path.getType().toLowerCase());
         if (data.checked) {
           this.$el.addClass('active');
         }
-        if (this.model.get('id')) {
+        this.$el.html(CELL_HTML(data));
+        if (this.model.get('cell').get('id')) {
           this.setupPreviewOverlay();
         }
-        return this;
-      };
-
-      Cell.prototype.setWidth = function(w) {
         return this;
       };
 
       Cell.prototype.activateChooser = function() {
         var selectable, selected, selecting, _ref;
         this.reportClick();
-        _ref = this.model.selectionState(), selected = _ref.selected, selectable = _ref.selectable, selecting = _ref.selecting;
+        _ref = this.model.get('cell').selectionState(), selected = _ref.selected, selectable = _ref.selectable, selecting = _ref.selecting;
         if (selectable && selecting) {
           return this.model.set({
             'is:selected': !selected
@@ -11292,26 +11286,7 @@
       return Cell;
 
     })(Backbone.View);
-    NullCell = (function(_super) {
-      __extends(NullCell, _super);
-
-      function NullCell() {
-        return NullCell.__super__.constructor.apply(this, arguments);
-      }
-
-      NullCell.prototype.setupPreviewOverlay = function() {};
-
-      NullCell.prototype.initialize = function(options) {
-        this.options = options != null ? options : {};
-        this.model = new intermine.model.NullObject();
-        return NullCell.__super__.initialize.call(this);
-      };
-
-      return NullCell;
-
-    })(Cell);
     return scope("intermine.results.table", {
-      NullCell: NullCell,
       SubTable: SubTable,
       Cell: Cell
     });
@@ -11382,7 +11357,7 @@
 
       ColumnHeader.prototype.initialize = function(_arg) {
         var query;
-        query = _arg.query;
+        query = _arg.query, this.blacklistedFormatters = _arg.blacklistedFormatters;
         this.query = query;
         this.view = this.model.get('path').toString();
         if (this.model.get('replaces').length === 1 && this.model.get('isFormatted')) {
@@ -11483,7 +11458,9 @@
           title: getCompositionTitle(replaces)
         }).click((function(_this) {
           return function() {
-            return _this.query.trigger('formatter:blacklist', _this.view, _this.model.get('formatter'));
+            return _this.blacklistedFormatters.add({
+              formatter: _this.model.get('formatter')
+            });
           };
         })(this));
         this.$el.toggleClass('im-is-composed', this.isComposed());
@@ -11721,8 +11698,133 @@
   });
 
   (function() {
-    var NUMERIC_TYPES, Page, PageSizer, ResultsTable, Table;
+    var CellModel, NUMERIC_TYPES, NestedTableModel, Page, PageSizer, ResultsTable, RowModel, Table, errorTempl, renderError;
     NUMERIC_TYPES = ["int", "Integer", "double", "Double", "float", "Float"];
+    errorTempl = _.template("<div class=\"alert alert-error\">\n  <h2>Oops!</h2>\n  <p><i><%- error %></i></p>\n  <p><%= body %></p>\n  <a class=\"btn btn-primary pull-right\" href=\"mailto://<%- mailto %>\">Email the help desk</a>\n  <button class=\"btn btn-error\">Show query</button>\n  <p class=\"query-xml\" style=\"display:none\" class=\"well\">\n    <textarea><%= query %></textarea>\n  <p>\n</div>");
+    renderError = (function(_this) {
+      return function(query, err, time) {
+        var errConf, mailto, message, notice, _ref;
+        if (time == null) {
+          time = new Date();
+        }
+        console.error(err, err != null ? err.stack : void 0);
+        if (/TypeError/.test(String(err))) {
+          errConf = intermine.options.ClientApplicationError;
+          message = errConf.Heading;
+        } else {
+          errConf = intermine.options.ServerApplicationError;
+          message = (_ref = err != null ? err.message : void 0) != null ? _ref : errConf.Heading;
+        }
+        mailto = query.service.help + "?" + $.param({
+          subject: "Error running embedded table query",
+          body: "We encountered an error running a query from an\nembedded result table.\n\npage:       " + window.location + "\nservice:    " + query.service.root + "\nerror:      " + err + "\ndate-stamp: " + time + "\n\n-------------------------------\nIMJS:       " + intermine.imjs.VERSION + "\n-------------------------------\nIMTABLES:   " + intermine.imtables.VERSION + "\n-------------------------------\nQUERY:      " + (query.toXML()) + "\n-------------------------------\nSTACK:      " + (err != null ? err.stack : void 0)
+        }, true);
+        mailto = mailto.replace(/\+/g, '%20');
+        notice = $(errorTempl({
+          error: message,
+          body: errConf.Body,
+          query: query.toXML(),
+          mailto: mailto
+        }));
+        notice.find('button').click(function() {
+          return notice.find('.query-xml').slideToggle();
+        });
+        return notice;
+      };
+    })(this);
+    RowModel = (function(_super) {
+      __extends(RowModel, _super);
+
+      function RowModel() {
+        return RowModel.__super__.constructor.apply(this, arguments);
+      }
+
+      return RowModel;
+
+    })(Backbone.Model);
+    NestedTableModel = (function(_super) {
+      __extends(NestedTableModel, _super);
+
+      function NestedTableModel() {
+        return NestedTableModel.__super__.constructor.apply(this, arguments);
+      }
+
+      NestedTableModel.prototype.initialize = function() {
+        var column, evt, query, _i, _len, _ref, _ref1, _results;
+        _ref = this.toJSON(), query = _ref.query, column = _ref.column;
+        query.on('expand:subtables', (function(_this) {
+          return function(path) {
+            if (path.toString() === column.toString()) {
+              return _this.trigger('expand');
+            }
+          };
+        })(this));
+        query.on('collapse:subtables', (function(_this) {
+          return function(path) {
+            if (path.toString() === column.toString()) {
+              return _this.trigger('collapse');
+            }
+          };
+        })(this));
+        column.getDisplayName().then((function(_this) {
+          return function(name) {
+            return _this.set({
+              columnName: name
+            });
+          };
+        })(this));
+        query.model.makePath(column.getType()).getDisplayName().then((function(_this) {
+          return function(name) {
+            return _this.set({
+              columnTypeName: name
+            });
+          };
+        })(this));
+        _ref1 = ['expanded', 'collapsed'];
+        _results = [];
+        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+          evt = _ref1[_i];
+          _results.push((function(_this) {
+            return function(evt) {
+              return _this.on(evt, function() {
+                return _this.get('query').trigger("subtable:" + evt, _this.get('column'));
+              });
+            };
+          })(this)(evt));
+        }
+        return _results;
+      };
+
+      return NestedTableModel;
+
+    })(Backbone.Model);
+    CellModel = (function(_super) {
+      __extends(CellModel, _super);
+
+      function CellModel() {
+        return CellModel.__super__.constructor.apply(this, arguments);
+      }
+
+      CellModel.prototype.initialize = function() {
+        var type;
+        this.get('column').getDisplayName().then((function(_this) {
+          return function(name) {
+            return _this.set({
+              columnName: name
+            });
+          };
+        })(this));
+        type = this.get('cell').get('obj:type');
+        return this.get('query').model.makePath(type).getDisplayName().then(function(name) {
+          return this.set({
+            typeName: name
+          });
+        });
+      };
+
+      return CellModel;
+
+    })(Backbone.Model);
     Page = (function() {
       function Page(start, size) {
         this.start = start;
@@ -11748,11 +11850,9 @@
       __extends(ResultsTable, _super);
 
       function ResultsTable() {
-        this.addColumnHeaders = __bind(this.addColumnHeaders, this);
         this.handleError = __bind(this.handleError, this);
         this.appendRow = __bind(this.appendRow, this);
-        this.readHeaderInfo = __bind(this.readHeaderInfo, this);
-        this.appendRows = __bind(this.appendRows, this);
+        this.renderCell = __bind(this.renderCell, this);
         return ResultsTable.__super__.constructor.apply(this, arguments);
       }
 
@@ -11772,81 +11872,58 @@
         cellspacing: 0
       };
 
-      ResultsTable.prototype.pageSize = 25;
-
-      ResultsTable.prototype.pageStart = 0;
-
       ResultsTable.prototype.throbber = _.template("<tr class=\"im-table-throbber\">\n  <td colspan=\"<%= colcount %>\">\n    <h2>Requesting Data</h2>\n    <div class=\"progress progress-info progress-striped active\">\n      <div class=\"bar\" style=\"width: 100%\"></div>\n    </div>\n  </td>\n</tr>");
 
-      ResultsTable.prototype.initialize = function(query, getData, columnHeaders) {
+      ResultsTable.prototype.initialize = function(query, blacklistedFormatters, columnHeaders, rows) {
         this.query = query;
-        this.getData = getData;
+        this.blacklistedFormatters = blacklistedFormatters;
         this.columnHeaders = columnHeaders;
-        if (this.columnHeaders == null) {
-          this.columnHeaders = new Backbone.Collection;
-        }
-        this.blacklistedFormatters = [];
+        this.rows = rows;
         this.minimisedCols = {};
-        this.query.on("set:sortorder", (function(_this) {
-          return function(oes) {
-            _this.lastAction = 'resort';
-            return _this.fill();
-          };
-        })(this));
         this.query.on('columnvis:toggle', (function(_this) {
           return function(view) {
             _this.minimisedCols[view] = !_this.minimisedCols[view];
-            _this.query.trigger('change:minimisedCols', _.extend({}, _this.minimisedCols));
+            _this.query.trigger('change:minimisedCols', _.extend({}, _this.minimisedCols), view);
             return _this.fill();
           };
         })(this));
-        return this.query.on("formatter:blacklist", (function(_this) {
-          return function(path, formatter) {
-            _this.blacklistedFormatters.push(formatter);
-            return _this.fill().then(_this.addColumnHeaders);
-          };
-        })(this));
-      };
-
-      ResultsTable.prototype.changePageSize = function(newSize) {
-        this.pageSize = newSize;
-        if (newSize === 0) {
-          this.pageStart = 0;
-        }
-        return this.fill();
+        this.listenTo(this.columnHeaders, 'reset add remove', this.renderHeaders);
+        this.listenTo(this.blacklistedFormatters, 'reset add remove', this.fill);
+        return this.listenTo(this.rows, 'reset add remove', this.fill);
       };
 
       ResultsTable.prototype.render = function() {
-        var promise;
         this.$el.empty();
         this.$el.append(document.createElement('thead'));
+        this.renderHeaders();
         this.$el.append(document.createElement('tbody'));
-        promise = this.fill();
-        return promise.done(this.addColumnHeaders);
-      };
-
-      ResultsTable.prototype.goTo = function(start) {
-        this.pageStart = parseInt(start, 10);
-        return this.fill();
-      };
-
-      ResultsTable.prototype.goToPage = function(page) {
-        this.pageStart = page * this.pageSize;
         return this.fill();
       };
 
       ResultsTable.prototype.fill = function() {
-        var notifyOfFill;
-        notifyOfFill = (function(_this) {
-          return function() {
-            return _this.query.trigger("imtable:change:page", _this.pageStart, _this.pageSize);
+        var cell, docfrag, previousCells, _i, _len;
+        previousCells = (this.currentCells || []).slice();
+        for (_i = 0, _len = previousCells.length; _i < _len; _i++) {
+          cell = previousCells[_i];
+          cell.remove();
+        }
+        this.currentCells = [];
+        if (this.rows.size() < 1) {
+          return this.handleEmptyTable();
+        }
+        docfrag = document.createDocumentFragment();
+        this.rows.each((function(_this) {
+          return function(row) {
+            return _this.appendRow(docfrag, row);
           };
-        })(this);
-        return this.getData(this.pageStart, this.pageSize).then(this.readHeaderInfo).then(this.appendRows).then(notifyOfFill, this.handleError);
+        })(this));
+        this.$el.children('tbody').html(docfrag);
+        return this.query.trigger("table:filled");
       };
 
       ResultsTable.prototype.handleEmptyTable = function() {
         var apology;
+        this.$("tbody > tr").remove();
         apology = _.template(intermine.snippets.table.NoResults(this.query));
         this.$el.append(apology);
         return this.$el.find('.btn-primary').click((function(_this) {
@@ -11856,48 +11933,38 @@
         })(this));
       };
 
-      ResultsTable.prototype.appendRows = function(res) {
-        var cell, docfrag, previousCells, row, _i, _j, _len, _len1, _ref;
-        previousCells = (this.currentCells || []).slice();
-        for (_i = 0, _len = previousCells.length; _i < _len; _i++) {
-          cell = previousCells[_i];
-          cell.remove();
-        }
-        if (res.rows.length === 0) {
-          this.$("tbody > tr").remove();
-          this.handleEmptyTable();
-        } else {
-          docfrag = document.createDocumentFragment();
-          _ref = res.rows;
-          for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
-            row = _ref[_j];
-            this.appendRow(docfrag, row);
-          }
-          this.currentCells = res.rows.reduce((function(a, r) {
-            return a.concat(r);
-          }), []);
-          this.$el.children('tbody').html(docfrag);
-        }
-        return this.query.trigger("table:filled");
-      };
-
       ResultsTable.prototype.minimisedColumnPlaceholder = _.template("<td class=\"im-minimised-col\" style=\"width:<%= width %>px\">&hellip;</td>");
 
-      ResultsTable.prototype.readHeaderInfo = function(res) {
-        var _ref;
-        if (res != null ? (_ref = res.results) != null ? _ref[0] : void 0 : void 0) {
-          return this.getEffectiveView(res.results[0]).then((function(_this) {
-            return function() {
-              return res;
-            };
-          })(this));
+      ResultsTable.prototype.renderCell = function(cell) {
+        var base, node;
+        base = this.query.service.root.replace(/\/service\/?$/, "");
+        if (cell instanceof NestedTableModel) {
+          node = this.query.getPathInfo(obj.column);
+          return new intermine.results.table.SubTable({
+            model: cell,
+            cellify: this.renderCell,
+            canUseFormatter: (function(_this) {
+              return function(f) {
+                return _this.canUseFormatter;
+              };
+            })(this),
+            mainTable: this
+          });
         } else {
-          return res;
+          return new intermine.results.table.Cell({
+            model: cell
+          });
         }
+      };
+
+      ResultsTable.prototype.canUseFormatter = function(formatter) {
+        return (formatter != null) && (!this.blacklistedFormatters.any(function(f) {
+          return f.get('formatter') === formatter;
+        }));
       };
 
       ResultsTable.prototype.appendRow = function(tbody, row) {
-        var cell, i, k, minWidth, minimised, processed, replacer_of, tr, v, _i, _len, _results;
+        var cell, cellViews, i, k, minWidth, minimised, processed, replacer_of, tr, v, _i, _len, _results;
         tr = document.createElement('tr');
         tbody.appendChild(tr);
         minWidth = 10;
@@ -11925,28 +11992,39 @@
           }
           return _results;
         });
+        cellViews = (function() {
+          var _i, _len, _ref, _results;
+          _ref = row.get('cells');
+          _results = [];
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            cell = _ref[_i];
+            _results.push(this.renderCell(cell));
+          }
+          return _results;
+        }).call(this);
         _results = [];
-        for (i = _i = 0, _len = row.length; _i < _len; i = ++_i) {
-          cell = row[i];
+        for (i = _i = 0, _len = cellViews.length; _i < _len; i = ++_i) {
+          cell = cellViews[i];
           _results.push((function(_this) {
             return function(cell, i) {
-              var c, formatter, path, r, replaces, _j, _k, _len1, _len2, _ref, _ref1, _ref2;
-              if (processed[cell.path]) {
+              var c, cellPath, formatter, path, r, replaces, _j, _k, _len1, _len2, _ref, _ref1, _ref2;
+              cellPath = cell.path;
+              if (processed[cellPath]) {
                 return;
               }
-              processed[cell.path] = true;
-              _ref2 = (_ref = (_ref1 = replacer_of[cell.path]) != null ? _ref1.toJSON() : void 0) != null ? _ref : {}, replaces = _ref2.replaces, formatter = _ref2.formatter, path = _ref2.path;
+              processed[cellPath] = true;
+              _ref2 = (_ref = (_ref1 = replacer_of[cellPath]) != null ? _ref1.toJSON() : void 0) != null ? _ref : {}, replaces = _ref2.replaces, formatter = _ref2.formatter, path = _ref2.path;
               if ((replaces != null ? replaces.length : void 0) > 1) {
-                if (!path.equals(cell.path.getParent())) {
+                if (!path.equals(cellPath.getParent())) {
                   return;
                 }
                 if ((formatter != null ? formatter.merge : void 0) != null) {
-                  for (_j = 0, _len1 = row.length; _j < _len1; _j++) {
-                    c = row[_j];
+                  for (_j = 0, _len1 = cellViews.length; _j < _len1; _j++) {
+                    c = cellViews[_j];
                     if (_.any(replaces, function(x) {
                       return x.equals(c.path);
                     })) {
-                      formatter.merge(cell.model, c.model);
+                      formatter.merge(cell.model.get('cell'), c.model.get('cell'));
                     }
                   }
                 }
@@ -11958,7 +12036,7 @@
               if (formatter != null) {
                 cell.formatter = formatter;
               }
-              if (_this.minimisedCols[cell.path] || (path && _this.minimisedCols[path])) {
+              if (_this.minimisedCols[cellPath] || (path && _this.minimisedCols[path])) {
                 return $(tr).append(_this.minimisedColumnPlaceholder({
                   width: minWidth
                 }));
@@ -11972,160 +12050,34 @@
         return _results;
       };
 
-      ResultsTable.prototype.errorTempl = _.template("<div class=\"alert alert-error\">\n    <h2>Oops!</h2>\n    <p><i><%- error %></i></p>\n</div>");
-
-      ResultsTable.prototype.handleError = function(err, time) {
-        var btn, errConf, explanation, mailto, message, notice, p, _ref;
-        if (time == null) {
-          time = new Date();
-        }
-        console.error(err, err != null ? err.stack : void 0);
-        if (/TypeError/.test(String(err))) {
-          errConf = intermine.options.ClientApplicationError;
-          message = errConf.Heading;
-        } else {
-          errConf = intermine.options.ServerApplicationError;
-          message = (_ref = err != null ? err.message : void 0) != null ? _ref : errConf.Heading;
-        }
-        notice = $(this.errorTempl({
-          error: message
-        }));
-        explanation = errConf.Body;
-        notice.append("<p>" + errConf.Body + "</p>");
-        btn = $('<button class="btn btn-error">');
-        notice.append(btn);
-        p = $('<p style="display:none" class="well">');
-        btn.text('show query');
-        p.text(this.query.toXML());
-        btn.click(function() {
-          return p.slideToggle();
-        });
-        mailto = this.query.service.help + "?" + $.param({
-          subject: "Error running embedded table query",
-          body: "We encountered an error running a query from an\nembedded result table.\n\npage:       " + window.location + "\nservice:    " + this.query.service.root + "\nerror:      " + err + "\ndate-stamp: " + time + "\n\n-------------------------------\nIMJS:       " + intermine.imjs.VERSION + "\n-------------------------------\nIMTABLES:   " + intermine.imtables.VERSION + "\n-------------------------------\nQUERY:      " + (this.query.toXML()) + "\n-------------------------------\nSTACK:      " + (err != null ? err.stack : void 0)
-        }, true);
-        mailto = mailto.replace(/\+/g, '%20');
-        notice.append("<a class=\"btn btn-primary pull-right\" href=\"mailto:" + mailto + "\">\n    Email the help-desk\n</a>");
-        notice.append(p);
-        return this.$el.append(notice);
-      };
-
-      ResultsTable.prototype.buildColumnHeader = function(model, tr) {
-        var header;
-        header = new intermine.query.results.ColumnHeader({
-          model: model,
-          query: this.query
-        });
-        return header.render().$el.appendTo(tr);
-      };
-
-      ResultsTable.prototype.getEffectiveView = function(row) {
-        return this.query.service.get("/classkeys").then((function(_this) {
-          return function(_arg) {
-            var cell, classKeys, classes, col, cols, commonPrefix, explicitReplacements, formatter, getReplacedTest, isKeyField, isReplaced, longestCommonPrefix, p, path, q, r, replacedBy, replaces, subPath, v, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _m, _ref, _ref1, _ref2, _ref3, _ref4, _results;
-            classes = _arg.classes;
-            q = _this.query;
-            classKeys = classes;
-            replacedBy = {};
-            _this.columnHeaders.reset();
-            _ref = intermine.utils, longestCommonPrefix = _ref.longestCommonPrefix, getReplacedTest = _ref.getReplacedTest;
-            cols = (function() {
-              var _i, _len, _results;
-              _results = [];
-              for (_i = 0, _len = row.length; _i < _len; _i++) {
-                cell = row[_i];
-                path = q.getPathInfo(cell.column);
-                replaces = cell.view != null ? (commonPrefix = longestCommonPrefix(cell.view), path = q.getPathInfo(commonPrefix), replaces = (function() {
-                  var _j, _len1, _ref1, _results1;
-                  _ref1 = cell.view;
-                  _results1 = [];
-                  for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-                    v = _ref1[_j];
-                    _results1.push(q.getPathInfo(v));
-                  }
-                  return _results1;
-                })()) : [];
-                _results.push({
-                  path: path,
-                  replaces: replaces
-                });
-              }
-              return _results;
-            })();
-            for (_i = 0, _len = cols.length; _i < _len; _i++) {
-              col = cols[_i];
-              if (!(col.path.isAttribute() && intermine.results.shouldFormat(col.path))) {
-                continue;
-              }
-              p = col.path;
-              formatter = intermine.results.getFormatter(p);
-              if (__indexOf.call(_this.blacklistedFormatters, formatter) < 0) {
-                col.isFormatted = true;
-                col.formatter = formatter;
-                _ref2 = (_ref1 = formatter.replaces) != null ? _ref1 : [];
-                for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
-                  r = _ref2[_j];
-                  subPath = "" + (p.getParent()) + "." + r;
-                  if (replacedBy[subPath] == null) {
-                    replacedBy[subPath] = col;
-                  }
-                  if (__indexOf.call(q.views, subPath) >= 0) {
-                    col.replaces.push(q.getPathInfo(subPath));
-                  }
-                }
-              }
-            }
-            isKeyField = function(col) {
-              var fName, pType, _ref3, _ref4;
-              if (!col.path.isAttribute()) {
-                return false;
-              }
-              pType = col.path.getParent().getType().name;
-              fName = col.path.end.name;
-              return _ref3 = "" + pType + "." + fName, __indexOf.call((_ref4 = classKeys != null ? classKeys[pType] : void 0) != null ? _ref4 : [], _ref3) >= 0;
-            };
-            explicitReplacements = {};
-            for (_k = 0, _len2 = cols.length; _k < _len2; _k++) {
-              col = cols[_k];
-              _ref3 = col.replaces;
-              for (_l = 0, _len3 = _ref3.length; _l < _len3; _l++) {
-                r = _ref3[_l];
-                explicitReplacements[r] = col;
-              }
-            }
-            isReplaced = getReplacedTest(replacedBy, explicitReplacements);
-            _results = [];
-            for (_m = 0, _len4 = cols.length; _m < _len4; _m++) {
-              col = cols[_m];
-              if (!(!isReplaced(col))) {
-                continue;
-              }
-              if (col.isFormatted) {
-                if (_ref4 = col.path, __indexOf.call(col.replaces, _ref4) < 0) {
-                  col.replaces.push(col.path);
-                }
-                if (isKeyField(col) || col.replaces.length > 1) {
-                  col.path = col.path.getParent();
-                }
-              }
-              _results.push(_this.columnHeaders.add(col));
-            }
-            return _results;
-          };
-        })(this));
-      };
-
-      ResultsTable.prototype.addColumnHeaders = function() {
+      ResultsTable.prototype.renderHeaders = function() {
         var docfrag, tr;
         docfrag = document.createDocumentFragment();
         tr = document.createElement('tr');
         docfrag.appendChild(tr);
         this.columnHeaders.each((function(_this) {
-          return function(model) {
-            return _this.buildColumnHeader(model, tr);
+          return function(ch) {
+            return _this.renderHeader(ch, tr);
           };
         })(this));
         return this.$el.children('thead').html(docfrag);
+      };
+
+      ResultsTable.prototype.renderHeader = function(model, tr) {
+        var ColumnHeader, header;
+        ColumnHeader = intermine.query.results.ColumnHeader;
+        header = new ColumnHeader({
+          model: model,
+          query: this.query,
+          blacklistedFormatters: this.blacklistedFormatters
+        });
+        return header.render().$el.appendTo(tr);
+      };
+
+      ResultsTable.prototype.handleError = function(err, time) {
+        var notice;
+        notice = renderError(this.query, err, time);
+        return this.$el.append(notice);
       };
 
       return ResultsTable;
@@ -12144,45 +12096,56 @@
 
       PageSizer.prototype.sizes = [[10], [25], [50], [100], [250]];
 
-      PageSizer.prototype.initialize = function(query, pageSize) {
-        this.query = query;
-        this.pageSize = pageSize;
-        if (this.pageSize != null) {
-          if (!_.include(this.sizes.map(function(s) {
-            return s[0];
-          }), this.pageSize)) {
-            this.sizes.unshift([this.pageSize, this.pageSize]);
+      PageSizer.prototype.initialize = function() {
+        var s, size;
+        if (size = this.model.get('size')) {
+          if (!_.include((function() {
+            var _i, _len, _ref, _results;
+            _ref = this.sizes;
+            _results = [];
+            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+              s = _ref[_i];
+              _results.push(s[0]);
+            }
+            return _results;
+          }).call(this), size)) {
+            this.sizes = [[size, size]].concat(this.sizes);
           }
-        } else {
-          this.pageSize = this.sizes[0][0];
         }
-        return this.query.on('page-size:revert', (function(_this) {
-          return function(size) {
-            return _this.$('select').val(size);
+        return this.listenTo(this.model, 'change:size', (function(_this) {
+          return function() {
+            return _this.$('select').val(_this.model.get('size'));
           };
         })(this));
       };
 
       PageSizer.prototype.events = {
-        "change select": "changePageSize"
+        'change select': 'changePageSize'
       };
 
       PageSizer.prototype.changePageSize = function(evt) {
-        return this.query.trigger("page-size:selected", parseInt($(evt.target).val(), 10));
+        var size;
+        size = parseInt($(evt.target).val(), 10);
+        return this.model.set({
+          size: size
+        });
       };
 
       PageSizer.prototype.render = function() {
-        var ps, select, _i, _len, _ref;
-        this.$el.append("<label>\n    <span class=\"im-only-widescreen\">Rows per page:</span>\n    <select class=\"span\" title=\"Rows per page\">\n    </select>\n</label>");
+        var frag, label, select, size, value, _i, _len, _ref, _ref1;
+        frag = $(document.createDocumentFragment());
+        size = this.model.get('size');
+        frag.append("<label>\n  <span class=\"im-only-widescreen\">Rows per page:</span>\n  <select class=\"span\" title=\"Rows per page\"></select>\n</label>");
         select = this.$('select');
         _ref = this.sizes;
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          ps = _ref[_i];
+          _ref1 = _ref[_i], value = _ref1[0], label = _ref1[1];
           select.append(this.make('option', {
-            value: ps[0],
-            selected: ps[0] === this.pageSize
-          }, ps[1] || ps[0]));
+            value: value,
+            selected: value === size
+          }, label || value));
         }
+        this.$el.html(frag);
         return this;
       };
 
@@ -12190,13 +12153,11 @@
 
     })(Backbone.View);
     Table = (function(_super) {
-      var badJson, errorIntro, genericExplanation;
-
       __extends(Table, _super);
 
       function Table() {
-        this.onSetupError = __bind(this.onSetupError, this);
-        this.updatePageDisplay = __bind(this.updatePageDisplay, this);
+        this.fillRowsFromCache = __bind(this.fillRowsFromCache, this);
+        this.makeCellModel = __bind(this.makeCellModel, this);
         this.removeOverlay = __bind(this.removeOverlay, this);
         this.overlayTable = __bind(this.overlayTable, this);
         this.getRowData = __bind(this.getRowData, this);
@@ -12239,15 +12200,91 @@
         return Table.__super__.remove.call(this);
       };
 
-      Table.prototype.initialize = function(query, selector, columnHeaders) {
+      Table.prototype.getPage = function() {
+        var size, start, _ref;
+        _ref = this.model.toJSON(), start = _ref.start, size = _ref.size;
+        return new Page(start, size);
+      };
+
+      Table.prototype.initialize = function(query, columnHeaders, _arg) {
+        var size, start;
         this.query = query;
         this.columnHeaders = columnHeaders;
-        this.cache = {};
+        start = _arg.start, size = _arg.size;
         this.itemModels = {};
         this._pipe_factor = 10;
-        this.$parent = jQuery(selector);
         this.__selecting = false;
         this.visibleViews = this.query.views.slice();
+        if (this.columnHeaders == null) {
+          this.columnHeaders = new Backbone.Collection;
+        }
+        this.rows = new Backbone.Collection;
+        this.blacklistedFormatters = new Backbone.Collection;
+        this.model = new Backbone.Model({
+          freshness: this.calculateFreshness(),
+          state: 'FETCHING',
+          start: start != null ? start : 0,
+          size: size != null ? size : intermine.options.DefaultPageSize,
+          count: null,
+          lowerBound: null,
+          upperBound: null,
+          cache: null,
+          error: null
+        });
+        this.listenTo(this.model, 'change:state', this.render);
+        this.listenTo(this.model, 'change:size', this.handlePageSizeSelection);
+        this.listenTo(this.model, 'change:start change:size change:count', this.updateSummary);
+        this.listenTo(this.model, 'change:freshness', (function(_this) {
+          return function() {
+            return _this.model.set({
+              cache: null
+            });
+          };
+        })(this));
+        this.listenTo(this.model, 'change:freshness change:start change:size', this.fillRows);
+        this.listenTo(this.model, 'change:cache', (function(_this) {
+          return function() {
+            return _this.buildColumnHeaders();
+          };
+        })(this));
+        this.listenTo(this.blacklistedFormatters, 'reset add remove', (function(_this) {
+          return function() {
+            return _this.buildColumnHeaders();
+          };
+        })(this));
+        this.listenTo(this.model, 'change:cache', (function(_this) {
+          return function() {
+            if (_this.model.get('cache') == null) {
+              return _this.model.set({
+                lowerBound: null,
+                upperBound: null
+              });
+            }
+          };
+        })(this));
+        this.listenTo(this.model, 'change:count', (function(_this) {
+          return function() {
+            return _this.query.trigger('count:is', _this.data.get('count'));
+          };
+        })(this));
+        this.listenTo(this.model, 'change:error', (function(_this) {
+          return function() {
+            var err;
+            err = _this.model.get('error');
+            if (err != null) {
+              return _this.model.set({
+                state: 'ERROR'
+              });
+            }
+          };
+        })(this));
+        this.query.on('change:sortorder change:views change:constraints', (function(_this) {
+          return function() {
+            return _this.model.set({
+              freshness: _this.calculateFreshness()
+            });
+          };
+        })(this));
         this.query.on("start:list-creation", (function(_this) {
           return function() {
             return _this.__selecting = true;
@@ -12269,7 +12306,6 @@
             return _this.goBack(1);
           };
         })(this));
-        this.query.on("page-size:selected", this.handlePageSizeSelection);
         this.query.on("add-filter-dialogue:please", (function(_this) {
           return function() {
             var dialogue;
@@ -12278,7 +12314,7 @@
             return dialogue.render().openDialogue();
           };
         })(this));
-        return this.query.on("download-menu:open", (function(_this) {
+        this.query.on("download-menu:open", (function(_this) {
           return function() {
             var dialogue;
             dialogue = new intermine.query["export"].ExportDialogue(_this.query);
@@ -12286,31 +12322,167 @@
             return dialogue.show();
           };
         })(this));
+        this.query.service.fetchVersion((function(_this) {
+          return function(error, version) {
+            return _this.model.set({
+              error: error,
+              version: version
+            });
+          };
+        })(this));
+        this.query.count((function(_this) {
+          return function(error, count) {
+            return _this.model.set({
+              error: error,
+              count: count
+            });
+          };
+        })(this));
+        this.fillRows().then((function() {
+          return console.debug('initial data loaded');
+        }), (function(_this) {
+          return function(error) {
+            return _this.model.set({
+              error: error
+            });
+          };
+        })(this));
+        return console.debug('initialised table');
       };
 
       Table.prototype.pageSizeFeasibilityThreshold = 250;
 
+      Table.prototype.canUseFormatter = function(formatter) {
+        return (formatter != null) && (!this.blacklistedFormatters.any(function(f) {
+          return f.get('formatter') === formatter;
+        }));
+      };
+
+      Table.prototype.buildColumnHeaders = function() {
+        return this.query.service.get("/classkeys").then((function(_this) {
+          return function(_arg) {
+            var cell, classKeys, classes, col, cols, commonPrefix, explicitReplacements, formatter, getReplacedTest, isKeyField, isReplaced, longestCommonPrefix, newHeaders, p, path, q, r, replacedBy, replaces, row, subPath, v, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref, _ref1, _ref2, _ref3, _ref4;
+            classes = _arg.classes;
+            q = _this.query;
+            if (!((_ref = _this.model.get('cache')) != null ? _ref.length : void 0)) {
+              return;
+            }
+            row = _this.model.get('cache')[0];
+            classKeys = classes;
+            replacedBy = {};
+            _ref1 = intermine.utils, longestCommonPrefix = _ref1.longestCommonPrefix, getReplacedTest = _ref1.getReplacedTest;
+            cols = (function() {
+              var _i, _len, _results;
+              _results = [];
+              for (_i = 0, _len = row.length; _i < _len; _i++) {
+                cell = row[_i];
+                path = q.getPathInfo(cell.column);
+                replaces = cell.view != null ? (commonPrefix = longestCommonPrefix(cell.view), path = q.getPathInfo(commonPrefix), replaces = (function() {
+                  var _j, _len1, _ref2, _results1;
+                  _ref2 = cell.view;
+                  _results1 = [];
+                  for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
+                    v = _ref2[_j];
+                    _results1.push(q.getPathInfo(v));
+                  }
+                  return _results1;
+                })()) : [];
+                _results.push({
+                  path: path,
+                  replaces: replaces
+                });
+              }
+              return _results;
+            })();
+            for (_i = 0, _len = cols.length; _i < _len; _i++) {
+              col = cols[_i];
+              if (!(col.path.isAttribute() && intermine.results.shouldFormat(col.path))) {
+                continue;
+              }
+              p = col.path;
+              formatter = intermine.results.getFormatter(p);
+              if (_this.canUseFormatter(formatter)) {
+                col.isFormatted = true;
+                col.formatter = formatter;
+                _ref3 = (_ref2 = formatter.replaces) != null ? _ref2 : [];
+                for (_j = 0, _len1 = _ref3.length; _j < _len1; _j++) {
+                  r = _ref3[_j];
+                  subPath = "" + (p.getParent()) + "." + r;
+                  if (replacedBy[subPath] == null) {
+                    replacedBy[subPath] = col;
+                  }
+                  if (__indexOf.call(q.views, subPath) >= 0) {
+                    col.replaces.push(q.getPathInfo(subPath));
+                  }
+                }
+              }
+            }
+            isKeyField = function(col) {
+              var fName, pType, _ref4, _ref5;
+              if (!col.path.isAttribute()) {
+                return false;
+              }
+              pType = col.path.getParent().getType().name;
+              fName = col.path.end.name;
+              return _ref4 = "" + pType + "." + fName, __indexOf.call((_ref5 = classKeys != null ? classKeys[pType] : void 0) != null ? _ref5 : [], _ref4) >= 0;
+            };
+            explicitReplacements = {};
+            for (_k = 0, _len2 = cols.length; _k < _len2; _k++) {
+              col = cols[_k];
+              _ref4 = col.replaces;
+              for (_l = 0, _len3 = _ref4.length; _l < _len3; _l++) {
+                r = _ref4[_l];
+                explicitReplacements[r] = col;
+              }
+            }
+            isReplaced = getReplacedTest(replacedBy, explicitReplacements);
+            newHeaders = (function() {
+              var _len4, _m, _ref5, _results;
+              _results = [];
+              for (_m = 0, _len4 = cols.length; _m < _len4; _m++) {
+                col = cols[_m];
+                if (!(!isReplaced(col))) {
+                  continue;
+                }
+                if (col.isFormatted) {
+                  if (_ref5 = col.path, __indexOf.call(col.replaces, _ref5) < 0) {
+                    col.replaces.push(col.path);
+                  }
+                  if (isKeyField(col) || col.replaces.length > 1) {
+                    col.path = col.path.getParent();
+                  }
+                }
+                _results.push(col);
+              }
+              return _results;
+            })();
+            return _this.columnHeaders.reset(newHeaders);
+          };
+        })(this));
+      };
+
       Table.prototype.aboveSizeThreshold = function(size) {
         var total;
-        if (size >= this.pageSizeFeasibilityThreshold) {
+        if (size && size >= this.pageSizeFeasibilityThreshold) {
           return true;
         }
-        if (size === 0) {
-          total = this.cache.lastResult.iTotalRecords;
+        if (!size) {
+          total = this.model.get('count');
           return total >= this.pageSizeFeasibilityThreshold;
         }
         return false;
       };
 
-      Table.prototype.handlePageSizeSelection = function(size) {
-        var $really;
+      Table.prototype.handlePageSizeSelection = function(model, size) {
+        var $really, oldSize;
+        oldSize = model.previous('size');
         if (this.aboveSizeThreshold(size)) {
           $really = $(intermine.snippets.table.LargeTableDisuader);
-          $really.find('.btn-primary').click((function(_this) {
-            return function() {
-              return _this.table.changePageSize(size);
-            };
-          })(this));
+          $really.find('.btn-primary').click(function() {
+            return model.set({
+              size: size
+            });
+          });
           $really.find('.btn').click(function() {
             return $really.modal('hide');
           });
@@ -12319,48 +12491,15 @@
               if ($(e.target).data('event')) {
                 _this.query.trigger($(e.target).data('event'));
               }
-              return _this.query.trigger('page-size:revert', _this.table.pageSize);
+              return _this.model.set({
+                size: oldSize
+              });
             };
           })(this));
           $really.on('hidden', function() {
             return $really.remove();
           });
           return $really.appendTo(this.el).modal().modal('show');
-        } else {
-          return this.table.changePageSize(size);
-        }
-      };
-
-      Table.prototype.adjustSortOrder = function(params) {
-        var i, noOfSortColumns, viewIndices;
-        viewIndices = (function() {
-          var _i, _ref, _results;
-          _results = [];
-          for (i = _i = 0, _ref = intermine.utils.getParameter(params, "iColumns"); 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
-            _results.push(intermine.utils.getParameter(params, "mDataProp_" + i));
-          }
-          return _results;
-        })();
-        noOfSortColumns = intermine.utils.getParameter(params, "iSortingCols");
-        if (noOfSortColumns) {
-          return this.query.orderBy((function() {
-            var _i, _results;
-            _results = [];
-            for (i = _i = 0; 0 <= noOfSortColumns ? _i < noOfSortColumns : _i > noOfSortColumns; i = 0 <= noOfSortColumns ? ++_i : --_i) {
-              _results.push((function(_this) {
-                return function(i) {
-                  var displayed, so;
-                  displayed = intermine.utils.getParameter(params, "iSortCol_" + i);
-                  so = {
-                    path: _this.query.views[viewIndices[displayed]],
-                    direction: intermine.utils.getParameter(params, "sSortDir_" + i)
-                  };
-                  return so;
-                };
-              })(this)(i));
-            }
-            return _results;
-          }).call(this));
         }
       };
 
@@ -12375,45 +12514,51 @@
         }
       };
 
-      Table.prototype.getRowData = function(start, size) {
-        var end, freshness, isOutOfRange, isStale, page, promise, serve, updateCacheAndServe;
-        end = start + size;
-        isOutOfRange = false;
-        freshness = this.query.getSorting() + this.query.getConstraintXML() + this.query.views.join();
-        isStale = freshness !== this.cache.freshness;
-        if (isStale) {
-          this.cache = {};
-        } else {
-          isOutOfRange = this.cache.lowerBound < 0 || start < this.cache.lowerBound || end > this.cache.upperBound || size <= 0;
-        }
-        serve = (function(_this) {
+      Table.prototype.calculateFreshness = function() {
+        return this.query.toXML();
+      };
+
+      Table.prototype.fillRows = function() {
+        var error, success;
+        console.debug('filling rows');
+        success = (function(_this) {
           return function() {
-            return _this.serveResultsFromCache(start, size);
+            return _this.model.set({
+              state: 'SUCCESS'
+            });
           };
         })(this);
-        if (isStale || isOutOfRange) {
-          page = this.getPage(start, size);
-          updateCacheAndServe = (function(_this) {
-            return function(res) {
-              console.log(page, res);
-              _this.addRowsToCache(page, res);
-              _this.cache.freshness = freshness;
-              return serve();
-            };
-          })(this);
-          this.overlayTable();
-          promise = this.query[this.fetchMethod]({
-            start: page.start,
-            size: page.size
-          });
-          promise.then(this.removeOverlay, this.removeOverlay);
-          return promise.then(updateCacheAndServe, this.showError);
-        } else {
-          return jQuery.Deferred(function() {
-            return this.resolve(serve());
-          });
-        }
+        error = (function(_this) {
+          return function(e) {
+            return _this.model.set({
+              state: 'ERROR',
+              error: e != null ? e : new Error('unknown error')
+            });
+          };
+        })(this);
+        return this.updateCache().then(this.fillRowsFromCache).then(success, error);
       };
+
+      Table.prototype.updateCache = function() {
+        var cache, end, fetching, isStale, lowerBound, page, size, start, uncached, updatingCache, upperBound, version, _ref;
+        console.debug('updating cache');
+        _ref = this.model.toJSON(), version = _ref.version, cache = _ref.cache, lowerBound = _ref.lowerBound, upperBound = _ref.upperBound, start = _ref.start, size = _ref.size;
+        end = start + size;
+        isStale = cache == null;
+        uncached = (lowerBound < 0) || (start < lowerBound) || (end > upperBound) || (size <= 0);
+        return updatingCache = isStale || uncached ? (page = this.getRequestPage(start, size), console.debug('requesting', page), this.overlayTable(), fetching = this.query.tableRows({
+          start: page.start,
+          size: page.size
+        }), fetching.then(this.removeOverlay, this.removeOverlay), fetching.then((function(_this) {
+          return function(r) {
+            return _this.addRowsToCache(page, r);
+          };
+        })(this))) : (console.debug('cache does not need updating'), jQuery.Deferred(function() {
+          return this.resolve();
+        }).promise());
+      };
+
+      Table.prototype.getRowData = function(start, size) {};
 
       Table.prototype.overlayTable = function() {
         var elOffset, tableOffset;
@@ -12450,14 +12595,15 @@
         return (_ref = this.overlay) != null ? _ref.remove() : void 0;
       };
 
-      Table.prototype.getPage = function(start, size) {
-        var page;
+      Table.prototype.getRequestPage = function() {
+        var cache, lowerBound, page, size, start, upperBound, _ref;
+        _ref = this.model.toJSON(), start = _ref.start, size = _ref.size, cache = _ref.cache, lowerBound = _ref.lowerBound, upperBound = _ref.upperBound;
         page = new Page(start, size);
-        if (!this.cache.lastResult) {
+        if (!cache) {
           page.size *= this._pipe_factor;
           return page;
         }
-        if (start < this.cache.lowerBound) {
+        if (start < lowerBound) {
           page.start = Math.max(0, start - (size * this._pipe_factor));
         }
         if (size > 0) {
@@ -12465,18 +12611,18 @@
         } else {
           page.size = '';
         }
-        if (page.size && (page.end() < this.cache.lowerBound)) {
-          if ((this.cache.lowerBound - page.end()) > (page.size * 10)) {
-            this.cache = {};
+        if (page.size && (page.end() < lowerBound)) {
+          if ((lowerBound - page.end()) > (page.size * this._pipe_factor)) {
+            this.model.unset('cache');
             page.size *= 2;
             return page;
           } else {
-            page.size = this.cache.lowerBound - page.start;
+            page.size = lowerBound - page.start;
           }
         }
-        if (this.cache.upperBound < page.start) {
+        if (upperBound < page.start) {
           if ((page.start - this.cache.upperBound) > (page.size * 10)) {
-            this.cache = {};
+            this.model.unset('cache');
             page.size *= 2;
             page.start = Math.max(0, page.start - (size * this._pipe_factor));
             return page;
@@ -12484,132 +12630,117 @@
           if (page.size) {
             page.size += page.start - this.cache.upperBound;
           }
-          page.start = this.cache.upperBound;
+          page.start = upperBound;
         }
         return page;
       };
 
       Table.prototype.addRowsToCache = function(page, rows) {
-        var merged;
-        if (!this.cache.lastResult) {
-          this.cache.lastResult = {
-            results: rows.slice()
-          };
-          this.cache.lowerBound = page.start;
-          return this.cache.upperBound = page.end();
+        var cache, lowerBound, upperBound, _ref;
+        _ref = this.model.toJSON(), cache = _ref.cache, lowerBound = _ref.lowerBound, upperBound = _ref.upperBound;
+        if (cache != null) {
+          cache = cache.slice();
+          if (page.start < lowerBound) {
+            cache = rows.concat(cache.slice(page.end() - lowerBound));
+          }
+          if (upperBound < page.end() || page.all()) {
+            cache = cache.slice(0, page.start - lowerBound).concat(rows);
+          }
+          lowerBound = Math.min(lowerBound, page.start);
+          upperBound = lowerBound + merged.length;
         } else {
-          merged = this.cache.lastResult.results.slice();
-          if (page.start < this.cache.lowerBound) {
-            merged = rows.concat(merged.slice(page.end() - this.cache.lowerBound));
-          }
-          if (this.cache.upperBound < page.end() || page.all()) {
-            merged = merged.slice(0, page.start - this.cache.lowerBound).concat(rows);
-          }
-          this.cache.lowerBound = Math.min(this.cache.lowerBound, page.start);
-          this.cache.upperBound = this.cache.lowerBound + merged.length;
-          return this.cache.lastResult.results = merged;
+          cache = rows.slice();
+          lowerBound = page.start;
+          upperBound = page.end();
         }
-      };
-
-      Table.prototype.updateSummary = function(start, size, result) {
-        var html, summary;
-        summary = this.$('.im-table-summary');
-        html = intermine.snippets.table.CountSummary({
-          first: start + 1,
-          last: size === 0 ? 0 : Math.min(start + size, result.iTotalRecords),
-          count: intermine.utils.numToString(result.iTotalRecords, ",", 3),
-          roots: "rows"
+        return this.model.set({
+          cache: cache,
+          lowerBound: lowerBound,
+          upperBound: upperBound
         });
-        summary.html(html);
-        return this.query.trigger('count:is', result.iTotalRecords);
       };
 
-      Table.prototype.serveResultsFromCache = function(start, size) {
-        var base, fields, makeCell, result, v;
+      Table.prototype.updateSummary = function() {
+        var count, size, start, summary, _ref;
+        _ref = this.model.toJSON(), start = _ref.start, size = _ref.size, count = _ref.count;
+        summary = this.$('.im-table-summary');
+        return summary.html(intermine.snippets.table.CountSummary({
+          first: start + 1,
+          last: size === 0 ? 0 : Math.min(start + size, count),
+          count: intermine.utils.numToString(count, ",", 3),
+          roots: "rows"
+        }));
+      };
+
+      Table.prototype.makeCellModel = function(obj) {
+        var base, cm, column, field, model, node, r, type, _base, _name;
         base = this.query.service.root.replace(/\/service\/?$/, "");
-        result = jQuery.extend(true, {}, this.cache.lastResult);
-        result.results.splice(0, start - this.cache.lowerBound);
-        if (size > 0) {
-          result.results.splice(size, result.results.length);
+        cm = _.has(obj, 'rows') ? (node = this.query.getPathInfo(obj.column), _.extend(obj, {
+          query: this.query,
+          node: node,
+          column: node,
+          rows: (function() {
+            var _i, _len, _ref, _results;
+            _ref = obj.rows;
+            _results = [];
+            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+              r = _ref[_i];
+              _results.push(r.map(this.makeCellModel));
+            }
+            return _results;
+          }).call(this)
+        }), new NestedTableModel(obj)) : (column = this.query.getPathInfo(obj.column), node = column.getParent(), field = obj.column.replace(/^.*\./, ''), model = obj.id != null ? (_base = this.itemModels)[_name = obj.id] || (_base[_name] = new intermine.model.IMObject(obj, this.query, field, base)) : obj["class"] == null ? (type = node.getParent().name, new intermine.model.NullObject({}, {
+          query: this.query,
+          field: field,
+          type: type
+        })) : new intermine.model.FPObject({}, {
+          query: this.query,
+          obj: obj,
+          field: field
+        }), model.merge(obj, field), new CellModel(_.extend({
+          query: this.query,
+          cell: model,
+          node: node,
+          column: column,
+          field: field,
+          value: obj.value
+        })));
+        return cm;
+      };
+
+      Table.prototype.fillRowsFromCache = function() {
+        var base, cache, fields, lowerBound, rows, size, start, v, _ref;
+        console.debug('filling rows from cache');
+        _ref = this.model.toJSON(), cache = _ref.cache, lowerBound = _ref.lowerBound, start = _ref.start, size = _ref.size;
+        if (cache == null) {
+          return console.error('Cache is not filled');
         }
-        this.updateSummary(start, size, result);
+        base = this.query.service.root.replace(/\/service\/?$/, "");
+        rows = cache.slice();
+        rows.splice(0, start - lowerBound);
+        if (size > 0) {
+          rows.splice(size, rows.length);
+        }
         fields = (function() {
-          var _i, _len, _ref, _results;
-          _ref = this.query.views;
+          var _i, _len, _ref1, _results;
+          _ref1 = this.query.views;
           _results = [];
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            v = _ref[_i];
+          for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+            v = _ref1[_i];
             _results.push([this.query.getPathInfo(v).getParent(), v.replace(/^.*\./, "")]);
           }
           return _results;
         }).call(this);
-        makeCell = (function(_this) {
-          return function(obj) {
-            var args, field, model, node, type, _base, _name, _ref, _ref1;
-            if (_.has(obj, 'rows')) {
-              node = _this.query.getPathInfo(obj.column);
-              return new intermine.results.table.SubTable({
-                query: _this.query,
-                cellify: makeCell,
-                blacklistedFormatters: (_ref = (_ref1 = _this.table) != null ? _ref1.blacklistedFormatters : void 0) != null ? _ref : [],
-                mainTable: _this,
-                subtable: obj,
-                node: node
-              });
-            } else {
-              node = _this.query.getPathInfo(obj.column).getParent();
-              field = obj.column.replace(/^.*\./, '');
-              model = obj.id != null ? (_base = _this.itemModels)[_name = obj.id] || (_base[_name] = new intermine.model.IMObject(obj, _this.query, field, base)) : obj["class"] == null ? (type = node.getParent().name, new intermine.model.NullObject({}, {
-                query: _this.query,
-                field: field,
-                type: type
-              })) : new intermine.model.FPObject({}, {
-                query: _this.query,
-                obj: obj,
-                field: field
-              });
-              model.merge(obj, field);
-              args = {
-                model: model,
-                node: node,
-                field: field
-              };
-              args.query = _this.query;
-              return new intermine.results.table.Cell(args);
-            }
-          };
-        })(this);
-        result.rows = result.results.map((function(_this) {
+        this.rows.reset(rows.map((function(_this) {
           return function(row) {
-            return row.map(function(cell, idx) {
-              var field, imo, _base, _name;
-              if (_.has(cell, 'column')) {
-                return makeCell(cell);
-              } else if ((cell != null ? cell.id : void 0) != null) {
-                field = fields[idx];
-                imo = (_base = _this.itemModels)[_name = cell.id] || (_base[_name] = new intermine.model.IMObject(cell, _this.query, field[1], base));
-                imo.merge(cell, field[1]);
-                return new intermine.results.table.Cell({
-                  model: imo,
-                  node: field[0],
-                  field: field[1],
-                  query: _this.query
-                });
-              } else if ((cell != null ? cell.value : void 0) != null) {
-                return new intermine.results.table.Cell({
-                  model: new intermine.model.FPObject(_this.query, cell, field[1]),
-                  query: _this.query,
-                  field: field[1]
-                });
-              } else {
-                return new intermine.results.table.NullCell({
-                  query: _this.query
-                });
-              }
+            return new RowModel({
+              cells: row.map(function(cell, idx) {
+                return _this.makeCellModel(cell);
+              })
             });
           };
-        })(this));
-        return result;
+        })(this)));
+        return console.debug('rows filled', this.rows.size());
       };
 
       Table.prototype.tableAttrs = {
@@ -12620,42 +12751,55 @@
         cellspacing: 0
       };
 
+      Table.prototype.renderFetching = function() {
+        return "<h2>Building table</h2>\n<div class=\"progress progress-striped active progress-info\">\n    <div class=\"bar\" style=\"width: 100%\"></div>\n</div>";
+      };
+
+      Table.prototype.renderError = function() {
+        return renderError(this.query, this.model.get('error'));
+      };
+
+      Table.prototype.renderTable = function() {
+        var $widgets, component, frag, method, tel, _i, _len, _ref;
+        frag = document.createDocumentFragment();
+        $widgets = $('<div>').appendTo(frag);
+        _ref = intermine.options.TableWidgets;
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          component = _ref[_i];
+          if (!(("place" + component) in this)) {
+            continue;
+          }
+          method = "place" + component;
+          this[method]($widgets);
+        }
+        $widgets.append("<div style=\"clear:both\"></div>");
+        tel = this.make('table', this.tableAttrs);
+        frag.appendChild(tel);
+        this.table = new ResultsTable(this.query, this.blacklistedFormatters, this.columnHeaders, this.rows);
+        this.table.setElement(tel);
+        this.table.render();
+        return frag;
+      };
+
       Table.prototype.render = function() {
-        var tel;
-        this.$el.empty();
-        tel = this.make("table", this.tableAttrs);
-        this.$el.append(tel);
-        jQuery(tel).append("<h2>Building table</h2>\n<div class=\"progress progress-striped active progress-info\">\n    <div class=\"bar\" style=\"width: 100%\"></div>\n</div>");
-        return this.query.service.fetchVersion((function(_this) {
-          return function(err, version) {
-            if (err) {
-              return _this.onSetupError(tel, err);
-            } else {
-              return _this.doRender(tel, version);
-            }
-          };
-        })(this));
+        var state, _ref;
+        if ((_ref = this.table) != null) {
+          _ref.remove();
+        }
+        state = this.model.get('state');
+        if (state === 'FETCHING') {
+          console.debug('state is fetching');
+          return this.$el.html(this.renderFetching());
+        } else if (state === 'ERROR') {
+          console.debug('state is error');
+          return this.$el.html(this.renderError());
+        } else {
+          console.debug('state is success');
+          return this.$el.html(this.renderTable());
+        }
       };
 
-      Table.prototype.doRender = function(tel, version) {
-        var path, setupParams;
-        this.fetchMethod = version >= 10 ? 'tableRows' : 'table';
-        path = "query/results";
-        setupParams = {
-          format: "jsontable",
-          query: this.query.toXML(),
-          token: this.query.service.token
-        };
-        this.$el.appendTo(this.$parent);
-        this.query.service.post(path, setupParams).then(this.onSetupSuccess(tel), ((function(_this) {
-          return function(e) {
-            return _this.onSetupError(tel, e);
-          };
-        })(this))).then(null, console.error.bind(console));
-        return this;
-      };
-
-      Table.prototype.horizontalScroller = "<div class=\"scroll-bar-wrap well\">\n    <div class=\"scroll-bar-containment\">\n        <div class=\"scroll-bar alert-info alert\"></div>\n    </div>\n</div>";
+      Table.prototype.horizontalScroller = "<div class=\"scroll-bar-wrap well\">\n  <div class=\"scroll-bar-containment\">\n    <div class=\"scroll-bar alert-info alert\"></div>\n  </div>\n</div>";
 
       Table.prototype.placePagination = function($widgets) {
         var $pagination, currentPageButton;
@@ -12665,10 +12809,11 @@
         });
         return currentPageButton = $pagination.find(".im-current-page a").click((function(_this) {
           return function() {
-            var total;
-            total = _this.cache.lastResult.iTotalRecords;
-            if (_this.table.pageSize >= total) {
-              return false;
+            var size, total;
+            size = _this.model.get('size');
+            total = _this.model.get('count');
+            if (size >= total) {
+              return;
             }
             currentPageButton.hide();
             return $pagination.find('form').show();
@@ -12678,117 +12823,59 @@
 
       Table.prototype.placePageSizer = function($widgets) {
         var pageSizer;
-        pageSizer = new PageSizer(this.query, this.pageSize);
+        pageSizer = new PageSizer({
+          model: this.model
+        });
         return pageSizer.render().$el.appendTo($widgets);
-      };
-
-      Table.prototype.placeScrollBar = function($widgets) {
-        var $scrollwrapper, currentPos, scrollbar;
-        if (this.bar === 'horizontal') {
-          $scrollwrapper = $(this.horizontalScroller).appendTo($widgets);
-          scrollbar = this.$('.scroll-bar');
-          currentPos = 0;
-          scrollbar.draggable({
-            axis: "x",
-            containment: "parent",
-            stop: (function(_this) {
-              return function(event, ui) {
-                scrollbar.removeClass("scrolling");
-                scrollbar.tooltip("hide");
-                return _this.table.goTo(currentPos);
-              };
-            })(this),
-            start: function() {
-              return $(this).addClass("scrolling");
-            },
-            drag: (function(_this) {
-              return function(event, ui) {
-                var left, total;
-                scrollbar.tooltip("show");
-                left = ui.position.left;
-                total = ui.helper.closest('.scroll-bar-wrap').width();
-                return currentPos = _this.cache.lastResult.iTotalRecords * left / total;
-              };
-            })(this)
-          });
-          scrollbar.css({
-            position: "absolute"
-          }).parent().css({
-            position: "relative"
-          });
-          return scrollbar.tooltip({
-            trigger: "manual",
-            title: (function(_this) {
-              return function() {
-                return "" + ((currentPos + 1).toFixed()) + " ... " + ((currentPos + _this.table.pageSize).toFixed());
-              };
-            })(this)
-          });
-        }
       };
 
       Table.prototype.placeTableSummary = function($widgets) {
         return $widgets.append("<span class=\"im-table-summary\"></div>");
       };
 
-      Table.prototype.onSetupSuccess = function(elem) {
-        return (function(_this) {
-          return function(result) {
-            var $telem, $widgets, component, method, _i, _len, _ref;
-            console.log("Success", result);
-            $telem = jQuery(elem).empty();
-            $widgets = $('<div>').insertBefore(elem);
-            _this.table = new ResultsTable(_this.query, _this.getRowData, _this.columnHeaders);
-            _this.table.setElement(elem);
-            if (_this.pageSize != null) {
-              _this.table.pageSize = _this.pageSize;
-            }
-            if (_this.pageStart != null) {
-              _this.table.pageStart = _this.pageStart;
-            }
-            _this.table.render();
-            _this.query.on("imtable:change:page", _this.updatePageDisplay);
-            _ref = intermine.options.TableWidgets;
-            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-              component = _ref[_i];
-              if (!(("place" + component) in _this)) {
-                continue;
-              }
-              method = "place" + component;
-              _this[method]($widgets);
-            }
-            return $widgets.append("<div style=\"clear:both\"></div>");
-          };
-        })(this);
-      };
-
       Table.prototype.getCurrentPageSize = function() {
-        var _ref, _ref1;
-        return (_ref = (_ref1 = this.table) != null ? _ref1.pageSize : void 0) != null ? _ref : this.pageSize;
+        return this.model.get('size');
       };
 
       Table.prototype.getCurrentPage = function() {
-        if (this.table.pageSize) {
-          return Math.floor(this.table.pageStart / this.table.pageSize);
+        var size, start, _ref;
+        _ref = this.model.toJSON(), start = _ref.start, size = _ref.size;
+        if (size) {
+          return Math.floor(start / size);
         } else {
           return 0;
         }
       };
 
       Table.prototype.getMaxPage = function() {
-        var correction, pageSize, total;
-        total = this.cache.lastResult.iTotalRecords;
-        pageSize = this.table.pageSize;
-        correction = total % pageSize === 0 ? -1 : 0;
-        return Math.floor(total / pageSize) + correction;
+        var correction, count, size, _ref;
+        _ref = this.model.toJSON(), count = _ref.count, size = _ref.size;
+        correction = count % size === 0 ? -1 : 0;
+        return Math.floor(count / size) + correction;
+      };
+
+      Table.prototype.goTo = function(start) {
+        return this.model.set({
+          start: start
+        });
+      };
+
+      Table.prototype.goToPage = function(page) {
+        return this.model.set({
+          start: page * this.model.get('size')
+        });
       };
 
       Table.prototype.goBack = function(pages) {
-        return this.table.goTo(Math.max(0, this.table.pageStart - (pages * this.table.pageSize)));
+        var size, start, _ref;
+        _ref = this.model.toJSON(), start = _ref.start, size = _ref.size;
+        return this.goTo(Math.max(0, start - (pages * size)));
       };
 
       Table.prototype.goForward = function(pages) {
-        return this.table.goTo(Math.min(this.getMaxPage() * this.table.pageSize, this.table.pageStart + (pages * this.table.pageSize)));
+        var size, start, _ref;
+        _ref = this.model.get('start'), start = _ref.start, size = _ref.size;
+        return this.goTo(Math.min(this.getMaxPage() * size, start + (pages * size)));
       };
 
       Table.prototype.pageButtonClick = function(e) {
@@ -12797,7 +12884,7 @@
         if (!$elem.parent().is('.active')) {
           switch ($elem.data("goto")) {
             case "start":
-              return this.table.goTo(0);
+              return this.goTo(0);
             case "prev":
               return this.goBack(1);
             case "fast-rewind":
@@ -12807,81 +12894,8 @@
             case "fast-forward":
               return this.goForward(5);
             case "end":
-              return this.table.goTo(this.getMaxPage() * this.table.pageSize);
+              return this.goToPage(this.getMaxPage());
           }
-        }
-      };
-
-      Table.prototype.updatePageDisplay = function(start, size) {
-        var buttons, centre, cg, handle, maxPage, overhang, p, pageForm, pageSelector, proportion, scaled, scrollbar, tbl, total, totalWidth, unit, _i, _ref, _results;
-        total = this.cache.lastResult.iTotalRecords;
-        if (size === 0) {
-          size = total;
-        }
-        scrollbar = this.$('.scroll-bar-wrap');
-        if (scrollbar.length) {
-          totalWidth = scrollbar.width();
-          proportion = size / total;
-          scrollbar.toggle(size < total);
-          unit = totalWidth / total;
-          scaled = Math.max(totalWidth * proportion, 20);
-          overhang = size - ((total - (size * Math.floor(total / size))) % size);
-          scrollbar.find('.scroll-bar-containment').css({
-            width: totalWidth + (unit * overhang)
-          });
-          handle = scrollbar.find('.scroll-bar').css({
-            width: scaled
-          });
-          handle.animate({
-            left: unit * start
-          });
-        }
-        tbl = this.table;
-        buttons = this.$('.im-pagination-button');
-        buttons.each(function() {
-          var $elem, isActive, li;
-          $elem = $(this);
-          li = $elem.parent();
-          isActive = (function() {
-            switch ($elem.data("goto")) {
-              case "start":
-              case 'prev':
-                return start === 0;
-              case 'fast-rewind':
-                return start === 0;
-              case "next":
-              case 'end':
-                return start + size >= total;
-              case "fast-forward":
-                return start + (5 * size) >= total;
-            }
-          })();
-          return li.toggleClass('active', isActive);
-        });
-        centre = this.$('.im-current-page');
-        centre.find('a').text("p. " + (this.getCurrentPage() + 1));
-        centre.toggleClass("active", size >= total);
-        pageForm = centre.find('form');
-        cg = pageForm.find('.control-group').empty().removeClass('error');
-        maxPage = this.getMaxPage();
-        if (maxPage <= 100) {
-          pageSelector = $('<select>').appendTo(cg);
-          pageSelector.val(this.getCurrentPage());
-          pageSelector.change(function(e) {
-            e.stopPropagation();
-            e.preventDefault();
-            tbl.goToPage(parseInt(pageSelector.val()));
-            centre.find('a').show();
-            return pageForm.hide();
-          });
-          _results = [];
-          for (p = _i = 1, _ref = maxPage + 1; 1 <= _ref ? _i <= _ref : _i >= _ref; p = 1 <= _ref ? ++_i : --_i) {
-            _results.push(pageSelector.append("<option value=\"" + (p - 1) + "\">p. " + p + "</option>"));
-          }
-          return _results;
-        } else {
-          cg.append("<input type=text placeholder=\"go to page...\">");
-          return cg.append("<button class=\"btn\" type=\"submit\">go</button>");
         }
       };
 
@@ -12907,39 +12921,6 @@
             placeholder: "1 .. " + (this.getMaxPage() + 1)
           });
         }
-      };
-
-      errorIntro = "Could not load the data-table.";
-
-      genericExplanation = "The server may be down, or \nincorrectly configured, or \nwe could be pointed at an invalid URL.";
-
-      badJson = "What we do know is that the server did not return a valid JSON response.";
-
-      Table.prototype.onSetupError = function(telem, err) {
-        var content, issue, notice, reasonStr, reasons;
-        $(telem).empty();
-        console.error("SETUP FAILURE", arguments);
-        notice = this.make("div", {
-          "class": "alert alert-error"
-        });
-        reasonStr = (err != null ? err.message : void 0) || genericExplanation;
-        reasons = reasonStr.split("\n");
-        content = [this.make("span", {}, errorIntro)];
-        if (reasons.length) {
-          content.push(this.make("ul", {}, (function() {
-            var _i, _len, _results;
-            _results = [];
-            for (_i = 0, _len = reasons.length; _i < _len; _i++) {
-              issue = reasons[_i];
-              _results.push(this.make("li", {}, issue));
-            }
-            return _results;
-          }).call(this)));
-        }
-        return $(notice).append(this.make("a", {
-          "class": "close",
-          "data-dismiss": "alert"
-        }, "close")).append(this.make("strong", {}, "Ooops...! ")).append(content).appendTo(telem);
       };
 
       return Table;

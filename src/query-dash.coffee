@@ -21,16 +21,17 @@ do ->
         TABLE_CLASSES: "span9 im-query-results"
 
         loadQuery: (q) ->
-          currentPageSize = @table?.getCurrentPageSize()
+          {size} = @table?.getPage()
+          if not @main?
+            @render()
           @table?.remove()
-          @main.empty()
-          @table = new intermine.query.results.Table(q, @main, @columnHeaders)
+          @table = new intermine.query.results.Table(q, @columnHeaders, {size})
           @table[k] = v for k, v of @tableProperties
-          @table.pageSize = currentPageSize if currentPageSize?
-          @table.render()
+          @main.html @table.render()
           q.on evt, cb for evt, cb of @queryEvents
 
         render: ->
+          @$el.empty()
           @$el.addClass intermine.options.StylePrefix
           @tools = $ """<div class="clearfix">"""
           @$el.append @tools
@@ -42,9 +43,8 @@ do ->
           queryPromise.done (q) => @states.addStep 'Original state', q
           
           queryPromise.done (q) =>
-
-           @renderQueryManagement(q)
-           @renderTools(q)
+            @renderQueryManagement(q)
+            @renderTools(q)
 
           queryPromise.then null, (err) =>
             @$el.append """

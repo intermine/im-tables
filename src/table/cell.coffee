@@ -41,55 +41,57 @@ do ->
         className: "im-result-subtable"
 
         initialize: (@options = {}) ->
-            @query = @options.query
-            @cellify = @options.cellify
-            @path = @options.node
-            subtable = @options.subtable
-            @rows = subtable.rows
-            @view = subtable.view
-            @column = @query.getPathInfo(subtable.column)
-            @query.on 'expand:subtables', (path) =>
-              if path.toString() is @column.toString()
-                @renderTable().slideDown()
-            @query.on 'collapse:subtables', (path) =>
-              if path.toString() is @column.toString()
-                @$('.im-subtable').slideUp()
+          @cellify = @options.cellify
+          @path = @get('column') # Cell Views must have a path :: PathInfo property.
+          @model.on 'expand', => @renderTable().slideDown()
+          @model.on 'collapse', => @$('.im-subtable').slideUp()
+
+        get: (key) -> @model.get key
 
         getSummaryText: () ->
           def = jQuery.Deferred()
+          column = @get 'column'
+          rows = @get 'rows'
+          query = @get 'query'
 
-          if @column.isCollection()
-              def.resolve """#{ @rows.length } #{ @column.getType().name }s"""
+          if column.isCollection()
+              def.resolve """#{ rows.length } #{ @get 'columnTypeName' }s"""
           else
               # Single collapsed reference.
-              if @rows.length is 0
-                  # find the outer join:
-                  level = if @query.isOuterJoined(@view[0])
-                      @query.getPathInfo(@query.getOuterJoin(@view[0]))
-                  else
-                      @column
-                  def.resolve """
-                    <span class="im-no-value">No #{ level.getType().name }</span>
+              if rows.length is 0
+                view_0 = @get('view')[0]
+                # find the outer join:
+                level = if query.isOuterJoined(view_0)
+                    query.getPathInfo query.getOuterJoin view_0
+                else
+                    column
+                typePath = query.model.getPathInfo level.getType()
+                typePath.getDisplayName().then (name) -> def.resolve """
+                    <span class="im-no-value">No #{ name }</span>
                   """
-              else
-                  def.resolve """#{@rows[0][0].value} (#{@rows[0][1 ..].map((c) -> c.value).join(', ')})"""
+              else # We hope that this is sensible and has a main object at the head position.
+                [first_row] = @get 'rows' # TODO - deal with nested sub tables
+                [main, attrs...] = first_row.map (c) -> c.get 'value'
+                def.resolve """#{main} (#{attrs.join(', ')})"""
           def.promise()
 
         getEffectiveView: ->
           # TODO: refactor the common code between this and Table#getEffectiveView
           {getReplacedTest, longestCommonPrefix} = intermine.utils
           {shouldFormat, getFormatter} = intermine.results
-          row = @rows[0] # use first row as pattern for all of them
+          query = @get 'query'
+          [row] = @get 'rows' # use first row as pattern for all of them
           replacedBy = {}
           explicitReplacements = {}
 
+          # cell is either CellModel or NestedTableModel
           columns = for cell in row
-            [path, replaces] = if cell.view? # subtable of this cell
-              commonPrefix = longestCommonPrefix cell.view
-              path = @query.getPathInfo commonPrefix
-              [path, (@query.getPathInfo sv for sv in cell.view)]
+            [path, replaces] = if cell.has('view') # subtable of this cell
+              commonPrefix = longestCommonPrefix cell.get('view')
+              path = query.getPathInfo commonPrefix
+              [path, (query.getPathInfo sv for sv in cell.view)]
             else
-              path = @query.getPathInfo cell.column
+              path = cell.get 'column'
               [path, [path]]
             {path, replaces}
 
@@ -97,11 +99,11 @@ do ->
             parent = c.path.getParent()
             replacedBy[parent] ?= c
             formatter = getFormatter c.path
-            unless formatter in @options.blacklistedFormatters
+            if @options.canUseFormatter formatter
               c.isFormatted = true
               c.formatter = formatter
               for fieldExpr in (formatter.replaces ? [])
-                subPath = @query.getPathInfo "#{ parent }.#{ fieldExpr }"
+                subPath = query.getPathInfo "#{ parent }.#{ fieldExpr }"
                 replacedBy[subPath] ?= c
                 c.replaces.push subPath
             explicitReplacements[r] = c for r in c.replaces
@@ -118,35 +120,37 @@ do ->
 
         renderHead: (headers, columns) ->
           # Prefer column to view as it is reliable.
-          tableNamePromise = @column.getDisplayName()
-          for c in columns then do (c) =>
+          columnName = @get 'columnName'
+          query = @get 'query'
+          for c in columns then do (c) ->
             th = $ """<th>
                 <i class="#{intermine.css.headerIconRemove}"></i>
                 <span></span>
             </th>"""
-            th.find('i').click (e) => @query.removeFromSelect c.replaces
-            $.when(tableNamePromise, c.path.getDisplayName()).then (tableName, colName) ->
+            th.find('i').click -> query.removeFromSelect c.replaces
+            $.when(columnName, c.path.getDisplayName()).then (tableName, colName) ->
               text = if colName.match(tableName)
                   colName.replace(tableName, '').replace(/^\s*>?\s*/, '')
               else
                   colName.replace(/^[^>]*\s*>\s*/, '')
               span = th.find('span').text text
 
-            headers.append th
+            th.appendTo headers
 
-        appendRow: (columns, row, tbody) =>
+        appendRow: (columns, row, tbody) ->
           tbody ?= @$ '.im-subtable tbody'
           tr = $ '<tr>'
-          w = @$el.width() / @view.length
+          w = @$el.width() / @get('view').length
           processed = {}
           replacedBy = {}
           for c in columns
             for r in c.replaces
               replacedBy[r] = c
 
-          cells = row.map @cellify
+          # Actual rendering happens here - subsequent code just determines whether to use.
+          cellViews = row.map @cellify
 
-          for cell in cells then do (tr, cell) =>
+          for cell in cellViews then do (tr, cell) ->
             return if processed[cell.path]
             processed[cell.path] = true
             {replaces, formatter, path} = replacedBy[cell.path] ? {replaces: []}
@@ -162,27 +166,30 @@ do ->
             cell.formatter = formatter if formatter?
 
             tr.append cell.el
-            cell.render().setWidth w
+            cell.render()
 
           tr.appendTo tbody
-          null
+          null # Called in void context, no need to collect results.
 
         renderTable: ($table) ->
           $table ?= @$ '.im-subtable'
           return $table if @tableRendered
-          colRoot = @column.getType().name
-          colStr = @column.toString()
-          if @rows.length > 0
+          tbody = $table.find 'tbody'
+          thead = $table.find 'thead tr'
+          rows = @get 'rows'
+          if rows.length > 0
+            tbodyFrag = document.createDocumentFragment()
+            theadFrag = document.createDocumentFragment()
             columns = @getEffectiveView()
-            @renderHead $table.find('thead tr'), columns
-            tbody = $table.find 'tbody'
-            docfrag = document.createDocumentFragment()
+            @renderHead theadFrag, columns
 
             if @column.isCollection()
-                @appendRow(columns, row, docfrag) for row in @rows
+                @appendRow(columns, row, tbodyFrag) for row in rows
             else
-                @appendRow(columns, @rows[0], docfrag) # Odd hack to fix multiple repeated rows.
-            tbody.html docfrag
+                @appendRow(columns, rows[0], tbodyFrag) # Odd hack to fix multiple repeated rows.
+
+            thead.html theadFrag
+            tbody.html tbodyFrag
           @tableRendered = true
           $table
 
@@ -193,55 +200,42 @@ do ->
           e?.stopPropagation()
           $table = @$ '.im-subtable'
           evt = if $table.is ':visible'
-            'subtable:collapsed'
+            'collapsed'
           else
             @renderTable $table
-            'subtable:expanded'
+            'expanded'
           $table.slideToggle()
-          @query.trigger evt, @column
+          @model.trigger 'evt'
 
         render: () ->
-            icon = if @rows.length > 0
-              """<i class="#{ intermine.icons.Table }"></i>"""
-            else
-              '<i class=icon-non-existent></i>'
+          icon = if @get('rows').length > 0
+            """<i class="#{ intermine.icons.Table }"></i>"""
+          else
+            '<i class=icon-non-existent></i>'
 
-            summary = $ """
-              <span class="im-subtable-summary">
-                #{ icon }&nbsp;
-              </span>
-            """
-            summary.appendTo @$el
-            @getSummaryText().done (content) -> summary.append content
+          summary = $ """
+            <span class="im-subtable-summary">
+              #{ icon }&nbsp;
+            </span>
+          """
+          summary.appendTo @$el
+          @getSummaryText().done (content) -> summary.append content
 
-            @$el.append """
-              <table class="im-subtable table table-condensed table-striped">
-                <thead><tr></tr></thead>
-                <tbody></tbody>
-              </table>
-            """
+          @$el.append """
+            <table class="im-subtable table table-condensed table-striped">
+              <thead><tr></tr></thead>
+              <tbody></tbody>
+            </table>
+          """
 
-            if intermine.options.SubtableInitialState is 'open' or @options.mainTable.SubtableInitialState is 'open'
-              @toggleTable()
+          if intermine.options.SubtableInitialState is 'open' or @options.mainTable.SubtableInitialState is 'open'
+            @toggleTable()
 
-            this
-
-        getUnits: () ->
-            if @rows.length = 0
-                @view.length
-            else
-                _.reduce(@rows[0], ((a, item) -> a + if item.view? then item.view.length else 1), 0)
-
-        setWidth: (w) ->
-            # @$el.css width: (w * @view.length) + "px"
-            # @$('.im-cell-link').css "max-width": ((w * @view.length) - 5) + "px"
-            this
+          this
 
     class Cell extends Backbone.View
         tagName: "td"
         className: "im-result-field"
-
-        getUnits: () -> 1
 
         formatter: (model) ->
           if model.get(@options.field)?
@@ -249,28 +243,27 @@ do ->
           else
             """<span class="null-value">&nbsp;</span>"""
 
-        initialize: (@options = {}) ->
-          @model.on 'change', @selectingStateChange, @
-          @model.on 'change', @updateValue, @
+        initialize: ->
+          @model.get('cell').on 'change', @selectingStateChange, @
+          @model.get('cell').on 'change', @updateValue, @
 
-          @listenToQuery @options.query
+          @listenToQuery @model.get 'query'
 
-          field = @options.field
-          path = @path = @options.node.append field
-          @$el.addClass 'im-type-' + path.getType().toLowerCase()
+          @path = @model.get('column') # Cell Views must have a path :: PathInfo property.
 
         remove: ->
-          @model.off 'change', @selectingStateChange
-          @model.off 'change', @updateValue
+          @model.off()
+          @model.get('cell').off 'change', @selectingStateChange
+          @model.get('cell').off 'change', @updateValue
           @popover?.remove()
           super
 
         events: ->
           'shown': => @cellPreview?.reposition()
           'show': (e) =>
-            @options.query.trigger 'showing:preview', @el
-            e?.preventDefault() if @model.get 'is:selecting'
-          'hide': (e) => @model.cachedPopover?.detach()
+            @model.get('query').trigger 'showing:preview', @el
+            e?.preventDefault() if @model.get('cell').get 'is:selecting'
+          'hide': (e) => @model.get('cell').cachedPopover?.detach()
           'click': 'activateChooser'
           'click a.im-cell-link': (e) =>
             # Prevent bootstrap from closing dropdowns, etc.
@@ -280,32 +273,45 @@ do ->
             e.object = @model # one arg good, more args bad.
             @options.query.trigger 'object:view', e
 
-        reportClick: -> @model.trigger 'click', @model
+        reportClick: -> @model.get('cell').trigger 'click', @model.get('cell')
 
         listenToQuery: (q) ->
-          q.on "start:list-creation", =>
-            @model.set 'is:selecting': true
-          q.on "stop:list-creation", =>
-            @model.set 'is:selecting': false, 'is:selected': false
-          q.on 'showing:preview', (el) => # Close ours if another is being opened.
+          onListCreation = =>
+            @model.get('cell').set 'is:selecting': true
+          onStopListCreation = =>
+            @model.get('cell').set 'is:selecting': false, 'is:selected': false
+          onShowingPreview = (el) => # Close ours if another is being opened.
             @cellPreview?.hide() unless el is @el
-
-          q.on "start:highlight:node", (node) =>
-            if @options.node?.toPathString() is node.toPathString()
+          onStartHighlightNode = (node) =>
+            if @model.get('node')?.toString() is node.toString()
               @$el.addClass "im-highlight"
-          q.on "stop:highlight", => @$el.removeClass "im-highlight"
+          onStopHighlight = => @$el.removeClass "im-highlight"
+          listenToReplacement = (replacement) =>
+            q.off "start:list-creation", onListCreation
+            q.off "stop:list-creation", onStopListCreation
+            q.off 'showing:preview', onShowingPreview
+            q.off "start:highlight:node", onStartHighlightNode
+            q.off "stop:highlight", onStopHighlight
+            q.off "replaced:by", listenToReplacement
+            @listenToQuery replacement
 
-          q.on "replaced:by", (replacement) => @listenToQuery replacement
-      
+          q.on "start:list-creation", onListCreation
+          q.on "stop:list-creation", onStopListCreation
+          q.on 'showing:preview', onShowingPreview
+          q.on "start:highlight:node", onStartHighlightNode
+          q.on "stop:highlight", onStopHighlight
+          q.on "replaced:by", listenToReplacement
+
         getPopoverContent: =>
-          return @model.cachedPopover if @model.cachedPopover?
+          cell = @model.get 'cell'
+          return cell.cachedPopover if cell.cachedPopover?
 
-          type = @model.get 'obj:type'
-          id = @model.get 'id'
+          type = cell.get 'obj:type'
+          id = cell.get 'id'
 
           popover = @popover = new intermine.table.cell.Preview
-            service: @options.query.service
-            schema: @options.query.model
+            service: @model.get('query').service
+            schema: @model.get('query').model
             model: {type, id}
 
           content = popover.$el
@@ -313,7 +319,7 @@ do ->
           popover.on 'rendered', => @cellPreview.reposition()
           popover.render()
 
-          @model.cachedPopover = content
+          cell.cachedPopover = content
 
         getPopoverPlacement: (popover) =>
           table = @$el.closest ".im-table-container"
@@ -346,7 +352,7 @@ do ->
             container: @el
             containment: '.im-query-results'
             html: true
-            title: @model.get 'obj:type'
+            title: @model.get 'typeName'
             trigger: intermine.options.CellPreviewTrigger
             delay: {show: 250, hide: 250} # Slight delays to prevent jumpiness.
             classes: 'im-cell-preview'
@@ -356,10 +362,10 @@ do ->
           @cellPreview = new intermine.bootstrap.DynamicPopover @el, options
 
         updateValue: -> _.defer =>
-          @$('.im-displayed-value').html @formatter(@model)
+          @$('.im-displayed-value').html @formatter(@model.get('cell'))
 
         getInputState: ->
-          {selected, selectable, selecting} = @model.selectionState()
+          {selected, selectable, selecting} = @model.get('cell').selectionState()
           checked = selected
           disabled = not selectable
           display = if selecting and selectable then 'inline' else 'none'
@@ -372,18 +378,18 @@ do ->
 
         getData: ->
           {IndicateOffHostLinks, ExternalLinkIcons} = intermine.options
-          field = @options.field
+          field = @model.get('field')
           data =
-            value: @formatter(@model)
-            rawValue: @model.get(field)
+            value: @formatter(@model.get('cell'))
+            rawValue: @model.get('value')
             field: field
-            url: @model.get('service:url')
+            url: @model.get('cell').get('service:url')
             host: if IndicateOffHostLinks then window.location.host else /.*/
             icon: null
           _.extend data, @getInputState()
 
           unless /^http/.test(data.url)
-            data.url = @model.get('service:base') + data.url
+            data.url = @model.get('cell').get('service:base') + data.url
 
           for domain, url of ExternalLinkIcons when data.url.match domain
             data.icon ?= url
@@ -391,26 +397,17 @@ do ->
 
         render: ->
           data = @getData()
-          @$el.html CELL_HTML data
+          @$el.addClass 'im-type-' + @path.getType().toLowerCase()
           @$el.addClass 'active' if data.checked
-          @setupPreviewOverlay() if @model.get('id')
-          this
-
-        setWidth: (w) -> # no-op. Was used, but can be removed when all callers are.
+          @$el.html CELL_HTML data
+          @setupPreviewOverlay() if @model.get('cell').get('id')
           this
 
         activateChooser: ->
           @reportClick()
-          {selected, selectable, selecting} = @model.selectionState()
-          if selectable and selecting
+          {selected, selectable, selecting} = @model.get('cell').selectionState()
+          if selectable and selecting # then toggle state of 'selected'
             @model.set 'is:selected': not selected
 
-    class NullCell extends Cell
-        setupPreviewOverlay: ->
-
-        initialize: (@options = {}) ->
-          @model = new intermine.model.NullObject()
-          super()
-
-    scope "intermine.results.table", {NullCell, SubTable, Cell}
+    scope "intermine.results.table", {SubTable, Cell}
 

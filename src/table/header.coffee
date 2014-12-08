@@ -93,7 +93,7 @@ do ->
 
     className: 'im-column-th'
 
-    initialize: ({query}) ->
+    initialize: ({query, @blacklistedFormatters}) ->
       @query = query
       # Store this, as it will be needed several times.
       @view = @model.get('path').toString()
@@ -154,7 +154,7 @@ do ->
       @$('.im-col-filters').click(@showFilterSummary)
       replaces = @model.get 'replaces'
       @$('.im-col-composed').attr(title: getCompositionTitle replaces).click =>
-          @query.trigger 'formatter:blacklist', @view, @model.get 'formatter'
+        @blacklistedFormatters.add formatter: @model.get 'formatter'
 
       @$el.toggleClass 'im-is-composed', @isComposed()
 

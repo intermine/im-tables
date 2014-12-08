@@ -1,5 +1,6 @@
 do ->
 
+  # TODO - combine the data model for this collection with that of the tables.
   class History extends Backbone.Collection
 
     initialize: ->
