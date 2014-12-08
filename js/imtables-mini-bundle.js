@@ -7431,7 +7431,7 @@ $.widget("ui.sortable", $.ui.mouse, {
  * Copyright 2012, 2013, Alex Kalderimis and InterMine
  * Released under the LGPL license.
  * 
- * Built at Mon Dec 08 2014 18:28:06 GMT+0000 (GMT)
+ * Built at Mon Dec 08 2014 19:01:11 GMT+0000 (GMT)
  */
 
 (function() {
@@ -19113,7 +19113,7 @@ $.widget("ui.sortable", $.ui.mouse, {
       return _.template("<tr>\n  <td colspan=\"<%= views.length %>\">\n    <div class=\"im-no-results alert alert-info\">\n      <div <% if (revision === 0) { %> style=\"display:none;\" <% } %> >\n        " + intermine.snippets.query.UndoButton + "\n      </div>\n      <strong>NO RESULTS</strong>\n      This query returned 0 results.\n      <div style=\"clear:both\"></div>\n    </div>\n  </td>\n</tr>", query);
     },
     CountSummary: _.template("<span class=\"hidden-phone\">\n<span class=\"im-only-widescreen\">Showing</span>\n<span>\n  <% if (last == 0) { %>\n      All\n  <% } else { %>\n      <%= first %> to <%= last %> of\n  <% } %>\n  <%= count %> <span class=\"visible-desktop\"><%= roots %></span>\n</span>\n</span>"),
-    Pagination: "<div class=\"pagination pagination-right\">\n  <ul>\n    <li title=\"Go to start\">\n      <a class=\"im-pagination-button\" data-goto=start>&#x21e4;</a>\n    </li>\n    <li title=\"Go back five pages\" class=\"visible-desktop\">\n      <a class=\"im-pagination-button\" data-goto=fast-rewind>&#x219e;</a>\n    </li>\n    <li title=\"Go to previous page\">\n      <a class=\"im-pagination-button\" data-goto=prev>&larr;</a>\n    </li>\n    <li class=\"im-current-page\">\n      <a data-goto=here  href=\"#\">&hellip;</a>\n      <form class=\"im-page-form input-append form form-horizontal\" style=\"display:none;\">\n      <div class=\"control-group\"></div>\n    </form>\n    </li>\n    <li title=\"Go to next page\">\n      <a class=\"im-pagination-button\" data-goto=next>&rarr;</a>\n    </li>\n    <li title=\"Go forward five pages\" class=\"visible-desktop\">\n      <a class=\"im-pagination-button\" data-goto=fast-forward>&#x21a0;</a>\n    </li>\n    <li title=\"Go to last page\">\n      <a class=\"im-pagination-button\" data-goto=end>&#x21e5;</a>\n    </li>\n  </ul>\n</div>"
+    Pagination: _.template("<div class=\"pagination pagination-right\">\n  <ul>\n    <li class=\"<%= gotoStart %>\" title=\"Go to start\">\n      <a class=\"im-pagination-button\" data-goto=start>&#x21e4;</a>\n    </li>\n    <li class=\"<%= goFiveBack %>\" title=\"Go back five pages\" class=\"visible-desktop\">\n      <a class=\"im-pagination-button\" data-goto=fast-rewind>&#x219e;</a>\n    </li>\n    <li class=\"<%= goOneBack %>\" title=\"Go to previous page\">\n      <a class=\"im-pagination-button\" data-goto=prev>&larr;</a>\n    </li>\n    <li class=\"im-current-page\">\n      <a data-goto=here  href=\"#\">&hellip;</a>\n      <form class=\"im-page-form input-append form form-horizontal\" style=\"display:none;\">\n        <div class=\"control-group\"></div>\n      </form>\n    </li>\n    <li class=\"<%= goOneForward %>\" title=\"Go to next page\">\n      <a class=\"im-pagination-button\" data-goto=next>&rarr;</a>\n    </li>\n    <li class=\"<%= goFiveForward %>\" title=\"Go forward five pages\" class=\"visible-desktop\">\n      <a class=\"im-pagination-button\" data-goto=fast-forward>&#x21a0;</a>\n    </li>\n    <li class=\"<% gotoEnd %>\" title=\"Go to last page\">\n      <a class=\"im-pagination-button\" data-goto=end>&#x21e5;</a>\n    </li>\n  </ul>\n</div>")
   });
 
   scope('intermine.snippets.query', {
@@ -19121,7 +19121,7 @@ $.widget("ui.sortable", $.ui.mouse, {
   });
 
   (function() {
-    var CellModel, NUMERIC_TYPES, NestedTableModel, Page, PageSizer, ResultsTable, RowModel, Table, errorTempl, renderError;
+    var CellModel, NUMERIC_TYPES, NestedTableModel, Page, PageSizer, Pagination, ResultsTable, RowModel, Table, errorTempl, renderError;
     NUMERIC_TYPES = ["int", "Integer", "double", "Double", "float", "Float"];
     errorTempl = _.template("<div class=\"alert alert-error\">\n  <h2>Oops!</h2>\n  <p><i><%- error %></i></p>\n  <p><%= body %></p>\n  <a class=\"btn btn-primary pull-right\" href=\"mailto://<%- mailto %>\">Email the help desk</a>\n  <button class=\"btn btn-error\">Show query</button>\n  <p class=\"query-xml\" style=\"display:none\" class=\"well\">\n    <textarea><%= query %></textarea>\n  <p>\n</div>");
     renderError = (function(_this) {
@@ -19495,6 +19495,131 @@ $.widget("ui.sortable", $.ui.mouse, {
       return ResultsTable;
 
     })(Backbone.View);
+    Pagination = (function(_super) {
+      __extends(Pagination, _super);
+
+      function Pagination() {
+        return Pagination.__super__.constructor.apply(this, arguments);
+      }
+
+      Pagination.prototype.initialize = function() {
+        return this.listenTo(this.model, 'change:start change:count', this.render);
+      };
+
+      Pagination.prototype.render = function() {
+        var count, data, size, start, _ref;
+        _ref = this.model.toJSON(), start = _ref.start, size = _ref.size, count = _ref.count;
+        data = {
+          gotoStart: start === 0 ? 'active' : '',
+          goFiveBack: start < (5 * size) ? 'active' : '',
+          goOneBack: start < size ? 'active' : '',
+          gotoEnd: start >= (count - size) ? 'active' : '',
+          goFiveForward: start >= (count - 6 * size) ? 'active' : '',
+          goOneForward: start >= (count - 2 * size) ? 'active' : ''
+        };
+        this.$el.html(intermine.snippets.table.Pagination(data));
+        return this.$('li').tooltip({
+          placement: 'top'
+        });
+      };
+
+      Pagination.prototype.events = {
+        'submit .im-page-form': 'pageFormSubmit',
+        'click .im-pagination-button': 'pageButtonClick',
+        'click .im-current-page a': 'clickCurrentPage'
+      };
+
+      Pagination.prototype.getMaxPage = function() {
+        var correction, count, size, _ref;
+        _ref = this.model.toJSON(), count = _ref.count, size = _ref.size;
+        correction = count % size === 0 ? -1 : 0;
+        return Math.floor(count / size) + correction;
+      };
+
+      Pagination.prototype.goTo = function(start) {
+        console.debug('Going to', start);
+        return this.model.set({
+          start: start
+        });
+      };
+
+      Pagination.prototype.goToPage = function(page) {
+        return this.model.set({
+          start: page * this.model.get('size')
+        });
+      };
+
+      Pagination.prototype.goBack = function(pages) {
+        var size, start, _ref;
+        _ref = this.model.toJSON(), start = _ref.start, size = _ref.size;
+        return this.goTo(Math.max(0, start - (pages * size)));
+      };
+
+      Pagination.prototype.goForward = function(pages) {
+        var size, start, _ref;
+        _ref = this.model.toJSON(), start = _ref.start, size = _ref.size;
+        return this.goTo(Math.min(this.getMaxPage() * size, start + (pages * size)));
+      };
+
+      Pagination.prototype.clickCurrentPage = function() {
+        var size, total;
+        size = this.model.get('size');
+        total = this.model.get('count');
+        if (size >= total) {
+          return;
+        }
+        currentPageButton.hide();
+        return $pagination.find('form').show();
+      };
+
+      Pagination.prototype.pageButtonClick = function(e) {
+        var $elem;
+        $elem = $(e.target);
+        if (!$elem.parent().is('.active')) {
+          switch ($elem.data("goto")) {
+            case "start":
+              return this.goTo(0);
+            case "prev":
+              return this.goBack(1);
+            case "fast-rewind":
+              return this.goBack(5);
+            case "next":
+              return this.goForward(1);
+            case "fast-forward":
+              return this.goForward(5);
+            case "end":
+              return this.goToPage(this.getMaxPage());
+          }
+        }
+      };
+
+      Pagination.prototype.pageFormSubmit = function(e) {
+        var centre, destination, inp, newSelectorVal, pageForm;
+        e.stopPropagation();
+        e.preventDefault();
+        pageForm = this.$('.im-page-form');
+        centre = this.$('.im-current-page');
+        inp = pageForm.find('input');
+        if (inp.size()) {
+          destination = inp.val().replace(/\s*/g, "");
+        }
+        if (destination.match(/^\d+$/)) {
+          newSelectorVal = Math.min(this.getMaxPage(), Math.max(parseInt(destination) - 1, 0));
+          this.table.goToPage(newSelectorVal);
+          centre.find('a').show();
+          return pageForm.hide();
+        } else {
+          pageForm.find('.control-group').addClass('error');
+          inp.val('');
+          return inp.attr({
+            placeholder: "1 .. " + (this.getMaxPage() + 1)
+          });
+        }
+      };
+
+      return Pagination;
+
+    })(Backbone.View);
     PageSizer = (function(_super) {
       __extends(PageSizer, _super);
 
@@ -19626,11 +19751,6 @@ $.widget("ui.sortable", $.ui.mouse, {
       }
 
       Table.prototype.className = "im-table-container";
-
-      Table.prototype.events = {
-        'submit .im-page-form': 'pageFormSubmit',
-        'click .im-pagination-button': 'pageButtonClick'
-      };
 
       Table.prototype.onDraw = function() {
         if (this.__selecting) {
@@ -20037,14 +20157,14 @@ $.widget("ui.sortable", $.ui.mouse, {
           }
         }
         if (upperBound < page.start) {
-          if ((page.start - this.cache.upperBound) > (page.size * 10)) {
+          if ((page.start(-Back(upperBound))) > (page.size * 10)) {
             this.model.unset('cache');
             page.size *= 2;
             page.start = Math.max(0, page.start - (size * this._pipe_factor));
             return page;
           }
           if (page.size) {
-            page.size += page.start - this.cache.upperBound;
+            page.size += page.start - upperBound;
           }
           page.start = upperBound;
         }
@@ -20063,7 +20183,7 @@ $.widget("ui.sortable", $.ui.mouse, {
             cache = cache.slice(0, page.start - lowerBound).concat(rows);
           }
           lowerBound = Math.min(lowerBound, page.start);
-          upperBound = lowerBound + merged.length;
+          upperBound = lowerBound + cache.length;
         } else {
           cache = rows.slice();
           lowerBound = page.start;
@@ -20223,23 +20343,13 @@ $.widget("ui.sortable", $.ui.mouse, {
       Table.prototype.horizontalScroller = "<div class=\"scroll-bar-wrap well\">\n  <div class=\"scroll-bar-containment\">\n    <div class=\"scroll-bar alert-info alert\"></div>\n  </div>\n</div>";
 
       Table.prototype.placePagination = function($widgets) {
-        var $pagination, currentPageButton;
-        $pagination = $(intermine.snippets.table.Pagination).appendTo($widgets);
-        $pagination.find('li').tooltip({
-          placement: "top"
+        var pagination;
+        console.debug('placing pagination');
+        pagination = new Pagination({
+          model: this.model
         });
-        return currentPageButton = $pagination.find(".im-current-page a").click((function(_this) {
-          return function() {
-            var size, total;
-            size = _this.model.get('size');
-            total = _this.model.get('count');
-            if (size >= total) {
-              return;
-            }
-            currentPageButton.hide();
-            return $pagination.find('form').show();
-          };
-        })(this));
+        pagination.render();
+        return pagination.$el.appendTo($widgets);
       };
 
       Table.prototype.placePageSizer = function($widgets) {
@@ -20270,83 +20380,6 @@ $.widget("ui.sortable", $.ui.mouse, {
           return Math.floor(start / size);
         } else {
           return 0;
-        }
-      };
-
-      Table.prototype.getMaxPage = function() {
-        var correction, count, size, _ref;
-        _ref = this.model.toJSON(), count = _ref.count, size = _ref.size;
-        correction = count % size === 0 ? -1 : 0;
-        return Math.floor(count / size) + correction;
-      };
-
-      Table.prototype.goTo = function(start) {
-        console.debug('Going to', start);
-        return this.model.set({
-          start: start
-        });
-      };
-
-      Table.prototype.goToPage = function(page) {
-        return this.model.set({
-          start: page * this.model.get('size')
-        });
-      };
-
-      Table.prototype.goBack = function(pages) {
-        var size, start, _ref;
-        _ref = this.model.toJSON(), start = _ref.start, size = _ref.size;
-        return this.goTo(Math.max(0, start - (pages * size)));
-      };
-
-      Table.prototype.goForward = function(pages) {
-        var size, start, _ref;
-        _ref = this.model.toJSON(), start = _ref.start, size = _ref.size;
-        return this.goTo(Math.min(this.getMaxPage() * size, start + (pages * size)));
-      };
-
-      Table.prototype.pageButtonClick = function(e) {
-        var $elem;
-        $elem = $(e.target);
-        if (!$elem.parent().is('.active')) {
-          switch ($elem.data("goto")) {
-            case "start":
-              return this.goTo(0);
-            case "prev":
-              return this.goBack(1);
-            case "fast-rewind":
-              return this.goBack(5);
-            case "next":
-              return this.goForward(1);
-            case "fast-forward":
-              return this.goForward(5);
-            case "end":
-              return this.goToPage(this.getMaxPage());
-          }
-        }
-      };
-
-      Table.prototype.pageFormSubmit = function(e) {
-        var centre, destination, inp, newSelectorVal, pageForm;
-        e.stopPropagation();
-        e.preventDefault();
-        pageForm = this.$('.im-page-form');
-        centre = this.$('.im-current-page');
-        inp = pageForm.find('input');
-        if (inp.size()) {
-          destination = inp.val().replace(/\s*/g, "");
-        }
-        if (destination.match(/^\d+$/)) {
-          newSelectorVal = Math.min(this.getMaxPage(), Math.max(parseInt(destination) - 1, 0));
-          this.table.goToPage(newSelectorVal);
-          centre.find('a').show();
-          return pageForm.hide();
-        } else {
-          pageForm.find('.control-group').addClass('error');
-          inp.val('');
-          return inp.attr({
-            placeholder: "1 .. " + (this.getMaxPage() + 1)
-          });
         }
       };
 

@@ -27,31 +27,31 @@ scope 'intermine.snippets.table',
       </span>
       </span>
     """
-  Pagination: """
+  Pagination: _.template """
       <div class="pagination pagination-right">
         <ul>
-          <li title="Go to start">
+          <li class="<%= gotoStart %>" title="Go to start">
             <a class="im-pagination-button" data-goto=start>&#x21e4;</a>
           </li>
-          <li title="Go back five pages" class="visible-desktop">
+          <li class="<%= goFiveBack %>" title="Go back five pages" class="visible-desktop">
             <a class="im-pagination-button" data-goto=fast-rewind>&#x219e;</a>
           </li>
-          <li title="Go to previous page">
+          <li class="<%= goOneBack %>" title="Go to previous page">
             <a class="im-pagination-button" data-goto=prev>&larr;</a>
           </li>
           <li class="im-current-page">
             <a data-goto=here  href="#">&hellip;</a>
             <form class="im-page-form input-append form form-horizontal" style="display:none;">
-            <div class="control-group"></div>
-          </form>
+              <div class="control-group"></div>
+            </form>
           </li>
-          <li title="Go to next page">
+          <li class="<%= goOneForward %>" title="Go to next page">
             <a class="im-pagination-button" data-goto=next>&rarr;</a>
           </li>
-          <li title="Go forward five pages" class="visible-desktop">
+          <li class="<%= goFiveForward %>" title="Go forward five pages" class="visible-desktop">
             <a class="im-pagination-button" data-goto=fast-forward>&#x21a0;</a>
           </li>
-          <li title="Go to last page">
+          <li class="<% gotoEnd %>" title="Go to last page">
             <a class="im-pagination-button" data-goto=end>&#x21e5;</a>
           </li>
         </ul>

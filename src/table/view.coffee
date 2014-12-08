@@ -161,6 +161,7 @@ do ->
           # Careful - there might be subtables out there - be specific.
           @$el.children('tbody').html docfrag
 
+          # Let listeners know that the table is ready to use.
           @query.trigger "table:filled"
 
         handleEmptyTable: () ->
@@ -242,93 +243,170 @@ do ->
           notice = renderError @query, err, time
           @$el.append notice
 
+    class Pagination extends Backbone.View
+
+      initialize: ->
+        @listenTo @model, 'change:start change:count', @render
+
+      render: ->
+        {start, size, count} = @model.toJSON()
+        data =
+          gotoStart: if start is 0 then 'active' else ''
+          goFiveBack: if start < (5 * size) then 'active' else ''
+          goOneBack: if start < size then 'active' else ''
+          gotoEnd: if start >= (count - size) then 'active' else ''
+          goFiveForward: if start >= (count - 6 * size) then 'active' else ''
+          goOneForward: if start >= (count - 2 * size) then 'active' else ''
+
+        @$el.html intermine.snippets.table.Pagination data
+        @$('li').tooltip placement: 'top'
+
+      events:
+        'submit .im-page-form': 'pageFormSubmit'
+        'click .im-pagination-button': 'pageButtonClick'
+        'click .im-current-page a': 'clickCurrentPage'
+
+      getMaxPage: () ->
+        {count, size} = @model.toJSON()
+        correction = if count % size is 0 then -1 else 0
+        Math.floor(count / size) + correction
+
+      goTo: (start) ->
+        console.debug 'Going to', start
+        @model.set start: start
+
+      goToPage: (page) -> @model.set start: (page * @model.get('size'))
+
+      goBack: (pages) ->
+        {start, size} = @model.toJSON()
+        @goTo Math.max 0, start - (pages * size)
+
+      goForward: (pages) ->
+        {start, size} = @model.toJSON()
+        @goTo Math.min @getMaxPage() * size, start + (pages * size)
+
+      clickCurrentPage: ->
+        size = @model.get 'size'
+        total = @model.get 'count'
+        return if size >= total
+        currentPageButton.hide()
+        $pagination.find('form').show()
+
+      pageButtonClick: (e) ->
+        $elem = $(e.target)
+        unless $elem.parent().is('.active') # Here active means "where we are"
+          switch $elem.data("goto")
+            when "start"        then @goTo 0
+            when "prev"         then @goBack 1
+            when "fast-rewind"  then @goBack 5
+            when "next"         then @goForward 1
+            when "fast-forward" then @goForward 5
+            when "end"          then @goToPage @getMaxPage()
+
+      pageFormSubmit: (e) ->
+          e.stopPropagation()
+          e.preventDefault()
+          pageForm = @$('.im-page-form')
+          centre = @$('.im-current-page')
+          inp = pageForm.find('input')
+          if inp.size()
+              destination = inp.val().replace(/\s*/g, "")
+            if destination.match /^\d+$/
+                  newSelectorVal = Math.min @getMaxPage(), Math.max(parseInt(destination) - 1, 0)
+                  @table.goToPage newSelectorVal
+                  centre.find('a').show()
+                  pageForm.hide()
+            else
+                  pageForm.find('.control-group').addClass 'error'
+                  inp.val ''
+                  inp.attr placeholder: "1 .. #{ @getMaxPage() + 1 }"
+
+
+
+
     class PageSizer extends Backbone.View
 
-        tagName: 'form'
-        className: "im-page-sizer form-horizontal"
-        sizes: [[10], [25], [50], [100], [250]] # [0, 'All']]
+      tagName: 'form'
+      className: "im-page-sizer form-horizontal"
+      sizes: [[10], [25], [50], [100], [250]] # [0, 'All']]
 
-        initialize: ->
-          if size = @model.get('size')
-            unless _.include (s[0] for s in @sizes), size
-              @sizes = [[size, size]].concat @sizes # assign, don't mutate
-          @listenTo @model, 'change:size', => @$('select').val @model.get 'size'
+      initialize: ->
+        if size = @model.get('size')
+          unless _.include (s[0] for s in @sizes), size
+            @sizes = [[size, size]].concat @sizes # assign, don't mutate
+        @listenTo @model, 'change:size', => @$('select').val @model.get 'size'
 
-        events: { 'change select': 'changePageSize' }
+      events: { 'change select': 'changePageSize' }
 
-        changePageSize: (evt) ->
-          input = $(evt.target)
-          size = parseInt(input.val(), 10)
-          oldSize = @model.get 'size'
-          applyChange = =>
-            @model.set {size}
-          rollback = (e) =>
-            input.val oldSize
-          @handlePageSizeSelection(size).then applyChange, rollback
+      changePageSize: (evt) ->
+        input = $(evt.target)
+        size = parseInt(input.val(), 10)
+        oldSize = @model.get 'size'
+        applyChange = =>
+          @model.set {size}
+        rollback = (e) =>
+          input.val oldSize
+        @handlePageSizeSelection(size).then applyChange, rollback
 
-        template: _.template """
-          <label>
-            <span class="im-only-widescreen">Rows per page:</span>
-            <select class="span" title="Rows per page">
-              <% sizes.forEach(function (s) { %>
-                <option value="<%= s[0] %>" <%= (s[0] === size) && 'selected' %>>
-                  <%= s[1] || s[0] %>
-                </option>
-              <% }); %>
-            </select>
-          </label>
-        """
+      template: _.template """
+        <label>
+          <span class="im-only-widescreen">Rows per page:</span>
+          <select class="span" title="Rows per page">
+            <% sizes.forEach(function (s) { %>
+              <option value="<%= s[0] %>" <%= (s[0] === size) && 'selected' %>>
+                <%= s[1] || s[0] %>
+              </option>
+            <% }); %>
+          </select>
+        </label>
+      """
 
-        render: ->
-          frag = $ document.createDocumentFragment()
-          size = @model.get 'size'
-          frag.append @template _.extend @model.toJSON(), {@sizes}
-          @$el.html frag
+      render: ->
+        frag = $ document.createDocumentFragment()
+        size = @model.get 'size'
+        frag.append @template _.extend @model.toJSON(), {@sizes}
+        @$el.html frag
 
-          this
+        this
 
-        pageSizeFeasibilityThreshold: 250
+      pageSizeFeasibilityThreshold: 250
 
-        # Check if the given size could be considered problematic
-        #
-        # A size if problematic if it is above the preset threshold, or if it 
-        # is a request for all results, and we know that the count is large.
-        # @param size The size to assess.
-        aboveSizeThreshold: (size) ->
-          if size and size >= @pageSizeFeasibilityThreshold
-            return true
-          if not size # falsy values null, 0 and '' are treated as all
-            total = @model.get('count')
-            return total >= @pageSizeFeasibilityThreshold
-          return false
+      # Check if the given size could be considered problematic
+      #
+      # A size if problematic if it is above the preset threshold, or if it 
+      # is a request for all results, and we know that the count is large.
+      # @param size The size to assess.
+      aboveSizeThreshold: (size) ->
+        if size and size >= @pageSizeFeasibilityThreshold
+          return true
+        if not size # falsy values null, 0 and '' are treated as all
+          total = @model.get('count')
+          return total >= @pageSizeFeasibilityThreshold
+        return false
 
-        # If the new page size is potentially problematic, then check with the user
-        # first, rolling back if they see sense. Otherwise, change the page size
-        # without user interaction.
-        # @param size the requested page size.
-        handlePageSizeSelection: (size) ->
-          def = new jQuery.Deferred
-          if @aboveSizeThreshold size
-            $really = $ intermine.snippets.table.LargeTableDisuader
-            $really.find('.btn-primary').click -> def.resolve()
-            $really.find('.im-alternative-action').click (e) -> def.reject()
-            $really.find('.btn').click -> $really.modal('hide')
-            $really.on 'hidden', ->
-              $really.remove()
-              def.reject() # if not explicitly done so.
-            $really.appendTo(@el).modal().modal('show')
-          else
-            def.resolve()
+      # If the new page size is potentially problematic, then check with the user
+      # first, rolling back if they see sense. Otherwise, change the page size
+      # without user interaction.
+      # @param size the requested page size.
+      handlePageSizeSelection: (size) ->
+        def = new jQuery.Deferred
+        if @aboveSizeThreshold size
+          $really = $ intermine.snippets.table.LargeTableDisuader
+          $really.find('.btn-primary').click -> def.resolve()
+          $really.find('.im-alternative-action').click (e) -> def.reject()
+          $really.find('.btn').click -> $really.modal('hide')
+          $really.on 'hidden', ->
+            $really.remove()
+            def.reject() # if not explicitly done so.
+          $really.appendTo(@el).modal().modal('show')
+        else
+          def.resolve()
 
-          return def.promise()
+        return def.promise()
 
     class Table extends Backbone.View
 
         className: "im-table-container"
-
-        events: # TODO - move into child components
-            'submit .im-page-form': 'pageFormSubmit'
-            'click .im-pagination-button': 'pageButtonClick'
 
         onDraw: =>
             @query.trigger("start:list-creation") if @__selecting
@@ -588,13 +666,13 @@ do ->
               page.size = lowerBound - page.start
 
           if upperBound < page.start
-            if (page.start - @cache.upperBound) > (page.size * 10)
+            if (page.start -Back upperBound) > (page.size * 10)
               @model.unset 'cache'
               page.size *= 2
               page.start = Math.max(0, page.start - (size * @_pipe_factor))
               return page
             if page.size
-              page.size += page.start - @cache.upperBound
+              page.size += page.start - upperBound
             # Extend towards cache limit
             page.start = upperBound
 
@@ -621,7 +699,7 @@ do ->
                 cache = cache.slice(0, (page.start - lowerBound)).concat(rows)
 
             lowerBound = Math.min lowerBound, page.start
-            upperBound = lowerBound + merged.length
+            upperBound = lowerBound + cache.length
           else
             cache = rows.slice()
             lowerBound = page.start
@@ -756,14 +834,10 @@ do ->
 
         # TODO - like PageSizer, make this its own view.
         placePagination: ($widgets) ->
-          $pagination = $(intermine.snippets.table.Pagination).appendTo($widgets)
-          $pagination.find('li').tooltip(placement: "top")
-          currentPageButton = $pagination.find(".im-current-page a").click =>
-            size = @model.get 'size'
-            total = @model.get 'count'
-            return if size >= total
-            currentPageButton.hide()
-            $pagination.find('form').show()
+          console.debug 'placing pagination'
+          pagination = new Pagination model: @model
+          pagination.render()
+          pagination.$el.appendTo $widgets
 
         placePageSizer: ($widgets) ->
           console.debug 'placing page sizer'
@@ -783,54 +857,6 @@ do ->
         getCurrentPage: () ->
           {start, size} = @model.toJSON()
           if size then Math.floor(start / size) else 0
-
-        getMaxPage: () ->
-          {count, size} = @model.toJSON()
-          correction = if count % size is 0 then -1 else 0
-          Math.floor(count / size) + correction
-
-        goTo: (start) ->
-          console.debug 'Going to', start
-          @model.set start: start
-
-        goToPage: (page) -> @model.set start: (page * @model.get('size'))
-
-        goBack: (pages) ->
-          {start, size} = @model.toJSON()
-          @goTo Math.max 0, start - (pages * size)
-
-        goForward: (pages) ->
-          {start, size} = @model.toJSON()
-          @goTo Math.min @getMaxPage() * size, start + (pages * size)
-
-        pageButtonClick: (e) ->
-          $elem = $(e.target)
-          unless $elem.parent().is('.active') # Here active means "where we are"
-            switch $elem.data("goto")
-              when "start"        then @goTo 0
-              when "prev"         then @goBack 1
-              when "fast-rewind"  then @goBack 5
-              when "next"         then @goForward 1
-              when "fast-forward" then @goForward 5
-              when "end"          then @goToPage @getMaxPage()
-
-        pageFormSubmit: (e) ->
-            e.stopPropagation()
-            e.preventDefault()
-            pageForm = @$('.im-page-form')
-            centre = @$('.im-current-page')
-            inp = pageForm.find('input')
-            if inp.size()
-                destination = inp.val().replace(/\s*/g, "")
-            	if destination.match /^\d+$/
-                    newSelectorVal = Math.min @getMaxPage(), Math.max(parseInt(destination) - 1, 0)
-                    @table.goToPage newSelectorVal
-                    centre.find('a').show()
-                    pageForm.hide()
-            	else
-                    pageForm.find('.control-group').addClass 'error'
-                    inp.val ''
-                    inp.attr placeholder: "1 .. #{ @getMaxPage() + 1 }"
 
     scope "intermine.query.results", {Table}
 
