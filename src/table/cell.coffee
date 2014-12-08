@@ -237,9 +237,10 @@ do ->
         tagName: "td"
         className: "im-result-field"
 
-        formatter: (model) ->
-          if model.get(@options.field)?
-            model.escape @options.field
+        formatter: (imobject) ->
+          field = @model.get('field')
+          if imobject.get(field)?
+            imobject.escape field
           else
             """<span class="null-value">&nbsp;</span>"""
 
@@ -393,6 +394,7 @@ do ->
 
           for domain, url of ExternalLinkIcons when data.url.match domain
             data.icon ?= url
+          console.debug 'Cell data for ' + @model.get('cell').get('id'), data
           data
 
         render: ->

@@ -8,7 +8,7 @@
  * Copyright 2012, 2013, Alex Kalderimis and InterMine
  * Released under the LGPL license.
  * 
- * Built at Mon Dec 08 2014 17:17:19 GMT+0000 (GMT)
+ * Built at Mon Dec 08 2014 17:35:54 GMT+0000 (GMT)
  */
 
 (function() {
@@ -11005,9 +11005,11 @@
 
       Cell.prototype.className = "im-result-field";
 
-      Cell.prototype.formatter = function(model) {
-        if (model.get(this.options.field) != null) {
-          return model.escape(this.options.field);
+      Cell.prototype.formatter = function(imobject) {
+        var field;
+        field = this.model.get('field');
+        if (imobject.get(field) != null) {
+          return imobject.escape(field);
         } else {
           return "<span class=\"null-value\">&nbsp;</span>";
         }
@@ -11255,6 +11257,7 @@
             }
           }
         }
+        console.debug('Cell data for ' + this.model.get('cell').get('id'), data);
         return data;
       };
 
@@ -11988,6 +11991,7 @@
           _results = [];
           for (_i = 0, _len = _ref.length; _i < _len; _i++) {
             r = _ref[_i];
+            console.log("" + col + " replaces " + r);
             _results.push(replacer_of[r] = col);
           }
           return _results;
@@ -12233,7 +12237,11 @@
         });
         this.listenTo(this.model, 'change:state', this.render);
         this.listenTo(this.model, 'change:size', this.handlePageSizeSelection);
-        this.listenTo(this.model, 'change:start change:size change:count', this.updateSummary);
+        this.listenTo(this.model, 'change:start change:size change:count', (function(_this) {
+          return function() {
+            return _this.updateSummary();
+          };
+        })(this));
         this.listenTo(this.model, 'change:freshness', (function(_this) {
           return function() {
             return _this.model.set({
@@ -12660,10 +12668,15 @@
         });
       };
 
-      Table.prototype.updateSummary = function() {
-        var count, size, start, summary, _ref;
+      Table.prototype.updateSummary = function(summary) {
+        var count, size, start, _ref;
         _ref = this.model.toJSON(), start = _ref.start, size = _ref.size, count = _ref.count;
-        summary = this.$('.im-table-summary');
+        if (!(size && count)) {
+          return;
+        }
+        if (summary == null) {
+          summary = this.$('.im-table-summary');
+        }
         return summary.html(intermine.snippets.table.CountSummary({
           first: start + 1,
           last: size === 0 ? 0 : Math.min(start + size, count),
@@ -12823,6 +12836,7 @@
 
       Table.prototype.placePageSizer = function($widgets) {
         var pageSizer;
+        console.debug('placing page sizer');
         pageSizer = new PageSizer({
           model: this.model
         });
@@ -12830,7 +12844,11 @@
       };
 
       Table.prototype.placeTableSummary = function($widgets) {
-        return $widgets.append("<span class=\"im-table-summary\"></div>");
+        var summary;
+        console.debug('Placing table summary');
+        summary = $("<span class=\"im-table-summary\"></div>");
+        this.updateSummary(summary);
+        return $widgets.append(summary);
       };
 
       Table.prototype.getCurrentPageSize = function() {

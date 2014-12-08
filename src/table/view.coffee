@@ -192,6 +192,7 @@ do ->
           processed = {}
           @columnHeaders.each (col) ->
             for r in (rs = col.get('replaces'))
+              console.log "#{ col } replaces #{ r }"
               replacer_of[r] = col
 
           # Render models into views
@@ -330,7 +331,7 @@ do ->
 
           @listenTo @model, 'change:state', @render
           @listenTo @model, 'change:size', @handlePageSizeSelection
-          @listenTo @model, 'change:start change:size change:count', @updateSummary
+          @listenTo @model, 'change:start change:size change:count', => @updateSummary()
           @listenTo @model, 'change:freshness', => @model.set cache: null
           @listenTo @model, 'change:freshness change:start change:size', @fillRows
           @listenTo @model, 'change:cache', => @buildColumnHeaders()
@@ -613,15 +614,15 @@ do ->
 
           @model.set {cache, lowerBound, upperBound}
 
-        updateSummary: ->
+        updateSummary: (summary) ->
           {start, size, count} = @model.toJSON()
-          summary = @$ '.im-table-summary'
+          return unless size and count
+          summary ?= @$ '.im-table-summary'
           summary.html intermine.snippets.table.CountSummary
             first: start + 1
             last: if (size is 0) then 0 else Math.min(start + size, count)
             count: intermine.utils.numToString(count, ",", 3)
             roots: "rows"
-
         
         makeCellModel: (obj) =>
           base = @query.service.root.replace /\/service\/?$/, ""
@@ -749,13 +750,17 @@ do ->
             $pagination.find('form').show()
 
         placePageSizer: ($widgets) ->
-            pageSizer = new PageSizer(model: @model)
-            pageSizer.render().$el.appendTo $widgets
+          console.debug 'placing page sizer'
+          pageSizer = new PageSizer(model: @model)
+          pageSizer.render().$el.appendTo $widgets
 
         placeTableSummary: ($widgets) ->
-            $widgets.append """
-                <span class="im-table-summary"></div>
-            """
+          console.debug 'Placing table summary'
+          summary = $ """
+              <span class="im-table-summary"></div>
+          """
+          @updateSummary summary
+          $widgets.append summary
 
         getCurrentPageSize: -> @model.get 'size'
 
