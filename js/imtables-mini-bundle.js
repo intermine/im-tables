@@ -7431,7 +7431,7 @@ $.widget("ui.sortable", $.ui.mouse, {
  * Copyright 2012, 2013, Alex Kalderimis and InterMine
  * Released under the LGPL license.
  * 
- * Built at Mon Dec 08 2014 18:07:25 GMT+0000 (GMT)
+ * Built at Mon Dec 08 2014 18:23:52 GMT+0000 (GMT)
  */
 
 (function() {
@@ -18678,7 +18678,6 @@ $.widget("ui.sortable", $.ui.mouse, {
             }
           }
         }
-        console.debug('Cell data for ' + this.model.get('cell').get('id'), data);
         return data;
       };
 
@@ -19344,7 +19343,6 @@ $.widget("ui.sortable", $.ui.mouse, {
           _results = [];
           for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
             r = _ref[_j];
-            console.debug("" + col + " replaces " + r);
             _results.push(replacer_of[r] = col);
           }
           return _results;
@@ -19538,11 +19536,23 @@ $.widget("ui.sortable", $.ui.mouse, {
       };
 
       PageSizer.prototype.changePageSize = function(evt) {
-        var size;
-        size = parseInt($(evt.target).val(), 10);
-        return this.model.set({
-          size: size
-        });
+        var applyChange, input, oldSize, rollback, size;
+        input = $(evt.target);
+        size = parseInt(input.val(), 10);
+        oldSize = this.model.get('size');
+        applyChange = (function(_this) {
+          return function() {
+            return _this.model.set({
+              size: size
+            });
+          };
+        })(this);
+        rollback = (function(_this) {
+          return function(e) {
+            return input.val(oldSize);
+          };
+        })(this);
+        return this.handlePageSizeSelection(size).then(applyChange, rollback);
       };
 
       PageSizer.prototype.template = _.template("<label>\n  <span class=\"im-only-widescreen\">Rows per page:</span>\n  <select class=\"span\" title=\"Rows per page\">\n    <% sizes.forEach(function (s) { %>\n      <option value=\"<%= s[0] %>\" <%= (s[0] === size) && 'selected' %>>\n        <%= s[1] || s[0] %>\n      </option>\n    <% }); %>\n  </select>\n</label>");
@@ -19558,6 +19568,45 @@ $.widget("ui.sortable", $.ui.mouse, {
         return this;
       };
 
+      PageSizer.prototype.pageSizeFeasibilityThreshold = 250;
+
+      PageSizer.prototype.aboveSizeThreshold = function(size) {
+        var total;
+        if (size && size >= this.pageSizeFeasibilityThreshold) {
+          return true;
+        }
+        if (!size) {
+          total = this.model.get('count');
+          return total >= this.pageSizeFeasibilityThreshold;
+        }
+        return false;
+      };
+
+      PageSizer.prototype.handlePageSizeSelection = function(size) {
+        var $really, def;
+        def = new jQuery.Deferred;
+        if (this.aboveSizeThreshold(size)) {
+          $really = $(intermine.snippets.table.LargeTableDisuader);
+          $really.find('.btn-primary').click(function() {
+            return def.resolve();
+          });
+          $really.find('.im-alternative-action').click(function(e) {
+            return def.reject();
+          });
+          $really.find('.btn').click(function() {
+            return $really.modal('hide');
+          });
+          $really.on('hidden', function() {
+            $really.remove();
+            return def.reject();
+          });
+          $really.appendTo(this.el).modal().modal('show');
+        } else {
+          def.resolve();
+        }
+        return def.promise();
+      };
+
       return PageSizer;
 
     })(Backbone.View);
@@ -19571,7 +19620,6 @@ $.widget("ui.sortable", $.ui.mouse, {
         this.overlayTable = __bind(this.overlayTable, this);
         this.getRowData = __bind(this.getRowData, this);
         this.showError = __bind(this.showError, this);
-        this.handlePageSizeSelection = __bind(this.handlePageSizeSelection, this);
         this.refresh = __bind(this.refresh, this);
         this.onDraw = __bind(this.onDraw, this);
         return Table.__super__.constructor.apply(this, arguments);
@@ -19641,7 +19689,6 @@ $.widget("ui.sortable", $.ui.mouse, {
           error: null
         });
         this.listenTo(this.model, 'change:state', this.render);
-        this.listenTo(this.model, 'change:size', this.handlePageSizeSelection);
         this.listenTo(this.model, 'change:start change:size change:count', (function(_this) {
           return function() {
             return _this.updateSummary();
@@ -19763,8 +19810,6 @@ $.widget("ui.sortable", $.ui.mouse, {
         return console.debug('initialised table');
       };
 
-      Table.prototype.pageSizeFeasibilityThreshold = 250;
-
       Table.prototype.canUseFormatter = function(formatter) {
         return (formatter != null) && (!this.blacklistedFormatters.any(function(f) {
           return f.get('formatter') === formatter;
@@ -19872,48 +19917,6 @@ $.widget("ui.sortable", $.ui.mouse, {
             return _this.columnHeaders.reset(newHeaders);
           };
         })(this));
-      };
-
-      Table.prototype.aboveSizeThreshold = function(size) {
-        var total;
-        if (size && size >= this.pageSizeFeasibilityThreshold) {
-          return true;
-        }
-        if (!size) {
-          total = this.model.get('count');
-          return total >= this.pageSizeFeasibilityThreshold;
-        }
-        return false;
-      };
-
-      Table.prototype.handlePageSizeSelection = function(model, size) {
-        var $really, oldSize;
-        oldSize = model.previous('size');
-        if (this.aboveSizeThreshold(size)) {
-          $really = $(intermine.snippets.table.LargeTableDisuader);
-          $really.find('.btn-primary').click(function() {
-            return model.set({
-              size: size
-            });
-          });
-          $really.find('.btn').click(function() {
-            return $really.modal('hide');
-          });
-          $really.find('.im-alternative-action').click((function(_this) {
-            return function(e) {
-              if ($(e.target).data('event')) {
-                _this.query.trigger($(e.target).data('event'));
-              }
-              return _this.model.set({
-                size: oldSize
-              });
-            };
-          })(this));
-          $really.on('hidden', function() {
-            return $really.remove();
-          });
-          return $really.appendTo(this.el).modal().modal('show');
-        }
       };
 
       Table.prototype.showError = function(resp) {

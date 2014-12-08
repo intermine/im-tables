@@ -394,7 +394,6 @@ do ->
 
           for domain, url of ExternalLinkIcons when data.url.match domain
             data.icon ?= url
-          console.debug 'Cell data for ' + @model.get('cell').get('id'), data
           data
 
         render: ->

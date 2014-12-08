@@ -154,7 +154,6 @@ do ->
           replacer_of = {}
           @columnHeaders.each (col) ->
             for r in (rs = col.get('replaces'))
-              console.debug "#{ col } replaces #{ r }"
               replacer_of[r] = col
 
           @rows.each (row) => @appendRow docfrag, row, replacer_of
@@ -258,8 +257,14 @@ do ->
         events: { 'change select': 'changePageSize' }
 
         changePageSize: (evt) ->
-          size = parseInt($(evt.target).val(), 10)
-          @model.set size: size
+          input = $(evt.target)
+          size = parseInt(input.val(), 10)
+          oldSize = @model.get 'size'
+          applyChange = =>
+            @model.set {size}
+          rollback = (e) =>
+            input.val oldSize
+          @handlePageSizeSelection(size).then applyChange, rollback
 
         template: _.template """
           <label>
@@ -281,6 +286,41 @@ do ->
           @$el.html frag
 
           this
+
+        pageSizeFeasibilityThreshold: 250
+
+        # Check if the given size could be considered problematic
+        #
+        # A size if problematic if it is above the preset threshold, or if it 
+        # is a request for all results, and we know that the count is large.
+        # @param size The size to assess.
+        aboveSizeThreshold: (size) ->
+          if size and size >= @pageSizeFeasibilityThreshold
+            return true
+          if not size # falsy values null, 0 and '' are treated as all
+            total = @model.get('count')
+            return total >= @pageSizeFeasibilityThreshold
+          return false
+
+        # If the new page size is potentially problematic, then check with the user
+        # first, rolling back if they see sense. Otherwise, change the page size
+        # without user interaction.
+        # @param size the requested page size.
+        handlePageSizeSelection: (size) ->
+          def = new jQuery.Deferred
+          if @aboveSizeThreshold size
+            $really = $ intermine.snippets.table.LargeTableDisuader
+            $really.find('.btn-primary').click -> def.resolve()
+            $really.find('.im-alternative-action').click (e) -> def.reject()
+            $really.find('.btn').click -> $really.modal('hide')
+            $really.on 'hidden', ->
+              $really.remove()
+              def.reject() # if not explicitly done so.
+            $really.appendTo(@el).modal().modal('show')
+          else
+            def.resolve()
+
+          return def.promise()
 
     class Table extends Backbone.View
 
@@ -335,7 +375,6 @@ do ->
             error: null
 
           @listenTo @model, 'change:state', @render
-          @listenTo @model, 'change:size', @handlePageSizeSelection
           @listenTo @model, 'change:start change:size change:count', => @updateSummary()
           @listenTo @model, 'change:freshness', => @model.set cache: null
           @listenTo @model, 'change:freshness change:start change:size', @fillRows
@@ -375,7 +414,6 @@ do ->
           @fillRows().then (-> console.debug 'initial data loaded'), (error) => @model.set {error}
           console.debug 'initialised table'
 
-        pageSizeFeasibilityThreshold: 250
 
         canUseFormatter: (formatter) ->
           formatter? and (not @blacklistedFormatters.any (f) -> f.get('formatter') is formatter)
@@ -434,34 +472,6 @@ do ->
 
           @columnHeaders.reset newHeaders
 
-        # Check if the given size could be considered problematic
-        #
-        # A size if problematic if it is above the preset threshold, or if it 
-        # is a request for all results, and we know that the count is large.
-        # @param size The size to assess.
-        aboveSizeThreshold: (size) ->
-          if size and size >= @pageSizeFeasibilityThreshold
-            return true
-          if not size # falsy values null, 0 and '' are treated as all
-            total = @model.get('count')
-            return total >= @pageSizeFeasibilityThreshold
-          return false
-
-        # If the new page size is potentially problematic, then check with the user
-        # first, rolling back if they see sense. Otherwise, change the page size
-        # without user interaction.
-        # @param size the requested page size.
-        handlePageSizeSelection: (model, size) =>
-          oldSize = model.previous 'size'
-          if @aboveSizeThreshold size
-            $really = $ intermine.snippets.table.LargeTableDisuader
-            $really.find('.btn-primary').click -> model.set {size}
-            $really.find('.btn').click -> $really.modal('hide')
-            $really.find('.im-alternative-action').click (e) =>
-                @query.trigger($(e.target).data 'event') if $(e.target).data('event')
-                @model.set size: oldSize
-            $really.on 'hidden', -> $really.remove()
-            $really.appendTo(@el).modal().modal('show')
 
         # Take a bad response and present the error somewhere visible to the user.
         # @param resp An ajax response.
