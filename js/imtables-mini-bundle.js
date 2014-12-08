@@ -7431,7 +7431,7 @@ $.widget("ui.sortable", $.ui.mouse, {
  * Copyright 2012, 2013, Alex Kalderimis and InterMine
  * Released under the LGPL license.
  * 
- * Built at Mon Dec 08 2014 17:54:48 GMT+0000 (GMT)
+ * Built at Mon Dec 08 2014 18:07:25 GMT+0000 (GMT)
  */
 
 (function() {
@@ -16272,26 +16272,26 @@ $.widget("ui.sortable", $.ui.mouse, {
         }
       };
 
-      function ChrLocFormatter(model) {
+      function ChrLocFormatter(imobject) {
         var chr, end, id, needs, start, _ref;
-        id = model.get('id');
+        id = imobject.get('id');
         this.$el.addClass('chromosome-location');
         needs = ['start', 'end', 'chr'];
-        if (!((model._fetching != null) || _.all(needs, function(n) {
-          return model.has(n);
+        if (!((imobject.__fetching != null) || _.all(needs, function(n) {
+          return imobject.has(n);
         }))) {
-          model._fetching = fetch(this.options.query.service, id);
-          model._fetching.done(function(_arg) {
+          imobject.__fetching = fetch(this.model.get('query').service, id);
+          imobject.__fetching.then(function(_arg) {
             var chr, end, start, _ref;
             _ref = _arg[0], chr = _ref[0], start = _ref[1], end = _ref[2];
-            return model.set({
+            return imobject.set({
               chr: chr,
               start: start,
               end: end
             });
           });
         }
-        _ref = model.toJSON(), start = _ref.start, end = _ref.end, chr = _ref.chr;
+        _ref = imobject.toJSON(), start = _ref.start, end = _ref.end, chr = _ref.chr;
         return "" + chr + ":" + start + "-" + end;
       }
 
@@ -16339,19 +16339,19 @@ $.widget("ui.sortable", $.ui.mouse, {
 
   define('formatters/bio/core/publication', function() {
     var PublicationFormatter;
-    PublicationFormatter = function(model) {
+    PublicationFormatter = function(imobject) {
       var firstAuthor, id, title, year, _ref;
-      id = model.get('id');
+      id = imobject.get('id');
       this.$el.addClass('publication');
-      if (!(model.has('title') && model.has('firstAuthor') && model.has('year'))) {
-        if (model._formatter_promise == null) {
-          model._formatter_promise = this.options.query.service.findById('Publication', id);
+      if (!(imobject.has('title') && imobject.has('firstAuthor') && imobject.has('year'))) {
+        if (imobject.__fetching == null) {
+          imobject.__fetching = this.model.get('query').service.findById('Publication', id);
         }
-        model._formatter_promise.done(function(pub) {
-          return model.set(pub);
+        imobject.__fetching.then(function(pub) {
+          return imobject.set(pub);
         });
       }
-      _ref = model.toJSON(), title = _ref.title, firstAuthor = _ref.firstAuthor, year = _ref.year;
+      _ref = imobject.toJSON(), title = _ref.title, firstAuthor = _ref.firstAuthor, year = _ref.year;
       return "" + title + " (" + firstAuthor + ", " + year + ")";
     };
     PublicationFormatter.replaces = ['title', 'firstAuthor', 'year'];
@@ -16361,25 +16361,23 @@ $.widget("ui.sortable", $.ui.mouse, {
   define('formatters/bio/core/sequence', function() {
     var SequenceFormatter, lineLength;
     lineLength = 40;
-    return SequenceFormatter = function(model) {
-      var id, line, lines, rest, sequence;
-      id = model.get('id');
+    return SequenceFormatter = function(seq) {
+      var id, line, lines, residues, rest;
+      id = seq.get('id');
       this.$el.addClass('dna-sequence');
-      if (!model.has('residues')) {
-        if (model._formatter_promise == null) {
-          model._formatter_promise = this.options.query.service.findById('Sequence', id);
+      if (!seq.has('residues')) {
+        if (model.__fetching == null) {
+          model.__fetching = this.model.get('query').service.findById('Sequence', id);
         }
-        model._formatter_promise.done(function(seq) {
-          return model.set(seq);
-        });
+        model.__fetching.then(seq.set.bind(seq));
       }
-      sequence = model.get('residues') || '';
+      residues = seq.get('residues') || '';
       lines = [];
-      while (sequence.length > 0) {
-        line = sequence.slice(0, lineLength);
-        rest = sequence.slice(lineLength);
+      while (residues.length > 0) {
+        line = residues.slice(0, lineLength);
+        rest = residues.slice(lineLength);
         lines.push(line);
-        sequence = rest;
+        residues = rest;
       }
       return ((function() {
         var _i, _len, _results;

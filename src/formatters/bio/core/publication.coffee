@@ -1,13 +1,13 @@
 define 'formatters/bio/core/publication', ->
 
-  PublicationFormatter = (model) ->
-    id = model.get 'id'
+  PublicationFormatter = (imobject) ->
+    id = imobject.get 'id'
     @$el.addClass 'publication'
-    unless model.has('title') and model.has('firstAuthor') and model.has('year')
-      model._formatter_promise ?= @options.query.service.findById 'Publication', id
-      model._formatter_promise.done (pub) -> model.set pub
+    unless imobject.has('title') and imobject.has('firstAuthor') and imobject.has('year')
+      imobject.__fetching ?= @model.get('query').service.findById 'Publication', id
+      imobject.__fetching.then (pub) -> imobject.set pub
 
-    {title, firstAuthor, year} = model.toJSON()
+    {title, firstAuthor, year} = imobject.toJSON()
     "#{title} (#{firstAuthor}, #{year})"
 
   PublicationFormatter.replaces = [ 'title', 'firstAuthor', 'year' ]

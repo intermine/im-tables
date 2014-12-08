@@ -14,15 +14,14 @@ define 'formatters/bio/core/chromosome-location', ->
       if chromosome.has 'primaryIdentifier'
         location.set chr: chromosome.get('primaryIdentifier')
 
-    constructor: (model) ->
-      id = model.get 'id'
+    constructor: (imobject) ->
+      id = imobject.get 'id'
       @$el.addClass 'chromosome-location'
       needs = ['start', 'end', 'chr']
-      unless model._fetching? or _.all(needs, (n) -> model.has n)
-        model._fetching = fetch @options.query.service, id
-        model._fetching.done ([[chr, start, end]]) ->
-          model.set {chr, start, end}
+      unless imobject.__fetching? or _.all(needs, (n) -> imobject.has n)
+        imobject.__fetching = fetch @model.get('query').service, id
+        imobject.__fetching.then ([[chr, start, end]]) -> imobject.set {chr, start, end}
       
-      {start, end, chr} = model.toJSON()
+      {start, end, chr} = imobject.toJSON()
       return "#{chr}:#{start}-#{end}"
 
