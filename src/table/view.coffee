@@ -130,6 +130,7 @@ do ->
             @fill()
 
           @listenTo @columnHeaders, 'reset add remove', @renderHeaders
+          @listenTo @columnHeaders, 'reset add remove', @fill
           @listenTo @blacklistedFormatters, 'reset add remove', @fill
           @listenTo @rows, 'reset add remove', @fill
 
@@ -150,7 +151,13 @@ do ->
 
           docfrag = document.createDocumentFragment()
 
-          @rows.each (row) => @appendRow docfrag, row
+          replacer_of = {}
+          @columnHeaders.each (col) ->
+            for r in (rs = col.get('replaces'))
+              console.debug "#{ col } replaces #{ r }"
+              replacer_of[r] = col
+
+          @rows.each (row) => @appendRow docfrag, row, replacer_of
 
           # Careful - there might be subtables out there - be specific.
           @$el.children('tbody').html docfrag
@@ -182,18 +189,12 @@ do ->
         canUseFormatter: (formatter) ->
           formatter? and (not @blacklistedFormatters.any (f) -> f.get('formatter') is formatter)
 
-        # tbody :: HTMLElement, row :: RowModel
-        appendRow: (tbody, row) =>
+        # tbody :: HTMLElement, row :: RowModel, replacer_of :: {string => Formatter}
+        appendRow: (tbody, row, replacer_of) =>
           tr = document.createElement 'tr'
           tbody.appendChild tr
           minWidth = 10
-          minimised = (k for k, v of @minimisedCols when v)
-          replacer_of = {}
           processed = {}
-          @columnHeaders.each (col) ->
-            for r in (rs = col.get('replaces'))
-              console.log "#{ col } replaces #{ r }"
-              replacer_of[r] = col
 
           # Render models into views
           cellViews = (@renderCell cell for cell in row.get('cells'))

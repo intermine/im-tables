@@ -16,7 +16,7 @@ define 'formatters/bio/core/organism', ->
 
   Organism = (model) ->
     @$el.addClass 'organism'
-    ensureData model, @options.query.service
+    ensureData model, @model.get('query').service
 
     if model.get 'id'
       data = getData model, 'shortName', 'name'

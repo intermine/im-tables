@@ -8,7 +8,7 @@
  * Copyright 2012, 2013, Alex Kalderimis and InterMine
  * Released under the LGPL license.
  * 
- * Built at Mon Dec 08 2014 17:45:49 GMT+0000 (GMT)
+ * Built at Mon Dec 08 2014 17:54:48 GMT+0000 (GMT)
  */
 
 (function() {
@@ -8904,7 +8904,7 @@
     return Organism = function(model) {
       var data;
       this.$el.addClass('organism');
-      ensureData(model, this.options.query.service);
+      ensureData(model, this.model.get('query').service);
       if (model.get('id')) {
         data = getData(model, 'shortName', 'name');
         return templ(data);
@@ -11891,6 +11891,7 @@
           };
         })(this));
         this.listenTo(this.columnHeaders, 'reset add remove', this.renderHeaders);
+        this.listenTo(this.columnHeaders, 'reset add remove', this.fill);
         this.listenTo(this.blacklistedFormatters, 'reset add remove', this.fill);
         return this.listenTo(this.rows, 'reset add remove', this.fill);
       };
@@ -11904,7 +11905,7 @@
       };
 
       ResultsTable.prototype.fill = function() {
-        var cell, docfrag, previousCells, _i, _len;
+        var cell, docfrag, previousCells, replacer_of, _i, _len;
         previousCells = (this.currentCells || []).slice();
         for (_i = 0, _len = previousCells.length; _i < _len; _i++) {
           cell = previousCells[_i];
@@ -11915,9 +11916,21 @@
           return this.handleEmptyTable();
         }
         docfrag = document.createDocumentFragment();
+        replacer_of = {};
+        this.columnHeaders.each(function(col) {
+          var r, rs, _j, _len1, _ref, _results;
+          _ref = (rs = col.get('replaces'));
+          _results = [];
+          for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
+            r = _ref[_j];
+            console.debug("" + col + " replaces " + r);
+            _results.push(replacer_of[r] = col);
+          }
+          return _results;
+        });
         this.rows.each((function(_this) {
           return function(row) {
-            return _this.appendRow(docfrag, row);
+            return _this.appendRow(docfrag, row, replacer_of);
           };
         })(this));
         this.$el.children('tbody').html(docfrag);
@@ -11966,36 +11979,12 @@
         }));
       };
 
-      ResultsTable.prototype.appendRow = function(tbody, row) {
-        var cell, cellViews, i, k, minWidth, minimised, processed, replacer_of, tr, v, _i, _len, _results;
+      ResultsTable.prototype.appendRow = function(tbody, row, replacer_of) {
+        var cell, cellViews, i, minWidth, processed, tr, _i, _len, _results;
         tr = document.createElement('tr');
         tbody.appendChild(tr);
         minWidth = 10;
-        minimised = (function() {
-          var _ref, _results;
-          _ref = this.minimisedCols;
-          _results = [];
-          for (k in _ref) {
-            v = _ref[k];
-            if (v) {
-              _results.push(k);
-            }
-          }
-          return _results;
-        }).call(this);
-        replacer_of = {};
         processed = {};
-        this.columnHeaders.each(function(col) {
-          var r, rs, _i, _len, _ref, _results;
-          _ref = (rs = col.get('replaces'));
-          _results = [];
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            r = _ref[_i];
-            console.log("" + col + " replaces " + r);
-            _results.push(replacer_of[r] = col);
-          }
-          return _results;
-        });
         cellViews = (function() {
           var _i, _len, _ref, _results;
           _ref = row.get('cells');
