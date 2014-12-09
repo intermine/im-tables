@@ -252,7 +252,8 @@ do ->
 
           @path = @model.get('column') # Cell Views must have a path :: PathInfo property.
 
-          intermine.onChangeOption 'IndicateOffHostLinks', @render, @
+          for opt in ['IndicateOffHostLinks', 'CellPreviewTrigger', 'ExternalLinkIcons']
+            intermine.onChangeOption opt, @render, @
 
         remove: ->
           @model.off()
@@ -362,6 +363,7 @@ do ->
             content: @getPopoverContent
             placement: @getPopoverPlacement
 
+          @cellPreview?.destroy()
           @cellPreview = new intermine.bootstrap.DynamicPopover @el, options
 
         updateValue: -> _.defer =>

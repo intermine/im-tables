@@ -7431,7 +7431,7 @@ $.widget("ui.sortable", $.ui.mouse, {
  * Copyright 2012, 2013, Alex Kalderimis and InterMine
  * Released under the LGPL license.
  * 
- * Built at Tue Dec 09 2014 18:26:26 GMT+0000 (GMT)
+ * Built at Tue Dec 09 2014 18:36:43 GMT+0000 (GMT)
  */
 
 (function() {
@@ -18486,11 +18486,18 @@ $.widget("ui.sortable", $.ui.mouse, {
       };
 
       Cell.prototype.initialize = function() {
+        var opt, _i, _len, _ref, _results;
         this.model.get('cell').on('change', this.selectingStateChange, this);
         this.model.get('cell').on('change', this.updateValue, this);
         this.listenToQuery(this.model.get('query'));
         this.path = this.model.get('column');
-        return intermine.onChangeOption('IndicateOffHostLinks', this.render, this);
+        _ref = ['IndicateOffHostLinks', 'CellPreviewTrigger', 'ExternalLinkIcons'];
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          opt = _ref[_i];
+          _results.push(intermine.onChangeOption(opt, this.render, this));
+        }
+        return _results;
       };
 
       Cell.prototype.remove = function() {
@@ -18653,7 +18660,7 @@ $.widget("ui.sortable", $.ui.mouse, {
       };
 
       Cell.prototype.setupPreviewOverlay = function() {
-        var options;
+        var options, _ref;
         options = {
           container: this.el,
           containment: '.im-query-results',
@@ -18672,6 +18679,9 @@ $.widget("ui.sortable", $.ui.mouse, {
           content: this.getPopoverContent,
           placement: this.getPopoverPlacement
         };
+        if ((_ref = this.cellPreview) != null) {
+          _ref.destroy();
+        }
         return this.cellPreview = new intermine.bootstrap.DynamicPopover(this.el, options);
       };
 
