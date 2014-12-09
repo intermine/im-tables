@@ -40,10 +40,26 @@ scope 'intermine.snippets.table',
             <a class="im-pagination-button" data-goto=prev>&larr;</a>
           </li>
           <li class="im-current-page">
-            <a data-goto=here  href="#">&hellip;</a>
-            <form class="im-page-form input-append form form-horizontal" style="display:none;">
-              <div class="control-group"></div>
-            </form>
+            <% if (useSelect) { %>
+              <form class="im-page-form input-append form form-horizontal">
+                <div class="control-group">
+                  <select class="form-control">
+                    <% for (i = 0; i < max; i++) { %>
+                      <option
+                        <%= selected(i) ? 'selected' : void 0 %>
+                        value="<%= i * size %>">page <%= i + 1 %></option>
+                    <% } %>
+                  </select>
+                <div>
+              </form>
+            <% } else { %>
+              <a data-goto=here href="#">&hellip;</a>
+              <form class="im-page-form input-append form form-horizontal"
+                    style="display:none;">
+                <div class="control-group">
+                </div>
+              </form>
+            <% } %>
           </li>
           <li class="<%= goOneForward %>" title="Go to next page">
             <a class="im-pagination-button" data-goto=next>&rarr;</a>

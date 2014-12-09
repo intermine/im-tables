@@ -7431,7 +7431,7 @@ $.widget("ui.sortable", $.ui.mouse, {
  * Copyright 2012, 2013, Alex Kalderimis and InterMine
  * Released under the LGPL license.
  * 
- * Built at Tue Dec 09 2014 12:19:01 GMT+0000 (GMT)
+ * Built at Tue Dec 09 2014 13:06:05 GMT+0000 (GMT)
  */
 
 (function() {
@@ -19587,15 +19587,24 @@ $.widget("ui.sortable", $.ui.mouse, {
       };
 
       Pagination.prototype.render = function() {
-        var count, data, size, start, _ref;
+        var count, data, max, size, start, _ref;
         _ref = this.model.toJSON(), start = _ref.start, size = _ref.size, count = _ref.count;
+        max = this.getMaxPage();
+        console.log(start, size);
         data = {
           gotoStart: start === 0 ? 'active' : '',
           goFiveBack: start < (5 * size) ? 'active' : '',
           goOneBack: start < size ? 'active' : '',
           gotoEnd: start >= (count - size) ? 'active' : '',
           goFiveForward: start >= (count - 6 * size) ? 'active' : '',
-          goOneForward: start >= (count - 2 * size) ? 'active' : ''
+          goOneForward: start >= (count - 2 * size) ? 'active' : '',
+          max: max,
+          size: size,
+          selected: function(i) {
+            console.log(i);
+            return start === i * size;
+          },
+          useSelect: max <= 100
         };
         this.$el.html(intermine.snippets.table.Pagination(data));
         return this.$('li').tooltip({
@@ -19641,15 +19650,15 @@ $.widget("ui.sortable", $.ui.mouse, {
         return this.goTo(Math.min(this.getMaxPage() * size, start + (pages * size)));
       };
 
-      Pagination.prototype.clickCurrentPage = function() {
+      Pagination.prototype.clickCurrentPage = function(e) {
         var size, total;
         size = this.model.get('size');
         total = this.model.get('count');
         if (size >= total) {
           return;
         }
-        currentPageButton.hide();
-        return $pagination.find('form').show();
+        $(e.target).hide();
+        return this.$('form').show().find('select').trigger('mousedown');
       };
 
       Pagination.prototype.pageButtonClick = function(e) {
@@ -19741,7 +19750,7 @@ $.widget("ui.sortable", $.ui.mouse, {
       return _.template("<tr>\n  <td colspan=\"<%= views.length %>\">\n    <div class=\"im-no-results alert alert-info\">\n      <div <% if (revision === 0) { %> style=\"display:none;\" <% } %> >\n        " + intermine.snippets.query.UndoButton + "\n      </div>\n      <strong>NO RESULTS</strong>\n      This query returned 0 results.\n      <div style=\"clear:both\"></div>\n    </div>\n  </td>\n</tr>", query);
     },
     CountSummary: _.template("<span class=\"hidden-phone\">\n<span class=\"im-only-widescreen\">Showing</span>\n<span>\n  <% if (last == 0) { %>\n      All\n  <% } else { %>\n      <%= first %> to <%= last %> of\n  <% } %>\n  <%= count %> <span class=\"visible-desktop\"><%= roots %></span>\n</span>\n</span>"),
-    Pagination: _.template("<div class=\"pagination pagination-right\">\n  <ul>\n    <li class=\"<%= gotoStart %>\" title=\"Go to start\">\n      <a class=\"im-pagination-button\" data-goto=start>&#x21e4;</a>\n    </li>\n    <li class=\"<%= goFiveBack %>\" title=\"Go back five pages\" class=\"visible-desktop\">\n      <a class=\"im-pagination-button\" data-goto=fast-rewind>&#x219e;</a>\n    </li>\n    <li class=\"<%= goOneBack %>\" title=\"Go to previous page\">\n      <a class=\"im-pagination-button\" data-goto=prev>&larr;</a>\n    </li>\n    <li class=\"im-current-page\">\n      <a data-goto=here  href=\"#\">&hellip;</a>\n      <form class=\"im-page-form input-append form form-horizontal\" style=\"display:none;\">\n        <div class=\"control-group\"></div>\n      </form>\n    </li>\n    <li class=\"<%= goOneForward %>\" title=\"Go to next page\">\n      <a class=\"im-pagination-button\" data-goto=next>&rarr;</a>\n    </li>\n    <li class=\"<%= goFiveForward %>\" title=\"Go forward five pages\" class=\"visible-desktop\">\n      <a class=\"im-pagination-button\" data-goto=fast-forward>&#x21a0;</a>\n    </li>\n    <li class=\"<% gotoEnd %>\" title=\"Go to last page\">\n      <a class=\"im-pagination-button\" data-goto=end>&#x21e5;</a>\n    </li>\n  </ul>\n</div>")
+    Pagination: _.template("<div class=\"pagination pagination-right\">\n  <ul>\n    <li class=\"<%= gotoStart %>\" title=\"Go to start\">\n      <a class=\"im-pagination-button\" data-goto=start>&#x21e4;</a>\n    </li>\n    <li class=\"<%= goFiveBack %>\" title=\"Go back five pages\" class=\"visible-desktop\">\n      <a class=\"im-pagination-button\" data-goto=fast-rewind>&#x219e;</a>\n    </li>\n    <li class=\"<%= goOneBack %>\" title=\"Go to previous page\">\n      <a class=\"im-pagination-button\" data-goto=prev>&larr;</a>\n    </li>\n    <li class=\"im-current-page\">\n      <% if (useSelect) { %>\n        <form class=\"im-page-form input-append form form-horizontal\">\n          <div class=\"control-group\">\n            <select class=\"form-control\">\n              <% for (i = 0; i < max; i++) { %>\n                <option\n                  <%= selected(i) ? 'selected' : void 0 %>\n                  value=\"<%= i * size %>\">page <%= i + 1 %></option>\n              <% } %>\n            </select>\n          <div>\n        </form>\n      <% } else { %>\n        <a data-goto=here href=\"#\">&hellip;</a>\n        <form class=\"im-page-form input-append form form-horizontal\"\n              style=\"display:none;\">\n          <div class=\"control-group\">\n          </div>\n        </form>\n      <% } %>\n    </li>\n    <li class=\"<%= goOneForward %>\" title=\"Go to next page\">\n      <a class=\"im-pagination-button\" data-goto=next>&rarr;</a>\n    </li>\n    <li class=\"<%= goFiveForward %>\" title=\"Go forward five pages\" class=\"visible-desktop\">\n      <a class=\"im-pagination-button\" data-goto=fast-forward>&#x21a0;</a>\n    </li>\n    <li class=\"<% gotoEnd %>\" title=\"Go to last page\">\n      <a class=\"im-pagination-button\" data-goto=end>&#x21e5;</a>\n    </li>\n  </ul>\n</div>")
   });
 
   scope('intermine.snippets.query', {

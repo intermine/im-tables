@@ -7,6 +7,8 @@ define 'table/pagination', ->
 
     render: ->
       {start, size, count} = @model.toJSON()
+      max = @getMaxPage()
+      console.log start, size
       data =
         gotoStart: if start is 0 then 'active' else ''
         goFiveBack: if start < (5 * size) then 'active' else ''
@@ -14,6 +16,10 @@ define 'table/pagination', ->
         gotoEnd: if start >= (count - size) then 'active' else ''
         goFiveForward: if start >= (count - 6 * size) then 'active' else ''
         goOneForward: if start >= (count - 2 * size) then 'active' else ''
+        max: max
+        size: size
+        selected: (i) -> console.log i; start is i * size
+        useSelect: (max <= 100)
 
       @$el.html intermine.snippets.table.Pagination data
       @$('li').tooltip placement: 'top'
@@ -42,12 +48,12 @@ define 'table/pagination', ->
       {start, size} = @model.toJSON()
       @goTo Math.min @getMaxPage() * size, start + (pages * size)
 
-    clickCurrentPage: ->
+    clickCurrentPage: (e) ->
       size = @model.get 'size'
       total = @model.get 'count'
       return if size >= total
-      currentPageButton.hide()
-      $pagination.find('form').show()
+      $(e.target).hide()
+      @$('form').show().find('select').trigger('mousedown')
 
     pageButtonClick: (e) ->
       $elem = $(e.target)
