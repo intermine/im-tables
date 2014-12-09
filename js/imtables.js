@@ -8,11 +8,11 @@
  * Copyright 2012, 2013, Alex Kalderimis and InterMine
  * Released under the LGPL license.
  * 
- * Built at Tue Dec 09 2014 17:36:45 GMT+0000 (GMT)
+ * Built at Tue Dec 09 2014 18:24:01 GMT+0000 (GMT)
  */
 
 (function() {
-  var $, bio_formatters, define, end_of_definitions, reqs, require, root, scope, stope, using, x,
+  var $, bio_formatters, define, end_of_definitions, noop, reqs, require, scope, stope, using, x, __root__,
     __slice = [].slice,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -117,13 +117,15 @@
     };
   })(jQuery);
 
-  root = this;
+  __root__ = this;
 
-  if (!root.console) {
-    root.console = {
-      log: function() {},
-      debug: function() {},
-      error: function() {}
+  noop = function() {};
+
+  if (!__root__.console) {
+    __root__.console = {
+      log: noop,
+      debug: noop,
+      error: noop
     };
   }
 
@@ -144,7 +146,8 @@
       overwrite = false;
     }
     parts = path.split(".");
-    ns = root;
+    ns = __root__;
+    console.debug(ns);
     for (_i = 0, _len = parts.length; _i < _len; _i++) {
       part = parts[_i];
       ns = ns[part] != null ? ns[part] : (ns[part] = {});
@@ -668,6 +671,7 @@
           } else {
             o = {};
             o[key] = value;
+            console.debug("scope " + ns + ", {" + key + ": " + value + "}, true");
             scope(ns, o, true);
             _results.push(events.trigger("change:" + ns + "." + key, value));
           }
@@ -8751,6 +8755,7 @@
       };
 
       SingleConstraintAdder.prototype.render = function() {
+        var root;
         SingleConstraintAdder.__super__.render.call(this);
         this.$('input').remove();
         root = this.getTreeRoot();
@@ -10633,7 +10638,7 @@
       };
 
       Preview.prototype.getRelationCounts = function() {
-        var countSets, settings, type, types;
+        var countSets, root, settings, type, types;
         types = this.model.get('type');
         root = this.options.service.root;
         countSets = (function() {
@@ -11062,7 +11067,8 @@
         this.model.get('cell').on('change', this.selectingStateChange, this);
         this.model.get('cell').on('change', this.updateValue, this);
         this.listenToQuery(this.model.get('query'));
-        return this.path = this.model.get('column');
+        this.path = this.model.get('column');
+        return intermine.onChangeOption('IndicateOffHostLinks', this.render, this);
       };
 
       Cell.prototype.remove = function() {
@@ -12230,7 +12236,7 @@
           goOneBack: start < size ? 'active' : '',
           gotoEnd: start >= (count - size) ? 'active' : '',
           goFiveForward: start >= (count - 6 * size) ? 'active' : '',
-          goOneForward: start >= (count - 2 * size) ? 'active' : '',
+          goOneForward: start >= (count - size) ? 'active' : '',
           max: max,
           size: size,
           selected: function(i) {

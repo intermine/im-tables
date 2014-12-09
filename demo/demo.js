@@ -89,15 +89,19 @@ jQuery(document).ready(function($) {
     }
 
     intermine.scope("intermine.results.formatters", {
-      Manager: function(model) {
-        var id, needs, p, data;
-        id = model.get('id');
-        needs = ['title', 'name'];
-        if (model._fetching || any(needs, function (n) { return !model.has(n); })) {
-          model._fetching = p = this.options.query.service.findById('Manager', id);
-          p.done(function(manager) { model.set(manager) });
+      Manager: function(imo) {
+        var data
+          , needs = ['title', 'name']
+          , isMet = function (need) { return imo.has(need); }
+          , update = function (m) { imo.set(m); }
+          , manager = imo.toJSON();
+
+        if (!imo._fetching && !all(needs, isMet)) {
+          imo._fetching = this.model.get('query').service
+                                    .findById('Manager', manager.id)
+                                    .then(update);
         }
-        data = merge({title: '', name: ''}, model.toJSON());
+        data = merge({title: '', name: ''}, manager);
         return data.title + " " + data.name;
       }
     });

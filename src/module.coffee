@@ -1,20 +1,20 @@
-root = this
+__root__ = this
 
-unless root.console
-    root.console =
-        log: ->
-        debug: ->
-        error: ->
+noop = ->
+
+unless __root__.console
+  __root__.console = log: noop, debug: noop, error: noop
 
 stope = (f) -> (e) ->
-    e.stopPropagation()
-    e.preventDefault()
-    f(e)
+  e.stopPropagation()
+  e.preventDefault()
+  f(e)
 
 # TODO, allow merging of nested things.
 scope = (path, code = {}, overwrite = false) ->
     parts = path.split "."
-    ns = root
+    ns = __root__
+    console.debug ns
     for part in parts
         ns = if ns[part]? then ns[part] else (ns[part] = {})
 

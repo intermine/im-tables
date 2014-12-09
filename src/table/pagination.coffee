@@ -16,7 +16,7 @@ define 'table/pagination', ->
         goOneBack: if start < size then 'active' else ''
         gotoEnd: if start >= (count - size) then 'active' else ''
         goFiveForward: if start >= (count - 6 * size) then 'active' else ''
-        goOneForward: if start >= (count - 2 * size) then 'active' else ''
+        goOneForward: if start >= (count - size) then 'active' else ''
         max: max
         size: size
         selected: (i) -> start is i * size

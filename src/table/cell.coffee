@@ -252,6 +252,8 @@ do ->
 
           @path = @model.get('column') # Cell Views must have a path :: PathInfo property.
 
+          intermine.onChangeOption 'IndicateOffHostLinks', @render, @
+
         remove: ->
           @model.off()
           @model.get('cell').off 'change', @selectingStateChange

@@ -71,7 +71,6 @@ do ->
 
   events.on 'change:intermine.options.Style.icons', (iconStyle) ->
 
-
   scope 'intermine',
 
     onChangeOption: (name, cb, ctx) -> events.on "change:intermine.options.#{ name }", cb, ctx
@@ -79,11 +78,12 @@ do ->
     setOptions: set = (opts, ns = '') ->
       ns = if ns is '' or /^\./.test(ns) then 'intermine.options' + ns else ns
       for key, value of opts
-        if _.isObject value
+        if _.isObject value # recur
           set value, "#{ ns }.#{ key }"
         else
           o = {}
           o[key] = value
+          console.debug "scope #{ ns }, {#{ key }: #{ value }}, true"
           scope ns, o, true
           events.trigger "change:#{ ns }.#{ key }", value
 
