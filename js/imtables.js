@@ -8,7 +8,7 @@
  * Copyright 2012, 2013, Alex Kalderimis and InterMine
  * Released under the LGPL license.
  * 
- * Built at Tue Dec 09 2014 13:06:05 GMT+0000 (GMT)
+ * Built at Tue Dec 09 2014 13:12:24 GMT+0000 (GMT)
  */
 
 (function() {
@@ -12192,7 +12192,15 @@
       Pagination.prototype.events = {
         'submit .im-page-form': 'pageFormSubmit',
         'click .im-pagination-button': 'pageButtonClick',
-        'click .im-current-page a': 'clickCurrentPage'
+        'click .im-current-page a': 'clickCurrentPage',
+        'change .im-page-form select': 'goToChosenPage'
+      };
+
+      Pagination.prototype.goToChosenPage = function(e) {
+        var raw, start;
+        raw = $(e.target).val();
+        start = typeof raw === 'string' ? parseInt($(e.target).val(), 10) : raw;
+        return this.goTo(start);
       };
 
       Pagination.prototype.getMaxPage = function() {
@@ -12769,7 +12777,7 @@
           }
         }
         if (upperBound < page.start) {
-          if ((page.start(-Back(upperBound))) > (page.size * 10)) {
+          if ((page.start - upperBound) > (page.size * 10)) {
             this.model.unset('cache');
             page.size *= 2;
             page.start = Math.max(0, page.start - (size * this._pipe_factor));

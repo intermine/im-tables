@@ -266,7 +266,7 @@ define 'table/view', using 'table/inner', 'table/pagination', 'table/page-sizer'
               page.size = lowerBound - page.start
 
           if upperBound < page.start
-            if (page.start -Back upperBound) > (page.size * 10)
+            if (page.start - upperBound) > (page.size * 10)
               @model.unset 'cache'
               page.size *= 2
               page.start = Math.max(0, page.start - (size * @_pipe_factor))

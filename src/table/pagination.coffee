@@ -28,6 +28,12 @@ define 'table/pagination', ->
       'submit .im-page-form': 'pageFormSubmit'
       'click .im-pagination-button': 'pageButtonClick'
       'click .im-current-page a': 'clickCurrentPage'
+      'change .im-page-form select': 'goToChosenPage'
+
+    goToChosenPage: (e) ->
+      raw = $(e.target).val()
+      start = if typeof raw is 'string' then parseInt($(e.target).val(), 10) else raw
+      @goTo start
 
     getMaxPage: () ->
       {count, size} = @model.toJSON()
