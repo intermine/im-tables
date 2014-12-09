@@ -7431,7 +7431,7 @@ $.widget("ui.sortable", $.ui.mouse, {
  * Copyright 2012, 2013, Alex Kalderimis and InterMine
  * Released under the LGPL license.
  * 
- * Built at Mon Dec 08 2014 19:01:11 GMT+0000 (GMT)
+ * Built at Tue Dec 09 2014 12:19:01 GMT+0000 (GMT)
  */
 
 (function() {
@@ -19108,168 +19108,9 @@ $.widget("ui.sortable", $.ui.mouse, {
     });
   })();
 
-  scope('intermine.snippets.table', {
-    NoResults: function(query) {
-      return _.template("<tr>\n  <td colspan=\"<%= views.length %>\">\n    <div class=\"im-no-results alert alert-info\">\n      <div <% if (revision === 0) { %> style=\"display:none;\" <% } %> >\n        " + intermine.snippets.query.UndoButton + "\n      </div>\n      <strong>NO RESULTS</strong>\n      This query returned 0 results.\n      <div style=\"clear:both\"></div>\n    </div>\n  </td>\n</tr>", query);
-    },
-    CountSummary: _.template("<span class=\"hidden-phone\">\n<span class=\"im-only-widescreen\">Showing</span>\n<span>\n  <% if (last == 0) { %>\n      All\n  <% } else { %>\n      <%= first %> to <%= last %> of\n  <% } %>\n  <%= count %> <span class=\"visible-desktop\"><%= roots %></span>\n</span>\n</span>"),
-    Pagination: _.template("<div class=\"pagination pagination-right\">\n  <ul>\n    <li class=\"<%= gotoStart %>\" title=\"Go to start\">\n      <a class=\"im-pagination-button\" data-goto=start>&#x21e4;</a>\n    </li>\n    <li class=\"<%= goFiveBack %>\" title=\"Go back five pages\" class=\"visible-desktop\">\n      <a class=\"im-pagination-button\" data-goto=fast-rewind>&#x219e;</a>\n    </li>\n    <li class=\"<%= goOneBack %>\" title=\"Go to previous page\">\n      <a class=\"im-pagination-button\" data-goto=prev>&larr;</a>\n    </li>\n    <li class=\"im-current-page\">\n      <a data-goto=here  href=\"#\">&hellip;</a>\n      <form class=\"im-page-form input-append form form-horizontal\" style=\"display:none;\">\n        <div class=\"control-group\"></div>\n      </form>\n    </li>\n    <li class=\"<%= goOneForward %>\" title=\"Go to next page\">\n      <a class=\"im-pagination-button\" data-goto=next>&rarr;</a>\n    </li>\n    <li class=\"<%= goFiveForward %>\" title=\"Go forward five pages\" class=\"visible-desktop\">\n      <a class=\"im-pagination-button\" data-goto=fast-forward>&#x21a0;</a>\n    </li>\n    <li class=\"<% gotoEnd %>\" title=\"Go to last page\">\n      <a class=\"im-pagination-button\" data-goto=end>&#x21e5;</a>\n    </li>\n  </ul>\n</div>")
-  });
-
-  scope('intermine.snippets.query', {
-    UndoButton: "<button class=\"btn btn-primary pull-right\">\n  <i class=\"" + intermine.icons.Undo + "\"></i> undo\n</button>"
-  });
-
-  (function() {
-    var CellModel, NUMERIC_TYPES, NestedTableModel, Page, PageSizer, Pagination, ResultsTable, RowModel, Table, errorTempl, renderError;
-    NUMERIC_TYPES = ["int", "Integer", "double", "Double", "float", "Float"];
-    errorTempl = _.template("<div class=\"alert alert-error\">\n  <h2>Oops!</h2>\n  <p><i><%- error %></i></p>\n  <p><%= body %></p>\n  <a class=\"btn btn-primary pull-right\" href=\"mailto://<%- mailto %>\">Email the help desk</a>\n  <button class=\"btn btn-error\">Show query</button>\n  <p class=\"query-xml\" style=\"display:none\" class=\"well\">\n    <textarea><%= query %></textarea>\n  <p>\n</div>");
-    renderError = (function(_this) {
-      return function(query, err, time) {
-        var errConf, mailto, message, notice, _ref;
-        if (time == null) {
-          time = new Date();
-        }
-        console.error(err, err != null ? err.stack : void 0);
-        if (/(Type|Reference)Error/.test(String(err))) {
-          errConf = intermine.options.ClientApplicationError;
-          message = errConf.Heading;
-        } else {
-          errConf = intermine.options.ServerApplicationError;
-          message = (_ref = err != null ? err.message : void 0) != null ? _ref : errConf.Heading;
-        }
-        mailto = query.service.help + "?" + $.param({
-          subject: "Error running embedded table query",
-          body: "We encountered an error running a query from an\nembedded result table.\n\npage:       " + window.location + "\nservice:    " + query.service.root + "\nerror:      " + err + "\ndate-stamp: " + time + "\n\n-------------------------------\nIMJS:       " + intermine.imjs.VERSION + "\n-------------------------------\nIMTABLES:   " + intermine.imtables.VERSION + "\n-------------------------------\nQUERY:      " + (query.toXML()) + "\n-------------------------------\nSTACK:      " + (err != null ? err.stack : void 0)
-        }, true);
-        mailto = mailto.replace(/\+/g, '%20');
-        notice = $(errorTempl({
-          error: message,
-          body: errConf.Body,
-          query: query.toXML(),
-          mailto: mailto
-        }));
-        notice.find('button').click(function() {
-          return notice.find('.query-xml').slideToggle();
-        });
-        return notice;
-      };
-    })(this);
-    RowModel = (function(_super) {
-      __extends(RowModel, _super);
-
-      function RowModel() {
-        return RowModel.__super__.constructor.apply(this, arguments);
-      }
-
-      return RowModel;
-
-    })(Backbone.Model);
-    NestedTableModel = (function(_super) {
-      __extends(NestedTableModel, _super);
-
-      function NestedTableModel() {
-        return NestedTableModel.__super__.constructor.apply(this, arguments);
-      }
-
-      NestedTableModel.prototype.initialize = function() {
-        var column, evt, query, _i, _len, _ref, _ref1, _results;
-        _ref = this.toJSON(), query = _ref.query, column = _ref.column;
-        query.on('expand:subtables', (function(_this) {
-          return function(path) {
-            if (path.toString() === column.toString()) {
-              return _this.trigger('expand');
-            }
-          };
-        })(this));
-        query.on('collapse:subtables', (function(_this) {
-          return function(path) {
-            if (path.toString() === column.toString()) {
-              return _this.trigger('collapse');
-            }
-          };
-        })(this));
-        column.getDisplayName().then((function(_this) {
-          return function(name) {
-            return _this.set({
-              columnName: name
-            });
-          };
-        })(this));
-        query.model.makePath(column.getType()).getDisplayName().then((function(_this) {
-          return function(name) {
-            return _this.set({
-              columnTypeName: name
-            });
-          };
-        })(this));
-        _ref1 = ['expanded', 'collapsed'];
-        _results = [];
-        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-          evt = _ref1[_i];
-          _results.push((function(_this) {
-            return function(evt) {
-              return _this.on(evt, function() {
-                return _this.get('query').trigger("subtable:" + evt, _this.get('column'));
-              });
-            };
-          })(this)(evt));
-        }
-        return _results;
-      };
-
-      return NestedTableModel;
-
-    })(Backbone.Model);
-    CellModel = (function(_super) {
-      __extends(CellModel, _super);
-
-      function CellModel() {
-        return CellModel.__super__.constructor.apply(this, arguments);
-      }
-
-      CellModel.prototype.initialize = function() {
-        var type;
-        this.get('column').getDisplayName().then((function(_this) {
-          return function(name) {
-            return _this.set({
-              columnName: name
-            });
-          };
-        })(this));
-        type = this.get('cell').get('obj:type');
-        return this.get('query').model.makePath(type).getDisplayName().then(function(name) {
-          return this.set({
-            typeName: name
-          });
-        });
-      };
-
-      return CellModel;
-
-    })(Backbone.Model);
-    Page = (function() {
-      function Page(start, size) {
-        this.start = start;
-        this.size = size;
-      }
-
-      Page.prototype.end = function() {
-        return this.start + this.size;
-      };
-
-      Page.prototype.all = function() {
-        return !this.size;
-      };
-
-      Page.prototype.toString = function() {
-        return "Page(" + this.start + ", " + this.size + ")";
-      };
-
-      return Page;
-
-    })();
-    ResultsTable = (function(_super) {
+  define('table/inner', using('table/models/nested-table', 'table/render-error', function(NestedTableModel, renderError) {
+    var ResultsTable;
+    return ResultsTable = (function(_super) {
       __extends(ResultsTable, _super);
 
       function ResultsTable() {
@@ -19495,7 +19336,246 @@ $.widget("ui.sortable", $.ui.mouse, {
       return ResultsTable;
 
     })(Backbone.View);
-    Pagination = (function(_super) {
+  }));
+
+  define('table/models/cell', function() {
+    var CellModel;
+    return CellModel = (function(_super) {
+      __extends(CellModel, _super);
+
+      function CellModel() {
+        return CellModel.__super__.constructor.apply(this, arguments);
+      }
+
+      CellModel.prototype.initialize = function() {
+        var type;
+        this.get('column').getDisplayName().then((function(_this) {
+          return function(name) {
+            return _this.set({
+              columnName: name
+            });
+          };
+        })(this));
+        type = this.get('cell').get('obj:type');
+        return this.get('query').model.makePath(type).getDisplayName().then(function(name) {
+          return this.set({
+            typeName: name
+          });
+        });
+      };
+
+      return CellModel;
+
+    })(Backbone.Model);
+  });
+
+  define('table/models/nested-table', function() {
+    var NestedTableModel;
+    return NestedTableModel = (function(_super) {
+      __extends(NestedTableModel, _super);
+
+      function NestedTableModel() {
+        return NestedTableModel.__super__.constructor.apply(this, arguments);
+      }
+
+      NestedTableModel.prototype.initialize = function() {
+        var column, evt, query, _i, _len, _ref, _ref1, _results;
+        _ref = this.toJSON(), query = _ref.query, column = _ref.column;
+        query.on('expand:subtables', (function(_this) {
+          return function(path) {
+            if (path.toString() === column.toString()) {
+              return _this.trigger('expand');
+            }
+          };
+        })(this));
+        query.on('collapse:subtables', (function(_this) {
+          return function(path) {
+            if (path.toString() === column.toString()) {
+              return _this.trigger('collapse');
+            }
+          };
+        })(this));
+        column.getDisplayName().then((function(_this) {
+          return function(name) {
+            return _this.set({
+              columnName: name
+            });
+          };
+        })(this));
+        query.model.makePath(column.getType()).getDisplayName().then((function(_this) {
+          return function(name) {
+            return _this.set({
+              columnTypeName: name
+            });
+          };
+        })(this));
+        _ref1 = ['expanded', 'collapsed'];
+        _results = [];
+        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+          evt = _ref1[_i];
+          _results.push((function(_this) {
+            return function(evt) {
+              return _this.on(evt, function() {
+                return _this.get('query').trigger("subtable:" + evt, _this.get('column'));
+              });
+            };
+          })(this)(evt));
+        }
+        return _results;
+      };
+
+      return NestedTableModel;
+
+    })(Backbone.Model);
+  });
+
+  define('table/models/page', function() {
+    var Page;
+    return Page = (function() {
+      function Page(start, size) {
+        this.start = start;
+        this.size = size;
+      }
+
+      Page.prototype.end = function() {
+        return this.start + this.size;
+      };
+
+      Page.prototype.all = function() {
+        return !this.size;
+      };
+
+      Page.prototype.toString = function() {
+        return "Page(" + this.start + ", " + this.size + ")";
+      };
+
+      return Page;
+
+    })();
+  });
+
+  define('table/page-sizer', function() {
+    var PageSizer;
+    return PageSizer = (function(_super) {
+      __extends(PageSizer, _super);
+
+      function PageSizer() {
+        return PageSizer.__super__.constructor.apply(this, arguments);
+      }
+
+      PageSizer.prototype.tagName = 'form';
+
+      PageSizer.prototype.className = "im-page-sizer form-horizontal";
+
+      PageSizer.prototype.sizes = [[10], [25], [50], [100], [250]];
+
+      PageSizer.prototype.initialize = function() {
+        var s, size;
+        if (size = this.model.get('size')) {
+          if (!_.include((function() {
+            var _i, _len, _ref, _results;
+            _ref = this.sizes;
+            _results = [];
+            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+              s = _ref[_i];
+              _results.push(s[0]);
+            }
+            return _results;
+          }).call(this), size)) {
+            this.sizes = [[size, size]].concat(this.sizes);
+          }
+        }
+        return this.listenTo(this.model, 'change:size', (function(_this) {
+          return function() {
+            return _this.$('select').val(_this.model.get('size'));
+          };
+        })(this));
+      };
+
+      PageSizer.prototype.events = {
+        'change select': 'changePageSize'
+      };
+
+      PageSizer.prototype.changePageSize = function(evt) {
+        var applyChange, input, oldSize, rollback, size;
+        input = $(evt.target);
+        size = parseInt(input.val(), 10);
+        oldSize = this.model.get('size');
+        applyChange = (function(_this) {
+          return function() {
+            return _this.model.set({
+              size: size
+            });
+          };
+        })(this);
+        rollback = (function(_this) {
+          return function(e) {
+            return input.val(oldSize);
+          };
+        })(this);
+        return this.handlePageSizeSelection(size).then(applyChange, rollback);
+      };
+
+      PageSizer.prototype.template = _.template("<label>\n  <span class=\"im-only-widescreen\">Rows per page:</span>\n  <select class=\"span\" title=\"Rows per page\">\n    <% sizes.forEach(function (s) { %>\n      <option value=\"<%= s[0] %>\" <%= (s[0] === size) && 'selected' %>>\n        <%= s[1] || s[0] %>\n      </option>\n    <% }); %>\n  </select>\n</label>");
+
+      PageSizer.prototype.render = function() {
+        var frag, size;
+        frag = $(document.createDocumentFragment());
+        size = this.model.get('size');
+        frag.append(this.template(_.extend(this.model.toJSON(), {
+          sizes: this.sizes
+        })));
+        this.$el.html(frag);
+        return this;
+      };
+
+      PageSizer.prototype.pageSizeFeasibilityThreshold = 250;
+
+      PageSizer.prototype.aboveSizeThreshold = function(size) {
+        var total;
+        if (size && size >= this.pageSizeFeasibilityThreshold) {
+          return true;
+        }
+        if (!size) {
+          total = this.model.get('count');
+          return total >= this.pageSizeFeasibilityThreshold;
+        }
+        return false;
+      };
+
+      PageSizer.prototype.handlePageSizeSelection = function(size) {
+        var $really, def;
+        def = new jQuery.Deferred;
+        if (this.aboveSizeThreshold(size)) {
+          $really = $(intermine.snippets.table.LargeTableDisuader);
+          $really.find('.btn-primary').click(function() {
+            return def.resolve();
+          });
+          $really.find('.im-alternative-action').click(function(e) {
+            return def.reject();
+          });
+          $really.find('.btn').click(function() {
+            return $really.modal('hide');
+          });
+          $really.on('hidden', function() {
+            $really.remove();
+            return def.reject();
+          });
+          $really.appendTo(this.el).modal().modal('show');
+        } else {
+          def.resolve();
+        }
+        return def.promise();
+      };
+
+      return PageSizer;
+
+    })(Backbone.View);
+  });
+
+  define('table/pagination', function() {
+    var Pagination;
+    return Pagination = (function(_super) {
       __extends(Pagination, _super);
 
       function Pagination() {
@@ -19620,121 +19700,67 @@ $.widget("ui.sortable", $.ui.mouse, {
       return Pagination;
 
     })(Backbone.View);
-    PageSizer = (function(_super) {
-      __extends(PageSizer, _super);
+  });
 
-      function PageSizer() {
-        return PageSizer.__super__.constructor.apply(this, arguments);
+  define('table/render-error', function() {
+    var errorTempl;
+    errorTempl = _.template("<div class=\"alert alert-error\">\n  <h2>Oops!</h2>\n  <p><i><%- error %></i></p>\n  <p><%= body %></p>\n  <a class=\"btn btn-primary pull-right\"\n     href=\"mailto://<%- mailto %>\">Email the help desk</a>\n  <button class=\"btn btn-error\">Show query</button>\n  <p class=\"query-xml\" style=\"display:none\" class=\"well\">\n    <textarea><%= query %></textarea>\n  <p>\n</div>");
+    return function(query, err, time) {
+      var errConf, mailto, message, notice, _ref;
+      if (time == null) {
+        time = new Date();
+      }
+      console.error(err, err != null ? err.stack : void 0);
+      if (/(Type|Reference)Error/.test(String(err))) {
+        errConf = intermine.options.ClientApplicationError;
+        message = errConf.Heading;
+      } else {
+        errConf = intermine.options.ServerApplicationError;
+        message = (_ref = err != null ? err.message : void 0) != null ? _ref : errConf.Heading;
+      }
+      mailto = query.service.help + "?" + $.param({
+        subject: "Error running embedded table query",
+        body: "We encountered an error running a query from an\nembedded result table.\n\npage:       " + window.location + "\nservice:    " + query.service.root + "\nerror:      " + err + "\ndate-stamp: " + time + "\n\n-------------------------------\nIMJS:       " + intermine.imjs.VERSION + "\n-------------------------------\nIMTABLES:   " + intermine.imtables.VERSION + "\n-------------------------------\nQUERY:      " + (query.toXML()) + "\n-------------------------------\nSTACK:      " + (err != null ? err.stack : void 0)
+      }, true);
+      mailto = mailto.replace(/\+/g, '%20');
+      notice = $(errorTempl({
+        error: message,
+        body: errConf.Body,
+        query: query.toXML(),
+        mailto: mailto
+      }));
+      notice.find('button').click(function() {
+        return notice.find('.query-xml').slideToggle();
+      });
+      return notice;
+    };
+  });
+
+  scope('intermine.snippets.table', {
+    NoResults: function(query) {
+      return _.template("<tr>\n  <td colspan=\"<%= views.length %>\">\n    <div class=\"im-no-results alert alert-info\">\n      <div <% if (revision === 0) { %> style=\"display:none;\" <% } %> >\n        " + intermine.snippets.query.UndoButton + "\n      </div>\n      <strong>NO RESULTS</strong>\n      This query returned 0 results.\n      <div style=\"clear:both\"></div>\n    </div>\n  </td>\n</tr>", query);
+    },
+    CountSummary: _.template("<span class=\"hidden-phone\">\n<span class=\"im-only-widescreen\">Showing</span>\n<span>\n  <% if (last == 0) { %>\n      All\n  <% } else { %>\n      <%= first %> to <%= last %> of\n  <% } %>\n  <%= count %> <span class=\"visible-desktop\"><%= roots %></span>\n</span>\n</span>"),
+    Pagination: _.template("<div class=\"pagination pagination-right\">\n  <ul>\n    <li class=\"<%= gotoStart %>\" title=\"Go to start\">\n      <a class=\"im-pagination-button\" data-goto=start>&#x21e4;</a>\n    </li>\n    <li class=\"<%= goFiveBack %>\" title=\"Go back five pages\" class=\"visible-desktop\">\n      <a class=\"im-pagination-button\" data-goto=fast-rewind>&#x219e;</a>\n    </li>\n    <li class=\"<%= goOneBack %>\" title=\"Go to previous page\">\n      <a class=\"im-pagination-button\" data-goto=prev>&larr;</a>\n    </li>\n    <li class=\"im-current-page\">\n      <a data-goto=here  href=\"#\">&hellip;</a>\n      <form class=\"im-page-form input-append form form-horizontal\" style=\"display:none;\">\n        <div class=\"control-group\"></div>\n      </form>\n    </li>\n    <li class=\"<%= goOneForward %>\" title=\"Go to next page\">\n      <a class=\"im-pagination-button\" data-goto=next>&rarr;</a>\n    </li>\n    <li class=\"<%= goFiveForward %>\" title=\"Go forward five pages\" class=\"visible-desktop\">\n      <a class=\"im-pagination-button\" data-goto=fast-forward>&#x21a0;</a>\n    </li>\n    <li class=\"<% gotoEnd %>\" title=\"Go to last page\">\n      <a class=\"im-pagination-button\" data-goto=end>&#x21e5;</a>\n    </li>\n  </ul>\n</div>")
+  });
+
+  scope('intermine.snippets.query', {
+    UndoButton: "<button class=\"btn btn-primary pull-right\">\n  <i class=\"" + intermine.icons.Undo + "\"></i> undo\n</button>"
+  });
+
+  define('table/view', using('table/inner', 'table/pagination', 'table/page-sizer', 'table/render-error', 'table/models/nested-table', 'table/models/cell', 'table/models/page', function(ResultsTable, Pagination, PageSizer, renderError, NestedTableModel, CellModel, Page) {
+    var NUMERIC_TYPES, RowModel, Table;
+    NUMERIC_TYPES = ["int", "Integer", "double", "Double", "float", "Float"];
+    RowModel = (function(_super) {
+      __extends(RowModel, _super);
+
+      function RowModel() {
+        return RowModel.__super__.constructor.apply(this, arguments);
       }
 
-      PageSizer.prototype.tagName = 'form';
+      return RowModel;
 
-      PageSizer.prototype.className = "im-page-sizer form-horizontal";
-
-      PageSizer.prototype.sizes = [[10], [25], [50], [100], [250]];
-
-      PageSizer.prototype.initialize = function() {
-        var s, size;
-        if (size = this.model.get('size')) {
-          if (!_.include((function() {
-            var _i, _len, _ref, _results;
-            _ref = this.sizes;
-            _results = [];
-            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-              s = _ref[_i];
-              _results.push(s[0]);
-            }
-            return _results;
-          }).call(this), size)) {
-            this.sizes = [[size, size]].concat(this.sizes);
-          }
-        }
-        return this.listenTo(this.model, 'change:size', (function(_this) {
-          return function() {
-            return _this.$('select').val(_this.model.get('size'));
-          };
-        })(this));
-      };
-
-      PageSizer.prototype.events = {
-        'change select': 'changePageSize'
-      };
-
-      PageSizer.prototype.changePageSize = function(evt) {
-        var applyChange, input, oldSize, rollback, size;
-        input = $(evt.target);
-        size = parseInt(input.val(), 10);
-        oldSize = this.model.get('size');
-        applyChange = (function(_this) {
-          return function() {
-            return _this.model.set({
-              size: size
-            });
-          };
-        })(this);
-        rollback = (function(_this) {
-          return function(e) {
-            return input.val(oldSize);
-          };
-        })(this);
-        return this.handlePageSizeSelection(size).then(applyChange, rollback);
-      };
-
-      PageSizer.prototype.template = _.template("<label>\n  <span class=\"im-only-widescreen\">Rows per page:</span>\n  <select class=\"span\" title=\"Rows per page\">\n    <% sizes.forEach(function (s) { %>\n      <option value=\"<%= s[0] %>\" <%= (s[0] === size) && 'selected' %>>\n        <%= s[1] || s[0] %>\n      </option>\n    <% }); %>\n  </select>\n</label>");
-
-      PageSizer.prototype.render = function() {
-        var frag, size;
-        frag = $(document.createDocumentFragment());
-        size = this.model.get('size');
-        frag.append(this.template(_.extend(this.model.toJSON(), {
-          sizes: this.sizes
-        })));
-        this.$el.html(frag);
-        return this;
-      };
-
-      PageSizer.prototype.pageSizeFeasibilityThreshold = 250;
-
-      PageSizer.prototype.aboveSizeThreshold = function(size) {
-        var total;
-        if (size && size >= this.pageSizeFeasibilityThreshold) {
-          return true;
-        }
-        if (!size) {
-          total = this.model.get('count');
-          return total >= this.pageSizeFeasibilityThreshold;
-        }
-        return false;
-      };
-
-      PageSizer.prototype.handlePageSizeSelection = function(size) {
-        var $really, def;
-        def = new jQuery.Deferred;
-        if (this.aboveSizeThreshold(size)) {
-          $really = $(intermine.snippets.table.LargeTableDisuader);
-          $really.find('.btn-primary').click(function() {
-            return def.resolve();
-          });
-          $really.find('.im-alternative-action').click(function(e) {
-            return def.reject();
-          });
-          $really.find('.btn').click(function() {
-            return $really.modal('hide');
-          });
-          $really.on('hidden', function() {
-            $really.remove();
-            return def.reject();
-          });
-          $really.appendTo(this.el).modal().modal('show');
-        } else {
-          def.resolve();
-        }
-        return def.promise();
-      };
-
-      return PageSizer;
-
-    })(Backbone.View);
+    })(Backbone.Model);
     Table = (function(_super) {
       __extends(Table, _super);
 
@@ -20386,10 +20412,11 @@ $.widget("ui.sortable", $.ui.mouse, {
       return Table;
 
     })(Backbone.View);
-    return scope("intermine.query.results", {
+    scope("intermine.query.results", {
       Table: Table
     });
-  })();
+    return Table;
+  }));
 
   (function() {
     var PANE_HTML, Step, TAB_HTML, ToolBar, Tools, Trail, curry;
