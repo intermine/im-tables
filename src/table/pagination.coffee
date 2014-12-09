@@ -38,14 +38,15 @@ define 'table/pagination', ->
 
     getMaxPage: () ->
       {count, size} = @model.toJSON()
-      correction = if count % size is 0 then -1 else 0
+      correction = if count % size is 0 then 0 else 1
       Math.floor(count / size) + correction
 
     goTo: (start) ->
       console.debug 'Going to', start
       @model.set start: start
 
-    goToPage: (page) -> @model.set start: (page * @model.get('size'))
+    # Go to a 1-indexed page.
+    goToPage: (page) -> @model.set start: ((page - 1) * @model.get('size'))
 
     goBack: (pages) ->
       {start, size} = @model.toJSON()

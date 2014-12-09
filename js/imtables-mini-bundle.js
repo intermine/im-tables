@@ -7431,7 +7431,7 @@ $.widget("ui.sortable", $.ui.mouse, {
  * Copyright 2012, 2013, Alex Kalderimis and InterMine
  * Released under the LGPL license.
  * 
- * Built at Tue Dec 09 2014 18:36:43 GMT+0000 (GMT)
+ * Built at Tue Dec 09 2014 18:42:03 GMT+0000 (GMT)
  */
 
 (function() {
@@ -19699,7 +19699,7 @@ $.widget("ui.sortable", $.ui.mouse, {
       Pagination.prototype.getMaxPage = function() {
         var correction, count, size, _ref;
         _ref = this.model.toJSON(), count = _ref.count, size = _ref.size;
-        correction = count % size === 0 ? -1 : 0;
+        correction = count % size === 0 ? 0 : 1;
         return Math.floor(count / size) + correction;
       };
 
@@ -19712,7 +19712,7 @@ $.widget("ui.sortable", $.ui.mouse, {
 
       Pagination.prototype.goToPage = function(page) {
         return this.model.set({
-          start: page * this.model.get('size')
+          start: (page - 1) * this.model.get('size')
         });
       };
 
