@@ -26,8 +26,8 @@ define 'table/page-sizer', ->
 
     template: _.template """
       <label>
-        <span class="im-only-widescreen">Rows per page:</span>
-        <select class="span" title="Rows per page">
+        <span class="hidden-tablet">Rows per page:</span>
+        <select class="span1" title="Rows per page">
           <% sizes.forEach(function (s) { %>
             <option value="<%= s[0] %>" <%= (s[0] === size) && 'selected' %>>
               <%= s[1] || s[0] %>
@@ -37,10 +37,12 @@ define 'table/page-sizer', ->
       </label>
     """
 
+    getData: -> _.extend @model.toJSON(), {@sizes}
+
     render: ->
       frag = $ document.createDocumentFragment()
       size = @model.get 'size'
-      frag.append @template _.extend @model.toJSON(), {@sizes}
+      frag.append @template @getData()
       @$el.html frag
 
       this

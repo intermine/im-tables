@@ -1,5 +1,7 @@
 define 'table/pagination', ->
 
+  SELECT_LIMIT = 200 # for more than 200 pages move to form
+
   class Pagination extends Backbone.View
 
     initialize: ->
@@ -8,7 +10,6 @@ define 'table/pagination', ->
     render: ->
       {start, size, count} = @model.toJSON()
       max = @getMaxPage()
-      console.log start, size
       data =
         gotoStart: if start is 0 then 'active' else ''
         goFiveBack: if start < (5 * size) then 'active' else ''
@@ -18,8 +19,8 @@ define 'table/pagination', ->
         goOneForward: if start >= (count - 2 * size) then 'active' else ''
         max: max
         size: size
-        selected: (i) -> console.log i; start is i * size
-        useSelect: (max <= 100)
+        selected: (i) -> start is i * size
+        useSelect: (max <= SELECT_LIMIT)
 
       @$el.html intermine.snippets.table.Pagination data
       @$('li').tooltip placement: 'top'

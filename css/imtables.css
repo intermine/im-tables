@@ -4361,7 +4361,7 @@
 }
 
 .im-query-results .im-page-sizer select {
-    height: 34px; /* Sorry about the hard-coding - but this is required to match bootstrap */
+    height: 28px; /* Sorry about the hard-coding - but this is required to match bootstrap */
 }
 
 a.im-pagination-button {

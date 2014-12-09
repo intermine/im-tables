@@ -8,7 +8,7 @@
  * Copyright 2012, 2013, Alex Kalderimis and InterMine
  * Released under the LGPL license.
  * 
- * Built at Tue Dec 09 2014 13:12:24 GMT+0000 (GMT)
+ * Built at Tue Dec 09 2014 13:29:13 GMT+0000 (GMT)
  */
 
 (function() {
@@ -12093,15 +12093,19 @@
         return this.handlePageSizeSelection(size).then(applyChange, rollback);
       };
 
-      PageSizer.prototype.template = _.template("<label>\n  <span class=\"im-only-widescreen\">Rows per page:</span>\n  <select class=\"span\" title=\"Rows per page\">\n    <% sizes.forEach(function (s) { %>\n      <option value=\"<%= s[0] %>\" <%= (s[0] === size) && 'selected' %>>\n        <%= s[1] || s[0] %>\n      </option>\n    <% }); %>\n  </select>\n</label>");
+      PageSizer.prototype.template = _.template("<label>\n  <span class=\"hidden-tablet\">Rows per page:</span>\n  <select class=\"span1\" title=\"Rows per page\">\n    <% sizes.forEach(function (s) { %>\n      <option value=\"<%= s[0] %>\" <%= (s[0] === size) && 'selected' %>>\n        <%= s[1] || s[0] %>\n      </option>\n    <% }); %>\n  </select>\n</label>");
+
+      PageSizer.prototype.getData = function() {
+        return _.extend(this.model.toJSON(), {
+          sizes: this.sizes
+        });
+      };
 
       PageSizer.prototype.render = function() {
         var frag, size;
         frag = $(document.createDocumentFragment());
         size = this.model.get('size');
-        frag.append(this.template(_.extend(this.model.toJSON(), {
-          sizes: this.sizes
-        })));
+        frag.append(this.template(this.getData()));
         this.$el.html(frag);
         return this;
       };
@@ -12151,7 +12155,8 @@
   });
 
   define('table/pagination', function() {
-    var Pagination;
+    var Pagination, SELECT_LIMIT;
+    SELECT_LIMIT = 200;
     return Pagination = (function(_super) {
       __extends(Pagination, _super);
 
@@ -12167,7 +12172,6 @@
         var count, data, max, size, start, _ref;
         _ref = this.model.toJSON(), start = _ref.start, size = _ref.size, count = _ref.count;
         max = this.getMaxPage();
-        console.log(start, size);
         data = {
           gotoStart: start === 0 ? 'active' : '',
           goFiveBack: start < (5 * size) ? 'active' : '',
@@ -12178,10 +12182,9 @@
           max: max,
           size: size,
           selected: function(i) {
-            console.log(i);
             return start === i * size;
           },
-          useSelect: max <= 100
+          useSelect: max <= SELECT_LIMIT
         };
         this.$el.html(intermine.snippets.table.Pagination(data));
         return this.$('li').tooltip({

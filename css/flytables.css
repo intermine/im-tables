@@ -5157,6 +5157,10 @@
 .im-query-display .pagination li .form select,
 .im-query-display .pagination li .form input {
     width: 6em;
+    height: 28px;
+    border: none;
+    border-top-left-radius: 0px;
+    border-bottom-left-radius: 0px;
 }
 
 .im-query-display .pagination li .form .control-group {
@@ -5176,7 +5180,7 @@
 }
 
 .im-query-results .im-page-sizer select {
-    height: 34px; /* Sorry about the hard-coding - but this is required to match bootstrap */
+    height: 28px; /* Sorry about the hard-coding - but this is required to match bootstrap */
 }
 
 a.im-pagination-button {
