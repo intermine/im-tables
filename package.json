@@ -28,21 +28,23 @@
     "tests": "test"
   },
   "scripts": {
-    "start": "./node_modules/serve/bin/serve",
-    "test": "grunt test"
+    "start": "serve",
+    "test": "grunt test",
+    "build": "cake build:all",
+    "watch": "watch 'npm run-script build' src/ --wait=20"
   },
   "devDependencies": {
-    "prefix-css-node": "~0.4.0",
     "bower": "latest",
-    "mocha": "latest",
-    "coffee-script": "~1.3.3",
     "codo": "~0.3.0",
+    "coffee-script": "~1.8.0",
     "coffeelint": ">= 0.5.4",
     "connect": "~2.7.3",
+    "mocha": "latest",
+    "prefix-css-node": "~0.4.0",
     "q": "~0.9.0",
-    "ukraine": "~0.14.0",
+    "uglify-js": "~2.2.5",
     "underscore": "~1.4.4",
-    "uglify-js": "~2.2.5"
+    "watch": "^0.13.0"
   },
   "dependencies": {
     "serve": "~1.2.0"

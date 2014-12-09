@@ -309,6 +309,7 @@ do ->
 
           type = cell.get 'obj:type'
           id = cell.get 'id'
+          console.log "Preparing popover content for", type, id
 
           popover = @popover = new intermine.table.cell.Preview
             service: @model.get('query').service
@@ -320,6 +321,7 @@ do ->
           popover.on 'rendered', => @cellPreview.reposition()
           popover.render()
 
+          console.log 'Rendered popover'
           cell.cachedPopover = content
 
         getPopoverPlacement: (popover) =>

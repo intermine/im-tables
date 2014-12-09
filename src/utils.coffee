@@ -158,10 +158,12 @@ do ($ = jQuery) ->
 
       renderError: (resp) -> renderError(@el) resp
 
+      getData: -> @model.toJSON()
+
       render: ->
 
         if @template?
-          @$el.html @template @model.toJSON()
+          @$el.html @template @getData()
         
         @trigger 'rendered'
 

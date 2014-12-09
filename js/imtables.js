@@ -8,7 +8,7 @@
  * Copyright 2012, 2013, Alex Kalderimis and InterMine
  * Released under the LGPL license.
  * 
- * Built at Tue Dec 09 2014 13:29:13 GMT+0000 (GMT)
+ * Built at Tue Dec 09 2014 17:22:48 GMT+0000 (GMT)
  */
 
 (function() {
@@ -514,9 +514,13 @@
         return renderError(this.el)(resp);
       };
 
+      ItemView.prototype.getData = function() {
+        return this.model.toJSON();
+      };
+
       ItemView.prototype.render = function() {
         if (this.template != null) {
-          this.$el.html(this.template(this.model.toJSON()));
+          this.$el.html(this.template(this.getData()));
         }
         this.trigger('rendered');
         return this;
@@ -10459,7 +10463,7 @@
 
     })(intermine.views.ItemView);
     Preview = (function(_super) {
-      var THROBBER;
+      var ERROR, THROBBER;
 
       __extends(Preview, _super);
 
@@ -10472,9 +10476,14 @@
 
       THROBBER = "<div class=\"progress progress-info progress-striped active\">\n  <div class=\"bar\" style=\"width: 100%\"></div>\n</div>";
 
+      ERROR = _.template("<div class=\"alert alert-error\">\n  <h4>Error</h4>\n  <p>Sorry. We could not fetch the preview due to an error:</p>\n  <code><%= message %></code>\n</div>");
+
       Preview.prototype.initialize = function(options) {
         this.options = options != null ? options : {};
         Preview.__super__.initialize.apply(this, arguments);
+        this.model.set({
+          state: 'FETCHING'
+        });
         this.fieldDetails = new Backbone.Collection;
         this.fieldDetails.model = Backbone.Model;
         this.fieldDetails.comparator = sortByName;
@@ -10486,9 +10495,10 @@
         this.itemDetailsTable = new ItemDetails({
           collection: this.fieldDetails
         });
-        return this.referenceCounts = new ReferenceCounts({
+        this.referenceCounts = new ReferenceCounts({
           collection: this.referenceFields
         });
+        return this.listenTo(this.model, 'change:state', this.render);
       };
 
       Preview.prototype.remove = function() {
@@ -10528,6 +10538,7 @@
 
       Preview.prototype.handleItem = function(item) {
         var byField, field, v, value;
+        console.debug('Found', item);
         field = null;
         byField = function(model) {
           return model.get('field') === field;
@@ -10590,6 +10601,7 @@
 
       Preview.prototype.fetchData = function() {
         var fetches, id, schema, service, t, type, types, _ref1, _ref2;
+        console.debug('Fetching data');
         _ref1 = this.model.toJSON(), type = _ref1.type, id = _ref1.id;
         _ref2 = this.options, schema = _ref2.schema, service = _ref2.service;
         types = type.split(',');
@@ -10599,7 +10611,7 @@
           _results = [];
           for (_i = 0, _len = _ref3.length; _i < _len; _i++) {
             t = _ref3[_i];
-            _results.push(service.findById(t, id, this.handleItem));
+            _results.push(service.findById(t, id).then(this.handleItem));
           }
           return _results;
         }).call(this);
@@ -10670,8 +10682,34 @@
         })(this));
       };
 
-      Preview.prototype.template = function(data) {
-        var frag, h4, itemDetailsTable, relationCountTable;
+      Preview.prototype.getData = function() {
+        var m;
+        m = this.model;
+        if (this.fetching == null) {
+          this.fetching = this.fetchData();
+        }
+        this.fetching.then((function() {
+          return m.set({
+            state: 'SUCCESS'
+          });
+        }), (function(e) {
+          return m.set({
+            state: 'ERROR',
+            error: e
+          });
+        }));
+        return Preview.__super__.getData.apply(this, arguments);
+      };
+
+      Preview.prototype.template = function(_arg) {
+        var error, frag, h4, itemDetailsTable, relationCountTable, state;
+        state = _arg.state, error = _arg.error;
+        if (state === 'FETCHING') {
+          return THROBBER;
+        }
+        if (state === 'ERROR') {
+          return ERROR(error);
+        }
         frag = document.createDocumentFragment();
         itemDetailsTable = this.itemDetailsTable.el;
         frag.appendChild(itemDetailsTable);
@@ -10681,9 +10719,6 @@
           frag.appendChild(h4);
           relationCountTable = this.referenceCounts.el;
           frag.appendChild(relationCountTable);
-        }
-        if (this.fetching == null) {
-          this.fetching = this.fetchData();
         }
         this.itemDetailsTable.render();
         this.referenceCounts.render();
@@ -11135,6 +11170,7 @@
         }
         type = cell.get('obj:type');
         id = cell.get('id');
+        console.log("Preparing popover content for", type, id);
         popover = this.popover = new intermine.table.cell.Preview({
           service: this.model.get('query').service,
           schema: this.model.get('query').model,
@@ -11150,6 +11186,7 @@
           };
         })(this));
         popover.render();
+        console.log('Rendered popover');
         return cell.cachedPopover = content;
       };
 

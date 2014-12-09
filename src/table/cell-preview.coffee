@@ -115,8 +115,17 @@ do ->
       </div>
     """
 
+    ERROR = _.template """
+      <div class="alert alert-error">
+        <h4>Error</h4>
+        <p>Sorry. We could not fetch the preview due to an error:</p>
+        <code><%= message %></code>
+      </div>
+    """
+
     initialize: (@options = {}) ->
       super arguments...
+      @model.set state: 'FETCHING'
       @fieldDetails = new Backbone.Collection
       @fieldDetails.model = Backbone.Model
       @fieldDetails.comparator = sortByName
@@ -128,6 +137,8 @@ do ->
 
       @itemDetailsTable = new ItemDetails collection: @fieldDetails
       @referenceCounts = new ReferenceCounts collection: @referenceFields
+
+      @listenTo @model, 'change:state', @render
 
     remove: ->
       @fieldDetails.off()
@@ -160,6 +171,7 @@ do ->
     # Reads values from the returned items and adds details objects to the 
     # fieldDetails and referenceFields collections, avoiding duplicates.
     handleItem: (item) =>
+      console.debug 'Found', item
       field = null
       byField = (model) -> model.get('field') is field
 
@@ -189,12 +201,13 @@ do ->
       this
 
     fetchData: ->
+      console.debug 'Fetching data'
       {type, id} = @model.toJSON()
       {schema, service} = @options
       types = type.split ','
 
       fetches = for t in type.split ','
-        service.findById t, id, @handleItem
+        service.findById(t, id).then @handleItem
 
       fetches.concat(@getRelationCounts()).reduce (p1, p2) -> p1.then -> p2
 
@@ -220,9 +233,21 @@ do ->
         label = settings
         counter = select: settings + '.id', from: type, where: {id: id}
 
-      @options.service.count(counter).then (c) => @referenceFields.add {name: label, count: c}
+      @options.service.count(counter).then (c) => @referenceFields.add name: label, count: c
 
-    template: (data) ->
+    getData: ->
+      m = @model
+      @fetching ?= @fetchData()
+      @fetching.then (-> m.set state: 'SUCCESS'), ((e) -> m.set state: 'ERROR', error: e)
+      super
+
+    template: ({state, error}) ->
+
+      if state is 'FETCHING'
+        return THROBBER
+
+      if state is 'ERROR'
+        return ERROR error
 
       frag = document.createDocumentFragment()
       itemDetailsTable = @itemDetailsTable.el
@@ -235,8 +260,6 @@ do ->
         frag.appendChild h4
         relationCountTable = @referenceCounts.el
         frag.appendChild relationCountTable
-
-      @fetching ?= @fetchData()
 
       @itemDetailsTable.render()
       @referenceCounts.render()

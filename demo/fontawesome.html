@@ -171,6 +171,7 @@
   -->
 
   <script type="text/javascript">
+    window.$ = window.jQuery = intermine.$;
     jQuery(window).scroll(function() {
         jQuery('.navbar-fixed-top').toggleClass('navbar-covering', jQuery(this).scrollTop() > 0);
     });
