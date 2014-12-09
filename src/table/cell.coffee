@@ -309,7 +309,6 @@ do ->
 
           type = cell.get 'obj:type'
           id = cell.get 'id'
-          console.log "Preparing popover content for", type, id
 
           popover = @popover = new intermine.table.cell.Preview
             service: @model.get('query').service
@@ -321,7 +320,6 @@ do ->
           popover.on 'rendered', => @cellPreview.reposition()
           popover.render()
 
-          console.log 'Rendered popover'
           cell.cachedPopover = content
 
         getPopoverPlacement: (popover) =>
@@ -354,9 +352,9 @@ do ->
           options =
             container: @el
             containment: '.im-query-results'
-            html: true
-            title: @model.get 'typeName'
-            trigger: intermine.options.CellPreviewTrigger
+            html: true # well, technically we are using Elements.
+            title: => @model.get 'typeName' # function, as not available until render is called
+            trigger: intermine.options.CellPreviewTrigger # click or hover
             delay: {show: 250, hide: 250} # Slight delays to prevent jumpiness.
             classes: 'im-cell-preview'
             content: @getPopoverContent

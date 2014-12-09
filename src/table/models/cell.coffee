@@ -6,5 +6,7 @@ define 'table/models/cell', ->
     initialize: ->
       @get('column').getDisplayName().then (name) => @set columnName: name
       type = @get('cell').get('obj:type')
-      @get('query').model.makePath(type).getDisplayName().then (name) ->
+      @get('query').model.makePath(type).getDisplayName().then (name) =>
+        console.debug 'typeName:', name
         @set typeName: name
+

@@ -7431,7 +7431,7 @@ $.widget("ui.sortable", $.ui.mouse, {
  * Copyright 2012, 2013, Alex Kalderimis and InterMine
  * Released under the LGPL license.
  * 
- * Built at Tue Dec 09 2014 17:22:48 GMT+0000 (GMT)
+ * Built at Tue Dec 09 2014 17:36:45 GMT+0000 (GMT)
  */
 
 (function() {
@@ -17761,7 +17761,7 @@ $.widget("ui.sortable", $.ui.mouse, {
   })();
 
   (function() {
-    var CellCutoff, HIDDEN_FIELDS, ItemDetails, NUM_CHUNK_SIZE, NUM_SEPARATOR, Preview, ReferenceCounts, getLeaves, numToStr, sortByName, sortTableByFieldName, toField, _ref;
+    var CellCutoff, HIDDEN_FIELDS, ItemDetails, NUM_CHUNK_SIZE, NUM_SEPARATOR, Preview, ReferenceCounts, SortedByName, getLeaves, numToStr, sortByName, sortTableByFieldName, toField, _ref;
     HIDDEN_FIELDS = ["class", "objectId"];
     getLeaves = function(o) {
       var leaf, leaves, name, values, _i, _len;
@@ -17885,6 +17885,20 @@ $.widget("ui.sortable", $.ui.mouse, {
       return ReferenceCounts;
 
     })(intermine.views.ItemView);
+    SortedByName = (function(_super) {
+      __extends(SortedByName, _super);
+
+      function SortedByName() {
+        return SortedByName.__super__.constructor.apply(this, arguments);
+      }
+
+      SortedByName.prototype.model = Backbone.Model;
+
+      SortedByName.prototype.comparator = sortByName;
+
+      return SortedByName;
+
+    })(Backbone.Collection);
     Preview = (function(_super) {
       var ERROR, THROBBER;
 
@@ -17907,14 +17921,10 @@ $.widget("ui.sortable", $.ui.mouse, {
         this.model.set({
           state: 'FETCHING'
         });
-        this.fieldDetails = new Backbone.Collection;
-        this.fieldDetails.model = Backbone.Model;
-        this.fieldDetails.comparator = sortByName;
-        this.fieldDetails.on('add', this.render, this);
-        this.referenceFields = new Backbone.Collection;
-        this.referenceFields.model = Backbone.Model;
-        this.referenceFields.comparator = sortByName;
-        this.referenceFields.on('add', this.render, this);
+        this.fieldDetails = new SortedByName;
+        this.referenceFields = new SortedByName;
+        this.listenTo(this.fieldDetails, 'add', this.render);
+        this.listenTo(this.referenceFields, 'add', this.render, this);
         this.itemDetailsTable = new ItemDetails({
           collection: this.fieldDetails
         });
@@ -18593,7 +18603,6 @@ $.widget("ui.sortable", $.ui.mouse, {
         }
         type = cell.get('obj:type');
         id = cell.get('id');
-        console.log("Preparing popover content for", type, id);
         popover = this.popover = new intermine.table.cell.Preview({
           service: this.model.get('query').service,
           schema: this.model.get('query').model,
@@ -18609,7 +18618,6 @@ $.widget("ui.sortable", $.ui.mouse, {
           };
         })(this));
         popover.render();
-        console.log('Rendered popover');
         return cell.cachedPopover = content;
       };
 
@@ -18645,7 +18653,11 @@ $.widget("ui.sortable", $.ui.mouse, {
           container: this.el,
           containment: '.im-query-results',
           html: true,
-          title: this.model.get('typeName'),
+          title: (function(_this) {
+            return function() {
+              return _this.model.get('typeName');
+            };
+          })(this),
           trigger: intermine.options.CellPreviewTrigger,
           delay: {
             show: 250,
@@ -19394,11 +19406,14 @@ $.widget("ui.sortable", $.ui.mouse, {
           };
         })(this));
         type = this.get('cell').get('obj:type');
-        return this.get('query').model.makePath(type).getDisplayName().then(function(name) {
-          return this.set({
-            typeName: name
-          });
-        });
+        return this.get('query').model.makePath(type).getDisplayName().then((function(_this) {
+          return function(name) {
+            console.debug('typeName:', name);
+            return _this.set({
+              typeName: name
+            });
+          };
+        })(this));
       };
 
       return CellModel;

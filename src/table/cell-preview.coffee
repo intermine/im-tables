@@ -105,6 +105,12 @@ do ->
         relations.append RELATION data
       return relations
 
+  class SortedByName extends Backbone.Collection
+
+    model: Backbone.Model
+
+    comparator: sortByName
+
   class Preview extends intermine.views.ItemView
 
     className: 'im-cell-preview-inner'
@@ -126,14 +132,11 @@ do ->
     initialize: (@options = {}) ->
       super arguments...
       @model.set state: 'FETCHING'
-      @fieldDetails = new Backbone.Collection
-      @fieldDetails.model = Backbone.Model
-      @fieldDetails.comparator = sortByName
-      @fieldDetails.on 'add', @render, @
-      @referenceFields = new Backbone.Collection
-      @referenceFields.model = Backbone.Model
-      @referenceFields.comparator = sortByName
-      @referenceFields.on 'add', @render, @
+      @fieldDetails = new SortedByName
+      @referenceFields = new SortedByName
+
+      @listenTo @fieldDetails, 'add', @render
+      @listenTo @referenceFields, 'add', @render, @
 
       @itemDetailsTable = new ItemDetails collection: @fieldDetails
       @referenceCounts = new ReferenceCounts collection: @referenceFields
