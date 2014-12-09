@@ -7431,7 +7431,7 @@ $.widget("ui.sortable", $.ui.mouse, {
  * Copyright 2012, 2013, Alex Kalderimis and InterMine
  * Released under the LGPL license.
  * 
- * Built at Tue Dec 09 2014 18:24:01 GMT+0000 (GMT)
+ * Built at Tue Dec 09 2014 18:26:26 GMT+0000 (GMT)
  */
 
 (function() {
@@ -7570,7 +7570,6 @@ $.widget("ui.sortable", $.ui.mouse, {
     }
     parts = path.split(".");
     ns = __root__;
-    console.debug(ns);
     for (_i = 0, _len = parts.length; _i < _len; _i++) {
       part = parts[_i];
       ns = ns[part] != null ? ns[part] : (ns[part] = {});

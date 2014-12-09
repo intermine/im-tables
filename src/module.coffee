@@ -12,17 +12,16 @@ stope = (f) -> (e) ->
 
 # TODO, allow merging of nested things.
 scope = (path, code = {}, overwrite = false) ->
-    parts = path.split "."
-    ns = __root__
-    console.debug ns
-    for part in parts
-        ns = if ns[part]? then ns[part] else (ns[part] = {})
+  parts = path.split "."
+  ns = __root__
+  for part in parts
+    ns = if ns[part]? then ns[part] else (ns[part] = {})
 
-    for name, value of code
-        # Update but do not overwrite values.
-        if overwrite or not ns[name]?
-            ns[ name ] = value
-    return ns
+  for name, value of code
+    # Update but do not overwrite values.
+    if overwrite or not ns[name]?
+        ns[ name ] = value
+  return ns
 
 # Declare here for visibility.
 define = ->
@@ -30,7 +29,7 @@ using = ->
 end_of_definitions = ->
 require = ->
 
-do ->
+do -> # Scope to close over private vars
 
   pending_modules = {}
   defined_modules = {}
