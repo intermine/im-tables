@@ -151,6 +151,7 @@ do ($ = jQuery) ->
     class ItemView extends Backbone.View
 
       initialize: ->
+        @children = {}
         unless @model?
           @model = new Backbone.Model
         unless @model.toJSON?

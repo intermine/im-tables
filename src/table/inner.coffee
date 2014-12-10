@@ -1,152 +1,166 @@
-define 'table/inner', using 'table/models/nested-table', 'table/render-error', (NestedTableModel, renderError) ->
+_ = require 'underscore'
 
-  # Inner class that only knows how to render results,
-  # but not where they come from.
-  class ResultsTable extends Backbone.View
+View = require '../core-view'
 
-      @nextDirections =
-        ASC: "DESC"
-        DESC: "ASC"
+# FIXME - check this import
+NestedTableModel = require './models/nested-table'
+# FIXME - create this file.
+ColumnHeader = require './column-header'
+# FIXME - check this import
+SubTable = require './subtable'
+# FIXME - check this import
+Cell = require './cell'
+# FIXME - create this file, make sure it returns a template
+#      - make sure that there is a .btn.undo in it
+NoResults = require '../templates/no-results'
 
-      className: "im-results-table table table-striped table-bordered"
+# Inner class that only knows how to render results,
+# but not where they come from.
+module.exports = class ResultsTable extends View
 
-      tagName: "table"
+  @nextDirections =
+    ASC: "DESC"
+    DESC: "ASC"
 
-      attributes:
-        width: "100%"
-        cellpadding: 0
-        border: 0
-        cellspacing: 0
+  className: "im-results-table table table-striped table-bordered"
 
-      throbber: _.template """
-        <tr class="im-table-throbber">
-          <td colspan="<%= colcount %>">
-            <h2>Requesting Data</h2>
-            <div class="progress progress-info progress-striped active">
-              <div class="bar" style="width: 100%"></div>
-            </div>
-          </td>
-        </tr>
-      """
+  tagName: "table"
 
-      # TODO - check instantiation
-      initialize: (@query, @blacklistedFormatters, @columnHeaders, @rows) ->
-        @minimisedCols = {}
-        @query.on 'columnvis:toggle', (view) =>
-          @minimisedCols[view] = not @minimisedCols[view]
-          @query.trigger 'change:minimisedCols', _.extend({}, @minimisedCols), view
-          @fill()
+  attributes:
+    width: "100%"
+    cellpadding: 0
+    border: 0
+    cellspacing: 0
 
-        @listenTo @columnHeaders, 'reset add remove', @renderHeaders
-        @listenTo @columnHeaders, 'reset add remove', @fill
-        @listenTo @blacklistedFormatters, 'reset add remove', @fill
-        @listenTo @rows, 'reset add remove', @fill
+  throbber: _.template """
+    <tr class="im-table-throbber">
+      <td colspan="<%= colcount %>">
+        <h2>Requesting Data</h2>
+        <div class="progress progress-info progress-striped active">
+          <div class="bar" style="width: 100%"></div>
+        </div>
+      </td>
+    </tr>
+  """
 
-      render: ->
-        @$el.empty()
-        @$el.append document.createElement 'thead'
-        @renderHeaders()
-        @$el.append document.createElement 'tbody'
-        @fill()
+  initialize: (@query, @blacklistedFormatters, @columnHeaders, @rows) ->
+    @minimisedCols = {}
+    @query.on 'columnvis:toggle', @onColvisToggle
 
-      fill: ->
-        # Clean up old children.
-        previousCells = (@currentCells || []).slice()
-        for cell in previousCells
-          cell.remove()
-        @currentCells = []
-        return @handleEmptyTable() if @rows.size() < 1
+    @listenTo @columnHeaders, 'reset add remove', @renderHeaders
+    @listenTo @columnHeaders, 'reset add remove', @fill
+    @listenTo @blacklistedFormatters, 'reset add remove', @fill
+    @listenTo @rows, 'reset add remove', @fill
 
-        docfrag = document.createDocumentFragment()
+  onColvisToggle: (view) =>
+    @minimisedCols[view] = not @minimisedCols[view]
+    # Copy the data, so that handlers cannot change our state.
+    @query.trigger 'change:minimisedCols', _.extend({}, @minimisedCols), view
+    @fill()
 
-        replacer_of = {}
-        @columnHeaders.each (col) ->
-          for r in (rs = col.get('replaces'))
-            replacer_of[r] = col
+  events: ->
+    'click .btn.undo': => @query.trigger 'undo'
 
-        @rows.each (row) => @appendRow docfrag, row, replacer_of
+  render: ->
+    @$el.empty()
+    @$el.append document.createElement 'thead'
+    @renderHeaders()
+    @$el.append document.createElement 'tbody'
+    @fill()
 
-        # Careful - there might be subtables out there - be specific.
-        @$el.children('tbody').html docfrag
+  fill: ->
+    # Clean up old children.
+    previousCells = (@currentCells || []).slice()
+    for cell in previousCells
+      cell.remove()
+    @currentCells = []
+    return @handleEmptyTable() if @rows.size() < 1
 
-        # Let listeners know that the table is ready to use.
-        @query.trigger "table:filled"
+    docfrag = document.createDocumentFragment()
 
-      handleEmptyTable: () ->
-        @$("tbody > tr").remove()
-        apology = _.template intermine.snippets.table.NoResults @query
-        @$el.append apology
-        @$el.find('.btn-primary').click => @query.trigger 'undo'
+    replacer_of = {}
+    @columnHeaders.each (col) ->
+      for r in (rs = col.get('replaces'))
+        replacer_of[r] = col
 
-      minimisedColumnPlaceholder: _.template """
-          <td class="im-minimised-col" style="width:<%= width %>px">&hellip;</td>
-      """
+    @rows.each (row) => @appendRow docfrag, row, replacer_of
 
-      renderCell: (cell) =>
-        base = @query.service.root.replace /\/service\/?$/, ""
-        if cell instanceof NestedTableModel
-          node = @query.getPathInfo obj.column
-          return new intermine.results.table.SubTable
-            model: cell
-            cellify: @renderCell
-            canUseFormatter: (f) => @canUseFormatter
-            mainTable: @
-        else
-          return new intermine.results.table.Cell(model: cell)
+    # Careful - there might be subtables out there - be specific.
+    @$el.children('tbody').html docfrag
 
-      canUseFormatter: (formatter) ->
-        formatter? and (not @blacklistedFormatters.any (f) -> f.get('formatter') is formatter)
+    # Let listeners know that the table is ready to use.
+    @query.trigger "table:filled"
 
-      # tbody :: HTMLElement, row :: RowModel, replacer_of :: {string => Formatter}
-      appendRow: (tbody, row, replacer_of) =>
-        tr = document.createElement 'tr'
-        tbody.appendChild tr
-        minWidth = 10
-        processed = {}
+  handleEmptyTable: () ->
+    q = @query
+    @$("tbody > tr").remove()
+    apology = NoResults q
+    @$el.append apology
 
-        # Render models into views
-        cellViews = (@renderCell cell for cell in row.get('cells'))
+  minimisedColumnPlaceholder: _.template """
+    <td class="im-minimised-col" style="width:<%= width %>px">&hellip;</td>
+  """
 
-        # cell :: Cell | SubTable, i :: int
-        for cell, i in cellViews then do (cell, i) =>
-          cellPath = cell.path
-          return if processed[cellPath]
-          processed[cellPath] = true
-          {replaces, formatter, path} = (replacer_of[cellPath]?.toJSON() ? {})
-          if replaces?.length > 1
-            # Only accept if it is the right type, since formatters expect a type.
-            return unless path.equals(cellPath.getParent())
-            if formatter?.merge?
-              for c in cellViews when _.any(replaces, (x) -> x.equals c.path)
-                formatter.merge(cell.model.get('cell'), c.model.get('cell'))
+  renderCell: (cell) =>
+    base = @query.service.root.replace /\/service\/?$/, ""
+    if cell instanceof NestedTableModel
+      node = @query.getPathInfo obj.column
+      return new SubTable
+        model: cell
+        cellify: @renderCell
+        canUseFormatter: (f) => @canUseFormatter
+        mainTable: @
+    else
+      return new Cell(model: cell)
 
-            processed[r] = true for r in replaces
+  canUseFormatter: (formatter) ->
+    formatter? and (not @blacklistedFormatters.any (f) -> f.get('formatter') is formatter)
 
-          cell.formatter = formatter if formatter?
+  # tbody :: HTMLElement, row :: RowModel, replacer_of :: {string => Formatter}
+  appendRow: (tbody, row, replacer_of) =>
+    tr = document.createElement 'tr'
+    tbody.appendChild tr
+    minWidth = 10
+    processed = {}
 
-          if @minimisedCols[ cellPath ] or (path and @minimisedCols[path])
-            $(tr).append @minimisedColumnPlaceholder width: minWidth
-          else
-            cell.render()
-            tr.appendChild cell.el
+    # Render models into views
+    cellViews = (@renderCell cell for cell in row.get('cells'))
 
-      # Add headers to the table
-      renderHeaders: ->
-        docfrag = document.createDocumentFragment()
-        tr = document.createElement 'tr'
-        docfrag.appendChild tr
+    # cell :: Cell | SubTable, i :: int
+    for cell, i in cellViews then do (cell, i) =>
+      cellPath = cell.path
+      return if processed[cellPath]
+      processed[cellPath] = true
+      {replaces, formatter, path} = (replacer_of[cellPath]?.toJSON() ? {})
+      if replaces?.length > 1
+        # Only accept if it is the right type, since formatters expect a type.
+        return unless path.equals(cellPath.getParent())
+        if formatter?.merge?
+          for c in cellViews when _.any(replaces, (x) -> x.equals c.path)
+            formatter.merge(cell.model.get('cell'), c.model.get('cell'))
 
-        @columnHeaders.each (ch) => @renderHeader ch, tr
-                
-        # children selector because we only want to go down 1 layer.
-        @$el.children('thead').html docfrag
+        processed[r] = true for r in replaces
 
-      # Render a single header to the headers
-      renderHeader: (model, tr) ->
-        {ColumnHeader} = intermine.query.results
-        header = new ColumnHeader {model, @query, @blacklistedFormatters}
-        header.render().$el.appendTo tr
+      cell.formatter = formatter if formatter?
 
-      handleError: (err, time) =>
-        notice = renderError @query, err, time
-        @$el.append notice
+      if @minimisedCols[ cellPath ] or (path and @minimisedCols[path])
+        $(tr).append @minimisedColumnPlaceholder width: minWidth
+      else
+        cell.render()
+        tr.appendChild cell.el
+
+  # Add headers to the table
+  renderHeaders: ->
+    docfrag = document.createDocumentFragment()
+    tr = document.createElement 'tr'
+    docfrag.appendChild tr
+
+    @columnHeaders.each (ch) => @renderHeader ch, tr
+            
+    # children selector because we only want to go down 1 layer.
+    @$el.children('thead').html docfrag
+
+  # Render a single header to the headers
+  renderHeader: (model, tr) ->
+    header = new ColumnHeader {model, @query, @blacklistedFormatters}
+    header.render().$el.appendTo tr

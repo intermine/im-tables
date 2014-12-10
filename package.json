@@ -1,14 +1,48 @@
 {
   "name": "intermine-tables",
-  "version": "1.9.2",
+  "version": "2.0.0",
   "description": "ui widgets for displaying query results in interactive tables",
-  "main": "js/imtables.js",
+  "scripts": {
+    "start": "serve --port $PORT",
+    "test": "mocha --compilers coffee:coffee-script/register test/unit/*",
+    "watch-src": "watch 'npm run compile' src/",
+    "watch-js": "watch 'npm run browserify' build/",
+    "watch-less": "watch 'npm run less' less/",
+    "watch": "npm run watch-src & npm run watch-js & npm run watch-less",
+    "pre-compile": "rm -rf build && rm -rf dist && mkdir dist",
+    "compile": "coffee --compile --output build/ src/",
+    "browserify": "browserify build/main.js > dist/main.js",
+    "less": "lessc --include-path=less:node_modules less/main.less > dist/main.css",
+    "build": "npm run pre-compile && npm run compile && npm run browserify"
+  },
   "keywords": [
     "javascript",
     "webservice",
     "InterMine",
     "Bio-Informatics"
   ],
+  "main": "./js/imtables.js",
+  "browser": {
+    "d3js": "./bower_components/d3/d3.min.js"
+  },
+  "browserify": {
+    "transform": [
+      "browserify-shim"
+    ]
+  },
+  "browserify-shim": {
+    "d3js": {
+      "exports": "d3",
+      "depends": [
+        "jquery:$"
+      ]
+    },
+    "bootstrap": {
+      "depends": [
+        "jquery:$"
+      ]
+    }
+  },
   "author": {
     "name": "Alex Kalderimis",
     "email": "alex@intermine.org",
@@ -22,28 +56,31 @@
   },
   "contributors": [],
   "engines": {
-    "node": ">= 0.8.0"
+    "node": "~0.10.0"
   },
   "directories": {
     "tests": "test"
   },
-  "scripts": {
-    "start": "serve",
-    "test": "grunt test",
-    "build": "cake build:all",
-    "watch": "watch 'npm run-script build' src/ --wait=20"
-  },
   "devDependencies": {
+    "backbone": "^1.1.2",
+    "bootstrap": "^3.3.1",
     "bower": "latest",
+    "browserify": "^7.0.0",
+    "browserify-shim": "~3.8.1",
     "codo": "~0.3.0",
     "coffee-script": "~1.8.0",
     "coffeelint": ">= 0.5.4",
     "connect": "~2.7.3",
-    "mocha": "latest",
+    "es6-promise": "^2.0.1",
+    "font-awesome": "^4.2.0",
+    "jquery": "^2.1.1",
+    "less": "^2.1.1",
+    "mocha": "^2.0.1",
     "prefix-css-node": "~0.4.0",
     "q": "~0.9.0",
+    "selenium-webdriver": "^2.44.0",
     "uglify-js": "~2.2.5",
-    "underscore": "~1.4.4",
+    "underscore": "^1.7.0",
     "watch": "^0.13.0"
   },
   "dependencies": {
