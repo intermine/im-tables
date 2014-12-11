@@ -1,7 +1,12 @@
 _ = require 'underscore'
 
 Messages = require '../messages'
+Icons = require '../icons'
 View = require '../core-view'
+# FIXME - make this import work
+NewConstraint = require './new-constraint'
+
+{Query} = require 'imjs'
 
 Messages.set
   'constraints.BrowseForColumn': 'Browse for Column'
@@ -296,117 +301,117 @@ class PathChooser extends Backbone.View
       @$el.show()
       this
 
-class ConstraintAdder extends Backbone.View
+module.exports = class ConstraintAdder extends View
 
-    tagName: "form"
-    className: "form im-constraint-adder row-fluid im-constraint"
+  tagName: 'div'
 
-    initialize: (@query) ->
+  className: 'im-constraint-adder row-fluid'
 
-    events: ->
-        'submit': 'handleSubmission'
-        'click .im-collapser': 'collapseBranches'
-        'change .im-allow-rev-ref': 'allowReverseRefs'
+  initialize: ({@query}) ->
+    super
+    @model.set
+      root: @query.getPathInfo(@query.root)
+      showTree: false
+      refsOK: true
+      multiSelect: false
 
-    collapseBranches: ->
-      @$pathfinder?.trigger 'collapse:tree-branches'
+    @openNodes = new Backbone.Collection
+    @listenTo @model, 'change:chosen', @handleChoice
+    @listenTo @model, 'change:showTree', @toggleTree
+    @listenTo @query, 'change:constraints', @remove # our job is done
 
-    allowReverseRefs: ->
-      @$pathfinder?.allowRevRefs @$('.im-allow-rev-ref').is(':checked')
+  getTreeRoot: -> @model.get 'root'
 
-    handleClick: (e) ->
-        e.preventDefault()
-        unless $(e.target).is 'button'
-            e.stopPropagation()
-        if $(e.target).is 'button.btn-primary'
-            @handleSubmission(e)
+  events: ->
+    'submit': 'handleSubmission'
+    'click .im-collapser': 'collapseBranches'
+    'change .im-allow-rev-ref': 'toggleReverseRefs'
 
-    handleSubmission: (e) =>
-        e.preventDefault()
-        e.stopPropagation()
-        if @chosen?
-            con = path: @chosen.toString()
+  collapseBranches: -> @openNodes.reset()
 
-            @newCon = new intermine.query.NewConstraint(@query, con)
-            @newCon.render().$el.insertAfter @el
-            @$('.btn-primary').fadeOut('fast') # Only add one constraint at a time...
-            @$pathfinder?.remove()
-            @$pathfinder = null
-            @query.trigger 'editing-constraint'
-        else
-            console.log "Nothing chosen"
+  toggleReverseRefs: -> @model.toggle 'allowRevRefs'
 
-    handleChoice: (path, isNewChoice) =>
-        if isNewChoice
-            @chosen = path
-            @$('.btn-primary').fadeIn('slow')
-        else
-            @chosen = null
-            @$('.btn-primary').fadeOut('slow')
+  handleSubmission: (e) => # TODO - ensure that this is based on model events.
+    e.preventDefault()
+    e.stopPropagation()
+    if @model.has 'chosen' # FIXME - ensure that this model value is populated
+      con = path: @model.get('chosen').toString()
+      @renderChild 'newcon', (new NewConstraint {@query, con}), @$ '.new-constraint'
+      @$('.btn-primary').fadeOut('fast') # Only add one constraint at a time...
+      @removeChild 'pathfinder'
+      @query.trigger 'editing-constraint'
+    else
+      console.debug "Nothing chosen"
 
-    isDisabled: (path) -> false
+  handleChoice: ->
+    @$('.btn-primary').fadeToggle @model.has 'chosen'
 
-    getTreeRoot: () -> @query.getPathInfo(@query.root)
+  isDisabled: (path) -> false
 
-    refsOK: true
-    multiSelect: false
+  toggleTree: ->
+    if @model.get('showTree')
+      @showTree()
+    else
+      @hideTree()
 
-    reset: () ->
-        @trigger 'resetting:tree'
-        @$pathfinder?.remove()
-        @$pathfinder = null
-        @$('.im-tree-option').addClass 'hidden'
+  hideTree: -> @
+    @trigger 'resetting:tree'
+    @$('.im-tree-option').addClass 'hidden'
+    @removeChild 'pathfinder'
 
-    showTree: (e) =>
-      @$('.im-tree-option').removeClass 'hidden'
-      @trigger 'showing:tree'
-      if @$pathfinder?
-        @reset()
-      else
-        treeRoot = @getTreeRoot()
-        pathFinder = new PathChooser(@query, treeRoot, 0, @handleChoice, @isDisabled, @refsOK, @multiSelect)
-        pathFinder.render()
-        @$el.append(pathFinder.el)
-        pathFinder.$el.show().css top: @$el.height()
-        @$pathfinder = pathFinder
+  showTree: (e) =>
+    @trigger 'showing:tree'
+    @$('.im-tree-option').removeClass 'hidden'
+    pathFinder = new PathChooser {@model, @query, @openNodes, path: []}
+    @renderChild 'pathfinder', pathFinder, @$ '.path-finder'
+    pathFinder.$el.show().css top: @$el.height() # I do not like this...
 
-    VALUE_OPS =  intermine.Query.ATTRIBUTE_VALUE_OPS.concat(intermine.Query.REFERENCE_OPS)
+  VALUE_OPS = Query.ATTRIBUTE_VALUE_OPS.concat(Query.REFERENCE_OPS)
 
-    isValid: () ->
-        if @newCon?
-          if not @newCon.con.has('op')
-              return false
-          if @newCon.con.get('op') in VALUE_OPS
-              return @newCon.con.has('value')
-          if @newCon.con.get('op') in intermine.Query.MULTIVALUE_OPS
-              return @newCon.con.has('values')
-          return true
-        else
-          return false
+  # isValid: () -> is this needed?
+  #   if @newCon?
+  #     if not @newCon.con.has('op')
+  #       return false
+  #     if @newCon.con.get('op') in VALUE_OPS
+  #       return @newCon.con.has('value')
+  #     if @newCon.con.get('op') in intermine.Query.MULTIVALUE_OPS
+  #         return @newCon.con.has('values')
+  #     return true
+  #   else
+  #     return false
 
-    render: ->
-        browser = $ """
-          <button type="button" class="btn btn-chooser" data-toggle="button">
-            <i class="#{ intermine.icons.Tree }"></i>
-            <span>#{ intermine.messages.constraints.BrowseForColumn }</span>
-          </button>
-        """
+  getData: ->
+    return _.extend {messages: Messages, icons: Icons}, data
 
-        approver = $ @make 'button', {type: "button", class: "btn btn-primary"}, "Choose"
-        @$el.append browser
-        @$el.append approver
-        approver.click @handleSubmission
-        browser.click @showTree
-        @$('.btn-chooser').after """
-          <label class="im-tree-option hidden">
-            #{intermine.messages.columns.AllowRevRef }
-            <input type="checkbox" class="im-allow-rev-ref">
-          </label>
-          <button class="btn im-collapser im-tree-option hidden" type="button" >
-            #{ intermine.messages.columns.CollapseAll }
-          </button>
-        """
-        this
+  template: _.template """
+    <button type="button" class="btn btn-chooser" data-toggle="button">
+      <%- icons.icon('Tree') %>
+      <span><%= messages.getMessage('constraints.BrowseForColumn') %></span>
+    </button>
+  """
 
-scope "intermine.query", {PATH_LEN_SORTER, PATH_MATCHER, PATH_HIGHLIGHTER, ConstraintAdder}
+  render: ->
+    @removeChild 'pathfinder' # CONTINUE FROM HERE
+    
+      browser = $ """
+        <button type="button" class="btn btn-chooser" data-toggle="button">
+          <i class="#{ intermine.icons.Tree }"></i>
+          <span>#{ intermine.messages.constraints.BrowseForColumn }</span>
+        </button>
+      """
 
+      approver = $ @make 'button', {type: "button", class: "btn btn-primary"}, "Choose"
+      @$el.append browser
+      @$el.append approver
+      approver.click @handleSubmission
+      browser.click @showTree
+      @$('.btn-chooser').after """
+        <label class="im-tree-option hidden">
+          #{intermine.messages.columns.AllowRevRef }
+          <input type="checkbox" class="im-allow-rev-ref">
+        </label>
+        <button class="btn im-collapser im-tree-option hidden" type="button" >
+          #{ intermine.messages.columns.CollapseAll }
+        </button>
+      """
+      this

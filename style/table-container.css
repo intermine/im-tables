@@ -1,0 +1,9 @@
+.intermine .im-table-container .table .im-result-field .im-cell-link {
+  color: darkish;
+}
+.intermine .im-table-container .table .im-result-field:hover {
+  background-color: accent;
+}
+.intermine .im-table-container .table .im-result-field:hover .im-cell-link {
+  color: #fff;
+}

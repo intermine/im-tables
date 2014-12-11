@@ -2,15 +2,21 @@ Backbone = require 'backbone'
 _ = require 'underscore'
 $ = require 'jquery'
 
+CoreModel = require './core-model'
+
 # Class defining the core conventions of views in the application
+#  - adds a data -> template -> render flow
+#  - adds @make helper
+#  - ensures @children, and their clean up (requires super call in initialize) 
+#  - ensures @model :: CoreModel (requires super call in initialize)
 module.exports = class CoreView extends Backbone.View
 
   initialize: ->
     @children = {}
     unless @model?
-      @model = new Backbone.Model
+      @model = new CoreModel
     unless @model.toJSON?
-      @model = new Backbone.Model @model
+      @model = new CoreModel @model
 
   renderError: (resp) -> renderError(@el) resp
 
@@ -23,6 +29,18 @@ module.exports = class CoreView extends Backbone.View
     @trigger 'rendered'
 
     this
+
+  renderChild: (name, view, container) ->
+    container ?= @el
+    @removeChild name
+    @children[name] = view
+    view.render()
+    view.$el.appendTo container
+    this
+
+  removeChild: (name) ->
+    @children[name]?.remove()
+    delete @children[name]
 
   remove: ->
     if @children? # Might have been unset.

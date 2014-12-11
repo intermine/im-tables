@@ -1,7 +1,38 @@
-scope "intermine.options",
-    INITIAL_SUMMARY_ROWS: 1000,
-    NUM_SEPARATOR: ',',
-    NUM_CHUNK_SIZE: 3,
+Backbone = require 'backbone'
+_ = require 'underscore'
+
+# Supports nested keys.
+class Options extends Backbone.Model
+
+  get: (key) -> # Support nested keys - TODO, write tests
+    if /\w+\.\w+/.test key
+      [head, tail...] = key.split /\./
+      tail.reduce ((m, k) -> m[k]), super head
+    else
+      super key
+
+  set: (key, value) -> # Support nested keys
+    oldValue = @get key
+    if not value
+      super key, value
+      if _.isObject oldValue
+        for k, v of oldValue
+          @trigger "change:#{ key }.#{ k }", @
+    else if not value? and typeof key isnt 'string'
+      for k, v of key
+        @set k, v
+    else if typeof value isnt 'string' # object value - trigger change sub-events
+      newValue = _.extend {}, (if _.isObject oldValue then oldValue else {}), value
+      super key, newValue
+      for k, v of value
+        @trigger "change:#{ key }.#{ k }", @, value[v]
+    else
+      super key
+
+  defaults: ->
+    INITIAL_SUMMARY_ROWS: 1000
+    NUM_SEPARATOR: ','
+    NUM_CHUNK_SIZE: 3
     MAX_PIE_SLICES: 15
     DefaultPageSize: 25
     DefaultCodeLang: 'py'
@@ -16,11 +47,10 @@ scope "intermine.options",
     StylePrefix: 'intermine'
     GalaxyMain: "http://main.g2.bx.psu.edu"
     GalaxyCurrent: null
-    GalaxyTool: 'flymine'
+    GalaxyTool: 'flymine' # The tool we should use to send data to Galaxy
     GenomeSpaceUpload: "https://gsui.genomespace.org/jsui/upload/loadUrlToGenomespace.html"
-    ExternalExportDestinations: # Setting these to false disables them
-      Galaxy: true
-      Genomespace: true
+    EnableGalaxy: true # Set this to false to disable this export destination
+    EnableGenomespace: true # Set this to false to disable this export destination
     ShowId: false
     TableWidgets: ['Pagination', 'PageSizer', 'TableSummary', 'ManagementTools', 'ScrollBar']
     CellCutoff: 100
@@ -38,23 +68,7 @@ scope "intermine.options",
         This is due to an unexpected error in the tables
         application - we are sorry for the inconvenience
       """
-    Style:
-      icons: 'glyphicons'
-    CDN: # CDN resources that can be configured.
-      server: 'http://cdn.intermine.org'
-      tests:
-        fontawesome: /font-awesome/
-        glyphicons: /bootstrap-icons/
-      resources:
-        prettify: [
-          '/js/google-code-prettify/latest/prettify.js',
-          '/js/google-code-prettify/latest/prettify.css'
-        ]
-        d3: '/js/d3/3.0.6/d3.v3.min.js'
-        glyphicons: "/css/bootstrap/2.3.2/css/bootstrap-icons.css"
-        fontawesome: "/css/font-awesome/4.x/css/font-awesome.min.css"
-        filesaver: '/js/filesaver.js/FileSaver.min.js'
-    
+    icons: 'fontawesome'
     D3:
       Transition:
         Easing: 'elastic'
@@ -63,69 +77,8 @@ scope "intermine.options",
       "http://www.flymine.org": "FlyMine"
       "http://preview.flymine.org": "FlyMine-Preview"
       "http://www.mousemine.org": "MouseMine (MGI)"
-    preview: {count: {}}
+    preview:
+      count: {}
 
-do ->
-
-  events = _.extend {}, Backbone.Events
-
-  events.on 'change:intermine.options.Style.icons', (iconStyle) ->
-
-  scope 'intermine',
-
-    onChangeOption: (name, cb, ctx) -> events.on "change:intermine.options.#{ name }", cb, ctx
-
-    setOptions: set = (opts, ns = '') ->
-      ns = if ns is '' or /^\./.test(ns) then 'intermine.options' + ns else ns
-      for key, value of opts
-        if _.isObject value # recur
-          set value, "#{ ns }.#{ key }"
-        else
-          o = {}
-          o[key] = value
-          console.debug "scope #{ ns }, {#{ key }: #{ value }}, true"
-          scope ns, o, true
-          events.trigger "change:#{ ns }.#{ key }", value
-
-do ->
-
-  asArray = (things) -> [].slice.call(things)
-
-  hasStyle = (pattern) ->
-    return false unless pattern? # No way to tell, assume not.
-    links = asArray document.querySelectorAll 'link[rel="stylesheet"]'
-    _.any links, (link) -> pattern.test link.href
-
-  parallel = (promises) -> jQuery.when.apply(jQuery, promises)
-
-  loader = (server) -> (resource, resourceRegex) ->
-    # scripts will be loaded, but possibly not executed: hang off a bit
-    resolution = jQuery.Deferred -> _.delay @resolve, 50, true
-
-    if /\.css$/.test resource
-      return resolution if hasStyle resourceRegex
-      link = jQuery('<link type="text/css" rel="stylesheet">')
-      link.appendTo('head').attr href: server + resource
-      return resolution
-    else
-      fetch = jQuery.ajax
-        url: server + resource
-        cache: true
-        dataType: 'script'
-      return fetch.then -> resolution
-
-  scope 'intermine.cdn',
-
-    load: (ident) ->
-      {server, tests, resources} = intermine.options.CDN
-      conf = resources[ident]
-      test = tests[ident]
-      load = loader server
-      if not conf
-        jQuery.Deferred -> @reject "No resource is configured for #{ ident }"
-      else if _.isArray(conf)
-        parallel conf.map (c) -> load c
-      else
-        load conf, test
-
+module.exports = new Options
 
