@@ -5,6 +5,10 @@ Paging = require './paging'
 View = require '../core-view'
 LargeTableDisuader = require '../templates/large-table-disuader'
 
+NewFilterDialogue = require '../views/new-filter-dialogue'
+# FIXME - make sure this import works
+ExportDialogue = require '../views/export-dialogue'
+
 EVT = 'change:size'
 
 module.exports = class PageSizer extends View
@@ -32,7 +36,7 @@ module.exports = class PageSizer extends View
   pageBackwards: -> @goBack 1
 
   changePageSize: (evt) ->
-    input   = $(evt.target)
+    input   = @$ evt.target # TODO - this may not work, use $ if not.
     size    = parseInt input.val(), 10
     oldSize = @model.get 'size'
     applyChange = => @model.set {size}
@@ -85,25 +89,23 @@ module.exports = class PageSizer extends View
   whenAcceptable: (size) -> new Promise (resolve, reject) =>
     return resolve unless @aboveSizeThreshold size
 
-    # FIXME - make the im-alternative-action buttons work
-    #       -> this should be done by adding them to events!
     $really = $ LargeTableDisuader {size}
     $really.find('.btn-primary').click resolve
     $really.find('.im-alternative-action').click reject
-    $really.find('.btn').click -> $really.modal('hide')
+    $really.find('.btn').click -> $really.modal 'hide'
     $really.on 'hidden', ->
       $really.remove()
       reject() # if not explicitly done so.
     $really.appendTo(@el).modal().modal('show')
 
-  ### <-- These are the handlers for the events in the LargeTableDisuader
-  @query.on "add-filter-dialogue:please", () =>
-    dialogue = new intermine.filters.NewFilterDialogue(@query)
-    @$el.append dialogue.el
-    dialogue.render().openDialogue()
+  addFilterDialogue: ->
+    @openDialogue NewFilterDialogue
 
-  @query.on "download-menu:open", =>
-    dialogue = new intermine.query.export.ExportDialogue @query
-    @$el.append dialogue.render().el
+  @openDialogue: (Dialogue) ->
+    dialogue = new Dialogue {@query}
+    @$el.append dialogue.el
+    dialogue.render()
     dialogue.show()
-  ###
+
+  # TODO - make sure ExportDialogue supports the {@query} constructor
+  openDownloadMenu: -> @openDialogue ExportDialogue
