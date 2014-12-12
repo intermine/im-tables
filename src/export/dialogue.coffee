@@ -71,6 +71,7 @@ define 'export/dialogue', using 'perma-query', (getPermaQuery) ->
             start: 0
             compress: "no"
             columnHeaders: true
+            fileName: "export"
 
           for name, enabled of intermine.options.ExternalExportDestinations when enabled
             intermine.export.external[name].init?.call(@)
@@ -173,6 +174,7 @@ define 'export/dialogue', using 'perma-query', (getPermaQuery) ->
 
       events: ->
         events =
+          'change .im-download-file-name-txt': 'changeFileName'
           'click .im-reset-cols': 'resetExportedColumns'
           'click .im-col-btns': 'toggleColSelection'
           'click .im-row-btns': 'toggleRowSelection'
@@ -224,7 +226,11 @@ define 'export/dialogue', using 'perma-query', (getPermaQuery) ->
           _.extend events, moreEvents if moreEvents?
 
         events
-      
+     
+      changeFileName: (e) ->
+        fn = @$('input.im-download-file-name-txt').val()
+        @requestInfo.set fileName: fn
+ 
       readFastaExt: (e) ->
         ext = @$('input.im-fasta-extension').val()
         if ext and /\S/.test ext
@@ -447,7 +453,6 @@ define 'export/dialogue', using 'perma-query', (getPermaQuery) ->
         format.param or format.extension
 
       getExtraOptions: () ->
-          ret = ""
           if @requestInfo.get 'columnHeaders'
               ret += "&columnheaders=1"
           unless @requestInfo.get 'allRows'
