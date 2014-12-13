@@ -16,6 +16,12 @@ module.exports = class UniqItems extends Backbone.Collection
 
   toJSON: -> (m.get('item') for m in @models)
 
+  togglePresence: (item) ->
+    if @contains item
+      @remove item
+    else
+      @add item
+
   contains: (item) ->
     if item instanceof Item
       super item

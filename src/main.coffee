@@ -1,7 +1,7 @@
 require './shim'
 
 {Service} = require 'imjs'
-ConstraintAdder = require './views/constraint-adder'
+NewFilterDialogue = require './views/new-filter-dialogue'
 
 conn = Service.connect root: 'http://localhost:8080/intermine-demo'
 
@@ -10,8 +10,11 @@ all_employees =
   from: 'Employee'
 
 renderQuery = (q) ->
-  conAdder = new ConstraintAdder query: q
-  conAdder.render().$el.appendTo document.getElementById 'demo'
+  dialogue = new NewFilterDialogue query: q
+  dialogue.$el.appendTo '#demo'
+  dialogue.render()
+  dialogue.show()
 
 conn.query(all_employees)
-    .then renderQuery, (e) -> console.error e
+    .then(renderQuery)
+    .then null, (e) -> console.error e

@@ -3,7 +3,7 @@ View = require '../core-view'
 
 ConstraintAdder = require './constraint-adder'
 
-module.exports = class NewFilterDialogue extends Backbone.View
+module.exports = class NewFilterDialogue extends View
 
   tagName: "div"
 
@@ -54,12 +54,10 @@ module.exports = class NewFilterDialogue extends Backbone.View
     edited = @children.adder.newCon.editConstraint(e)
     @$el.modal('hide') if edited
 
+  template: -> @html
+
   render: ->
-    # Add to children set so it can be cleaned up on remove.
-    @children.adder?.remove()
-    @$el.html @html
-    @children.adder = a = new ConstraintAdder(@query)
-    @$el.find('.modal-body').append a.el
-    a.render()
-    a.showTree()
-    this
+    super
+    a = new ConstraintAdder {@query}
+    a.setShowTree true
+    @renderChild 'adder', a, @$ '.modal-body'

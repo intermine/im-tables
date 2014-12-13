@@ -1,3 +1,4 @@
+#FIXME - add these to messages
 scope 'intermine.messages.columns', {
     FindColumnToAdd: 'Add a new Column',
     OrderVerb: 'Add / Remove / Re-Arrange',

@@ -1,18 +1,24 @@
 _ = require 'underscore'
 
+# Support
 Messages = require '../messages'
 Icons = require '../icons'
 View = require '../core-view'
-# FIXME - make this import work
+UniqItems = require '../models/uniq-items'
+
+# Sub-views
 NewConstraint = require './new-constraint'
+PathChooser = require './path-chooser'
 
 {Query} = require 'imjs'
 
 Messages.set
   'constraints.BrowseForColumn': 'Browse for Column'
   'constraints.AddANewFilter': 'Add a new filter'
+  'constraints.Choose': 'Choose'
   'constraints.Filter': 'Filter'
 
+### FIXME - this section is needed somewhere, work out where.
 pos = (substr) -> _.memoize (str) -> str.toLowerCase().indexOf substr
 pathLen = _.memoize (str) -> str.split(".").length
 
@@ -47,259 +53,7 @@ PATH_HIGHLIGHTER = (item) ->
   for term in terms when term
       item = item.replace new RegExp(term, "gi"), (match) -> "<>#{ match }</>"
   item.replace(/>/g, "strong>")
-
-# FIXME - Replace events with a model (TreeModel?) that
-# keeps track of what paths are expanded, and what the current
-# filter term is.
-# Other things like rev-refs can be put in there also.
-
-class Attribute extends View
-  tagName: 'li'
-
-  events:
-      'click a': 'handleClick'
-
-  handleClick: (e) ->
-    e.stopPropagation()
-    e.preventDefault()
-
-    unless @getDisabled(@path)
-      isNewChoice = not @$el.is '.active'
-      @evts.trigger 'chosen', @path, isNewChoice
-
-  initialize: ->
-    super
-    # (@query, @path, @depth, @evts, @getDisabled, @multiSelect) ->
-    @listenTo @evts, 'remove', @remove
-    @listenTo @evts, 'chosen', (p, isNewChoice) =>
-      if (p.toString() is @path.toString())
-        @$el.toggleClass('active', isNewChoice)
-      else
-        @$el.removeClass('active') unless @multiSelect
-
-    # Right, this should clearly be a model - FIXME
-    @listenTo @model, 'change:filter', (m, terms) =>
-      terms = (new RegExp(t, 'i') for t in terms when t)
-      if terms.length
-        matches = 0
-        lastMatch = null
-        for t in terms
-          if (t.test(@path.toString()) || t.test(@displayName))
-            matches += 1
-            lastMatch = t
-        @matches(matches, terms, lastMatch)
-      else
-        @$el.show()
-
-  template: _.template """<a href="#" title="<%- path %> (<%- type %>)"><span><%- name %></span></a>"""
-
-  matches: (matches, terms) ->
-      if matches is terms.length
-          @evts.trigger 'matched', @path.toString()
-          @path.getDisplayName (name) =>
-              hl = if (@depth > 0) then name.replace(/^.*>\s*/, '') else name
-              for term in terms
-                  hl = hl.replace term, (match) -> "<strong>#{ match }</strong>"
-              matchesOnPath = _.any terms, (t) => !!@path.end.name.match(t)
-              @$('a span').html if (hl.match(/strong/) or not matchesOnPath) then hl else "<strong>#{ hl }</strong>"
-      @$el.toggle !!(matches is terms.length)
-
-
-  rendered: false
-
-  render: () ->
-      disabled = @getDisabled(@path)
-      @$el.addClass('disabled') if disabled
-      @rendered = true
-      @path.getDisplayName().then (name) =>
-          @displayName = name
-          name = name.replace(/^.*\s*>/, '') # unless @depth is 0
-          a = $ @template _.extend {}, @, name: name, path: @path, type: @path.getType()
-          a.appendTo(@el)
-          @addedLiContent(a)
-      this
-
-  addedLiContent: (a) ->
-      if intermine.options.ShowId
-          a.tooltip(placement: 'bottom').appendTo @el
-      else
-          a.attr title: ""
-
-class RootClass extends Attribute
-
-    className: 'im-rootclass'
-
-    initialize: (@query, @cd, @evts, @multiSelect) ->
-        super(@query, @query.getPathInfo(@cd.name), 0, @evts, (() -> false), @multiSelect)
-
-    template: _.template """<a href="#">
-          <i class="icon-stop"></i>
-          <span><%- name %></span>
-        </a>
-        """
-
-class Reference extends Attribute
-
-    initialize: (@query, @path, @depth, @evts, @getDisabled, @multiSelect, @isSelectable) ->
-        super(@query, @path, @depth, @evts, @getDisabled, @multiSelect)
-
-        @evts.on 'filter:paths', (terms) =>
-            @$el.hide()
-        @evts.on 'matched', (path) =>
-            if path.match(@path.toString())
-                @$el.show()
-                unless @$el.is '.open'
-                    @openSubFinder()
-        @evts.on 'collapse:tree-branches', @collapse
-
-    collapse: =>
-      @subfinder?.remove()
-      @$el.removeClass 'open'
-      @$('i.im-has-fields')
-        .removeClass(intermine.icons.Expanded)
-        .addClass(intermine.icons.Collapsed)
-
-    remove: () ->
-      @collapse()
-      super()
-
-    openSubFinder: () ->
-      @$el.addClass('open')
-      @$('i.im-has-fields')
-        .removeClass(intermine.icons.Collapsed)
-        .addClass(intermine.icons.Expanded)
-      @subfinder = new PathChooser(@query, @path, @depth + 1, @evts, @getDisabled, @isSelectable, @multiSelect)
-      @subfinder.allowRevRefs @allowRevRefs
-
-      @$el.append @subfinder.render().el
-
-    template: (data) -> _.template """<a href="#">
-          <i class="#{ intermine.icons.Collapsed } im-has-fields"></i>
-          <% if (isLoop) { %>
-            <i class="#{ intermine.icons.ReverseRef }"></i>
-          <% } %>
-          <span><%- name %></span>
-        </a>
-        """, data
-
-    iconClasses: intermine.icons.ExpandCollapse
-
-    toggleFields: () ->
-        if @$el.is '.open'
-          @collapse()
-        else
-          @openSubFinder()
-
-    handleClick: (e) ->
-        e.preventDefault()
-        e.stopPropagation()
-        if $(e.target).is('.im-has-fields') or (not @isSelectable)
-            @toggleFields()
-        else
-            super(e)
-
-    addedLiContent: (a) ->
-      prefix = new RegExp "^#{ @path }\\."
-
-      if _.any(@query.views, (v) -> v.match prefix)
-        @toggleFields()
-        @$el.addClass('im-in-view')
-
-class ReverseReference extends Reference
-
-    template: _.template """<a href="#">
-          <i class="#{ intermine.icons.ReverseRef } im-has-fields"></i>
-          <span><%- name %></span>
-        </a>
-        """
-
-    toggleFields: () -> # no-op
-
-    handleClick: (e) ->
-      e.preventDefault()
-      e.stopPropagation()
-      @$el.tooltip 'hide'
-
-    render: () ->
-        super()
-        @$el.attr(title: "Refers back to #{ @path.getParent().getParent() }").tooltip()
-        this
-
-
-class PathChooser extends Backbone.View
-    tagName: 'ul'
-    dropDownClasses: '' #'typeahead dropdown-menu'
-
-    searchFor: (terms) =>
-        @evts.trigger('filter:paths', terms)
-        matches = (p for p in @query.getPossiblePaths(3) when _.all terms, (t) => p.match(new RegExp(t, 'i')))
-        for m in matches
-            @evts.trigger 'matched', m, terms
-        
-    initialize: (@query, @path, @depth, events, @getDisabled, @canSelectRefs, @multiSelect) ->
-        @state = new Backbone.Model allowRevRefs: false
-        @leaves = []
-        @evts =  if (@depth is 0) then _.extend({}, Backbone.Events) else events
-        cd = @path.getEndClass()
-        toPath = (f) => @path.append f
-        @attributes = (toPath attr for name, attr of cd.attributes)
-        @references = (toPath ref for name, ref of cd.references)
-        @collections = (toPath coll for name, coll of cd.collections)
-        @evts.on 'chosen', events if @depth is 0
-        @on 'collapse:tree-branches', =>
-          @evts.trigger 'collapse:tree-branches'
-        @state.on 'change:allowRevRefs', => @render() if @rendered # Re-render.
-
-    allowRevRefs: (allowed) =>
-      @state.set allowRevRefs: allowed
-
-    remove: ->
-      @evts.off() if @depth is 0
-      @state.off()
-      super()
-            
-    reset: ->
-      @$root?.remove()
-      while leaf = @leaves.pop()
-        leaf.remove()
-
-    render: () ->
-      @reset()
-      @rendered = true
-      cd = @path.getEndClass()
-      if @depth is 0 and @canSelectRefs # then show the root class
-        @$root = new RootClass(@query, cd, @evts, @multiSelect)
-        @$el.append @$root.render().el
-
-      for apath in @attributes
-        if intermine.options.ShowId or apath.end.name isnt 'id'
-          attr = new Attribute(@query, apath, @depth, @evts, @getDisabled, @multiSelect)
-          @leaves.push attr
-
-      for rpath in @references.concat(@collections)
-        isLoop = false
-        if rpath.end.reverseReference? and @path.isReference()
-          if @path.getParent().isa rpath.end.referencedType
-            if @path.end.name is rpath.end.reverseReference
-              isLoop = true
-
-        # TODO. Clean this up with an options constructor.
-        allowingRevRefs = @state.get('allowRevRefs')
-        ref = if isLoop and not allowingRevRefs
-            new ReverseReference(@query, rpath, @depth, @evts, (() -> true), @multiSelect, @canSelectRefs)
-        else
-            new Reference(@query, rpath, @depth, @evts, @getDisabled, @multiSelect, @canSelectRefs)
-
-        ref.allowRevRefs = allowingRevRefs
-        ref.isLoop = isLoop
-        @leaves.push ref
-
-      for leaf in @leaves
-        @$el.append leaf.render().el
-
-      @$el.addClass(@dropDownClasses) if @depth is 0
-      @$el.show()
-      this
+###
 
 module.exports = class ConstraintAdder extends View
 
@@ -310,14 +64,18 @@ module.exports = class ConstraintAdder extends View
   initialize: ({@query}) ->
     super
     @model.set
-      root: @query.getPathInfo(@query.root)
-      showTree: false
-      refsOK: true
-      multiSelect: false
+      root: @query.getPathInfo(@query.root) # Should never change.
+      showTree: false           # Should we be showing the tree?
+      allowRevRefs: false       # Can we expand reverse references?
+      canSelectReferences: true # Can we select references?
+      multiSelect: false        # Can we select multiple paths?
 
-    @openNodes = new Backbone.Collection
-    @listenTo @model, 'change:chosen', @handleChoice
+    # These require paths to be equal by ===, make sure that happens.
+    # it might need changing otherwise.
+    @chosenPaths = new UniqItems
+    @openNodes = new UniqItems @query.getViewNodes() # Open by default
     @listenTo @model, 'change:showTree', @toggleTree
+    @listenTo @chosenPaths, 'add remove reset', @handleChoice
     @listenTo @query, 'change:constraints', @remove # our job is done
 
   getTreeRoot: -> @model.get 'root'
@@ -326,17 +84,23 @@ module.exports = class ConstraintAdder extends View
     'submit': 'handleSubmission'
     'click .im-collapser': 'collapseBranches'
     'change .im-allow-rev-ref': 'toggleReverseRefs'
+    'click .im-choose': 'toggleShowTree'
+    'click .im-approve': 'handleSubmission'
 
   collapseBranches: -> @openNodes.reset()
 
+  toggleShowTree: -> @model.toggle 'showTree'
+
   toggleReverseRefs: -> @model.toggle 'allowRevRefs'
 
-  handleSubmission: (e) => # TODO - ensure that this is based on model events.
-    e.preventDefault()
-    e.stopPropagation()
-    if @model.has 'chosen' # FIXME - ensure that this model value is populated
-      con = path: @model.get('chosen').toString()
-      @renderChild 'newcon', (new NewConstraint {@query, con}), @$ '.new-constraint'
+  handleSubmission: (e) ->
+    e?.preventDefault()
+    e?.stopPropagation()
+
+    [chosen] = @chosenPaths.toJSON()
+    if chosen?
+      constraint = path: chosen.toString()
+      @renderChild 'newcon', (new NewConstraint {@query, constraint}), @$ '.new-constraint'
       @$('.btn-primary').fadeOut('fast') # Only add one constraint at a time...
       @removeChild 'pathfinder'
       @query.trigger 'editing-constraint'
@@ -344,9 +108,11 @@ module.exports = class ConstraintAdder extends View
       console.debug "Nothing chosen"
 
   handleChoice: ->
-    @$('.btn-primary').fadeToggle @model.has 'chosen'
+    @$('.im-approve').fadeToggle @chosenPaths.size() > 0
 
   isDisabled: (path) -> false
+
+  setShowTree: (showTree) -> @model.set {showTree}
 
   toggleTree: ->
     if @model.get('showTree')
@@ -354,21 +120,22 @@ module.exports = class ConstraintAdder extends View
     else
       @hideTree()
 
-  hideTree: -> @
+  hideTree: ->
     @trigger 'resetting:tree'
     @$('.im-tree-option').addClass 'hidden'
     @removeChild 'pathfinder'
 
   showTree: (e) =>
     @trigger 'showing:tree'
+    @removeChild 'pathfinder'
     @$('.im-tree-option').removeClass 'hidden'
-    pathFinder = new PathChooser {@model, @query, @openNodes, path: []}
+    pathFinder = new PathChooser {@model, @query, @chosenPaths, @openNodes, trail: []}
     @renderChild 'pathfinder', pathFinder, @$ '.path-finder'
     pathFinder.$el.show().css top: @$el.height() # I do not like this...
 
   VALUE_OPS = Query.ATTRIBUTE_VALUE_OPS.concat(Query.REFERENCE_OPS)
 
-  # isValid: () -> is this needed?
+  # isValid: () -> is this needed? Where is it called?
   #   if @newCon?
   #     if not @newCon.con.has('op')
   #       return false
@@ -380,38 +147,30 @@ module.exports = class ConstraintAdder extends View
   #   else
   #     return false
 
-  getData: ->
-    return _.extend {messages: Messages, icons: Icons}, data
+  getData: -> _.extend {messages: Messages, icons: Icons}, data
 
   template: _.template """
-    <button type="button" class="btn btn-chooser" data-toggle="button">
-      <%- icons.icon('Tree') %>
-      <span><%= messages.getMessage('constraints.BrowseForColumn') %></span>
-    </button>
+    <div>
+      <button type="button" class="btn btn-chooser im-choose" data-toggle="button">
+        <%= icons.icon('Tree') %>
+        <span><%= messages.getMessage('constraints.BrowseForColumn') %></span>
+      </button>
+      <label class="im-tree-option hidden">
+        <%- messages.get('columns.AllowRevRef') %>
+        <input type="checkbox" class="im-allow-rev-ref">
+      </label>
+      <button class="btn im-collapser im-tree-option hidden" type="button" >
+        <%- messages.get('columns.CollapseAll') %>
+      </button>
+      <button class="btn btn-primary im-approve" style="display:none">
+        <%- messages.getMessage('constraints.Choose') %>
+      </button>
+    </div>
+    <div class="path-finder"><div>
+    <div class="new-constraint"></div>
   """
 
   render: ->
-    @removeChild 'pathfinder' # CONTINUE FROM HERE
-    
-      browser = $ """
-        <button type="button" class="btn btn-chooser" data-toggle="button">
-          <i class="#{ intermine.icons.Tree }"></i>
-          <span>#{ intermine.messages.constraints.BrowseForColumn }</span>
-        </button>
-      """
+    super
+    @toggleTree() # respect the open status.
 
-      approver = $ @make 'button', {type: "button", class: "btn btn-primary"}, "Choose"
-      @$el.append browser
-      @$el.append approver
-      approver.click @handleSubmission
-      browser.click @showTree
-      @$('.btn-chooser').after """
-        <label class="im-tree-option hidden">
-          #{intermine.messages.columns.AllowRevRef }
-          <input type="checkbox" class="im-allow-rev-ref">
-        </label>
-        <button class="btn im-collapser im-tree-option hidden" type="button" >
-          #{ intermine.messages.columns.CollapseAll }
-        </button>
-      """
-      this

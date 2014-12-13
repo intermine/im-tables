@@ -6,7 +6,9 @@ ICONS = {}
 
 class Icons extends Backbone.Model
 
-  icon: (key) -> """<i class="#{ @get key }"></i>"""
+  icon: (key) -> """<i class="#{ @iconClasses key }"></i>"""
+
+  iconClasses: (key) -> "#{ @get 'Base' } #{ @get key }"
 
   _loadIconSet: ->
     iconSet = ICONS[Options.get 'icons']
@@ -19,52 +21,55 @@ class Icons extends Backbone.Model
 module.exports = new Icons
 
 ICONS.glyphicons =
-  unsorted: "icon-resize-vertical"
-  sortedASC: "icon-arrow-up"
-  sortedDESC: "icon-arrow-down"
+  Base: 'glyphicon'
+  unsorted: "glyphicon-resize-vertical"
+  sortedASC: "glyphicon-arrow-up"
+  sortedDESC: "glyphicon-arrow-down"
   headerIcon: "icon"
-  headerIconRemove: "icon-remove"
-  headerIconHide: "icon-minus"
-  headerIconReveal: 'icon-fullscreen'
-  Base: 'icon'
-  Yes: "icon-star"
-  No: "icon-star-empty"
-  Table: 'icon-list'
-  Script: "icon-cog"
-  Export: "icon-download-alt"
-  Remove: "icon-minus-sign"
-  Check: "icon-ok"
-  UnCheck: "icon-none"
-  CheckUnCheck: "icon-ok-none"
-  Add: "icon-plus-sign"
-  Move: "icon-move"
-  More: "icon-plus-sign"
-  Filter: "icon-filter"
-  Summary: "icon-eye-open"
-  Undo: "icon-refresh"
-  Columns: "icon-wrench"
-  Collapsed: "icon-chevron-right"
-  Expanded: "icon-chevron-down"
-  MoveDown: "icon-chevron-down"
-  MoveUp: "icon-chevron-up"
-  Toggle: "icon-retweet"
-  ExpandCollapse: "icon-chevron-right icon-chevron-down"
-  Help: "icon-question-sign"
-  ReverseRef: "icon-retweet"
-  Reorder: "icon-reorder"
-  Edit: 'icon-edit'
-  Tree: 'icon-plus'
-  Download: 'icon-file'
-  ClipBoard: 'icon-paper-clip'
-  Composed: 'icon-tags'
-  RemoveConstraint: 'icon-remove-sign'
-  Lock: 'icon-lock'
-  tsv: 'icon-list'
-  csv: 'icon-list'
-  xml: 'icon-xml'
-  json: 'icon-json'
+  headerIconRemove: "glyphicon-remove"
+  headerIconHide: "glyphicon-minus"
+  headerIconReveal: 'glyphicon-fullscreen'
+  RootClass: 'glyphicon-stop'
+  Yes: "glyphicon-star"
+  No: "glyphicon-star-empty"
+  Table: 'glyphicon-list'
+  Script: "glyphicon-cog"
+  Export: "glyphicon-download-alt"
+  Error: "glyphicon-warning-sign"
+  Remove: "glyphicon-minus-sign"
+  Check: "glyphicon-ok"
+  UnCheck: "glyphicon-none"
+  CheckUnCheck: "glyphicon-ok-none"
+  Add: "glyphicon-plus-sign"
+  Move: "glyphicon-move"
+  More: "glyphicon-plus-sign"
+  Filter: "glyphicon-filter"
+  Summary: "glyphicon-eye-open"
+  Undo: "glyphicon-refresh"
+  Columns: "glyphicon-wrench"
+  Collapsed: "glyphicon-chevron-right"
+  Expanded: "glyphicon-chevron-down"
+  MoveDown: "glyphicon-chevron-down"
+  MoveUp: "glyphicon-chevron-up"
+  Toggle: "glyphicon-retweet"
+  ExpandCollapse: "glyphicon-chevron-right icon-chevron-down"
+  Help: "glyphicon-question-sign"
+  ReverseRef: "glyphicon-retweet"
+  Reorder: "glyphicon-reorder"
+  Edit: 'glyphicon-edit'
+  Tree: 'glyphicon-plus'
+  Download: 'glyphicon-file'
+  ClipBoard: 'glyphicon-paper-clip'
+  Composed: 'glyphicon-tags'
+  RemoveConstraint: 'glyphicon-remove-sign'
+  Lock: 'glyphicon-lock'
+  tsv: 'glyphicon-list'
+  csv: 'glyphicon-list'
+  xml: 'glyphicon-xml'
+  json: 'glyphicon-json'
 
 ICONS.fontawesome =
+  Base: 'fa'
   unsorted: "fa-unsorted"
   sortedASC: "fa-sort-up"
   sortedDESC: "fa-sort-down"
@@ -72,40 +77,41 @@ ICONS.fontawesome =
   headerIconRemove: "fa-times"
   headerIconHide: "fa-ellipsis-h"
   headerIconReveal: 'fa-arrows-h'
-  Base: 'fa'
-  Yes: "fa fa-star"
-  No: "fa fa-star-o"
-  Table: 'fa fa-list'
-  Script: "fa fa-cog"
-  Export: "fa fa-cloud-download"
-  Remove: "fa fa-minus-circle"
-  Check: "fa fa-ok"
-  UnCheck: "fa fa-none"
+  RootClass: 'fa-stop'
+  Yes: "fa-star"
+  No: "fa-star-o"
+  Table: 'fa-list'
+  Script: "fa-cog"
+  Export: "fa-cloud-download"
+  Remove: "fa-minus-circle"
+  Check: "fa-ok"
+  UnCheck: "fa-none"
   CheckUnCheck: "fa-none fa-ok"
-  Add: "fa fa-plus"
-  Move: "fa fa-move"
-  More: "fa fa-plus-sign"
-  Filter: "fa fa-filter"
-  Summary: "fa fa-bar-chart-o"
-  Undo: "fa fa-refresh"
-  Columns: "fa fa-wrench"
-  Collapsed: "fa fa-chevron-right"
-  Expanded: "fa fa-chevron-down"
-  MoveDown: "fa fa-chevron-down"
-  MoveUp: "fa fa-chevron-up"
-  Toggle: "fa fa-retweet"
+  Add: "fa-plus"
+  Move: "fa-move"
+  More: "fa-plus-sign"
+  Filter: "fa-filter"
+  Summary: "fa-bar-chart-o"
+  Undo: "fa-refresh"
+  Columns: "fa-wrench"
+  Collapsed: "fa-chevron-right"
+  Expanded: "fa-chevron-down"
+  MoveDown: "fa-chevron-down"
+  MoveUp: "fa-chevron-up"
+  Toggle: "fa-retweet"
   ExpandCollapse: "fa-chevron-right fa-chevron-down"
-  Help: "fa fa-question-sign"
-  Tree: 'fa fa-sitemap'
-  ReverseRef: 'fa fa-retweet'
-  Reorder: "fa fa-reorder"
-  Edit: 'fa fa-edit'
-  Download: 'fa fa-file-archive-o'
-  ClipBoard: 'fa fa-paper-clip'
-  Composed: 'fa fa-tags'
-  RemoveConstraint: 'fa fa-times-circle'
-  Lock: 'fa fa-lock'
-  tsv: 'fa fa-list'
-  csv: 'fa fa-list'
-  xml: 'fa fa-xml'
-  json: 'fa fa-json'
+  Help: "fa-question-sign"
+  Tree: 'fa-sitemap'
+  ReverseRef: 'fa-retweet'
+  Reorder: "fa-reorder"
+  Edit: 'fa-edit'
+  Download: 'fa-file-archive-o'
+  ClipBoard: 'fa-paper-clip'
+  Composed: 'fa-tags'
+  RemoveConstraint: 'fa-times-circle'
+  Error: 'fa-warning'
+  Lock: 'fa-lock'
+  tsv: 'fa-list'
+  csv: 'fa-list'
+  xml: 'fa-xml'
+  json: 'fa-json'

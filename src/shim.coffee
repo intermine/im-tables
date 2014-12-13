@@ -9,6 +9,8 @@ oldjq = global.jQuery
 global.jQuery = $ # Yes, bootstrap *requires* jQuery to be global
 # jQuery should now be available to bootstrap to attach.
 require 'bootstrap' # Extend our jQuery with bootstrappy-goodness.
+require 'typeahead.js' # Load the typeahead library.
+require 'jquery-ui/slider' # Loading jquery-ui components.
 # Restore previous state.
 if oldjq?
   global.jQuery = oldjq

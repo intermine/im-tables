@@ -22,11 +22,18 @@ module.exports = class CoreView extends Backbone.View
 
   getData: -> @model.toJSON()
 
+  # Like render, but only happens if already rendered at least once.
+  reRender: ->
+    @render() if @rendered
+    this
+
+  # Safely remove all existing children, apply template if available, and mark as rendered
   render: ->
+    @removeAllChildren()
     if @template?
       @$el.html @template @getData()
     
-    @trigger 'rendered'
+    @trigger 'rendered', @rendered = true
 
     this
 
@@ -42,10 +49,14 @@ module.exports = class CoreView extends Backbone.View
     @children[name]?.remove()
     delete @children[name]
 
-  remove: ->
+  removeAllChildren: ->
     if @children? # Might have been unset.
       for child of @children
         child?.remove()
+    @children = {}
+
+  remove: ->
+    @removeAllChildren()
     super
 
   make: (elemName, attrs, content) ->
