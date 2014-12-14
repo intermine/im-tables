@@ -7,15 +7,27 @@ class Messages extends Backbone.Model
     @cache = {}
     @on 'change', => @cache = {}
 
-  getText: (key, args) ->
+  destroy: ->
+    @off()
+    for prop of @
+      delete @[prop]
+
+  getTemplate: (key) ->
     templ = (@cache[key] ? @get key)
     if templ? and not templ.call?
-      templ = _.template(templ)(args)
+      # Don't recompile the template each time
+      templ = _.template(templ)
     @cache[key] = templ
+
+  getText: (key, args) ->
+    templ = @getTemplate key
     templ?(args)
 
-module.exports = new Messages
-  'largetable.ok': 'Set page size to <%= size %>'
-  'largetable.abort': 'Cancel'
+  defaults: ->
+    'largetable.ok': 'Set page size to <%= size %>'
+    'largetable.abort': 'Cancel'
 
+module.exports = new Messages
+
+module.exports.Messages = Messages
   
