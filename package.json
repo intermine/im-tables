@@ -2,19 +2,27 @@
   "name": "intermine-tables",
   "version": "2.0.0",
   "description": "ui widgets for displaying query results in interactive tables",
+  "config": {
+    "port": "9000"
+  },
   "scripts": {
-    "start": "serve --port $PORT",
+    "start": "./bin/dev-server",
     "pretest": "npm run pre-compile && npm run compile",
     "test": "mocha --compilers coffee:coffee-script/register test/*",
     "watch-src": "watch 'npm run compile' src/",
     "watch-js": "watch 'npm run browserify' build/",
     "watch-less": "watch 'npm run less' less/",
     "watch": "npm run watch-src & npm run watch-js & npm run watch-less",
-    "pre-compile": "rm -rf build && rm -rf dist && mkdir dist",
-    "compile": "coffee --compile --output build/ src/",
-    "browserify": "browserify build/main.js > dist/main.js",
+    "pre-compile": "./bin/clean",
+    "compile-coffee": "coffee --compile --output build/ src/",
+    "inject-version": "./bin/inject-version.js",
+    "do-compile": "npm run compile-coffee && npm run inject-version && npm run less",
+    "compile": "npm run pre-compile && npm run do-compile",
+    "bundle-test-indices": "./bin/bundle-test-indices",
+    "build-test-indices": "npm run compile && npm run bundle-test-indices",
+    "bundle": "browserify build/main.js > dist/main.js",
     "less": "lessc --include-path=less:node_modules less/main.less > dist/main.css",
-    "build": "npm run pre-compile && npm run compile && npm run browserify"
+    "build": "npm run compile && npm run bundle"
   },
   "keywords": [
     "javascript",
@@ -74,6 +82,7 @@
     "connect": "~2.7.3",
     "es6-promise": "^2.0.1",
     "font-awesome": "^4.2.0",
+    "imjs": "^3.7.2",
     "jquery": "^2.1.1",
     "jquery-ui": "^1.10.5",
     "less": "^2.1.1",
@@ -88,6 +97,6 @@
     "watch": "^0.13.0"
   },
   "dependencies": {
-    "serve": "~1.2.0"
+    "serve": "^1.4.0"
   }
 }

@@ -1,0 +1,11 @@
+#!/bin/bash
+
+if test -e .env; then
+    source .env
+fi
+
+if test -z $PORT; then
+    PORT="$npm_package_config_port"
+fi
+
+serve --port $PORT

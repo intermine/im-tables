@@ -1,4 +1,4 @@
-Promise = require 'es6-promise'
+{Promise} = require 'es6-promise'
 _       = require 'underscore'
 
 Paging = require './paging'

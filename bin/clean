@@ -1,0 +1,12 @@
+#!/bin/bash
+
+set -e
+
+rm -rf build
+rm -rf dist
+rm -rf node_modules/imtables
+rm -rf test/bundles
+
+mkdir build
+ln -s ../build node_modules/imtables
+mkdir dist

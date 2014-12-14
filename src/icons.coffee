@@ -26,10 +26,6 @@ class Icons extends Backbone.Model
     for prop of @
       delete @[prop]
 
-module.exports = new Icons
-module.exports.Icons = Icons # Export constructor on default instance.
-module.exports.registerIconSet = registerIconSet
-
 ICONS.glyphicons =
   Base: 'glyphicon'
   unsorted: "glyphicon-resize-vertical"
@@ -125,3 +121,8 @@ ICONS.fontawesome =
   csv: 'fa-list'
   xml: 'fa-xml'
   json: 'fa-json'
+
+module.exports = new Icons
+module.exports.Icons = Icons # Export constructor on default instance.
+module.exports.registerIconSet = registerIconSet
+

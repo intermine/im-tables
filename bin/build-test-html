@@ -1,0 +1,27 @@
+#!/bin/sh
+':' //; exec "$(command -v nodejs || command -v node)" "$0" "$@"
+
+var _ = require('underscore');
+var fs = require('fs');
+
+var name = process.argv[2];
+if (!name) {
+  die('No name provided');
+}
+
+fs.readFile('test/bundle.template.html', {encoding: 'utf8'}, function (err, data) {
+  if (err) {
+    die('Could not read template', err);
+  }
+  var template = _.template(data);
+  fs.writeFile('test/bundles/test-' + name + '.html', template({name: name}), function (err) {
+    if (err) {
+      die('could not write file', err);
+    }
+  });
+});
+
+function die (msg, err) {
+  console.error(msg, err);
+  process.exit(1);
+}

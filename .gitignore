@@ -6,3 +6,5 @@ components
 bower_components
 bundle.*
 js/imtables-bundled.*
+*.log
+test/bundles

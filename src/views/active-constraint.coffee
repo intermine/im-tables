@@ -1,13 +1,15 @@
 _ = require 'underscore'
 $ = require 'jquery'
 
-Promise = require 'es6-promises'
+{Promise} = require 'es6-promise'
 
 # Support
 Messages = require '../messages'
 Icons = require '../icons'
 Options = require '../options'
 View = require '../core-view'
+
+ACTIVE_CONSTRAINT_TEMPLATE = require '../templates/active-constraint'
 
 {Query, Model} = require 'imjs'
 
@@ -44,61 +46,6 @@ TOO_MANY_SUGGESTIONS_TEMPL = _.template """
 
 TOO_MANY_SUGGESTIONS = (data) -> TOO_MANY_SUGGESTIONS_TEMPL _.extend {messages: Messages}, data
 
-TEMPLATE_SETTINGS =
-  variable: 'data' # Allows us to use sub-templates easily
-
-TEMPL = _.template("""
-  <label class="im-con-overview">
-    <a class="im-remove-constraint">
-      <%= data.icons.icon('RemoveConstraint') %>
-    </a>
-    <% if (data.con.locked) { %>
-      <a title="<%- data.messages.getText('conbuilder.NotEditable') %>">
-        <%= data.icons.icon('Lock') %>
-      </a>
-    <% } %>
-    <a class="im-edit"><%= data.icons.icon('Edit') %></a>
-    <ol class="breadcrumb">
-      <% data.summary.forEach(function (label) { %>
-        <% if (label.type === 'extra') { %>
-          <%- data.messages.getText('conbuilder.ExtraLabel') %>
-        <% } %>
-        <span class="label label-<%= data.label-type %>">
-          <%- data.label.content %>
-        </span>
-      <% }); %>
-    </ol>
-  </label>
-
-  <fieldset class="im-constraint-options">
-    <% if (data.con.op) { %>
-      <select class="span4 im-ops">
-        <option><%- data.con.op %></option>
-        <% data.otherOperators.forEach(function (op) { %>
-          <option><%- op %></option>
-        <% } %>
-      </select>
-    <% } %>
-    <div class="im-value-options">
-      <%= data.valueTemplate(data) %>
-    </div>
-  </fieldset>
-
-  <div class="btn-group im-con-buttons">
-    <% data.buttons.forEach(function (b) { %>
-      <button class="<%- b.classes %>">
-        <%- data.messages.getText(b.key) %>
-      </button>
-    <% }); %>
-  </div>
-
-  <div class="alert alert-error <%= data.con.error ? '' : 'im-hidden' %>">
-    <%= data.icons.icon('Error') %>
-    <span class="im-conbuilder-error">
-      <%- data.con.error %>
-    </span>
-  </div>
-""", TEMPLATE_SETTINGS)
 
 PATH_SEGMENT_DIVIDER = "&rarr;"
 
@@ -142,17 +89,16 @@ toNamedPath = (p) -> p.getDisplayName().then (name) ->
   {path: p.toString(), name}
 
 ATTRIBUTE_VALUE_TEMPL = """
-  <input class="span7 im-constraint-value im-value-options im-con-value im-con-value-attr"
+  <input class="span7 form-control im-constraint-value im-value-options im-con-value im-con-value-attr"
          type="text"
          placeholder="<%- messages.getText('conbuilder.ValuePlaceholder') %>"
          value="<%- con.value %>">
-  >
 """
 
 EXTRA_VALUE_TEMPL = """
   <label class="im-value-options">
     <%- messages.getText('conbuilder.ExtraLabel') %>
-    <input type="text" class="im-extra-value"
+    <input type="text" class="im-extra-value form-control"
           placeholder="<%- messages.getText('conbuilder.ExtraPlaceholder') %>"
           value="<%- con.value %>">
   </label>
@@ -181,13 +127,15 @@ module.exports = class ActiveConstraint extends View
       REFERENCE_OPS
     else if @path.getType() in BOOLEAN_TYPES
       ["=", "!="].concat(NULL_OPS)
-    else if @con.has('values') # Attribute.
+    else if @model.has('values') # Attribute.
       ATTRIBUTE_OPS
     else
       BASIC_OPS
 
-    @listenTo @model, 'change', @reRender
+    @listenTo @model, 'change:op change:displayName', @reRender
     @listenTo @model, 'change:op', @setValueData
+    @listenTo @model, 'change:type', @setTypeName
+
     # Declare rendering dependency on messages and icons.
     @listenTo Messages, 'change', @reRender
     @listenTo Icons, 'change', @reRender
@@ -196,6 +144,15 @@ module.exports = class ActiveConstraint extends View
 
     @path.getDisplayName (error, displayName) => @model.set {error, displayName}
     @setValueData()
+    @setTypeName()
+
+  setTypeName: ->
+    type = @model.get 'type'
+    if not type?
+      @model.unset 'typeName'
+    else
+      @query.model.makePath(type)
+            .getDisplayName (error, typeName) => @model.set {error, typeName}
 
   events: ->
     'change .im-ops': 'setOperator'
@@ -261,7 +218,7 @@ module.exports = class ActiveConstraint extends View
     @$el.closest('.well').removeClass 'im-editing'
     @$('.im-con-overview').siblings('[class*="im-con"]').slideUp 200
     @$('.im-multi-value-table input').prop('checked', true)
-    @con.set _.extend {}, @orig
+    @model.set @constraint
     @removeTypeAheads()
 
   removeTypeAheads: ->
@@ -350,32 +307,37 @@ module.exports = class ActiveConstraint extends View
   getTitleOp: -> @model.get('op') or Messages.getText('IsA')
 
   getTitleVal: () ->
-    if @con.get('values')
-      @con.get('values').length + " values"
-    else if @con.has('value')
-      @con.get('value')
+    if @model.get('values')
+      @model.get('values').length + " values"
+    else if @model.has('value')
+      @model.get('value')
     else
-      @con.get('type') # Ideally should use displayName
+      @model.get('typeName') ? @model.get('type') # Ideally should use displayName
 
+  isLookup: -> @model.get('op') is 'LOOKUP'
+
+  isTypeConstraint: -> @path.isReference() and (not @model.get 'op') and @model.has('type')
+
+  # TODO - extract sub-view
   getSummary: ->
     labels = []
 
-    title = if (@con.has 'title') then @con.get('title') else @con.get('displayName')
+    title = if (@model.has 'title') then @model.get('title') else @model.get('displayName')
     labels.push {content: title, type: 'path'}
 
     if (op = @getTitleOp())
       labels.push {content: op, type: 'op'}
 
-    unless @con.get('op') in intermine.Query.NULL_OPS
+    unless @model.get('op') in Query.NULL_OPS
       val = @getTitleVal()
       labels.push({content: val, type: 'value'})
 
-      if @isLookup() and @con.has 'extraValue'
-        labels.push {content: @con.get('extraValue'), type: 'extra'}
+      if @isLookup() and @model.has 'extraValue'
+        labels.push {content: @model.get('extraValue'), type: 'extra'}
 
     return labels
 
-  getOtherOperators: -> _.without @ops, @con.get 'op'
+  getOtherOperators: -> _.without @ops, @model.get 'op'
 
   getData: ->
     buttons = @buttons()
@@ -384,15 +346,17 @@ module.exports = class ActiveConstraint extends View
     summary = @getSummary()
     otherOperators = @getOtherOperators()
     con = @model.toJSON()
-    {buttons, icons, messages, icons, otherOperators, con, valueData}
+    {buttons, summary, icons, messages, icons, otherOperators, con}
 
   template: (data) ->
     # Hook in here to supply a sub-template based on the operator.
+    console.debug(data)
     if data.con.valueData?
       data.valueTemplate = @getValueTemplate()
+      data.valueData = data.con.valueData
     else
       data.valueTemplate = -> # No-op while we wait for results.
-    TEMPL data
+    ACTIVE_CONSTRAINT_TEMPLATE data
 
   render: ->
     @removeWidgets()
@@ -529,7 +493,7 @@ module.exports = class ActiveConstraint extends View
   getSuggestions: -> @__suggestions ?= do =>
     clone = @query.clone()
     pstr = @path.toString()
-    value = @con.get('value')
+    value = @model.get('value')
     maxSuggestions = Options.get('MaxSuggestions')
     clone.constraints = (c for c in clone.constraints when not (c.path is pstr and c.value is value))
 
@@ -571,7 +535,7 @@ module.exports = class ActiveConstraint extends View
     $slider.appendTo(fs).slider
       min: min
       max: max
-      value: (if @con.has('value') then @con.get('value') else caster average)
+      value: (if @model.has('value') then @model.get('value') else caster average)
       step: step
       slide: (e, ui) -> input.val(ui.value).change()
     input.attr placeholder: caster average
@@ -592,10 +556,11 @@ module.exports = class ActiveConstraint extends View
   getValueData: ->
     currentOp = @model.get 'op'
 
-    if not currentOp and @con.has('type')
+
+    if @isTypeConstraint()
       return @getPossibleTypes()
 
-    if currentOp in MULTIVALUE_OPS
+    if currentOp in MULTIVALUE_OPS # Use original values so we don't loose state.
       return Promise.resolve (@constraint.values or [])
 
     if currentOp in LIST_OPS
@@ -621,7 +586,7 @@ module.exports = class ActiveConstraint extends View
     if (@path.getType() in BOOLEAN_TYPES) and not (currentOp in NULL_OPS)
       return @booleanOptsTempl
 
-    if @path.isReference() and (not currentOp) and @con.has('type')
+    if @isTypeConstraint()
       return @typeOptsTempl
 
     if @path.isReference() and (currentOp in ['=', '!='])

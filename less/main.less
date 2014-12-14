@@ -6,3 +6,25 @@
 }
 
 @import "variables.less";
+
+.label-path {
+    .label-variant(@label-path-bg);
+}
+.label-op {
+    .label-variant(@label-op-bg);
+}
+.label-value {
+    .label-variant(@label-value-bg);
+}
+
+.breadcrumb.summary {
+    > li {
+        + li:before {
+            content: "@{summary-separator}\00a0"; // Unicode space added since inline-block means non-collapsing white-space
+        }
+
+        > .label {
+            display: inline-block;
+        }
+    }
+}
