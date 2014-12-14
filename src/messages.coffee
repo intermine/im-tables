@@ -24,7 +24,7 @@ class Messages extends Backbone.Model
     templ?(args)
 
   defaults: ->
-    'largetable.ok': 'Set page size to <%= size %>'
+    'largetable.ok': 'Set page size to <%- size %>'
     'largetable.abort': 'Cancel'
 
 module.exports = new Messages
