@@ -1,8 +1,11 @@
 Backbone = require 'backbone'
+_ = require 'underscore'
 
 Options = require './options'
 
 ICONS = {}
+
+registerIconSet = (name, icons) -> ICONS[name] = _.extend {}, icons
 
 class Icons extends Backbone.Model
 
@@ -11,14 +14,21 @@ class Icons extends Backbone.Model
   iconClasses: (key) -> "#{ @get 'Base' } #{ @get key }"
 
   _loadIconSet: ->
-    iconSet = ICONS[Options.get 'icons']
+    iconSet = ICONS[@options.get 'icons']
     @set iconSet if iconSet?
 
-  initialize: ->
+  initialize: (@options = Options) ->
     @_loadIconSet()
-    @listenTo Options, 'change:icons', @_loadIconSet
+    @listenTo @options, 'change:icons', @_loadIconSet
+
+  destroy: ->
+    @off()
+    for prop of @
+      delete @[prop]
 
 module.exports = new Icons
+module.exports.Icons = Icons # Export constructor on default instance.
+module.exports.registerIconSet = registerIconSet
 
 ICONS.glyphicons =
   Base: 'glyphicon'
