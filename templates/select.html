@@ -1,0 +1,12 @@
+<select class="<%- data.classes %>">
+  <% _.each(data.options, function (opt) { %>
+    <option value="<%- opt.value %>"
+      <%- data.selectedTest(opt) ? 'selected' : void 0 %> >
+      <% if (data.contentHandler) { %>
+        <%- data.contentHandler(opt) %>
+      <% } else { %>
+        <%- opt.text %>
+      <% } %>
+    </option>
+  <% }); %>
+</select>

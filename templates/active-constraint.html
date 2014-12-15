@@ -10,29 +10,5 @@
   <a class="im-edit"><%= data.icons.icon('Edit') %></a>
 </div>
 
-<fieldset class="im-constraint-options">
-<% if (data.con.op) { %>
-    <select class="span4 form-control im-ops">
-    <option><%- data.con.op %></option>
-    <% data.otherOperators.forEach(function (op) { %>
-        <option><%- op %></option>
-    <% }); %>
-    </select>
-<% } %>
-<div class="im-value-options">
-    <%= data.valueTemplate(data) %>
-</div>
-</fieldset>
-
-<div class="btn-group im-con-buttons">
-  <% data.buttons.forEach(function (b) { %>
-    <button class="<%- b.classes %>">
-      <%- data.messages.getText(b.key) %>
-    </button>
-  <% }); %>
-</div>
-
-<div class="alert alert-error <%= data.con.error ? '' : 'im-hidden' %>">
-  <%= data.icons.icon('Error') %>
-  <span class="im-conbuilder-error"><%- data.con.error %></span>
+<div class="im-constraint-editor">
 </div>

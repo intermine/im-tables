@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# The purpose of this script is to inject templates into the source files
+# so when they are bundled they are good to go. Browserify can do this itself
+# as a transform, but it doesn't do it for files it finds from node_modules,
+# which rather defeats the point of loading files from the imtables package.
+
 set -e
 
 inline () {

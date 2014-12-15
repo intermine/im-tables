@@ -1,0 +1,5 @@
+<% if (candidateLoops.length) { %>
+    <%= select(candidateLoops, isSelected, 'span7 im-value-options im-con-value im-con-value-loop') %>
+<% } else { %>
+    <%- messages.getText('conbuilder.NoSuitableLoops') %>
+<% } %>
