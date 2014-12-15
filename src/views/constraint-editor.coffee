@@ -42,8 +42,13 @@ module.exports = class ConstraintEditor extends View
 
   initialize: ({@query}) ->
     super
-    @listenTo @model, 'change:op', @reRender
+    @listenTo @model, 'change:op change:error', @reRender
     @path = @model.get 'path'
+    @listenTo @model, 'change:error', @logError
+
+  logError: ->
+    if e = @model.get('error')
+      console.error e, e.stack
 
   getType: -> @model.get('path').getType()
 

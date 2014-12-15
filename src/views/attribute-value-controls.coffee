@@ -62,10 +62,11 @@ module.exports = class AttributeValueControls extends View
   render: ->
     @removeWidgets()
     super
-    @provideSuggestions()
+    @provideSuggestions().then null, (error) => @model.set {error}
     this
 
   provideSuggestions: -> @getSuggestions().then ({stats, results}) =>
+    console.debug "Got #{ results?.length } suggestions"
     if results?.length # There is something
       if stats.max? # It is numeric summary
         @handleNumericSummary(stats)
@@ -73,6 +74,7 @@ module.exports = class AttributeValueControls extends View
         @handleSummary(results, stats.uniqueValues)
 
   getSuggestions: -> @__suggestions ?= do =>
+    console.debug 'getting suggestions'
     clone = @query.clone()
     pstr = @model.get('path').toString()
     value = @model.get('value')
@@ -98,10 +100,13 @@ module.exports = class AttributeValueControls extends View
       templates:
         footer: source.tooMany
 
-    input.attr(placeholder: suggestions[0]).typeahead opts, dataset
+    console.debug 'Installing typeahead on', input
+    input.attr(placeholder: items[0].item).typeahead opts, dataset
     # Need to see if this needs hooking up...
-    # input.on 'typeahead:selected', (e, suggestion) =>
-    # @model.set value: suggestion.item
+    input.on 'typeahead:selected', (e, suggestion) =>
+      @model.set value: suggestion.item
+    input.on 'typeahead:autocompleted', (e, suggestion) =>
+      @model.set value: suggestion.item
 
     # Keep a track of it, so it can be removed.
     @typeaheads.push input
