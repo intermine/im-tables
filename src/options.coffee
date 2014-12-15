@@ -1,18 +1,19 @@
-Backbone = require 'backbone'
 _ = require 'underscore'
+
+Model = require './core-model'
 
 mergeOldAndNew = (oldValue, newValue) ->
   _.extend {}, (if _.isObject oldValue then oldValue else {}), newValue
 
 # Supports nested keys.
-class Options extends Backbone.Model
+class Options extends Model
 
   _triggerChangeRecursively: (ns, obj) ->
     for k, v of obj
       thisKey = "#{ ns }.#{ k }"
       if _.isObject v
         @_triggerChangeRecursively thisKey, v
-      else 
+      else
         @trigger "change:#{ thisKey }", @, @get(thisKey)
 
   get: (key) -> # Support nested keys - TODO, write tests
@@ -22,11 +23,6 @@ class Options extends Backbone.Model
       tail.reduce ((m, k) -> m and m[k]), super head
     else
       super key
-
-  destroy: ->
-    @off()
-    for prop of @
-      delete @[prop]
 
   set: (key, value) -> # Support nested keys
     oldValue = @get key
@@ -39,7 +35,7 @@ class Options extends Backbone.Model
         newValue = mergeOldAndNew oldValue, value
         super key, newValue
         # only keys in value have changed
-        @_triggerChangeRecursively key, value 
+        @_triggerChangeRecursively key, value
       else # Simple value - overwrite.
         super key, value
         if oldValue? and _.isObject oldValue

@@ -1,6 +1,6 @@
 should = require 'should'
 
-{Options} = require '../build/options'
+{Options} = require 'imtables/options'
 
 describe 'new Options', ->
 

@@ -5,8 +5,10 @@ set -e
 rm -rf build
 rm -rf dist
 rm -rf node_modules/imtables
+rm -rf fonts
 rm -rf test/bundles
 
 mkdir build
 ln -s ../build node_modules/imtables
+ln -s node_modules/font-awesome/fonts fonts
 mkdir dist

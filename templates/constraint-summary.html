@@ -1,0 +1,10 @@
+<% _.each(labels, function (label) { %>
+  <li>        
+    <% if (label.type === 'extra') { %>
+      <%- messages.getText('conbuilder.ExtraLabel') %>
+    <% } %>
+    <span class="label label-<%- label.type %>">
+      <%- label.content %>
+    </span>
+  </li>
+<% }); %>

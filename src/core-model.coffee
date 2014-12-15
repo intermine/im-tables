@@ -12,3 +12,11 @@ module.exports = class CoreModel extends Backbone.Model
 
   # Helper to change the value of an entry using a function.
   swap: (key, f) -> @set key, f @get key
+
+  # Release listeners in both directions, and delete
+  # all instance properties.
+  destroy: ->
+    @stopListening()
+    @off()
+    for prop of @
+      delete @[prop]

@@ -1,5 +1,6 @@
 _ = require 'underscore'
 $ = require 'jquery'
+fs = require 'fs'
 
 {Promise} = require 'es6-promise'
 
@@ -8,8 +9,10 @@ Messages = require '../messages'
 Icons = require '../icons'
 Options = require '../options'
 View = require '../core-view'
+ConstraintSummary = require './constraint-summary'
 
-ACTIVE_CONSTRAINT_TEMPLATE = require '../templates/active-constraint'
+html = fs.readFileSync __dirname + '/../templates/active-constraint.html', 'utf8'
+ACTIVE_CONSTRAINT_TEMPLATE = _.template html, variable: 'data'
 
 {Query, Model} = require 'imjs'
 
@@ -45,7 +48,6 @@ TOO_MANY_SUGGESTIONS_TEMPL = _.template """
 """
 
 TOO_MANY_SUGGESTIONS = (data) -> TOO_MANY_SUGGESTIONS_TEMPL _.extend {messages: Messages}, data
-
 
 PATH_SEGMENT_DIVIDER = "&rarr;"
 
@@ -132,7 +134,6 @@ module.exports = class ActiveConstraint extends View
     else
       BASIC_OPS
 
-    @listenTo @model, 'change:op change:displayName', @reRender
     @listenTo @model, 'change:op', @setValueData
     @listenTo @model, 'change:type', @setTypeName
 
@@ -291,7 +292,7 @@ module.exports = class ActiveConstraint extends View
       true
 
   removeConstraint: (e, silently = false) ->
-      @query.removeConstraint @orig, silently
+      @query.removeConstraint @constraint, silently
 
   buttons: -> [
       {
@@ -304,38 +305,9 @@ module.exports = class ActiveConstraint extends View
       }
   ]
 
-  getTitleOp: -> @model.get('op') or Messages.getText('IsA')
-
-  getTitleVal: () ->
-    if @model.get('values')
-      @model.get('values').length + " values"
-    else if @model.has('value')
-      @model.get('value')
-    else
-      @model.get('typeName') ? @model.get('type') # Ideally should use displayName
-
-  isLookup: -> @model.get('op') is 'LOOKUP'
-
   isTypeConstraint: -> @path.isReference() and (not @model.get 'op') and @model.has('type')
 
   # TODO - extract sub-view
-  getSummary: ->
-    labels = []
-
-    title = if (@model.has 'title') then @model.get('title') else @model.get('displayName')
-    labels.push {content: title, type: 'path'}
-
-    if (op = @getTitleOp())
-      labels.push {content: op, type: 'op'}
-
-    unless @model.get('op') in Query.NULL_OPS
-      val = @getTitleVal()
-      labels.push({content: val, type: 'value'})
-
-      if @isLookup() and @model.has 'extraValue'
-        labels.push {content: @model.get('extraValue'), type: 'extra'}
-
-    return labels
 
   getOtherOperators: -> _.without @ops, @model.get 'op'
 
@@ -343,10 +315,9 @@ module.exports = class ActiveConstraint extends View
     buttons = @buttons()
     messages = Messages
     icons = Icons
-    summary = @getSummary()
     otherOperators = @getOtherOperators()
     con = @model.toJSON()
-    {buttons, summary, icons, messages, icons, otherOperators, con}
+    {buttons, icons, messages, icons, otherOperators, con}
 
   template: (data) ->
     # Hook in here to supply a sub-template based on the operator.
@@ -361,6 +332,7 @@ module.exports = class ActiveConstraint extends View
   render: ->
     @removeWidgets()
     super
+    @renderChild 'summary', (new ConstraintSummary {@model}), @$ '.im-con-overview'
     if @path.isAttribute() and @model.get('op') in ATTRIBUTE_VALUE_OPS
       @provideSuggestions()
     this
@@ -529,17 +501,17 @@ module.exports = class ActiveConstraint extends View
     step = if isInt then 1 else (max - min / 100)
     caster = if isInt then ((x) -> parseInt(x, 10)) else parseFloat
     input = @$ '.im-con-value-attr'
-    fs = input.closest('fieldset')
-    fs.append @clearer
+    fieldset = input.closest('fieldset')
+    feildset.append @clearer
     $slider = $ '<div class="im-value-options">'
-    $slider.appendTo(fs).slider
+    $slider.appendTo(fieldset).slider
       min: min
       max: max
       value: (if @model.has('value') then @model.get('value') else caster average)
       step: step
       slide: (e, ui) -> input.val(ui.value).change()
     input.attr placeholder: caster average
-    fs.append @clearer
+    fieldset.append @clearer
     input.change (e) -> $slider.slider 'value', caster input.val()
     @sliders.push $slider
 

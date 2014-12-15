@@ -6,23 +6,25 @@
     "port": "9000"
   },
   "scripts": {
+    "prestart": "npm run watch-less & watch 'npm run build-test-indices' src/ --wait=20 &",
     "start": "./bin/dev-server",
     "pretest": "npm run pre-compile && npm run compile",
-    "test": "mocha --compilers coffee:coffee-script/register test/*",
-    "watch-src": "watch 'npm run compile' src/",
-    "watch-js": "watch 'npm run browserify' build/",
-    "watch-less": "watch 'npm run less' less/",
+    "test": "mocha --compilers coffee:coffee-script/register test/unit/*",
+    "watch-src": "watch 'npm run build' src/ --wait=20",
+    "watch-less": "watch 'npm run less' less/ --wait=20",
     "watch": "npm run watch-src & npm run watch-js & npm run watch-less",
     "pre-compile": "./bin/clean",
     "compile-coffee": "coffee --compile --output build/ src/",
+    "cp-templates": "mkdir -p build/templates && cp templates/* build/templates",
+    "inline-templates": "./bin/inline-templates",
     "inject-version": "./bin/inject-version.js",
-    "do-compile": "npm run compile-coffee && npm run inject-version && npm run less",
+    "do-compile": "npm run compile-coffee && npm run inject-version && npm run cp-templates && npm run inline-templates",
     "compile": "npm run pre-compile && npm run do-compile",
     "bundle-test-indices": "./bin/bundle-test-indices",
-    "build-test-indices": "npm run compile && npm run bundle-test-indices",
+    "build-test-indices": "npm run compile && npm run less && npm run bundle-test-indices",
     "bundle": "browserify build/main.js > dist/main.js",
     "less": "lessc --include-path=less:node_modules less/main.less > dist/main.css",
-    "build": "npm run compile && npm run bundle"
+    "build": "npm run compile && npm run bundle && npm run less"
   },
   "keywords": [
     "javascript",
@@ -42,11 +44,6 @@
   "browserify-shim": {
     "d3js": {
       "exports": "d3",
-      "depends": [
-        "jquery:$"
-      ]
-    },
-    "bootstrap": {
       "depends": [
         "jquery:$"
       ]
@@ -74,6 +71,7 @@
     "backbone": "^1.1.2",
     "bootstrap": "^3.3.1",
     "bower": "latest",
+    "brfs": "^1.2.0",
     "browserify": "^7.0.0",
     "browserify-shim": "~3.8.1",
     "codo": "~0.3.0",
@@ -91,12 +89,14 @@
     "q": "~0.9.0",
     "selenium-webdriver": "^2.44.0",
     "should": "^4.4.1",
+    "stringify": "^3.0.0",
     "typeahead.js": "^0.10.5",
     "uglify-js": "~2.2.5",
-    "underscore": "^1.7.0",
     "watch": "^0.13.0"
   },
   "dependencies": {
-    "serve": "^1.4.0"
+    "brfs-htmlmin": "^1.0.0",
+    "serve": "^1.4.0",
+    "underscore": "^1.7.0"
   }
 }

@@ -4,8 +4,8 @@ set -e
 
 mkdir -p test/bundles
 
-browserify --entry test/indices/active-constraint.js \
-           --outfile test/bundles/active-constraint-loader.js
+browserify -t brfs-htmlmin \
+          test/indices/active-constraint.js > test/bundles/active-constraint-loader.js
 
 # Build the html to load.
 ./bin/build-test-html active-constraint

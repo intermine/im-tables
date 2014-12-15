@@ -1,7 +1,7 @@
 should = require 'should'
 
-{Icons, registerIconSet} = require '../build/icons'
-{Options} = require '../build/options'
+{Icons, registerIconSet} = require 'imtables/icons'
+{Options} = require 'imtables/options'
 
 ensureDestroyed = (delenda...) -> after ->
   for d in delenda

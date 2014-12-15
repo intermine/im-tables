@@ -1,6 +1,6 @@
 should = require 'should'
 
-{Messages} = require '../build/messages'
+{Messages} = require 'imtables/messages'
 
 describe 'Messages::getText', ->
 

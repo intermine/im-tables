@@ -1,0 +1,15 @@
+#!/bin/bash
+
+set -e
+
+inline () {
+  echo "Inlining $1"
+  echo "$(brfs $1)" > $1;
+}
+
+find build/ -type f \
+            -name '*.js' \
+            -exec grep -q readFileSync '{}' ';' \
+            -print \
+            | while read file; do inline "$file"; done
+
