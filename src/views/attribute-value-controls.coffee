@@ -9,7 +9,7 @@ Options = require '../options'
 
 SuggestionSource = require '../utils/suggestion-source'
 
-{Model: {INTEGRAL_TYPES, NUMERIC_TYPES}} = require 'imjs'
+{Model: {INTEGRAL_TYPES, NUMERIC_TYPES}, Query} = require 'imjs'
 
 html = fs.readFileSync __dirname + '/../templates/attribute-value-controls.html', 'utf8'
 slider_html = fs.readFileSync __dirname + '/../templates/slider.html', 'utf8'
@@ -40,9 +40,15 @@ module.exports = class AttributeValueControls extends View
     @cast = if @model.get('path').getType() in NUMERIC_TYPES then numify else trim
     # Declare rendering dependency on messages
     @listenTo Messages, 'change', @reRender
+    @listenTo @model, 'change:value', @updateInput
     if @query?
       @listenTo @query, 'change:constraints', @clearCachedData
       @listenTo @query, 'change:constraints', @reRender
+    # Help translate between multi-value and =
+    @listenTo @model, 'change:op', =>
+      newOp = @model.get 'op'
+      if newOp in Query.MULTIVALUE_OPS
+        @model.set value: null, values: [@model.get('value')]
 
   removeWidgets: ->
     @removeTypeAheads()
@@ -62,6 +68,10 @@ module.exports = class AttributeValueControls extends View
 
   events: ->
     'change .im-con-value-attr': 'setAttributeValue'
+
+  updateInput: ->
+    input = (_.last(@typeaheads) ? @$('.im-con-value-attr'))
+    input.val @model.get 'value'
 
   readAttrValue: ->
     raw = (_.last(@typeaheads) ? @$('.im-con-value-attr')).val()

@@ -2,5 +2,20 @@
   <input type="checkbox" {{ (selected) ? 'checked' : void 0 }}>
 </td>
 <td class="im-multi-value">
-  {{ value }}
+  {{# if (editing) { }}
+    <div class="input-group">
+      <input type="text" value="{{ value }}" class="form-control">
+      <span class="input-group-btn">
+        <button class="btn btn-default im-save" type="button">
+            {{ messages.getText('multivalue.SaveValue') }}
+        </button>
+        <button class="btn btn-default im-cancel" type="button">
+            {{ messages.getText('Cancel') }}
+        </button>
+      </span>
+    </div>
+  {{# } else { }}
+    <a class="im-edit pull-right">{{{ icons.icon('Edit') }}}</a>
+    {{ value }}
+  {{# } }}
 </td>
