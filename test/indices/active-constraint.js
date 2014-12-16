@@ -19,6 +19,14 @@ var queries = [
     ]
   },
   {
+    name: 'lookup',
+    select: ['name', 'department.name', 'department.manager.name'],
+    from: 'Employee',
+    where: [
+      ['department.manager', 'lookup', 'anne, brenda, carol']
+    ]
+  },
+  {
     name: 'lists',
     select: ['name', 'department.name', 'department.manager.name'],
     from: 'Employee',
