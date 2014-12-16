@@ -12,6 +12,7 @@ SuggestionSource = require '../utils/suggestion-source'
 {Model: {INTEGRAL_TYPES, NUMERIC_TYPES}} = require 'imjs'
 
 html = fs.readFileSync __dirname + '/../templates/attribute-value-controls.html', 'utf8'
+slider_html = fs.readFileSync __dirname + '/../templates/slider.html', 'utf8'
 
 trim = (s) -> String(s).replace(/^\s+/, '').replace(/\s+$/, '')
 
@@ -138,6 +139,17 @@ module.exports = class AttributeValueControls extends View
     @typeaheads.push input
 
   clearer: '<div class="" style="clear:both;">'
+  
+  getMarkers: (min, max, isInt) ->
+    span = max - min
+    getValue = (frac) ->
+      val = frac * span + min
+      if isInt then Math.round(val) else val
+    getPercent = (frac) -> Math.round 100 * frac
+
+    ({percent: getPercent(f), value: getValue(f)} for f in [0, 0.25, 0.5, 0.75, 1])
+
+  makeSlider: _.template slider_html, variable: 'markers'
 
   handleNumericSummary: ({min, max, average}) ->
     path = @model.get 'path'
@@ -147,7 +159,8 @@ module.exports = class AttributeValueControls extends View
     container = @$el
     input = @$ 'input'
     container.append @clearer
-    $slider = $ '<div class="im-value-options">'
+    markers = @getMarkers min, max, isInt
+    $slider = $ @makeSlider markers
     $slider.appendTo(container).slider
       min: min
       max: max
