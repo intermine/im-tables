@@ -32,8 +32,12 @@ module.exports = class ConstraintSummary extends View
   getTitleOp: -> @model.get('op') or Messages.getText('consummary.IsA')
 
   getTitleVal: () ->
-    if @model.get('values')
-      @model.get('values').length + " values"
+    if vals = @model.get('values')
+      if vals.length > 5
+        vals.length + " values"
+      else
+        [first..., last] = vals
+        "#{ first.join ', ' } and #{ last }"
     else if @model.has('value')
       @model.get('value')
     else
