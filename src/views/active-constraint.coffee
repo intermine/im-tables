@@ -83,9 +83,18 @@ module.exports = class ActiveConstraint extends View
 
     @listenTo @model, 'cancel', @cancelEditing
     @listenTo @model, 'apply', @applyChanges
-
-    @model.get('path').getDisplayName (error, displayName) => @model.set {error, displayName}
+    
+    @setDisplayName()
     @setTypeName()
+
+  setDisplayName: ->
+    @model.get('path').getDisplayName (error, displayName) =>
+      @model.set {error, displayName}
+      if error?
+        # Could have been caused by type constraints. Start listening.
+        @listenToOnce @query, 'change:constraints', =>
+          @model.set path: @query.getPathInfo @constraint.path
+          @setDisplayName()
 
   cancelEditing: ->
     console.debug 'cancelling editing'
@@ -104,8 +113,11 @@ module.exports = class ActiveConstraint extends View
     if not type?
       @model.unset 'typeName'
     else
-      @query.model.makePath(type)
-            .getDisplayName (error, typeName) => @model.set {error, typeName}
+      try
+        @query.model.makePath(type)
+              .getDisplayName (error, typeName) => @model.set {error, typeName}
+      catch e # bad path most likely.
+        @model.set error: e, typeName: type
 
   events: ->
     'click .im-edit': 'toggleEditing'

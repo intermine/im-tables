@@ -1,4 +1,11 @@
 <label class="span4">
     <%- messages.getText('conbuilder.IsA') %>
 </label>
-<%= select(subclasses, isSelected, 'form-control im-value-type') %>
+<% if (subclasses.length == 1) { %>
+  <select disabled class="form-control">
+      <option><%- subclasses[0].text %></option>
+  </select>
+<% } else { %>
+  <%= select(subclasses, isSelected, 'form-control im-value-type') %>
+<% } %>
+  

@@ -55,6 +55,30 @@ var queries = [
     ]
   },
   {
+    name: 'type constraints',
+    select: ['name', 'employees.name', 'employees.seniority'],
+    from: 'Department',
+    where: [
+      {path: 'employees', type: 'Manager'}
+    ]
+  },
+  {
+    name: 'type constraints, one only',
+    select: ['name', 'manager.name'],
+    from: 'Department',
+    where: [
+      {path: 'manager', type: 'CEO'}
+    ]
+  },
+  {
+    name: 'type constraints, bad',
+    select: ['name', 'manager.name'],
+    from: 'Department',
+    where: [
+      {path: 'manager', type: 'Wizard'}
+    ]
+  },
+  {
     name: 'lookup',
     select: ['name', 'department.name', 'department.manager.name'],
     from: 'Employee',

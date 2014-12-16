@@ -45,11 +45,14 @@ module.exports = class ConstraintSummary extends View
 
   isLookup: -> @model.get('op') is 'LOOKUP'
 
+  getPathLabel: ->
+    {title, displayName, path} = @model.toJSON()
+    {content: (title ? displayName ? path), type: 'path'}
+
   getSummary: ->
     labels = []
 
-    title = if (@model.has 'title') then @model.get('title') else @model.get('displayName')
-    labels.push {content: title, type: 'path'}
+    labels.push @getPathLabel()
 
     if (op = @getTitleOp())
       labels.push {content: op, type: 'op'}
