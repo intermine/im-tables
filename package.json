@@ -6,7 +6,7 @@
     "port": "9000"
   },
   "scripts": {
-    "prestart": "npm run watch-less & watch 'npm run build-test-indices' . --wait=20 &",
+    "prestart": "./bin/dev-watch &",
     "start": "./bin/dev-server",
     "pretest": "npm run pre-compile && npm run compile",
     "test": "mocha --compilers coffee:coffee-script/register test/unit/*",

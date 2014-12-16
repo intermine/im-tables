@@ -1,0 +1,3 @@
+#!/bin/bash
+
+watch 'npm run build-test-indices && notify-send imtables built' . --wait=20
