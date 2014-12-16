@@ -93,6 +93,14 @@ var queries = [
     where: [
       ['Employee', 'IN', 'My favourite employees']
     ]
+  },
+  {
+    name: 'loops',
+    select: ['name', 'department.name', 'department.manager.name'],
+    from: 'Employee',
+    where: [
+      ['department.company.CEO', '=', 'Employee.department.manager']
+    ]
   }
 ]
 

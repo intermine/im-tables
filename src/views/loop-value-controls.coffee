@@ -31,15 +31,18 @@ module.exports = class LoopValueControls extends View
   setCandidateLoops: -> unless @model.has 'candidateLoops'
     @getCandidateLoops().then (candidateLoops) => @model.set {candidateLoops}
 
+  isSuitable: (candidate) ->
+    ((candidate.isa @type) or (@path.isa candidate.getType())) and
+      (@path.toString() isnt candidate.toString())
+
   # Cache this result, since we don't want to keep fetching display names.
   getCandidateLoops: -> @__candidate_loops ?= do =>
-    loopCandidates = @query.getQueryNodes().filter (candidate) =>
-      (candidate.isa @type) or (@path.isa candidate.getType())
+    loopCandidates = (n for n in @query.getQueryNodes() when @isSuitable n)
 
     Promise.all loopCandidates.map toNamedPath
 
   template: (data) ->
-    template _.extend {}, helpers, data
+    template _.extend {messages: Messages}, helpers, data
 
   getData: ->
     currentValue = @model.get 'value'
