@@ -5,6 +5,8 @@ fs = require 'fs'
 Messages = require '../messages'
 View = require '../core-view'
 Options = require '../options'
+{IS_BLANK} = require '../patterns'
+
 SuggestionSource = require '../utils/suggestion-source'
 
 {Model: {INTEGRAL_TYPES, NUMERIC_TYPES}} = require 'imjs'
@@ -31,6 +33,8 @@ module.exports = class AttributeValueControls extends View
     @cast = if @model.get('path').getType() in NUMERIC_TYPES then numify else trim
     # Declare rendering dependency on messages
     @listenTo Messages, 'change', @reRender
+    @listenTo @query, 'change:constraints', @clearCachedData
+    @listenTo @query, 'change:constraints', @reRender
 
   removeWidgets: ->
     @removeTypeAheads()
@@ -52,9 +56,10 @@ module.exports = class AttributeValueControls extends View
     'change .im-con-value-attr': 'setAttributeValue'
 
   readAttrValue: ->
-    raw = @$('.im-con-value-attr').val()
+    raw = (_.last(@typeaheads) ? @$('.im-con-value-attr')).val()
     try
-      @cast raw # to string or number, as per path type
+      #  to string or number, as per path type
+      if (raw? and not IS_BLANK.test raw) then @cast(raw) else null
     catch e
       @model.set error: new Error("#{ raw } might not be a legal value for #{ @path }")
       raw
@@ -63,20 +68,31 @@ module.exports = class AttributeValueControls extends View
 
   # @Override
   render: ->
+    console.debug 'rendering value controls'
     @removeWidgets()
     super
     @provideSuggestions().then null, (error) => @model.set {error}
     this
 
   provideSuggestions: -> @getSuggestions().then ({stats, results}) =>
-    console.debug "Got #{ results?.length } suggestions"
+    console.debug 'summary:', stats, results
     if results?.length # There is something
-      if stats.max? # It is numeric summary
+      if stats.uniqueValues is 1
+        msg = "there is only one possible value: #{ results[0].item }"
+        @model.set error: {message: msg, level: 'warning'}
+      else if stats.max? # It is numeric summary
         @handleNumericSummary(stats)
-      else # It is a histogram
+      else if results[0].item? # It is a histogram
         @handleSummary(results, stats.uniqueValues)
 
+  # Need to do this when the query changes.
+  clearCachedData: ->
+    console.debug 'clearing cached data'
+    delete @__suggestions
+    @model.unset 'error'
+
   getSuggestions: -> @__suggestions ?= do =>
+    console.debug 'getting suggestions'
     clone = @query.clone()
     pstr = @model.get('path').toString()
     value = @model.get('value')
@@ -102,7 +118,7 @@ module.exports = class AttributeValueControls extends View
       templates:
         footer: source.tooMany
 
-    console.debug 'Installing typeahead on', input
+    console.debug 'Installing typeahead on', input[0]
     input.attr(placeholder: items[0].item).typeahead opts, dataset
     # Need to see if this needs hooking up...
     input.on 'typeahead:selected', (e, suggestion) =>

@@ -12,6 +12,7 @@ BooleanValueControls = require './boolean-value-controls'
 LookupValueControls = require './lookup-value-controls'
 LoopValueControls = require './loop-value-controls'
 ListValueControls = require './list-value-controls'
+ErrorMessage = require './error-message'
 
 {Query, Model} = require 'imjs'
 
@@ -42,13 +43,8 @@ module.exports = class ConstraintEditor extends View
 
   initialize: ({@query}) ->
     super
-    @listenTo @model, 'change:op change:error', @reRender
+    @listenTo @model, 'change:op', @reRender
     @path = @model.get 'path'
-    @listenTo @model, 'change:error', @logError
-
-  logError: ->
-    if e = @model.get('error')
-      console.error e, e.stack
 
   getType: -> @model.get('path').getType()
 
@@ -141,6 +137,7 @@ module.exports = class ConstraintEditor extends View
   render: ->
     super
     @renderChild 'valuecontrols', @getValueControls(), @$ '.im-value-options'
+    @renderChild 'error', (new ErrorMessage {@model})
     this
 
   remove: -> # Animated removal

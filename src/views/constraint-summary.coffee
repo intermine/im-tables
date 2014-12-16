@@ -2,10 +2,14 @@ _ = require 'underscore'
 fs = require 'fs'
 
 Messages = require '../messages'
+Icons = require '../icons'
 View = require '../core-view'
 {IS_BLANK} = require '../patterns'
 
 {Query, Model} = require 'imjs'
+
+Messages.set
+  'consummary.NoValue': 'no value'
 
 TEMPLATE = fs.readFileSync __dirname + '/../templates/constraint-summary.html', 'utf8'
 
@@ -17,8 +21,10 @@ module.exports = class ConstraintSummary extends View
 
   initialize: ->
     @listenTo @model, 'change', @reRender
+    @listenTo Messages, 'change', @reRender
+    @listenTo Icons, 'change', @reRender
 
-  getData: -> messages: Messages, labels: @getSummary()
+  getData: -> icons: Icons, messages: Messages, labels: @getSummary()
 
   template: _.template TEMPLATE
 
@@ -45,8 +51,10 @@ module.exports = class ConstraintSummary extends View
 
     unless @model.get('op') in Query.NULL_OPS
       val = @getTitleVal()
-      type = if (not val or IS_BLANK.test val) then 'empty' else 'value'
-      labels.push({content: val, type: type})
+      if (not val? or IS_BLANK.test val)
+        labels.push content: 'NoValue', type: 'error'
+      else
+        labels.push content: val, type: 'value'
 
       if @isLookup() and @model.has 'extraValue'
         labels.push {content: @model.get('extraValue'), type: 'extra'}

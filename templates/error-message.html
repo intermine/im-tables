@@ -1,0 +1,9 @@
+<% if (error) { %>
+    <div class="alert alert-<%= error.level || 'danger' %>">
+        <%= icons.icon('Error') %>
+        <span class="im-conbuilder-error">
+            <%- error.message || error %>
+        </span>
+    </div>
+<% } %>
+

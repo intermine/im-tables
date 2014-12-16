@@ -3,12 +3,14 @@ $ = require 'jquery'
 fs = require 'fs'
 
 {Promise} = require 'es6-promise'
+{Query, Model} = require 'imjs'
 
 # Support
 Messages = require '../messages'
 Icons = require '../icons'
 Options = require '../options'
 View = require '../core-view'
+
 ConstraintSummary = require './constraint-summary'
 ConstraintEditor = require './constraint-editor'
 
@@ -85,8 +87,10 @@ module.exports = class ActiveConstraint extends View
     @setTypeName()
 
   cancelEditing: ->
+    console.debug 'cancelling editing'
     @state.set editing: false
     @model.set _.omit @constraint, 'path'
+    @model.set error: null
 
   toggleEditing: ->
     if @state.get('editing')
@@ -118,6 +122,7 @@ module.exports = class ActiveConstraint extends View
 
   getValueProblem: (con) ->
     {path, op, value} = con
+    console.debug con
     if not value? or (IS_BLANK.test value)
       return 'NoValue'
 
@@ -133,7 +138,7 @@ module.exports = class ActiveConstraint extends View
     if not con.op or IS_BLANK.test con.op # No operator.
       return 'NoOperator'
 
-    if path.isReference() and con.op in ['=', '!=']
+    if con.path.isReference() and con.op in ['=', '!=']
       return @getLoopProblem con
 
     if con.op in Query.ATTRIBUTE_VALUE_OPS.concat(Query.REFERENCE_OPS)
@@ -164,6 +169,7 @@ module.exports = class ActiveConstraint extends View
       # suppressed change event.
       @query.trigger "change:constraints"
     else
+      con.path = con.path.toString()
       @query.addConstraint con
       @constraint = con
 

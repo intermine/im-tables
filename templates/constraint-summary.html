@@ -4,7 +4,12 @@
       <%- messages.getText('conbuilder.ExtraLabel') %>
     <% } %>
     <span class="label label-<%- label.type %>">
-      <%- label.content %>
+      <% if (label.type === 'error') { %>
+        <%= icons.icon('Error') %>
+        <%- messages.getText('consummary.' + label.content) %>
+      <% } else { %>
+        <%- label.content %>
+      <% } %>
     </span>
   </li>
 <% }); %>
