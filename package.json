@@ -6,7 +6,7 @@
     "port": "9000"
   },
   "scripts": {
-    "prestart": "npm run watch-less & watch 'npm run build-test-indices' src/ --wait=20 &",
+    "prestart": "npm run watch-less & watch 'npm run build-test-indices' . --wait=20 &",
     "start": "./bin/dev-server",
     "pretest": "npm run pre-compile && npm run compile",
     "test": "mocha --compilers coffee:coffee-script/register test/unit/*",
@@ -18,7 +18,8 @@
     "cp-templates": "mkdir -p build/templates && cp templates/* build/templates",
     "inline-templates": "./bin/inline-templates",
     "inject-version": "./bin/inject-version.js",
-    "do-compile": "npm run compile-coffee && npm run inject-version && npm run cp-templates && npm run inline-templates",
+    "do-compile": "npm run compile-coffee && npm run do-post-compile",
+    "do-post-compile": "npm run inject-version && npm run cp-templates && npm run inline-templates",
     "compile": "npm run pre-compile && npm run do-compile",
     "bundle-test-indices": "./bin/bundle-test-indices",
     "build-test-indices": "npm run compile && npm run less && npm run bundle-test-indices",

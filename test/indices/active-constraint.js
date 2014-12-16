@@ -5,12 +5,15 @@ var imjs = require('imjs');
 var Options = require('imtables/options');
 var ActiveConstraint = require('imtables/views/active-constraint');
 
-var root = 'http://www.flymine.org/query/service';
+var root = 'http://localhost:8080/intermine-demo';
 
 var flies = {
-  select: ['commonName', 'taxonId'],
-  from: 'Organism',
-  where: {genus: 'Drosophila'}
+  select: ['name', 'department.name'],
+  from: 'Employee',
+  where: [
+    ['name', '=', 'd*'],
+    ['age', '>', 35]
+  ]
 };
 
 var conn = imjs.Service.connect({root: root});
@@ -20,11 +23,13 @@ conn.query(flies)
     .then(null, console.error.bind(console, 'Could not render query'));
 
 function renderQuery (query) {
-  var constraint = query.constraints[0];
-  var view = new ActiveConstraint({
-    query: query,
-    constraint: constraint
+  var container = document.querySelector('#demo');
+  query.constraints.forEach(function (constraint) {
+    var view = new ActiveConstraint({
+      query: query,
+      constraint: constraint
+    });
+    view.$el.appendTo(container);
+    view.render();
   });
-  view.setElement(document.querySelector('#demo'));
-  view.render();
 }
