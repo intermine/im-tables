@@ -17,6 +17,12 @@ trim = (s) -> String(s).replace(/^\s+/, '').replace(/\s+$/, '')
 
 numify = (x) -> 1 * trim x
 
+Messages.set
+  'constraintvalue.NoValues': 'There are no possible values. This query returns no results'
+  'constraintvalue.OneValue': """
+    There is only one possible value: <%- value %>. You might want to remove this constraint
+  """
+
 module.exports = class AttributeValueControls extends View
 
   className: 'im-attribute-value-controls'
@@ -76,14 +82,16 @@ module.exports = class AttributeValueControls extends View
 
   provideSuggestions: -> @getSuggestions().then ({stats, results}) =>
     console.debug 'summary:', stats, results
-    if results?.length # There is something
-      if stats.uniqueValues is 1
-        msg = "there is only one possible value: #{ results[0].item }"
-        @model.set error: {message: msg, level: 'warning'}
-      else if stats.max? # It is numeric summary
-        @handleNumericSummary(stats)
-      else if results[0].item? # It is a histogram
-        @handleSummary(results, stats.uniqueValues)
+    if stats.uniqueValues is 0
+      msg = Messages.getText 'constraintvalue.NoValues'
+      @model.set error: {message: msg, level: 'warning'}
+    else if stats.uniqueValues is 1
+      msg = Messages.getText 'constraintvalue.OneValue', value: results[0].item
+      @model.set error: {message: msg, level: 'warning'}
+    else if stats.max? # It is numeric summary
+      @handleNumericSummary(stats)
+    else if results[0].item? # It is a histogram
+      @handleSummary(results, stats.uniqueValues)
 
   # Need to do this when the query changes.
   clearCachedData: ->

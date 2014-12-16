@@ -1,5 +1,5 @@
 <% if (suitableLists.length) { %>
-    <%= select(suitableLists, isSelected, 'span7 im-value-options im-con-value im-con-value-list form-control', formatList) %>
+    <%= select(suitableLists, isSelected, 'span7 im-value-options im-con-value im-con-value-list form-control', formatList, getOptionValue) %>
 <% } else { %>
     <%- messages.getText('conbuilder.NoSuitableLists') %>
 <% } %>

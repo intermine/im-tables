@@ -1,6 +1,6 @@
 <select class="<%- data.classes %>">
   <% _.each(data.options, function (opt) { %>
-    <option value="<%- opt.value %>"
+    <option value="<%- data.key(opt) %>"
       <%- data.selectedTest(opt) ? 'selected' : void 0 %> >
       <% if (data.contentHandler) { %>
         <%- data.contentHandler(opt) %>

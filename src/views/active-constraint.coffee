@@ -20,6 +20,7 @@ html = fs.readFileSync __dirname + '/../templates/active-constraint.html', 'utf8
 Messages.set
   'conbuilder.Update': 'Update'
   'conbuilder.Cancel': 'Cancel'
+  'conbuilder.Remove': 'Remove'
   'conbuilder.NotEditable': 'This constraint is not editable'
   'conbuilder.ValuePlaceholder': 'David*'
   'conbuilder.ExtraPlaceholder': 'Wernham-Hogg'
@@ -175,7 +176,11 @@ module.exports = class ActiveConstraint extends View
 
   # Used both by buttons for removal, and by the code that applies the changes.
   removeConstraint: (e, silently = false) ->
-      @query.removeConstraint @constraint, silently
+    e?.preventDefault()
+    e?.stopPropagation()
+    @query.removeConstraint @constraint, silently
+    if e? # This is real removal - no point hanging about.
+      @remove()
 
   getData: ->
     messages = Messages

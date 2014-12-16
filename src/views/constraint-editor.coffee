@@ -43,7 +43,7 @@ module.exports = class ConstraintEditor extends View
 
   initialize: ({@query}) ->
     super
-    @listenTo @model, 'change:op', @reRender
+    @listenTo @model, 'change:op change:displayName', @reRender
     @path = @model.get 'path'
 
   getType: -> @model.get('path').getType()
@@ -90,23 +90,25 @@ module.exports = class ConstraintEditor extends View
       return new LoopValueControls {@model, @query}
     if @isLookupConstraint()
       return new LookupValueControls {@model}
-
-    # By elimination, it must be one of these.
-    return new AttributeValueControls {@model, @query}
+    if @path.isAttribute()
+      return new AttributeValueControls {@model, @query}
+    @model.set error: new Error('cannot handle this constaint type')
+    return null
 
   isNullConstraint: -> @model.get('op') in NULL_OPS
 
-  isLoopConstraint: -> @path.isReference() and (@model.get('op') in ['=', '!='])
+  isLoopConstraint: -> @path.isClass() and (@model.get('op') in ['=', '!='])
 
+  # type constraints cannot be on the root, so isReference is perfect.
   isTypeConstraint: -> @path.isReference() and (not @model.get 'op') and @model.has('type')
 
   isBooleanConstraint: -> (@path.getType() in BOOLEAN_TYPES) and not (@model.get('op') in NULL_OPS)
 
   isMultiValueConstraint: -> @path.isAttribute() and (@model.get('op') in MULTIVALUE_OPS)
 
-  isListConstraint: -> @path.isReference() and (@model.get('op') in LIST_OPS)
+  isListConstraint: -> @path.isClass() and (@model.get('op') in LIST_OPS)
 
-  isLookupConstraint: -> @path.isReference() and (@model.get('op') in TERNARY_OPS)
+  isLookupConstraint: -> @path.isClass() and (@model.get('op') in Query.TERNARY_OPS)
 
   # Will need adding, imminently.
   # isRangeConstraint: -> @path.isReference() and (@model.get('op') in RANGE_OPS)
@@ -121,6 +123,10 @@ module.exports = class ConstraintEditor extends View
       {
           key: "conbuilder.Cancel",
           classes: "btn btn-default btn-cancel"
+      },
+      {
+          key: "conbuilder.Remove",
+          classes: "btn btn-default im-remove-constraint"
       }
   ]
 

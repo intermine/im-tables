@@ -9,6 +9,7 @@ View = require '../core-view'
 {Query, Model} = require 'imjs'
 
 Messages.set
+  'consummary.IsA': 'is a'
   'consummary.NoValue': 'no value'
 
 TEMPLATE = fs.readFileSync __dirname + '/../templates/constraint-summary.html', 'utf8'
@@ -28,7 +29,7 @@ module.exports = class ConstraintSummary extends View
 
   template: _.template TEMPLATE
 
-  getTitleOp: -> @model.get('op') or Messages.getText('IsA')
+  getTitleOp: -> @model.get('op') or Messages.getText('consummary.IsA')
 
   getTitleVal: () ->
     if @model.get('values')
