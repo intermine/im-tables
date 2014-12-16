@@ -19,6 +19,14 @@ var queries = [
     ]
   },
   {
+    name: 'multivalue',
+    select: ['name', 'department.name', 'department.manager.name'],
+    from: 'Employee',
+    where: [
+      ['name', 'ONE OF', ['anne', 'brenda', 'carol']]
+    ]
+  },
+  {
     name: 'lookup',
     select: ['name', 'department.name', 'department.manager.name'],
     from: 'Employee',
