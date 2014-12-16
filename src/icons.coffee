@@ -59,6 +59,7 @@ ICONS.glyphicons =
   ReverseRef: "glyphicon-retweet"
   Reorder: "glyphicon-reorder"
   Edit: 'glyphicon-edit'
+  ExtraValue: 'glyphicon-map-marker'
   Tree: 'glyphicon-plus'
   Download: 'glyphicon-file'
   ClipBoard: 'glyphicon-paper-clip'
@@ -108,6 +109,7 @@ ICONS.fontawesome =
   ReverseRef: 'fa-retweet'
   Reorder: "fa-reorder"
   Edit: 'fa-edit'
+  ExtraValue: 'fa-database'
   Download: 'fa-file-archive-o'
   ClipBoard: 'fa-paper-clip'
   Composed: 'fa-tags'

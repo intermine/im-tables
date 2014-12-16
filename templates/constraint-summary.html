@@ -1,13 +1,11 @@
 <% _.each(labels, function (label) { %>
   <li>        
-    <% if (label.type === 'extra') { %>
-      <%- messages.getText('conbuilder.ExtraLabel') %>
-    <% } %>
     <span class="label label-<%- label.type %>">
       <% if (label.type === 'error') { %>
         <%= icons.icon('Error') %>
         <%- messages.getText('consummary.' + label.content) %>
       <% } else { %>
+        <% if (label.icon) { %><%= icons.icon(label.icon) %><% } %>
         <%- label.content %>
       <% } %>
     </span>

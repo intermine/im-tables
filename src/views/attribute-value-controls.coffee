@@ -40,8 +40,9 @@ module.exports = class AttributeValueControls extends View
     @cast = if @model.get('path').getType() in NUMERIC_TYPES then numify else trim
     # Declare rendering dependency on messages
     @listenTo Messages, 'change', @reRender
-    @listenTo @query, 'change:constraints', @clearCachedData
-    @listenTo @query, 'change:constraints', @reRender
+    if @query?
+      @listenTo @query, 'change:constraints', @clearCachedData
+      @listenTo @query, 'change:constraints', @reRender
 
   removeWidgets: ->
     @removeTypeAheads()
@@ -75,14 +76,12 @@ module.exports = class AttributeValueControls extends View
 
   # @Override
   render: ->
-    console.debug 'rendering value controls'
     @removeWidgets()
     super
     @provideSuggestions().then null, (error) => @model.set {error}
     this
 
   provideSuggestions: -> @getSuggestions().then ({stats, results}) =>
-    console.debug 'summary:', stats, results
     if stats.uniqueValues is 0
       msg = Messages.getText 'constraintvalue.NoValues'
       @model.set error: {message: msg, level: 'warning'}
@@ -96,12 +95,10 @@ module.exports = class AttributeValueControls extends View
 
   # Need to do this when the query changes.
   clearCachedData: ->
-    console.debug 'clearing cached data'
     delete @__suggestions
     @model.unset 'error'
 
   getSuggestions: -> @__suggestions ?= do =>
-    console.debug 'getting suggestions'
     clone = @query.clone()
     pstr = @model.get('path').toString()
     value = @model.get('value')
@@ -127,7 +124,6 @@ module.exports = class AttributeValueControls extends View
       templates:
         footer: source.tooMany
 
-    console.debug 'Installing typeahead on', input[0]
     input.attr(placeholder: items[0].item).typeahead opts, dataset
     # Need to see if this needs hooking up...
     input.on 'typeahead:selected', (e, suggestion) =>

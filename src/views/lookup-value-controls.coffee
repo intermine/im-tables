@@ -1,6 +1,8 @@
 _ = require 'underscore'
 fs = require 'fs'
+{Promise} = require 'es6-promise'
 
+# TODO - fetch lists of options for the extra value
 AttributeValueControls = require './attribute-value-controls'
 
 html = fs.readFileSync __dirname + '/../templates/extra-value-controls.html', 'utf8'
@@ -22,4 +24,5 @@ module.exports = class LoopValueControls extends AttributeValueControls
   setExtraValue: -> @model.set extraValue: @$('.im-extra-value').val()
 
   provideSuggestions: -> # Easiest just to override this really.
+    Promise.resolve true
 

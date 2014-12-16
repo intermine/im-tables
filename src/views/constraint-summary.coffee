@@ -58,6 +58,6 @@ module.exports = class ConstraintSummary extends View
         labels.push content: val, type: 'value'
 
       if @isLookup() and @model.has 'extraValue'
-        labels.push {content: @model.get('extraValue'), type: 'extra'}
+        labels.push {content: @model.get('extraValue'), type: 'extra', icon: 'ExtraValue'}
 
     return labels
