@@ -3,6 +3,7 @@ fs = require 'fs'
 
 Messages = require '../messages'
 View = require '../core-view'
+{IS_BLANK} = require '../patterns'
 
 {Query, Model} = require 'imjs'
 
@@ -44,7 +45,8 @@ module.exports = class ConstraintSummary extends View
 
     unless @model.get('op') in Query.NULL_OPS
       val = @getTitleVal()
-      labels.push({content: val, type: 'value'})
+      type = if (not val or IS_BLANK.test val) then 'empty' else 'value'
+      labels.push({content: val, type: type})
 
       if @isLookup() and @model.has 'extraValue'
         labels.push {content: @model.get('extraValue'), type: 'extra'}

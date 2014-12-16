@@ -5,7 +5,10 @@
     display: none;
 }
 
-@import "variables.less";
+@import "./variables.less";
+@import "./active-constraints.less";
+@import "./typeahead.less";
+@import "./slider.less";
 
 .label-path {
     .label-variant(@label-path-bg);
@@ -16,11 +19,18 @@
 .label-value {
     .label-variant(@label-value-bg);
 }
+.label-empty {
+    .label-variant(@label-empty-bg);
+
+    &:before {
+        content: '\00a0';
+    }
+}
 
 .breadcrumb.summary {
     > li {
         + li:before {
-            content: "@{summary-separator}\00a0"; // Unicode space added since inline-block means non-collapsing white-space
+            content: "@{summary-separator}\00a0"; // see original BS source for Unicode space rationale
         }
 
         > .label {

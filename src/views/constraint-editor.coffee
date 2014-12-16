@@ -124,7 +124,7 @@ module.exports = class ConstraintEditor extends View
       },
       {
           key: "conbuilder.Cancel",
-          classes: "btn btn-cancel"
+          classes: "btn btn-default btn-cancel"
       }
   ]
 

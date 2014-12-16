@@ -1,3 +1,4 @@
+$ = require 'jquery'
 _ = require 'underscore'
 fs = require 'fs'
 
@@ -15,6 +16,8 @@ trim = (s) -> String(s).replace(/^\s+/, '').replace(/\s+$/, '')
 numify = (x) -> 1 * trim x
 
 module.exports = class AttributeValueControls extends View
+
+  className: 'im-attribute-value-controls'
 
   template: _.template html
 
@@ -74,7 +77,6 @@ module.exports = class AttributeValueControls extends View
         @handleSummary(results, stats.uniqueValues)
 
   getSuggestions: -> @__suggestions ?= do =>
-    console.debug 'getting suggestions'
     clone = @query.clone()
     pstr = @model.get('path').toString()
     value = @model.get('value')
@@ -111,15 +113,15 @@ module.exports = class AttributeValueControls extends View
     # Keep a track of it, so it can be removed.
     @typeaheads.push input
 
-  clearer: '<div class="im-value-options" style="clear:both;">'
+  clearer: '<div class="" style="clear:both;">'
 
   handleNumericSummary: ({min, max, average}) ->
     path = @model.get 'path'
-    isInt = path.getType() in Model.INTEGRAL_TYPES
+    isInt = path.getType() in INTEGRAL_TYPES
     step = if isInt then 1 else (max - min / 100)
     caster = if isInt then ((x) -> parseInt(x, 10)) else parseFloat
-    input = @$ '.im-con-value-attr'
-    container = input.parent()
+    container = @$el
+    input = @$ 'input'
     container.append @clearer
     $slider = $ '<div class="im-value-options">'
     $slider.appendTo(container).slider
