@@ -42,7 +42,8 @@ var queries = [
     from: 'Employee',
     where: [
       ['name', '=', 'd*'],
-      ['age', '>', 35]
+      ['age', '>', 35],
+      ['fullTime', '=', true]
     ]
   },
   {
