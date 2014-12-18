@@ -29,7 +29,7 @@ NO_OP = -> # A function that doesn't do anything
 
 operatorsFor = (path) ->
   if path.isReference() or path.isRoot()
-    REFERENCE_OPS
+    REFERENCE_OPS.concat Query.RANGE_OPS
   else if path.getType() in BOOLEAN_TYPES
     ["=", "!="].concat(NULL_OPS)
   else
@@ -90,6 +90,8 @@ module.exports = class ConstraintEditor extends View
       return new LoopValueControls {@model, @query}
     if @isLookupConstraint()
       return new LookupValueControls {@model}
+    if @isRangeConstraint()
+      return new MultiValueControls {@model}
     if @path.isAttribute()
       return new AttributeValueControls {@model, @query}
     @model.set error: new Error('cannot handle this constaint type')
@@ -110,25 +112,29 @@ module.exports = class ConstraintEditor extends View
 
   isLookupConstraint: -> @path.isClass() and (@model.get('op') in Query.TERNARY_OPS)
 
-  # Will need adding, imminently.
-  # isRangeConstraint: -> @path.isReference() and (@model.get('op') in RANGE_OPS)
+  isRangeConstraint: -> @path.isReference() and (@model.get('op') in Query.RANGE_OPS)
 
   getOtherOperators: -> _.without operatorsFor(@model.get 'path'), @model.get 'op'
 
-  buttons: -> [
-      {
-          key: "conbuilder.Update",
-          classes: "btn btn-primary"
-      },
-      {
-          key: "conbuilder.Cancel",
-          classes: "btn btn-default btn-cancel"
-      },
-      {
-          key: "conbuilder.Remove",
-          classes: "btn btn-default im-remove-constraint"
-      }
-  ]
+  buttons: ->
+    buttons = [
+        {
+            key: "conbuilder.Update",
+            classes: "btn btn-primary"
+        },
+        {
+            key: "conbuilder.Cancel",
+            classes: "btn btn-default btn-cancel"
+        },
+        {
+            key: "conbuilder.Remove",
+            classes: "btn btn-default im-remove-constraint"
+        }
+    ]
+    if @model.get('new')
+      buttons[0].key = 'conbuilder.Add'
+
+    return buttons
 
   getData: ->
     buttons = @buttons()

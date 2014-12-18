@@ -18,6 +18,7 @@ html = fs.readFileSync __dirname + '/../templates/active-constraint.html', 'utf8
 
 # It is very important that the ValuePlaceholder get set to the appropriate mine value.
 Messages.set
+  'conbuilder.Add': 'Add constraint'
   'conbuilder.Update': 'Update'
   'conbuilder.Cancel': 'Cancel'
   'conbuilder.Remove': 'Remove'
@@ -34,10 +35,6 @@ Messages.set
   'conbuilder.TooManySuggestions': 'We cannot show you all the possible values'
   'conbuilder.NoSuitableLists': 'No lists of this type are available'
   'conbuilder.NoSuitableLoops': 'No suitable loop paths were found'
-
-MULTI_TD_INPUTS = '.im-multi-value-table input'
-
-PATH_SEGMENT_DIVIDER = "&rarr;"
 
 aeql = (xs, ys) ->
   if not xs and not ys
@@ -56,9 +53,6 @@ basicEql = (a, b) ->
     same and= (if _.isArray va then aeql va, vb else va is vb)
   return same
 
-EXTRA_VALUE_TEMPL = """
-"""
-
 # Composite view with a summary, and controls for editing the constraint.
 module.exports = class ActiveConstraint extends View
 
@@ -70,12 +64,12 @@ module.exports = class ActiveConstraint extends View
     super
     # Model is the state of the constraint, with the path promoted to a full object.
     @model.set @constraint
-    @model.set path: @query.getPathInfo @constraint.path
 
     @state.set editing: false
     @listenTo @state, 'change:editing', @toggleEditor
 
     @listenTo @model, 'change:type', @setTypeName
+    @listenTo @model, 'change:path', @setDisplayName
 
     # Declare rendering dependency on messages and icons.
     @listenTo Messages, 'change', @reRender
@@ -84,7 +78,12 @@ module.exports = class ActiveConstraint extends View
     @listenTo @model, 'cancel', @cancelEditing
     @listenTo @model, 'apply', @applyChanges
     
-    @setDisplayName()
+    try
+      @model.set path: @query.getPathInfo @constraint.path
+    catch e
+      @model.set error: e
+      @state.set editing: true
+
     @setTypeName()
 
   setDisplayName: ->
@@ -185,12 +184,14 @@ module.exports = class ActiveConstraint extends View
       con.path = con.path.toString()
       @query.addConstraint con
       @constraint = con
+      @model.unset 'new'
 
   # Used both by buttons for removal, and by the code that applies the changes.
   removeConstraint: (e, silently = false) ->
     e?.preventDefault()
     e?.stopPropagation()
-    @query.removeConstraint @constraint, silently
+    unless @model.get 'new'
+      @query.removeConstraint @constraint, silently
     if e? # This is real removal - no point hanging about.
       @remove()
 
@@ -204,12 +205,14 @@ module.exports = class ActiveConstraint extends View
 
   toggleEditor: ->
     if @state.get('editing') and @rendered
-      @renderChild 'editor', (new ConstraintEditor {@model, @query}), @$ '.im-constraint-editor'
+      opts = {@model, @query}
+      @renderChild 'editor', (new ConstraintEditor opts), @$ '.im-constraint-editor'
     else
       @removeChild 'editor'
 
   renderSummary: ->
-    @renderChild 'summary', (new ConstraintSummary {@model}), @$ '.im-con-overview'
+    opts = {@model}
+    @renderChild 'summary', (new ConstraintSummary opts), @$ '.im-con-overview'
 
   render: ->
     super

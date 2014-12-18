@@ -4,9 +4,21 @@ set -e
 
 mkdir -p test/bundles
 
-browserify -t brfs-htmlmin \
-          test/indices/active-constraint.js > test/bundles/active-constraint-loader.js
+browserify test/indices/active-constraint.js > test/bundles/active-constraint-loader.js
 
 # Build the html to load.
 ./bin/build-test-html active-constraint
 
+for loader in active-constraint new-constraint; do
+    echo bundling $loader
+    browserify \
+        --transform coffeeify \
+        --extension ".coffee" \
+        --outfile test/bundles/${loader}-loader.js \
+        --entry test/indices/${loader}.coffee
+
+    # Build the html to load.
+    ./bin/build-test-html $loader
+done
+
+echo finished bundling

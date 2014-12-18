@@ -32,7 +32,7 @@ module.exports = class ConstraintSummary extends View
   getTitleOp: -> @model.get('op') or Messages.getText('consummary.IsA')
 
   getTitleVal: () ->
-    if @model.get('op') in Query.MULTIVALUE_OPS
+    if @model.has('values') and @model.get('op') in Query.MULTIVALUE_OPS.concat Query.RANGE_OPS
       if vals = @model.get('values')
         if vals.length is 1
           vals[0]
@@ -65,7 +65,8 @@ module.exports = class ConstraintSummary extends View
     unless @model.get('op') in Query.NULL_OPS
       val = @getTitleVal()
       if (not val? or IS_BLANK.test val)
-        labels.push content: 'NoValue', type: 'error'
+        level = if @model.get('new') then 'warning' else 'error'
+        labels.push content: 'NoValue', type: level
       else
         labels.push content: val, type: 'value'
 

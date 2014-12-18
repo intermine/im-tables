@@ -1,7 +1,7 @@
 <% _.each(labels, function (label) { %>
   <li>        
     <span class="label label-<%- label.type %>">
-      <% if (label.type === 'error') { %>
+      <% if (_.include(['error', 'warning'], label.type)) { %>
         <%= icons.icon('Error') %>
         <%- messages.getText('consummary.' + label.content) %>
       <% } else { %>
