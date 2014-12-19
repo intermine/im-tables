@@ -1,7 +1,7 @@
 <fieldset class="im-constraint-options form-group row">
-  <label class="col-sm-3 path-label"><%- data.con.displayName %></label>
+  <label class="col-xs-3 path-label"><%- data.con.displayName %></label>
   <% if (data.con.op) { %>
-    <div class="col-sm-3">
+    <div class="col-xs-3">
         <select class="form-control im-ops">
         <option selected><%- data.con.op %></option>
         <% data.otherOperators.forEach(function (op) { %>
@@ -10,7 +10,7 @@
         </select>
     </div>
   <% } %>
-  <div class="col-sm-6 im-value-options">
+  <div class="col-xs-6 im-value-options">
   </div>
 </fieldset>
 

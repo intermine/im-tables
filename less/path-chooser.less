@@ -1,0 +1,29 @@
+.im-path-chooser {
+    li {
+        list-style-type: none;
+        width: 100%;
+
+        > a {
+            color: inherit;
+            background-color: inherit;
+            width: 100%;
+            display: inline-block;
+            padding: 0.2em 0.3em;
+
+            &:hover {
+                text-decoration: none;
+                color: @dropdown-link-hover-color;
+                background-color: @dropdown-link-hover-bg;
+            }
+        }
+
+        &.open {
+
+            > a {
+                color: @dropdown-link-active-color;
+                background-color: @dropdown-link-active-bg;
+            }
+        }
+    }
+
+}

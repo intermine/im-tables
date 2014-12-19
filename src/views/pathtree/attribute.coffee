@@ -1,7 +1,7 @@
 _ = require 'underscore'
-View = require '../core-view'
+View = require '../../core-view'
 
-Options = require '../options'
+Options = require '../../options'
 
 ###
 # Type expectations:
@@ -29,7 +29,7 @@ module.exports = class Attribute extends View
   initialize: ({@chosenPaths, @query, @path, @trail}) ->
     super
     @depth = @trail.length + 1
-    @state = new Backbone.Model
+    @state.set
       visible: true
       highlitName: null
       name: @path.toString()

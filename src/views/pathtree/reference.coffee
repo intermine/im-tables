@@ -27,6 +27,8 @@ module.exports = class Reference extends Attribute
   render: ->
     super
     unless @state.get('collapsed')
+      @$el.addClass 'open'
       trail = @trail.concat [@path]
+      console.debug "Creating finder for", trail
       subfinder = @createSubFinder {@model, @query, @chosenPaths, @openNodes, trail}
       @renderChild 'subfinder', subfinder

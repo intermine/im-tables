@@ -9,7 +9,7 @@ browserify test/indices/active-constraint.js > test/bundles/active-constraint-lo
 # Build the html to load.
 ./bin/build-test-html active-constraint
 
-for loader in active-constraint new-constraint; do
+for loader in active-constraint new-constraint constraint-adder; do
     echo bundling $loader
     browserify \
         --transform coffeeify \

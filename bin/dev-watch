@@ -1,3 +1,5 @@
 #!/bin/bash
 
-watch 'npm run build-test-indices && notify-send imtables built' . --wait=20
+NOTIFY='notify-send -t 2000 --hint int:transient:1 "imtables finished building"'
+
+watch "npm run build-test-indices && $NOTIFY" . --wait=20

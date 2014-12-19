@@ -3,6 +3,8 @@ _ = require 'underscore'
 $ = require 'jquery'
 
 CoreModel = require './core-model'
+Messages = require './messages'
+Icons = require './icons'
 
 # Incrementing id counter for children
 kid = 0
@@ -26,7 +28,8 @@ module.exports = class CoreView extends Backbone.View
 
   renderError: (resp) -> renderError(@el) resp
 
-  getData: -> @model.toJSON()
+  getData: -> # By default, the model extended with Messages and Icons
+    _.extend {Messages, Icons}, @model.toJSON()
 
   # Like render, but only happens if already rendered at least once.
   reRender: ->

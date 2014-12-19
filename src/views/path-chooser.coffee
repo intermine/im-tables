@@ -2,53 +2,56 @@ _ = require 'underscore'
 
 Options = require '../options'
 View = require '../core-view'
+
 Attribute = require './pathtree/attribute'
 RootClass = require './pathtree/root'
-Reference = require './reference'
-ReverseReference = require './reverse-reference'
+Reference = require './pathtree/reference'
+ReverseReference = require './pathtree/reverse-reference'
 
 appendField = (pth, fld) -> pth.append fld
 
 module.exports = class PathChooser extends View
 
-    tagName: 'ul'
-        
-    initialize: ({@query, @chosenPaths, @openNodes, @trail}) ->
-      super
-      @path  = trail.reduce appendField, @model.get 'root'
-      @cd    = path.getEndClass()
-      toPath = appendField.bind null, @path
+  tagName: 'ul'
+      
+  className: 'im-path-chooser'
 
-      # These are all :: [PathInfo]
-      for fieldType in ['attributes', 'references', 'collections']
-        @[fieldType] = (toPath attr for name, attr of @cd[fieldType])
+  initialize: ({@query, @chosenPaths, @openNodes, @trail}) ->
+    super
+    @path  = (_.last(@trail) or @model.get 'root')
+    @cd    = @path.getEndClass()
+    toPath = appendField.bind null, @path
 
-      @listenTo @model, 'change:allowRevRefs', @render
-      @listenTo @openNodes, 'reset', @render
+    # These are all :: [PathInfo]
+    for fieldType in ['attributes', 'references', 'collections']
+      @[fieldType] = (toPath attr for name, attr of @cd[fieldType])
 
-    getDepth: -> @trail.length
+    @listenTo @model, 'change:allowRevRefs', @render
+    @listenTo @openNodes, 'reset', @render
 
-    showRoot: -> @getDepth() is 0 and @model.get('canSelectReferences')
+  getDepth: -> @trail.length
 
-    render: () ->
-      super # does things like trigger shown,...
-      showId = Options.get 'ShowId'
+  showRoot: -> @getDepth() is 0 and @model.get('canSelectReferences')
 
-      if @showRoot() # then show the root class
-        root = @createRoot()
-        @renderChild 'root', root
+  render: () ->
+    super # does things like trigger shown, removes kids, etc.
+    showId = Options.get 'ShowId'
 
-      for apath in @attributes
-        if showId or apath.end.name isnt 'id'
-          attr = @createAttribute apath
-          @renderChild attr.toString(), attr
+    if @showRoot() # then show the root class
+      root = @createRoot()
+      @renderChild 'root', root
 
-      # Same logic for references and collections, but we want references to go first.
-      for rpath in @references.concat(@collections)
-        ref = @createReference rpath
-        @renderChild rpath.toString(), ref
+    for path in @attributes
+      if showId or (path.end.name isnt 'id')
+        attr = @createAttribute path
+        @renderChild path.toString(), attr
 
-      this
+    # Same logic for references and collections, but we want references to go first.
+    for path in @references.concat(@collections)
+      ref = @createReference path
+      @renderChild path.toString(), ref
+
+    this
 
   createRoot: ->
     new RootClass {@query, @model, @chosenPaths, @cd}
