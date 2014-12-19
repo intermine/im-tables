@@ -15,8 +15,8 @@
 </fieldset>
 
 <div class="btn-group im-con-buttons">
-  <% data.buttons.forEach(function (b) { %>
-  <button class="<%- b.classes %>">
+  <% data.buttons.forEach(function (b, i) { %>
+  <button class="btn btn-<%= (i === 0) ? 'primary' : 'default' %> <%- b.classes %>">
     <%- data.messages.getText(b.key) %>
   </button>
   <% }); %>

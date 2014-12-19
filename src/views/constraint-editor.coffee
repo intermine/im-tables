@@ -120,22 +120,23 @@ module.exports = class ConstraintEditor extends View
   getOtherOperators: -> _.without operatorsFor(@model.get 'path'), @model.get 'op'
 
   buttons: ->
+    # This is the ugliest part of the whole code really, but the alternative is an extra
+    # class for little to gain.
     buttons = [
         {
             key: "conbuilder.Update",
-            classes: "btn btn-primary"
+            classes: "im-update"
         },
         {
             key: "conbuilder.Cancel",
-            classes: "btn btn-default btn-cancel"
-        },
-        {
-            key: "conbuilder.Remove",
-            classes: "btn btn-default im-remove-constraint"
+            classes: "btn-cancel"
         }
     ]
     if @model.get('new')
       buttons[0].key = 'conbuilder.Add'
+      buttons[1].classes = "im-remove-constraint"
+    else
+      buttons.push key: "conbuilder.Remove", classes: "btn btn-default im-remove-constraint"
 
     return buttons
 
