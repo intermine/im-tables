@@ -1,5 +1,12 @@
 #!/bin/bash
 
-NOTIFY='notify-send -t 2000 --hint int:transient:1 "imtables finished building"'
+# this should be a node script really.
 
-watch "npm run build-test-indices && $NOTIFY" . --wait=20
+NOTIFY='notify-send -t 2000 --hint int:transient:1 IMTABLES'
+
+npm run pre-compile
+
+watch "npm run do-compile && npm run bundle-test-indices && $NOTIFY 'compiled code'" src/ --wait=20 &
+watch "npm run do-compile && npm run bundle-test-indices && $NOTIFY 'compiled templates'" templates/ --wait=20 &
+watch "npm run bundle-test-indices && $NOTIFY 'finished building'" test/indices/ --wait=20 &
+watch "npm run less && $NOTIFY 'compiled css'" less/ --wait=20
