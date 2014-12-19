@@ -2,6 +2,7 @@ _ = require 'underscore'
 View = require '../../core-view'
 
 Options = require '../../options'
+Icons = require '../../icons'
 
 ###
 # Type expectations:
@@ -23,8 +24,8 @@ module.exports = class Attribute extends View
 
   tagName: 'li'
 
-  events:
-      'click a': 'handleClick'
+  events: ->
+    'click a': 'handleClick'
 
   initialize: ({@chosenPaths, @query, @path, @trail}) ->
     super
@@ -35,7 +36,6 @@ module.exports = class Attribute extends View
       name: @path.toString()
 
     @listenTo @chosenPaths, 'add remove reset', @handleChoice
-    @listenTo @model, 'change:filter', @onChangeFilter
     @listenTo @state, 'change:visible', @onChangeVisible
     @listenTo @state, 'change:highlitName', @render
     @listenTo @state, 'change:displayName', @render
@@ -51,19 +51,6 @@ module.exports = class Attribute extends View
       (new RegExp(t, 'i') for t in filterTerms.split(/\s+/) when t)
     else
       []
-
-  onChangeFilter: ->
-    displayName = @state.get('displayName')
-    pathString = @path.toString()
-    regexps = @getFilterPatterns()
-    state = visible: true, highlitName: null
-
-    if regexps.length
-      state.visible = _.all regexps, (r) -> r.test(pathString) or r.test(displayName)
-      if state.visible
-        @setHighlitName regexps
-
-    @state.set state
 
   handleClick: (e) ->
     e.stopPropagation()
@@ -108,7 +95,8 @@ module.exports = class Attribute extends View
   getData: ->
     title = if Options.get('ShowId') then "#{ @path } (#{ @path.getType() })" else ''
     name = if @state.get('highlitName') then @state.get('highlitName') else @state.escape('name')
-    {icon: null, title, name}
+    icon = Icons.icon 'Attribute'
+    {icon, title, name}
 
   template: _.template """
     <a href="#" title="<%- title %>">
@@ -124,4 +112,5 @@ module.exports = class Attribute extends View
     @$el.toggleClass 'disabled', @getDisabled()
     if Options.get('ShowId')
       @$('a').tooltip placement: 'bottom'
+    @handleChoice()
     this

@@ -6,6 +6,8 @@ Messages = require '../messages'
 View = require '../core-view'
 Options = require '../options'
 {IS_BLANK} = require '../patterns'
+mixOf = require '../mix-of'
+HasTypeaheads = require '../mixins/has-typeaheads'
 
 SuggestionSource = require '../utils/suggestion-source'
 
@@ -24,7 +26,7 @@ Messages.set
     There is only one possible value: <%- value %>. You might want to remove this constraint
   """
 
-module.exports = class AttributeValueControls extends View
+module.exports = class AttributeValueControls extends mixOf View, HasTypeaheads
 
   className: 'im-attribute-value-controls'
 
@@ -35,7 +37,6 @@ module.exports = class AttributeValueControls extends View
   # @Override
   initialize: ({@query}) ->
     super
-    @typeaheads = []
     @sliders = []
     @cast = if @model.get('path').getType() in NUMERIC_TYPES then numify else trim
     # Declare rendering dependency on messages
@@ -50,31 +51,26 @@ module.exports = class AttributeValueControls extends View
       if newOp in Query.MULTIVALUE_OPS
         @model.set value: null, values: [@model.get('value')]
 
-  removeWidgets: ->
+  remove: ->
     @removeTypeAheads()
     @removeSliders()
-
-  removeTypeAheads: ->
-    while (ta = @typeaheads.shift())
-      ta.off('typeahead:selected')
-      ta.off('typeahead:autocompleted')
-      ta.typeahead('destroy')
-      ta.remove()
+    super
 
   removeSliders: ->
     while (sl = @sliders.shift())
-      sl.slider('destroy')
-      sl.remove()
+      try
+        sl.slider('destroy')
+        sl.remove()
 
   events: ->
     'change .im-con-value-attr': 'setAttributeValue'
 
   updateInput: ->
-    input = (_.last(@typeaheads) ? @$('.im-con-value-attr'))
+    input = (@lastTypeahead() ? @$('.im-con-value-attr'))
     input.val @model.get 'value'
 
   readAttrValue: ->
-    raw = (_.last(@typeaheads) ? @$('.im-con-value-attr')).val()
+    raw = (@lastTypeahead() ? @$('.im-con-value-attr')).val()
     try
       #  to string or number, as per path type
       if (raw? and not IS_BLANK.test raw) then @cast(raw) else null
@@ -86,7 +82,6 @@ module.exports = class AttributeValueControls extends View
 
   # @Override
   render: ->
-    @removeWidgets()
     super
     @provideSuggestions().then null, (error) => @model.set {error}
     this
@@ -134,15 +129,9 @@ module.exports = class AttributeValueControls extends View
       templates:
         footer: source.tooMany
 
-    input.attr(placeholder: items[0].item).typeahead opts, dataset
-    # Need to see if this needs hooking up...
-    input.on 'typeahead:selected', (e, suggestion) =>
+    @removeTypeAheads()
+    @activateTypeahead input, opts, dataset, items[0].item, (e, suggestion) =>
       @model.set value: suggestion.item
-    input.on 'typeahead:autocompleted', (e, suggestion) =>
-      @model.set value: suggestion.item
-
-    # Keep a track of it, so it can be removed.
-    @typeaheads.push input
 
   clearer: '<div class="" style="clear:both;">'
   
@@ -176,4 +165,5 @@ module.exports = class AttributeValueControls extends View
     input.attr placeholder: caster average
     container.append @clearer
     input.change (e) -> $slider.slider 'value', caster input.val()
+    @removeSliders()
     @sliders.push $slider

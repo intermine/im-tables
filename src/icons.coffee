@@ -67,6 +67,7 @@ ICONS.glyphicons =
   RemoveConstraint: 'glyphicon-remove-sign'
   Dismiss: 'glyphicon-remove-sign'
   Lock: 'glyphicon-lock'
+  Attribute: "glyphicon-unchecked"
   tsv: 'glyphicon-list'
   csv: 'glyphicon-list'
   xml: 'glyphicon-xml'
@@ -81,7 +82,6 @@ ICONS.fontawesome =
   headerIconRemove: "fa-times"
   headerIconHide: "fa-ellipsis-h"
   headerIconReveal: 'fa-arrows-h'
-  RootClass: 'fa-stop'
   Yes: "fa-star"
   No: "fa-star-o"
   Table: 'fa-list'
@@ -117,6 +117,10 @@ ICONS.fontawesome =
   Dismiss: 'fa-times-circle'
   Error: 'fa-warning'
   Lock: 'fa-lock'
+  RootClass: 'fa-square'
+  Attribute: 'fa-tag'
+  ClosedReference: 'fa-plus-square'
+  OpenReference: 'fa-plus-square-o'
   tsv: 'fa-list'
   csv: 'fa-list'
   xml: 'fa-xml'

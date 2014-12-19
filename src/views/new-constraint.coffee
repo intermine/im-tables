@@ -11,7 +11,7 @@ module.exports = class NewConstraint extends ActiveConstraint
     super
     @model.set
       new: true
-      op: (if @model.get('path').isReference() then 'LOOKUP' else '=')
+      op: (if @model.get('path').isAttribute() then '=' else 'LOOKUP')
     @state.set
       editing: true
 

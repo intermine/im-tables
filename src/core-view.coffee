@@ -73,8 +73,9 @@ module.exports = class CoreView extends Backbone.View
         @removeChild child
 
   remove: ->
-    @removeAllChildren()
     super
+    @stopListening()
+    @removeAllChildren()
     if @state?
       @state.destroy() # not likely necessary, but get rid of it in any case
       delete @state

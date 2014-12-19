@@ -4,6 +4,8 @@ Reference = require './reference'
 
 module.exports = class ReverseReference extends Reference
 
+  className: 'im-reverse-reference'
+
   getData: ->
     d = super
     d.icon += " " + Icons.icon('ReverseRef')

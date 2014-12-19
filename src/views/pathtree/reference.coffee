@@ -8,8 +8,11 @@ module.exports = class Reference extends Attribute
     @state.set collapsed: true
     @listenTo @openNodes, 'add remove', @setCollapsed
     @listenTo @state, 'change:collapsed', @render
+    @setCollapsed()
 
-  setCollapsed: -> @state.set collapsed: not @openNodes.contains(@path)
+  setCollapsed: ->
+    # We need a guard because clean up seems to happen in the wrong order.
+    @state?.set collapsed: not @openNodes.contains @path
 
   handleClick: (e) ->
     e?.preventDefault()
@@ -21,13 +24,12 @@ module.exports = class Reference extends Attribute
 
   getData: ->
     d = super
-    d.icon = Icons.icon if @state.get('collapsed') then 'Collapsed' else 'Expanded'
+    d.icon = Icons.icon if @state.get('collapsed') then 'ClosedReference' else 'OpenReference'
     return d
 
   render: ->
     super
     unless @state.get('collapsed')
-      @$el.addClass 'open'
       trail = @trail.concat [@path]
       console.debug "Creating finder for", trail
       subfinder = @createSubFinder {@model, @query, @chosenPaths, @openNodes, trail}

@@ -37,7 +37,7 @@ operatorsFor = (path) ->
 
 module.exports = class ConstraintEditor extends View
 
-  tagName: 'form'
+  tagName: 'div'
 
   className: 'form'
 
@@ -59,7 +59,10 @@ module.exports = class ConstraintEditor extends View
   cancelEditing: ->
     @model.trigger 'cancel'
 
-  applyChanges: -> @model.trigger 'apply', @getConstraint()
+  applyChanges: (e) ->
+    e?.preventDefault()
+    e?.stopPropagation()
+    @model.trigger 'apply', @getConstraint()
 
   getConstraint: ->
     con = @model.pick ['path', 'op', 'value', 'values', 'code', 'type']

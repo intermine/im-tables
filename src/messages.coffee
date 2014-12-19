@@ -24,6 +24,10 @@ class Messages extends Backbone.Model
     templ?(args)
 
   defaults: ->
+    'Clear': 'Clear'
+    'and': 'and'
+    'or': 'or'
+    'comma': ','
     'Cancel': 'Cancel'
     'largetable.ok': 'Set page size to <%- size %>'
     'largetable.abort': 'Cancel'

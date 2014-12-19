@@ -41,4 +41,4 @@ module.exports = class UniqItems extends Backbone.Collection
       if item instanceof Item
         super item, opts
       else
-        super @where({item}), opts
+        super @findWhere({item}), opts

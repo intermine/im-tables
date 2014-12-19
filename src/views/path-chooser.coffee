@@ -54,7 +54,7 @@ module.exports = class PathChooser extends View
     this
 
   createRoot: ->
-    new RootClass {@query, @model, @chosenPaths, @cd}
+    new RootClass {@query, @model, @chosenPaths, @openNodes, @cd}
 
   createAttribute: (path) ->
     new Attribute {@model, @chosenPaths, @query, @trail, path}
