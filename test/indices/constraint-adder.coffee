@@ -1,6 +1,8 @@
 "use strict"
 
 require "imtables/shim"
+_ = require 'underscore'
+{Events} = require 'backbone'
 $ = require("jquery")
 imjs = require("imjs")
 
@@ -14,12 +16,23 @@ root = "http://localhost:8080/intermine-demo"
 conn = imjs.Service.connect(root: root)
 
 renderQuery = (heading, container, query) ->
+  _.extend query, Events # oops. We will need to fix this at the query level.
   counter = new Counter el: heading, query: query
   counter.render()
-  view = new ConstraintAdder {query}
-  view.$el.appendTo container
-  print container
-  view.render()
+  addConstraint = ->
+    view = new ConstraintAdder {query}
+    view.$el.appendTo container
+    print container
+    view.render()
+  query.on 'change:constraints', ->
+    btn = document.createElement 'button'
+    btn.className = 'btn btn-primary btn-lg'
+    btn.innerHTML = 'Add another constraint'
+    container.appendChild btn
+    btn.onclick = ->
+      container.removeChild btn
+      addConstraint()
+  addConstraint()
 
 $ ->
   container = document.querySelector("#demo")
