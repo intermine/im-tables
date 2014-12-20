@@ -6,27 +6,14 @@
     "port": "9000"
   },
   "scripts": {
-    "prestart": "./bin/dev-watch &",
-    "start": "./bin/dev-server",
-    "pretest": "npm run pre-compile && npm run compile",
+    "start": "grunt server",
+    "pretest": "npm run build",
     "test": "mocha --compilers coffee:coffee-script/register test/unit/*",
-    "watch-src": "watch 'npm run build' src/ --wait=20",
-    "watch-less": "watch 'npm run less' less/ --wait=20",
-    "watch": "npm run watch-src & npm run watch-js & npm run watch-less",
-    "pre-compile": "./bin/clean",
-    "compile-coffee": "coffee --compile --output build/ src/",
-    "cp-templates": "mkdir -p build/templates && cp templates/* build/templates",
-    "inline-templates": "./bin/inline-templates",
-    "inject-version": "./bin/inject-version.js",
-    "do-compile": "npm run compile-coffee && npm run do-post-compile",
-    "do-post-compile": "npm run inject-version && npm run cp-templates && npm run inline-templates",
-    "compile": "npm run pre-compile && npm run do-compile",
-    "bundle-test-indices": "./bin/bundle-test-indices",
-    "indices": "npm run build-test-indices",
-    "build-test-indices": "npm run compile && npm run less && npm run bundle-test-indices",
+    "watch": "grunt watch",
+    "compile": "grunt compile",
     "bundle": "browserify build/main.js > dist/main.js",
-    "less": "lessc --include-path=less:node_modules less/main.less > dist/main.css",
-    "build": "npm run compile && npm run bundle && npm run less",
+    "less": "grunt run:lessc",
+    "build": "grunt default",
     "grunt": "grunt"
   },
   "keywords": [
@@ -35,7 +22,7 @@
     "InterMine",
     "Bio-Informatics"
   ],
-  "main": "./js/imtables.js",
+  "main": "index.js",
   "browser": {
     "d3js": "./bower_components/d3/d3.min.js"
   },
