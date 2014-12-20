@@ -15,33 +15,13 @@ var serverPort = (grunt.option('port') || env.PORT || env.npm_package_config_por
 grunt.initConfig({
   watch: { // Hwat! This task lays out the dependency graph.
     coffee: {
-      files: ['src/**/*'],
-      tasks: ['coffee:src'],
-      options: {spawn: false}
-    },
-    templates: {
-      files: ['templates/**/*'],
-      tasks: ['copy:templates'],
-      options: {spawn: false}
-    },
-    gen: {
-      files: ['.tmp/src/**/*'],
-      tasks: ['-inline_templates'],
-      options: {spawn: false}
-    },
-    package_json: {
-      files: ['package.json'],
-      tasks: ['run:inject_version'],
+      files: ['src/**', 'templates/**', 'package.json', 'test/indices/*'],
+      tasks: ['build'],
       options: {spawn: false}
     },
     less: {
-      files: ['less/**/*'],
+      files: ['less/**'],
       tasks: ['run:lessc'],
-      options: {spawn: false}
-    },
-    build: {
-      files: ['build/**/*', 'test/indices/*'],
-      tasks: ['bundle'],
       options: {spawn: false}
     }
   },
@@ -83,7 +63,10 @@ grunt.initConfig({
       args: [
         '--port',
         serverPort
-      ]
+      ],
+      options: {
+        wait: false
+      }
     },
     lessc: {
       exec: "lessc --include-path=less:node_modules less/main.less > dist/main.css"
@@ -135,9 +118,17 @@ grunt.registerTask('bundle', [
   'run:bundle_test_indices'
 ]);
 
-grunt.registerTask('default', [
+grunt.registerTask('build', [
   'clean',
   'compile',
   'run:lessc',
   'bundle'
 ]);
+
+grunt.registerTask('serve', [
+  'build',
+  'run:server',
+  'watch'
+]);
+
+grunt.registerTask('default', ['build']);
