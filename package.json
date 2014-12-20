@@ -6,14 +6,14 @@
     "port": "9000"
   },
   "scripts": {
-    "start": "grunt server",
+    "start": "grunt serve",
     "pretest": "npm run build",
     "test": "mocha --compilers coffee:coffee-script/register test/unit/*",
     "watch": "grunt watch",
     "compile": "grunt compile",
     "bundle": "browserify build/main.js > dist/main.js",
     "less": "grunt run:lessc",
-    "build": "grunt default",
+    "build": "grunt build",
     "grunt": "grunt"
   },
   "keywords": [
