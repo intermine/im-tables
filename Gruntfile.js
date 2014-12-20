@@ -1,3 +1,5 @@
+'use strict';
+
 var grunt = require('grunt');
 
 grunt.loadNpmTasks('grunt-contrib-watch');
@@ -6,9 +8,9 @@ grunt.loadNpmTasks('grunt-contrib-copy');
 grunt.loadNpmTasks('grunt-notify');
 grunt.loadNpmTasks('grunt-run');
 
-var serverPort = (grunt.option('port') ||
-    process.env.PORT ||
-    process.env.npm_package_config_port;
+var env = process.env;
+
+var serverPort = (grunt.option('port') || env.PORT || env.npm_package_config_port);
 
 grunt.initConfig({
   watch: { // Hwat! This task lays out the dependency graph.
@@ -55,12 +57,12 @@ grunt.initConfig({
   },
   copy: {
     js: {
-      file: [
+      files: [
         {
           expand: true,
-          cwd: '.tmp/src/',
+          cwd: '.tmp/src',
           src: ['**'],
-          dest: 'build/'
+          dest: 'build'
         }
       ]
     },
@@ -68,9 +70,9 @@ grunt.initConfig({
       files: [
         {
           expand: true,
-          cwd: 'templates/',
+          cwd: 'templates',
           src: ['**'],
-          dest: '.tmp/src/'
+          dest: '.tmp/src/templates'
         }
       ]
     }
