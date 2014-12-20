@@ -22,3 +22,4 @@ for loader in active-constraint new-constraint constraint-adder; do
 done
 
 echo finished bundling
+grunt notify:build

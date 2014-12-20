@@ -2,11 +2,11 @@
 
 # this should be a node script really.
 
-NOTIFY='notify-send -t 2000 --hint int:transient:1 IMTABLES'
+NOTIFY='grunt notify'
 
 npm run pre-compile
 
-watch "npm run do-compile && npm run bundle-test-indices && $NOTIFY 'compiled code'" src/ --wait=20 &
-watch "npm run do-compile && npm run bundle-test-indices && $NOTIFY 'compiled templates'" templates/ --wait=20 &
-watch "npm run bundle-test-indices && $NOTIFY 'finished building'" test/indices/ --wait=20 &
-watch "npm run less && $NOTIFY 'compiled css'" less/ --wait=20
+watch "npm run do-compile && npm run bundle-test-indices" src/ --wait=20 &
+watch "npm run do-compile && npm run bundle-test-indices" templates/ --wait=20 &
+watch "npm run bundle-test-indices" test/indices/ --wait=20 &
+watch "npm run less && ${NOTIFY}:less" less/ --wait=20
