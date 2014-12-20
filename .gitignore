@@ -8,3 +8,4 @@ js/imtables-bundled.*
 *.log
 test/bundles
 fonts
+.tmp
