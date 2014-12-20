@@ -60,6 +60,7 @@ class Options extends Model
     ExternalLinkIcons:
       "http://some.host.somewhere": "http://some.host.somewhere/logo.png"
     StylePrefix: 'intermine'
+    SuggestionDepth: 4 # When suggestion paths, follow up to this many references.
     Galaxy:
       Main: "http://main.g2.bx.psu.edu"
       Current: null

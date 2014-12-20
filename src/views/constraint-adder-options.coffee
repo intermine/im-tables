@@ -4,6 +4,7 @@ fs = require 'fs'
 
 mixOf = require '../mix-of'
 View = require '../core-view'
+Options = require '../options'
 HasTypeaheads = require '../mixins/has-typeaheads'
 {IS_BLANK} = require '../patterns'
 
@@ -25,9 +26,19 @@ module.exports = class ConstraintAdderOptions extends mixOf View, HasTypeaheads
     @setChosen()
     @generatePathSuggestions()
 
+  pathAcceptable: (path) ->
+    if path.end?.name is 'id'
+      return false
+    if not @model.get 'canSelectReferences'
+      return path.isAttribute()
+    return true
+
   generatePathSuggestions: ->
-    paths = @query.getPossiblePaths depth = 3
-    Promise.all(@query.makePath(p).getDisplayName() for p in paths)
+    depth = Options.get 'SuggestionDepth'
+    paths = (@query.makePath p for p in @query.getPossiblePaths depth)
+    paths = paths.filter (p) => @pathAcceptable p
+    namings = (p.getDisplayName() for p in paths)
+    Promise.all namings
            .then (names) -> ({path, name} for [path, name] in _.zip paths, names)
            .then (suggestions) => @state.set {suggestions}
 
@@ -53,7 +64,8 @@ module.exports = class ConstraintAdderOptions extends mixOf View, HasTypeaheads
     suggest = (term, cb) ->
       parts = (term?.toLowerCase()?.split(' ') ? [])
       matches = ({path, name}) -> _.all parts, (p) ->
-        contains_i(path, p) or contains_i(name, p)
+        console.log path
+        contains_i(path.toString(), p) or contains_i(name, p)
       cb(s for s in suggestions when matches s)
 
     opts =
@@ -64,7 +76,7 @@ module.exports = class ConstraintAdderOptions extends mixOf View, HasTypeaheads
       source: suggest
       displayKey: 'name'
     @activateTypeahead input, opts, dataset, suggestions[0].name, (e, suggestion) =>
-      path = @query.makePath suggestion.path
+      path = suggestion.path
       @openNodes.add path
       if @model.get 'multiSelect'
         @chosenPaths.add path
