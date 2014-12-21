@@ -1,38 +1,36 @@
 _ = require 'underscore'
-$ = jQuery = require 'jquery'
+$ = jQuery = require 'jquery' # Used for overlays
 Backbone = require 'backbone'
 
 View = require '../core-view'
 
-ResultsTable = require './inner'
 # FIXME - check this import
 Pagination = require './pagination'
-PageSizer = require './page-sizer'
 renderError = require './render-error'
 # FIXME - check this import
 NestedTableModel = require './models/nested-table'
 # FIXME - check this import
 CellModel = require './models/cell'
 # FIXME - check this import
-Page = require './models/page'
-# FIXME - check this import
-CountSummary = require '../templates/count-summary'
-# FIXME - check this import
 IMObject = require '../models/intermine-object'
 # FIXME - check this import
 NullObject = require '../models/null-object'
 # FIXME - check this import
 FPObject = require '../models/fast-path-object'
-# FIXME - check this import - specifically, it should be a Model
-Options = require '../options'
 
+# Checked imports - they may have their own problems though.
+ResultsTable = require './inner'
+PageSizer = require './page-sizer'
+Page = require '../models/page'
+Options = require '../options'
 UniqItems = require '../models/uniq-items'
+ObjectStore = require '../models/object-store'
 TableSummary = require './summary'
 
 # FIXME - check references to this.
 NUMERIC_TYPES = ["int", "Integer", "double", "Double", "float", "Float"]
 
-class RowModel extends Backbone.Model
+class RowModel extends Backbone.Model # Currently no content.
 
 module.exports = class Table extends View
 
@@ -42,7 +40,7 @@ module.exports = class Table extends View
   # @param selector Where to put this table.
   initialize: (@query, @columnHeaders, {start, size} = {}) ->
     super
-    @itemModels = {}
+    @itemModels = new ObjectStore @query
     @_pipe_factor = 10
     @visibleViews = @query.views.slice()
 
@@ -88,28 +86,26 @@ module.exports = class Table extends View
     @fillRows().then (-> console.debug 'initial data loaded'), (error) => @model.set {error}
     console.debug 'initialised table'
 
-  # Ideally we should use fewer events, and more models.
   FRESHNESS_EVT = 'change:sortorder change:views change:constraints'
+  # Ideally we should use fewer events, and more models.
   START_LIST_EVT = 'start:list-creation'
   STOP_LIST_EVT = 'stop:list-creation'
   TABLE_FILL_EVT = 'table:filled'
 
   listenToQuery: ->
-    @query.on FRESHNESS_EVT, @setFreshness
-    @query.on START_LIST_EVT, @setSelecting
-    @query.on STOP_LIST_EVT, @unsetSelecting
-    @query.on TABLE_FILL_EVT, @onDraw
+    @listenTo query, FRESHNESS_EVT, @setFreshness
+    @listenTo query, START_LIST_EVT, @setSelecting
+    @listenTo query, STOP_LIST_EVT, @unsetSelecting
+    @listenTo query, TABLE_FILL_EVT, @onDraw
 
   onDraw: => # Preserve list creation state across pages.
     @query.trigger("start:list-creation") if @model.get 'selecting'
 
   remove: -> # remove self, and all children, and remove listeners
-    @table?.remove()
+    @table?.remove() # TODO - use removeChild
     @model.off()
-    @query.off FRESHNESS_EVT, @setFreshness
-    @query.off START_LIST_EVT, @setSelecting
-    @query.off STOP_LIST_EVT, @unsetSelecting
-    @query.off TABLE_FILL_EVT, @onDraw
+    @itemModels.destroy()
+    delete @itemModels
     super # Cleans up listeners attached with @listenTo
 
   getPage: ->
@@ -123,6 +119,7 @@ module.exports = class Table extends View
   canUseFormatter: (formatter) ->
     formatter? and (not @blacklistedFormatters.contains formatter)
 
+  # TODO - move to a separate class for testability.
   buildColumnHeaders: -> @query.service.get("/classkeys").then ({classes}) =>
     q = @query
     # need at least one example row - any will do.
@@ -329,10 +326,10 @@ module.exports = class Table extends View
     @model.set {cache, lowerBound, upperBound}
 
   makeCellModel: (obj) =>
-    base = @query.service.root.replace /\/service\/?$/, ""
+    objects = @itemModels
     cm = if _.has(obj, 'rows')
       node = @query.getPathInfo obj.column
-      _.extend obj,
+      _.extend obj, # This is terrible style. Do not do this.
         query: @query
         node: node
         column: node
@@ -343,14 +340,14 @@ module.exports = class Table extends View
       node = column.getParent()
       field = obj.column.replace(/^.*\./, '')
       model = if obj.id?
-        @itemModels[obj.id] or= (new IMObject(obj, @query, field, base))
+        objects.get obj, field
       else if not obj.class?
         type = node.getParent().name
         new NullObject {}, {@query, field, type}
       else # FastPathObjects don't have ids, and cannot be in lists.
         new FPObject({}, {@query, obj, field})
-      model.merge obj, field
-      new CellModel _.extend
+      # Do we need to do a merge here? - llok at NullObject and FPO
+      new CellModel
         query: @query
         cell: model
         node: node

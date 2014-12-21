@@ -43,18 +43,6 @@ do ($ = jQuery) ->
         else
             word + "s"
 
-    # TODO: unit tests
-    numToString = (num, sep, every) ->
-        rets = []
-        i = 0
-        chars =  (num + "").split("")
-        len = chars.length
-        groups = _(chars).groupBy (c, i) -> Math.floor((len - (i + 1)) / every).toFixed()
-        while groups[i]
-            rets.unshift groups[i].join("")
-            i++
-        return rets.join(sep)
-
 
     getParameter = (params, name) ->
         _(params).chain().select((p) -> p.name == name).pluck('value').first().value()

@@ -1,24 +1,36 @@
 {Promise} = require 'es6-promise'
 _       = require 'underscore'
+fs = require 'fs'
 
 Paging = require './paging'
 View = require '../core-view'
-LargeTableDisuader = require '../templates/large-table-disuader'
 
 NewFilterDialogue = require '../views/new-filter-dialogue'
 # FIXME - make sure this import works
 ExportDialogue = require '../views/export-dialogue'
 
+html = fs.readFileSync __dirname + '/../templates/page-sizer.mtpl', 'utf8'
+ltd = fs.readFileSync __dirname + '/../templates/large-table-disuader.mtpl', 'utf8'
+mixOf = require '../mix-of'
+
 EVT = 'change:size'
 
-module.exports = class PageSizer extends View
+# This needs a test/index
+
+class LargeTableDisuader extends View
+
+  className: 'modal im-page-size-sanity-check'
+
+  template: _.template ltd
+
+module.exports = class PageSizer extends mixOf View, Paging
 
   tagName: 'form'
   className: "im-page-sizer form-horizontal"
   sizes: [[10], [25], [50], [100], [250]] # [0, 'All']]
 
   initialize: ->
-    _.extend @, Paging
+    super
     size = @model.get 'size'
     if size? and not _.include (s for [s] in @sizes), size
       @sizes = [[size, size]].concat @sizes # assign, don't mutate
@@ -43,28 +55,9 @@ module.exports = class PageSizer extends View
     rollback    = -> input.val oldSize
     @whenAcceptable(size).then applyChange, rollback
 
-  template: _.template """
-    <label>
-      <span class="hidden-tablet">Rows per page:</span>
-      <select class="span1" title="Rows per page">
-        <% sizes.forEach(function (s) { %>
-          <option value="<%= s[0] %>" <%= (s[0] === size) && 'selected' %>>
-            <%= s[1] || s[0] %>
-          </option>
-        <% }); %>
-      </select>
-    </label>
-  """
+  template: _.template html
 
   getData: -> _.extend @model.toJSON(), {@sizes}
-
-  render: ->
-    frag = $ document.createDocumentFragment()
-    size = @model.get 'size'
-    frag.append @template @getData()
-    @$el.html frag
-
-    this
 
   pageSizeFeasibilityThreshold: 250
 
@@ -86,9 +79,12 @@ module.exports = class PageSizer extends View
   # without user interaction.
   # @param size the requested page size.
   # @return Promise resolved if the new size is acceptable
-  whenAcceptable: (size) -> new Promise (resolve, reject) =>
+  whenAcceptable: (size) ->
     return resolve unless @aboveSizeThreshold size
 
+    # FIXME - use the LargeTableDisuader child view from above.
+    disuader = new LargeTableDisuader model: {size}
+    # All this should go in the class itself.
     $really = $ LargeTableDisuader {size}
     $really.find('.btn-primary').click resolve
     $really.find('.im-alternative-action').click reject
@@ -97,6 +93,9 @@ module.exports = class PageSizer extends View
       $really.remove()
       reject() # if not explicitly done so.
     $really.appendTo(@el).modal().modal('show')
+
+    @renderChild 'disuader', disuader
+    return disuader.show() # make this return a promise for the action to take.
 
   addFilterDialogue: ->
     @openDialogue NewFilterDialogue

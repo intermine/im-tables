@@ -15,17 +15,6 @@ scope 'intermine.snippets.table',
     """, query
   # A function of the form ({count: i, first: i, last: i, roots: str}) -> str
   CountSummary: _.template """
-      <span class="hidden-phone">
-      <span class="im-only-widescreen">Showing</span>
-      <span>
-        <% if (last == 0) { %>
-            All
-        <% } else { %>
-            <%= first %> to <%= last %> of
-        <% } %>
-        <%= count %> <span class="visible-desktop"><%= roots %></span>
-      </span>
-      </span>
     """
   Pagination: _.template """
       <div class="pagination pagination-right">

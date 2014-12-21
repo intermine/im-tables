@@ -1,0 +1,9 @@
+<span class="im-only-widescreen">Showing</span>
+<span>
+    <% if (last == 0) { %>
+        All
+    <% } else { %>
+        <%= first %> to <%= last %> of
+    <% } %>
+    <%= count %> <span class="visible-desktop"><%= roots %></span>
+</span>
