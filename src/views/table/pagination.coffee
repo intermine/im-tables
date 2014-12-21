@@ -50,7 +50,9 @@ module.exports = class Pagination extends View
     'change .im-page-form select': 'goToChosenPage'
     'blur .im-page-form input': 'pageFormSubmit'
     'click .im-goto-start': => @goTo 0
-    'click .im-goto-end': => @goTo @getMaxPage()
+    'click .im-goto-end': =>
+      console.debug 'off to the end'
+      @goTo (@getMaxPage() - 1) * @model.get('size')
     'click .im-go-back-5': => @goBack 5
     'click .im-go-back-1': => @goBack 1
     'click .im-go-fwd-5': => @goForward 5

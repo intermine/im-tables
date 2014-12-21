@@ -47,7 +47,7 @@
         class="visible-desktop">
         <a class="im-pagination-button">&#x21a0;</a>
     </li>
-    <li class="<% gotoEnd || 'im-goto-end' %>"
+    <li class="<%= gotoEnd || 'im-goto-end' %>"
         title="Go to last page">
         <a class="im-pagination-button">&#x21e5;</a>
     </li>
