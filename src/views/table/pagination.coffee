@@ -1,80 +1,84 @@
 SELECT_LIMIT = 200 # for more than 200 pages move to form
 
 _ = require 'underscore'
-View = require '../core-view'
+fs = require 'fs'
+
+View = require '../../core-view'
 Paging = require './paging'
 
-# FIXME - check this import
-template = require '../templates/pagination'
+html = fs.readFileSync __dirname + '/../../templates/pagination.mtpl', 'utf8'
+
+strip = (s) -> s.replace /\s+/g, ''
+
+ensureNumber = (raw) ->
+  if (typeof raw is 'string') then (parseInt (strip raw), 10) else raw
 
 module.exports = class Pagination extends View
+  
+  @include Paging
 
-  initialize: ->
-    _.extend @, Paging
-    @listenTo @model, 'change:start change:count', @render
+  tagName: 'nav'
 
-  render: ->
+  className: 'im-table-pagination'
+
+  RERENDER_EVENT: 'change:start change:count'
+
+  template: _.template html
+  
+  getData: ->
     {start, size, count} = @model.toJSON()
     max = @getMaxPage()
     data =
-      gotoStart: if start is 0 then 'active' else ''
-      goFiveBack: if start < (5 * size) then 'active' else ''
-      goOneBack: if start < size then 'active' else ''
-      gotoEnd: if start >= (count - size) then 'active' else ''
-      goFiveForward: if start >= (count - 6 * size) then 'active' else ''
-      goOneForward: if start >= (count - size) then 'active' else ''
       max: max
+      min: 1
       size: size
+      currentPage: @getCurrentPage()
+      gotoStart: (if start is 0 then 'disabled')
+      goFiveBack: (if start < (5 * size) then 'disabled')
+      goOneBack: (if start < size then 'disabled')
+      gotoEnd: (if start >= (count - size) then 'disabled')
+      goFiveForward: (if start >= (count - 6 * size) then 'disabled')
+      goOneForward: (if start >= (count - size) then 'disabled')
       selected: (i) -> start is i * size
       useSelect: (max <= SELECT_LIMIT)
 
-    @$el.html template data
-    @$('li').tooltip placement: 'top'
+  postRender: -> @$('li').tooltip placement: 'top'
 
-  events:
+  events: ->
     'submit .im-page-form': 'pageFormSubmit'
-    'click .im-pagination-button': 'pageButtonClick'
     'click .im-current-page a': 'clickCurrentPage'
     'change .im-page-form select': 'goToChosenPage'
+    'blur .im-page-form input': 'pageFormSubmit'
+    'click .im-goto-start': => @goTo 0
+    'click .im-goto-end': => @goTo @getMaxPage()
+    'click .im-go-back-5': => @goBack 5
+    'click .im-go-back-1': => @goBack 1
+    'click .im-go-fwd-5': => @goForward 5
+    'click .im-go-fwd-1': => @goForward 1
 
   goToChosenPage: (e) ->
-    raw = $(e.target).val()
-    start = if typeof raw is 'string' then parseInt($(e.target).val(), 10) else raw
+    start = ensureNumber @$(e.target).val()
     @goTo start
-
 
   clickCurrentPage: (e) ->
     size = @model.get 'size'
     total = @model.get 'count'
     return if size >= total
-    $(e.target).hide()
-    @$('form').show().find('select').trigger('mousedown')
-
-  pageButtonClick: (e) ->
-    $elem = $(e.target)
-    unless $elem.parent().is('.active') # Here active means "where we are"
-      switch $elem.data("goto")
-        when "start"        then @goTo 0
-        when "prev"         then @goBack 1
-        when "fast-rewind"  then @goBack 5
-        when "next"         then @goForward 1
-        when "fast-forward" then @goForward 5
-        when "end"          then @goToPage @getMaxPage()
+    @$(e.target).hide()
+    @$('form').show().find('input').focus()
 
   pageFormSubmit: (e) ->
-      e.stopPropagation()
-      e.preventDefault()
-      pageForm = @$('.im-page-form')
-      centre = @$('.im-current-page')
-      inp = pageForm.find('input')
-      if inp.size()
-          destination = inp.val().replace(/\s*/g, "")
-        if destination.match /^\d+$/
-              newSelectorVal = Math.min @getMaxPage(), Math.max(parseInt(destination) - 1, 0)
-              @table.goToPage newSelectorVal
-              centre.find('a').show()
-              pageForm.hide()
-        else
-              pageForm.find('.control-group').addClass 'error'
-              inp.val ''
-              inp.attr placeholder: "1 .. #{ @getMaxPage() + 1 }"
+    e?.stopPropagation()
+    e?.preventDefault()
+    pageForm = @$('.im-page-form')
+    input = @$('.im-page-form input')
+    if input.size()
+      destination = ensureNumber input[0].value
+      if destination >= 1
+        page = Math.min @getMaxPage(), destination
+        @goTo (page - 1) * @model.get('size')
+        @$('.im-current-page > a').show()
+        pageForm.hide()
+      else
+        pageForm.find('.control-group').addClass 'error'
+        inp.val null

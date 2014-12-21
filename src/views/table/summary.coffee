@@ -2,7 +2,7 @@ fs = require 'fs'
 _ = require 'underscore'
 View = require '../core-view'
 
-html = fs.readFileSync __dirname + '/../templates/count-summary.mtpl', 'utf8'
+html = fs.readFileSync __dirname + '/../../templates/count-summary.mtpl', 'utf8'
 template = _.template html
 {numToString} = require '../templates/helpers'
 

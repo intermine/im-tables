@@ -1,0 +1,54 @@
+<ul class="pagination">
+    <li class="<%= gotoStart || 'im-goto-start' %>" title="Go to start">
+        <a class="im-pagination-button">&#x21e4;</a>
+    </li>
+    <li class="<%= goFiveBack || 'im-go-back-5' %>"
+        title="Go back five pages"
+        class="visible-desktop">
+        <a class="im-pagination-button">&#x219e;</a>
+    </li>
+    <li class="<%= goOneBack || 'im-go-back-1' %>"
+        title="Go to previous page">
+        <a class="im-pagination-button">&larr;</a>
+    </li>
+    <li class="im-current-page">
+        <% if (useSelect) { %>
+          <form class="im-page-form form form-inline">
+            <select class="form-control">
+              <% for (i = 0; i < max; i++) { %>
+                <option
+                  <%= selected(i) ? 'selected' : void 0 %>
+                  value="<%= i * size %>">
+                  page <%= i + 1 %>
+                </option>
+              <% } %>
+            </select>
+          </form>
+        <% } else { %>
+          <a href="#">&hellip;</a>
+          <form class="im-page-form form form-inline"
+                style="display:none;">
+            <div class="control-group">
+                <input type="number"
+                       value="<%= currentPage %>"
+                       max="<%= max %>"
+                       min="<%= min %>"
+                       class="form-control im-page-number">
+            </div>
+          </form>
+        <% } %>
+    </li>
+    <li class="<%= goOneForward || 'im-go-fwd-1' %>"
+        title="Go to next page">
+        <a class="im-pagination-button">&rarr;</a>
+    </li>
+    <li class="<%= goFiveForward || 'im-go-fwd-5' %>"
+        title="Go forward five pages"
+        class="visible-desktop">
+        <a class="im-pagination-button">&#x21a0;</a>
+    </li>
+    <li class="<% gotoEnd || 'im-goto-end' %>"
+        title="Go to last page">
+        <a class="im-pagination-button">&#x21e5;</a>
+    </li>
+</ul>

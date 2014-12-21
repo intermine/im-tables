@@ -9,8 +9,8 @@ NewFilterDialogue = require '../views/new-filter-dialogue'
 # FIXME - make sure this import works
 ExportDialogue = require '../views/export-dialogue'
 
-html = fs.readFileSync __dirname + '/../templates/page-sizer.mtpl', 'utf8'
-ltd = fs.readFileSync __dirname + '/../templates/large-table-disuader.mtpl', 'utf8'
+html = fs.readFileSync __dirname + '/../../templates/page-sizer.mtpl', 'utf8'
+ltd = fs.readFileSync __dirname + '/../../templates/large-table-disuader.mtpl', 'utf8'
 mixOf = require '../mix-of'
 
 EVT = 'change:size'

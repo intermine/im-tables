@@ -6,7 +6,7 @@ CoreModel = require './core-model'
 Messages = require './messages'
 Icons = require './icons'
 
-# Incrementing id counter for children
+# private incrementing id counter for children
 kid = 0
 
 getKid = -> kid++
@@ -16,7 +16,11 @@ getKid = -> kid++
 #  - adds @make helper
 #  - ensures @children, and their clean up (requires super call in initialize) 
 #  - ensures @model :: CoreModel (requires super call in initialize)
+#  - ensures the render cycle is established (preRender, postRender)
+#  - starts listening to the RERENDER_EVENT if defined.
 module.exports = class CoreView extends Backbone.View
+
+  @include = (mixin) -> _.extend @.prototype, mixin
 
   initialize: ->
     @children = {}
@@ -25,10 +29,16 @@ module.exports = class CoreView extends Backbone.View
     unless @model.toJSON?
       @model = new CoreModel @model
     @state = new CoreModel
+    if @RERENDER_EVENT?
+      @listenTo @model, @RERENDER_EVENT, @reRender
+
+    @on 'rendering', @preRender
+    @on 'rendered', @postRender
 
   renderError: (resp) -> renderError(@el) resp
 
-  getData: -> # By default, the model extended with Messages and Icons
+  # By default, the model extended with Messages and Icons
+  getData: -> 
     _.extend {Messages, Icons}, @model.toJSON()
 
   # Like render, but only happens if already rendered at least once.
@@ -36,15 +46,24 @@ module.exports = class CoreView extends Backbone.View
     @render() if @rendered
     this
 
-  # Safely remove all existing children, apply template if available, and mark as rendered
+  # Default post-render hook. Override to hook into render-cycle
+  postRender: ->
+
+  # Default pre-render hook. Override to hook into render-cycle
+  preRender: ->
+
+  # Safely remove all existing children, apply template if
+  # available, and mark as rendered. Most Views will not need
+  # to override this method - instead customise getData, template
+  # and/or preRender and postRender
   render: ->
+    @trigger 'rendering', @rendered
     @removeAllChildren()
     if @template?
       @$el.html @template @getData()
-    
     @trigger 'rendered', @rendered = true
 
-    this
+    return this
 
   # Renders a child, appending it to part of this view.
   # Should happen after the main view is rendered.
@@ -76,6 +95,7 @@ module.exports = class CoreView extends Backbone.View
     super
     @stopListening()
     @removeAllChildren()
+    @off()
     if @state?
       @state.destroy() # not likely necessary, but get rid of it in any case
       delete @state

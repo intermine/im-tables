@@ -1,9 +1,10 @@
 _ = require 'underscore'
 
-View = require '../core-view'
+View = require '../../core-view'
 
+PathSet = require '../../models/path-set'
 # FIXME - check this import
-NestedTableModel = require './models/nested-table'
+NestedTableModel = require '../../models/nested-table'
 # FIXME - create this file.
 ColumnHeader = require './column-header'
 # FIXME - check this import
@@ -46,6 +47,7 @@ module.exports = class ResultsTable extends View
   initialize: (@query, @blacklistedFormatters, @columnHeaders, @rows) ->
     @minimisedCols = {}
     @query.on 'columnvis:toggle', @onColvisToggle
+    @expandedSubtables = new PathSet
 
     @listenTo @columnHeaders, 'reset add remove', @renderHeaders
     @listenTo @columnHeaders, 'reset add remove', @fill
@@ -104,12 +106,15 @@ module.exports = class ResultsTable extends View
   renderCell: (cell) =>
     base = @query.service.root.replace /\/service\/?$/, ""
     if cell instanceof NestedTableModel
+      # FIXME - use expandedSubtables - specifically this should
+      # replace all the expanded/collapsed events.
       node = @query.getPathInfo obj.column
       return new SubTable
         model: cell
         cellify: @renderCell
         canUseFormatter: (f) => @canUseFormatter
         mainTable: @
+        expandedSubtables: @expandedSubtables
     else
       return new Cell(model: cell)
 

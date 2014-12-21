@@ -4,11 +4,9 @@ Backbone = require 'backbone'
 
 View = require '../core-view'
 
-# FIXME - check this import
-Pagination = require './pagination'
-renderError = require './render-error'
-# FIXME - check this import
-NestedTableModel = require './models/nested-table'
+Pagination = require './table/pagination'
+renderError = require './table/render-error'
+NestedTableModel = require '../models/nested-table'
 # FIXME - check this import
 CellModel = require './models/cell'
 # FIXME - check this import
@@ -329,12 +327,11 @@ module.exports = class Table extends View
     objects = @itemModels
     cm = if _.has(obj, 'rows')
       node = @query.getPathInfo obj.column
-      _.extend obj, # This is terrible style. Do not do this.
-        query: @query
-        node: node
-        column: node
+      # Here we lift some properties to more useful types
+      new NestedTableModel _.extend {}, obj,
+        node: node # Duplicate name - not necessary?
+        column: node 
         rows: (r.map(@makeCellModel) for r in obj.rows)
-      new NestedTableModel obj
     else
       column = @query.getPathInfo(obj.column)
       node = column.getParent()
@@ -348,7 +345,7 @@ module.exports = class Table extends View
         new FPObject({}, {@query, obj, field})
       # Do we need to do a merge here? - llok at NullObject and FPO
       new CellModel
-        query: @query
+        query: @query # TODO - stop passing the query around!
         cell: model
         node: node
         column: column
