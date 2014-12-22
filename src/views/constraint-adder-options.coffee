@@ -1,14 +1,20 @@
 _ = require 'underscore'
-fs = require 'fs'
 {Promise} = require 'es6-promise'
 
 mixOf = require '../mix-of'
 View = require '../core-view'
 Options = require '../options'
+Templates = require '../templates'
 HasTypeaheads = require '../mixins/has-typeaheads'
 {IS_BLANK} = require '../patterns'
 
-options_html = fs.readFileSync __dirname + '/../templates/constraint-adder-options.mtpl', 'utf8'
+shortenLongName = (name) ->
+  parts = name.split ' > '
+  if parts.length > 3
+    [rest..., x, y, z] = parts
+    "...#{ x } > #{ y } > #{ z }"
+  else
+    name
 
 # The control elements of a constraint adder.
 module.exports = class ConstraintAdderOptions extends mixOf View, HasTypeaheads
@@ -47,7 +53,7 @@ module.exports = class ConstraintAdderOptions extends mixOf View, HasTypeaheads
     anyNodeChosen = @chosenPaths.size()
     _.extend {anyNodesOpen, anyNodeChosen}, @state.toJSON(), super
 
-  template: _.template options_html
+  template: Templates.template 'constraint_adder_options'
 
   render: ->
     super
@@ -116,6 +122,6 @@ module.exports = class ConstraintAdderOptions extends mixOf View, HasTypeaheads
   setChosen: ->
     paths = @chosenPaths.toJSON()
     naming = Promise.all(p.getDisplayName() for p in paths)
-    naming.then ((names) => @state.set chosen: names), ((e) -> console.error e)
-
+    naming.then (names) -> (shortenLongName n for n in names)
+          .then ((names) => @state.set chosen: names), ((e) -> console.error e)
 
