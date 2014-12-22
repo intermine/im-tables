@@ -1,0 +1,5 @@
+<% _.each(data.tabs, function (tabDef) { %>
+  <li role="presentation" class="im-tab-<%= tabDef.ident %> <%= data.tab === tabDef.ident ? 'active' : void 0 %>">
+    <a><%- data.Messages.getText(tabDef.key, data) %></a>
+  </li>
+<% }); %>

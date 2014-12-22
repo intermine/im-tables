@@ -1,6 +1,9 @@
 Backbone = require 'backbone'
 _ = require 'underscore'
 
+actionMessages = require './messages/actions'
+common = require './messages/common'
+
 class Messages extends Backbone.Model
 
   initialize: ->
@@ -23,12 +26,7 @@ class Messages extends Backbone.Model
     templ = @getTemplate key
     templ?(args)
 
-  defaults: ->
-    'Clear': 'Clear'
-    'and': 'and'
-    'or': 'or'
-    'comma': ','
-    'Cancel': 'Cancel'
+  defaults: -> _.extend {}, common, actionMessages,
     'export.DialogueTitle': 'Export'
     'constraints.AddNewFilter': 'Add New Filter'
     'constraints.AddFilter': 'Add filter'
