@@ -23,6 +23,8 @@ module.exports = class HasTypeaheads
     # Keep a track of it, so it can be removed.
     @initTypeaheads().push input
 
+    input.focus()
+
     this
 
 

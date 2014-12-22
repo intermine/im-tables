@@ -1,8 +1,8 @@
 $ = require 'jquery'
 _ = require 'underscore'
-fs = require 'fs'
 
 Messages = require '../messages'
+Templates = require '../templates'
 View = require '../core-view'
 Options = require '../options'
 {IS_BLANK} = require '../patterns'
@@ -13,8 +13,10 @@ SuggestionSource = require '../utils/suggestion-source'
 
 {Model: {INTEGRAL_TYPES, NUMERIC_TYPES}, Query} = require 'imjs'
 
-html = fs.readFileSync __dirname + '/../templates/attribute-value-controls.html', 'utf8'
-slider_html = fs.readFileSync __dirname + '/../templates/slider.html', 'utf8'
+html = Templates.attribute_value_controls
+slider_html = Templates.slider
+
+selectTemplate = Templates.template 'attribute_value_select'
 
 trim = (s) -> String(s).replace(/^\s+/, '').replace(/\s+$/, '')
 
@@ -82,10 +84,11 @@ module.exports = class AttributeValueControls extends mixOf View, HasTypeaheads
 
   setAttributeValue: -> @model.set value: @readAttrValue()
 
-  # @Override
   render: ->
     super
     @provideSuggestions().then null, (error) => @model.set {error}
+    @$('.im-con-value-attr').focus()
+
     this
 
   provideSuggestions: -> @getSuggestions().then ({stats, results}) =>
@@ -114,15 +117,23 @@ module.exports = class AttributeValueControls extends mixOf View, HasTypeaheads
 
     clone.summarise pstr, maxSuggestions
 
+  replaceInputWithSelect: (items) ->
+    value = @model.get('value')
+    if value? and not (_.any items, ({item}) -> item is value)
+      items.push item: value
+    @$el.html selectTemplate {Messages, items, value}
+
   # Here we supply the suggestions using typeahead.js
   # see: https://github.com/twitter/typeahead.js/blob/master/doc/jquery_typeahead.md
   handleSummary: (items, total) ->
-    input = @$ '.im-con-value-attr'
+    if @model.get('op') is '=' and items.length < Options.get 'DropdownMax'
+      return @replaceInputWithSelect items
 
+    input = @$ '.im-con-value-attr'
     source = new SuggestionSource items, total
 
     opts =
-      minLength: 1
+      minLength: 0
       highlight: true
     dataset =
       name: 'summary_suggestions'

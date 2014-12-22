@@ -49,6 +49,7 @@ class Options extends Model
     NUM_SEPARATOR: ','
     NUM_CHUNK_SIZE: 3
     MAX_PIE_SLICES: 15
+    DropdownMax: 20
     DefaultPageSize: 25
     DefaultCodeLang: 'py'
     ListFreshness: 250 # Number of milliseconds lists requests will be considered fresh for.

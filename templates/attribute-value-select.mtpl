@@ -1,0 +1,7 @@
+<select class="form-control im-con-value-attr">
+    <% _.each(items, function (item) { %>
+    <option <%= (item.item === value) ? 'selected' : void 0 %> value="<%- item.item %>">
+            <%- item.item %>
+        </option>
+    <% }); %>
+</select>
