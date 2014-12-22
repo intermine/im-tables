@@ -11,7 +11,7 @@ fileline () {
 echo 'var _ = require("underscore");'
 echo 'var fs = require("fs");'
 echo 'var TEMPLATES = exports;'
-echo 'exports.template = function (name) { return _.template(TEMPLATES[name]); };'
+echo 'exports.template = function (name, opts) { return _.template(TEMPLATES[name], opts); };'
 
 find templates/ \
     -type f \
