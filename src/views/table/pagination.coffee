@@ -21,7 +21,7 @@ module.exports = class Pagination extends View
 
   className: 'im-table-pagination'
 
-  RERENDER_EVENT: 'change:start change:count'
+  RERENDER_EVENT: 'change:start change:count change:size'
 
   template: _.template html
   

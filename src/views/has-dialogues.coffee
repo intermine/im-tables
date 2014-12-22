@@ -10,5 +10,5 @@ exports.openDialogue = (dialogue) ->
   dialogue.show()
 
 # Convenience method to get the current dialogue.
-exports.getDialogue -> @children?.__dialogue__
+exports.getDialogue = -> @children?.__dialogue__
 

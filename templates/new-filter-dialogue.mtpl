@@ -1,0 +1,11 @@
+<div class="modal-body">
+</div>
+<div class="modal-footer">
+    <button class="disabled btn btn-primary pull-right im-add-constraint">
+        <%- Messages.getText('constraints.AddFilter') %>
+    </button>
+    <button class="btn im-close pull-left">
+        <%- Messages.getText('Cancel') %>
+        Cancel
+    </button>
+</div>

@@ -16,7 +16,7 @@ module.exports = class PathChooser extends View
       
   className: 'im-path-chooser'
 
-  initialize: ({@query, @chosenPaths, @openNodes, @trail}) ->
+  initialize: ({@query, @chosenPaths, @openNodes, @view, @trail}) ->
     super
     @path  = (_.last(@trail) or @model.get 'root')
     @cd    = @path.getEndClass()
@@ -57,18 +57,18 @@ module.exports = class PathChooser extends View
     new RootClass {@query, @model, @chosenPaths, @openNodes, @cd}
 
   createAttribute: (path) ->
-    new Attribute {@model, @chosenPaths, @query, @trail, path}
+    new Attribute {@model, @chosenPaths, @view, @query, @trail, path}
 
   createReference: (path) ->
     isLoop = @isLoop path
     allowingRevRefs = @model.get 'allowRevRefs'
 
-    Class = if isLoop and not allowingRevRefs then ReverseReference else Reference
-    new Class {@model, @chosenPaths, @query, @trail, path, @openNodes, @createSubFinder}
+    Ref = if isLoop and not allowingRevRefs then ReverseReference else Reference
+    new Ref {@model, @chosenPaths, @query, @trail, path, @view, @openNodes, @createSubFinder}
 
   # Inject mechanism for creating a PathChooser to avoid a cyclic dependency.
   createSubFinder: (args) =>
-    new PathChooser args
+    new PathChooser _.extend {@model, @query, @chosenPaths, @view, @openNodes}, args
 
   isLoop: (path) ->
     if path.end.reverseReference? and @path.isReference()

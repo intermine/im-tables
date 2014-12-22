@@ -1,63 +1,30 @@
+_ = require 'underscore'
 
-View = require '../core-view'
-
+Modal = require './modal'
 ConstraintAdder = require './constraint-adder'
+Templates = require '../templates'
+Messages = require '../messages'
 
-module.exports = class NewFilterDialogue extends View
+# Very simple dialogue that just wraps a ConstraintAdder
+module.exports = class NewFilterDialogue extends Modal
 
-  tagName: "div"
+  className: -> 'im-constraint-dialogue ' + super
 
-  className: "im-constraint-dialogue modal"
-
-  html: """
-    <div class="modal-header">
-      <a href="#" class="close pull-right im-close">close</a>
-      <h3>Add New Filter</h3>
-    </div>
-    <div class="modal-body">
-    </div>
-    <div class="modal-footer">
-      <button class="disabled btn btn-primary pull-right im-add-constraint">
-          Add Filter
-      </button>
-      <button class="btn im-close pull-left">
-          Cancel
-      </button>
-    </div>
-  """
+  modalSize: 'modal-lg'
 
   initialize: ({@query}) ->
     super
-    @listenTo @query, 'change:constraints', @closeDialogue
+    @listenTo @query, 'change:constraints', @resolve # Our job is done.
     @listenTo @query, 'editing-constraint', => # Can we do this on the model?
         @$('.im-add-constraint').removeClass 'disabled'
 
-  events: ->
-    'click .im-close': 'closeDialogue'
-    'hidden': 'onHidden'
+  events: -> _.extend super,
     'click .im-add-constraint': 'addConstraint'
+    'childremoved': (e, child) => @hide() if child instanceof ConstraintAdder
 
-  onHidden: (e) ->
-    unless e?.target is @el # ignore bubbled events from sub-dialogues.
-      return false
-    @remove()
+  title: -> Messages.getText 'constraints.AddNewFilter'
+  primaryAction: -> Messages.getText 'constraints.AddFilter'
 
-  show: -> @$el.modal().modal('show')
-
-  hide: -> @$el.modal('hide')
-
-  closeDialogue: -> @hide() # TODO - remove when all references checked.
-
-  openDialogue: -> @show() # TODO - remove when all references checked.
-
-  addConstraint: (e) -> # This should probably use promises, even if just for future proofing
-    edited = @children.adder.newCon.editConstraint(e)
-    @$el.modal('hide') if edited
-
-  template: -> @html
-
-  render: ->
+  postRender: ->
+    @renderChild 'adder', (new ConstraintAdder {@query}), @$ '.modal-body'
     super
-    a = new ConstraintAdder {@query}
-    a.setShowTree true
-    @renderChild 'adder', a, @$ '.modal-body'

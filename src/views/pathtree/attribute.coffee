@@ -27,7 +27,7 @@ module.exports = class Attribute extends View
   events: ->
     'click a': 'handleClick'
 
-  initialize: ({@chosenPaths, @query, @path, @trail}) ->
+  initialize: ({@chosenPaths, @view, @query, @path, @trail}) ->
     super
     @depth = @trail.length + 1
     @state.set
@@ -113,4 +113,6 @@ module.exports = class Attribute extends View
     if Options.get('ShowId')
       @$('a').tooltip placement: 'bottom'
     @handleChoice()
+    if @view?
+      @$el.toggleClass 'in-view', @view.contains @path
     this

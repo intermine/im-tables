@@ -1,9 +1,10 @@
 _ = require 'underscore'
-fs = require 'fs'
 
 # Support
 Messages = require '../messages'
+Templates = require '../templates'
 View = require '../core-view'
+CoreModel = require '../core-model'
 PathSet = require '../models/path-set'
 OpenNodes = require '../models/open-nodes'
 
@@ -11,9 +12,6 @@ OpenNodes = require '../models/open-nodes'
 ConstraintAdderOptions = require './constraint-adder-options'
 NewConstraint = require './new-constraint'
 PathChooser = require './path-chooser'
-
-# Template
-html = fs.readFileSync __dirname + '/../templates/constraint-adder.mtpl', 'utf8'
 
 # Text strings
 Messages.set
@@ -24,23 +22,31 @@ Messages.set
   'columns.CollapseAll': 'Collapse columns'
   'columns.AllowRevRef': 'Allow reverse references'
 
+class ConstraintAdderModel extends CoreModel
+  
+  defaults: ->
+    filter: null              # No filter by default, but in the model for templates.
+    showTree: true            # Should we be showing the tree?
+    allowRevRefs: false       # Can we expand reverse references?
+    canSelectReferences: true # Can we select references?
+    multiSelect: false        # Can we select multiple paths?
+
+
 module.exports = class ConstraintAdder extends View
 
   tagName: 'div'
 
   className: 'im-constraint-adder row-fluid'
+  
+  Model: ConstraintAdderModel
 
   initialize: ({@query}) ->
     super
     @model.set
-      filter: null
       root: @query.getPathInfo(@query.root) # Should never change.
-      showTree: true            # Should we be showing the tree?
-      allowRevRefs: false       # Can we expand reverse references?
-      canSelectReferences: true # Can we select references?
-      multiSelect: false        # Can we select multiple paths?
 
     @chosenPaths = new PathSet
+    @view = new PathSet(@query.makePath p for p in @query.views)
     @openNodes = new OpenNodes @query.getViewNodes() # Open by default
     @listenTo @model, 'change:showTree', @toggleTree
     @listenTo @query, 'change:constraints', @remove # our job is done
@@ -57,7 +63,10 @@ module.exports = class ConstraintAdder extends View
       if current?.path isnt newPath
         constraint = path: newPath
         @model.set {constraint}
-        @query.trigger 'editing-constraint', constraint # likely not necessary - remove?
+        # likely not necessary - remove? Tells containers which phase we are in.
+        @query.trigger 'editing-constraint', constraint
+      else # Path hasn't changed - go back to the constraint.
+        @onChangeConstraint()
     else
       console.debug 'nothing chosen'
       @model.unset 'constraint'
@@ -82,12 +91,11 @@ module.exports = class ConstraintAdder extends View
 
   showTree: (e) =>
     @trigger 'showing:tree'
-    pathFinder = new PathChooser {@model, @query, @chosenPaths, @openNodes, trail: []}
+    @removeChild 'con' # Either show the tree or the constraint editor, not both.
+    pathFinder = new PathChooser {@model, @query, @chosenPaths, @openNodes, @view, trail: []}
     @renderChild 'tree', pathFinder, @$ '.im-path-finder'
-    # The code below is probably not necessary.
-    # pathFinder.$el.show().css top: @$el.height() # I do not like this...
 
-  template: -> html # our template has no variables.
+  template: Templates.template 'constraint_adder'
 
   renderOptions: ->
     opts = {@model, @openNodes, @chosenPaths, @query}

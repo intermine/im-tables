@@ -12,6 +12,10 @@ inline () {
   echo "$(brfs $1)" > $1;
 }
 
+# Generate a template module that will hold all our templates in a
+# requireable form.
+./bin/generate-template-module > build/templates.js
+
 find build/ -type f \
             -name '*.js' \
             -exec grep -q readFileSync '{}' ';' \

@@ -1,0 +1,8 @@
+<div class="modal-header">
+    <a class="close pull-right im-close">close</a>
+    <h3><%- Messages.getText('export.DialogueTitle') %></h3>
+</div>
+<div class="modal-body">
+</div>
+<div class="modal-footer">
+</div>

@@ -16,6 +16,8 @@ module.exports = class BooleanValueControls extends View
   initialize: ->
     @listenTo @model, 'change', @reRender
 
+  getData: -> _.extend {value: null}, super
+
   template: _.template html, mustacheSettings
 
   events: ->

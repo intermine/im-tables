@@ -24,11 +24,12 @@ module.exports = class CoreView extends Backbone.View
 
   initialize: ->
     @children = {}
+    Model = (@Model or CoreModel)
     unless @model?
-      @model = new CoreModel
+      @model = new Model
     unless @model.toJSON?
-      @model = new CoreModel @model
-    @state = new CoreModel
+      @model = new Model @model
+    @state = new CoreModel # state is *not* model; cannot be passed in. *private* to instance.
     if @RERENDER_EVENT?
       @listenTo @model, @RERENDER_EVENT, @reRender
 
@@ -38,8 +39,7 @@ module.exports = class CoreView extends Backbone.View
   renderError: (resp) -> renderError(@el) resp
 
   # By default, the model extended with Messages and Icons
-  getData: -> 
-    _.extend {Messages, Icons}, @model.toJSON()
+  getData: -> _.extend {Messages, Icons}, @model.toJSON()
 
   # Like render, but only happens if already rendered at least once.
   reRender: ->
@@ -92,13 +92,14 @@ module.exports = class CoreView extends Backbone.View
         @removeChild child
 
   remove: ->
-    super
+    @$el.parent().trigger 'childremoved', @ # Tell parents we are leaving.
     @stopListening()
     @removeAllChildren()
     @off()
     if @state?
       @state.destroy() # not likely necessary, but get rid of it in any case
       delete @state
+    super
     this
 
   make: (elemName, attrs, content) ->

@@ -20,6 +20,8 @@ trim = (s) -> String(s).replace(/^\s+/, '').replace(/\s+$/, '')
 
 numify = (x) -> 1 * trim x
 
+{numToString} = require '../templates/helpers'
+
 Messages.set
   'constraintvalue.NoValues': 'There are no possible values. This query returns no results'
   'constraintvalue.OneValue': """
@@ -142,7 +144,7 @@ module.exports = class AttributeValueControls extends mixOf View, HasTypeaheads
       if isInt then Math.round(val) else val
     getPercent = (frac) -> Math.round 100 * frac
 
-    ({percent: getPercent(f), value: getValue(f)} for f in [0, 0.25, 0.5, 0.75, 1])
+    ({percent: getPercent(f), value: numToString(getValue(f))} for f in [0, 0.5, 1])
 
   makeSlider: _.template slider_html, variable: 'markers'
 

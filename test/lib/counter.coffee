@@ -22,6 +22,6 @@ module.exports = Counter = View.extend
   render: ->
     name = @query.name
     count = @model.get("count")
-    @$el.empty().text name + " (" + count + " rows)"
+    @$el.empty().text "#{ name } (#{ count } rows, #{ @query.constraints.length } constraints)"
     return
 

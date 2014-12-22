@@ -31,6 +31,5 @@ module.exports = class Reference extends Attribute
     super
     unless @state.get('collapsed')
       trail = @trail.concat [@path]
-      console.debug "Creating finder for", trail
-      subfinder = @createSubFinder {@model, @query, @chosenPaths, @openNodes, trail}
+      subfinder = @createSubFinder {trail}
       @renderChild 'subfinder', subfinder

@@ -1,0 +1,20 @@
+#!/bin/bash
+# Yes, I am using bash to generate a javascript file. So sue me.
+
+set -e # Die if bad things happen
+
+fileline () {
+    js_name=$(basename $1 | sed 's/-/_/g' | sed 's/\.[^\.]*$//')
+    echo "exports.${js_name} = fs.readFileSync(__dirname + '/templates/$(basename $1)', 'utf8');"
+}
+
+echo 'var _ = require("underscore");'
+echo 'var fs = require("fs");'
+echo 'var TEMPLATES = exports;'
+echo 'exports.template = function (name) { return _.template(TEMPLATES[name]); };'
+
+find templates/ \
+    -type f \
+    -print \
+    | while read file; do fileline "$file"; done
+                

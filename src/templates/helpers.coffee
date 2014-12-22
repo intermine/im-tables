@@ -17,7 +17,7 @@ exports.numToString = (number) ->
   every = Options.get 'NUM_CHUNK_SIZE'
   rets = []
   i = 0
-  chars =  (num + "").split("")
+  chars =  (number + "").split("")
   len = chars.length
   groups = _(chars).groupBy (c, i) ->
     Math.floor((len - (i + 1)) / every).toFixed()

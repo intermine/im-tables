@@ -10,6 +10,7 @@ print = console.log.bind console
 printErr = console.error.bind console
 
 Pagination = require 'imtables/views/table/pagination'
+PageSizer = require 'imtables/views/table/page-sizer'
 
 class ModelDisplay extends View
 
@@ -36,9 +37,16 @@ $ ->
     container.appendChild div
     div.appendChild h2
     model = new Model m
+
     md = new ModelDisplay model: model
     md.$el.appendTo h2
+
+    pageSizer = new PageSizer model: model
+    pageSizer.$el.appendTo div
+
     paginator = new Pagination model: model
     paginator.$el.appendTo div
+
     md.render()
+    pageSizer.render()
     paginator.render()

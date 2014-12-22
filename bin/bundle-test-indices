@@ -4,23 +4,20 @@ set -e
 
 mkdir -p test/bundles
 
-loaders="active-constraint new-constraint constraint-adder pagination"
-
-browserify test/indices/active-constraint.js > test/bundles/active-constraint-loader.js
-
 # Build the html to load.
 ./bin/build-test-html active-constraint
 
-for loader in $loaders; do
-    echo bundling $loader
+for loader in test/indices/*.coffee; do
+    name=$(basename $loader | sed 's/\.[^\.]*$//')
+    echo bundling $name
     browserify \
         --transform coffeeify \
         --extension ".coffee" \
-        --outfile test/bundles/${loader}-loader.js \
-        --entry test/indices/${loader}.coffee
+        --outfile test/bundles/${name}-loader.js \
+        --entry $loader
 
     # Build the html to load.
-    ./bin/build-test-html $loader
+    ./bin/build-test-html $name
 done
 
 echo finished bundling

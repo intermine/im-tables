@@ -29,8 +29,21 @@ class Messages extends Backbone.Model
     'or': 'or'
     'comma': ','
     'Cancel': 'Cancel'
+    'export.DialogueTitle': 'Export'
+    'constraints.AddNewFilter': 'Add New Filter'
+    'constraints.AddFilter': 'Add filter'
+    'modal.DefaultTitle': 'Excuse me...'
+    'modal.Dismiss': 'Close'
+    'modal.OK': 'OK'
     'largetable.ok': 'Set page size to <%- size %>'
     'largetable.abort': 'Cancel'
+    'largetable.appeal': """
+      You have requested a very large table size (<%= size %> rows per page). Your
+      browser may struggle to render such a large table,
+      and the page could become unresponsive. In any case,
+      will be very difficult for you to read the whole table
+      in the page. We suggest the following alternatives:
+    """
 
 module.exports = new Messages
 
