@@ -3,8 +3,10 @@ _       = require 'underscore'
 fs = require 'fs'
 
 Paging = require './paging'
-View = require '../core-view'
+HasDialogues = require '../has-dialogues'
+View = require '../../core-view'
 
+# FIXME
 NewFilterDialogue = require '../views/new-filter-dialogue'
 # FIXME - make sure this import works
 ExportDialogue = require '../views/export-dialogue'
@@ -17,19 +19,72 @@ EVT = 'change:size'
 
 # This needs a test/index
 
+# modal dialogue that presents user with range of other options instead of
+# large tables, and lets them choose one.
 class LargeTableDisuader extends View
+
+  shown: false
+
+  initialize: ->
+    super
 
   className: 'modal im-page-size-sanity-check'
 
   template: _.template ltd
 
-module.exports = class PageSizer extends mixOf View, Paging
+  hide: -> @reject 'dismiss'
+
+  onHidden: ->
+    @$el.modal 'destroy'
+    @shown = false
+    @remove()
+
+  remove: ->
+    return @$el.modal 'hide' if @shown # Allow removal and hiding to go together.
+    @reject new Error 'unresolved before removal' # no-op if already resolved.
+    delete @reject
+    delete @resolve
+    super
+
+  resolve: -> # no-op, until shown.
+
+  reject: -> # no-op, until shown.
+
+  postRender: -> show() if @shown # In the case of (unlikely) re-rendering.
+
+  events: ->
+    'click .btn-primary': (=> @resolve 'accept')
+    'click .add-filter-dialogue': (=> @resolve 'constraint')
+    'click .page-backwards': (=> @resolve 'back')
+    'click .page-forwards': (=> @resolve 'forward')
+    'click .download-menu': (=> @resolve 'export')
+    'click .close': (=> @resolve 'dismiss')
+    'hidden': 'onHidden' # Can be caused by user clicking off the modal.
+
+  # Can be called multiple times, and called on re-render.
+  show: -> 
+    unless @shown # If we have already done this, don't overwrite these properties
+      # Create a promise and capture its resolution controls.
+      @promise = new Promise (@resolve, @reject) => 
+      # Following line is important - it makes the modal go away.
+      @promise.then (=> @remove()), (=> @remove()) # Remove when done with.
+    try
+      @$el.modal().modal 'show'
+      @trigger 'shown', @shown = true
+    catch e
+      @reject e
+    return @promise
+
+module.exports = class PageSizer extends View
+  
+  @include Paging
+  @include HasDialogues
 
   tagName: 'form'
   className: "im-page-sizer form-horizontal"
   sizes: [[10], [25], [50], [100], [250]] # [0, 'All']]
 
-  initialize: ->
+  initialize: ({@query}) ->
     super
     size = @model.get 'size'
     if size? and not _.include (s for [s] in @sizes), size
@@ -38,22 +93,32 @@ module.exports = class PageSizer extends mixOf View, Paging
 
   events: ->
     'change select': 'changePageSize'
-    'click .add-filter-dialogue': 'addFilterDialogue'
-    'click .page-forwards': 'pageForwards'
-    'click .page-backwards': 'pageBackwards'
-    'click .download-menu': 'openDownloadMenu'
 
-  pageForwards: -> @goForward 1
-
-  pageBackwards: -> @goBack 1
-
+  # TODO - make sure NewFilterDialogue supports the {@query} constructor and the show method
+  # TODO - make sure ExportDialogue supports the {@query} constructor and the show method
   changePageSize: (evt) ->
-    input   = @$ evt.target # TODO - this may not work, use $ if not.
+    input   = @$ evt.target
     size    = parseInt input.val(), 10
     oldSize = @model.get 'size'
-    applyChange = => @model.set {size}
-    rollback    = -> input.val oldSize
-    @whenAcceptable(size).then applyChange, rollback
+    accept = (=> @model.set {size})
+    return accept() unless @aboveSizeThreshold() # No need for confirmation.
+    pending = @whenAcceptable(size).then (action) ->
+      return accept() if action is 'accept'
+      input.val oldSize
+      switch action
+        when 'back' then @goBack 1
+        when 'forward' then @goForward 1
+        when 'constrain' then @openDialogue new NewFilterDialogue {@query}
+        when 'export' then @openDialogue ExportDialogue {@query}
+        else console.debug 'dismissed dialogue', action
+    pending.then null, (e) -> console.error 'Error handling dialogues', e
+
+  # If the new page size is potentially problematic, then check with the user
+  # first, rolling back if they see sense. Otherwise, change the page size
+  # without user interaction.
+  # @param size the requested page size.
+  # @return Promise resolved if the new size is acceptable
+  whenAcceptable: (size) -> @openDialogue new LargeTableDisuader model: {size}
 
   template: _.template html
 
@@ -74,37 +139,4 @@ module.exports = class PageSizer extends mixOf View, Paging
       return total >= @pageSizeFeasibilityThreshold
     return false
 
-  # If the new page size is potentially problematic, then check with the user
-  # first, rolling back if they see sense. Otherwise, change the page size
-  # without user interaction.
-  # @param size the requested page size.
-  # @return Promise resolved if the new size is acceptable
-  whenAcceptable: (size) ->
-    return resolve unless @aboveSizeThreshold size
 
-    # FIXME - use the LargeTableDisuader child view from above.
-    disuader = new LargeTableDisuader model: {size}
-    # All this should go in the class itself.
-    $really = $ LargeTableDisuader {size}
-    $really.find('.btn-primary').click resolve
-    $really.find('.im-alternative-action').click reject
-    $really.find('.btn').click -> $really.modal 'hide'
-    $really.on 'hidden', ->
-      $really.remove()
-      reject() # if not explicitly done so.
-    $really.appendTo(@el).modal().modal('show')
-
-    @renderChild 'disuader', disuader
-    return disuader.show() # make this return a promise for the action to take.
-
-  addFilterDialogue: ->
-    @openDialogue NewFilterDialogue
-
-  @openDialogue: (Dialogue) ->
-    dialogue = new Dialogue {@query}
-    @$el.append dialogue.el
-    dialogue.render()
-    dialogue.show()
-
-  # TODO - make sure ExportDialogue supports the {@query} constructor
-  openDownloadMenu: -> @openDialogue ExportDialogue

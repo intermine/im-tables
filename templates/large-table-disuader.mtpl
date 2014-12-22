@@ -70,7 +70,7 @@
     <button class="btn btn-primary pull-right">
         <%- messages.getText('largetable.ok', {size: size}) %>
     </button>
-    <button class="btn pull-left im-alternative-action">
+    <button class="btn pull-left close">
         <%- messages.getText('largetable.abort') %>
     </button>
 </div>
