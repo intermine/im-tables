@@ -60,7 +60,7 @@ module.exports = class ActiveConstraint extends View
 
   className: "im-constraint row-fluid"
 
-  initialize: ({@query, @constraint}) ->
+  initialize: ({@query, @constraint, @buttonDelegate}) ->
     super
     # Model is the state of the constraint, with the path promoted to a full object.
     @model.set @constraint
@@ -206,7 +206,7 @@ module.exports = class ActiveConstraint extends View
 
   toggleEditor: ->
     if @state.get('editing') and @rendered
-      opts = {@model, @query}
+      opts = {@model, @query, @buttonDelegate}
       @renderChild 'editor', (new ConstraintEditor opts), @$ '.im-constraint-editor'
     else
       @removeChild 'editor'

@@ -26,5 +26,7 @@ module.exports = class NewFilterDialogue extends Modal
   primaryAction: -> Messages.getText 'constraints.AddFilter'
 
   postRender: ->
-    @renderChild 'adder', (new ConstraintAdder {@query}), @$ '.modal-body'
+    footer = @$ '.modal-footer'
+    body = @$ '.modal-body'
+    @renderChild 'adder', (new ConstraintAdder {buttonDelegate: footer, @query}), body
     super

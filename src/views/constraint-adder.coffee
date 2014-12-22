@@ -40,7 +40,7 @@ module.exports = class ConstraintAdder extends View
   
   Model: ConstraintAdderModel
 
-  initialize: ({@query}) ->
+  initialize: ({@query, @buttonDelegate}) ->
     super
     @model.set
       root: @query.getPathInfo(@query.root) # Should never change.
@@ -75,7 +75,8 @@ module.exports = class ConstraintAdder extends View
     constraint = @model.get 'constraint'
     if constraint?
       @model.set showTree: false
-      @renderChild 'con', (new NewConstraint {@query, constraint}), @$ '.im-new-constraint'
+      div = @$ '.im-new-constraint'
+      @renderChild 'con', (new NewConstraint {@buttonDelegate, @query, constraint}), div
     else
       @removeChild 'con'
 

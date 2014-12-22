@@ -41,7 +41,9 @@ module.exports = class ConstraintEditor extends View
 
   className: 'form'
 
-  initialize: ({@query}) ->
+  # The buttonDelegate can be provided to trigger the button actions instead of our own.
+  # (TODO - find a better way to do that).
+  initialize: ({@query, @buttonDelegate}) ->
     super
     @listenTo @model, 'change:op change:displayName', @reRender
     @path = @model.get 'path'
@@ -53,6 +55,11 @@ module.exports = class ConstraintEditor extends View
     'click .btn-cancel': 'cancelEditing'
     'click .btn-primary': 'applyChanges'
     'change .im-ops': 'setOperator'
+
+  delegateButtonEvents: ->
+    @buttonDelegate.off 'click.constraint-editor'
+    @buttonDelegate.on 'click.constraint-editor', '.btn-cancel', => @cancelEditing()
+    @buttonDelegate.on 'click.constraint-editor', '.btn-primary', => @applyChanges()
 
   setOperator: -> @model.set op: @$('.im-ops').val()
 
@@ -120,6 +127,7 @@ module.exports = class ConstraintEditor extends View
   getOtherOperators: -> _.without operatorsFor(@model.get 'path'), @model.get 'op'
 
   buttons: ->
+    return [] if @buttonDelegate? # We will not need our own buttons in this case.
     # This is the ugliest part of the whole code really, but the alternative is an extra
     # class for little to gain.
     buttons = [
@@ -154,8 +162,11 @@ module.exports = class ConstraintEditor extends View
     super
     @renderChild 'valuecontrols', @getValueControls(), @$ '.im-value-options'
     @renderChild 'error', (new ErrorMessage {@model})
+    if @buttonDelegate?
+      @delegateButtonEvents()
     this
 
   remove: -> # Animated removal
+    @buttonDelegate?.off 'click.constraint-editor'
     @$el.slideUp always: => super()
 
