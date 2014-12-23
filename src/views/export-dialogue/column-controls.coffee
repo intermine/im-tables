@@ -47,19 +47,19 @@ module.exports = class ColumnControls extends View
 
   initialize: ({@query}) ->
     super
-    views = if @model.get('columns').length
-      @model.get('columns')
-    else
-      @query.views
-    @columns = new PathSet(@query.makePath p for p in views)
+    @columns = new PathSet
+    # (re)-establish the state of the column selection, including
+    # columns from the view that are not currently selected.
+    activeCols = @model.get 'columns'
+    for v in @query.views
+      p = @query.makePath v
+      @columns.add p, active: (_.any activeCols, (ac) -> ac is v)
+
     @listenTo @columns, 'add remove reset change:active', @setColumns
 
   setColumns: ->
     columns = (c.get('item').toString() for c in @columns.where active: true)
-    if _.isEqual columns, @query.views
-      @model.set columns: []
-    else
-      @model.set columns: columns
+    @model.set columns: columns
 
   tagName: 'form'
 

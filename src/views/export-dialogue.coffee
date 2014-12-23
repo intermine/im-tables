@@ -33,14 +33,16 @@ module.exports = class ExportDialogue extends Modal
   initialize: ({@query}) ->
     super
     @state.set tab: 'format', dest: 'FAKE DATA'
-    @updateState()
     @listenTo @state, 'change:tab', @renderMain
     @listenTo @model, 'change', @updateState
     @query.count().then (c) => @model.set max: c
     @categoriseQuery()
+    @model.set columns: @query.views
+    @updateState()
 
   # This is probably slight overkill, and could be replaced
-  # with a function at the cost of complexity.
+  # with a function at the cost of complexity. On the plus side, it
+  # does not seem to impact performance, and is run only once.
   categoriseQuery: ->
     viewNodes = @query.getViewNodes()
     has = {}
@@ -57,10 +59,24 @@ module.exports = class ExportDialogue extends Modal
 
   updateState: ->
     {start, size, max, format, columns} = @model.toJSON()
+
+    columnDesc = if _.isEqual(columns, @query.views)
+      Messages.get('All')
+    else
+      columns.length
+
+    # Establish the error state.
+    error = if columns.length is 0
+      {message: 'No columns selected'}
+    else
+      null
+
+    # TODO: need a better calculation for rowCount
     @state.set
+      error: error
       format: format
-      rowCount: ((size or (max - start)) or max) # TODO: need a better calculation.
-      columns: (columns.length || Messages.get('All'))
+      rowCount: ((size or (max - start)) or max)
+      columns: columnDesc
 
   getMain: ->
     switch @state.get('tab')

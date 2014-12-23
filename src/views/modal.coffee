@@ -6,6 +6,14 @@ Templates = require '../templates'
 
 modalTemplate = Templates.template 'modal_base'
 
+class ErrorView extends View
+
+  className: 'pull-left'
+
+  RERENDER_EVENT: 'change:error'
+
+  template: Templates.template 'modal_error_view'
+
 module.exports = class Modal extends View
 
   className: -> 'modal fade'
@@ -28,7 +36,9 @@ module.exports = class Modal extends View
 
   hide: -> @resolve 'dismiss'
 
-  postRender: -> @show() if @shown # In the case of (unlikely) re-rendering.
+  postRender: ->
+    @renderChild 'error', (new ErrorView model: @state), @$ '.modal-footer'
+    @show() if @shown # In the case of (unlikely) re-rendering.
 
   onHidden: (e) ->
     if e? and e.target isnt @el # ignore bubbled events from sub-dialogues.
@@ -59,7 +69,6 @@ module.exports = class Modal extends View
     dismissAction = _.result @, 'dismissAction'
     primaryAction = _.result @, 'primaryAction'
     modalSize = _.result @, 'modalSize'
-    console.log title, dismissAction
     modalTemplate {title, body, dismissAction, primaryAction, modalSize}
 
   shown: false

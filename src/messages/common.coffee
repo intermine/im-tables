@@ -4,6 +4,7 @@ module.exports =
   Export: "Download"
   Clear: 'Clear'
   Cancel: 'Cancel'
+  Error: 'Error'
   and: 'and'
   or: 'or'
   comma: ','

@@ -8,7 +8,9 @@ CoreModel = require '../core-model'
 # and indexed by the 'item' field.
 class Item extends CoreModel
 
-  initialize: (item) -> @set item: item
+  initialize: (item, props) ->
+    @set props if props? # MUST not contain an item prop.
+    @set item: item
 
 # Class for representing a collection of items, which must be unique.
 # Each item is represented werapped up in its own {item: item}
@@ -34,10 +36,12 @@ module.exports = class UniqItems extends Backbone.Collection
 
   # Add items if they are non null, not empty strings,
   # and not already in the collection.
-  add: (items, opts) ->
+  # The API is slightly different from Collection::add in that the
+  # second argument defines the secondary properties of the model.
+  add: (items, props) ->
     items = if _(items).isArray() then items else [items]
     for item in items when item? and "" isnt item
-      super(new Item item, opts) unless @contains item
+      super(new Item(item, props)) unless @contains item
           
   remove: (items, opts) ->
     items = if _(items).isArray() then items else [items]

@@ -1,0 +1,7 @@
+<% if (error) { %>
+    <div class="alert alert-danger">
+        <%= Icons.icon('Error') %>
+        <strong><%- Messages.get('Error') %></strong>
+        <%- error.message || error %>
+    </div>
+<% } %>
