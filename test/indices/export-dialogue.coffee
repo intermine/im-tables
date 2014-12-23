@@ -34,7 +34,7 @@ renderQuery = (heading, container, query) ->
   dialogue = new Dialogue {query}
   display = new ModelDisplay {model: dialogue.model}
   display.render()
-  display.$el.css position: 'fixed', bottom: 0
+  display.$el.css position: 'fixed', bottom: 0, 'font-size': '12px'
              .appendTo 'body'
   dialogue.$el.appendTo container
   dialogue.render()

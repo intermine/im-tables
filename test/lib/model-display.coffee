@@ -8,5 +8,5 @@ module.exports = class ModelDisplay extends View
     @listenTo @model, 'change', @render
 
   render: ->
-    @$el.html JSON.stringify @model.toJSON()
+    @$el.html JSON.stringify @model.toJSON(), null, 2
 
