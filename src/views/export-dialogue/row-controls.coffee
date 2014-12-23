@@ -48,8 +48,8 @@ module.exports = class RowControls extends View
   template: Templates.template 'export_row_controls'
 
   events: ->
-    'change input[name=size]': 'onChangeSize'
-    'change input[name=start]': 'onChangeStart'
+    'input input[name=size]': 'onChangeSize'
+    'input input[name=start]': 'onChangeStart'
 
   updateInputs: ->
     {start, size, max} = @model.toJSON()
