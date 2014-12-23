@@ -4,6 +4,16 @@ module.exports =
   'export.category.Rows': "Rows",
   'export.category.Output': "Output",
   'export.category.Destination': "Destination: <%= dest %>",
+  'export.description.Tab': 'Tab separated values. A flat file format suitable for spreadsheet programmes'
+  'export.description.CSV': 'Comma separated values. A flat file format, suitable for spreadsheet programmes'
+  'export.description.XML': 'XML output, suitable for machine processing.'
+  'export.description.JSON': 'JSON output, suitable for machine processing.'
+  'export.description.FASTA': 'FASTA output for sequence data.'
+  'export.description.GFF3': 'GFF3 output for sequence features.'
+  'export.description.BED': 'BED output for sequence feature locations.'
+  'export.param.Size': 'Size: <%= size %>'
+  'export.param.Start': 'Offset: <%= start %>'
+  'rows.All': 'No limit'
   ListNameDuplicate: 'List names must be unique. This name is already taken',
   ListNameEmpty: 'Lists must have names. Please enter one',
   ListNameIllegal: """

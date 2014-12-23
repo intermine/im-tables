@@ -1,1 +1,14 @@
 <h3><%- Messages.getText('export.category.Format') %></h3>
+
+<% _.each(formats, function (formatDef) { %>
+    <div class="radio">
+        <label>
+            <input type="radio"
+                   name="format"
+                   value="<%= formatDef.id %>"
+                   <%= (formatDef.id === format) ? 'checked' : void 0 %>>
+            <%= Icons.icon(formatDef.icon) %>
+            <%= Messages.getText(formatDef.key) %>
+        </label>
+    </div>
+<% }); %>

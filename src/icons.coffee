@@ -127,7 +127,7 @@ ICONS.fontawesome =
   OpenReference: 'fa-plus-square-o'
   tsv: 'fa-list'
   csv: 'fa-list'
-  xml: 'fa-xml'
+  xml: 'fa-code'
   json: 'fa-json'
 
 module.exports = new Icons

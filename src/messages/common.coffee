@@ -1,4 +1,6 @@
 module.exports =
+  All: 'All'
+  Reset: 'Reset'
   Export: "Download"
   Clear: 'Clear'
   Cancel: 'Cancel'

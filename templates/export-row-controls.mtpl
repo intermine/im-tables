@@ -1,0 +1,24 @@
+<h3><%- Messages.getText('export.category.Rows') %></h3>
+
+<div class="form-group">
+    <label class="size-label"></label>
+    <input name="size"
+           step="1"
+           type="range"
+           min="0"
+           max="<%= max %>"
+           value="<%= size || max %>">
+</div>
+
+<div class="form-group">
+    <label class="start-label"></label>
+    <input name="start"
+           step="1"
+           type="range"
+           min="0"
+           max="<%= max - 1 %>"
+           value="<%= start %>">
+</div>
+
+<div class="form-group im-reset">
+</div>
