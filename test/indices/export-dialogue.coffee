@@ -5,6 +5,7 @@ queries = [
     name: "older than 35"
     select: [
       "name"
+      "age"
       "department.name"
       "department.manager.name"
     ]
