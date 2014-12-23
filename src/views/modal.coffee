@@ -6,13 +6,16 @@ Templates = require '../templates'
 
 modalTemplate = Templates.template 'modal_base'
 
-class ErrorView extends View
-
-  className: 'pull-left'
+class ModalFooter extends View
 
   RERENDER_EVENT: 'change:error'
 
-  template: Templates.template 'modal_error_view'
+  initialize: ({@actionNames}) ->
+    super
+
+  getData: -> _.extend {}, @actionNames, super
+
+  template: Templates.template 'modal_footer'
 
 module.exports = class Modal extends View
 
@@ -37,7 +40,12 @@ module.exports = class Modal extends View
   hide: -> @resolve 'dismiss'
 
   postRender: ->
-    @renderChild 'error', (new ErrorView model: @state), @$ '.modal-footer'
+    dismissAction = _.result @, 'dismissAction'
+    primaryAction = _.result @, 'primaryAction'
+    opts =
+      model: @state
+      actionNames: {dismissAction, primaryAction}
+    @renderChildAt 'footer', (new ModalFooter opts), @$ '.modal-footer'
     @show() if @shown # In the case of (unlikely) re-rendering.
 
   onHidden: (e) ->
@@ -66,10 +74,8 @@ module.exports = class Modal extends View
   template: (data) ->
     title = _.result @, 'title'
     body = @body data
-    dismissAction = _.result @, 'dismissAction'
-    primaryAction = _.result @, 'primaryAction'
     modalSize = _.result @, 'modalSize'
-    modalTemplate {title, body, dismissAction, primaryAction, modalSize}
+    modalTemplate {title, body, modalSize}
 
   shown: false
 

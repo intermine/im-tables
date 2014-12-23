@@ -71,15 +71,22 @@ module.exports = class CoreView extends Backbone.View
   # the child may be null, in which case it will be ignored.
   # A name really ought to be supplied, but one will be generated if needed.
   # If no container is given, the child is appended to the element of this view.
-  renderChild: (name, view, container) ->
+  renderChild: (name, view, container = @el, append = true) ->
     return this unless view?
     name ?= getKid()
-    container ?= @el
     @removeChild name
     @children[name] = view
+    if append
+      view.$el.appendTo container
+    else
+      view.setElement(container[0] or container)
     view.render()
-    view.$el.appendTo container
     this
+
+  # Render a child and rather than appending it set the given element
+  # as the element of the component.
+  renderChildAt: (name, view, element) ->
+    @renderChild name, view, element, false
 
   # Remove a child by name, if it exists.
   removeChild: (name) ->

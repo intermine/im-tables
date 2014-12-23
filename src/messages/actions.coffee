@@ -2,7 +2,14 @@ module.exports =
   'export.category.Format': "<%= format.toUpperCase() %> Format",
   'export.category.Columns': "<%= columns %> Columns",
   'export.heading.Columns': "Columns",
-  'export.category.Rows': "<%= rowCount %> Rows",
+  'export.category.Rows': """
+    <% if (rowCount === max) { %>
+      All
+    <% } else { %>
+      <%= rowCount %> of <%= max %>
+    <% } %>
+    Rows
+  """,
   'export.category.Output': "Output",
   'export.category.Destination': "Destination: <%= dest %>",
   'export.description.TSV': 'Tab separated values. A flat file format suitable for spreadsheet programmes'

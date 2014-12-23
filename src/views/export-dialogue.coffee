@@ -50,8 +50,7 @@ module.exports = class ExportDialogue extends Modal
       has[type] = _.any viewNodes, isa type
     @model.set {has}
 
-  title: ->
-    Messages.getText 'ExportTitle', {name: @query.name}
+  title: -> Messages.getText 'ExportTitle', {name: @query.name}
 
   primaryAction: -> Messages.getText 'ExportButton'
 
@@ -75,6 +74,7 @@ module.exports = class ExportDialogue extends Modal
     @state.set
       error: error
       format: format
+      max: @model.get('max')
       rowCount: ((size or (max - start)) or max)
       columns: columnDesc
 
