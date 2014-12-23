@@ -1,6 +1,6 @@
 module.exports =
-  'export.category.Format': "Format",
-  'export.category.Columns': "Columns",
+  'export.category.Format': "<%= format.toUpperCase() %> Format",
+  'export.category.Columns': "<%= columns %> Columns",
   'export.category.Rows': "<%= rowCount %> Rows",
   'export.category.Output': "Output",
   'export.category.Destination': "Destination: <%= dest %>",

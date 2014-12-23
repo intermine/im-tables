@@ -22,7 +22,7 @@ class Messages extends Backbone.Model
       templ = _.template(templ)
     @cache[key] = templ
 
-  getText: (key, args) ->
+  getText: (key, args) =>
     templ = @getTemplate key
     templ?(args)
 

@@ -1,6 +1,8 @@
 _ = require 'underscore'
 View = require '../../core-view'
+Messages = require '../../messages'
 Templates = require '../../templates'
+LabelView = require '../label-view'
 
 # There are no good bio icons in the font-awesome
 # set, but there are tickets to get them put in. Maybe
@@ -15,6 +17,10 @@ formats = [
   {id: 'bed', icon: 'dna', key: 'export.description.BED'}
 ]
 
+class HeadingView extends LabelView
+
+  template: _.partial Messages.getText, 'export.category.Format'
+
 module.exports = class FormatControls extends View
 
   tagName: 'form'
@@ -28,4 +34,7 @@ module.exports = class FormatControls extends View
 
   onChangeFormat: ->
     @model.set format: @$('input:radio:checked').val()
+
+  postRender: ->
+    @renderChild 'heading', (new HeadingView {@model}), @$ 'h3'
 

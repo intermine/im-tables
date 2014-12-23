@@ -1,31 +1,22 @@
 _ = require 'underscore'
 View = require '../../core-view'
+LabelView = require '../label-view'
 Messages = require '../../messages'
 Templates = require '../../templates'
 
-class LabelView extends View
-
-  RERENDER_EVENT: 'change'
-
-  tagName: 'span'
-
 class SizeLabel extends LabelView
 
-  getData: -> _.extend super, size: (@model.get('size') or Messages.getText('rows.All'))
+  getData: -> size: (@model.get('size') or Messages.getText('rows.All'))
 
-  template: _.template """
-    <%- Messages.getText('export.param.Size', {size: size}) %>
-  """
+  template: _.partial Messages.getText, 'export.param.Size'
 
 class OffsetLabel extends LabelView
 
-  template: _.template """
-    <%- Messages.getText('export.param.Start', {start: start}) %>
-  """
+  template: _.partial Messages.getText, 'export.param.Start'
 
 class HeadingLabel extends LabelView
 
-  template: (state) -> Messages.getText 'export.category.Rows', state
+  template: _.partial Messages.getText, 'export.category.Rows'
 
 class ResetButton extends View
 

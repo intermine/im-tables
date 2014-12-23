@@ -15,6 +15,7 @@ class ExportModel extends Model
   defaults: ->
     format: 'tab'
     start: 0
+    columns: []
     size: null
 
 # A complex dialogue that delegates the configuration of different
@@ -27,7 +28,7 @@ module.exports = class ExportDialogue extends Modal
 
   initialize: ({@query}) ->
     super
-    @state.set tab: 'format', dest: 'FAKE DATA', rowCount: null
+    @state.set tab: 'format', dest: 'FAKE DATA'
     @updateState()
     @listenTo @state, 'change:tab', @renderMain
     @listenTo @model, 'change', @updateState
@@ -41,9 +42,11 @@ module.exports = class ExportDialogue extends Modal
   body: Templates.template 'export_dialogue'
 
   updateState: ->
-    {start, size, max} = @model.toJSON()
+    {start, size, max, format, columns} = @model.toJSON()
     @state.set
-      rowCount: ((size or (max - start)) or max)
+      format: format
+      rowCount: ((size or (max - start)) or max) # TODO: need a better calculation.
+      columns: (columns.length || Messages.get('All'))
 
   getMain: ->
     switch @state.get('tab')
