@@ -1,0 +1,4 @@
+<h3><%- Messages.getText('export.heading.Columns') %></h3>
+
+<ul class="list-group">
+</ul>

@@ -1,10 +1,14 @@
 Backbone = require 'backbone'
 _ = require 'underscore'
+CoreModel = require '../core-model'
 
 # Model for representing something with one major field
-class Item extends Backbone.Model
+#
+# Other fields are possible, but this model is identified with
+# and indexed by the 'item' field.
+class Item extends CoreModel
 
-    initialize: (item) -> @set item: item
+  initialize: (item) -> @set item: item
 
 # Class for representing a collection of items, which must be unique.
 # Each item is represented werapped up in its own {item: item}

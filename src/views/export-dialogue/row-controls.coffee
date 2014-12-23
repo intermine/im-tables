@@ -24,13 +24,7 @@ class ResetButton extends View
 
   getData: -> _.extend super, isAll: not (@model.get('start') or @model.get('size'))
 
-  template: _.template """
-    <button type="button"
-            <%= (isAll) ? 'disabled' : void 0 %>
-            class="btn btn-default btn-reset">
-            <%- Messages.getText('Reset') %>
-    </button>
-  """
+  template: Templates.template 'export_rows_reset_button'
 
   events: ->
     'click button': 'reset'

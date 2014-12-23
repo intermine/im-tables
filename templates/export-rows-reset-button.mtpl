@@ -1,0 +1,5 @@
+<button type="button"
+        <%= (isAll) ? 'disabled' : void 0 %>
+        class="btn btn-default btn-reset">
+        <%- Messages.getText('Reset') %>
+</button>

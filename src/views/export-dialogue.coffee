@@ -9,6 +9,7 @@ Templates = require '../templates'
 Menu = require './export-dialogue/tab-menu'
 FormatControls = require './export-dialogue/format-controls'
 RowControls = require './export-dialogue/row-controls'
+ColumnControls = require './export-dialogue/column-controls'
 
 class ExportModel extends Model
 
@@ -17,6 +18,7 @@ class ExportModel extends Model
     start: 0
     columns: []
     size: null
+    max: null
 
 # A complex dialogue that delegates the configuration of different
 # export parameters to subviews.
@@ -51,6 +53,7 @@ module.exports = class ExportDialogue extends Modal
   getMain: ->
     switch @state.get('tab')
       when 'format' then FormatControls
+      when 'columns' then ColumnControls
       when 'rows' then RowControls
       else FormatControls
 

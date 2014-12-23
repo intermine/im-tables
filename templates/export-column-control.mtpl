@@ -1,0 +1,9 @@
+<span class="badge"><%- item.getType() %></span>
+<span class="im-active-state">
+    <% if (active) { %>
+        <%= Icons.icon('Check') %>
+    <% } else { %>
+        <%= Icons.icon('UnCheck') %>
+    <% } %>
+</span>
+<%- name %>
