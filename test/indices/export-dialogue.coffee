@@ -22,6 +22,7 @@ imjs = require "imjs"
 Dialogue = require("imtables/views/export-dialogue")
 
 Counter = require('../lib/counter.coffee')
+ModelDisplay = require '../lib/model-display.coffee'
 
 root = "http://localhost:8080/intermine-demo"
 conn = imjs.Service.connect(root: root)
@@ -29,11 +30,14 @@ conn = imjs.Service.connect(root: root)
 renderQuery = (heading, container, query) ->
   counter = new Counter el: heading, query: query
   counter.render()
-  for constraint in query.constraints
-    dialogue = new Dialogue {query}
-    dialogue.$el.appendTo container
-    dialogue.render()
-    dialogue.show().then console.log.bind(console, 'SUCCESS'), console.error.bind(console)
+  dialogue = new Dialogue {query}
+  display = new ModelDisplay {model: dialogue.model}
+  display.render()
+  display.$el.css position: 'fixed', bottom: 0
+             .appendTo 'body'
+  dialogue.$el.appendTo container
+  dialogue.render()
+  dialogue.show().then console.log.bind(console, 'SUCCESS'), console.error.bind(console)
 
 $ ->
   container = document.querySelector("#demo")

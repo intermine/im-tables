@@ -12,15 +12,7 @@ printErr = console.error.bind console
 Pagination = require 'imtables/views/table/pagination'
 PageSizer = require 'imtables/views/table/page-sizer'
 
-class ModelDisplay extends View
-
-  tagName: 'code'
-
-  initialize: ->
-    @listenTo @model, 'change', @render
-
-  render: ->
-    @$el.html JSON.stringify @model.toJSON()
+ModelDisplay = require '../lib/model-display.coffee'
 
 models = [
   {start: 0, size: 10, count: 100},
