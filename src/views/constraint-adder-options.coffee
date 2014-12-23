@@ -1,12 +1,13 @@
 _ = require 'underscore'
 {Promise} = require 'es6-promise'
 
-mixOf = require '../mix-of'
 View = require '../core-view'
 Options = require '../options'
 Templates = require '../templates'
 HasTypeaheads = require '../mixins/has-typeaheads'
 {IS_BLANK} = require '../patterns'
+
+pathSuggester = require '../utils/path-suggester'
 
 shortenLongName = (name) ->
   parts = name.split ' > '
@@ -17,7 +18,9 @@ shortenLongName = (name) ->
     name
 
 # The control elements of a constraint adder.
-module.exports = class ConstraintAdderOptions extends mixOf View, HasTypeaheads
+module.exports = class ConstraintAdderOptions extends View
+
+  @include HasTypeaheads
 
   className: 'row'
 
@@ -61,18 +64,11 @@ module.exports = class ConstraintAdderOptions extends mixOf View, HasTypeaheads
       @installTypeahead()
     this
 
-  contains_i = (a, b) -> a.toLowerCase().indexOf(b) >= 0
-
   installTypeahead: ->
     @removeTypeAheads() # no more than one at a time.
     input = @$ '.im-tree-filter'
     suggestions = @state.get 'suggestions'
-    suggest = (term, cb) ->
-      parts = (term?.toLowerCase()?.split(' ') ? [])
-      matches = ({path, name}) -> _.all parts, (p) ->
-        console.log path
-        contains_i(path.toString(), p) or contains_i(name, p)
-      cb(s for s in suggestions when matches s)
+    suggest = pathSuggester suggestions
 
     opts =
       minLength: 3
@@ -81,6 +77,7 @@ module.exports = class ConstraintAdderOptions extends mixOf View, HasTypeaheads
       name: 'path_suggestions'
       source: suggest
       displayKey: 'name'
+
     @activateTypeahead input, opts, dataset, suggestions[0].name, (e, suggestion) =>
       path = suggestion.path
       @openNodes.add path

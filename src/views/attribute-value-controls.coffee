@@ -6,7 +6,6 @@ Templates = require '../templates'
 View = require '../core-view'
 Options = require '../options'
 {IS_BLANK} = require '../patterns'
-mixOf = require '../mix-of'
 HasTypeaheads = require '../mixins/has-typeaheads'
 
 SuggestionSource = require '../utils/suggestion-source'
@@ -30,7 +29,9 @@ Messages.set
     There is only one possible value: <%- value %>. You might want to remove this constraint
   """
 
-module.exports = class AttributeValueControls extends mixOf View, HasTypeaheads
+module.exports = class AttributeValueControls extends View
+  
+  @include HasTypeaheads
 
   className: 'im-attribute-value-controls'
 
