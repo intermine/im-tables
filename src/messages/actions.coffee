@@ -1,7 +1,7 @@
 module.exports =
   'export.category.Format': "Format",
   'export.category.Columns': "Columns",
-  'export.category.Rows': "Rows",
+  'export.category.Rows': "<%= rowCount %> Rows",
   'export.category.Output': "Output",
   'export.category.Destination': "Destination: <%= dest %>",
   'export.description.Tab': 'Tab separated values. A flat file format suitable for spreadsheet programmes'

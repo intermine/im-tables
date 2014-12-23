@@ -23,6 +23,10 @@ class OffsetLabel extends LabelView
     <%- Messages.getText('export.param.Start', {start: start}) %>
   """
 
+class HeadingLabel extends LabelView
+
+  template: (state) -> Messages.getText 'export.category.Rows', state
+
 class ResetButton extends View
 
   RERENDER_EVENT: 'change'
@@ -47,12 +51,12 @@ module.exports = class RowControls extends View
 
   RERENDER_EVENT: 'change:max'
 
-  initialize: ({@query}) ->
+  initialize: ({state}) ->
     super
     @model.set max: null unless @model.has 'max'
     @listenTo @model, 'change:size', @updateLabels
-    @query.count().then (c) => @model.set max: c
     @listenTo @model, 'change:size change:start', @updateInputs
+    @parentState = state # Don't write to this.
 
   tagName: 'form'
 
@@ -63,8 +67,9 @@ module.exports = class RowControls extends View
     'change input[name=start]': 'onChangeStart'
 
   updateInputs: ->
-    for prop in ['size', 'start']
-      @$("input[name=#{ prop }]").val @model.get prop
+    {start, size, max} = @model.toJSON()
+    @$("input[name=size]").val (size or max)
+    @$("input[name=start]").val start
 
   onChangeSize: ->
     size = parseInt(@$('input[name=size]').val(), 10)
@@ -77,6 +82,7 @@ module.exports = class RowControls extends View
     @model.set start: parseInt(@$('input[name=start]').val(), 10)
 
   postRender: ->
+    @renderChild 'heading', (new HeadingLabel model: @parentState), @$ 'h3'
     @renderChild 'size', (new SizeLabel {@model}), @$ '.size-label'
     @renderChild 'start', (new OffsetLabel {@model}), @$ '.start-label'
     @renderChild 'reset', (new ResetButton {@model}), @$ '.im-reset'

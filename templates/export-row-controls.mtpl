@@ -1,11 +1,11 @@
-<h3><%- Messages.getText('export.category.Rows') %></h3>
+<h3></h3>
 
 <div class="form-group">
     <label class="size-label"></label>
     <input name="size"
            step="1"
            type="range"
-           min="0"
+           min="1"
            max="<%= max %>"
            value="<%= size || max %>">
 </div>

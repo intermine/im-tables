@@ -27,8 +27,11 @@ module.exports = class ExportDialogue extends Modal
 
   initialize: ({@query}) ->
     super
-    @state.set tab: 'format', dest: 'FAKE DATA'
+    @state.set tab: 'format', dest: 'FAKE DATA', rowCount: null
+    @updateState()
     @listenTo @state, 'change:tab', @renderMain
+    @listenTo @model, 'change', @updateState
+    @query.count().then (c) => @model.set max: c
 
   title: ->
     Messages.getText 'ExportTitle', {name: @query.name}
@@ -36,6 +39,11 @@ module.exports = class ExportDialogue extends Modal
   primaryAction: -> Messages.getText 'ExportButton'
 
   body: Templates.template 'export_dialogue'
+
+  updateState: ->
+    {start, size, max} = @model.toJSON()
+    @state.set
+      rowCount: ((size or (max - start)) or max)
 
   getMain: ->
     switch @state.get('tab')
@@ -45,7 +53,7 @@ module.exports = class ExportDialogue extends Modal
 
   renderMain: ->
     Main = @getMain()
-    @renderChild 'main', (new Main {@model, @query}), @$ 'div.main'
+    @renderChild 'main', (new Main {@model, @query, @state}), @$ 'div.main'
 
   postRender: ->
     @renderChild 'menu', (new Menu {model: @state}), @$ 'nav.menu'
