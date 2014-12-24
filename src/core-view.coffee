@@ -16,20 +16,23 @@ getKid = -> kid++
 #  - adds @make helper
 #  - ensures @children, and their clean up (requires super call in initialize) 
 #  - ensures @model :: CoreModel (requires super call in initialize)
+#  - ensures @state :: CoreModel (requires super call).
 #  - ensures the render cycle is established (preRender, postRender)
 #  - starts listening to the RERENDER_EVENT if defined.
 module.exports = class CoreView extends Backbone.View
 
   @include = (mixin) -> _.extend @.prototype, mixin
 
-  initialize: ->
+  initialize: ({@state}) ->
     @children = {}
     Model = (@Model or CoreModel)
     unless @model?
       @model = new Model
     unless @model.toJSON?
       @model = new Model @model
-    @state = new CoreModel # state is *not* model; cannot be passed in. *private* to instance.
+    @state ?= new CoreModel # State holds transient and computed data.
+    unless @state.toJSON?
+      @state = new CoreModel @state
     if @RERENDER_EVENT?
       @listenTo @model, @RERENDER_EVENT, @reRender
 
@@ -39,7 +42,7 @@ module.exports = class CoreView extends Backbone.View
   renderError: (resp) -> renderError(@el) resp
 
   # By default, the model extended with Messages and Icons
-  getData: -> _.extend {Messages, Icons}, @model.toJSON()
+  getData: -> _.extend {state: @state.toJSON(), Messages, Icons}, @model.toJSON()
 
   # Like render, but only happens if already rendered at least once.
   reRender: ->
@@ -103,9 +106,6 @@ module.exports = class CoreView extends Backbone.View
     @stopListening()
     @removeAllChildren()
     @off()
-    if @state?
-      @state.destroy() # not likely necessary, but get rid of it in any case
-      delete @state
     super
     this
 

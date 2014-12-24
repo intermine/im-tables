@@ -10,7 +10,7 @@ module.exports =
     <% } %>
     Rows
   """,
-  'export.category.Output': "Output",
+  'export.category.Compression': "<%= compression || 'No' %> Compression",
   'export.category.Options': "Options",
   'export.category.Destination': "Destination: <%= dest %>",
   'export.description.TSV': 'Tab separated values. A flat file format suitable for spreadsheet programmes'
@@ -33,7 +33,9 @@ module.exports =
   'export.param.Size': 'Size: <%= size %>'
   'export.param.Start': 'Offset: <%= start %>'
   'rows.All': 'No limit'
-  'export.UseGZIP': 'Use GZIP compression'
+  'export.UseCompression': 'Compress results'
+  'export.UseGZIP': 'Use GZIP compression (produces a .gzip archive)'
+  'export.UseZIP': 'Use Zip compression (produces a .zip archive)'
   'export.AddHeaders': 'Add column headers'
   'export.json.Rows': 'Rows'
   'export.json.Objects': 'Objects'

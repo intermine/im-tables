@@ -36,12 +36,11 @@ module.exports = class RowControls extends View
 
   RERENDER_EVENT: 'change:max'
 
-  initialize: ({state}) ->
+  initialize: ->
     super
     @model.set max: null unless @model.has 'max'
     @listenTo @model, 'change:size', @updateLabels
     @listenTo @model, 'change:size change:start', @updateInputs
-    @parentState = state # Don't write to this.
 
   tagName: 'form'
 
@@ -67,7 +66,8 @@ module.exports = class RowControls extends View
     @model.set start: parseInt(@$('input[name=start]').val(), 10)
 
   postRender: ->
-    @renderChild 'heading', (new HeadingLabel model: @parentState), @$ 'h3'
+    console.log 'state =', @state
+    @renderChild 'heading', (new HeadingLabel model: @state), @$ 'h3'
     @renderChild 'size', (new SizeLabel {@model}), @$ '.size-label'
     @renderChild 'start', (new OffsetLabel {@model}), @$ '.start-label'
     @renderChild 'reset', (new ResetButton {@model}), @$ '.im-reset'

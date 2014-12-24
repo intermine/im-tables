@@ -13,7 +13,7 @@ class ModalFooter extends View
   initialize: ({@actionNames}) ->
     super
 
-  getData: -> _.extend {}, @actionNames, super
+  getData: -> _.extend {error: null}, @actionNames, super
 
   template: Templates.template 'modal_footer'
 

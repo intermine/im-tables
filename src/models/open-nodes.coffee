@@ -1,3 +1,4 @@
+Backbone = require 'backbone'
 UniqItems = require './uniq-items'
 
 # True if a is b, or b is child of a
@@ -14,7 +15,11 @@ descendsFrom = (a, b) ->
 module.exports = class OpenNodes extends UniqItems
 
   # True for X.y if X.y.z is open
-  contains: (path) -> @any (node) -> descendsFrom path, node.get('item')
+  contains: (path) ->
+    if path instanceof Backbone.Model
+      super path
+    else
+      @any (node) -> descendsFrom path, node.get('item')
 
   # Also removes sub-nodes.
   remove: (path) ->
