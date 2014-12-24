@@ -10,7 +10,13 @@ module.exports =
     <% } %>
     Rows
   """,
-  'export.category.Compression': "<%= compression || 'No' %> Compression",
+  'export.category.Compression': """
+    <% if (compression) { %>
+      <%= compression.toUpperCase() %>
+    <% } else { %>
+      No
+    <% } %> Compression
+  """
   'export.category.Options': "Options",
   'export.category.Destination': "Destination: <%= dest %>",
   'export.description.TSV': 'Tab separated values. A flat file format suitable for spreadsheet programmes'

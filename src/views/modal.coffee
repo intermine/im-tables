@@ -74,7 +74,7 @@ module.exports = class Modal extends View
   template: (data) ->
     title = _.result @, 'title'
     body = @body data
-    modalSize = _.result @, 'modalSize'
+    modalSize = "modal-#{ _.result @, 'modalSize' }"
     modalTemplate {title, body, modalSize}
 
   shown: false

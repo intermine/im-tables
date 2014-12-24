@@ -60,6 +60,8 @@ module.exports = class ExportDialogue extends Modal
 
   title: -> Messages.getText 'ExportTitle', {name: @query.name}
 
+  modalSize: 'lg'
+
   primaryAction: -> Messages.getText 'ExportButton'
 
   body: Templates.template 'export_dialogue'

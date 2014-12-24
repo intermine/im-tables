@@ -10,7 +10,7 @@ module.exports = class NewFilterDialogue extends Modal
 
   className: -> 'im-constraint-dialogue ' + super
 
-  modalSize: 'modal-lg'
+  modalSize: 'lg'
 
   initialize: ({@query}) ->
     super
