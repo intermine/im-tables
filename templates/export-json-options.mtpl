@@ -1,0 +1,19 @@
+<h3><%- Messages.getText('export.category.Options') %></h3>
+
+<div class="radio">
+    <label>
+        <input type="radio"
+               name="rows"
+               <%= (jsonFormat === 'rows') ? 'checked' : void 0 %>>
+        <%- Messages.getText('export.json.Rows') %>
+    </label>
+</div>
+
+<div class="radio">
+    <label>
+        <input type="radio"
+               name="objects"
+               <%= (jsonFormat === 'objects') ? 'checked' : void 0 %>>
+        <%- Messages.getText('export.json.Objects') %>
+    </label>
+</div>

@@ -11,6 +11,7 @@ module.exports =
     Rows
   """,
   'export.category.Output': "Output",
+  'export.category.Options': "Options",
   'export.category.Destination': "Destination: <%= dest %>",
   'export.description.TSV': 'Tab separated values. A flat file format suitable for spreadsheet programmes'
   'export.description.CSV': 'Comma separated values. A flat file format, suitable for spreadsheet programmes'
@@ -32,6 +33,12 @@ module.exports =
   'export.param.Size': 'Size: <%= size %>'
   'export.param.Start': 'Offset: <%= start %>'
   'rows.All': 'No limit'
+  'export.UseGZIP': 'Use GZIP compression'
+  'export.AddHeaders': 'Add column headers'
+  'export.json.Rows': 'Rows'
+  'export.json.Objects': 'Objects'
+  'export.ff.FriendlyHeaders': 'Human readable headers (eg. "Gene > Organism Name")'
+  'export.ff.PathHeaders': 'Raw path headers (eg. "Gene.organism.shortName)'
   ListNameDuplicate: 'List names must be unique. This name is already taken',
   ListNameEmpty: 'Lists must have names. Please enter one',
   ListNameIllegal: """

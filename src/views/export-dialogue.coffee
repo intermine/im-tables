@@ -10,6 +10,8 @@ Menu = require './export-dialogue/tab-menu'
 FormatControls = require './export-dialogue/format-controls'
 RowControls = require './export-dialogue/row-controls'
 ColumnControls = require './export-dialogue/column-controls'
+FlatFileOptions = require './export-dialogue/flat-file-options'
+JSONOptions = require './export-dialogue/json-options'
 
 class ExportModel extends Model
 
@@ -19,6 +21,10 @@ class ExportModel extends Model
     columns: []
     size: null
     max: null
+    compress: false
+    headers: false
+    jsonFormat: 'rows'
+    headerType: 'friendly'
 
 isa = (target) -> (path) -> path.isa target
 
@@ -82,6 +88,8 @@ module.exports = class ExportDialogue extends Modal
     switch @state.get('tab')
       when 'format' then FormatControls
       when 'columns' then ColumnControls
+      when 'opts-ff' then FlatFileOptions
+      when 'opts-json' then JSONOptions
       when 'rows' then RowControls
       else FormatControls
 

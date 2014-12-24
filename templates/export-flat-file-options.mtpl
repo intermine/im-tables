@@ -1,0 +1,36 @@
+<h3><%- Messages.getText('export.category.Options') %></h3>
+
+<div class="checkbox im-gzip">
+    <label>
+        <input type="checkbox" <%= compress ? 'checked' : void 0 %>>
+        <%- Messages.getText('export.UseGZIP') %>
+    </label>
+</div>
+
+<div class="checkbox im-headers">
+    <label>
+        <input type="checkbox" <%= headers ? 'checked' : void 0 %>>
+        <%- Messages.getText('export.AddHeaders') %>
+    </label>
+</div>
+
+<fieldset <%= headers ? void 0 : 'disabled' %>>
+    <div class="radio">
+        <label>
+            <input type="radio"
+                name="hdrs-friendly"
+                <%= (headerType === 'friendly') ? 'checked' : void 0 %>>
+            <%- Messages.getText('export.ff.FriendlyHeaders') %>
+        </label>
+    </div>
+
+    <div class="radio">
+        <label>
+            <input type="radio"
+                name="hdrs-path"
+                <%= (headerType === 'path') ? 'checked' : void 0 %>>
+            <%- Messages.getText('export.ff.PathHeaders') %>
+        </label>
+    </div>
+</fieldset>
+
