@@ -112,5 +112,8 @@
     },
     "transform_messes_up_line_numbers": {
         "level": "warn"
+    },
+    "no_long_functions": {
+        "module": "coffeelint-no-long-functions"
     }
 }

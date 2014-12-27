@@ -6,6 +6,7 @@
     "port": "9000"
   },
   "scripts": {
+    "coffeelint": "coffeelint -f coffeelint.json",
     "start": "grunt serve",
     "pretest": "npm run build",
     "test": "mocha --compilers coffee:coffee-script/register test/unit/*",
@@ -67,7 +68,8 @@
     "codo": "~0.3.0",
     "coffee-script": "~1.8.0",
     "coffeeify": "^1.0.0",
-    "coffeelint": ">= 0.5.4",
+    "coffeelint": "^1.8.1",
+    "coffeelint-no-long-functions": "^1.0.1",
     "connect": "~2.7.3",
     "es6-promise": "^2.0.1",
     "font-awesome": "^4.2.0",
