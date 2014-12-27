@@ -88,7 +88,7 @@ module.exports =
     Some characters are not allowed in list names. This name contains the following
     illegal characters: <%- illegals.join(', ') %>. Please remove them.
   """
-  ExportTitle: "Download <%- name || 'Results' %>",
+  ExportTitle: "Download results for <%= name || 'query' %>",
   ConfigureExport: "Configure Export",
   GetData: "Download Data",
   ExportHelp: "Download file containing results to your computer",
