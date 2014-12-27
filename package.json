@@ -6,6 +6,7 @@
     "port": "9000"
   },
   "scripts": {
+    "repl": "coffee",
     "coffeelint": "coffeelint -f coffeelint.json",
     "start": "grunt serve",
     "pretest": "npm run build",
