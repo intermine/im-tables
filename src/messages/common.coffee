@@ -5,6 +5,7 @@ module.exports =
   Clear: 'Clear'
   Cancel: 'Cancel'
   Error: 'Error'
+  Warning: 'Warning'
   and: 'and'
   or: 'or'
   comma: ','

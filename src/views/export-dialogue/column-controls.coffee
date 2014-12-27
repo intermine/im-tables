@@ -57,7 +57,7 @@ class ResetButton extends View
 
   initialize: ({@query, @columns}) ->
     super
-    @model.set isAll: true
+    @setIsAll()
     @listenTo @columns, 'change:active', @setIsAll
 
   setIsAll: ->

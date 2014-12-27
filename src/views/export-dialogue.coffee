@@ -10,6 +10,9 @@ Menu = require './export-dialogue/tab-menu'
 FormatControls = require './export-dialogue/format-controls'
 RowControls = require './export-dialogue/row-controls'
 ColumnControls = require './export-dialogue/column-controls'
+CompressionControls = require './export-dialogue/compression-controls'
+FlatFileOptions = require './export-dialogue/flat-file-options'
+JSONOptions = require './export-dialogue/json-options'
 
 class ExportModel extends Model
 
@@ -19,6 +22,11 @@ class ExportModel extends Model
     columns: []
     size: null
     max: null
+    compress: false
+    compression: 'gzip'
+    headers: false
+    jsonFormat: 'rows'
+    headerType: 'friendly'
 
 isa = (target) -> (path) -> path.isa target
 
@@ -52,12 +60,14 @@ module.exports = class ExportDialogue extends Modal
 
   title: -> Messages.getText 'ExportTitle', {name: @query.name}
 
+  modalSize: 'lg'
+
   primaryAction: -> Messages.getText 'ExportButton'
 
   body: Templates.template 'export_dialogue'
 
   updateState: ->
-    {start, size, max, format, columns} = @model.toJSON()
+    {compress, compression, start, size, max, format, columns} = @model.toJSON()
 
     columnDesc = if _.isEqual(columns, @query.views)
       Messages.get('All')
@@ -72,6 +82,7 @@ module.exports = class ExportDialogue extends Modal
 
     # TODO: need a better calculation for rowCount
     @state.set
+      compression: (if compress then compression else null)
       error: error
       format: format
       max: @model.get('max')
@@ -82,6 +93,9 @@ module.exports = class ExportDialogue extends Modal
     switch @state.get('tab')
       when 'format' then FormatControls
       when 'columns' then ColumnControls
+      when 'compression' then CompressionControls
+      when 'opts-ff' then FlatFileOptions
+      when 'opts-json' then JSONOptions
       when 'rows' then RowControls
       else FormatControls
 

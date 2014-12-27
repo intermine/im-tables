@@ -31,7 +31,8 @@ module.exports = class UniqItems extends Backbone.Collection
     else
       @add item
 
-  get: (key) -> super String(key)
+  get: (key) ->
+    super(if (key instanceof Backbone.Model) then key else String(key))
 
   contains: (item) ->
     if item instanceof Item
@@ -49,6 +50,7 @@ module.exports = class UniqItems extends Backbone.Collection
       super(new Item(item, props)) unless @contains item
           
   remove: (items, opts) ->
+    console.log 'removing', items, opts
     items = if _(items).isArray() then items else [items]
     for item in items
       if item instanceof Item

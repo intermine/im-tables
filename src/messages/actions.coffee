@@ -10,7 +10,14 @@ module.exports =
     <% } %>
     Rows
   """,
-  'export.category.Output': "Output",
+  'export.category.Compression': """
+    <% if (compression) { %>
+      <%= compression.toUpperCase() %>
+    <% } else { %>
+      No
+    <% } %> Compression
+  """
+  'export.category.Options': "Options",
   'export.category.Destination': "Destination: <%= dest %>",
   'export.description.TSV': 'Tab separated values. A flat file format suitable for spreadsheet programmes'
   'export.description.CSV': 'Comma separated values. A flat file format, suitable for spreadsheet programmes'
@@ -32,6 +39,41 @@ module.exports =
   'export.param.Size': 'Size: <%= size %>'
   'export.param.Start': 'Offset: <%= start %>'
   'rows.All': 'No limit'
+  'export.UseCompression': 'Compress results'
+  'export.UseGZIP': 'Use GZIP compression (produces a .gzip archive)'
+  'export.UseZIP': 'Use Zip compression (produces a .zip archive)'
+  'export.AddHeaders': 'Add column headers'
+  'export.json.Rows': """
+    Return results as rows - each row is an Array of JSON values, e.g.:
+  """
+  'export.json.RowsExample': '["eve", "2R", 5866824, 5868300]'
+  'export.json.ObjExample': """
+    {
+      "class": "Gene",
+      "symbol": "eve",
+      "chromosomeLocation": {
+        "class": "ChromosomeLocation",
+        "start": 5866824,
+        "end": 5868300
+        "locatedOn": {
+          "class": "Chromosome",
+          "primaryIdentifier": "2R"
+        }
+      }
+    }
+  """
+  'export.json.Objects': """
+    Return results as objects - each result is a nested graph of
+    data, e.g.:
+  """
+  'export.json.ObjWarning': """
+    Please note that it is not recommended to set the size parameters
+    when requesting object results, since the size of the result
+    set, and the position of the offsets will differ when multiple
+    rows are replaced by a single object with a collection.
+  """
+  'export.ff.FriendlyHeaders': 'Human readable headers (eg. "Gene > Organism Name")'
+  'export.ff.PathHeaders': 'Raw path headers (eg. "Gene.organism.shortName)'
   ListNameDuplicate: 'List names must be unique. This name is already taken',
   ListNameEmpty: 'Lists must have names. Please enter one',
   ListNameIllegal: """
