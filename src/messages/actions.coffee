@@ -18,6 +18,14 @@ module.exports =
     <% } %> Compression
   """
   'export.category.Options': "Options",
+  'export.category.ColumnHeaders': """
+    <% if (headers) { %>
+      <%= {friendly: 'Formatted', path: 'Raw'}[headerType] %>
+    <% } else { %>
+      No
+    <% } %>
+    Column Headers
+  """
   'export.category.Destination': "Destination: <%= dest %>",
   'export.description.TSV': 'Tab separated values. A flat file format suitable for spreadsheet programmes'
   'export.description.CSV': 'Comma separated values. A flat file format, suitable for spreadsheet programmes'

@@ -14,7 +14,7 @@ TABS = [
   new Tab('columns', 'Columns'),
   new Tab('rows', 'Rows'),
   new Tab('compression', 'Compression'),
-  new Tab('opts-ff', 'Options', ['tsv', 'csv']),
+  new Tab('column-headers', 'ColumnHeaders', ['tsv', 'csv']),
   new Tab('opts-json', 'Options', ['json']),
   new Tab('dest', 'Destination')
 ]

@@ -1,4 +1,4 @@
-<h3><%- Messages.getText('export.category.Options') %></h3>
+<h3><%- Messages.getText('export.category.ColumnHeaders', state) %></h3>
 
 <div class="checkbox im-headers">
     <label>

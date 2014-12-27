@@ -81,6 +81,7 @@ module.exports = class ExportDialogue extends Modal
       null
 
     # TODO: need a better calculation for rowCount
+    @state.set @model.pick 'headers', 'headerType'
     @state.set
       compression: (if compress then compression else null)
       error: error
@@ -94,7 +95,7 @@ module.exports = class ExportDialogue extends Modal
       when 'format' then FormatControls
       when 'columns' then ColumnControls
       when 'compression' then CompressionControls
-      when 'opts-ff' then FlatFileOptions
+      when 'column-headers' then FlatFileOptions
       when 'opts-json' then JSONOptions
       when 'rows' then RowControls
       else FormatControls
