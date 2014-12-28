@@ -115,5 +115,11 @@
     },
     "no_long_functions": {
         "module": "coffeelint-no-long-functions"
+    },
+    "ensure_super": {
+        "module": "coffeelint-ensure-super",
+        "check": {
+            "CoreView": ["remove", "initialize"]
+        }
     }
 }
