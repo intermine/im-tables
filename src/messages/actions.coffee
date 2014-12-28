@@ -46,6 +46,7 @@ module.exports =
   """
   'export.param.Size': 'Size: <%= size %>'
   'export.param.Start': 'Offset: <%= start %>'
+  'export.param.Name': 'File name'
   'rows.All': 'No limit'
   'export.UseCompression': 'Compress results'
   'export.UseGZIP': 'Use GZIP compression (produces a .gzip archive)'

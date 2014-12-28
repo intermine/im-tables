@@ -11,5 +11,6 @@ rm -rf test/bundles
 
 mkdir build
 mkdir dist
+mkdir .tmp
 ln -s ../build node_modules/imtables
 ln -s node_modules/font-awesome/fonts fonts

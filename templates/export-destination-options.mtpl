@@ -1,0 +1,14 @@
+<h3>
+    <%- Messages.getText('export.category.Destination', state) %>
+</h3>
+
+<div class="form-group im-param-name">
+    <label><%- Messages.getText('export.param.Name') %></label>
+    <div class="input-group">
+        <input type="text"
+               value="<%- name %>"
+               class="form-control"
+               placeholder="<%- Messages.getText('export.param.Name') %>">
+        <span class="input-group-addon">.<%- format %></span>
+    </div>
+</div>

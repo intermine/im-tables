@@ -13,10 +13,12 @@ ColumnControls = require './export-dialogue/column-controls'
 CompressionControls = require './export-dialogue/compression-controls'
 FlatFileOptions = require './export-dialogue/flat-file-options'
 JSONOptions = require './export-dialogue/json-options'
+DestinationOptions = require './export-dialogue/destination-options'
 
 class ExportModel extends Model
 
   defaults: ->
+    name: 'results'
     format: 'tsv'
     start: 0
     columns: []
@@ -46,6 +48,7 @@ module.exports = class ExportDialogue extends Modal
     @query.count().then (c) => @model.set max: c
     @categoriseQuery()
     @model.set columns: @query.views
+    @model.set name: @query.name if @query.name?
     @updateState()
 
   # This is probably slight overkill, and could be replaced
@@ -97,6 +100,7 @@ module.exports = class ExportDialogue extends Modal
       when 'compression' then CompressionControls
       when 'column-headers' then FlatFileOptions
       when 'opts-json' then JSONOptions
+      when 'dest' then DestinationOptions
       when 'rows' then RowControls
       else FormatControls
 
