@@ -10,7 +10,7 @@ class RadioButtons extends CoreView
   RERENDER_EVENT: 'change:dest'
 
   destinations: -> (d for d in Options.get('Destinations') \
-                            when Options.get("Destination.#{ d }.Enabled"))
+                            when Options.get(['Destination', d, 'Enabled']))
 
   getData: -> _.extend {destinations: @destinations()}, super
 
@@ -36,7 +36,7 @@ module.exports = class DestinationOptions extends CoreView
     @renderChildAt '.im-param-dest', (new RadioButtons model: @state)
 
   events: ->
-    evts = 
+    evts =
       '.change .im-param-name input': 'setName'
 
     types = @model.get 'has'
