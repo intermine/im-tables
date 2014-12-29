@@ -1,0 +1,11 @@
+<% _.each(destinations, function (d) { %>
+    <div class="radio im-dest-<%- d %>">
+        <label>
+            <input type="radio"
+                    name="dest"
+                    <%= (d === dest) ? 'checked' : void 0 %>>
+            <%- Messages.getText(d) %>
+        </label>
+    </div>
+<% }); %>
+

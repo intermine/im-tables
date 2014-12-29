@@ -8,7 +8,7 @@
                    value="<%= formatDef.id %>"
                    <%= (formatDef.id === format) ? 'checked' : void 0 %>>
             <%= Icons.icon(formatDef.icon) %>
-            <%= Messages.getText(formatDef.key) %>
+            <%= Messages.getText(formatDef.desc) %>
         </label>
     </div>
 <% }); %>

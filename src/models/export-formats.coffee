@@ -2,10 +2,11 @@ _ = require 'underscore'
 
 class Format
 
-  constructor: (id, icon, needs = []) ->
-    icon ?= id
-    key = "export.description.#{ id.toUpperCase() }"
-    _.extend this, {id, icon, key, needs}
+  constructor: (@id, @group, icon, needs = []) ->
+    icon ?= @id
+    desc = "export.format.description.#{ @id.toUpperCase() }"
+    name = "export.format.name.#{ @id.toUpperCase() }"
+    _.extend this, {icon, desc, name, needs}
 
   # Return true if this format has no requirements, or if at least
   # one of its required types are present.
@@ -17,15 +18,15 @@ class Format
 # set, but there are tickets to get them put in. Maybe
 # one day soon these will work.
 formats = [
-  new Format('tsv'),
-  new Format('csv'),
-  new Format('xml'),
-  new Format('json'),
-  new Format('fasta', 'dna', ['Protein', 'SequenceFeature']),
-  new Format('gff3', 'dna', ['SequenceFeature']),
-  new Format('bed', 'dna', ['SequenceFeature']),
-  new Format('fake', 'fake', ['Department'])
-  new Format('fake_2', 'fake', ['Company'])
+  new Format('tsv', 'flat'),
+  new Format('csv', 'flat'),
+  new Format('xml', 'machine'),
+  new Format('json', 'machine'),
+  new Format('fasta', 'bio', 'dna', ['Protein', 'SequenceFeature']),
+  new Format('gff3', 'bio', 'dna', ['SequenceFeature']),
+  new Format('bed', 'bio', 'dna', ['SequenceFeature']),
+  new Format('fake', 'fake', 'fake', ['Department'])
+  new Format('fake_2', 'fake', 'fake', ['Company'])
 ]
 
 exports.getFormats = (availableTypes) ->

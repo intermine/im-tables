@@ -5,10 +5,42 @@
 <div class="form-group im-param-name">
     <label><%- Messages.getText('export.param.Name') %></label>
     <div class="input-group">
-        <input type="text"
-               value="<%- name %>"
-               class="form-control"
-               placeholder="<%- Messages.getText('export.param.Name') %>">
-        <span class="input-group-addon">.<%- format %></span>
+      <input type="text"
+             value="<%- name %>"
+             class="form-control"
+             placeholder="<%- Messages.getText('export.param.Name') %>"
+             aria-label="<%- Messages.getText('export.param.Name') %>">
+      <div class="input-group-btn">
+        <button type="button"
+                class="btn btn-default dropdown-toggle"
+                data-toggle="dropdown"
+                aria-expanded="false">
+          .<%- format %>
+          <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-right" role="menu">
+          <% _.chain(formats).groupBy('group').each(function (fmts, grp) { %>
+            <% if (this.i++) { %><li class="divider"></li><% } %>
+            <% _.each(fmts, function (fmt) { %>
+                <li>
+                    <a href="#"
+                       class="im-fmt-<%- fmt.id %>">
+                      <%= Icons.icon(fmt.icon) %>
+                      <%- Messages.getText(fmt.name) %>
+                    </a>
+                </li>
+            <% }); %>
+          <% }, {i: 0}); %>
+        </ul>
+      </div>
     </div>
+</div>
+
+<% if (format) { %>
+    <div class="alert alert-info">
+        <%- Messages.getText('export.format.description.' + format.toUpperCase()) %>
+    </div>
+<% } %>
+
+<div class="form-group im-param-dest">
 </div>

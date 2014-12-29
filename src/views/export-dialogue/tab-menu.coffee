@@ -10,13 +10,12 @@ class Tab
   isFor: (format) -> (@formats.length is 0) or (format in @formats)
 
 TABS = [
-  new Tab('format', 'Format'),
+  new Tab('dest', 'Destination'),
   new Tab('columns', 'Columns'),
   new Tab('rows', 'Rows'),
   new Tab('compression', 'Compression'),
   new Tab('column-headers', 'ColumnHeaders', ['tsv', 'csv']),
-  new Tab('opts-json', 'Options', ['json']),
-  new Tab('dest', 'Destination')
+  new Tab('opts-json', 'Options', ['json'])
 ]
 
 module.exports = class TabMenu extends View

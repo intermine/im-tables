@@ -26,21 +26,36 @@ module.exports =
     <% } %>
     Column Headers
   """
-  'export.category.Destination': "Destination: <%= dest %>",
-  'export.description.TSV': 'Tab separated values. A flat file format suitable for spreadsheet programmes'
-  'export.description.CSV': 'Comma separated values. A flat file format, suitable for spreadsheet programmes'
-  'export.description.XML': 'XML output, suitable for machine processing.'
-  'export.description.JSON': """
-    JSON output, suitable for machine processing.
+  'export.category.Destination': """
+    <% if (dest === 'download') { %>
+      Download <%= format.toUpperCase() %> file
+    <% } else { %>
+      Send <%= format.toUpperCase() %> to <%= dest %>
+    <% } %>
   """
-  'export.description.FASTA': 'FASTA output for sequence data.'
-  'export.description.GFF3': 'GFF3 output for sequence features.'
-  'export.description.BED': 'BED output for sequence feature locations.'
-  'export.description.FAKE': """
+  'export.format.description.TSV': 'A flat file format suitable for spreadsheet programmes'
+  'export.format.name.TSV': 'Tab separated values.'
+  'export.format.description.CSV': 'A flat file format, suitable for spreadsheet programmes'
+  'export.format.name.CSV': 'Comma separated values.'
+  'export.format.description.XML': 'A text format suitable for machine processing.'
+  'export.format.name.XML': 'XML'
+  'export.format.name.JSON': 'JSON'
+  'export.format.description.JSON': """
+    A text format suitable for machine processing.
+  """
+  'export.format.name.FASTA': 'FASTA sequence.'
+  'export.format.description.FASTA': 'FASTA output for sequence data.'
+  'export.format.name.GFF3': 'GFF3 features.'
+  'export.format.description.GFF3': 'GFF3 output for sequence features.'
+  'export.format.name.BED': 'BED locations.'
+  'export.format.description.BED': 'BED output for sequence feature locations.'
+  'export.format.name.FAKE': 'Fake'
+  'export.format.description.FAKE': """
     Fake format for testing. Should only appear if the
     query has departments in the view.
   """
-  'export.description.FAKE_2': """
+  'export.format.name.FAKE_2': 'Also Fake'
+  'export.format.description.FAKE_2': """
     Fake format for testing. Should only appear if the
     query has companies in the view.
   """
@@ -95,8 +110,9 @@ module.exports =
   ExportHelp: "Download file containing results to your computer",
   ExportButton: "Download",
   'download-file': 'Download File',
+  download: 'Download file'
   Galaxy: 'Send to Galaxy',
-  Genomespace: 'Upload to Genomespace',
+  GenomeSpace: 'Upload to Genomespace',
   'Destdownload-file': 'File',
   DestGalaxy: 'Galaxy',
   DestGenomespace: 'Genomespace',

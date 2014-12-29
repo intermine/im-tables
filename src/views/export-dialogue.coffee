@@ -42,13 +42,13 @@ module.exports = class ExportDialogue extends Modal
 
   initialize: ({@query}) ->
     super
-    @state.set tab: 'format', dest: 'FAKE DATA'
+    @state.set tab: 'dest', dest: 'download'
     @listenTo @state, 'change:tab', @renderMain
     @listenTo @model, 'change', @updateState
     @query.count().then (c) => @model.set max: c
     @categoriseQuery()
     @model.set columns: @query.views
-    @model.set name: @query.name if @query.name?
+    @model.set name: @query.name.replace(/\s+/g, '_') if @query.name?
     @updateState()
 
   # This is probably slight overkill, and could be replaced

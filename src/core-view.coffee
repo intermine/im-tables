@@ -89,6 +89,7 @@ module.exports = class CoreView extends Backbone.View
   # Render a child and rather than appending it set the given element
   # as the element of the component.
   renderChildAt: (name, view, element) ->
+    element ?= @$ name
     @renderChild name, view, element, false
 
   # Remove a child by name, if it exists.

@@ -24,7 +24,8 @@ class Messages extends Backbone.Model
 
   getText: (key, args) =>
     templ = @getTemplate key
-    templ?(args)
+    # Make missing keys really obvious
+    templ?(args) ? "!!!No message for #{ key }!!!"
 
   defaults: -> _.extend {}, common, actionMessages,
     'export.DialogueTitle': 'Export'

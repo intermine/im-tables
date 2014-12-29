@@ -62,14 +62,18 @@ class Options extends Model
       "http://some.host.somewhere": "http://some.host.somewhere/logo.png"
     StylePrefix: 'intermine'
     SuggestionDepth: 4 # When suggestion paths, follow up to this many references.
-    Galaxy:
-      Main: "http://main.g2.bx.psu.edu"
-      Current: null
-      Tool: 'flymine' # The tool we should use to send data to Galaxy
-      Enable: true # Set this to false to disable this export destination
-    GenomeSpace:
-      Upload: "https://gsui.genomespace.org/jsui/upload/loadUrlToGenomespace.html"
-      Enable: true # Set this to false to disable this export destination
+    Destinations: ['download', 'Galaxy', 'GenomeSpace']
+    Destination:
+      download:
+        Enabled: true
+      Galaxy:
+        Main: "http://main.g2.bx.psu.edu"
+        Current: null
+        Tool: 'flymine' # The tool we should use to send data to Galaxy
+        Enabled: true # Set this to false to disable this export destination
+      GenomeSpace:
+        Upload: "https://gsui.genomespace.org/jsui/upload/loadUrlToGenomespace.html"
+        Enabled: true # Set this to false to disable this export destination
     ShowId: false
     TableWidgets: ['Pagination', 'PageSizer', 'TableSummary', 'ManagementTools', 'ScrollBar']
     CellCutoff: 100
