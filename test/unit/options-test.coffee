@@ -12,18 +12,30 @@ describe 'new Options', ->
 
     options.get('INITIAL_SUMMARY_ROWS').should.eql 1000
 
+describe 'Options::get (simple)', ->
+
+  options = new Options
+  after -> options.destroy()
+
+  it 'should be able to read simple string values', ->
+    options.get('StylePrefix').should.eql 'intermine'
+
+  it 'should be able to read object values', ->
+    options.get('Destinations').should.eql ['download', 'Galaxy', 'GenomeSpace', 'Drive', 'Dropbox']
+
 describe 'Options::get (nested)', ->
 
   options = new Options
   after -> options.destroy()
 
-  it 'should be able to read nested values', ->
+  it 'should be able to read nested values (string)', ->
 
     options.get('Destination.Galaxy.Tool').should.eql 'flymine'
 
-  it 'should be able to read nested values', ->
+  it 'should be able to read nested values, (array)', ->
 
     options.get(['Destination', 'Galaxy', 'Tool']).should.eql 'flymine'
+    options.get(['Destination', 'Galaxy', 'Enabled']).should.eql true
 
 describe 'Options::set (simple)', ->
 
@@ -122,3 +134,25 @@ describe 'Options events for unsetting previous keys', ->
   it 'should have triggered a change event for the nested key', ->
     changed.should.have.property 'current'
     should.not.exist  changed.current
+
+describe 'Destination Options', ->
+
+  describe 'by default', ->
+
+    options = new Options
+    destinations = (d for d in options.get('Destinations') \
+                            when options.get(['Destination', d, 'Enabled']))
+
+    it 'should find 5 enabled destinations', ->
+      destinations.length.should.eql 5
+
+  describe 'disabling one of them', ->
+
+    options = new Options
+    options.set 'Destination.GenomeSpace.Enabled', false
+    destinations = (d for d in options.get('Destinations') \
+                            when options.get(['Destination', d, 'Enabled']))
+
+    it 'should find 4 enabled destinations', ->
+      destinations.length.should.eql 4
+

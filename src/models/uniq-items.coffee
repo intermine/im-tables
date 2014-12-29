@@ -50,7 +50,6 @@ module.exports = class UniqItems extends Backbone.Collection
       super(new Item(item, props)) unless @contains item
           
   remove: (items, opts) ->
-    console.log 'removing', items, opts
     items = if _(items).isArray() then items else [items]
     for item in items
       if item instanceof Item

@@ -51,7 +51,7 @@ class Options extends Model
     throw new Error("No key") unless key?
     if _.isArray(key) # Handle key paths.
       # Recurse into subkeys.
-      if _.isObject value
+      if _.isObject(value) and not _.isArray(value)
         for k, v of value
           @set key.concat([k]), v
         return
@@ -73,7 +73,7 @@ class Options extends Model
     else if _.isString(key) # Handle calls as (String, Object) ->
       if /\w+\.\w+/.test key
         @set (key.split /\./), value
-      else if _.isObject(value)
+      else if _.isObject(value) and not _.isArray(value)
         @set [key], value
       else
         super # Handle simple key-value pairs, including unset.

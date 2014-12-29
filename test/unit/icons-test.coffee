@@ -14,7 +14,7 @@ describe 'Default icons', ->
 
   it 'should be able to create the HTML for an icon', ->
 
-    icons.icon('Check').should.eql '<i class="fa fa-ok"></i>'
+    icons.icon('Check').should.eql '<i class="fa fa-toggle-on"></i>'
 
 describe 'Different icon set', ->
 

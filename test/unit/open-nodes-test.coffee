@@ -2,6 +2,8 @@ should = require 'should'
 
 OpenNodes = require 'imtables/models/open-nodes'
 
+# The methods ::equals, ::isRoot and ::getParent are used by descendsFrom,
+# so they need mocking, and UniqItems uses toString.
 class FakePath
 
   constructor: (@parts) ->
@@ -12,6 +14,7 @@ class FakePath
 
   equals: (other) -> @parts.join('-') is (other?.parts or []).join('-')
 
+  toString: -> "FakePath(#{ @parts.join '.' })"
 
 x       = new FakePath ['a']
 x_y     = new FakePath ['a', 'b']
