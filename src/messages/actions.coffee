@@ -113,6 +113,8 @@ module.exports =
   download: 'Download file'
   Galaxy: 'Send to Galaxy',
   GenomeSpace: 'Upload to Genomespace',
+  Drive: 'Send to Google Drive'
+  Dropbox: 'Send to Dropbox'
   'Destdownload-file': 'File',
   DestGalaxy: 'Galaxy',
   DestGenomespace: 'Genomespace',
