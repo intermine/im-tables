@@ -97,6 +97,10 @@ ICONS.fontawesome =
   Add: "fa-plus"
   Move: "fa-move"
   More: "fa-plus-sign"
+  Dropbox: 'fa-dropbox'
+  download: 'fa-cloud-download'
+  Galaxy: 'fa-cloud-upload'
+  GenomeSpace: 'fa-cloud-upload'
   Filter: "fa-filter"
   Summary: "fa-bar-chart-o"
   Undo: "fa-refresh"

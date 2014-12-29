@@ -14,10 +14,10 @@ class ModalFooter extends View
 
   RERENDER_EVENT: 'change:error'
 
-  initialize: ({@actionNames}) ->
+  initialize: ({@actionNames, @actionIcons}) ->
     super
 
-  getData: -> _.extend {error: null}, @actionNames, super
+  getData: -> _.extend {error: null}, @actionNames, @actionIcons, super
 
   template: Templates.template 'modal_footer'
 
@@ -44,14 +44,18 @@ module.exports = class Modal extends View
 
   hide: -> @resolve 'dismiss'
 
+  primaryIcon: -> null
+
   renderFooter: ->
     return unless @rendered
     console.log 'rendering footer'
     dismissAction = _.result @, 'dismissAction'
     primaryAction = _.result @, 'primaryAction'
+    primaryIcon = _.result @, 'primaryIcon'
     opts =
       model: @state
       actionNames: {dismissAction, primaryAction}
+      actionIcons: {primaryIcon}
     @renderChild 'footer', (new ModalFooter opts), @$ '.modal-content'
 
   postRender: ->

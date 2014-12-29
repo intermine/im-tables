@@ -67,6 +67,8 @@ module.exports = class ExportDialogue extends Modal
 
   primaryAction: -> Messages.getText @state.get 'dest'
 
+  primaryIcon: -> @state.get 'dest'
+
   body: Templates.template 'export_dialogue'
 
   updateState: ->
