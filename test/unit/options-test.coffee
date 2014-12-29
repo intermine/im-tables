@@ -19,7 +19,11 @@ describe 'Options::get (nested)', ->
 
   it 'should be able to read nested values', ->
 
-    options.get('Galaxy.Tool').should.eql 'flymine'
+    options.get('Destination.Galaxy.Tool').should.eql 'flymine'
+
+  it 'should be able to read nested values', ->
+
+    options.get(['Destination', 'Galaxy', 'Tool']).should.eql 'flymine'
 
 describe 'Options::set (simple)', ->
 
@@ -35,25 +39,61 @@ describe 'Options::set (nested)', ->
 
   options = new Options
   options.set Foo: {bar: 10}
-  options.set Galaxy: {Current: 'zop'}
+  options.set
+    Destination:
+      Galaxy: {Current: 'zop'}
   after -> options.destroy()
 
   it 'should should set values which can be read with get', ->
 
     options.get('Foo.bar').should.eql 10
-    options.get('Galaxy.Current').should.eql 'zop'
+    options.get('Destination.Galaxy.Current').should.eql 'zop'
 
   it 'should not have overwritten other values in the same namespace', ->
 
-    options.get('Galaxy.Tool').should.eql 'flymine'
+    options.get('Destination.Galaxy.Tool').should.eql 'flymine'
+
+describe 'Options::set (keypath - Str)', ->
+
+  options = new Options
+  options.set Foo: {bar: 10}
+  options.set 'Destination.Galaxy.Current', 'zop'
+  after -> options.destroy()
+
+  it 'should should set values which can be read with get', ->
+
+    options.get('Foo.bar').should.eql 10
+    options.get('Destination.Galaxy.Current').should.eql 'zop'
+
+  it 'should not have overwritten other values in the same namespace', ->
+
+    options.get('Destination.Galaxy.Tool').should.eql 'flymine'
+
+describe 'Options::set (keypath - Array)', ->
+
+  options = new Options
+  options.set Foo: {bar: 10}
+  options.set ['Destination', 'Galaxy', 'Current'], 'zip'
+  after -> options.destroy()
+
+  it 'should should set values which can be read with get', ->
+
+    options.get('Foo.bar').should.eql 10
+    options.get('Destination.Galaxy.Current').should.eql 'zip'
+
+  it 'should not have overwritten other values in the same namespace', ->
+
+    options.get('Destination.Galaxy.Tool').should.eql 'flymine'
 
 describe 'Options change events for nested values', ->
 
   options = new Options
   changed = {}
-  options.on 'change:Galaxy.Current', (m, v) -> changed.current = v
-  options.on 'change:Galaxy.Tool', (m, v) -> changed.tool = v
-  options.set Galaxy: {Current: 'zop', Tool: null}
+  options.on 'change:Destination.Galaxy.Current', (m, v) -> changed.current = v
+  options.on 'change:Destination.Galaxy.Tool', (m, v) -> changed.tool = v
+  options.set
+    Destination:
+      Galaxy: {Current: 'zop', Tool: null}
   after -> options.destroy()
 
   it 'should have triggered a change event for the nested key', ->
@@ -68,9 +108,16 @@ describe 'Options events for unsetting previous keys', ->
 
   options = new Options
   changed = {}
-  options.on 'change:Galaxy.Current', (m, v) -> changed.current = v
-  options.set Galaxy: null
+  options.on 'change:Destination.Galaxy.Current', (m, v) -> changed.current = v
+  options.on 'change:Destination.Galaxy', (m, v) -> changed.galaxy = v
+  options.set
+    Destination:
+      Galaxy: null
   after -> options.destroy()
+
+  it 'should have triggered a change event for the end key', ->
+    changed.should.have.property 'galaxy'
+    should.not.exist changed.galaxy
 
   it 'should have triggered a change event for the nested key', ->
     changed.should.have.property 'current'

@@ -16,31 +16,68 @@ class Options extends Model
       else
         @trigger "change:#{ thisKey }", @, @get(thisKey)
 
-  get: (key) -> # Support nested keys - TODO, write tests
-    if /\w+\.\w+/.test key
-      [head, tail...] = key.split /\./
+  get: (key) -> # Support nested keys
+    if _.isArray(key)
+      [head, tail...] = key
       # Safely get properties.
       tail.reduce ((m, k) -> m and m[k]), super head
+    else if /\w+\.\w+/.test key
+      @get key.split /\./
     else
       super key
 
+  setSection = (m, k) ->
+    v = m[k]
+    if not _.isObject(v) # mid-sections must be indexable objects (including arrays)
+      m[k] = {}
+    else
+      v
+
+  _triggerPathChange: (key) ->
+    path = []
+    for section in key
+      path.push section
+      @trigger "change:#{ path.join('.') }", this, @get path
+
+  _triggerUnsetPath: (path, prev) ->
+    if _.isObject(prev)
+      for k, v of prev
+        @_triggerUnsetPath path.concat([k]), v
+    else
+      @trigger "change:#{ path.join('.') }"
+
+  # See tests for specification.
   set: (key, value) -> # Support nested keys
-    oldValue = @get key
-    if _.isString(key) # Handle calls as (String, Object) ->
-      if not oldValue?
-        super key, value
-        newValue = @get key
-        @_triggerChangeRecursively key, newValue
-      else if _.isObject value
-        newValue = mergeOldAndNew oldValue, value
-        super key, newValue
-        # only keys in value have changed
-        @_triggerChangeRecursively key, value
-      else # Simple value - overwrite.
-        super key, value
-        if oldValue? and _.isObject oldValue
-          @_triggerChangeRecursively key, oldValue
-    else # Handle calls as (Object) ->, but gnore the options object.
+    throw new Error("No key") unless key?
+    if _.isArray(key) # Handle key paths.
+      # Recurse into subkeys.
+      if _.isObject value
+        for k, v of value
+          @set key.concat([k]), v
+        return
+
+      [head, mid..., end] = key
+      headVal = @get head
+      # Ensure the root is an object.
+      if headVal and (not _.isObject headVal) # primitive - unset it first.
+        @unset head
+      # Merge or create new path to value
+      root = (headVal ? {})
+      currentValue = mid.reduce setSection, root
+      prev = currentValue[end]
+      currentValue[end] = value
+      super head, root
+      @_triggerPathChange key
+      if prev? and not value?
+        @_triggerUnsetPath key, prev
+    else if _.isString(key) # Handle calls as (String, Object) ->
+      if /\w+\.\w+/.test key
+        @set (key.split /\./), value
+      else if _.isObject(value)
+        @set [key], value
+      else
+        super # Handle simple key-value pairs, including unset.
+    else # Handle calls as (Object) ->, but ignore the options object.
       for k, v of key
         @set k, v
 
@@ -62,7 +99,7 @@ class Options extends Model
       "http://some.host.somewhere": "http://some.host.somewhere/logo.png"
     StylePrefix: 'intermine'
     SuggestionDepth: 4 # When suggestion paths, follow up to this many references.
-    Destinations: ['download', 'Galaxy', 'GenomeSpace']
+    Destinations: ['download', 'Galaxy', 'GenomeSpace', 'Drive', 'Dropbox']
     Destination:
       download:
         Enabled: true
@@ -74,6 +111,10 @@ class Options extends Model
       GenomeSpace:
         Upload: "https://gsui.genomespace.org/jsui/upload/loadUrlToGenomespace.html"
         Enabled: true # Set this to false to disable this export destination
+      Drive:
+        Enabled: true
+      Dropbox:
+        Enabled: true
     ShowId: false
     TableWidgets: ['Pagination', 'PageSizer', 'TableSummary', 'ManagementTools', 'ScrollBar']
     CellCutoff: 100
