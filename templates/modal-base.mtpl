@@ -10,7 +10,5 @@
         <div class="modal-body">
         <%= body %>
         </div>
-        <div class="modal-footer">
-        </div>
     </div>
 </div>

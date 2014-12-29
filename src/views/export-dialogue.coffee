@@ -65,7 +65,7 @@ module.exports = class ExportDialogue extends Modal
 
   modalSize: 'lg'
 
-  primaryAction: -> Messages.getText 'ExportButton'
+  primaryAction: -> Messages.getText @state.get 'dest'
 
   body: Templates.template 'export_dialogue'
 

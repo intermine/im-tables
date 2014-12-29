@@ -7,6 +7,10 @@ Templates = require '../templates'
 modalTemplate = Templates.template 'modal_base'
 
 class ModalFooter extends View
+  
+  tagName: 'div'
+
+  className: 'modal-footer'
 
   RERENDER_EVENT: 'change:error'
 
@@ -25,6 +29,7 @@ module.exports = class Modal extends View
     super
     # Create a promise and capture its resolution controls.
     @_promise = new Promise((@resolve, @reject) =>)
+    @listenTo @state, 'change', @renderFooter
 
   resolve: -> throw new Error 'resolved before initialisation'
 
@@ -39,14 +44,19 @@ module.exports = class Modal extends View
 
   hide: -> @resolve 'dismiss'
 
-  postRender: ->
+  renderFooter: ->
+    return unless @rendered
+    console.log 'rendering footer'
     dismissAction = _.result @, 'dismissAction'
     primaryAction = _.result @, 'primaryAction'
     opts =
       model: @state
       actionNames: {dismissAction, primaryAction}
-    @renderChildAt 'footer', (new ModalFooter opts), @$ '.modal-footer'
-    @show() if @shown # In the case of (unlikely) re-rendering.
+    @renderChild 'footer', (new ModalFooter opts), @$ '.modal-content'
+
+  postRender: ->
+    @renderFooter()
+    @show() if @shown # In the case of (unlikely) full re-rendering.
 
   onHidden: (e) ->
     if e? and e.target isnt @el # ignore bubbled events from sub-dialogues.
