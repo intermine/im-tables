@@ -33,9 +33,9 @@
 </div>
 
 <% if (format) { %>
-    <div class="alert alert-info">
-        <%- Messages.getText('export.format.description.' + format.toUpperCase()) %>
-    </div>
+  <div class="alert alert-info">
+    <%- Messages.getText('export.format.description.' + format.toUpperCase()) %>
+  </div>
 <% } %>
 
 <div class="form-group im-param-dest">
