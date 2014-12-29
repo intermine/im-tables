@@ -9,7 +9,7 @@
     "repl": "coffee",
     "coffeelint": "coffeelint -f coffeelint.json",
     "start": "grunt serve",
-    "pretest": "npm run build",
+    "pretest": "npm run compile",
     "test": "mocha --compilers coffee:coffee-script/register test/unit/*",
     "watch": "grunt watch",
     "compile": "grunt compile",
