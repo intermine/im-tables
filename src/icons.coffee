@@ -98,6 +98,7 @@ ICONS.fontawesome =
   Move: "fa-move"
   More: "fa-plus-sign"
   Dropbox: 'fa-dropbox'
+  Drive: 'fa-google'
   download: 'fa-cloud-download'
   Galaxy: 'fa-cloud-upload'
   GenomeSpace: 'fa-cloud-upload'

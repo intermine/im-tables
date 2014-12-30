@@ -1,3 +1,4 @@
+<label><%- Messages.getText('export.param.Destination') %></label>
 <% _.each(destinations, function (d) { %>
     <div class="radio im-dest-<%- d %>">
         <label>

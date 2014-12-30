@@ -1,0 +1,8 @@
+<div class="alert alert-info">
+    <strong>nb</strong>
+    <%- Messages.getText('export.preview.Limit') %>
+</div>
+
+<pre>
+<%- state.preview %>
+</pre>

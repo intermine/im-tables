@@ -38,11 +38,15 @@ module.exports = class Modal extends View
   events: ->
     'click .close': 'hide' # Establish a convention for closing modals.
     'click .modal-footer .btn-cancel': 'hide' # Establish a convention for closing modals.
+    'click .modal-footer > .btn-primary': 'act' # Establish a convention for acting.
     'hidden.bs.modal': 'onHidden' # Can be caused by user clicking off the modal.
 
   promise: -> @_promise
 
   hide: -> @resolve 'dismiss'
+
+  # Override this to make the modal *do* something.
+  act: -> throw new Error 'Not implemented.'
 
   primaryIcon: -> null
 

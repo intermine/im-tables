@@ -1,6 +1,8 @@
 module.exports =
   'export.category.Format': "<%= format.toUpperCase() %> Format",
   'export.category.Columns': "<%= columns %> Columns",
+  'export.category.Preview': "Preview",
+  'export.preview.Limit': 'Preview is limited to at most 3 results.',
   'export.heading.Columns': "Columns",
   'export.category.Rows': """
     <% if (rowCount === max) { %>
@@ -61,6 +63,7 @@ module.exports =
   """
   'export.param.Size': 'Size: <%= size %>'
   'export.param.Start': 'Offset: <%= start %>'
+  'export.param.Destination': 'Destination'
   'export.param.Name': 'File name'
   'rows.All': 'No limit'
   'export.UseCompression': 'Compress results'

@@ -112,9 +112,11 @@ class Options extends Model
         Upload: "https://gsui.genomespace.org/jsui/upload/loadUrlToGenomespace.html"
         Enabled: true # Set this to false to disable this export destination
       Drive:
-        Enabled: true
+        Library: 'https://apis.google.com/js/client.js'
+        Enabled: false # To enable, set this to true and provide auth.drive
       Dropbox:
-        Enabled: true
+        Library: 'https://www.dropbox.com/static/api/2/dropins.js'
+        Enabled: false # To enable, set this to true and provide auth.dropbox
     ShowId: false
     TableWidgets: ['Pagination', 'PageSizer', 'TableSummary', 'ManagementTools', 'ScrollBar']
     CellCutoff: 100

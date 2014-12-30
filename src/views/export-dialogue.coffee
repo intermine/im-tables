@@ -1,11 +1,14 @@
 _ = require 'underscore'
+$ = require 'jquery'
 
 Model = require '../core-model'
 Modal = require './modal'
 ConstraintAdder = require './constraint-adder'
 Messages = require '../messages'
 Templates = require '../templates'
+Options = require '../options'
 
+RunsQuery = require '../mixins/runs-query'
 Menu = require './export-dialogue/tab-menu'
 FormatControls = require './export-dialogue/format-controls'
 RowControls = require './export-dialogue/row-controls'
@@ -14,6 +17,15 @@ CompressionControls = require './export-dialogue/compression-controls'
 FlatFileOptions = require './export-dialogue/flat-file-options'
 JSONOptions = require './export-dialogue/json-options'
 DestinationOptions = require './export-dialogue/destination-options'
+Preview = require './export-dialogue/preview'
+
+openWindowWithPost = require '../utils/open-window-with-post'
+sendToDropBox = require '../utils/send-to-dropbox'
+sendToGoogleDrive = require '../utils/send-to-google-drive'
+
+downloadFile = (uri, fileName) ->
+  openWindowWithPost uri, '__not_important__', {fileName}
+  Promise.resolve true
 
 class ExportModel extends Model
 
@@ -36,13 +48,15 @@ isa = (target) -> (path) -> path.isa target
 # export parameters to subviews.
 module.exports = class ExportDialogue extends Modal
 
+  @include RunsQuery
+
   Model: ExportModel
 
   className: -> 'im-export-dialogue ' + super
 
   initialize: ({@query}) ->
     super
-    @state.set tab: 'dest', dest: 'download'
+    @state.set tab: 'dest', dest: 'download', 'dropbox_key': Options.get('auth.dropbox')
     @listenTo @state, 'change:tab', @renderMain
     @listenTo @model, 'change', @updateState
     @query.count().then (c) => @model.set max: c
@@ -104,7 +118,34 @@ module.exports = class ExportDialogue extends Modal
       when 'opts-json' then JSONOptions
       when 'dest' then DestinationOptions
       when 'rows' then RowControls
+      when 'preview' then Preview
       else FormatControls
+
+  onUploadComplete: =>
+    @state.set doneness: null
+    console.log 'complete', arguments
+
+  onUploadProgress: (doneness) => @state.set {doneness}
+
+  onUploadError: (err) =>
+    @state.set doneness: null, err: err
+    console.error err
+
+  getFileName: -> "#{ @model.get 'name' }.#{ @model.get 'format' }"
+
+  act: ->
+    @onUploadProgress 0
+    exporter = @getExporter()
+    uploading = exporter(@getExportURI(), @getFileName(), @onUploadProgress)
+    uploading.then @onUploadComplete, @onUploadError
+
+  getExporter: -> switch @state.get 'dest'
+    when 'download' then downloadFile
+    when 'Dropbox' then sendToDropBox
+    when 'Drive' then sendToGoogleDrive
+    when 'Galaxy' then throw new Error 'not implemented'
+    when 'GenomeSpace' then throw new Error 'not implemented'
+    else throw new Error "Cannot export to #{ @state.get 'dest' }"
 
   renderMain: ->
     Main = @getMain()

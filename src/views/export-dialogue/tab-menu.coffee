@@ -15,7 +15,8 @@ TABS = [
   new Tab('rows', 'Rows'),
   new Tab('compression', 'Compression'),
   new Tab('column-headers', 'ColumnHeaders', ['tsv', 'csv']),
-  new Tab('opts-json', 'Options', ['json'])
+  new Tab('opts-json', 'Options', ['json']),
+  new Tab('preview', 'Preview')
 ]
 
 module.exports = class TabMenu extends View

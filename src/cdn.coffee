@@ -2,9 +2,9 @@
 _ = require 'underscore'
 $ = require 'jquery'
 
-options = require './options'
+Options = require './options'
 
-OPTS =
+CDN =
   server: 'http://cdn.intermine.org'
   tests:
     fontawesome: /font-awesome/
@@ -19,13 +19,11 @@ OPTS =
     fontawesome: "/css/font-awesome/4.x/css/font-awesome.min.css"
     filesaver: '/js/filesaver.js/FileSaver.min.js'
 
-options.set 'CDN', OPTS
-
-asArray = (things) -> [].slice.call(things)
+Options.set 'CDN', CDN
 
 hasStyle = (pattern) ->
   return false unless pattern? # No way to tell, assume not.
-  links = asArray document.querySelectorAll 'link[rel="stylesheet"]'
+  links = _.asArray document.querySelectorAll 'link[rel="stylesheet"]'
   _.any links, (link) -> pattern.test link.href
 
 loader = (server) -> (resource, resourceRegex) ->
@@ -45,9 +43,9 @@ loader = (server) -> (resource, resourceRegex) ->
     return fetch.then -> resolution
 
 exports.load = (ident) ->
-  {server, tests, resources} = options.get 'CDN'
-  conf = resources[ident]
-  test = tests[ident]
+  server = Options.get 'CDN.server'
+  conf = Options.get ['CDN', 'resources', ident]
+  test = Options.get ['CDN', 'tests', ident]
   load = loader server
   if not conf
     Promise.reject "No resource is configured for #{ ident }"
