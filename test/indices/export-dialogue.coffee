@@ -20,10 +20,19 @@ require "imtables/shim"
 $ = require "jquery"
 imjs = require "imjs"
 
+Options = require 'imtables/options'
 Dialogue = require("imtables/views/export-dialogue")
 
 Counter = require('../lib/counter.coffee')
 ModelDisplay = require '../lib/model-display.coffee'
+
+# Suitable for localhost development.
+Options.set 'Destination.Dropbox.Enabled', true
+Options.set 'Destination.Drive.Enabled', true
+Options.set
+  auth:
+    dropbox: 'gqr6vpcnp8rmhe5'
+    drive: '325597969559-0h7jf8u9bsnb96q2uji5ee1r74vrngsu.apps.googleusercontent.com'
 
 root = "http://localhost:8080/intermine-demo"
 conn = imjs.Service.connect(root: root)
