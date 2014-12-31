@@ -5,13 +5,13 @@ queries = [
     name: "older than 35"
     select: [
       "name"
-      "age"
-      "department.name"
-      "department.manager.name"
+      "manager.name"
+      "employees.name"
+      "employees.age"
     ]
-    from: "Employee"
+    from: "Department"
     where: [
-      [ "age", ">", 35 ]
+      [ "employees.age", ">", 35 ]
     ]
   }
 ]

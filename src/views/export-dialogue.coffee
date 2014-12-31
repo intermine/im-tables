@@ -66,11 +66,14 @@ module.exports = class ExportDialogue extends Modal
     @state.set INITIAL_STATE
     @listenTo @state, 'change:tab', @renderMain
     @listenTo @model, 'change', @updateState
-    @query.count().then (c) => @model.set max: c
+    @listenTo @model, 'change:columns', @setMax
     @categoriseQuery()
     @model.set columns: @query.views
     @model.set name: @query.name.replace(/\s+/g, '_') if @query.name?
     @updateState()
+    @setMax()
+
+  setMax: -> @getEstimatedSize().then (c) => @model.set max: c
 
   # This is probably slight overkill, and could be replaced
   # with a function at the cost of complexity. On the plus side, it
@@ -104,9 +107,11 @@ module.exports = class ExportDialogue extends Modal
     else
       columns.length
 
-    # Establish the error state.
+    # Establish the error state. TODO - use Message.getText
     error = if columns.length is 0
       {message: 'No columns selected'}
+    else if start >= max
+      {message: 'Offset is greater than the number of results'}
     else
       null
 
