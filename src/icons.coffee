@@ -10,7 +10,11 @@ registerIconSet = (name, icons) -> ICONS[name] = _.extend {}, icons
 
 class Icons extends Model
 
-  icon: (key) -> """<i class="#{ @iconClasses key }"></i>"""
+  icon: (key, size) ->
+    sizeCls = if size then @getSize(size) else ''
+    """<i class="#{ @iconClasses key } #{ sizeCls }"></i>"""
+
+  getSize: (size) -> @get("size#{ size.toUpperCase() }") ? ''
 
   iconClasses: (key) -> "#{ @get 'Base' } #{ @get key }"
 
@@ -85,6 +89,7 @@ ICONS.fontawesome =
   headerIconRemove: "fa-times"
   headerIconHide: "fa-ellipsis-h"
   headerIconReveal: 'fa-arrows-h'
+  sizeLG: 'fa-2x'
   Yes: "fa-star"
   No: "fa-star-o"
   Table: 'fa-list'
@@ -114,7 +119,7 @@ ICONS.fontawesome =
   MoveUp: "fa-chevron-up"
   Toggle: "fa-retweet"
   ExpandCollapse: "fa-chevron-right fa-chevron-down"
-  Help: "fa-question-sign"
+  Help: "fa-question-circle"
   Tree: 'fa-sitemap'
   ReverseRef: 'fa-retweet'
   Reorder: "fa-reorder"
