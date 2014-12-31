@@ -1,5 +1,5 @@
 module.exports =
-  'export.category.Format': "<%= format.toUpperCase() %> Format",
+  'export.category.Format': "<%= format.EXT %> Format",
   'export.category.Columns': "<%= columns %> Columns",
   'export.category.Preview': "Preview",
   'export.preview.Limit': 'Preview is limited to at most 3 results.',
@@ -30,9 +30,9 @@ module.exports =
   """
   'export.category.Destination': """
     <% if (dest === 'download') { %>
-      Download <%= format.toUpperCase() %> file
+      Download <%= format.EXT %> file
     <% } else { %>
-      Send <%= format.toUpperCase() %> to <%= dest %>
+      Send <%= format.EXT %> to <%= dest %>
     <% } %>
   """
   'export.format.description.TSV': 'A flat file format suitable for spreadsheet programmes'

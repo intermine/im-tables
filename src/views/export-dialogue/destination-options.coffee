@@ -46,5 +46,5 @@ module.exports = class DestinationOptions extends CoreView
 
   setName: (e) -> @model.set name: e.target.value
 
-  setFormat: (format) -> @model.set format: format.id
+  setFormat: (format) -> @model.set {format}
 

@@ -8,6 +8,7 @@ Messages = require '../messages'
 Templates = require '../templates'
 Options = require '../options'
 
+Formats = require '../models/export-formats'
 RunsQuery = require '../mixins/runs-query'
 Menu = require './export-dialogue/tab-menu'
 FormatControls = require './export-dialogue/format-controls'
@@ -31,7 +32,7 @@ class ExportModel extends Model
 
   defaults: ->
     name: 'results'
-    format: 'tsv'
+    format: Formats.getFormat('tab')
     start: 0
     columns: []
     size: null
@@ -85,6 +86,10 @@ module.exports = class ExportDialogue extends Modal
 
   body: Templates.template 'export_dialogue'
 
+  # In some future universe we would have template inheritance here,
+  # but that is a hack to fake in underscore templates
+  footer: Templates.template 'export_dialogue_footer'
+
   updateState: ->
     {compress, compression, start, size, max, format, columns} = @model.toJSON()
 
@@ -102,6 +107,7 @@ module.exports = class ExportDialogue extends Modal
     # TODO: need a better calculation for rowCount
     @state.set @model.pick 'headers', 'headerType'
     @state.set
+      exportURI: @getExportURI()
       compression: (if compress then compression else null)
       error: error
       format: format
@@ -131,7 +137,11 @@ module.exports = class ExportDialogue extends Modal
     @state.set doneness: null, err: err
     console.error err
 
-  getFileName: -> "#{ @model.get 'name' }.#{ @model.get 'format' }"
+  getFileExtension: -> @model.get('format').ext
+
+  getBaseName: -> @model.get 'name'
+
+  getFileName: -> "#{ @getBaseName() }.#{ @getFileExtension() }"
 
   act: ->
     @onUploadProgress 0

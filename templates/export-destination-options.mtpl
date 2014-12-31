@@ -32,9 +32,9 @@
     </div>
 </div>
 
-<% if (format) { %>
+<% if (format && format.desc) { %>
   <div class="alert alert-info">
-    <%- Messages.getText('export.format.description.' + format.toUpperCase()) %>
+    <%- Messages.getText(format.desc) %>
   </div>
 <% } %>
 
