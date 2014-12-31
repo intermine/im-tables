@@ -1,3 +1,9 @@
-<div class="form-group">
-    <input type="text" class="form-control">
+<div class="row">
+    <div class="col-sm-1 im-help"
+         title="<%- Messages.getText('export.help.AdditionalCols') %>">
+        <%= Icons.icon('Help', 'lg') %>
+    </div>
+    <div class="col-sm-11 form-group">
+        <input type="text" class="form-control">
+    </div>
 </div>

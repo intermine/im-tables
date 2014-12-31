@@ -44,6 +44,7 @@ class AddColumnControl extends View
     @activateTypeahead input, opts, dataset, 'Additional paths', (e, suggestion) =>
       path = suggestion.item
       @columns.add path, active: true
+    @$('.im-help').tooltip()
 
   className: 'col-sm-8'
 
