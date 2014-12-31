@@ -26,15 +26,12 @@ REQ_PARAMS =
   headers:
     'Content-Type': REQ_CT
 
-checkRequest = (req) ->
-  throw new Error(req.statusText) unless req.status is 200
-  return req.result?.alternateLink
-
 # Reuse or assign to __GOOGLE, which is a Promise
 withExporter = -> __GOOGLE ?= loadResource(LIB, 'gapi').then (api) -> new GoogleExporter api
 
-module.exports = sendToGoogleDrive = (uri, filename) -> withExporter().then (exporter) ->
-  exporter.upload uri, filename
+module.exports = sendToGoogleDrive = (uri, filename, onProgress) -> withExporter().then (e) ->
+  onProgress 1 # 1 means indeterminate.
+  return e.upload uri, filename
 
 class MetaData
 
@@ -53,17 +50,32 @@ class GoogleExporter
 
   # Wrapper around gapi.authorize to return a promise
   authorize: -> new Promise (resolve, reject) =>
+    gapi = @gapi
+    timeout = null
     opts =
       client_id: Options.get('auth.drive')
       scope: SCOPE
       immediate: false # Immediate means if we expect there to be no user interaction
-    nextStep = =>
-      @gapi.auth.authorize opts, (auth) ->
+    # Because of how google loads itself, we may need to wait for it to be initialized, hence
+    # the elaborate asynch loop.
+    nextStep = ->
+      gapi.auth.authorize opts, (auth) ->
         return reject new Error 'Not authorized' unless auth?
         return reject new Error auth.error if auth.error
         resolve()
-    # Because of how google loads itself, we may need to wait for it to be initialized.
-    if @gapi.auth then nextStep() else setTimeout nextStep, 10
+    abort = ->
+      clearTimeout timeout
+      reject new Error 'timed out' # no-op if already resolved.
+    checkOrWait = ->
+      clearTimeout timeout
+      if gapi.auth?.authorize # Cool, we can proceeed.
+        nextStep()
+      else # not ready yet - come back later...
+        timeout = setTimeout checkOrWait, 50
+    checkOrWait()
+    # Wait up to 5 seconds for gapi to get its act together
+    setTimeout abort, 5000 
+    return
 
   # Wrapper around gapi.client.load to return a promise
   loadClient: -> new Promise (resolve, reject) => @gapi.client.load "drive", VERSION, resolve
@@ -72,12 +84,15 @@ class GoogleExporter
   makeRequestBody: (metadata, data) ->
     DELIMITER + METADATA_CT + String(metadata) + DELIMITER + FILE_CT + data + CLOSE_DELIM
 
-  # Construct a gapi request object.
+  # Construct a gapi request object, which is a Promise, thus ensuring we wait for success.
+  # see: https://developers.google.com/api-client-library/javascript/reference/referencedocs#gapiclientRequest
   makeRequest: (body) -> @gapi.client.request _.extend {body}, REQ_PARAMS
 
+  # (string, string) -> Promise<string>
+  # There is no way to report progress for uploads to Google Drive.
   upload: (uri, filename) ->
     @authorize().then => @loadClient()
                 .then -> Promise.resolve $.get uri
                 .then (data) => @makeRequestBody new MetaData(filename), data
                 .then (body) => @makeRequest body
-                .then checkRequest
+                .then (resp) -> resp.result.alternateLink

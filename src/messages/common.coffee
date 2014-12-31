@@ -4,6 +4,7 @@ module.exports =
   Export: "Download"
   Clear: 'Clear'
   Cancel: 'Cancel'
+  Complete: 'Complete'
   Error: 'Error'
   Warning: 'Warning'
   and: 'and'

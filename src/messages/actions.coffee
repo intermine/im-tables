@@ -70,6 +70,9 @@ module.exports =
     in the query.
   """
   'rows.All': 'No limit'
+  'export.cloud.FileLocation': """
+    Upload to <%- cloud %> successful. Your file is available at:
+  """
   'export.UseCompression': 'Compress results'
   'export.UseGZIP': 'Use GZIP compression (produces a .gzip archive)'
   'export.UseZIP': 'Use Zip compression (produces a .zip archive)'

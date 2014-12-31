@@ -28,6 +28,12 @@ downloadFile = (uri, fileName) ->
   openWindowWithPost uri, '__not_important__', {fileName}
   Promise.resolve true
 
+INITIAL_STATE =
+  doneness: null # null = not uploading. 0 - 1 = uploading
+  tab: 'dest'
+  dest: 'download'
+  linkToFile: null
+
 class ExportModel extends Model
 
   defaults: ->
@@ -57,7 +63,7 @@ module.exports = class ExportDialogue extends Modal
 
   initialize: ({@query}) ->
     super
-    @state.set tab: 'dest', dest: 'download', 'dropbox_key': Options.get('auth.dropbox')
+    @state.set INITIAL_STATE
     @listenTo @state, 'change:tab', @renderMain
     @listenTo @model, 'change', @updateState
     @query.count().then (c) => @model.set max: c
@@ -127,9 +133,8 @@ module.exports = class ExportDialogue extends Modal
       when 'preview' then Preview
       else FormatControls
 
-  onUploadComplete: =>
-    @state.set doneness: null
-    console.log 'complete', arguments
+  onUploadComplete: (link) =>
+    @state.set doneness: null, linkToFile: link
 
   onUploadProgress: (doneness) => @state.set {doneness}
 

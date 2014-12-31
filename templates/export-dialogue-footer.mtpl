@@ -1,8 +1,32 @@
+<% if (doneness != null && doneness >= 0) { %>
+    <div class="progress">
+        <div class="progress-bar progressbar-striped active"
+             role="progressbar"
+             aria-valuenow="<%- doneness %>"
+             aria-valuemin="0"
+             aria-valuemax="1"
+             style="width: <%- 100 * doneness %>%;">
+            <% if (doneness < 1) { %>
+              <span class="sr-only">
+                <%- Math.round(100 * doneness) %>% <%- Messages.getText('Complete') %>
+              </span>
+            <% } %>
+        </div>
+    </div>
+<% } %>
+
 <% if (error) { %>
     <div class="pull-left alert alert-danger">
         <%= Icons.icon('Error') %>
         <strong><%- Messages.get('Error') %></strong>
         <%- error.message || error %>
+    </div>
+<% } %>
+
+<% if (linkToFile) { %>
+    <div class="pull-left alert alert-info">
+        <%- Messages.getText('export.cloud.FileLocation', {cloud: dest}) %>
+        <a href="<%= linkToFile %>" target="_blank"><%- linkToFile %></a>
     </div>
 <% } %>
 
@@ -18,7 +42,7 @@
     </a>
 <% } else { %>
     <button type="button"
-            <%= (error) ? 'disabled' : void 0 %>
+            <%= (error || doneness != null) ? 'disabled' : void 0 %>
             class="btn btn-primary">
         <%= Icons.icon(primaryIcon) %>
         <%- primaryAction %>
