@@ -48,11 +48,8 @@ module.exports = class Modal extends View
 
   primaryIcon: -> null
 
-  footer: Templates.template 'modal_footer'
-
   renderFooter: ->
     return unless @rendered
-    console.log 'rendering footer'
     dismissAction = _.result @, 'dismissAction'
     primaryAction = _.result @, 'primaryAction'
     primaryIcon = _.result @, 'primaryIcon'
@@ -88,6 +85,9 @@ module.exports = class Modal extends View
 
   # Override to provide the modal body. Not required if loading child components.
   body: ->
+
+  # Override to customise the footer.
+  footer: Templates.template 'modal_footer'
 
   # Use this to make use of the default modal structure.
   template: (data) ->
