@@ -12,8 +12,6 @@ module.exports = class CompressionControls extends ModalBody
 
   setCompression: (type) -> => @model.set compression: type
 
-  preRender: -> console.log 'state =', @state.toJSON()
-
   events: ->
     'click .im-compress': => @model.toggle 'compress'
     'click input[name=gzip]': @setCompression 'gzip'
