@@ -62,6 +62,7 @@ module.exports =
     query has companies in the view.
   """
   'export.param.Size': 'Size: <%= size %>'
+  'export.param.Format': 'Format'
   'export.param.Start': 'Offset: <%= start %>'
   'export.param.Destination': 'Destination'
   'export.param.Name': 'File name'
