@@ -1,8 +1,20 @@
-<div class="alert alert-info">
-    <strong>nb</strong>
-    <%- Messages.getText('export.preview.Limit') %>
+<div class="form-group im-export-formats">
+  <label><%- Messages.getText('export.param.Format') %></label>
+  <select class="form-control">
+    <% _.each(formats, function (fmt) { %>
+      <option value="<%- fmt.id %>"
+              <%= (fmt.id === format.id) ? 'selected' : void 0 %>>
+        <%- Messages.getText(fmt.name) %>
+      </option>
+    <% }); %>
+  </select>
 </div>
 
 <pre class="im-export-preview">
 <%- state.preview %>
 </pre>
+
+<div class="alert alert-info">
+    <strong class="nb">nb</strong>
+    <%- Messages.getText('export.preview.Limit') %>
+</div>
