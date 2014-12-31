@@ -65,6 +65,10 @@ module.exports =
   'export.param.Start': 'Offset: <%= start %>'
   'export.param.Destination': 'Destination'
   'export.param.Name': 'File name'
+  'export.help.AdditionalCols': """
+    You can add any attributes of objects which are already
+    in the query.
+  """
   'rows.All': 'No limit'
   'export.UseCompression': 'Compress results'
   'export.UseGZIP': 'Use GZIP compression (produces a .gzip archive)'
