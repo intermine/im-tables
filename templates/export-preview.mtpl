@@ -3,6 +3,6 @@
     <%- Messages.getText('export.preview.Limit') %>
 </div>
 
-<pre>
+<pre class="im-export-preview">
 <%- state.preview %>
 </pre>
