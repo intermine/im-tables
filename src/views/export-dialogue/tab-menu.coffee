@@ -7,7 +7,7 @@ class Tab
   constructor: (@ident, key, @formats = []) ->
     @key = "export.category.#{ key }"
 
-  isFor: (format) -> (@formats.length is 0) or (format in @formats)
+  isFor: (format) -> (@formats.length is 0) or (format.ext in @formats)
 
 TABS = [
   new Tab('dest', 'Destination'),
