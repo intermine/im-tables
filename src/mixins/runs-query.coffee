@@ -4,13 +4,20 @@ _ = require 'underscore'
 exports.runQuery = (overrides = {}) ->
   @query.service.post 'query/results', @getExportParameters overrides
 
+exports.getExportQuery = ->
+  toRun = @query.clone()
+  columns = @model.get 'columns'
+  if columns?.length
+    toRun.select columns
+  return toRun
+
 exports.getExportURI = (overrides) ->
-  @query.getExportURI @model.get('format').id, @getExportParameters overrides
+  @getExportQuery().getExportURI @model.get('format').id, @getExportParameters overrides
 
 exports.getExportParameters = (overrides = {}) ->
   data = @model.pick 'start', 'size', 'format'
   data.format = data.format.id
-  data.query = @query.toXML()
+  data.query = @getExportQuery().toXML()
   if @model.get 'headers'
     data.columnheaders = @model.get 'headerType'
   # TODO - this is hacky - the model should reflect the request
