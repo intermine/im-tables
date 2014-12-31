@@ -18,6 +18,7 @@ queries = [
 
 require "imtables/shim"
 $ = require "jquery"
+_ = require 'underscore'
 imjs = require "imjs"
 
 Options = require 'imtables/options'
@@ -49,6 +50,9 @@ renderQuery = (heading, container, query) ->
   dialogue.render()
   dialogue.show().then console.log.bind(console, 'SUCCESS'), console.error.bind(console)
 
+onError = (q, e) ->
+  console.log "Could not render query", q, (e.stack ? e)
+
 $ ->
   container = document.querySelector("#demo")
   queries.forEach (q) ->
@@ -59,4 +63,4 @@ $ ->
     div.appendChild h2
     conn.query(q)
         .then renderQuery.bind(null, h2, div)
-        .then null, console.error.bind(console, "Could not render query", q)
+        .then null, _.partial onError, q
