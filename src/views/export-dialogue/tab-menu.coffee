@@ -11,11 +11,11 @@ class Tab
 
 TABS = [
   new Tab('dest', 'Destination'),
+  new Tab('opts-json', 'JsonFormat', ['json']),
   new Tab('columns', 'Columns'),
   new Tab('rows', 'Rows'),
   new Tab('compression', 'Compression'),
   new Tab('column-headers', 'ColumnHeaders', ['tsv', 'csv']),
-  new Tab('opts-json', 'Options', ['json']),
   new Tab('preview', 'Preview')
 ]
 

@@ -116,7 +116,7 @@ module.exports = class ExportDialogue extends Modal
       null
 
     # TODO: need a better calculation for rowCount
-    @state.set @model.pick 'headers', 'headerType'
+    @state.set @model.pick 'headers', 'headerType', 'jsonFormat'
     @state.set
       exportURI: @getExportURI()
       compression: (if compress then compression else null)
