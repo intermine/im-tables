@@ -7,6 +7,10 @@ Formats = require '../../models/export-formats'
 
 RunsQuery = require '../../mixins/runs-query'
 
+PROPS =
+  compression: null # HTTP gzip will still take place.
+  size: 3
+
 module.exports = class Preview extends CoreView
 
   @include RunsQuery
@@ -18,7 +22,7 @@ module.exports = class Preview extends CoreView
     @listenTo @state, 'change:preview', @reRender
     @listenTo @model, 'change:format', @setPreview
 
-  setPreview: -> @runQuery(size: 3).then (resp) =>
+  setPreview: -> @runQuery(PROPS).then (resp) =>
     if _.isString(resp)
       @state.set preview: resp
     else

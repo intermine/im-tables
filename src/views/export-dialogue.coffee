@@ -160,7 +160,7 @@ module.exports = class ExportDialogue extends Modal
     uploading.then @onUploadComplete, @onUploadError
 
   getExporter: -> switch @state.get 'dest'
-    when 'download' then downloadFile
+    when 'download' then -> Promise.resolve null
     when 'Dropbox' then sendToDropBox
     when 'Drive' then sendToGoogleDrive
     when 'Galaxy' then throw new Error 'not implemented'
