@@ -23,8 +23,15 @@ exports.getEstimatedSize = ->
 exports.getExportURI = (overrides) ->
   @getExportQuery().getExportURI @model.get('format').id, @getExportParameters overrides
 
+exports.getFileName = -> "#{ @getBaseName() }.#{ @getFileExtension() }"
+
+exports.getBaseName = -> @model.get 'filename'
+
+exports.getFileExtension = -> @model.get('format').ext
+
 exports.getExportParameters = (overrides = {}) ->
   data = @model.pick 'start', 'size', 'format'
+  data.filename = @getFileName()
   data.format = data.format.id
   data.query = @getExportQuery().toXML()
   if @model.get 'compress'

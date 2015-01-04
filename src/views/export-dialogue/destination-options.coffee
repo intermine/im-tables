@@ -44,7 +44,7 @@ module.exports = class DestinationOptions extends CoreView
       evts["click .im-fmt-#{ fmt.id }"] = @setFormat.bind @, fmt
     return evts
 
-  setName: (e) -> @model.set name: e.target.value
+  setName: (e) -> @model.set filename: e.target.value
 
   setFormat: (format) -> @model.set {format}
 

@@ -37,7 +37,7 @@ INITIAL_STATE =
 class ExportModel extends Model
 
   defaults: ->
-    name: 'results'
+    filename: 'results'
     format: Formats.getFormat('tab')
     start: 0
     columns: []
@@ -69,7 +69,7 @@ module.exports = class ExportDialogue extends Modal
     @listenTo @model, 'change:columns', @setMax
     @categoriseQuery()
     @model.set columns: @query.views
-    @model.set name: @query.name.replace(/\s+/g, '_') if @query.name?
+    @model.set filename: @query.name.replace(/\s+/g, '_') if @query.name?
     @updateState()
     @setMax()
 
@@ -146,12 +146,6 @@ module.exports = class ExportDialogue extends Modal
   onUploadError: (err) =>
     @state.set doneness: null, err: err
     console.error err
-
-  getFileExtension: -> @model.get('format').ext
-
-  getBaseName: -> @model.get 'name'
-
-  getFileName: -> "#{ @getBaseName() }.#{ @getFileExtension() }"
 
   act: ->
     @onUploadProgress 0

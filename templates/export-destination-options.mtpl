@@ -2,7 +2,7 @@
     <label><%- Messages.getText('export.param.Name') %></label>
     <div class="input-group">
       <input type="text"
-             value="<%- name %>"
+             value="<%- filename %>"
              class="form-control"
              placeholder="<%- Messages.getText('export.param.Name') %>"
              aria-label="<%- Messages.getText('export.param.Name') %>">

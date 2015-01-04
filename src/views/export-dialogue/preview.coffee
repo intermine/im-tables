@@ -8,7 +8,7 @@ Formats = require '../../models/export-formats'
 RunsQuery = require '../../mixins/runs-query'
 
 PROPS =
-  compression: null # HTTP gzip will still take place.
+  compress: null # HTTP gzip will still take place.
   size: 3
 
 module.exports = class Preview extends CoreView
