@@ -1,5 +1,14 @@
 <button type="button"
         <%= (isAll) ? 'disabled' : void 0 %>
         class="btn btn-default btn-reset">
-        <%- Messages.getText('Reset') %>
+        <%- Messages.getText('export.ResetRowSelection') %>
 </button>
+
+<% if (tablePage) { %>
+    <button type="button"
+            <%= (tablePage.start === start && tablePage.size === size) ? 'disabled' : void 0 %>
+            class="btn btn-default im-set-table-page">
+            <%- Messages.getText('export.SetTablePage') %>
+    </button>
+<% } %>
+        

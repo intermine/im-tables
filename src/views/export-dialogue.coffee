@@ -38,7 +38,8 @@ class ExportModel extends Model
 
   defaults: ->
     filename: 'results'
-    format: Formats.getFormat('tab')
+    format: Formats.getFormat('tab') # Should be one of the Formats
+    tablePage: null # or {start :: int, size :: int}
     start: 0
     columns: []
     size: null
@@ -63,6 +64,9 @@ module.exports = class ExportDialogue extends Modal
 
   initialize: ({@query}) ->
     super
+    # Lift format to definition if supplied.
+    if (@model.has 'format') and not (@model.get('format').ext)
+      @model.set format: Formats.getFormat @model.get 'format'
     @state.set INITIAL_STATE
     @listenTo @state, 'change:tab', @renderMain
     @listenTo @model, 'change', @updateState
@@ -107,6 +111,8 @@ module.exports = class ExportDialogue extends Modal
     else
       columns.length
 
+    rowCount = @getRowCount()
+
     # Establish the error state. TODO - use Message.getText
     error = if columns.length is 0
       {message: 'No columns selected'}
@@ -115,16 +121,22 @@ module.exports = class ExportDialogue extends Modal
     else
       null
 
-    # TODO: need a better calculation for rowCount
     @state.set @model.pick 'headers', 'headerType', 'jsonFormat'
     @state.set
-      exportURI: @getExportURI()
-      compression: (if compress then compression else null)
       error: error
       format: format
-      max: @model.get('max')
-      rowCount: ((size or (max - start)) or max)
+      max: max
+      exportURI: @getExportURI()
+      rowCount: @getRowCount()
+      compression: (if compress then compression else null)
       columns: columnDesc
+
+  getRowCount: ->
+    {start, size, max} = @model.pick 'start', 'size', 'max'
+    start ?= 0 # Should always be a number, but do check
+    max -= (start ? 0) # Reduce the absolute maximum by the offset.
+    size = (if size? and size > 0 then size else max) # Make sure size is not 0 or null.
+    Math.min max, size
 
   getMain: ->
     switch @state.get('tab')

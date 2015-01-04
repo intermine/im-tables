@@ -27,10 +27,14 @@ class ResetButton extends View
   template: Templates.template 'export_rows_reset_button'
 
   events: ->
-    'click button': 'reset'
+    'click .btn-reset': 'reset'
+    'click .im-set-table-page': 'setTablePage'
 
   reset: ->
     @model.set start: 0, size: null
+
+  setTablePage: ->
+    @model.set @model.get 'tablePage'
 
 module.exports = class RowControls extends View
 
