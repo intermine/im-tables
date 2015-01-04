@@ -66,9 +66,7 @@ class ResetButton extends View
     cols = (c.get('item').toString() for c in @columns.where active: true)
     @model.set isAll: _.isEqual(view, cols)
 
-
-  # Template should be renamed, since it is not rows specific
-  template: Templates.template 'export_rows_reset_button'
+  template: Templates.template 'reset_button'
 
   events: ->
     'click button': 'reset'

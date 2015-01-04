@@ -41,7 +41,7 @@ conn = imjs.Service.connect(root: root)
 renderQuery = (heading, container, query) ->
   counter = new Counter el: heading, query: query
   counter.render()
-  dialogue = new Dialogue {query}
+  dialogue = new Dialogue {query, model: {tablePage: {start: 20, size: 10}}}
   display = new ModelDisplay {model: dialogue.model}
   display.render()
   display.$el.css position: 'fixed', bottom: 0, 'font-size': '12px'

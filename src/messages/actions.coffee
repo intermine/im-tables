@@ -84,6 +84,8 @@ module.exports =
   'export.json.Rows': """
     Return results as rows - each row is an Array of JSON values, e.g.:
   """
+  'export.SetTablePage': 'Select rows in table'
+  'export.ResetRowSelection': 'Select all rows'
   'export.json.RowsExample': '["eve", "2R", 5866824, 5868300]'
   'export.json.ObjExample': """
     {
