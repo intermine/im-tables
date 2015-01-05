@@ -23,6 +23,7 @@ Preview = require './export-dialogue/preview'
 openWindowWithPost = require '../utils/open-window-with-post'
 sendToDropBox = require '../utils/send-to-dropbox'
 sendToGoogleDrive = require '../utils/send-to-google-drive'
+sendToGalaxy = require '../utils/send-to-galaxy'
 
 downloadFile = (uri, fileName) ->
   openWindowWithPost uri, '__not_important__', {fileName}
@@ -169,7 +170,7 @@ module.exports = class ExportDialogue extends Modal
     when 'download' then -> Promise.resolve null
     when 'Dropbox' then sendToDropBox
     when 'Drive' then sendToGoogleDrive
-    when 'Galaxy' then throw new Error 'not implemented'
+    when 'Galaxy' then sendToGalaxy
     when 'GenomeSpace' then throw new Error 'not implemented'
     else throw new Error "Cannot export to #{ @state.get 'dest' }"
 

@@ -38,5 +38,9 @@
   </div>
 <% } %>
 
-<div class="form-group im-param-dest">
+<div class="row">
+    <div class="col-sm-6 im-param-dest">
+    </div>
+    <div class="col-sm-6 im-dest-opts">
+    </div>
 </div>

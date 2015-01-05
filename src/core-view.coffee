@@ -63,8 +63,11 @@ module.exports = class CoreView extends Backbone.View
     @trigger 'rendering', @rendered
     @removeAllChildren()
     if @template?
-      @$el.html @template @getData()
-    @trigger 'rendered', @rendered = true
+      try
+        @$el.html @template @getData()
+        @trigger 'rendered', @rendered = true
+      catch e
+        console.error 'could not render', e
 
     return this
 
