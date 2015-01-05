@@ -43,8 +43,12 @@ renderQuery = (heading, container, query) ->
   counter.render()
   dialogue = new Dialogue {query, model: {tablePage: {start: 20, size: 10}}}
   display = new ModelDisplay {model: dialogue.model}
+  state_display = new ModelDisplay {model: dialogue.state}
   display.render()
-  display.$el.css position: 'fixed', bottom: 0, 'font-size': '12px'
+  state_display.render()
+  display.$el.css position: 'fixed', width: '50%', left: 0, bottom: 0, 'font-size': '12px'
+             .appendTo 'body'
+  state_display.$el.css position: 'fixed', width: '50%', right: 0, bottom: 0, 'font-size': '12px'
              .appendTo 'body'
   dialogue.$el.appendTo container
   dialogue.render()
