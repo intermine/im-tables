@@ -107,6 +107,7 @@ class Options extends Model
         Main: "http://main.g2.bx.psu.edu"
         Current: null
         Tool: 'flymine' # The tool we should use to send data to Galaxy
+        Save: false
         Enabled: true # Set this to false to disable this export destination
       GenomeSpace:
         Upload: "https://gsui.genomespace.org/jsui/upload/loadUrlToGenomespace.html"
@@ -139,10 +140,13 @@ class Options extends Model
       Transition:
         Easing: 'elastic'
         Duration: 750
-    brand:
-      "http://www.flymine.org": "FlyMine"
-      "http://preview.flymine.org": "FlyMine-Preview"
-      "http://www.mousemine.org": "MouseMine (MGI)"
+    brand: # keys cannot have dots in them, hence the weirdo uris
+      "http://www_flymine_org/query/service/":
+        name: "FlyMine"
+      "http://preview_flymine_org/preview/service/":
+        name: "FlyMine-Preview"
+      "http://www_mousemine_org/mousemine/service/":
+        name: "MouseMine (MGI)"
     preview:
       count: {}
 

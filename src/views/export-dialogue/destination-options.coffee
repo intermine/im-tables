@@ -12,17 +12,9 @@ class DestinationSubOptions extends CoreView
 
   initialize: ->
     super
-    @Galaxy = Options.get('Destination.Galaxy')
-    unless @model.has('galaxyUri')
-      @model.set galaxyUri: (@Galaxy.Current ? @Galaxy.Main)
-    unless @model.has('saveGalaxy')
-      @model.set saveGalaxy: false
+    @listenTo Options, 'change:Destination.Galaxy.*', @reRender
 
-    # Make sure this property is saved to the Options.
-    @listenTo @model, 'change:galaxyUri', =>
-      Options.set 'Destination.Galaxy.Current', @model.get 'galaxyUri'
-
-  getData: -> _.extend super, Galaxy: @Galaxy
+  getData: -> _.extend super, Galaxy: Options.get('Destination.Galaxy')
 
   # Dispatches to the template to use.
   getTemplate: -> switch @model.get 'dest'
@@ -38,9 +30,12 @@ class DestinationSubOptions extends CoreView
     'change .im-galaxy-uri-param': 'setGalaxyUri'
     'change .im-save-galaxy input': 'toggleSaveGalaxy'
 
-  setGalaxyUri: ({target}) -> @model.set galaxyUri: target.value
+  setGalaxyUri: ({target}) -> Options.set 'Destination.Galaxy.Current', target.value
 
-  toggleSaveGalaxy: -> @model.toggle 'saveGalaxy'
+  toggleSaveGalaxy: ->
+    key = 'Destination.Galaxy.Save'
+    current = Options.get key
+    Options.set key, (not current)
 
 class RadioButtons extends CoreView
 

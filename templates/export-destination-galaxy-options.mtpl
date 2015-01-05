@@ -1,10 +1,12 @@
 <div class="form-group">
     <label><%- Messages.getText('GalaxyURILabel') %></label>
-    <input type="url" class="form-control im-galaxy-uri-param" value="<%- galaxyUri %>">
+    <input type="url"
+           class="form-control im-galaxy-uri-param"
+           value="<%- Galaxy.Current || Galaxy.Main %>">
 </div>
 <div class="checkbox im-save-galaxy">
     <label>
-        <input type="checkbox" <%= (saveGalaxy) ? 'checked' : void 0 %>>
+        <input type="checkbox" <%= (Galaxy.Save) ? 'checked' : void 0 %>>
         <%- Messages.getText('SaveGalaxyURL') %></label>
     </label>
 </div>

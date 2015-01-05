@@ -77,6 +77,14 @@ module.exports = class ExportDialogue extends Modal
     @model.set filename: @query.name.replace(/\s+/g, '_') if @query.name?
     @updateState()
     @setMax()
+    @readUserPreferences()
+
+  # Read any relevant preferences into state/Options.
+  readUserPreferences: -> @query.service.whoami().then (user) =>
+    return unless user.hasPreferences
+    
+    if (myGalaxy = user.preferences['galaxy-url'])
+      Options.set 'Destination.Galaxy.Current', myGalaxy
 
   setMax: -> @getEstimatedSize().then (c) => @model.set max: c
 
@@ -157,14 +165,28 @@ module.exports = class ExportDialogue extends Modal
   onUploadProgress: (doneness) => @state.set {doneness}
 
   onUploadError: (err) =>
-    @state.set doneness: null, err: err
+    @state.set doneness: null, error: err
     console.error err
 
   act: ->
     @onUploadProgress 0
+    # exporter is a function: (string, string, fn) -> Promise<string>
     exporter = @getExporter()
-    uploading = exporter(@getExportURI(), @getFileName(), @onUploadProgress)
-    uploading.then @onUploadComplete, @onUploadError
+    # The @ context of an exporter is {model, state, query}
+    {model, state, query} = @
+    # But it gets read-only versions of them.
+    ctx = {model: model.toJSON(), state: state.toJSON(), query: query.clone()}
+    # The parameters are:
+    uri = @getExportURI()          #:: string
+    file = @getFileName()          #:: string
+    onProgress = @onUploadProgress #:: (number) ->
+    exporting = exporter.call ctx, uri, file, onProgress
+    exporting.then @onUploadComplete, @onUploadError
+
+    # Exports can have after actions.
+    if exporter.after?
+      postExport = exporter.after.bind ctx
+      exporting.then(postExport, postExport).then null, (e) => @state.set error: e
 
   getExporter: -> switch @state.get 'dest'
     when 'download' then -> Promise.resolve null

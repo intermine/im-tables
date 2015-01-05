@@ -38,6 +38,17 @@ module.exports =
       Send <%= format.EXT %> to <%= dest %>
     <% } %>
   """
+  'export.galaxy.name': [
+    '<% if (orgs.length === 1) { %><%= orgs[0] %> <% } %>',
+    '<%= cls %> data',
+    '<% if (branding) { %> from <%= branding.name %><% } %>'
+  ].join('')
+  'export.galaxy.info': """
+    <%= query.root %> data from <%= query.service.root %>.
+    Uploaded from <%= currentLocation %>.
+    <% if (lists.length) { %>source: <%= lists.join(', ') %><% } %>
+    <% if (orgs.length)  { %>organisms: <%= orgs.join(', ') %><% } %>
+  """
   'export.format.description.TSV': 'A flat file format suitable for spreadsheet programmes'
   'export.format.name.TSV': 'Tab separated values.'
   'export.format.description.CSV': 'A flat file format, suitable for spreadsheet programmes'
