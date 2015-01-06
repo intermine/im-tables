@@ -1,11 +1,17 @@
 _ = require 'underscore'
 
+CACHE = {}
+
 # Mixin method that runs a query, defined by @query and the values of @model
 exports.runQuery = (overrides = {}) ->
   params = @getExportParameters overrides
-  key = "results:#{ JSON.stringify params }"
-  @__runquerycache ?= {}
-  @__runquerycache[key] ?= @query.service.post 'query/results', params
+  key = "results:#{ @query.service.root }:#{ JSON.stringify params }"
+  CACHE[key] ?= @query.service.post 'query/results', params
+
+exports.getEstimatedSize = ->
+  q = @getExportQuery()
+  key = "count:#{ q.service.root }:#{ q.toXML() }"
+  CACHE[key] ?= q.count()
 
 exports.getExportQuery = ->
   toRun = @query.clone()
@@ -13,12 +19,6 @@ exports.getExportQuery = ->
   if columns?.length
     toRun.select columns
   return toRun
-
-exports.getEstimatedSize = ->
-  @__runquerycache ?= {}
-  q = @getExportQuery()
-  key = "count:#{ q.toXML() }"
-  @__runquerycache[key] ?= q.count()
 
 exports.getExportURI = (overrides) ->
   @getExportQuery().getExportURI @model.get('format').id, @getExportParameters overrides
