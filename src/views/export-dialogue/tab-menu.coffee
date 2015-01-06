@@ -35,5 +35,5 @@ module.exports = class TabMenu extends View
 
   setTab: (tab) -> => @model.set {tab}
 
-  events: -> _.object( ["click .im-tab-#{ ident }", (@setTab ident)] for {ident} in TABS )
+  events: -> _.object( ["mouseenter .im-tab-#{ ident }", (@setTab ident)] for {ident} in TABS )
     
