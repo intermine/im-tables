@@ -26,10 +26,6 @@ sendToGoogleDrive = require '../utils/send-to-google-drive'
 sendToGalaxy = require '../utils/send-to-galaxy'
 sendToGenomeSpace = require '../utils/send-to-genomespace'
 
-downloadFile = (uri, fileName) ->
-  openWindowWithPost uri, '__not_important__', {fileName}
-  Promise.resolve true
-
 INITIAL_STATE =
   doneness: null # null = not uploading. 0 - 1 = uploading
   tab: 'dest'
@@ -200,12 +196,23 @@ module.exports = class ExportDialogue extends Modal
       exporting.then(postExport, postExport).then null, (e) => @state.set error: e
 
   getExporter: -> switch @state.get 'dest'
-    when 'download' then -> Promise.resolve null
+    when 'download' then -> Promise.resolve null # Download handled by use of an <a/>
     when 'Dropbox' then sendToDropBox
     when 'Drive' then sendToGoogleDrive
     when 'Galaxy' then sendToGalaxy
     when 'GenomeSpace' then sendToGenomeSpace
     else throw new Error "Cannot export to #{ @state.get 'dest' }"
+
+  events: ->
+    evts = super
+    evts.keyup = 'handleKeyup'
+    return evts
+
+  handleKeyup: (e) ->
+    return if @$(e.target).is 'input'
+    switch e.which
+      when 40 then @children.menu?.next()
+      when 38 then @children.menu?.prev()
 
   renderMain: ->
     Main = @getMain()
@@ -214,4 +221,5 @@ module.exports = class ExportDialogue extends Modal
   postRender: ->
     @renderChild 'menu', (new Menu {model: @state}), @$ 'nav.menu'
     @renderMain()
+    @$el.focus() # to enable keyboard navigation
     super

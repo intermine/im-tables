@@ -30,11 +30,26 @@ module.exports = class TabMenu extends View
 
   template: Templates.template 'export_tab_menu', variable: 'data'
 
+  getTabs: -> (tab for tab in TABS when tab.isFor @model.get('format'))
+
   getData: ->
-    tabs = (tab for tab in TABS when tab.isFor @model.get('format'))
+    tabs = @getTabs()
     _.extend {tabs}, super
 
   setTab: (tab) -> => @model.set {tab}
+
+  next: ->
+    tabs = (t.ident for t in @getTabs())
+    current = _.indexOf tabs, @model.get 'tab'
+    next = current + 1
+    next = 0 if next is tabs.length
+    @model.set tab: tabs[next]
+
+  prev: ->
+    tabs = (t.ident for t in @getTabs())
+    current = _.indexOf tabs, @model.get 'tab'
+    prev = if current is 0 then tabs.length - 1 else current - 1
+    @model.set tab: tabs[prev]
 
   events: ->
     evt = Options.get 'Events.ActivateTab'
