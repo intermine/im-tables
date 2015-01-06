@@ -8,10 +8,7 @@ fileline () {
     echo "exports.${js_name} = fs.readFileSync(__dirname + '/templates/$(basename $1)', 'utf8');"
 }
 
-echo 'var _ = require("underscore");'
-echo 'var fs = require("fs");'
-echo 'var TEMPLATES = exports;'
-echo 'exports.template = function (name, opts) { return _.template(TEMPLATES[name], opts); };'
+cat src/templates.js
 
 find templates/ \
     -type f \

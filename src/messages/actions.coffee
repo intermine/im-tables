@@ -125,6 +125,10 @@ module.exports =
   """
   'export.ff.FriendlyHeaders': 'Human readable headers (eg. "Gene > Organism Name")'
   'export.ff.PathHeaders': 'Raw path headers (eg. "Gene.organism.shortName)'
+  'export.error.NoColumnsSelected': 'No columns selected'
+  'export.error.OffsetOutOfBounds': """
+    The offset is greater than the total number of results.
+  """
   ListNameDuplicate: 'List names must be unique. This name is already taken',
   ListNameEmpty: 'Lists must have names. Please enter one',
   ListNameIllegal: """

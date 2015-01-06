@@ -24,6 +24,7 @@ openWindowWithPost = require '../utils/open-window-with-post'
 sendToDropBox = require '../utils/send-to-dropbox'
 sendToGoogleDrive = require '../utils/send-to-google-drive'
 sendToGalaxy = require '../utils/send-to-galaxy'
+sendToGenomeSpace = require '../utils/send-to-genomespace'
 
 downloadFile = (uri, fileName) ->
   openWindowWithPost uri, '__not_important__', {fileName}
@@ -34,6 +35,16 @@ INITIAL_STATE =
   tab: 'dest'
   dest: 'download'
   linkToFile: null
+
+FOOTER = ['progress_bar', 'modal_error', 'export_dialogue_footer']
+
+class UndismissableError
+
+  cannotDismiss: true
+
+  constructor: (key) ->
+    @key = 'export.error.' + key
+    @message = Messages.get @key
 
 class ExportModel extends Model
 
@@ -110,7 +121,7 @@ module.exports = class ExportDialogue extends Modal
 
   # In some future universe we would have template inheritance here,
   # but that is a hack to fake in underscore templates
-  footer: Templates.template 'export_dialogue_footer'
+  footer: Templates.templateFromParts FOOTER
 
   updateState: ->
     {compress, compression, start, size, max, format, columns} = @model.toJSON()
@@ -124,9 +135,9 @@ module.exports = class ExportDialogue extends Modal
 
     # Establish the error state. TODO - use Message.getText
     error = if columns.length is 0
-      {message: 'No columns selected'}
+      new UndismissableError 'NoColumnsSelected' 
     else if start >= max
-      {message: 'Offset is greater than the number of results'}
+      new UndismissableError 'OffsetOutOfBounds'
     else
       null
 
@@ -193,7 +204,7 @@ module.exports = class ExportDialogue extends Modal
     when 'Dropbox' then sendToDropBox
     when 'Drive' then sendToGoogleDrive
     when 'Galaxy' then sendToGalaxy
-    when 'GenomeSpace' then throw new Error 'not implemented'
+    when 'GenomeSpace' then sendToGenomeSpace
     else throw new Error "Cannot export to #{ @state.get 'dest' }"
 
   renderMain: ->

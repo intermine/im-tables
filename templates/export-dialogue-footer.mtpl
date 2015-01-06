@@ -1,28 +1,3 @@
-<% if (doneness != null && doneness >= 0) { %>
-    <div class="progress">
-        <div class="progress-bar progressbar-striped active"
-             role="progressbar"
-             aria-valuenow="<%- doneness %>"
-             aria-valuemin="0"
-             aria-valuemax="1"
-             style="width: <%- 100 * doneness %>%;">
-            <% if (doneness < 1) { %>
-              <span class="sr-only">
-                <%- Math.round(100 * doneness) %>% <%- Messages.getText('Complete') %>
-              </span>
-            <% } %>
-        </div>
-    </div>
-<% } %>
-
-<% if (error) { %>
-    <div class="pull-left alert alert-danger">
-        <%= Icons.icon('Error') %>
-        <strong><%- Messages.get('Error') %></strong>
-        <%- error.message || error %>
-    </div>
-<% } %>
-
 <% if (linkToFile) { %>
     <div class="pull-left alert alert-info">
         <%- Messages.getText('export.cloud.FileLocation', {cloud: dest}) %>

@@ -33,11 +33,15 @@ module.exports = class Modal extends View
 
   reject: -> throw new Error 'rejected before initialisation'
 
+  dismissError: -> # remove the error, gracefully.
+    @$('.modal-footer .alert').slideUp 250, => @state.set error: null
+
   events: ->
-    'click .close': 'hide' # Establish a convention for closing modals.
+    'click .modal-footer .alert .dismiss': 'dismissError' # Dismiss error
     'click .modal-footer .btn-cancel': 'hide' # Establish a convention for closing modals.
     'click .modal-footer > .btn-primary': 'act' # Establish a convention for acting.
     'hidden.bs.modal': 'onHidden' # Can be caused by user clicking off the modal.
+    'click .close': 'hide' # Establish a convention for closing modals.
 
   promise: -> @_promise
 
@@ -87,7 +91,7 @@ module.exports = class Modal extends View
   body: ->
 
   # Override to customise the footer.
-  footer: Templates.template 'modal_footer'
+  footer: Templates.templateFromParts ['modal_error', 'modal_footer']
 
   # Use this to make use of the default modal structure.
   template: (data) ->
