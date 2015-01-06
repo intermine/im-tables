@@ -1,5 +1,6 @@
 _ = require 'underscore'
 View = require '../../core-view'
+Options = require '../../options'
 Templates = require '../../templates'
 
 class Tab
@@ -35,5 +36,8 @@ module.exports = class TabMenu extends View
 
   setTab: (tab) -> => @model.set {tab}
 
-  events: -> _.object( ["mouseenter .im-tab-#{ ident }", (@setTab ident)] for {ident} in TABS )
+  events: ->
+    evt = Options.get 'Events.ActivateTab'
+    _.object( ["#{ evt } .im-tab-#{ ident }", (@setTab ident)] \
+                                                         for {ident} in TABS )
     

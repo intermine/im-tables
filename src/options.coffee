@@ -99,6 +99,8 @@ class Options extends Model
       "http://some.host.somewhere": "http://some.host.somewhere/logo.png"
     StylePrefix: 'intermine'
     SuggestionDepth: 4 # When suggestion paths, follow up to this many references.
+    Events:
+      ActivateTab: 'mouseenter' # or click
     Destinations: ['download', 'Galaxy', 'GenomeSpace', 'Drive', 'Dropbox']
     Destination:
       download:
