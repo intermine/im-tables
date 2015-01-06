@@ -1,0 +1,3 @@
+<% _.each(name.split(' > '), function (part) { %>
+    <span class="im-name-part"><%- part %></span>
+<% }); %>

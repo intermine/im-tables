@@ -3,10 +3,9 @@ _ = require 'underscore'
 View = require '../../core-view'
 
 PathSet = require '../../models/path-set'
-# FIXME - check this import
 NestedTableModel = require '../../models/nested-table'
-# FIXME - create this file.
-ColumnHeader = require './column-header'
+ColumnHeader = require './header'
+
 # FIXME - check this import
 SubTable = require './subtable'
 # FIXME - check this import

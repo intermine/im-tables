@@ -2,7 +2,7 @@ Backbone = require 'backbone'
 
 # Forms a pair with models/cell
 #
-class NestedTableModel extends Backbone.Model
+module.exports = class NestedTableModel extends Backbone.Model
 
   initialize: ->
     @setNames()

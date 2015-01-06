@@ -29,8 +29,8 @@ class Icons extends Model
 ICONS.glyphicons =
   Base: 'glyphicon'
   unsorted: "glyphicon-resize-vertical"
-  sortedASC: "glyphicon-arrow-up"
-  sortedDESC: "glyphicon-arrow-down"
+  ASC: "glyphicon-arrow-up"
+  DESC: "glyphicon-arrow-down"
   headerIcon: "icon"
   headerIconRemove: "glyphicon-remove"
   headerIconHide: "glyphicon-minus"
@@ -83,8 +83,8 @@ ICONS.glyphicons =
 ICONS.fontawesome =
   Base: 'fa'
   unsorted: "fa-unsorted"
-  sortedASC: "fa-sort-up"
-  sortedDESC: "fa-sort-down"
+  ASC: "fa-sort-up"
+  DESC: "fa-sort-down"
   headerIcon: "fa"
   headerIconRemove: "fa-times"
   headerIconHide: "fa-ellipsis-h"

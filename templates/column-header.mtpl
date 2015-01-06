@@ -1,0 +1,72 @@
+<% /* requires:
+    *  penult, last, parentType, composed,
+    *  path, sortable, sortDirection, Icons, Messages
+    */ %>
+<div class="im-column-header">
+
+<div class="im-th-buttons">
+
+    <% if (sortable) { %>
+        <span class="im-th-dropdown im-col-sort dropdown">
+            <a class="im-th-button im-col-sort-indicator"
+                title="<%- Messages.getText('table.header.SortColumn') %>">
+                <%= Icons.icon(sortDirection || 'unsorted') %>
+            </a>
+            <div class="dropdown-menu">
+                <div><%- Messages.getText('table.header.FailedToInitSortMenu') %></div>
+            </div>
+        </span>
+    <% } %>
+
+    <a class="im-th-button im-col-remover"
+        title="<%- Messages.getText('table.header.RemoveColumn') %>">
+        <%= Icons.icon('headerIconRemove') %>
+    </a>
+
+    <a class="im-th-button im-col-minumaximiser"
+        title="<%- Messages.getText('table.header.ToggleColumn') %>">
+        <%= Icons.icon('headerIconHide') %>
+    </a>
+
+    <span class="dropdown im-filter-summary im-th-dropdown">
+        <a class="im-th-button im-col-filters dropdown-toggle"
+            title="<%- Messages.getText('table.header.FilterTitle', {count: count}) %>"
+            data-toggle="dropdown" >
+            <%= Icons.icon('Filter') %>
+        </a>
+        <div class="dropdown-menu">
+            <div><%- Messages.getText('table.header.FailedToInitFilter') %></div>
+        </div>
+    </span>
+
+    <span class="dropdown im-summary im-th-dropdown">
+        <a class="im-th-button summary-img dropdown-toggle"
+            title="<%- Messages.getText('table.header.ViewSummary') %>"
+            data-toggle="dropdown" >
+            <%= Icons.icon('Summary') %>
+        </a>
+        <div class="dropdown-menu">
+            <div><%- Messages.getText('table.header.FailedToInitSummary') %></div>
+        </div>
+    </span>
+
+    <% if (composed) { %>
+        <a class="im-th-button im-col-composed"
+            title="<%- Messages.getText('table.header.ViewComposedParts') %>">
+            <%= Icons.icon('Composed') %>
+        </a>
+    <% } %>
+</div>
+
+<div class="im-col-title">
+  <div
+    class="im-title-part im-parent im-<%- parentType %>-parent<% if (!last) { %> im-last<% } %>">
+      <%- penult %>
+  </div>
+  <% if (last) { %>
+    <div class="im-title-part im-last"><%- last %></div>
+  <% } %>
+</div>
+
+</div>
+

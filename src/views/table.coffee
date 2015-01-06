@@ -2,35 +2,29 @@ _ = require 'underscore'
 $ = jQuery = require 'jquery' # Used for overlays
 Backbone = require 'backbone'
 
-View = require '../core-view'
+CoreView = require '../core-view'
+Options = require '../options'
+
+renderError = require './table/render-error'
+Page = require '../models/page'
+NestedTableModel = require '../models/nested-table'
+CellModel = require '../models/cell'
+NullObject = require '../models/null-object'
+FPObject = require '../models/fast-path-object'
+ObjectStore = require '../models/object-store'
+UniqItems = require '../models/uniq-items'
 
 Pagination = require './table/pagination'
-renderError = require './table/render-error'
-NestedTableModel = require '../models/nested-table'
-# FIXME - check this import
-CellModel = require './models/cell'
-# FIXME - check this import
-IMObject = require '../models/intermine-object'
-# FIXME - check this import
-NullObject = require '../models/null-object'
-# FIXME - check this import
-FPObject = require '../models/fast-path-object'
-
-# Checked imports - they may have their own problems though.
-ResultsTable = require './inner'
-PageSizer = require './page-sizer'
-Page = require '../models/page'
-Options = require '../options'
-UniqItems = require '../models/uniq-items'
-ObjectStore = require '../models/object-store'
-TableSummary = require './summary'
+ResultsTable = require './table/inner'
+PageSizer = require './table/page-sizer'
+TableSummary = require './table/summary'
 
 # FIXME - check references to this.
 NUMERIC_TYPES = ["int", "Integer", "double", "Double", "float", "Float"]
 
 class RowModel extends Backbone.Model # Currently no content.
 
-module.exports = class Table extends View
+module.exports = class Table extends CoreView
 
   className: "im-table-container"
 
@@ -302,7 +296,7 @@ module.exports = class Table extends View
   ## @param page The page these results were requested with.
   ## @param rows The rows returned from the server.
   ##
-  addRowsToCache: (page, rows) ->
+  addRowsToCache: (page, rows) -> # TODO: this should not live in a view
     # {cache :: [], lowerBound :: int, upperBound :: int}
     {cache, lowerBound, upperBound} = @model.toJSON()
     if cache? # may not exist yet.
@@ -323,19 +317,20 @@ module.exports = class Table extends View
 
     @model.set {cache, lowerBound, upperBound}
 
-  makeCellModel: (obj) =>
+  makeCellModel: (obj) => # TODO: this should not live in a View
     objects = @itemModels
     cm = if _.has(obj, 'rows')
       node = @query.getPathInfo obj.column
       # Here we lift some properties to more useful types
       new NestedTableModel _.extend {}, obj,
         node: node # Duplicate name - not necessary?
-        column: node 
+        column: node
         rows: (r.map(@makeCellModel) for r in obj.rows)
     else
       column = @query.getPathInfo(obj.column)
       node = column.getParent()
       field = obj.column.replace(/^.*\./, '')
+
       model = if obj.id?
         objects.get obj, field
       else if not obj.class?
@@ -343,7 +338,7 @@ module.exports = class Table extends View
         new NullObject {}, {@query, field, type}
       else # FastPathObjects don't have ids, and cannot be in lists.
         new FPObject({}, {@query, obj, field})
-      # Do we need to do a merge here? - llok at NullObject and FPO
+
       new CellModel
         query: @query # TODO - stop passing the query around!
         cell: model
@@ -351,6 +346,7 @@ module.exports = class Table extends View
         column: column
         field: field
         value: obj.value
+
     return cm
 
   ##

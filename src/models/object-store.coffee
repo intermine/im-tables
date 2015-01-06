@@ -1,7 +1,6 @@
 Backbone = require 'backbone'
 _ = require 'underscore'
 
-# FIXME - check this import
 IMObject = require './intermine-object'
 
 module.exports = class ObjectStore
@@ -11,7 +10,7 @@ module.exports = class ObjectStore
     @_objects = {}
 
   get: (obj, field) ->
-    model = (@_objects[obj.id] ?= new IMObject obj, @query, field, @base)
+    model = (@_objects[obj.id] ?= new IMObject @query, @base)
     model.merge obj, field
     return model
 

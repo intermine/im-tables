@@ -1,12 +1,10 @@
-fs = require 'fs'
 _ = require 'underscore'
-View = require '../core-view'
 
-html = fs.readFileSync __dirname + '/../../templates/count-summary.mtpl', 'utf8'
-template = _.template html
+View = require '../core-view'
+Templates = require '../templates'
 {numToString} = require '../templates/helpers'
 
-EVT = 'change:start change:size change:count'
+template = Templates.template 'count_summary'
 
 # This needs a test/index
 
@@ -14,9 +12,7 @@ module.exports = class TableSummary extends View
 
   className: 'im-table-summary hidden-phone'
 
-  initialize: ->
-    super
-    @listenTo @model, EVT, @reRender
+  RERENDER_EVENT: 'change:start change:size change:count'
 
   template: ({start, size, count}) ->
     return unless size and count
