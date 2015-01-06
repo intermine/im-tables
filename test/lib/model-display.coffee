@@ -1,3 +1,4 @@
+_ = require 'underscore'
 {View} = require 'backbone'
 
 module.exports = class ModelDisplay extends View
@@ -8,5 +9,5 @@ module.exports = class ModelDisplay extends View
     @listenTo @model, 'change', @render
 
   render: ->
-    @$el.html JSON.stringify @model.toJSON(), null, 2
+    @$el.html _.escape JSON.stringify @model.toJSON(), null, 2
 
