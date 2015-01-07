@@ -29,7 +29,7 @@ class Messages extends Backbone.Model
     # Make missing keys really obvious
     templ?(args) ? "!!!No message for #{ key }!!!"
 
-  defaults: -> _.extend {}, common, actionMessages, tableMessages, constraintMsgs
+  defaults: -> _.extend {}, common, actionMessages, tableMessages, constraintMsgs,
     'export.DialogueTitle': 'Export'
     'constraints.AddNewFilter': 'Add New Filter'
     'constraints.AddFilter': 'Add filter'

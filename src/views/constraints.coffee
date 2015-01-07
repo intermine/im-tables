@@ -1,6 +1,7 @@
 _ = require 'underscore'
 
 CoreView = require '../core-view'
+Templates = require '../templates'
 
 ConstraintAdder = require './constraint-adder'
 ActiveConstraint = require './active-constraint'
