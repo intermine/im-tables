@@ -2,6 +2,8 @@ Backbone = require 'backbone'
 _ = require 'underscore'
 
 actionMessages = require './messages/actions'
+tableMessages = require './messages/table'
+constraintMsgs = require './messages/constraints'
 common = require './messages/common'
 
 class Messages extends Backbone.Model
@@ -27,7 +29,7 @@ class Messages extends Backbone.Model
     # Make missing keys really obvious
     templ?(args) ? "!!!No message for #{ key }!!!"
 
-  defaults: -> _.extend {}, common, actionMessages,
+  defaults: -> _.extend {}, common, actionMessages, tableMessages, constraintMsgs
     'export.DialogueTitle': 'Export'
     'constraints.AddNewFilter': 'Add New Filter'
     'constraints.AddFilter': 'Add filter'

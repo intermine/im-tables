@@ -1,0 +1,14 @@
+<h3><%- Messages.getText('constraints.Heading') %></h3>
+
+<div class="well">
+    <p class="well-help">
+      <% if (constraints.length) { %>
+        <%- Messages.getText('constraints.EditOrRemove') %>
+      <% } else { %>
+        <%- Messages.getText('constraints.None') %>
+      <% } %>
+    </p>
+
+    <ul class="im-active-constraints">
+    </ul>
+</div>

@@ -1,16 +1,24 @@
 <% /* requires:
-    *  penult, last, parentType, composed,
+    *  cons, penult, last, headerClasses, colTitleClasses, penultClasses, composed,
     *  path, sortable, sortDirection, Icons, Messages
     */ %>
-<div class="im-column-header">
+<div class="<%- headerClasses %>">
 
 <div class="im-th-buttons">
+    
+    <% if (outerJoined && !path.isAttribute()) { %>
+      <a href="#" 
+          class="im-subtable-expander im-th-button"
+          title="<%- Messages.getText('table.header.ToggleTables') %>">
+        <%= Icons.icon('Table') %>
+      </a>
+    <% } %>
 
     <% if (sortable) { %>
         <span class="im-th-dropdown im-col-sort dropdown">
             <a class="im-th-button im-col-sort-indicator"
                 title="<%- Messages.getText('table.header.SortColumn') %>">
-                <%= Icons.icon(sortDirection || 'unsorted') %>
+                <%= Icons.icon(direction || 'unsorted') %>
             </a>
             <div class="dropdown-menu">
                 <div><%- Messages.getText('table.header.FailedToInitSortMenu') %></div>
@@ -25,12 +33,12 @@
 
     <a class="im-th-button im-col-minumaximiser"
         title="<%- Messages.getText('table.header.ToggleColumn') %>">
-        <%= Icons.icon('headerIconHide') %>
+        <%= Icons.icon(minimised ? 'headerIconReveal' : 'headerIconHide') %>
     </a>
 
     <span class="dropdown im-filter-summary im-th-dropdown">
         <a class="im-th-button im-col-filters dropdown-toggle"
-            title="<%- Messages.getText('table.header.FilterTitle', {count: count}) %>"
+            title="<%- Messages.getText('table.header.FilterTitle', {count: cons.length}) %>"
             data-toggle="dropdown" >
             <%= Icons.icon('Filter') %>
         </a>
@@ -52,19 +60,20 @@
 
     <% if (composed) { %>
         <a class="im-th-button im-col-composed"
-            title="<%- Messages.getText('table.header.ViewComposedParts') %>">
+            title="<%- Messages.getText('table.header.Composed', {replaces: replaces}) %>">
             <%= Icons.icon('Composed') %>
         </a>
     <% } %>
 </div>
 
-<div class="im-col-title">
-  <div
-    class="im-title-part im-parent im-<%- parentType %>-parent<% if (!last) { %> im-last<% } %>">
+<div class="<%- colTitleClasses %>">
+  <div class="<%- penultClasses %>">
       <%- penult %>
   </div>
   <% if (last) { %>
-    <div class="im-title-part im-last"><%- last %></div>
+    <div class="im-title-part im-last">
+        <%- last %>
+    </div>
   <% } %>
 </div>
 

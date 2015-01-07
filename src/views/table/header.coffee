@@ -1,25 +1,16 @@
+$ = require 'jquery'
+
 CoreView = require '../../core-view'
 Templates = require '../../templates'
 Messages = require '../../messages'
 
-Messages.set
-  'table.header.FailedToInitSortMenu': 'Could not initialise the sorting menu.'
-  'table.header.FailedToInitFilter': 'Could not initialise the filter menu.'
-  'table.header.FailedToInitSummary': 'Could not intitialise the column summary.'
-  'table.header.ViewSummary': 'View column summary'
-  'table.header.ViewComposedParts': 'View as separate columns'
-  'table.header.ToggleColumn': 'Toggle column visibility'
-  'table.header.RemoveColumn': 'Remove this column'
-  'table.header.SortColumn': 'Sort this column'
-  'table.header.FilterTitle': """
-    <% if (count > 0) { %>
-      <%= count %> active filters.
-    <% } else { %>
-      Filter by values in this column.
-    <% } %>
-  """
+ClassSet = require '../../utils/css-class-set'
 
-# FIXME!!! This class is only partially done...
+FormattedSorting = require '../formatted-sorting'
+SingleColumnConstraints = require '../constraints/single-column'
+
+{getFormatter} = require '../../path-formatting'
+
 ignore = (e) ->
   e?.preventDefault()
   e?.stopPropagation()
@@ -35,213 +26,200 @@ module.exports = class ColumnHeader extends CoreView
 
   className: 'im-column-th'
 
+  RERENDER_EVT: 'change:minimised change:name change:path change:replaces change:direction'
+
   initialize: ({@query, @blacklistedFormatters}) ->
     super
-    # Store this, as it will be needed several times.
-    @view = @model.get('path').toString()
-    if @model.get('replaces').length is 1 and @model.get('isFormatted')
-      @view = @model.get('replaces')[0].toString()
-
-    @namePromise = @model.get('path').getDisplayName()
-    @namePromise.done (name) => @model.set {name}
-
+    # Calculate derived properties. Sets @view and some model properties.
     @updateModel()
+    @model.set(expanded: Options.get 'Subtables.Initially.expanded') unless @model.has 'expanded'
 
-    # TODO change to listenTo
-    @query.on 'change:sortorder', @updateModel
-    @query.on 'change:joins', @updateModel
-    @query.on 'change:constraints', @updateModel
-    @query.on 'change:minimisedCols', @minumaximise
-    @query.on 'subtable:expanded', (node) =>
-      @model.set(expanded: true) if node.toString().match @view
-    @query.on 'subtable:collapsed', (node) =>
-      @model.set(expanded: false) if node.toString().match @view
-    @query.on 'showing:column-summary', (path) =>
-      unless path.equals @model.get 'path'
-        @summary?.remove()
+    # Declare dependencies needed for recalculating the model.
+    @listenTo @model, 'change:minimisedCols change:path change:replaces', @updateModel
+    @listenTo @query, 'change:sortorder change:joins change:constraints', @updateModel
+    @listenTo @query, 'subtable:expanded', @onSubtableExpanded
+    @listenTo @query, 'subtable:collapsed', @onSubtableCollapsed
+    @listenTo @query, 'showing:column-summary', @removeMySummary
 
-    @model.on 'change:conCount', @displayConCount
-    @model.on 'change:direction', @displaySortDirection
-    intermine.onChangeOption 'Style.icons', @render, @
+    @listenTo Options, 'change:icons', @reRender
 
-  getCompositionTitle = (replaces) -> """
-    This column replaces #{ replaces.length } others. Click here
-    to show the individual columns separately.
-  """
+    @headerClasses = new ClassSet
+      'im-column-header': true
+      'im-minimised-th': => @model.get('minimisedCols')[@view]
+      'im-is-composed': => @model.get 'composed'
+      'im-has-constraint': => _.size @model.get 'cons'
 
-  renderName: =>
-    # TODO move this to getData.
+  uc = (s) -> s?.toUpperCase()
+  firstResult = _.compose _.first, _.compact, _.map
+
+  # Calculates derived properties,
+  # setting @view, and model{minimised, name, isComposed, direction, sortable, cons}
+  updateModel: ->
+    {isFormatted, name, path, replaces} = @model.pick 'name', 'path', 'replaces', 'isFormatted'
+    replaces ?= [] # Should *always* be an array, but if undef set it as an empty one.
+    {query} = @
+    # The view this column actually represents.
+    @view = String (if replaces.length is 1 and isFormatted then replaces[0] else path)
+
+    outerJoined = query.isOuterJoined @view
+
+    # Work out the sort direction of this column (which is the sort
+    # direction of the path or the first available sort direction of
+    # the paths it replaces in the case of formatted columns).
+    direction = uc firstResult replaces.concat(@view), (p) -> query.getSortDirection p
+    
+    # We can sort by this column if it is fully inner joined.
+    sortable = (not outerJoined)
+
+    # This column is composed if it represents more than one replaced column.
+    isComposed = (not outerJoined) and (replaces.length > 1)
+
+    # The column is minimised when it is listed in the minimisedCols set
+    minimised =  @model.get('minimisedCols')[@view]
+
+    @model.set
+      name: (name ? '') # enforce that the model has a name so that templates won't throw errors.
+      outerJoined: outerJoined
+      minimised: minimised
+      composed: isComposed
+      direction: direction
+      sortable: sortable
+      cons: (c for c in query.constraints when c.path.match @view)
+
+    # Now go and populate that name with the right value.
+    @model.get('path').getDisplayName().then (name) => @model.set {name}
+
+  # Make sure we are only showing one column summary at once, so make way for
+  # other column summaries that are displayed.
+  removeMySummary: (path) ->
+    @removeChild 'summary' unless path.equals @model.get 'path'
+
+  onSubtableExpanded: (node) ->
+    @model.set(expanded: true) if node.toString().match @view
+
+  onSubtableCollapsed: (node) ->
+    @model.set(expanded: false) if node.toString().match @view
+
+  getData: ->
     [ancestors..., penult, last] = parts = @model.get('name').split(' > ')
     parentType = if ancestors.length then 'non-root' else 'root'
-    # TODO Move this to postRender
-    title = @namePopoverTemplate @getData()
-    @$('.im-col-title').popover {title, placement: 'bottom', html: true}
+    minimised = @model.get(minimisedCols)[@view]
 
-  # TODO Move to Model
-  isComposed: ->
-    return false if @query.isOuterJoined(@view)
-    return (@model.get('replaces') or []).length > 1
+    colTitleClasses = new ClassSet
+      'im-col-title': true
+      'im-hidden': minimised
+    penultClasses = new ClassSet
+      'im-title-part im-parent': true
+      'im-root-parent': (not ancestors.length)
+      'im-non-root-parent': (ancestors.length)
+      'im-last': (not last) # in which case the penult is actually last.
+
+    _.extend {@headerClasses, penultClasses, colTitleClasses, last, penult, minimised}, super
 
   template: Templates.template 'column_header'
 
   namePopoverTemplate: Templates.template 'column_name_popover'
 
-  render: ->
-
-    @$el.empty()
-
-    @$el.append @html()
-
-    @displayConCount()
-    @displaySortDirection()
-
-    @namePromise.done @renderName
-
-    # Does not work if placed in events, due to interference from dropdowns
-    @$('.summary-img').click @showColumnSummary
-    @$('.im-col-filters').click(@showFilterSummary)
-    replaces = @model.get 'replaces'
-    @$('.im-col-composed').attr(title: getCompositionTitle replaces).click =>
-      @blacklistedFormatters.add formatter: @model.get 'formatter'
-
-    @$el.toggleClass 'im-is-composed', @isComposed()
-
-    @$('.im-th-button').tooltip
-      placement: @bestFit
-      container: @el
-
-    @$('.dropdown .dropdown-toggle').dropdown()
-
-    if not @model.get('path').isAttribute() and @query.isOuterJoined(@view)
-      @addExpander()
-
-    if @model.get 'expanded'
-      @query.trigger 'expand:subtables', @model.get 'path'
-
-    this
-
-  firstResult = _.compose _.first, _.compact, _.map
-
-  updateModel: =>
-    direction = firstResult @model.get('replaces').concat(@view), (p) => @query.getSortDirection p
-    @model.set
-      direction: direction
-      sortable: not @query.isOuterJoined @view
-      conCount: (_.size _.filter @query.constraints, (c) => !!c.path.match @view)
-
-  displayConCount: =>
-    conCount = @model.get 'conCount'
-    @$el.addClass 'im-has-constraint' if conCount
-
-    @$('.im-col-filters').attr(title: COL_FILTER_TITLE conCount)
-
-  html: ->
-    data = _.extend {}, ICONS(), @model.toJSON()
-    TEMPLATE data
-
-  displaySortDirection: =>
-    sortButton = @$ '.icon-sorting'
-    {css_unsorted, ASC, DESC} = icons = ICONS()
-    sortButton.addClass css_unsorted
-    sortButton.removeClass ASC + ' ' + DESC
-    if @model.has 'direction'
-      sortButton.toggleClass css_unsorted + ' ' + icons[@model.get 'direction']
-
-  events:
+  events: ->
     'click .im-col-sort': 'setSortOrder'
     'click .im-col-minumaximiser': 'toggleColumnVisibility'
     'click .im-col-filters': 'showFilterSummary'
     'click .im-subtable-expander': 'toggleSubTable'
     'click .im-col-remover': 'removeColumn'
-    'toggle .im-th-button': 'summaryToggled'
+    'toggle .im-th-button': 'summaryToggled' # should we use the bootstrap events
+
+  postRender: ->
+    @bindRecalcitrantButtons()
+    @setTitlePopover()
+    @announceExpandedState()
+    @activateTooltips()
+    @activateDropdowns()
+
+  activateTooltips: -> @$('.im-th-button').tooltip
+    placement: @bestFit
+    container: @el
+
+  activateDropdowns: -> @$('.dropdown .dropdown-toggle').dropdown()
+
+  # Bind events to buttons that experience interference from dropdowns when
+  # their events are bound from ::events
+  bindRecalcitrantButtons: ->
+    @$('.summary-img').click @showColumnSummary
+    @$('.im-col-filters').click @showFilterSummary
+    @$('.im-col-composed').click @addFormatterToBlacklist
+
+  addFormatterToBlacklist: ->
+    @blacklistedFormatters.add formatter: @model.get 'formatter'
+    
+  announceExpandedState: -> if @model.get 'expanded'
+    @query.trigger 'expand:subtables', @model.get 'path'
+
+  setTitlePopover: ->
+    # title is html - cannot be implemented in the main template.
+    title = @namePopoverTemplate @getData()
+    @$('.im-col-title').popover {title, placement: 'bottom', html: true}
 
   summaryToggled: (e, isOpen) ->
     ignore e
-    return unless e.target is e.currentTarget # Don't listen to bubbles.
-    unless isOpen
-      @summary?.remove()
+    return unless e.target is e.currentTarget # Don't listen to bubbled events.
+    @removeChild 'summary' unless isOpen
 
   hideTooltips: -> @$('.im-th-button').tooltip 'hide'
 
   removeColumn: (e) ->
     @hideTooltips()
-    unwanted = (v for v in @query.views when v.match @view)
-    @query.removeFromSelect unwanted
-    false
+    @query.removeFromSelect(v for v in @query.views when v.match @view)
+    ignore e
 
+  # Used to hook in and add the correct style prefix to the tip.
   bestFit: (tip, elem) =>
-    $(tip).addClass intermine.options.StylePrefix
+    $(tip).addClass Options.get 'StylePrefix'
     return 'top'
 
   checkHowFarOver: (el) ->
     bounds = @$el.closest '.im-table-container'
     if (el.offset().left + 350) >= (bounds.offset().left + bounds.width())
-        @$el.addClass 'too-far-over'
+      @$el.addClass 'too-far-over'
 
-  showSummary: (selector, View) => (e) =>
+  showSummary: (selector, View, e) =>
     ignore e
 
-    @checkHowFarOver if e? then $(e.currentTarget) else @$el
+    return false if @$(selector).hasClass 'open'
 
-    unless @$(selector).hasClass 'open'
-      @query.trigger 'showing:column-summary', @model.get 'path'
-      summary = new View(@query, @model.get('path'), @model)
-      $menu = @$ selector + ' .dropdown-menu'
-      console.log "#{ selector } not found" unless $menu.length
-      # Must append before render so that dimensions can be calculated.
-      $menu.html summary.el
-      summary.render()
-      @summary = summary
+    @query.trigger 'showing:column-summary', @model.get 'path'
+    summary = new View {@query, @model}
+    $menu = @$ selector + ' .dropdown-menu'
+    throw new Error "#{ selector } not found" unless $menu.length
+    $menu.empty()
+    @renderChild 'summary', summary, $menu
 
-    false
-
+  # FIXME!!! # FIXME - note the the path is part of the model.
   showColumnSummary: (e) =>
     cls = if @path().isAttribute()
       intermine.query.results.DropDownColumnSummary
     else
       intermine.query.results.OuterJoinDropDown
 
-    @showSummary('.im-summary', cls) e
+    @showSummary '.im-summary', cls, e
 
   showFilterSummary: (e) =>
-    @showSummary('.im-filter-summary', intermine.query.filters.SingleColumnConstraints) e
+    @showSummary '.im-filter-summary', SingleColumnConstraints, e
 
   toggleColumnVisibility: (e) =>
-    e?.preventDefault()
-    e?.stopPropagation()
+    ignore e
     @query.trigger 'columnvis:toggle', @view
-
-  minumaximise: (minimisedCols) =>
-    {css_hide, css_reveal} = ICONS()
-    $i = @$('.im-col-minumaximiser i').removeClass css_hide + ' ' + css_reveal
-    minimised = minimisedCols[@view]
-    $i.addClass if minimised then css_reveal else css_hide
-    @$el.toggleClass 'im-minimised-th', !!minimised
-    @$('.im-col-title').toggle not minimised
 
   path: -> @model.get 'path'
 
-  setSortOrder: (e) =>
+  setSortOrder: (e) ->
     {direction, replaces} = @model.toJSON()
     direction = NEXT_DIRECTION_OF[ direction ] ? 'ASC'
-    formatter = intermine.results.getFormatter @path()
-    if replaces.length
-      @showSummary('.im-col-sort', intermine.query.FormattedSorting) e
+    if replaces.length # we need to let the use choose from amongst them.
+      @showSummary '.im-col-sort', FormattedSorting, e
       @$('.im-col-sort').toggleClass 'open'
     else
       @$('.im-col-sort').removeClass 'open'
       @query.orderBy [ {path: @view, direction} ]
-
-  addExpander: ->
-    expandAll = $ """
-      <a href="#" 
-          class="im-subtable-expander im-th-button"
-          title="Expand/Collapse all subtables">
-        <i class="#{ intermine.icons.Table }"></i>
-      </a>
-    """
-    expandAll.tooltip placement: @bestFit
-    @$('.im-th-buttons').prepend expandAll
 
   toggleSubTable: (e) =>
     ignore e

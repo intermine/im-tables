@@ -1,0 +1,4 @@
+<a> <% /* requires Icons, direction and name */ %>
+    <%= Icons.icon(direction || 'unsorted') %>
+    <span class="im-sort-path"><%- name %></span>
+</a>

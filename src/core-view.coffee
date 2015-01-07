@@ -60,7 +60,9 @@ module.exports = class CoreView extends Backbone.View
   # to override this method - instead customise getData, template
   # and/or preRender and postRender
   render: ->
-    @trigger 'rendering', @rendered
+    prerenderEvent = new Event @rendered
+    @trigger 'rendering', prerenderEvent
+    return this if prerenderEvent.cancelled
     @removeAllChildren()
     if @template?
       try

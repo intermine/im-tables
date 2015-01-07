@@ -159,12 +159,12 @@ module.exports = class ResultsTable extends View
     tr = document.createElement 'tr'
     docfrag.appendChild tr
 
-    @columnHeaders.each (ch) => @renderHeader ch, tr
+    @columnHeaders.each @renderHeader tr
             
     # children selector because we only want to go down 1 layer.
     @$el.children('thead').html docfrag
 
-  # Render a single header to the headers
-  renderHeader: (model, tr) ->
+  # Render a single header to the row of headers
+  renderHeader: (tr) -> (model, i) =>
     header = new ColumnHeader {model, @query, @blacklistedFormatters}
-    header.render().$el.appendTo tr
+    @renderChild "header_#{ i }", header, tr

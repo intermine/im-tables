@@ -31,7 +31,6 @@ class ConstraintAdderModel extends CoreModel
     canSelectReferences: true # Can we select references?
     multiSelect: false        # Can we select multiple paths?
 
-
 module.exports = class ConstraintAdder extends View
 
   tagName: 'div'

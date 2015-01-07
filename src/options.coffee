@@ -101,6 +101,9 @@ class Options extends Model
     SuggestionDepth: 4 # When suggestion paths, follow up to this many references.
     Events:
       ActivateTab: 'mouseenter' # or click
+    Subtables:
+      Initially:
+        expanded: false # Set to true to show all subtables by default.
     Destinations: ['download', 'Galaxy', 'GenomeSpace', 'Drive', 'Dropbox']
     Destination:
       download:
@@ -151,6 +154,9 @@ class Options extends Model
         name: "MouseMine (MGI)"
     preview:
       count: {}
+    Formatters: # TODO - install formatters here.
+      testmodel: {}
+      genomic: {}
 
 # Export the main instance.
 module.exports = new Options
