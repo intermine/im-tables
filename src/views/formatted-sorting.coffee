@@ -1,43 +1,8 @@
-_ = require 'underscore'
-
 CoreView = require '../core-view'
 Templates = require '../templates'
-Icons = require '../icons'
+SortedPath = require './formatted/sorting-path'
 
-INITIAL_CARETS = /^\s*>\s*/
-
-NEXT_DIRECTION_OF =
-  ASC: 'DESC'
-  DESC: 'ASC'
-  NONE: 'ASC'
-
-sortQueryByPath = (query, path) ->
-  currentDirection = (query.getSortDirection(path) ? 'NONE')
-  nextDirection = NEXT_DIRECTION_OF[currentDirection]
-  query.orderBy {path, direction: nextDirection}
-
-# An individual path we can sort by.
-class SortedPath extends CoreView
-
-  tagName: 'li'
-
-  className: 'im-formatted-path im-subpath'
-
-  # Inherits model and state from parent, but is specialised on @path
-  initialize: ({@query, @path}) ->
-    @listenTo @state, 'change', @reRender
-    super
-
-  getData: -> # Provides Icons, name, direction
-    name = @state.get(@path)?.replace(@state.get('group'), '').replace(INITIAL_CARETS, '')
-    direction = @query.getSortDirection @path
-    {Icons, name, direction}
-
-  template: Templates.template 'formatted_sorting'
-
-  events: -> click: 'sortByPath'
-
-  sortByPath: -> sortQueryByPath @query, @path
+sortQueryByPath = require '../utils/sort-query-by-path'
 
 # A class that handles the machinery for letting users choose which column
 # to sort by when a column represents multiple paths due to formatting.
