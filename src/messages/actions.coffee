@@ -1,4 +1,5 @@
 module.exports =
+  'export.DialogueTitle': 'Export'
   'export.category.Format': "<%= format.EXT %> Format",
   'export.category.Columns': "<%= columns %> Columns",
   'export.category.Preview': "Preview",
@@ -247,4 +248,13 @@ module.exports =
           Prefix "chr" to the chromosome identifier as per UCSC convention (eg: chr2)
       """
   ConfigureExportHelp: 'Configure the export options in these categories'
+  'largetable.ok': 'Set page size to <%- size %>'
+  'largetable.abort': 'Cancel'
+  'largetable.appeal': """
+    You have requested a very large table size (<%= size %> rows per page). Your
+    browser may struggle to render such a large table,
+    and the page could become unresponsive. In any case,
+    will be very difficult for you to read the whole table
+    in the page. We suggest the following alternatives:
+  """
 

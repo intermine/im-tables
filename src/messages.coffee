@@ -1,10 +1,20 @@
 Backbone = require 'backbone'
 _ = require 'underscore'
 
+# HWAT! Do not be tempted to replace this with a loop to build DEFAULTS. That
+# would break browserify. You would want to do that, would you?
 actionMessages = require './messages/actions'
 tableMessages = require './messages/table'
 constraintMsgs = require './messages/constraints'
+summaryMessages = require './messages/summary'
 common = require './messages/common'
+
+{numToString} = require './templates/helpers'
+
+DEFAULTS = [common, actionMessages, tableMessages, constraintMsgs, summaryMessages]
+
+HELPERS = # All message templates have access to these helpers.
+  formatNumber: numToString
 
 class Messages extends Backbone.Model
 
@@ -24,27 +34,12 @@ class Messages extends Backbone.Model
       templ = _.template(templ)
     @cache[key] = templ
 
-  getText: (key, args) =>
+  getText: (key, args = {}) =>
     templ = @getTemplate key
     # Make missing keys really obvious
-    templ?(args) ? "!!!No message for #{ key }!!!"
+    templ?(_.extend {}, HELPERS, args) ? "!!!No message for #{ key }!!!"
 
-  defaults: -> _.extend {}, common, actionMessages, tableMessages, constraintMsgs,
-    'export.DialogueTitle': 'Export'
-    'constraints.AddNewFilter': 'Add New Filter'
-    'constraints.AddFilter': 'Add filter'
-    'modal.DefaultTitle': 'Excuse me...'
-    'modal.Dismiss': 'Close'
-    'modal.OK': 'OK'
-    'largetable.ok': 'Set page size to <%- size %>'
-    'largetable.abort': 'Cancel'
-    'largetable.appeal': """
-      You have requested a very large table size (<%= size %> rows per page). Your
-      browser may struggle to render such a large table,
-      and the page could become unresponsive. In any case,
-      will be very difficult for you to read the whole table
-      in the page. We suggest the following alternatives:
-    """
+  defaults: -> _.extend.apply [{}].concat DEFAULTS
 
 module.exports = new Messages
 

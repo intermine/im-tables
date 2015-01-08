@@ -98,6 +98,7 @@
   },
   "dependencies": {
     "brfs-htmlmin": "^1.0.0",
+    "pluralize": "^1.1.0",
     "serve": "^1.4.0",
     "underscore": "^1.7.0"
   }

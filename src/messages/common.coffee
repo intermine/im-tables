@@ -10,3 +10,7 @@ module.exports =
   and: 'and'
   or: 'or'
   comma: ','
+  Number: '<%= formatNumber(n) %>' # can be used in templates to access formatNumber
+  'modal.DefaultTitle': 'Excuse me...'
+  'modal.Dismiss': 'Close'
+  'modal.OK': 'OK'

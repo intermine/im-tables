@@ -1,0 +1,19 @@
+<% if (model.error) { %>
+    <% /* Oh noes - something went wrong. */ %>
+    <div class="alert alert-warning">
+        <%= Icons.icon('Error') %>
+        <strong><%- Messages.getText('Error') %></strong>
+        <% if (data.error.key) { %>
+            <%- Messages.getText(data.error.key) %>
+        <% } else { %>
+            <%- data.error.message || data.error %>
+        <% } %>
+    </div>
+<% } else if (data.got) { %>
+    <% /* Huzzah - there is data, which will be added here as child views */ %>
+<% } else { %>
+    <% /* Boo - no data. Show an indeterminate progress bar while we wait. */ %>
+    <div class="progress progress-info progress-striped active">
+        <div class="bar" style="width:100%"></div>
+    </div>
+<% } %>

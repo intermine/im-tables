@@ -2,7 +2,9 @@ Constraints = require '../constraints'
 
 module.exports = class SingleColumnConstraints extends Constraints
 
-  getConAdder: -> null #-> new SingleConstraintAdder(@query, @view)
+  getConAdder: -> null #-> new SingleConstraintAdder?
 
-  getConstraints: -> (c for c in @query.constraints when c.path.match @view)
+  getConstraints: ->
+    view = @model.get 'path'
+    (c for c in @query.constraints when c.path.match view)
 

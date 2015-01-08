@@ -1,7 +1,7 @@
 # Simple event that can be passed to handlers for cancellable events.
 module.exports = class Event
 
-  constructor: (@data) ->
+  constructor: (@data, @target) ->
 
   cancel: -> @cancelled = true
 

@@ -5,9 +5,13 @@ Templates = require '../../templates'
 Messages = require '../../messages'
 
 ClassSet = require '../../utils/css-class-set'
+sortQueryByPath = require '../../utils/sort-query-by-path'
+onChange = require '../../utils/on-change'
 
 FormattedSorting = require '../formatted-sorting'
 SingleColumnConstraints = require '../constraints/single-column'
+DropDownColumnSummary = require './column-summary' # FIXME
+OuterJoinDropDown = require './outerjoin-column-summary' # FIXME
 
 {getFormatter} = require '../../path-formatting'
 
@@ -16,46 +20,58 @@ ignore = (e) ->
   e?.stopPropagation()
   return false
 
-NEXT_DIRECTION_OF =
-  ASC: 'DESC'
-  DESC: 'ASC'
-
 module.exports = class ColumnHeader extends CoreView
 
   tagName: 'th'
 
   className: 'im-column-th'
 
-  RERENDER_EVT: 'change:minimised change:name change:path change:replaces change:direction'
+  RERENDER_EVT: onChange [
+    'expanded', 'name', 'outerJoined', 'minimised', 'composed', 'direction',
+    'sortable', 'numOfCons', 'path'
+  ]
 
   initialize: ({@query, @blacklistedFormatters}) ->
     super
     # Calculate derived properties. Sets @view and some model properties.
-    @updateModel()
-    @model.set(expanded: Options.get 'Subtables.Initially.expanded') unless @model.has 'expanded'
+    @initModel()
 
     # Declare dependencies needed for recalculating the model.
-    @listenTo @model, 'change:minimisedCols change:path change:replaces', @updateModel
-    @listenTo @query, 'change:sortorder change:joins change:constraints', @updateModel
+    @listenForChange @model, @onPathChange, 'path'
+    @listenForChange @model, @updateModel, 'path', 'replaces', 'isFormatted', 'minimisedCols'
+    @listenForChange @query, @updateModel, 'sortorder', 'joins', 'constraints'
     @listenTo @query, 'subtable:expanded', @onSubtableExpanded
     @listenTo @query, 'subtable:collapsed', @onSubtableCollapsed
     @listenTo @query, 'showing:column-summary', @removeMySummary
 
     @listenTo Options, 'change:icons', @reRender
 
-    @headerClasses = new ClassSet
+    @createClassSets()
+
+  createClassSets: -> # Class sets that are always up-to-date.
+    @classSets = {}
+    isMinimised = => @model.get('minimisedCols')[@view]
+    classSets.headerClasses = new ClassSet
       'im-column-header': true
-      'im-minimised-th': => @model.get('minimisedCols')[@view]
+      'im-minimised-th': isMinimised
       'im-is-composed': => @model.get 'composed'
-      'im-has-constraint': => _.size @model.get 'cons'
+      'im-has-constraint': => @model.get 'numOfCons'
+    classSets.colTitleClasses = new ClassSet
+      'im-col-title': true
+      'im-hidden': isMinimised
 
   uc = (s) -> s?.toUpperCase()
   firstResult = _.compose _.first, _.compact, _.map
 
+  initModel: ->
+    @updateModel()
+    @onPathChange()
+
   # Calculates derived properties,
-  # setting @view, and model{minimised, name, isComposed, direction, sortable, cons}
+  # setting @view, and model{minimised, name, isComposed, direction, sortable, numOfCons}
   updateModel: ->
-    {isFormatted, name, path, replaces} = @model.pick 'name', 'path', 'replaces', 'isFormatted'
+    # These are properties of the model this method depends on.
+    {isFormatted, name, path, replaces, minimisedCols} = @model.toJSON()
     replaces ?= [] # Should *always* be an array, but if undef set it as an empty one.
     {query} = @
     # The view this column actually represents.
@@ -75,18 +91,21 @@ module.exports = class ColumnHeader extends CoreView
     isComposed = (not outerJoined) and (replaces.length > 1)
 
     # The column is minimised when it is listed in the minimisedCols set
-    minimised =  @model.get('minimisedCols')[@view]
+    minimised = minimisedCols[@view]
 
+    # Make sure the model has the correct initial expansion state.
+    @model.set(expanded: Options.get 'Subtables.Initially.expanded') unless @model.has 'expanded'
+    # enforce that the model has a name so that templates won't throw errors.
+    @model.set(name: '') unless @model.get 'name'
     @model.set
-      name: (name ? '') # enforce that the model has a name so that templates won't throw errors.
       outerJoined: outerJoined
       minimised: minimised
       composed: isComposed
       direction: direction
       sortable: sortable
-      cons: (c for c in query.constraints when c.path.match @view)
+      numOfCons: _.size(c for c in query.constraints when c.path.match @view)
 
-    # Now go and populate that name with the right value.
+  onPathChange: -> # Should never actually happen.
     @model.get('path').getDisplayName().then (name) => @model.set {name}
 
   # Make sure we are only showing one column summary at once, so make way for
@@ -105,16 +124,13 @@ module.exports = class ColumnHeader extends CoreView
     parentType = if ancestors.length then 'non-root' else 'root'
     minimised = @model.get(minimisedCols)[@view]
 
-    colTitleClasses = new ClassSet
-      'im-col-title': true
-      'im-hidden': minimised
     penultClasses = new ClassSet
       'im-title-part im-parent': true
       'im-root-parent': (not ancestors.length)
       'im-non-root-parent': (ancestors.length)
       'im-last': (not last) # in which case the penult is actually last.
 
-    _.extend {@headerClasses, penultClasses, colTitleClasses, last, penult, minimised}, super
+    _.extend {penultClasses, colTitleClasses, last, penult, minimised}, @classSets, super
 
   template: Templates.template 'column_header'
 
@@ -193,12 +209,11 @@ module.exports = class ColumnHeader extends CoreView
     $menu.empty()
     @renderChild 'summary', summary, $menu
 
-  # FIXME!!! # FIXME - note the the path is part of the model.
   showColumnSummary: (e) =>
     cls = if @path().isAttribute()
-      intermine.query.results.DropDownColumnSummary
+      DropDownColumnSummary
     else
-      intermine.query.results.OuterJoinDropDown
+      OuterJoinDropDown
 
     @showSummary '.im-summary', cls, e
 
@@ -213,13 +228,12 @@ module.exports = class ColumnHeader extends CoreView
 
   setSortOrder: (e) ->
     {direction, replaces} = @model.toJSON()
-    direction = NEXT_DIRECTION_OF[ direction ] ? 'ASC'
     if replaces.length # we need to let the use choose from amongst them.
       @showSummary '.im-col-sort', FormattedSorting, e
       @$('.im-col-sort').toggleClass 'open'
     else
+      sortQueryByPath @query, @view
       @$('.im-col-sort').removeClass 'open'
-      @query.orderBy [ {path: @view, direction} ]
 
   toggleSubTable: (e) =>
     ignore e

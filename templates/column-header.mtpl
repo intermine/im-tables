@@ -1,6 +1,6 @@
 <% /* requires:
-    *  cons, penult, last, headerClasses, colTitleClasses, penultClasses, composed,
-    *  path, sortable, sortDirection, Icons, Messages
+    *  numOfCons, penult, last, headerClasses, colTitleClasses, penultClasses, composed,
+    *  path, sortable, direction, Icons, Messages, minimised
     */ %>
 <div class="<%- headerClasses %>">
 
@@ -38,7 +38,7 @@
 
     <span class="dropdown im-filter-summary im-th-dropdown">
         <a class="im-th-button im-col-filters dropdown-toggle"
-            title="<%- Messages.getText('table.header.FilterTitle', {count: cons.length}) %>"
+            title="<%- Messages.getText('table.header.FilterTitle', {count: numOfCons}) %>"
             data-toggle="dropdown" >
             <%= Icons.icon('Filter') %>
         </a>

@@ -6,6 +6,8 @@ CoreModel = require './core-model'
 Messages = require './messages'
 Icons = require './icons'
 
+onChange = require './utils/on-change'
+
 # private incrementing id counter for children
 kid = 0
 
@@ -38,6 +40,11 @@ module.exports = class CoreView extends Backbone.View
 
     @on 'rendering', @preRender
     @on 'rendered', @postRender
+
+  # Sorthand for listening for one or more change events on an emitter.
+  listenForChange: (emitter, handler, props...) ->
+    throw new Error('No properties listed') unless props?.length # Nothing to listen for.
+    @listenTo emitter, (onChange props), handler
 
   renderError: (resp) -> renderError(@el) resp
 

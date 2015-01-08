@@ -1,0 +1,4 @@
+<%= Icons.icon(state.open ? 'Expanded' : 'Collapsed') %>
+<span class="im-facet-title"><%- pathName %></span>
+&nbsp;
+<span class="im-facet-count"><%- Messages.getText('Number', {n: got} %></span>

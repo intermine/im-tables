@@ -104,6 +104,9 @@ class Options extends Model
     Subtables:
       Initially:
         expanded: false # Set to true to show all subtables by default.
+    Facets:
+      Initially:
+        Open: true # set to false to show them closed, initially.
     Destinations: ['download', 'Galaxy', 'GenomeSpace', 'Drive', 'Dropbox']
     Destination:
       download:
