@@ -1,0 +1,36 @@
+<div class="input-group im-filter-group">
+  <span class="input-group-addon im-clear-value-filter">
+    <%= Icons.icon('Refresh') %>
+  </span>
+  <input type="search" class="form-control im-filter-values"
+      value="<%- filterTerm %>"
+      placeholder="<%- Messages.getText('summary.FilterValuesPlaceholder') %>">
+</div>
+
+<div class="im-item-table">
+  <table class="table table-condensed table-striped">
+    <colgroup>
+      <% _.each(colClasses, function (cls) { %>
+        <col class="<%- cls %>">
+      <% }); %>
+    </colgroup>
+    <thead>
+      <tr>
+        <% _.each(colHeaders, function (hdr) { %>
+          <th><%- hdr %></th>
+        <% }); %>
+      </tr>
+    </thead>
+    <tbody class="scrollable">
+    </tbody>
+  </table>
+
+  <% if (hasMore) { %>
+    <div class="im-load-more">
+      <%- Messages.getText('summary.MoreItems') %>
+    </div>
+  <% } %>
+</div>
+
+<div class="im-summary-controls">
+</div>

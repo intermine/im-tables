@@ -40,6 +40,7 @@ module.exports = class CoreView extends Backbone.View
 
     @on 'rendering', @preRender
     @on 'rendered', @postRender
+    @assertInvariants()
 
   # Sorthand for listening for one or more change events on an emitter.
   listenForChange: (emitter, handler, props...) ->
@@ -136,5 +137,13 @@ module.exports = class CoreView extends Backbone.View
         $el.append(x) for x in content
       else
         $el.append content
-
     el
+
+  # Machinery for allowing views to make assertions about their initial state.
+  invariants: -> {}
+
+  assertInvariant: (condition, message) -> throw new Error(message) unless condition
+
+  assertInvariants: ->
+    for condition, message of @invariants()
+      @assertInvariant (_.result @, condition), message

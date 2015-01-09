@@ -1,0 +1,24 @@
+<% /* requires: selected, symbol, item, count, percent, opacity, share */ %>
+<td class="im-selector-col">
+  <span><%- symbol %></span>
+  <input type="checkbox" <%= selected ? 'checked' : void 0 %>>
+</td>
+
+<td class="im-item-col">
+  <% if (item != null) { %>
+    <%- item %>
+  <% } else { %>
+    <span class=null-value>&nbsp;</span>
+  <% } %>
+</td>
+
+<td class="im-count-col">
+  <div class="im-facet-bar"
+       style="width:<%- percent %>%;background:<%- Messages.getText({opacity: opacity}) %>">
+    <span class="im-count"><%- count %></span>
+  </div>
+</td>
+
+<% if (share != null) { %>
+    <td class="im-percent-col"><i><%- share.toFixed() %>%</i></td>
+<% } %>

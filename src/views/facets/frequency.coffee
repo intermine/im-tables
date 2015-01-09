@@ -7,28 +7,37 @@ FacetView = require './facet-view'
 BooleanFacet = require './boolean'
 PieFacet = require './pie'
 HistoFacet = require './histogram'
+SummaryItems = require './summary-items'
+UniqueValue = require './unique-value'
+NoResults = require './no-results'
 
 {Model: {BOOLEAN_TYPES}} = require 'imjs'
 
 {setColumnSummary} = require '../../services/column-summary'
 
+# This class is a wrapper around the different visualisations.
 module.exports = class FrequencyFacet extends FacetView
 
-  RERENDER_EVT: 'change:error change:got'
-
   template: Templates.template 'facet_frequency'
+
+  RERENDER_EVT: 'change:error change:initialized' # model values read by the template.
 
   getData: -> _.extend super, model: @model.toJSON() # Make model available as state is.
 
   postRender: ->
-    return unless @model.has 'got'
-    Vizualization = @getVizualization()
-    child = new Vizualization {@model, @query, @view, @collection, @fetchSummary}
-    @renderChild 'viz', child
+    @renderChild 'vis', @getVisualization(), @$ '.im-summary-vis'
+    @renderChild 'items', @getItems(), @$ '.im-summary-items'
 
-  getVizualization: ->
-    return HistoFacet if @query.canHaveMultipleValues @view
-    switch
+  getVisualization: (args) ->
+    Class = switch
+      when @model.get('uniqueValues') is 1 then UniqueValue
+      when @model.get('got') is 0 then NoResults
+      when @query.canHaveMultipleValues @view then HistoFacet
       when @view.getType() in BOOLEAN_TYPES then BooleanFacet
-      when @model.get('uniqueValues') <= Options.get('MAX_PIE_SLICES') then PieFacet
-      else HistoFacet
+      when 0 < @model.get('uniqueValues') <= Options.get('MAX_PIE_SLICES') then PieFacet
+      when @model.get('got') then HistoFacet
+      else null
+    new Class {@model, @query, @view, @collection} if Class?
+
+  getItems: ->
+    new SummaryItems {@model, @collection, @query, @view} if @model.get('initialized')

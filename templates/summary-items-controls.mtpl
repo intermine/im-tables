@@ -1,0 +1,42 @@
+<button class="btn btn-default pull-right im-download">
+  <%= Icons.icon('Download') %>
+  <%- Messages.getText('summary.DownloadData') %>
+</button>
+
+<div class="btn-group im-filter-group">
+  <button type="submit"
+        class="btn btn-primary im-filter-in"
+        <%= (anyItemSelected) ? void 0 : 'disabled' %>>
+    <%- Messages.getText('Filter') %>
+  </button>
+  <button class="btn btn-primary dropdown-toggle" 
+          title="<%- Messages.getText('summary.SelectFilter') %>"
+          <%= (anyItemSelected) ? void 0 : 'disabled' %>>
+    <span class="caret"></span>
+  </button>
+  <ul class="dropdown-menu">
+    <li>
+      <a href="#" class="im-filter-in">
+        <%- Messages.getText('summary.Include') %>
+      </a>
+    </li>
+    <li>
+      <a href="#" class="im-filter-out">
+        <%- Messages.getText('summary.Exclude') %>
+      </a>
+    </li>
+  </ul>
+</div>
+
+<div class="btn-group">
+  <button class="btn btn-cancel"
+          <%= (anyItemSelected) ? void 0 : 'disabled' %>
+          title="<%- Messages.getText('summary.Reset') %>">
+    <%= Icons.icon('Undo') %>
+  </button>
+  <button class="btn btn-toggle-selection"
+          title="<%- Messages.getText('summary.Toggle') %>">
+    <%= Icons.icon('Toggle') %>
+  </button>
+</div>
+

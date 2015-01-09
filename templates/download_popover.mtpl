@@ -1,0 +1,11 @@
+<% /* requires: formats, query, path */ %>
+<ul class="im-export-summary">
+    <% _.each(formats, function (icon, param) { %>
+      <li>
+        <a href="<%= query.getExportURI(param) %>&summaryPath=<%= path %>">
+            <%= Icons.icon(icon) %>
+            <%- icon.toUpperCase() %>
+        </a>
+      </li>
+    <% }); %>
+</ul>

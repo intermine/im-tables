@@ -5,7 +5,7 @@ SummaryHeading = require './summary-heading'
 ColumnSummary = require '../column-summary'
 SummaryItems = require '../../models/summary-items'
 
-{setColumnSummary} = require '../../services/column-summary'
+{getColumnSummary} = require '../../services/column-summary'
 
 module.exports = class DropDownColumnSummary extends CoreView
 
@@ -13,9 +13,8 @@ module.exports = class DropDownColumnSummary extends CoreView
 
   initialize: ({@query}) ->
     super
-    @items = new SummaryItems
-    @fetchSummary = (_.partial setColumnSummary @state, @items, @query, @model.get 'path')
-    @fetchSummary Options.get 'INITIAL_SUMMARY_ROWS'
+    @items = new SummaryItems {fetch: _.partial getColumnSummary @query, @model.get 'path'}
+    @state = @items.stats
     @listenForChange @model, @getNames, 'path'
     @getNames()
 
@@ -35,7 +34,6 @@ module.exports = class DropDownColumnSummary extends CoreView
     model: @state
     collection: @items
     noTitle: true
-    fetchSummary: @fetchSummary
 
   # templateless render - this just a basic composition of two sub-views
   postRender: ->
