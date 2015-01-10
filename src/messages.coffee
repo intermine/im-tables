@@ -39,7 +39,7 @@ class Messages extends Backbone.Model
     # Make missing keys really obvious
     templ?(_.extend {}, HELPERS, args) ? "!!!No message for #{ key }!!!"
 
-  defaults: -> _.extend.apply [{}].concat DEFAULTS
+  defaults: -> _.extend.apply null, [{}].concat DEFAULTS
 
 module.exports = new Messages
 
