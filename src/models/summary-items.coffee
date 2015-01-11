@@ -1,31 +1,43 @@
+_ = require 'underscore'
+
 CoreModel = require '../core-model'
 Options = require '../options'
 {Collection} = require 'backbone'
 
-class SummaryItemModel extends CoreModel
+# Represents the result of a column summary, and the options that affect it.
+# Properties:
+#  - maxCount :: int
+#  - loading :: bool
+#  - initialized :: bool
+#  - got :: int
+#  - available :: int
+#  - filteredCount :: int
+#  - uniqueValues :: int
+#  - max, min, average, stddev (if numeric) :: floats
+#  - numeric :: bool
+module.exports = class SummaryModel extends CoreModel
 
   defaults: ->
-    symbol: null
-    share: null
-    visible: true
-    selected: false
+    maxCount: null
+    loading: false
+    initialized: false
 
-module.exports = class SummaryItems extends Collection
-
-  model: SummaryItemModel
-
-  # fetch method is injected. it is of the form (limit, term) -> Promise<Summary>
-  initialize: ({@fetch}) ->
-    @stats = new CoreModel maxCount: null, loading: false, initialized: false
-    @stats.set limit: Options.get 'INITIAL_SUMMARY_ROWS'
-    @listenTo @stats, 'change:filterTerm', @onFilterChange
-    @listenTo @stats, 'change:summaryLimit', @onLimitChange
-    @loadData()
+  # one parameter - the fetch fn, which closes over query and path.
+  constructor: ({@fetch}) ->
+    super()
+    @set limit: Options.get 'INITIAL_SUMMARY_ROWS'
+    @items = new SummaryItems()
+    @listenTo @, 'change:filterTerm', @onFilterChange
+    @listenTo @, 'change:summaryLimit', @onLimitChange
+    @load()
 
   # These models are ordered, the highest count is *always* first.
-  getMaxCount: -> @first()?.get 'count'
+  getMaxCount: -> @get 'maxCount' # @items.first()?.get('count')
 
-  hasAll: -> @stats.get('numeric') or (@stats.get('got') is @stats.get('uniqueValues'))
+  hasAll: -> @get('numeric') or (@get('got') is @get('uniqueValues'))
+
+  # Include the items in the JSON output.
+  toJSON: -> _.extend super, items: @items.toJSON()
 
   onFilterChange: ->
     if @hasAll()
@@ -33,34 +45,37 @@ module.exports = class SummaryItems extends Collection
     else
       @loadData 'reset'
 
+  # Applies the filter to the current set of items, setting 'visible' accordingly
   filterLocally: ->
-    current = @stats.get 'filterTerm'
+    current = @get 'filterTerm'
     if current?
       parts = current.toLowerCase().split /\s+/
       test = (str) -> _.all parts, (part) -> !!(str and ~str.toLowerCase().indexOf(part))
-      @each (x) -> x.set visible: test x.get 'item'
+      @items.each (x) -> x.set visible: test x.get 'item'
     else
-      @each (x) -> x.set visible: true
+      @items.each (x) -> x.set visible: true
 
   increaseLimit: (factor = 2) ->
-    limit = factor * @stats.get 'limit'
-    @stats.set {limit}
+    limit = factor * @get 'limit'
+    @set {limit}
 
   onLimitChange: ->
-    current = @stats.get 'limit'
-    previous = @stats.previous 'limit'
+    current = @get 'limit'
+    previous = @previous 'limit'
+    # We can add if we are increasing the limit, otherwise we have to reset, to
+    # remove the unwanted items.
     meth = if previous > current then 'reset' else 'add'
     @loadData meth
 
-  setFilterTerm: (filterTerm) -> @stats.set {filterTerm}
+  setFilterTerm: (filterTerm) -> @set {filterTerm}
 
-  fetchAll: -> @stats.set limit: null
+  fetchAll: -> @set limit: null
 
   loadData: (meth = 'add') ->
-    @stats.set loading: true
-    @fetch(@stats.get('limit'), @stats.get('filterTerm'))
+    @set loading: true
+    @fetch((@get 'limit'), (@get 'filterTerm'))
       .then @getSummaryHandler meth
-      .then null, (error) => @stats.set {error}
+      .then null, (error) => @set {error}
 
   getSummaryHandler: (meth) ->
     @lastSummaryHandlerCreatedAt = created = _.now()
@@ -87,8 +102,25 @@ module.exports = class SummaryItems extends Collection
     if numeric # - extract the numeric summary values.
       {max, min, stddev, average} = summary
       _.extend newStats {max, min, stddev, average}
-      if @size() # very strange - this summary has changed from items to numeric.
+      if @items.size() # very strange - this summary has changed from items to numeric.
         @reset [] # numeric, there are no items, just stats.
     else # this is a frequency based summary - 
-      @[meth]({item, count, id: item} for {item, count} in summary)
-    @stats.set newStats # triggers all change events - but the collection is already consistent.
+      @items[meth]({item, count, id} for {item, count}, id in summary)
+    @set newStats # triggers all change events - but the collection is already consistent.
+
+class SummaryItemModel extends CoreModel
+
+  # This just lays out the expected properties for this model.
+  defaults: ->
+    symbol: null
+    share: null
+    visible: true
+    selected: false
+    count: 0
+    item: null
+
+# This is a collection of SummaryItemModels
+class SummaryItems extends Collection
+
+  model: SummaryItemModel
+
