@@ -13,7 +13,7 @@ Options = require '../options'
 #  - available :: int
 #  - filteredCount :: int
 #  - uniqueValues :: int
-#  - max, min, average, stddev (if numeric) :: floats
+#  - max, min, average, stdev (if numeric) :: floats
 #  - numeric :: bool
 #  - canHaveMultipleValues :: bool
 #  - type :: string (as per PathInfo::getType)
@@ -97,7 +97,7 @@ module.exports = class SummaryModel extends CoreModel
     # summary has the following properties:
     #  - filteredCount, uniqueValues
     #  if numeric it also has:
-    #  - min, max, average, stddev
+    #  - min, max, average, stdev
     # it is also an array, listing the items.
     numeric = summary.max?
     newStats =
@@ -109,9 +109,9 @@ module.exports = class SummaryModel extends CoreModel
       initialized: true
       loading: false
     if numeric # - extract the numeric summary values.
-      {max, min, stddev, average} = summary
+      {max, min, stdev, average} = summary
       {buckets} = summary[0] # buckets is the same for each histogram item
-      _.extend newStats {buckets, max, min, stddev, average}
+      _.extend newStats {buckets, max, min, stdev, average}
       if @items.size() # very strange - this summary has changed from items to numeric.
         @items.reset() # so there are no items, just stats and buckets
       # Set performs a smart update, with the correct add, remove and change events.

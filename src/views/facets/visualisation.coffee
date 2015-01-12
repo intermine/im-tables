@@ -5,10 +5,10 @@ CoreView = require '../../core-view'
 NumericDistribution = require './numeric'
 BooleanPie = require './boolean'
 PieChart = require './pie'
-Histogram = require './histogram'
+Histogram = require './histogram' # TODO fix
 SummaryItems = require './summary-items'
-UniqueValue = require './unique-value'
-NoResults = require './no-results'
+UniqueValue = require './unique-value' # TODO write
+NoResults = require './no-results' # TODO write
 
 {Model: {BOOLEAN_TYPES}} = require 'imjs'
 

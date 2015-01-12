@@ -10,7 +10,24 @@
             <td><code><%- Messages.getText('Number', {n: max}) %></code></td>
             <td><code><%- Messages.getText('Number', {n: min}) %></code></td>
             <td><code><%- Messages.getText('Number', {n: average}) %></code></td>
-            <td><code><%- Messages.getText('Number', {n: stddev}) %></code></td>
+            <td><code><%- Messages.getText('Number', {n: stdev}) %></code></td>
         </tr>
     </thead>
 </table>
+
+<div class="row">
+    <div class="col-sm-9">
+        <input type="text" class="im-range-min input im-range-val" value="<%- min %>">
+        <span>...</span>
+        <input type="text" class="im-range-max input im-range-val" value="<%- max %>">
+    </div>
+    <div class="col-sm-3">
+        <div class="btn-group pull-right">
+            <button class="btn btn-primary disabled">Apply</button>
+            <button class="btn btn-cancel disabled">Reset</button>
+        </div>
+    </div>
+</div>
+
+<div class="slider"></div>
+

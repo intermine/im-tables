@@ -36,9 +36,14 @@ module.exports = class FacetView extends CoreView
   initialize: ({@query, @view, @noTitle}) ->
     super model: (new SummaryItems {@query, @view})
     @range = new NumericRange
+    @listenTo @model, 'change:min change:max', @setLimits
     @state.set(open: Options.get 'Facets.Initally.Open') unless @state.has 'open'
     @listenTo @state, 'change:open', @honourOpenness
     @setPathNames()
+    @setLimits()
+
+  setLimits: -> if @model.get 'numeric'
+    @range.setLimits @model.pick 'min', 'max'
 
   # Conditions that must be true by initialisation.
 
