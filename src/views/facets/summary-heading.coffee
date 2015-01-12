@@ -8,12 +8,15 @@ Templates = require '../../templates'
 
 module.exports = class SummaryHeading extends CoreView
 
-  RERENDER_EVT: 'change'
-
-  initialize: ({@query, @view}) ->
+  initialize: ->
     super
+    @listenTo @model, 'change', @reRender
+    @listenTo @state, 'change', @reRender
 
   template: Templates.template 'summary_heading'
 
-  getData: -> _.extend {pluralise, filtered: @model.get('filteredCount')?}, super
+  helpers: -> {pluralise}
+
+  getData: ->
+    _.extend super, filtered: @model.get('filteredCount')?
 

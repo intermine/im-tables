@@ -2,6 +2,10 @@ Event = require '../../event'
 CoreView = require '../../core-view'
 Options = require '../../options'
 Templates = require '../../templates'
+SetsPathNames = require '../../mixins/sets-path-names'
+SummaryItems = require '../../models/summary-items'
+SummaryHeading = require './summary-heading'
+{getColumnSummary} = require '../../services/column-summary'
 
 class FacetTitle extends CoreView
 
@@ -9,48 +13,60 @@ class FacetTitle extends CoreView
 
   initialize: ->
     super
-    @listenTo @model, 'change', @reRender # props: got, pathName
-    @listenTo @state, 'change', @reRender # props: open
+    @listenForChange @model, @reRender, 'got'
+    @listenForChange @state, @reRender, 'open', 'pathName'
   
   template: Templates.template 'facet_title'
 
 module.exports = class FacetView extends CoreView
 
-    tagName: "dl"
+  @include SetsPathNames
 
-    fetchSummary: -> # overwritten by constructor.
+  tagName: "dl"
 
-    # Accepts model and collection from instantiator.
-    initialize: ({@query, @view, @noTitle, @fetchSummary}) ->
-      super
-      @state.set(open: Options.get 'Facets.Initally.Open') unless @state.has 'open'
-      @listenTo @query, 'change:constraints', @reRender
-      @listenTo @state, 'change:open', @honourOpenness
+  initialize: ({@query, @view, @noTitle}) ->
+    super model: (new SummaryItems {fetch: _.partial getColumnSummary @query, @view})
+    @state.set(open: Options.get 'Facets.Initally.Open') unless @state.has 'open'
+    @listenTo @query, 'change:constraints', @reRender
+    @listenTo @state, 'change:open', @honourOpenness
+    @setPathNames()
 
-    events: ->
-      'click dt': 'toggle'
+  invariants: ->
+    hasQuery: "No query"
+    hasAttrView: "The view is not an attribute: #{ @view }"
 
-    toggle: -> @state.toggle 'open'
+  events: ->
+    'click dt': 'toggle'
 
-    close: -> @state.set open: false
+  toggle: -> @state.toggle 'open'
 
-    open: -> @state.set open: true
+  close: -> @state.set open: false
 
-    honourOpenness: ->
-      isOpen = @state.get 'open'
-      facet = @$ '.im-facet'
-      evt = new Event @, @el
-      @trigger 'toggle', evt
-      return if evt.cancelled
-      if isOpen
-        facet.slideDown()
-        @trigger 'opened', @
-      else
-        facet.slideUp()
-        @trigger 'closed', @
-      @trigger 'toggled', @
+  open: -> @state.set open: true
 
-    postRender: ->
-      @renderChild 'title', (new FacetTitle {@model, @state}) unless @noTitle
-      @honourOpenness()
+  honourOpenness: ->
+    isOpen = @state.get 'open'
+    facet = @$ 'dd.im-facet'
+    evt = new Event @, @el
+    @trigger 'toggle', evt
+    return if evt.cancelled
+    if isOpen
+      facet.slideDown()
+      @trigger 'opened', @
+    else
+      facet.slideUp()
+      @trigger 'closed', @
+    @trigger 'toggled', @
+
+  renderTitle: ->
+    @renderChild 'title', (new SummaryHeading {@model, @state}) unless @noTitle
+
+  renderFacet: ->
+
+  # TODO - move the rendering logic from table/column-summary here!
+  postRender: ->
+    @renderTitle()
+    @renderChart()
+    @renderFacet()
+    @honourOpenness()
 

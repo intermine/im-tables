@@ -49,8 +49,11 @@ module.exports = class CoreView extends Backbone.View
 
   renderError: (resp) -> renderError(@el) resp
 
-  # By default, the model extended with Messages and Icons
-  getData: -> _.extend {state: @state.toJSON(), Messages, Icons}, @model.toJSON()
+  helpers: -> {}
+
+  # By default, the model extended with state, helpers, Messages and Icons
+  getData: ->
+    _.extend {state: @state.toJSON(), Messages, Icons}, (_.result @, 'helpers'), @model.toJSON()
 
   # Like render, but only happens if already rendered at least once.
   reRender: ->
