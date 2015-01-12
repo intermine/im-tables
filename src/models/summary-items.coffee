@@ -15,26 +15,36 @@ Options = require '../options'
 #  - uniqueValues :: int
 #  - max, min, average, stddev (if numeric) :: floats
 #  - numeric :: bool
+#  - canHaveMultipleValues :: bool
+#  - type :: string (as per PathInfo::getType)
 module.exports = class SummaryModel extends CoreModel
 
   defaults: ->
     maxCount: null
     loading: false
     initialized: false
+    canHaveMultipleValues: false
+    numeric: false
 
-  # one parameter - the fetch fn, which closes over query and path.
-  constructor: ({@fetch}) ->
+  constructor: ({@query, @view}) ->
     super()
-    @set limit: Options.get 'INITIAL_SUMMARY_ROWS'
-    @items = new SummaryItems()
+    @fetch = _.partial getColumnSummary query, view
+    @set # Initial state - canHaveMultipleValues and type are not expected to change.
+      limit: Options.get 'INITIAL_SUMMARY_ROWS'
+      canHaveMultipleValues: @query.canHaveMultipleValues(@view)
+      type: @view.getType()
+    @histogram = new SummaryItems() # numeric distribution by buckets.
+    @items = new SummaryItems()     # Most common items, most frequent first.
     @listenTo @, 'change:filterTerm', @onFilterChange
     @listenTo @, 'change:summaryLimit', @onLimitChange
     @load()
 
-  # These models are ordered, the highest count is *always* first.
-  getMaxCount: -> @get 'maxCount' # @items.first()?.get('count')
+  # The max count is set if the data is initialized.
+  getMaxCount: -> @get 'maxCount'
 
-  hasAll: -> @get('numeric') or (@get('got') is @get('uniqueValues'))
+  hasMore: -> (not @get 'numeric') and (@get('got') < @get('uniqueValues'))
+
+  hasAll: -> not @hasMore()
 
   # Include the items in the JSON output.
   toJSON: -> _.extend super, items: @items.toJSON(), histogram: @getHistogram()
@@ -103,14 +113,16 @@ module.exports = class SummaryModel extends CoreModel
       {buckets} = summary[0] # buckets is the same for each histogram item
       _.extend newStats {buckets, max, min, stddev, average}
       if @items.size() # very strange - this summary has changed from items to numeric.
-        @items.reset() # numeric, there are no items, just stats.
+        @items.reset() # so there are no items, just stats and buckets
       # Set performs a smart update, with the correct add, remove and change events.
-      @histogram.set({bucket, count, id: bucket} for {bucket, count} in summary)
-    else # this is a frequency based summary - 
-      if @histogram.size() # very strang - this summary has changed from numeric to items
-        @histogram.reset() # items: there is no histogram.
+      @histogram.set({item: bucket, count, id: bucket} for {bucket, count} in summary)
+      newStats.maxCount = _.max(b.count for b in summary) # not more than 20, ok to iterate.
+    else # this is a frequency based summary
+      if @histogram.size() # very strange - this summary has changed from numeric to items
+        @histogram.reset() # so there is no histogram.
       # Set performs a smart update, with the correct add, remove and change events.
       @items.set({item, count, id} for {item, count}, id in summary)
+      newStats.maxCount = @items.first()?.get('count')
     @set newStats # triggers all change events - but the collection is already consistent.
 
 class SummaryItemModel extends CoreModel

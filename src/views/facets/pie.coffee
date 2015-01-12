@@ -1,88 +1,117 @@
-FrequencyVisualisation = require './frequency-visualisation'
+_ = require 'underscore'
+d3 = require 'd3'
 
-module.exports = class PieFacet extends FrequencyVisualisation
+Options = require '../../options'
 
-    className: 'im-grouped-facet im-pie-facet im-facet'
+VisualisationBase = require './visualisation-base'
 
-    getChartPalette = ->
-      {PieColors} = intermine.options
-      if _.isFunction PieColors
-        paint = PieColors
-      else
-        paint = d3.scale[PieColors]()
+KEY = (model) -> model.get 'id'
 
-      (d, i) -> paint i
+DONUT = d3.layout.pie().value (d) -> d.get 'count'
 
-    _drawD3Chart: ->
-      h = @chartHeight
-      w = @$el.closest(':visible').width()
-      r = h * 0.4
-      ir = h * 0.1
-      donut = d3.layout.pie().value (d) -> d.get 'count'
+TWEEN_START =
+  startAngle: 0
+  endAngle: 0
 
-      colour = getChartPalette()
+getChartPalette = ->
+  colors = Options.get 'PieColors'
+  paint = if _.isFunction colors
+    colors
+  else
+    d3.scale[colors]()
 
-      chart = d3.select(@chartElem).append('svg')
-                .attr('class', 'chart')
-                .attr('height', h)
-                .attr('width', w)
+  (d) -> paint d.data.get('id')
 
-      arc = d3.svg.arc()
-              .startAngle( (d) -> d.startAngle )
-              .endAngle( (d) -> d.endAngle )
-              .innerRadius((d) -> if d.data.get('selected') then ir + 5 else ir)
-              .outerRadius((d) -> if d.data.get('selected') then r + 5 else r)
+# close over the arc function.
+getTween = (arc) -> (d, i) ->
+  j = d3.interpolate TWEEN_START, d
+  (t) -> arc j t
 
-      arc_group = chart.append('svg:g')
-                       .attr('class', 'arc')
-                       .attr('transform', "translate(#{ w / 2},#{h / 2})")
-      centre_group = chart.append('svg:g')
-                          .attr('class', 'center_group')
-                          .attr('transform', "translate(#{ w / 2},#{h / 2})")
-      label_group = chart.append("svg:g")
-                         .attr("class", "label_group")
-                         .attr("transform", "translate(#{w/2},#{h/2})")
+getArc = (outerRadius, innerRadius) ->
+  d3.svg.arc()
+        .startAngle (d) -> d.startAngle
+        .endAngle (d) -> d.endAngle
+        .innerRadius (d) -> if d.data.get('selected') then innerRadius + 5 else innerRadius
+        .outerRadius (d) -> if d.data.get('selected') then outerRadius + 5 else outerRadius
 
-      whiteCircle = centre_group.append("svg:circle")
-                                .attr("fill", "white")
-                                .attr("r", ir)
+module.exports = class PieChart extends VisualisationBase
 
-      getTween = (d, i) ->
-        j = d3.interpolate({startAngle: 0, endAngle: 0}, d)
-        (t) -> arc j t
-      
-      paths = arc_group.selectAll('path').data(donut @items.models)
-      paths.enter().append('svg:path')
-          .attr('class', 'donut-arc')
-          .attr('stroke', 'white')
-          .attr('stroke-width', 0.5)
-          .attr('fill', colour)
-          .on('click', (d, i) -> d.data.set selected: not d.data.get 'selected')
-          .on('mouseover', (d, i) -> d.data.trigger 'hover')
-          .on('mouseout', (d, i) -> d.data.trigger 'unhover')
-          .transition()
-            .duration(intermine.options.D3.Transition.Duration)
-            .attrTween('d', getTween)
+  className: 'im-pie-facet im-facet'
 
-      total = @items.reduce ((sum, m) -> sum + m.get 'count'), 0
-      percent = (d) -> (d.data.get('count') / total * 100).toFixed(1)
+  initialize: ->
+    @listenTo @model.items, 'change:selected', @update
+    @listenTo Options, 'change:PieColors', @onChangePalette
+    @onChangePalette()
 
-      paths.each (d, i) ->
-        title = "#{ d.data.get 'item' }: #{ percent d }%"
-        placement = if (d.endAngle + d.startAngle) / 2 > Math.PI then 'left' else 'right'
-        $(@).tooltip {title, placement, container: @chartElem}
-      paths.transition()
-        .duration(intermine.options.D3.Transition.Duration)
-        .ease(intermine.options.D3.Transition.Easing)
-        .attrTween("d", getTween)
+  onChangePalette: ->
+    @colour = getChartPalette()
+    @update()
 
-      @items.on 'change:selected', =>
-        paths.data(donut @items.models).attr('d', arc)
-        paths.transition()
-          .duration(intermine.options.D3.Transition.Duration)
-          .ease(intermine.options.D3.Transition.Easing)
+  _drawD3Chart: ->
+    h = @chartHeight
+    w = @$el.closest(':visible').width()
+    outerRadius = h * 0.4
+    innerRadius = h * 0.1
 
-      this
+    chart = d3.select(@el).append('svg')
+              .attr('class', 'chart')
+              .attr('height', h)
+              .attr('width', w)
 
+    @arc = getArc outerRadius, innerRadius
 
+    @arc_group = chart.append('svg:g')
+                      .attr('class', 'arc')
+                      .attr('transform', "translate(#{ w / 2},#{h / 2})")
+
+    centre_group = chart.append('svg:g')
+                        .attr('class', 'center_group')
+                        .attr('transform', "translate(#{ w / 2},#{h / 2})")
+
+    label_group = chart.append("svg:g")
+                        .attr("class", "label_group")
+                        .attr("transform", "translate(#{w / 2},#{h / 2})")
+
+    whiteCircle = centre_group.append("svg:circle")
+                              .attr("fill", "white")
+                              .attr("r", innerRadius)
+
+    @update()
+
+  # For each item, add a wedge with the correct classes and a tooltip.
+  enter: (selection) ->
+    container = @el
+    total = @model.items.reduce ((sum, m) -> sum + m.get 'count'), 0
+    percent = (d) -> (d.data.get('count') / total * 100).toFixed(1)
+    selection.append('svg:path')
+             .attr('class', 'donut-arc')
+             .attr('stroke', 'white')
+             .attr('stroke-width', 0.5)
+             .on('click', (d) -> d.data.toggle 'selected')
+             .on('mouseover', (d) -> d.data.set hover: true)
+             .on('mouseout', (d) -> d.data.set hover: false)
+
+    selection.each (d, i) ->
+      $el = $ @
+      title = "#{ d.data.get 'item' }: #{ percent d }%"
+      placement = if (d.endAngle + d.startAngle) / 2 > Math.PI then 'left' else 'right'
+      $el.tooltip {title, placement, container}
+
+  # If a wedge has gone away, remove it.
+  exit: (selection) -> selection.remove()
+
+  # all update does is push selected elements out a bit - there is no enter/exit
+  # going on. At least, there shouldn't be. 
+  update: ->
+    return unless @arc_group?
+    paths = @arc_group.selectAll('path').data (DONUT @items.models), KEY
+
+    @exit paths.exit()
+    @enter paths.enter()
+
+    paths.attr('fill', @colour)
+    paths.transition()
+      .duration(Options.get 'D3.Transition.Duration')
+      .ease(Options.get 'D3.Transition.Easing')
+      .attrTween('d', (getTween @arc))
 

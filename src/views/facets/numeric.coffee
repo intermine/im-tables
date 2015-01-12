@@ -1,8 +1,8 @@
-FacetView = require './facet-view'
-NumericRange = require '../../models/numeric-range'
+d3 = require 'd3'
 
-# FIXME FIXME FIXME
-module.exports = class NumericFacet extends FacetView
+VisualisationBase = require './visualisation-base'
+
+module.exports = class NumericDistribution extends VisualisationBase
 
     initialize: ->
       super

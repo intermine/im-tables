@@ -1,4 +1,5 @@
 _ = require 'underscore'
+Backbone = require 'backbone'
 
 CoreView = require '../../core-view'
 Templates = require '../../templates'
@@ -11,37 +12,35 @@ IGNORE = (e) -> if e?
   e.preventDefault()
   e.stopPropagation()
 
+rowId = (model) -> "row_#{ model.get('id') }"
+
 module.exports = class SummaryItems extends CoreView
 
-  tagName: 'form'
+  tagName: 'div'
 
-  className: 'form'
+  className: 'im-summary-items'
 
-  initialize: ({@query, @view}) ->
+  initialize: ->
     super
-    @listenTo @collection, 'add', @addItem
-    @listenTo @collection, 'reset', @reRender
-
-  # Invariants
+    @listenTo @model.items, 'add', @addItem
+    @listenTo @model.items, 'remove', @removeItem
 
   invariants: ->
-    viewIsAttribute: "No view, or view not Attribute: #{ @view }"
-    hasCollection: "No collection"
+    modelHasItems: "expected a SummaryItems model, got: #{ @model }"
+    modelCanHasMore: "expected the correct model methods, got: #{ @model }"
 
-  viewIsAttribute: -> @view?.isAttribute()
+  modelHasItems: -> @model?.items instanceof Backbone.Collection
 
-  hasCollection: -> @collection?
+  modelCanHasMore: -> _.isFunction @model?.hasMore
 
   # The template, and data used by templates
 
   template: Templates.template 'summary_items'
  
   getData: -> _.extend super,
-    hasMore: @hasMore()
+    hasMore: @model.hasMore()
     colClasses: (_.result @, 'colClasses')
     colHeaders: (_.result @, 'colHeaders')
-
-  hasMore: -> @model.get('got') < @model.get('uniqueValues')
 
   colClasses: ['im-item-selector', 'im-item-value', 'im-item-count']
 
@@ -55,21 +54,22 @@ module.exports = class SummaryItems extends CoreView
     @addItems()
 
   addControls: ->
-    args = {@query, @view, @model, @collection}
-    @renderChildAt '.im-summary-controls', (new SummaryItemsControls args)
+    @renderChildAt '.im-summary-controls', (new SummaryItemsControls {@model})
 
   addItems: -> if @rendered # Wait until rendered.
     @collection.each (item) => @addItem item
 
   addItem: (model) -> if @rendered # Wait until rendered.
-    @renderChild "row_#{ model.get('id') }", (new FacetRow {model}), @tbody
+    @renderChild (rowId model), (new FacetRow {model}), @tbody
+
+  removeItem: (model) -> @removeChild rowId model
 
   # Event definitions and their handlers
  
   events: ->
     'click .im-load-more': 'loadMoreItems'
     'click .im-clear-value-filter': 'clearValueFilter'
-    'keyup .im-filter-values': _.throttle @filterItems, 750, leading: false
+    'keyup .im-filter-values': (_.throttle @filterItems, 750, leading: false)
     'submit': IGNORE # not a real form - do not submit.
     'click': IGNORE # trap bubbled events.
 

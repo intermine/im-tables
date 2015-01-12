@@ -39,9 +39,9 @@ module.exports = class SummaryItemsControls extends CoreView
 
   RERENDER_EVT: 'change'
 
-  initialize: ({@query, @view}) ->
+  initialize: ->
     super
-    @listenTo @collection, 'change:selected', @reRender
+    @listenTo @model.items, 'change:selected', @reRender
 
   # Invariants
 
@@ -49,16 +49,16 @@ module.exports = class SummaryItemsControls extends CoreView
     viewIsAttribute: "No view, or view not Attribute: #{ @view }"
     hasCollection: "No collection"
 
-  viewIsAttribute: -> @view?.isAttribute()
+  viewIsAttribute: -> @model?.view?.isAttribute?()
 
-  hasCollection: -> @collection?
+  hasCollection: -> @model?.items?
 
   # The template, and data used by templates
 
   template: Templates.template 'summary_items_controls'
 
   getData: ->
-    anyItemSelected = bool @collection.findWhere selected: true
+    anyItemSelected = bool @model.items.findWhere selected: true
     _.extend super, {anyItemSelected}
 
   # Subviews and post-render actions.
@@ -83,8 +83,8 @@ module.exports = class SummaryItemsControls extends CoreView
 
   # Returns the HTML for the download-popover.
   getDownloadPopover: -> @downloadPopoverTemplate
-    query: @query
-    path: @view.toString()
+    query: @model.query
+    path: @model.view.toString()
     formats: SUMMARY_FORMATS
 
   # Event definitions and their handlers.
@@ -124,8 +124,11 @@ module.exports = class SummaryItemsControls extends CoreView
 
   addConstraint: (ops, e) ->
     IGNORE e
-    vals = (item.get 'item' for item in @items.where selected: true)
-    unselected = @items.where selected: false
+    vals = (item.get 'item' for item in @model.items.where selected: true)
+    unselected = @model.items.where selected: false
+
+    if unselected.length is 0
+      return @model.set error: (new Error 'All items are selected')
 
     # If we know all the possible values, and there are more selected than un-selected
     # values (above a certain cut-off), then make the smaller constraint. This means if
@@ -138,7 +141,7 @@ module.exports = class SummaryItemsControls extends CoreView
   # The new constraint is either a multi-value constraint, a single-value constraint,
   # or a null constraint. Helper for addConstraint
   constrainTo: (ops, vals) ->
-    throw new Error('No values') unless vals?.length
+    return @model.set error: (new Error 'No values are selected') unless vals?.length
     [val] = vals
 
     newCon = switch
@@ -146,11 +149,11 @@ module.exports = class SummaryItemsControls extends CoreView
       when val? then {op: ops.single, value: String val}
       else {op: ops.absent}
 
-    @query.addConstraint _.extend newCon, path: @view.toString()
+    @model.query.addConstraint _.extend newCon, path: @model.view.toString()
 
   # Set the selection state for the items - helper for unsetSelection, toggleSelection
   changeSelection: (f) ->
     # The function is deferred so that any rendering that happens due to it
     # does not block iterating over the items.
-    @collection.each (item) -> _.defer f, item
+    @model.items.each (item) -> _.defer f, item
 

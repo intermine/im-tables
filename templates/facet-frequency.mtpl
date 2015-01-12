@@ -11,8 +11,6 @@
     </div>
 <% } else if (model.initialized) { %>
     <% /* Huzzah - there is data, which will be added here as child views */ %>
-    <div class="im-summary-vis"></div>
-    <div class="im-summary-items"></div>
 <% } else { %>
     <% /* Boo - no data. Show an indeterminate progress bar while we wait. */ %>
     <div class="progress progress-info progress-striped active">

@@ -1,0 +1,5 @@
+<div class="alert alert-info">
+    <%= Icons.icon('Warning') %>
+    <%- Messages.getText('summary.OnlyOne', {item: items[0].count}) %>
+</div>
+

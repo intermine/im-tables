@@ -8,6 +8,8 @@ Templates = require '../../templates'
 
 module.exports = class SummaryHeading extends CoreView
 
+  className: 'im-summary-heading'
+
   initialize: ->
     super
     @listenTo @model, 'change', @reRender
@@ -17,6 +19,5 @@ module.exports = class SummaryHeading extends CoreView
 
   helpers: -> {pluralise}
 
-  getData: ->
-    _.extend super, filtered: @model.get('filteredCount')?
+  getData: -> _.extend super, filtered: @model.get('filteredCount')?
 

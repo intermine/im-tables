@@ -1,0 +1,16 @@
+<table class="table">
+    <thead>
+        <tr>
+            <th><%- Messages.getText('summary.Max') %></th>
+            <th><%- Messages.getText('summary.Min') %></th>
+            <th><%- Messages.getText('summary.Average') %></th>
+            <th><%- Messages.getText('summary.StdDev') %></th>
+        </tr>
+        <tr>
+            <td><code><%- Messages.getText('Number', {n: max}) %></code></td>
+            <td><code><%- Messages.getText('Number', {n: min}) %></code></td>
+            <td><code><%- Messages.getText('Number', {n: average}) %></code></td>
+            <td><code><%- Messages.getText('Number', {n: stddev}) %></code></td>
+        </tr>
+    </thead>
+</table>
