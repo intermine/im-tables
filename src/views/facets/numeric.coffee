@@ -161,7 +161,7 @@ module.exports = class NumericDistribution extends VisualisationBase
     # These are the five separate things.
     counts = [0, most]
     values = [min, max]
-    buckets = [1, n]
+    buckets = [1, n + 1]
     xPositions = [@leftMargin, @chartWidth - @rightMargin]
     yPositions = [0, @chartHeight - @bottomMargin]
 
@@ -213,7 +213,7 @@ module.exports = class NumericDistribution extends VisualisationBase
     # The inital state of the bars is 0-height in the correct x position, with click
     # handlers and tooltips attached.
     selection.append('rect')
-             .attr 'x', (d, i) -> scales.x d.bucket - 0.5 # subtract half a bucket to be at start
+             .attr 'x', (d, i) -> scales.x d.bucket # - 0.5 # subtract half a bucket to be at start
              .attr 'width', (d) -> (scales.x d.bucket + 1) - (scales.x d.bucket)
              .attr 'y', h - @bottomMargin # set the height to 0 initially.
              .attr 'height', 0
@@ -250,8 +250,6 @@ module.exports = class NumericDistribution extends VisualisationBase
 
     ticks = scales.x.ticks @model.get('buckets')
 
-    console.log ticks
-
     # Draw a tick line for each bucket.
     axis.selectAll('line').data(ticks)
         .enter()
@@ -268,7 +266,6 @@ module.exports = class NumericDistribution extends VisualisationBase
   # has handlers (see ::initialize)
   events: ->
     'mouseout': => @__selecting_paths = false # stop selecting when the mouse leaves the el.
-    'click': => @range.nullify()
 
   # Draw a label saying how many things we thing are contained within the current selection.
   drawEstCount: ->
@@ -294,7 +291,7 @@ module.exports = class NumericDistribution extends VisualisationBase
   # Draw the rubber-band selection over the top of the canvas. The selection
   # is a full height box starting at x and extending to the right for width pixels.
   drawSelection: (x, width) ->
-    if (x <= 0) and (width >= @w)
+    if (not x?) or (x <= 0) or (width >= @chartWidth)
       return @removeSelection()
       
     # Create it if it doesn't exist.
