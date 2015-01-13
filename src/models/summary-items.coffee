@@ -4,6 +4,8 @@ CoreModel = require '../core-model'
 Options = require '../options'
 {Collection} = require 'backbone'
 
+{getColumnSummary} = require '../services/column-summary'
+
 # Represents the result of a column summary, and the options that affect it.
 # Properties:
 #  - maxCount :: int
@@ -29,7 +31,7 @@ module.exports = class SummaryModel extends CoreModel
 
   constructor: ({@query, @view}) ->
     super()
-    @fetch = _.partial getColumnSummary query, view
+    @fetch = _.partial getColumnSummary, @query, @view
     @set # Initial state - canHaveMultipleValues and type are not expected to change.
       limit: Options.get 'INITIAL_SUMMARY_ROWS'
       canHaveMultipleValues: @query.canHaveMultipleValues(@view)
@@ -54,7 +56,7 @@ module.exports = class SummaryModel extends CoreModel
     if @hasAll()
       @filterLocally()
     else
-      @loadData 'reset'
+      @load()
 
   # Applies the filter to the current set of items, setting 'visible' accordingly
   filterLocally: ->
@@ -70,15 +72,15 @@ module.exports = class SummaryModel extends CoreModel
     limit = factor * @get 'limit'
     @set {limit}
 
-  onLimitChange: -> @loadData()
+  onLimitChange: -> @load()
 
   setFilterTerm: (filterTerm) -> @set {filterTerm}
 
   fetchAll: -> @set limit: null
 
-  loadData: ->
+  load: ->
     @set loading: true
-    @fetch((@get 'limit'), (@get 'filterTerm'))
+    @fetch((@get 'filterTerm'), (@get 'limit'))
       .then @getSummaryHandler()
       .then null, (error) => @set {error}
 
@@ -92,37 +94,36 @@ module.exports = class SummaryModel extends CoreModel
     for i in [1 .. n] # fill in empty buckets.
       @histogram.get(i)?.get('count') ? 0
 
-  handleSummary: (time, summary) ->
+  handleSummary: (time, {stats, results}) ->
     # abort if results returned out-of-order, and we are not the most recent.
     return if time isnt @lastSummaryHandlerCreatedAt
-    # summary has the following properties:
+    # stats has the following properties:
     #  - filteredCount, uniqueValues
     #  if numeric it also has:
     #  - min, max, average, stdev
-    # it is also an array, listing the items.
-    numeric = summary.max?
+    # results is an array, listing the items.
+    numeric = stats.max?
     newStats =
-      filteredCount: summary.filteredCount
-      uniqueValues: summary.uniqueValues
-      available: (summary.filteredCount ? summary.uniqueValues) # the most specific of these two
-      got: summary.length
+      filteredCount: stats.filteredCount
+      uniqueValues: stats.uniqueValues
+      available: (stats.filteredCount ? stats.uniqueValues) # the most specific of these two
+      got: results.length
       numeric: numeric
       initialized: true
       loading: false
     if numeric # - extract the numeric summary values.
-      {max, min, stdev, average} = summary
-      {buckets} = summary[0] # buckets is the same for each histogram item
-      _.extend newStats {buckets, max, min, stdev, average}
+      {buckets, max, min, stdev, average} = stats
+      _.extend newStats, {buckets, max, min, stdev: parseFloat(stdev), average: parseFloat(average)}
       if @items.size() # very strange - this summary has changed from items to numeric.
         @items.reset() # so there are no items, just stats and buckets
       # Set performs a smart update, with the correct add, remove and change events.
-      @histogram.set({item: bucket, count, id: bucket} for {bucket, count} in summary)
-      newStats.maxCount = _.max(b.count for b in summary) # not more than 20, ok to iterate.
+      @histogram.set({item: bucket, count, id: bucket} for {bucket, count} in results)
+      newStats.maxCount = _.max(b.count for b in results) # not more than 20, ok to iterate.
     else # this is a frequency based summary
       if @histogram.size() # very strange - this summary has changed from numeric to items
         @histogram.reset() # so there is no histogram.
       # Set performs a smart update, with the correct add, remove and change events.
-      @items.set({item, count, id} for {item, count}, id in summary)
+      @items.set({item, count, id} for {item, count}, id in results)
       newStats.maxCount = @items.first()?.get('count')
     @set newStats # triggers all change events - but the collection is already consistent.
 

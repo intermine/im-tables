@@ -1,3 +1,4 @@
+_ = require 'underscore'
 Backbone = require 'backbone'
 
 # Not at all sure if this class is necessary, or at least if the way

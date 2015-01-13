@@ -1,5 +1,6 @@
 d3 = require 'd3-browserify'
 $ = require 'jquery'
+_ = require 'underscore'
 
 Options = require '../../options'
 Messages = require '../../messages'
@@ -161,7 +162,7 @@ module.exports = class NumericDistribution extends VisualisationBase
     values = [min, max]
     buckets = [1, @chartHeight]
     xPositions = [@leftMargin, @chartWidth - @rightMargin]
-    yPositions = [0, h - @bottomMargin]
+    yPositions = [0, @chartHeight - @bottomMargin]
 
     # wrapper around a ->val scale that applies the appropriate rounding and limits
     toVal = (inputs) -> _.compose (limited min, max), round, (scale inputs, values)
@@ -225,11 +226,11 @@ module.exports = class NumericDistribution extends VisualisationBase
     bm = @bottomMargin
     {Duration, Easing} = Options.get('D3.Transition')
     height = (d) -> scales.y d.count
-    rects.transition()
-         .duration Duration
-         .ease Easing
-         .attr 'height', height
-         .attr 'y', (d) -> h - bm - (height d) - 0.5
+    selection.transition()
+             .duration Duration
+             .ease Easing
+             .attr 'height', height
+             .attr 'y', (d) -> h - bm - (height d) - 0.5
 
   drawAxes: (scales) ->
     scales ?= @getScales()
