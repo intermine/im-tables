@@ -139,6 +139,7 @@ module.exports = class NumericDistribution extends VisualisationBase
   # Set properties that we need access to the DOM to calculate.
   initChart: ->
     @chartWidth = @$el.closest(':visible').width()
+    @bucketWidth = (@model.get('max') - @model.get('min')) / @model.get('buckets')
     @stepWidth = (@chartWidth - (@leftMargin + 1)) / @model.get('buckets')
 
   # There are five separate things here:
@@ -160,7 +161,7 @@ module.exports = class NumericDistribution extends VisualisationBase
     # These are the five separate things.
     counts = [0, most]
     values = [min, max]
-    buckets = [1, @chartHeight]
+    buckets = [1, n]
     xPositions = [@leftMargin, @chartWidth - @rightMargin]
     yPositions = [0, @chartHeight - @bottomMargin]
 
@@ -216,6 +217,7 @@ module.exports = class NumericDistribution extends VisualisationBase
              .attr 'width', (d) -> (scales.x d.bucket + 1) - (scales.x d.bucket)
              .attr 'y', h - @bottomMargin # set the height to 0 initially.
              .attr 'height', 0
+             .classed 'im-bucket', true
              .classed 'im-null-bucket', (d) -> d.bucket is null # I suspect this is pointless.
              .on 'click', barClickHandler
              .each (d) -> $(@).tooltip {container, title: getTitle d}
@@ -246,8 +248,12 @@ module.exports = class NumericDistribution extends VisualisationBase
 
     axis = chart.append('svg:g')
 
+    ticks = scales.x.ticks @model.get('buckets')
+
+    console.log ticks
+
     # Draw a tick line for each bucket.
-    axis.selectAll('line').data(scales.x.ticks @model.get('buckets'))
+    axis.selectAll('line').data(ticks)
         .enter()
           .append('svg:line')
           .attr('x1', scales.x)
@@ -262,6 +268,7 @@ module.exports = class NumericDistribution extends VisualisationBase
   # has handlers (see ::initialize)
   events: ->
     'mouseout': => @__selecting_paths = false # stop selecting when the mouse leaves the el.
+    'click': => @range.nullify()
 
   # Draw a label saying how many things we thing are contained within the current selection.
   drawEstCount: ->
@@ -280,7 +287,7 @@ module.exports = class NumericDistribution extends VisualisationBase
     else
       {min, max} = @range.toJSON()
       histogram = @getChartData()
-      fullBuckets = histogram.filter overlappingBuckets min, max
+      fullBuckets = histogram.filter fullyContained min, max
       partials = histogram.filter partiallyOverlapping min, max
       Math.round (sumCounts fullBuckets) + (sumPartials min, max, partials)
 
@@ -301,14 +308,11 @@ module.exports = class NumericDistribution extends VisualisationBase
   # When the range changes, draw the selection box, if we need to.
   onChangeRange: ->
     if @shouldDrawBox()
-      if @range.nulled
-        @drawSelection 0, NULL_SELECTION_WIDTH
-      else
-        scales = @getScales()
-        {min, max} = @range.toJSON()
-        start = scales.valToX min
-        width = (scales.valToX max) - start
-        @drawSelection(start, width)
+      scales = @getScales()
+      {min, max} = @range.toJSON()
+      start = scales.valToX min
+      width = (scales.valToX max) - start
+      @drawSelection(start, width)
       @drawEstCount()
     else
       @removeSelection()

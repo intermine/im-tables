@@ -8,8 +8,7 @@ module.exports = class NumericRange extends Backbone.Model
 
   _defaults: {}
 
-  setLimits: (limits) ->
-    @_defaults = limits
+  setLimits: (limits) -> _.extend @_defaults, limits
 
   get: (prop) ->
     ret = super(prop)
@@ -23,7 +22,8 @@ module.exports = class NumericRange extends Backbone.Model
   toJSON: -> _.extend {}, @_defaults, @attributes
 
   nullify: ->
-    @set {min: null, max: null}
+    @unset 'min'
+    @unset 'max'
     @nulled = true
     @trigger evt, @ for evt in ['change:min', 'change:max', 'change']
 
@@ -40,7 +40,7 @@ module.exports = class NumericRange extends Backbone.Model
       super(arguments...)
 
   isNotAll: ->
-    return true if @nulled
+    return false if @nulled
     {min, max} = @toJSON()
     (min? and min isnt @_defaults.min) or (max? and max isnt @_defaults.max)
 
