@@ -16,6 +16,12 @@ bucketRange = (bucketVal, bucket) ->
   [min, max] = (bucketVal(bucket + delta) for delta in [0, 1])
   {min, max}
 
+# get a filter to find buckets fully contained in a given range.
+fullyContained = (min, max) -> (d) -> d.range.min >= min and d.range.max <= max
+# get a filter to find buckets partially overlapping a range to its left or right
+partiallyOverlapping = (min, max) -> (d) ->
+  (d.range.min < min and d.range.max > min) or (d.range.max > max and d.range.min < max)
+
 # Function that enforces limits on a value.
 limited = (min, max) -> (x) ->
   if x < min
@@ -27,6 +33,11 @@ limited = (min, max) -> (x) ->
 
 # Sum up the .count properties of the things in an array.
 sumCounts = (xs) -> _.reduce xs, ((total, x) -> total + x.count), 0
+
+# Sum up a list of partially overlapping buckets.
+sumPartials = (min, max, partials) ->
+  fn = (sum, bucket) -> sum + (getPartialCount min, max, bucket)
+  _.reduce partials, fn, 0
 
 # Get the amount of of a given range a particular span overlaps.
 # eg: ({min: 0, max: 10}, 0, 10) -> 1
@@ -45,11 +56,7 @@ fracWithinRange = (range, min, max) ->
 # Given a particular span, and a bucket, return an estimate of the number
 # of values within the span, assuming that the bucket is evenly populated
 # based on the size of the bucket and the amount of overlap.
-getPartialCount = (min, max) -> (item) -> # FIXME
-  if item?
-    item.count * fracWithinRange item.brange, min, max
-  else
-    0
+getPartialCount = (min, max, {count, range}) -> count * fracWithinRange range, min, max
 
 # Helper that constructs a scale fn from the given input domain to the given output range
 scale = (input, output) -> d3.scale.linear().domain(input).range(output)
@@ -66,6 +73,9 @@ module.exports = class NumericDistribution extends VisualisationBase
   chartHeight: 70
   chartWidth: 0 # the width we have available - set during render.
 
+  # Flag so we know if we are selecting paths.
+  __selecting_paths: false
+
   # The rubber-band selection.
   selection: null
 
@@ -81,8 +91,11 @@ module.exports = class NumericDistribution extends VisualisationBase
   # Things to check when we are initialised.
   invariants: ->
     hasRange: "No range"
+    hasHistogramModel: "Wrong model: #{ @model }"
 
   hasRange: -> @range?
+
+  hasHistogramModel: -> @model?.getHistogram?
 
   # The rendering logic. This component renders a numeric histogram.
   # 
@@ -101,7 +114,7 @@ module.exports = class NumericDistribution extends VisualisationBase
     chart = @getCanvas()
 
     # Bind each histogram bucket to a rectangle in the chart.
-    rects = chart.selectAll('rect').data @getChartData()
+    rects = chart.selectAll('rect').data @getChartData scales
 
     # Remove any unneeded rectangles
     rects.exit().remove()
@@ -115,8 +128,12 @@ module.exports = class NumericDistribution extends VisualisationBase
     @drawAxes scales
 
   # For convenience we store the bucket number with the count, although it
-  # is trivial to calculate from the index.
-  getChartData: -> ({count: c, bucket: i + 1} for c, i in @model.getHistogram())
+  # is trivial to calculate from the index. The range is also stored, which
+  # is more of a faff to calculate (since you need access to the scales)
+  getChartData: (scales) ->
+    scales ?= @getScales()
+    for c, i in @model.getHistogram()
+      {count: c, bucket: (i + 1), range: (bucketRange scales.bucketToVal, i + 1)}
 
   # Set properties that we need access to the DOM to calculate.
   initChart: ->
@@ -146,20 +163,15 @@ module.exports = class NumericDistribution extends VisualisationBase
     xPositions = [@leftMargin, @chartWidth - @rightMargin]
     yPositions = [0, h - @bottomMargin]
 
-    # wrapper around the x->val scale that applies the appropriate rounding and limits
-    xToVal = _.compose (limited min, max), round, (scale xPositions, values)
+    # wrapper around a ->val scale that applies the appropriate rounding and limits
+    toVal = (inputs) -> _.compose (limited min, max), round, (scale inputs, values)
 
-    # Transform buckets to their initial values by scaling the buckets to their X position
-    # and transforming that to a value.
-    bucketToVal = _.compose xToVal, (scale buckets, xPositions)
-
-    return {
-      x: (scale buckets, xPositions)
-      y: (scale counts, yPositions)
-      valToX: (scale values, xPositions)
-      xToVal: xToVal
-      bucketToVal: bucketToVal
-    }
+    scales = # return:
+      x: (scale buckets, xPositions) # A scale from bucket -> x
+      y: (scale counts, yPositions)  # A scale from count -> y
+      valToX: (scale values, xPositions) # A scale from value -> x
+      xToVal: (toVal xPositions) # A scale from x -> value
+      bucketToVal: (toVal buckets) # A scale from bucket -> min val
 
   # Does the path represent a whole number value, such as an integer?
   isIntish: -> @model.get('type') in ['int', 'Integer', 'long', 'Long', 'short', 'Short']
@@ -250,42 +262,42 @@ module.exports = class NumericDistribution extends VisualisationBase
   events: ->
     'mouseout': => @__selecting_paths = false # stop selecting when the mouse leaves the el.
 
+  # Draw a label saying how many things we thing are contained within the current selection.
   drawEstCount: ->
-    @estCount?.remove()
-    return false unless d3?
-    @estCount = @paper.append('text')
-                      .classed('im-est-count', true)
-                      .attr('x', @w * 0.75)
-                      .attr('y', 22)
-                      .text("~#{ @estimateCount() }")
+    # Create it if it doesn't exist.
+    @estCount ?= @getCanvas().append('text')
+                             .classed('im-est-count', true)
+                             .attr('x', @chartWidth * 0.75)
+                             .attr('y', @chartHeight * 0.25)
+    # Set it to display the current estimated count.
+    @estCount.text("~#{ @estimateCount() }")
 
+  # Estimate how many values are likely to be contained in the given selected range.
   estimateCount: ->
     if @range.nulled
-      sumCounts @items.filter (i) -> i.bucket is null
+      0
     else
       {min, max} = @range.toJSON()
-      fullBuckets = sumCounts @items.filter (i) -> i.brange? and i.brange.min >= min and i.brange.max <= max
-      [partialLeft] = @items.filter (i) -> i.brange? and i.brange.min < min and i.brange.max > min
-      [partialRight] = @items.filter (i) -> i.brange? and i.brange.max > max and i.brange.min < max
-      [left, right] = [partialLeft, partialRight].map getPartialCount min, max
-      @round fullBuckets + left + right
+      histogram = @getChartData()
+      fullBuckets = histogram.filter overlappingBuckets min, max
+      partials = histogram.filter partiallyOverlapping min, max
+      Math.round (sumCounts fullBuckets) + (sumPartials min, max, partials)
 
-  remove: -> # remove the chart if necessary.
-    @paper?.remove()
-    super
-
-  drawSelection: (x, width) =>
-    @selection?.remove()
+  # Draw the rubber-band selection over the top of the canvas. The selection
+  # is a full height box starting at x and extending to the right for width pixels.
+  drawSelection: (x, width) ->
     if (x <= 0) and (width >= @w)
-      return # Nothing to do.
+      return @removeSelection()
+      
+    # Create it if it doesn't exist.
+    @selection ?= @getCanvas().append('svg:rect')
+                              .attr('y', 0)
+                              .attr('height', @chartHeight * 0.9)
+                              .classed('rubberband-selection', true)
+    # Change its width and x position.
+    @selection.attr('x', x).attr('width', width)
 
-    @selection = @paper.append('svg:rect')
-      .attr('x', x)
-      .attr('y', 0)
-      .attr('width', width)
-      .attr('height', @chartHeight * 0.9)
-      .classed('rubberband-selection', true)
-
+  # When the range changes, draw the selection box, if we need to.
   onChangeRange: ->
     if @shouldDrawBox()
       if @range.nulled
@@ -298,14 +310,23 @@ module.exports = class NumericDistribution extends VisualisationBase
         @drawSelection(start, width)
       @drawEstCount()
     else
-      @selection?.remove()
-      @selection = null
-      @estCount?.remove()
-      @estCount = null
+      @removeSelection()
+      @removeEstCount()
+
+  removeEstCount: ->
+    @estCount?.remove()
+    @estCount = null
+
+  removeSelection: ->
+    @selection?.remove()
+    @selection = null
 
   # We should draw the selection box when there is a selection.
   shouldDrawBox: -> @range.isNotAll()
 
-  # Flag so we know if we are selecting paths.
-  __selecting_paths: false
+  remove: -> # remove the chart if necessary.
+    @removeSelection()
+    @removeEstCount()
+    @paper?.remove()
+    super
 
