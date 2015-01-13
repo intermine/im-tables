@@ -17,6 +17,7 @@ Options = require '../options'
 #  - numeric :: bool
 #  - canHaveMultipleValues :: bool
 #  - type :: string (as per PathInfo::getType)
+#  - buckets :: int (The number of buckets in the histogram)
 module.exports = class SummaryModel extends CoreModel
 
   defaults: ->

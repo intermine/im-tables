@@ -2,13 +2,19 @@ d3 = require 'd3'
 
 VisualisationBase = require './visualisation-base'
 
+NULL_SELECTION_WIDTH = 25
+
 # TODO - draw chart still needs work.
 module.exports = class NumericDistribution extends VisualisationBase
 
   className: "im-numeric-distribution"
 
-  chartHeight: 70
   leftMargin: 25
+  bottomMargin: 18
+  rightMargin: 14
+  chartHeight: 70
+
+  w: 0 # the width we have available.
 
   # Range is shared by other components, so we accept it from the outside.
   initialize: ({@range}) ->
@@ -24,7 +30,7 @@ module.exports = class NumericDistribution extends VisualisationBase
   onChangeRange: ->
     if @shouldDrawBox()
       if @range.nulled
-        @drawSelection 0, 25
+        @drawSelection 0, NULL_SELECTION_WIDTH
       else
         x = @xForVal(@range.get('min'))
         width = @xForVal(@range.get('max')) - x
@@ -37,14 +43,8 @@ module.exports = class NumericDistribution extends VisualisationBase
       @estCount = null
 
   # Caculate the x position for a particular domain value.
-  xForVal: (val) =>
-    {min, max} = @model.pick 'min', 'max'
-    if val is min
-      return @leftMargin
-    if val is max
-      return @w
-    conversionRate = (@w - @leftMargin) / (max - min)
-    return @leftMargin + (conversionRate * (val - min))
+  # this a place
+  xForVal: (val) -> throw new Error('not rendered yet')
 
   # Calculate the domain value for a particular graphical x position.
   valForX: (x) =>
@@ -62,33 +62,65 @@ module.exports = class NumericDistribution extends VisualisationBase
   # Flag so we know if we are selecting paths.
   __selecting_paths: false
 
+  isIntish: -> @model.get('type') in ['int', 'Integer', 'long', 'Long']
+
   events: ->
     'mouseout': => @__selecting_paths = false # stop selecting when the mouse leaves the el.
 
-  _drawD3Chart: (items) ->
+  initChart: ->
+    @w = @$el.closest(':visible').width()
     @stepWidth = (@w - (@leftMargin + 1)) / items[0].buckets
-    @items = items
-    bottomMargin = 18
-    rightMargin = 14
-    n = items[0].buckets + 1
-    h = @chartHeight
-    most = d3.max items, (d) -> d.count
-    x = d3.scale.linear().domain([1, n]).range([@leftMargin, @w - rightMargin])
-    y = d3.scale.linear().domain([0, most]).rangeRound([0, h - bottomMargin])
-    @xForVal = d3.scale.linear()
-                  .domain([@min, @max])
-                  .range([@leftMargin, @w - rightMargin])
+    @round = if @isIntish() then Math.round else _.identity
 
-    xToVal = d3.scale.linear().domain([1, n]).range([@min, @max])
+  # the histogram is a list of values, eg: [1, 3, 5, 0, 10, 7, 4]
+  # these represent a set of equal width buckets across the range
+  # of the available values.
+  _drawD3Chart: ->
+    @initChart()
+    {min, max} = @model.pick 'min', 'max'
+    histogram = @model.getHistogram()
+    n = histogram.length + 1 # buckets are 1-indexed
+    h = @chartHeight
+    most = d3.max histogram
+    counts = [0, most]
+    values = [min, max]
+    buckets = [1, n]
+    xPositions = [@leftMargin, @w - @rightMargin]
+
+    # The scales
+    # The chart compares buckets to counts
+    @x = x = d3.scale.linear()
+                .domain(buckets)
+                .range(xPositions)
+    @y = y = d3.scale.linear()
+                .domain(counts)
+                .rangeRound([0, h - @bottomMargin])
+
+    @xForVal = d3.scale.linear()
+                 .domain(values)
+                 .range(xPositions)
+
+    @valueForBucket = bucketToVal = d3.scale.linear()
+                                .domain(buckets)
+                                .range(values)
+
+    @valForX = xToVal = d3.scale.linear()
+                                .domain(xPositions)
+                                .range(values)
+
+
     val = (x) => @round xToVal x
-    bucketVal = (x) =>
+
+    # Named wrong? surely this is xval?
+    bucketVal = (x) ->
       raw = val x
-      if raw < @min
-        @min
-      else if raw > @max
-        @max
+      if raw < min
+        min
+      else if raw > max
+        max
       else
         raw
+
     bucketRange = (bucket) ->
       if bucket?
         [min, max] = (bucketVal(bucket + delta) for delta in [0, 1])
@@ -96,7 +128,8 @@ module.exports = class NumericDistribution extends VisualisationBase
         [min, max] = [0 - bucketVal(2), bucketVal(1)]
       {min, max}
 
-    getTitle = (item) ->
+    getTitle = (count, i) ->
+      bucket = i + 1
       title = if item.bucket?
         brange = bucketRange item.bucket
         "#{ brange.min } >= x < #{ brange.max }: #{ item.count } items"
@@ -128,7 +161,7 @@ module.exports = class NumericDistribution extends VisualisationBase
             .attr('height', 0)
             .classed('im-null-bucket', (d) -> d.bucket is null)
             .on('click', barClickHandler)
-            .each (d, i) -> $(@).tooltip {container, title: getTitle d}
+            .each (d, i) -> $(@).tooltip {container, title: getTitle d, i}
 
     rects = chart.selectAll('rect').data(items)
                   .transition()
@@ -198,12 +231,9 @@ module.exports = class NumericDistribution extends VisualisationBase
     if (x <= 0) and (width >= @w)
       return # Nothing to do.
 
-    if d3?
-      @selection = @paper.append('svg:rect')
-        .attr('x', x)
-        .attr('y', 0)
-        .attr('width', width)
-        .attr('height', @chartHeight * 0.9)
-        .classed('rubberband-selection', true)
-    else
-      console.error("Cannot draw selection without SVG lib")
+    @selection = @paper.append('svg:rect')
+      .attr('x', x)
+      .attr('y', 0)
+      .attr('width', width)
+      .attr('height', @chartHeight * 0.9)
+      .classed('rubberband-selection', true)
