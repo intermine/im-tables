@@ -156,7 +156,6 @@ module.exports = class NumericDistribution extends VisualisationBase
     n = @model.get 'buckets'
     histogram = @model.getHistogram()
     most = d3.max histogram
-    round = @getRounder()
 
     # These are the five separate things.
     counts = [0, most]
@@ -166,7 +165,7 @@ module.exports = class NumericDistribution extends VisualisationBase
     yPositions = [0, @chartHeight - @bottomMargin]
 
     # wrapper around a ->val scale that applies the appropriate rounding and limits
-    toVal = (inputs) -> _.compose (limited min, max), round, (scale inputs, values)
+    toVal = (inputs) -> _.compose (limited min, max), (scale inputs, values)
 
     scales = # return:
       x: (scale buckets, xPositions) # A scale from bucket -> x
@@ -195,20 +194,20 @@ module.exports = class NumericDistribution extends VisualisationBase
     # refers to.
     scales ?= @getScales()
     container = @el
+    round = @getRounder()
     h = @chartHeight
 
     # When the user clicks on a bar, set the selected range to the range
     # the bar covers.
     barClickHandler = (d, i) =>
       if d.count > 0
-        @range.set bucketRange scales.bucketToVal, d.bucket
+        @range.set d.range
       else
         @range.nullify()
 
     # Get the tooltip text for the bar.
-    getTitle = ({bucket, count}) ->
-      range = bucketRange scales.bucketToVal, bucket
-      Messages.getText 'summary.Bucket', {range, count}
+    getTitle = ({range: {min, max}, count}) ->
+      Messages.getText 'summary.Bucket', {count, range: {min: (round min), max: (round max)}}
 
     # The inital state of the bars is 0-height in the correct x position, with click
     # handlers and tooltips attached.
