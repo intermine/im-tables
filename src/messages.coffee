@@ -6,12 +6,11 @@ _ = require 'underscore'
 actionMessages = require './messages/actions'
 tableMessages = require './messages/table'
 constraintMsgs = require './messages/constraints'
-summaryMessages = require './messages/summary'
 common = require './messages/common'
 
 {numToString} = require './templates/helpers'
 
-DEFAULTS = [common, actionMessages, tableMessages, constraintMsgs, summaryMessages]
+DEFAULTS = [common, actionMessages, tableMessages, constraintMsgs]
 
 HELPERS = # All message templates have access to these helpers.
   formatNumber: numToString
@@ -38,6 +37,10 @@ class Messages extends Backbone.Model
     templ = @getTemplate key
     # Make missing keys really obvious
     templ?(_.extend {}, HELPERS, args) ? "!!!No message for #{ key }!!!"
+
+  # Allows sets of messages to be set with a prefix namespacing them.
+  setWithPrefix: (prefix, messages) -> for key, val of messages
+    @set "#{prefix}.#{key}", val
 
   defaults: -> _.extend.apply null, [{}].concat DEFAULTS
 

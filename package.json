@@ -34,12 +34,6 @@
     ]
   },
   "browserify-shim": {
-    "d3js": {
-      "exports": "d3",
-      "depends": [
-        "jquery:$"
-      ]
-    }
   },
   "author": {
     "name": "Alex Kalderimis",
@@ -73,6 +67,7 @@
     "coffeelint-ensure-super": "0.0.2",
     "coffeelint-no-long-functions": "^1.0.1",
     "connect": "~2.7.3",
+    "d3-browserify": "^3.4.12",
     "es6-promise": "^2.0.1",
     "font-awesome": "^4.2.0",
     "grunt": "^0.4.5",
