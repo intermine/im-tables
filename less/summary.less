@@ -21,3 +21,39 @@
         margin-top: 1em;
     }
 }
+
+.im-summary-items {
+
+    .im-facet-row.im-selected {
+        background-color: @selected-row-color;
+        border: @selected-row-border;
+    }
+    .im-count-col {
+        .im-facet-bar {
+            .pull-right();
+            text-align: right;
+            padding-right: 0.5em;
+            font-weight: bold;
+            border-radius: @facet-bar-radius;
+            .im-count {
+                text-shadow: -1px -1px #fff;
+            }
+        }
+    }
+
+    .im-summary-controls {
+        .popover-content {
+            padding: 0;
+        }
+    }
+
+    .im-export-summary {
+        .dropdown-menu();
+        border: none;
+        position: relative;
+        display: block;
+    }
+
+}
+
+
