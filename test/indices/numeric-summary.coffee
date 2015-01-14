@@ -38,6 +38,7 @@ renderQuery = (heading, container, query) ->
   counter.render()
   model = new SummaryItems {query, view: query.makePath('employees.age')}
   range = new NumericRange
+  model.on 'change:min change:max', -> range.setLimits model.pick 'min', 'max'
   distribution = new NumericDistribution {model, range}
   stats = new SummaryStats {model, range}
   display = new ModelDisplay {model: model}

@@ -67,7 +67,7 @@ module.exports = class SummaryStats extends CoreView
     'click .btn-primary': 'changeConstraints'
     'click .btn-cancel': 'clearRange'
 
-  clearRange: -> @range?.reset()
+  clearRange: -> @range.set @model.pick 'min', 'max'
 
   maybeIncrementMin: (e) -> @maybeIncrement 'min', e
 
