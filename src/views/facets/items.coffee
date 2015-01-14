@@ -18,12 +18,14 @@ OnlyOneItem = require './only-one-item'  # when there is only one.
 # a numerical distribution or as a count of items.
 module.exports = class FacetItems extends CoreView
 
+  className: 'im-facet-items'
+
   initialize: ({@range}) -> super
 
   template: Templates.template 'facet_frequency'
 
   # model values read by the template or which cause the subviews to need re-creation.
-  RERENDER_EVT: 'change:error change:numeric change:uniqueValues change:initialized'
+  RERENDER_EVENT: 'change:error change:numeric change:uniqueValues change:initialized'
 
   # Make model available as state is, as the model has *optional* properties, and so cannot
   # be statically accessed using the standard context lookup mechanism.

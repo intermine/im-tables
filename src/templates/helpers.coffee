@@ -17,6 +17,7 @@ exports.select = (options,
 exports.pluralise = (str, n) -> if str? then (pluralize str, n) else str
 
 exports.numToString = (number) ->
+  return number unless number?.toFixed
   sep = Options.get 'NUM_SEPARATOR'
   every = Options.get 'NUM_CHUNK_SIZE'
   rets = []

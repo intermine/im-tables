@@ -14,7 +14,6 @@ kid = 0
 
 getKid = -> kid++
 
-
 # Private methods.
 listenToModel = -> listenToThing.call @, 'model'
 listenToState = -> listenToThing.call @, 'state'
@@ -83,9 +82,10 @@ module.exports = class CoreView extends Backbone.View
 
   helpers: -> _.extend {}, helpers # clone it to avoid mutation by subclasses.
 
+  getBaseData: -> _.extend {state: @state.toJSON(), Messages, Icons}, (_.result @, 'helpers')
+
   # By default, the model extended with state, helpers, Messages and Icons
-  getData: ->
-    _.extend {state: @state.toJSON(), Messages, Icons}, (_.result @, 'helpers'), @model.toJSON()
+  getData: -> _.extend @getBaseData(), @model.toJSON()
 
   # Like render, but only happens if already rendered at least once.
   reRender: ->

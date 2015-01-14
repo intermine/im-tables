@@ -1,8 +1,9 @@
 <% /* requires: formats, query, path */ %>
-<ul class="im-export-summary">
+<ul role="menu" class="im-export-summary">
     <% _.each(formats, function (icon, param) { %>
-      <li>
-        <a href="<%= query.getExportURI(param) %>&summaryPath=<%= path %>">
+      <li role="presentation">
+        <a role="menuitem"
+            href="<%= query.getExportURI(param) %>&summaryPath=<%= path %>">
             <%= Icons.icon(icon) %>
             <%- icon.toUpperCase() %>
         </a>

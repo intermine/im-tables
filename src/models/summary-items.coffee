@@ -10,6 +10,7 @@ inty = (type) -> type in ['int', 'Integer', 'long', 'Long', 'short', 'Short']
 
 # Represents the result of a column summary, and the options that affect it.
 # Properties:
+#  - filterTerm :: string
 #  - maxCount :: int
 #  - loading :: bool
 #  - initialized :: bool
@@ -30,6 +31,7 @@ module.exports = class SummaryModel extends CoreModel
     initialized: false
     canHaveMultipleValues: false
     numeric: false
+    filterTerm: null
 
   constructor: ({@query, @view}) ->
     super()
@@ -41,8 +43,8 @@ module.exports = class SummaryModel extends CoreModel
       canHaveMultipleValues: @query.canHaveMultipleValues(@view)
       type: type
       integral: integral
-    @histogram = new SummaryItems() # numeric distribution by buckets.
-    @items = new SummaryItems()     # Most common items, most frequent first.
+    @histogram = new SummaryHistogram() # numeric distribution by buckets.
+    @items = new SummaryItems()         # Most common items, most frequent first.
     @listenTo @, 'change:filterTerm', @onFilterChange
     @listenTo @, 'change:summaryLimit', @onLimitChange
     @load()
@@ -123,13 +125,13 @@ module.exports = class SummaryModel extends CoreModel
         @items.reset() # so there are no items, just stats and buckets
       # Set performs a smart update, with the correct add, remove and change events.
       @histogram.set({item: bucket, count, id: bucket} for {bucket, count} in results)
-      newStats.maxCount = _.max(b.count for b in results) # not more than 20, ok to iterate.
+      newStats.maxCount = @histogram.getMaxCount() # not more than 20, ok to iterate.
     else # this is a frequency based summary
       if @histogram.size() # very strange - this summary has changed from numeric to items
         @histogram.reset() # so there is no histogram.
       # Set performs a smart update, with the correct add, remove and change events.
       @items.set({item, count, id} for {item, count}, id in results)
-      newStats.maxCount = @items.first()?.get('count')
+      newStats.maxCount = @items.getMaxCount()
     @set newStats # triggers all change events - but the collection is already consistent.
 
 class SummaryItemModel extends CoreModel
@@ -140,6 +142,7 @@ class SummaryItemModel extends CoreModel
     share: null
     visible: true
     selected: false
+    hover: false
     count: 0
     item: null
 
@@ -148,3 +151,11 @@ class SummaryItems extends Collection
 
   model: SummaryItemModel
 
+  getMaxCount: -> @first()?.get('count')
+
+# This is a collection of SummaryItemModels
+class SummaryHistogram extends Collection
+
+  model: SummaryItemModel
+
+  getMaxCount: -> _.max(b.get('count') for b in @models)

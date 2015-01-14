@@ -1,23 +1,29 @@
+_ = require 'underscore'
+
 CoreView = require '../../core-view'
 Templates = require '../../templates'
 
 RowSurrogate = require './row-surrogate'
 
+require '../../messages/summary'
+
+bool = (x) -> !!x
+
 # Row in the drop down summary.
-module.export = class FacetRow extends CoreView
+module.exports = class FacetRow extends CoreView
 
   # Not all of these are expected to actually change, but these are the things
   # the template depends on.
-  RERENDER_EVT: 'change:count change:selected change:item change:symbol change:share'
+  RERENDER_EVENT: 'change:count change:selected change:item change:symbol change:share'
 
   tagName: "tr"
 
   className: "im-facet-row"
 
-  initialize: ->
-    super
-    @listenTo @model, "change:visible", @onChangeVisibility
-    @listenTo @model, "change:hover", @onChangeHover
+  modelEvents: ->
+    "change:visible": @onChangeVisibility
+    "change:hover": @onChangeHover
+    "change:selected": @onChangeSelected
 
   # Invariants
 
@@ -30,27 +36,32 @@ module.export = class FacetRow extends CoreView
   template: Templates.template 'facet_row'
 
   getData: ->
-    ratio = (parseInt @model.get('count'), 10) / @model.collection.getMaxCount()
+    ratio = @model.get('count') / @model.collection.getMaxCount()
     opacity = (ratio / 2 + 0.5).toFixed() # opacity ranges from 0.5 - 1
     percent = (ratio * 100).toFixed() # percentage is int from 0 - 100
 
     _.extend super, {percent, opacity}
+
+  onRenderError: (e) -> console.error e
 
   # Subviews and interactions with the DOM.
 
   postRender: ->
     @onChangeVisibility()
     @onChangeHover()
+    @onChangeSelected()
 
-  onChangeVisibility: -> @$el.toggleClass 'im-hidden', @model.get "visible"
+  onChangeVisibility: -> @$el.toggleClass 'im-hidden', not @model.get "visible"
 
   onChangeHover: -> # can be hovered in the graph.
-    isHovered = @model.get 'hover'
+    isHovered = bool @model.get 'hover'
     @$el.toggleClass 'hover', isHovered
     if isHovered
       return @showSurrogateUnlessVisible()
     else
       return @removeSuggogate()
+
+  onChangeSelected: -> @$el.toggleClass 'im-selected', @model.get('selected')
 
   removeSuggogate: ->
     @removeChild 'surrogate'

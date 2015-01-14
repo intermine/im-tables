@@ -1,6 +1,8 @@
 <div class="input-group im-filter-group">
-  <span class="input-group-addon im-clear-value-filter">
-    <%= Icons.icon('Refresh') %>
+  <span class="input-group-btn">
+    <button class="btn btn-default im-clear-value-filter">
+      <%= Icons.icon('Refresh') %>
+    </button>
   </span>
   <input type="search" class="form-control im-filter-values"
       value="<%- filterTerm %>"

@@ -15,30 +15,23 @@ SummaryHeading = require './summary-heading'
 FacetItems = require './items'
 FacetVisualisation = require './visualisation'
 
-class FacetTitle extends CoreView
-
-  tagName: 'dt'
-
-  initialize: ->
-    super
-    @listenForChange @model, @reRender, 'got'
-    @listenForChange @state, @reRender, 'open', 'pathName'
-  
-  template: Templates.template 'facet_title'
-
 module.exports = class FacetView extends CoreView
 
   className: 'im-facet-view'
 
   @include SetsPathNames
 
+  modelEvents: ->
+    'change:min change:max': @setLimits
+
+  stateEvents: ->
+    'change:open': @honourOpenness
+
   # May inherit state, defines a model based on @query and @view
   initialize: ({@query, @view, @noTitle}) ->
     super model: (new SummaryItems {@query, @view})
     @range = new NumericRange
-    @listenTo @model, 'change:min change:max', @setLimits
     @state.set(open: Options.get 'Facets.Initally.Open') unless @state.has 'open'
-    @listenTo @state, 'change:open', @honourOpenness
     @setPathNames()
     @setLimits()
 
@@ -66,11 +59,9 @@ module.exports = class FacetView extends CoreView
   renderTitle: ->
     @renderChild 'title', (new SummaryHeading {@model, @state}) unless @noTitle
 
-  # TODO - render the visualisation here.
   renderVisualisation: ->
     @renderChild 'viz', (new FacetVisualisation {@model, @state, @range})
 
-  # TODO - render the values here.
   renderItems: ->
     @renderChild 'facet', (new FacetItems {@model, @state, @range})
 

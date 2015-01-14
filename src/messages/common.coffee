@@ -7,6 +7,7 @@ module.exports =
   Complete: 'Complete'
   Error: 'Error'
   Warning: 'Warning'
+  Filter: 'Filter'
   and: 'and'
   or: 'or'
   comma: ','

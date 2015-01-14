@@ -14,7 +14,7 @@
 
 <td class="im-count-col">
   <div class="im-facet-bar"
-       style="width:<%- percent %>%;background:<%- Messages.getText({opacity: opacity}) %>">
+       style="width:<%- percent %>%;background:<%- Messages.getText('summary.FacetBar', {opacity: opacity}) %>">
     <span class="im-count"><%- count %></span>
   </div>
 </td>

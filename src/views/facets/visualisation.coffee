@@ -16,7 +16,11 @@ NoResults = require './no-results' # TODO write
 # column summary data.
 module.exports = class FacetVisualisation extends CoreView
 
+  className: 'im-facet-vis'
+
   initialize: ({@range}) -> super
+
+  RERENDER_EVENT: 'change:loading change:numeric change:canHaveMultipleValues'
 
   # Only show data when there is something to show.
   postRender: -> if @model.get('initialized')

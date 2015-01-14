@@ -7,6 +7,8 @@ Templates = require '../../templates'
 SummaryItemsControls = require './summary-items-controls'
 FacetRow = require './row'
 
+require '../../messages/summary'
+
 # Null safe event ignorer, and blocker.
 IGNORE = (e) -> if e?
   e.preventDefault()
@@ -20,11 +22,16 @@ module.exports = class SummaryItems extends CoreView
 
   className: 'im-summary-items'
 
+  stateEvents: -> 'change:error': @setErrOnModel
+
+  setErrOnModel: -> @model.set @state.pick 'error'
+
   initialize: ->
     super
     @listenTo @model.items, 'add', @addItem
     @listenTo @model.items, 'remove', @removeItem
 
+  # Things we need before we can start.
   invariants: ->
     modelHasItems: "expected a SummaryItems model, got: #{ @model }"
     modelCanHasMore: "expected the correct model methods, got: #{ @model }"
@@ -50,6 +57,7 @@ module.exports = class SummaryItems extends CoreView
 
   postRender: ->
     @tbody = @$ '.im-item-table tbody'
+    throw new Error 'Could not find table' unless @tbody.length
     @addControls()
     @addItems()
 
@@ -57,7 +65,7 @@ module.exports = class SummaryItems extends CoreView
     @renderChildAt '.im-summary-controls', (new SummaryItemsControls {@model})
 
   addItems: -> if @rendered # Wait until rendered.
-    @collection.each (item) => @addItem item
+    @model.items.each (item) => @addItem item
 
   addItem: (model) -> if @rendered # Wait until rendered.
     @renderChild (rowId model), (new FacetRow {model}), @tbody

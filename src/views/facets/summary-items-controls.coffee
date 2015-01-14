@@ -2,6 +2,9 @@ _ = require 'underscore'
 
 CoreView = require '../../core-view'
 Templates = require '../../templates'
+Messages = require '../../messages'
+
+require '../../messages/summary'
 
 bool = (x) -> !!x
 
@@ -82,7 +85,7 @@ module.exports = class SummaryItemsControls extends CoreView
   downloadPopoverTemplate: Templates.template 'download_popover'
 
   # Returns the HTML for the download-popover.
-  getDownloadPopover: -> @downloadPopoverTemplate
+  getDownloadPopover: -> @downloadPopoverTemplate _.extend @getBaseData(),
     query: @model.query
     path: @model.view.toString()
     formats: SUMMARY_FORMATS
