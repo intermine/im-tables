@@ -77,21 +77,21 @@ module.exports = class SummaryItems extends CoreView
   events: ->
     'click .im-load-more': 'loadMoreItems'
     'click .im-clear-value-filter': 'clearValueFilter'
-    'keyup .im-filter-values': (_.throttle @filterItems, 750, leading: false)
+    'keyup .im-filter-values': (_.throttle @filterItems, 250, leading: false)
     'submit': IGNORE # not a real form - do not submit.
     'click': IGNORE # trap bubbled events.
 
   loadMoreItems: ->
     return if @model.get 'loading'
-    @collection.increaseLimit 2
+    @model.increaseLimit 2
 
   clearValueFilter: ->
     $input = @$ '.im-filter-values'
     $input.val null
-    @collection.setFilterTerm null
+    @model.setFilterTerm null
 
   filterItems: (e) => # Bound method because it is throttled in events.
     $input = @$ '.im-filter-values'
     val = $input.val()
-    @collection.setFilterTerm $input.val()
+    @model.setFilterTerm $input.val()
 
