@@ -23,36 +23,62 @@ imjs = require "imjs"
 
 Options = require 'imtables/options'
 
-Counter = require('../lib/counter.coffee')
 ModelDisplay = require '../lib/model-display.coffee'
+CoreModel = require 'imtables/core-model'
 NumericRange = require 'imtables/models/numeric-range'
 SummaryItems = require 'imtables/models/summary-items'
 SummaryStats = require 'imtables/views/facets/summary-stats'
+SummaryHeading = require 'imtables/views/facets/summary-heading'
 NumericDistribution = require 'imtables/views/facets/numeric'
 
 root = "http://localhost:8080/intermine-demo"
 conn = imjs.Service.connect(root: root)
 
-renderQuery = (heading, container, query) ->
-  counter = new Counter el: heading, query: query
-  counter.render()
+renderQuery = (container, query) ->
+  # These are the things that need doing.
   model = new SummaryItems {query, view: query.makePath('employees.age')}
   range = new NumericRange
+  state = new CoreModel
   model.on 'change:min change:max', -> range.setLimits model.pick 'min', 'max'
-  distribution = new NumericDistribution {model, range}
-  stats = new SummaryStats {model, range}
+
+  # These display the data on the bottom of the screen.
   display = new ModelDisplay {model: model}
   range_display = new ModelDisplay {model: range}
-  display.render()
-  range_display.render()
-  display.$el.css position: 'fixed', width: '50%', left: 0, bottom: 0, 'font-size': '12px'
-             .appendTo 'body'
-  range_display.$el.css position: 'fixed', width: '50%', right: 0, bottom: 0, 'font-size': '12px'
-             .appendTo 'body'
-  distribution.$el.appendTo container
-  stats.$el.appendTo container
-  distribution.render()
-  stats.render()
+  state_display = new ModelDisplay {model: state}
+
+  # This is what we actually care about.
+  distribution = new NumericDistribution {model, range}
+  stats = new SummaryStats {model, range}
+  heading = new SummaryHeading {model, state}
+
+  renderModelDisplays display, state_display, range_display
+
+  renderAll container, [heading, distribution, stats]
+
+renderModelDisplays = (views...) ->
+  width = (100 / views.length)
+  for view, i in views
+    isLast = (i + 1 is views.length)
+    css =
+      position: 'fixed'
+      width: "#{ width.toFixed(2) }%"
+      bottom: 0,
+      'font-size': '12px'
+
+    if isLast
+      css.right = 0
+    else
+      css.left = "#{ (i * width).toFixed(2) }%"
+
+    view.render()
+    view.$el.css css
+            .appendTo 'body'
+      
+
+renderAll = (container, views) ->
+  for view in views
+    view.$el.appendTo container
+    view.render()
 
 onError = (q, e) ->
   console.log "Could not render query", q, (e.stack ? e)
@@ -61,10 +87,7 @@ $ ->
   container = document.querySelector("#demo")
   queries.forEach (q) ->
     div = document.createElement("div")
-    h2 = document.createElement("h2")
     container.appendChild div
-    h2.innerHTML = q.name
-    div.appendChild h2
     conn.query(q)
-        .then renderQuery.bind(null, h2, div)
+        .then renderQuery.bind(null, div)
         .then null, _.partial onError, q
