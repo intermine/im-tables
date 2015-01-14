@@ -29,12 +29,12 @@
 </div>
 
 <div class="btn-group">
-  <button class="btn btn-cancel"
+  <button class="btn btn-default btn-cancel"
           <%= (anyItemSelected) ? void 0 : 'disabled' %>
           title="<%- Messages.getText('summary.Reset') %>">
     <%= Icons.icon('Undo') %>
   </button>
-  <button class="btn btn-toggle-selection"
+  <button class="btn btn-default btn-toggle-selection"
           title="<%- Messages.getText('summary.Toggle') %>">
     <%= Icons.icon('Toggle') %>
   </button>
