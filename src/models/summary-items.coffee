@@ -6,6 +6,8 @@ Options = require '../options'
 
 {getColumnSummary} = require '../services/column-summary'
 
+inty = (type) -> type in ['int', 'Integer', 'long', 'Long', 'short', 'Short']
+
 # Represents the result of a column summary, and the options that affect it.
 # Properties:
 #  - maxCount :: int
@@ -32,10 +34,13 @@ module.exports = class SummaryModel extends CoreModel
   constructor: ({@query, @view}) ->
     super()
     @fetch = _.partial getColumnSummary, @query, @view
+    type = @view.getType()
+    integral = inty type
     @set # Initial state - canHaveMultipleValues and type are not expected to change.
       limit: Options.get 'INITIAL_SUMMARY_ROWS'
       canHaveMultipleValues: @query.canHaveMultipleValues(@view)
-      type: @view.getType()
+      type: type
+      integral: integral
     @histogram = new SummaryItems() # numeric distribution by buckets.
     @items = new SummaryItems()     # Most common items, most frequent first.
     @listenTo @, 'change:filterTerm', @onFilterChange

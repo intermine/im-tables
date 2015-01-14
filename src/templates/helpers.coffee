@@ -17,11 +17,15 @@ exports.numToString = (number) ->
   every = Options.get 'NUM_CHUNK_SIZE'
   rets = []
   i = 0
-  chars =  (number + "").split("")
+  if -1 < number < 1
+    return String(number)
+
+  [whole, frac] = number.toFixed(3).split '.'
+  chars = whole.split("")
   len = chars.length
   groups = _(chars).groupBy (c, i) ->
     Math.floor((len - (i + 1)) / every).toFixed()
   while groups[i]
     rets.unshift groups[i].join("")
     i++
-  return rets.join(sep)
+  return rets.join(sep) + (if frac is '000' then '' else ".#{ frac }")

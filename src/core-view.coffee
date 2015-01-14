@@ -36,6 +36,7 @@ module.exports = class CoreView extends Backbone.View
     unless @state.toJSON?
       @state = new CoreModel @state
     if @RERENDER_EVENT?
+      console.log "Will re-render on #{ @RERENDER_EVENT }"
       @listenTo @model, @RERENDER_EVENT, @reRender
 
     @on 'rendering', @preRender

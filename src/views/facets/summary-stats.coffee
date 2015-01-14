@@ -1,18 +1,26 @@
+_ = require 'underscore'
+
 CoreView = require '../../core-view'
 Templates = require '../../templates'
 
-inty = (type) -> type in ["int", "Integer", "long", "Long"]
-
 DOWN = 40
 UP = 38
+NULL_STATS =
+  min: 0
+  max: 0
+  average: 0
+  stdev: 0
 
 module.exports = class SummaryStats extends CoreView
 
-  RERENDER_EVT: 'change'
+  RERENDER_EVENT: 'change'
 
   className: 'im-summary-stats'
 
   template: Templates.template 'summary_stats'
+
+  # Ensure the template has the required values.
+  getData: -> _.extend {}, NULL_STATS, super
 
   initialize: ({@range}) ->
     super
@@ -20,8 +28,13 @@ module.exports = class SummaryStats extends CoreView
     @listenTo @range, 'change', @setButtonDisabledness
     @listenTo @range, 'change:min', @onChangeMin
     @listenTo @range, 'change:max', @onChangeMax
-    @listenTo @model, 'change:type', @initType # not expected to change, for obvious reasons.
+    @listenForChange @model, @initType, 'integral', 'min', 'max'
     @initType()
+
+  invariants: ->
+    hasRange: "No range"
+
+  hasRange: -> @range?
 
   setSliderValues: ->
     {min, max} = @range.toJSON()
@@ -42,7 +55,7 @@ module.exports = class SummaryStats extends CoreView
       @$slider.slider 'values', 1, max
 
   setButtonDisabledness: ->
-    changed = @ranged.isNotAll()
+    changed = @range.isNotAll()
     @$('.btn').toggleClass 'disabled', (not changed)
 
   events: ->
@@ -104,8 +117,7 @@ module.exports = class SummaryStats extends CoreView
 
     query.addConstraints newConstraints
 
-  postRender: ->
-    @drawSlider()
+  postRender: -> @drawSlider()
 
   parse: (str) ->
     try
@@ -116,8 +128,9 @@ module.exports = class SummaryStats extends CoreView
 
   initType: -> # sets step and the rounding function.
     # For intish columns the step is 1, otherwise it is 1% of the range.
-    @step = if inty(@model.get 'type') then 1 else Math.abs((max - min) / 100)
-    @round = if step is 1 then Math.round else _.identity
+    {integral, min, max} = @model.toJSON()
+    @step = if integral then 1 else Math.abs((max - min) / 100)
+    @round = if integral then Math.round else _.identity
 
   drawSlider: ->
     {max, min} = @model.pick 'min', 'max'
@@ -129,12 +142,18 @@ module.exports = class SummaryStats extends CoreView
       step: @step
       slide: (e, ui) => @range?.set min: ui.values[0], max: ui.values[1]
 
+  reRender: ->
+    @destroySlider()
+    super
+
   activateSlider: (opts) ->
     @destroySlider() # remove previous slider if present.
-    @$slider = @$('.slider').slider opts
+    @$slider = @$ '.slider'
+    @$slider.slider opts
 
-  destroySlider: ->
-    @$slider?.slider 'destroy'
+  destroySlider: -> if @$slider?
+    @$slider.slider 'destroy'
+    @$slider = null
 
   remove: ->
     @destroySlider()

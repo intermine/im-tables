@@ -7,19 +7,27 @@
             <th><%- Messages.getText('summary.StdDev') %></th>
         </tr>
         <tr>
-            <td><code><%- Messages.getText('Number', {n: max}) %></code></td>
-            <td><code><%- Messages.getText('Number', {n: min}) %></code></td>
-            <td><code><%- Messages.getText('Number', {n: average}) %></code></td>
-            <td><code><%- Messages.getText('Number', {n: stdev}) %></code></td>
+            <td><%- Messages.getText('Number', {n: max}) %></td>
+            <td><%- Messages.getText('Number', {n: min}) %></td>
+            <td><%- Messages.getText('Number', {n: average}) %></td>
+            <td><%- Messages.getText('Number', {n: stdev}) %></td>
         </tr>
     </thead>
 </table>
 
 <div class="row">
-    <div class="col-sm-9">
-        <input type="text" class="im-range-min input im-range-val" value="<%- min %>">
+    <div class="col-sm-4">
+        <input type="text"
+               class="form-control im-range-min input im-range-val"
+               value="<%- min %>">
+    </div>
+    <div class="col-sm-1">
         <span>...</span>
-        <input type="text" class="im-range-max input im-range-val" value="<%- max %>">
+    </div>
+    <div class="col-sm-4">
+        <input type="text"
+               class="form-control im-range-max input im-range-val"
+               value="<%- max %>">
     </div>
     <div class="col-sm-3">
         <div class="btn-group pull-right">

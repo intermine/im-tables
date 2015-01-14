@@ -25,9 +25,10 @@ Options = require 'imtables/options'
 
 Counter = require('../lib/counter.coffee')
 ModelDisplay = require '../lib/model-display.coffee'
-NumericDistribution = require 'imtables/views/facets/numeric'
 NumericRange = require 'imtables/models/numeric-range'
 SummaryItems = require 'imtables/models/summary-items'
+SummaryStats = require 'imtables/views/facets/summary-stats'
+NumericDistribution = require 'imtables/views/facets/numeric'
 
 root = "http://localhost:8080/intermine-demo"
 conn = imjs.Service.connect(root: root)
@@ -38,6 +39,7 @@ renderQuery = (heading, container, query) ->
   model = new SummaryItems {query, view: query.makePath('employees.age')}
   range = new NumericRange
   distribution = new NumericDistribution {model, range}
+  stats = new SummaryStats {model, range}
   display = new ModelDisplay {model: model}
   range_display = new ModelDisplay {model: range}
   display.render()
@@ -47,7 +49,9 @@ renderQuery = (heading, container, query) ->
   range_display.$el.css position: 'fixed', width: '50%', right: 0, bottom: 0, 'font-size': '12px'
              .appendTo 'body'
   distribution.$el.appendTo container
+  stats.$el.appendTo container
   distribution.render()
+  stats.render()
 
 onError = (q, e) ->
   console.log "Could not render query", q, (e.stack ? e)
