@@ -3,6 +3,8 @@ Backbone = require 'backbone'
 
 CoreView = require '../../core-view'
 Templates = require '../../templates'
+Messages = require '../../messages'
+SetsPathNames = require '../../mixins/sets-path-names'
 
 SummaryItemsControls = require './summary-items-controls'
 FacetRow = require './row'
@@ -18,6 +20,8 @@ rowId = (model) -> "row_#{ model.get('id') }"
 
 module.exports = class SummaryItems extends CoreView
 
+  @include SetsPathNames
+
   tagName: 'div'
 
   className: 'im-summary-items'
@@ -30,6 +34,8 @@ module.exports = class SummaryItems extends CoreView
     super
     @listenTo @model.items, 'add', @addItem
     @listenTo @model.items, 'remove', @removeItem
+    @listenTo @state, 'change:typeName change:endName', @reRender
+    @setPathNames()
 
   # Things we need before we can start.
   invariants: ->
@@ -51,7 +57,13 @@ module.exports = class SummaryItems extends CoreView
 
   colClasses: ['im-item-selector', 'im-item-value', 'im-item-count']
 
-  colHeaders: [' ', 'Item', 'Count']
+  colHeaders: ->
+    itemColHeader = if @state.has 'typeName'
+      "#{ @state.get 'typeName' } #{ @state.get 'endName' }"
+    else
+      Messages.getText 'summary.Item'
+
+    [' ', itemColHeader, (Messages.getText 'summary.Count')]
 
   # Subviews and post-render actions.
 

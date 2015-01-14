@@ -5,6 +5,8 @@ Messages.setWithPrefix 'summary',
   Max: 'Maximum'
   Min: 'Minimum'
   Bucket: "<%= range.min %> to <%= range.max %>: <%= count %> values"
+  Count: 'Count'
+  Item: 'Item'
   Average: 'Average'
   StdDev: 'Standard Deviation'
   OnlyOne: 'There is only one value: <%= item %>'
