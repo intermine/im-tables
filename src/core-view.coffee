@@ -6,12 +6,25 @@ CoreModel = require './core-model'
 Messages = require './messages'
 Icons = require './icons'
 
+helpers = require './templates/helpers'
 onChange = require './utils/on-change'
 
 # private incrementing id counter for children
 kid = 0
 
 getKid = -> kid++
+
+
+# Private methods.
+listenToModel = -> listenToThing.call @, 'model'
+listenToState = -> listenToThing.call @, 'state'
+listenToCollection = -> listenToThing.call @, 'collection'
+listenToThing = (thing) ->
+  definitions = _.result @, "#{ thing }Events"
+  return unless _.size definitions
+  throw new Error("No #{ thing }") unless @[thing]?
+  for event, handler of definitions
+    @listenTo @[thing], event, (if _.isFunction handler then handler else @[handler])
 
 # Class defining the core conventions of views in the application
 #  - adds a data -> template -> render flow
@@ -35,13 +48,31 @@ module.exports = class CoreView extends Backbone.View
     @state ?= new CoreModel # State holds transient and computed data.
     unless @state.toJSON?
       @state = new CoreModel @state
-    if @RERENDER_EVENT?
+    if @RERENDER_EVENT? # TODO - check that this is used correctly, then remove.
       console.log "Will re-render on #{ @RERENDER_EVENT }"
       @listenTo @model, @RERENDER_EVENT, @reRender
 
     @on 'rendering', @preRender
     @on 'rendered', @postRender
     @assertInvariants()
+    listenToModel.call @
+    listenToState.call @
+    listenToCollection.call @
+
+  # Declarative model event binding. Use these hooks rather than binding in initialize.
+
+  # The list of model attributes that must be present to render. If not available yet,
+  # the view will listen until they are.
+  renderRequires: []
+
+  # The model events that we should listen to, eg: {'change:foo': 'reRender'}
+  modelEvents: {}
+
+  # The state events that we should listen to, eg: {'change:foo': 'reRender'}
+  stateEvents: {}
+
+  # The collection events that we should listen to, eg: {'change:foo': 'reRender'}
+  collectionEvents: {}
 
   # Sorthand for listening for one or more change events on an emitter.
   listenForChange: (emitter, handler, props...) ->
@@ -50,7 +81,7 @@ module.exports = class CoreView extends Backbone.View
 
   renderError: (resp) -> renderError(@el) resp
 
-  helpers: -> {}
+  helpers: -> _.extend {}, helpers # clone it to avoid mutation by subclasses.
 
   # By default, the model extended with state, helpers, Messages and Icons
   getData: ->
@@ -67,11 +98,22 @@ module.exports = class CoreView extends Backbone.View
   # Default pre-render hook. Override to hook into render-cycle
   preRender: ->
 
+  hasAll = (model, props) -> _.all props, (p) -> model.has p
+
+  onRenderError: (e) -> @state.set error: e
+
   # Safely remove all existing children, apply template if
   # available, and mark as rendered. Most Views will not need
   # to override this method - instead customise getData, template
   # and/or preRender and postRender
   render: ->
+    requiredProps = _.result @, 'renderRequires'
+    if (requiredProps?.length) and (not hasAll @model, requiredProps)
+      evt = onChange requiredProps
+      console.log 'Deferring rendering until', evt
+      @listenToOnce @model, evt, @render
+      return this
+
     prerenderEvent = new Event @rendered
     @trigger 'rendering', prerenderEvent
     return this if prerenderEvent.cancelled
@@ -81,7 +123,7 @@ module.exports = class CoreView extends Backbone.View
       try
         @$el.html @template @getData()
       catch e
-        console.error 'could not render', e
+        @onRenderError e
 
     @trigger 'rendered', @rendered = true
 

@@ -1,6 +1,7 @@
 fs = require 'fs'
 _ = require 'underscore'
 Options = require '../options'
+pluralize = require 'pluralize'
 
 select_html = fs.readFileSync __dirname + '/select.html', 'utf8'
 select_templ = _.template select_html, variable: 'data'
@@ -11,6 +12,9 @@ exports.select = (options,
   contentHandler = null,
   key = ((x) -> x?.value)) ->
   select_templ {options, selectedTest, classes, contentHandler, key}
+
+# Null safe form of pluralize.
+exports.pluralise = (str, n) -> if str? then (pluralize str, n) else str
 
 exports.numToString = (number) ->
   sep = Options.get 'NUM_SEPARATOR'
