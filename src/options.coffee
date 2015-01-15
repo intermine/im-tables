@@ -88,7 +88,9 @@ class Options extends Model
     MAX_PIE_SLICES: 15
     DropdownMax: 20
     DefaultPageSize: 25
-    DefaultCodeLang: 'py'
+    CodeGen:
+      Default: 'py'
+      Langs: ['py', 'pl', 'java', 'rb', 'js', 'xml']
     ListFreshness: 250 # Number of milliseconds lists requests will be considered fresh for.
     MaxSuggestions: 1000 # Max number of suggestions to fetch and show when editing constraints.
     ListCategorisers: ['organism.name', 'department.company.name']

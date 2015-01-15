@@ -11,8 +11,8 @@ class exports.ModelDisplay extends Backbone.View
     bottom: 0
     'font-size': '12px'
 
-  initialize: ->
-    @state = new Backbone.Model minimised: true
+  initialize: (opts) ->
+    @state = new Backbone.Model minimised: (opts.initiallyMinimised ? true)
     @listenTo @model, 'change', @render
     @listenTo @model, 'change:error', @logError
     @listenTo @state, 'change:minimised', @toggleMinimised
@@ -38,9 +38,10 @@ class exports.ModelDisplay extends Backbone.View
     @$el.html _.escape JSON.stringify data, null, 2
     @toggleMinimised()
 
-exports.displayModels = (subject, names) ->
+exports.displayModels = (subject, names, initiallyMinimised = true) ->
   View = exports.ModelDisplay
-  modelDisplays = (new View {model: subject[m]} for m in names)
+  modelDisplays = (new View {model: subject[m], initiallyMinimised} for m in names)
+
   exports.renderModelDisplays modelDisplays...
 
 exports.renderModelDisplays = (views...) ->

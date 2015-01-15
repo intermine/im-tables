@@ -22,25 +22,17 @@ _ = require 'underscore'
 imjs = require "imjs"
 
 Options = require 'imtables/options'
-Dialogue = require("imtables/views/export-dialogue")
+Dialogue = require("imtables/views/code-gen-dialogue")
 
 Counter = require('../lib/counter.coffee')
 {displayModels} = require '../lib/model-display.coffee'
-
-# Suitable for localhost development.
-Options.set 'Destination.Dropbox.Enabled', true
-Options.set 'Destination.Drive.Enabled', true
-Options.set
-  auth:
-    dropbox: 'gqr6vpcnp8rmhe5'
-    drive: '325597969559-0h7jf8u9bsnb96q2uji5ee1r74vrngsu.apps.googleusercontent.com'
 
 root = "http://localhost:8080/intermine-demo"
 conn = imjs.Service.connect(root: root)
 
 renderQuery = (heading, container, query) ->
   counter = new Counter el: heading, query: query
-  dialogue = new Dialogue {query, model: {tablePage: {start: 20, size: 10}}}
+  dialogue = new Dialogue {query, model: {lang: 'py'}}
 
   counter.render()
   displayModels dialogue, ['model', 'state'], false

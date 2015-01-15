@@ -30,13 +30,14 @@ class Messages extends Backbone.Model
     templ = (@cache[key] ? @get key)
     if templ? and not templ.call?
       # Don't recompile the template each time
+      # also, allow users to supply precompiled or custom templates.
       templ = _.template(templ)
     @cache[key] = templ
 
   getText: (key, args = {}) =>
     templ = @getTemplate key
     # Make missing keys really obvious
-    templ?(_.extend {}, HELPERS, args) ? "!!!No message for #{ key }!!!"
+    templ?(_.extend {Messages: @}, HELPERS, args) ? "!!!No message for #{ key }!!!"
 
   # Allows sets of messages to be set with a prefix namespacing them.
   setWithPrefix: (prefix, messages) -> for key, val of messages
