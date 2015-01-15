@@ -5,7 +5,7 @@ CoreView = require '../../core-view'
 
 module.exports = class VisualisationBase extends CoreView
 
-  chartHeight: 100
+  chartHeight: 0 # the height of the chart - should be a number
   chartWidth: 0 # the width we have available - set during render.
 
   initialize: ->

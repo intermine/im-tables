@@ -1,11 +1,12 @@
 _ = require 'underscore'
+$ = require 'jquery'
 d3 = require 'd3-browserify'
 
 Options = require '../../options'
 
 VisualisationBase = require './visualisation-base'
 
-KEY = (model) -> model.get 'id'
+KEY = (d) -> d.data.get 'id'
 
 DONUT = d3.layout.pie().value (d) -> d.get 'count'
 
@@ -22,43 +23,73 @@ getChartPalette = ->
 
   (d) -> paint d.data.get('id')
 
-# close over the arc function.
-getTween = (arc) -> (d, i) ->
-  j = d3.interpolate TWEEN_START, d
-  (t) -> arc j t
+getStartPosition = (model) -> model.get('currentPieCoords') ? TWEEN_START
 
-getArc = (outerRadius, innerRadius) ->
+getEndPosition = (startAngle, endAngle, model) ->
+  startAngle: startAngle
+  endAngle: endAngle
+  selected: (if model.get 'selected' then 1 else 0)
+
+# close over the arc function.
+getTween = (arc) -> ({startAngle, endAngle, data}) ->
+  # Interpolate from start position to current position.
+  model = data
+  start = getStartPosition model
+  end = getEndPosition startAngle, endAngle, model
+  getDatumAtTime = d3.interpolateObject start, end # A dataspace interpolator
+  model.set currentPieCoords: getDatumAtTime 1 # save the final result for next time.
+  (t) -> arc getDatumAtTime t # The arc for each point in time.
+
+# Predicate that determines if the mid-point of a segment is past six-o'clock in position.
+isPastSixOClock = (d) -> (d.endAngle + d.startAngle) / 2 > Math.PI
+
+# Get an arc function that reads objects with three properties:
+#  - innerRadius
+#  - outerRadius
+#  - selected :: float between 0 - 1
+getArc = (outerRadius, innerRadius, selectionBump) ->
   d3.svg.arc()
         .startAngle (d) -> d.startAngle
         .endAngle (d) -> d.endAngle
-        .innerRadius (d) -> if d.data.get('selected') then innerRadius + 5 else innerRadius
-        .outerRadius (d) -> if d.data.get('selected') then outerRadius + 5 else outerRadius
+        .innerRadius (d) -> innerRadius + (d.selected * selectionBump)
+        .outerRadius (d) -> outerRadius + (d.selected * selectionBump)
 
 module.exports = class PieChart extends VisualisationBase
 
-  className: 'im-pie-facet im-facet'
+  chartWidth: 120
+  chartHeight: 120
+
+  className: 'im-pie-chart'
 
   initialize: ->
+    super
     @listenTo @model.items, 'change:selected', @update
     @listenTo Options, 'change:PieColors', @onChangePalette
     @onChangePalette()
+    console.log 'pie chart initialised'
 
   onChangePalette: ->
     @colour = getChartPalette()
     @update()
 
+  addChart: ->
+    console.log 'adding chart'
+    super
+
   _drawD3Chart: ->
+    console.log 'drawing chart'
     h = @chartHeight
     w = @$el.closest(':visible').width()
     outerRadius = h * 0.4
     innerRadius = h * 0.1
+    selectionBump = h * 0.08
 
     chart = d3.select(@el).append('svg')
               .attr('class', 'chart')
               .attr('height', h)
               .attr('width', w)
 
-    @arc = getArc outerRadius, innerRadius
+    @arc = getArc outerRadius, innerRadius, selectionBump
 
     @arc_group = chart.append('svg:g')
                       .attr('class', 'arc')
@@ -83,28 +114,28 @@ module.exports = class PieChart extends VisualisationBase
     container = @el
     total = @model.items.reduce ((sum, m) -> sum + m.get 'count'), 0
     percent = (d) -> (d.data.get('count') / total * 100).toFixed(1)
-    selection.append('svg:path')
-             .attr('class', 'donut-arc')
-             .attr('stroke', 'white')
-             .attr('stroke-width', 0.5)
-             .on('click', (d) -> d.data.toggle 'selected')
-             .on('mouseover', (d) -> d.data.set hover: true)
-             .on('mouseout', (d) -> d.data.set hover: false)
-
-    selection.each (d, i) ->
-      $el = $ @
+    activateTooltip = (d) ->
+      $el = $ @ # functions are called in the context of the SVG node.
       title = "#{ d.data.get 'item' }: #{ percent d }%"
-      placement = if (d.endAngle + d.startAngle) / 2 > Math.PI then 'left' else 'right'
+      placement = if (isPastSixOClock d) then 'left' else 'right'
       $el.tooltip {title, placement, container}
+    selection.append('svg:path')
+             .attr 'class', 'donut-arc'
+             .on 'click', (d) -> d.data.toggle 'selected'
+             .on 'mouseover', (d) -> d.data.mousein()
+             .on 'mouseout', (d) -> d.data.mouseout()
+             .each activateTooltip
 
   # If a wedge has gone away, remove it.
   exit: (selection) -> selection.remove()
+
+  getChartData: -> @model.items.models.slice()
 
   # all update does is push selected elements out a bit - there is no enter/exit
   # going on. At least, there shouldn't be. 
   update: ->
     return unless @arc_group?
-    paths = @arc_group.selectAll('path').data (DONUT @items.models), KEY
+    paths = @arc_group.selectAll('path').data (DONUT @getChartData()), KEY
 
     @exit paths.exit()
     @enter paths.enter()

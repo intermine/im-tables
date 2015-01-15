@@ -8,7 +8,13 @@
         stroke: @brand-success;
     }
 
+    .donut-arc {
+        stroke: white;
+        stroke-width: 0.5;
+    }
+
 }
+
 .im-summary-stats {
 
     padding: 2em;
@@ -26,10 +32,15 @@
 .im-summary-items {
 
     .im-facet-row {
-        &.im-selected, &.hover {
+        &.hover {
+            background-color: lighten(@selected-row-color, 5%);
+            border: @selected-row-border;
+        }
+        &.im-selected {
             background-color: @selected-row-color;
             border: @selected-row-border;
         }
+
     }
     .im-count-col {
         .im-facet-bar {

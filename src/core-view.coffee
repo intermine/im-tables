@@ -48,7 +48,6 @@ module.exports = class CoreView extends Backbone.View
     unless @state.toJSON?
       @state = new CoreModel @state
     if @RERENDER_EVENT? # TODO - check that this is used correctly, then remove.
-      console.log "Will re-render on #{ @RERENDER_EVENT }"
       @listenTo @model, @RERENDER_EVENT, @reRender
 
     @on 'rendering', @preRender
@@ -110,7 +109,6 @@ module.exports = class CoreView extends Backbone.View
     requiredProps = _.result @, 'renderRequires'
     if (requiredProps?.length) and (not hasAll @model, requiredProps)
       evt = onChange requiredProps
-      console.log 'Deferring rendering until', evt
       @listenToOnce @model, evt, @render
       return this
 

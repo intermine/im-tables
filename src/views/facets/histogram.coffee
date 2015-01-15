@@ -68,11 +68,9 @@ module.exports = class HistoFacet extends VisualisationBase
   
   # One bar is drawn for each item.
   enter: (selection, scales) ->
-    n = @model.items.size()
-    w = @chartWidth
     selection.append('rect')
              .classed 'im-item-bar', true
-             .classed 'squashed', n > (w / 4)
+             .classed 'squashed', @stepWidth < 4
              .attr 'width', @stepWidth
              .attr 'y', @chartHeight  # Correct value set in transition
              .attr 'height', 0        # Correct value set in transition
