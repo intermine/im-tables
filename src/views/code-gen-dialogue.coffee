@@ -13,6 +13,7 @@ class CodeGenModel extends CoreModel
 
   defaults: ->
     lang: Options.get('CodeGen.Default')
+    showBoilerPlate: true
 
 module.exports = class CodeGenDialogue extends Modal
 

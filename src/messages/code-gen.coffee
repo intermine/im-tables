@@ -7,6 +7,7 @@ Messages.setWithPrefix 'codegen',
   """
   PrimaryAction: 'Save'
   ChooseLang: 'Choose Language'
+  ShowBoilerPlate: 'Show comments'
   Lang: ({lang}) -> switch lang
     when 'py' then 'Python'
     when 'pl' then 'Perl'
