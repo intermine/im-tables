@@ -9,6 +9,8 @@ SummaryItems = require './summary-items' # when it is a list of items.
 OnlyOneItem = require './only-one-item'  # when there is only one.
 NoResults = require './no-results'       # when there is nothing
 
+REQ_ATTRS = ['error', 'initialized']
+
 # This class presents the items contained in the summary information, either
 # as a list for frequencies, or showing statistics for numerical summaries.
 # It is also responsible for showing an error message in case one needs to be shown,
@@ -24,6 +26,11 @@ module.exports = class FacetItems extends CoreView
   # This model has a reference to the NumericRange model, so it can
   # be passed on the SummaryStats child if this path turns out to be numeric.
   initialize: ({@range}) -> super
+
+  invariants: ->
+    modelHasRequiredAttrs: "Model only has the following attributes: #{ _.keys @model.attributes }"
+
+  modelHasRequiredAttrs: -> (_.intersection REQ_ATTRS, _.keys @model.attributes).length is 2
 
   template: Templates.template 'facet_frequency'
 

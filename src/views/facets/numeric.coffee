@@ -185,7 +185,7 @@ module.exports = class NumericDistribution extends VisualisationBase
     # handlers and tooltips attached.
     selection.append('rect')
              .attr 'x', (d, i) -> scales.x d.bucket # - 0.5 # subtract half a bucket to be at start
-             .attr 'width', (d) -> (scales.x d.bucket + 1) - (scales.x d.bucket)
+             .attr 'width', (d) -> Math.max 0, (scales.x d.bucket + 1) - (scales.x d.bucket)
              .attr 'y', h - @bottomMargin # set the height to 0 initially.
              .attr 'height', 0
              .classed 'im-bucket', true

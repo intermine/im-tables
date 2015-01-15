@@ -29,8 +29,9 @@ module.exports = class FacetView extends CoreView
 
   # May inherit state, defines a model based on @query and @view
   initialize: ({@query, @view, @noTitle}) ->
-    super model: (new SummaryItems {@query, @view})
+    @model = new SummaryItems {@query, @view}
     @range = new NumericRange
+    super
     @state.set(open: Options.get 'Facets.Initally.Open') unless @state.has 'open'
     @setPathNames()
     @setLimits()
@@ -43,6 +44,9 @@ module.exports = class FacetView extends CoreView
   invariants: ->
     hasQuery: "No query"
     hasAttrView: "The view is not an attribute: #{ @view }"
+    modelIsSummaryItemsModel: "The model is not a summary items model: #{ @model }"
+
+  modelIsSummaryItemsModel: -> @model instanceof SummaryItems
 
   hasQuery: -> @query?
 
