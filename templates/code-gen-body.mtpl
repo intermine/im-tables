@@ -21,12 +21,13 @@
     </div>
     <div class="checkbox">
         <label>
-            <input type="checkbox" <%= showBoilerPlate ? 'checked' : void 0 %>>
+            <input class="im-show-boilerplate"
+                   type="checkbox" <%= showBoilerPlate ? 'checked' : void 0 %>>
             <%- Messages.getText('codegen.ShowBoilerPlate') %>
         </label>
     </div>
   </div>
   <div class="col-sm-10">
-    <pre class="im-generated-code"><%- state.generatedCode %></pre>
+    <pre class="im-generated-code"><%- generatedCode %></pre>
   </div>
 </div>

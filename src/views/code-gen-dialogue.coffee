@@ -13,7 +13,15 @@ class CodeGenModel extends CoreModel
 
   defaults: ->
     lang: Options.get('CodeGen.Default')
-    showBoilerPlate: true
+    showBoilerPlate: false
+
+OCTOTHORPE_COMMENTS = /\s*#.*$/gm
+C_STYLE_COMMENTS = /(\s*\/\/.*$|\/\*(\*(?!\/)|[^*])*\*\/)/gm
+
+stripExtraneousWhiteSpace = (str) ->
+  return unless str?
+  str = str.replace /\n\s*\n/g, '\n\n'
+  str.replace /(^\s*|\s*$)/g, ''
 
 module.exports = class CodeGenDialogue extends Modal
 
@@ -23,11 +31,21 @@ module.exports = class CodeGenDialogue extends Modal
     super
     @generateCode()
 
-  modelEvents: -> 'change:lang': @onChangeLang
+  modelEvents: ->
+    'change:lang': @onChangeLang
+    'change:showBoilerPlate': @reRenderBody
 
   stateEvents: -> 'change:generatedCode': @reRenderBody
 
   modalSize: -> 'lg'
+
+  # Get a regular expression that will strip comments.
+  getBoilerPlateRegex: ->
+    return if @model.get 'showBoilerPlate'
+    switch @model.get 'lang'
+      when 'pl', 'py', 'rb' then OCTOTHORPE_COMMENTS
+      when 'java' then C_STYLE_COMMENTS
+      else null
 
   onChangeLang: ->
     lang = @model.get 'lang'
@@ -47,12 +65,21 @@ module.exports = class CodeGenDialogue extends Modal
 
   body: Templates.template 'code_gen_body'
 
-  getData: -> _.extend super, options: Options.get('CodeGen')
+  getData: -> _.extend super, options: Options.get('CodeGen'), generatedCode: @getCode()
+
+  getCode: ->
+    code = @state.get 'generatedCode'
+    regex = @getBoilerPlateRegex()
+    return code unless regex
+    stripExtraneousWhiteSpace code?.replace regex, ''
 
   primaryAction: -> Messages.getText 'codegen.PrimaryAction'
 
   events: ->
     'click .dropdown-menu.im-code-gen-langs li': 'chooseLang'
+    'change .im-show-boilerplate': 'toggleShowBoilerPlate'
+    
+  toggleShowBoilerPlate: -> @model.toggle 'showBoilerPlate'
 
   chooseLang: (e) ->
     lang = @$(e.target).closest('li').data 'lang'
