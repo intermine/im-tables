@@ -45,6 +45,6 @@ module.exports = class FacetItems extends CoreView
   getItems: -> switch
     when @model.get 'numeric'            then new SummaryStats {@model, @range}
     when @model.get('uniqueValues') > 1  then new SummaryItems {@model}
-    when @model.get('uniqueValues') is 0 then new OnlyOneItem {@model}
-    else new NoResults {@state}
+    when @model.get('uniqueValues') is 1 then new OnlyOneItem {@model, @state}
+    else new NoResults {model: @state}
 

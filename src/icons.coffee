@@ -42,6 +42,8 @@ ICONS.glyphicons =
   Script: "glyphicon-cog"
   Export: "glyphicon-download-alt"
   Error: "glyphicon-warning-sign"
+  Info: 'glyphicon-info-sign'
+  Warning: "glyphicon-warning-sign"
   Remove: "glyphicon-minus-sign"
   Check: "glyphicon-ok"
   UnCheck: "glyphicon-none"
@@ -133,6 +135,8 @@ ICONS.fontawesome =
   RemoveConstraint: 'fa-times-circle'
   Dismiss: 'fa-times-circle'
   Error: 'fa-warning'
+  Info: 'fa-info-circle'
+  Warning: 'fa-warning'
   Lock: 'fa-lock'
   RootClass: 'fa-square'
   Attribute: 'fa-tag'

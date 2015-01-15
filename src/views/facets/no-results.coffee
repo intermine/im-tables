@@ -11,4 +11,6 @@ module.exports = class NoResults extends CoreView
   stateEvents: ->
     'change:pathName': @reRender
 
+  renderRequires: ['pathName']
+
   template: Templates.template 'summary_no_results'

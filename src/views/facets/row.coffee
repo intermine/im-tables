@@ -36,11 +36,12 @@ module.exports = class FacetRow extends CoreView
   template: Templates.template 'facet_row'
 
   getData: ->
-    ratio = @model.get('count') / @model.collection.getMaxCount()
+    max = @model.collection.getMaxCount()
+    ratio = @model.get('count') / max
     opacity = (ratio / 2 + 0.5).toFixed() # opacity ranges from 0.5 - 1
     percent = (ratio * 100).toFixed() # percentage is int from 0 - 100
 
-    _.extend super, {percent, opacity}
+    _.extend super, {percent, opacity, max}
 
   onRenderError: (e) -> console.error e
 

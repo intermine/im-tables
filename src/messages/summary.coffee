@@ -9,7 +9,19 @@ Messages.setWithPrefix 'summary',
   Item: 'Item'
   Average: 'Average'
   StdDev: 'Standard Deviation'
-  OnlyOne: 'There is only one value: <%= item %>'
+  OnlyOne: """
+    There is only one <%- names.typeName %> <%- names.endName %>:
+    <strong><%- item.item %></strong>, which occurs
+    <strong>
+      <% if (item.count === 1) { %>
+        once
+      <% } else if (item.count === 2) { %>
+        twice
+      <% } else { %>
+        <%- formatNumber(item.count) %> times
+      <% } %>
+    </strong>
+  """
   NumericDistribution: 'Showing distribution of <%= formatNumber(n) %>'
   FilterValuesPlaceholder: 'Filter values'
   DownloadData: 'Download column summary'
