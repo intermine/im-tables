@@ -1,7 +1,7 @@
 _ = require 'underscore'
-{View, Model} = require 'backbone'
+Backbone = require 'backbone'
 
-class exports.ModelDisplay extends View
+class exports.ModelDisplay extends Backbone.View
 
   tagName: 'code'
 
@@ -12,7 +12,7 @@ class exports.ModelDisplay extends View
     'font-size': '12px'
 
   initialize: ->
-    @state = new Model minimised: true
+    @state = new Backbone.Model minimised: true
     @listenTo @model, 'change', @render
     @listenTo @model, 'change:error', @logError
     @listenTo @state, 'change:minimised', @toggleMinimised
@@ -37,6 +37,11 @@ class exports.ModelDisplay extends View
       data.error = data.error.message
     @$el.html _.escape JSON.stringify data, null, 2
     @toggleMinimised()
+
+exports.displayModels = (subject, names) ->
+  View = exports.ModelDisplay
+  modelDisplays = (new View {model: subject[m]} for m in names)
+  exports.renderModelDisplays modelDisplays...
 
 exports.renderModelDisplays = (views...) ->
   width = (100 / views.length)
