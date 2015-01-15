@@ -21,13 +21,14 @@ $ = require "jquery"
 _ = require 'underscore'
 imjs = require "imjs"
 
-Options = require 'imtables/options'
+{renderModelDisplays, ModelDisplay} = require '../lib/model-display.coffee'
 
-ModelDisplay = require '../lib/model-display.coffee'
+# Models
 CoreModel = require 'imtables/core-model'
 NumericRange = require 'imtables/models/numeric-range'
 SummaryItems = require 'imtables/models/summary-items'
-SummaryStats = require 'imtables/views/facets/summary-stats'
+# Views
+FacetItems = require 'imtables/views/facets/items'
 SummaryHeading = require 'imtables/views/facets/summary-heading'
 NumericDistribution = require 'imtables/views/facets/numeric'
 
@@ -47,33 +48,13 @@ renderQuery = (container, query) ->
   state_display = new ModelDisplay {model: state}
 
   # This is what we actually care about.
-  distribution = new NumericDistribution {model, range}
-  stats = new SummaryStats {model, range}
   heading = new SummaryHeading {model, state}
+  distribution = new NumericDistribution {model, range}
+  stats = new FacetItems {model, range}
 
   renderModelDisplays display, state_display, range_display
 
   renderAll container, [heading, distribution, stats]
-
-renderModelDisplays = (views...) ->
-  width = (100 / views.length)
-  for view, i in views
-    isLast = (i + 1 is views.length)
-    css =
-      position: 'fixed'
-      width: "#{ width.toFixed(2) }%"
-      bottom: 0,
-      'font-size': '12px'
-
-    if isLast
-      css.right = 0
-    else
-      css.left = "#{ (i * width).toFixed(2) }%"
-
-    view.render()
-    view.$el.css css
-            .appendTo 'body'
-      
 
 renderAll = (container, views) ->
   for view in views

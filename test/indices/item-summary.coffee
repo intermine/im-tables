@@ -20,14 +20,13 @@ $ = require "jquery"
 _ = require 'underscore'
 imjs = require "imjs"
 
-Options = require 'imtables/options'
-
-ModelDisplay = require '../lib/model-display.coffee'
+{renderModelDisplays, ModelDisplay} = require '../lib/model-display.coffee'
 CoreModel = require 'imtables/core-model'
 
 SummaryItems = require 'imtables/models/summary-items'
 
 SummaryHeading = require 'imtables/views/facets/summary-heading'
+#FacetVisualisation = require 'imtables/views/facets/visualisation'
 FacetItems = require 'imtables/views/facets/items'
 
 root = "http://localhost:8080/intermine-demo"
@@ -43,29 +42,13 @@ renderQuery = (container, query) ->
   state_display = new ModelDisplay {model: state}
 
   # This is what we actually care about.
-  items = new FacetItems {model}
+  items = new FacetItems {model, state}
+  #vis = new FacetVisualisation {model, state, range}
   heading = new SummaryHeading {model, state}
 
   renderModelDisplays display, state_display
 
   renderAll container, [heading, items]
-
-renderModelDisplays = (views...) ->
-  width = (100 / views.length)
-  for view, i in views
-    isLast = (i + 1 is views.length)
-    css =
-      width: "#{ width.toFixed(2) }%"
-
-    if isLast
-      css.right = 0
-    else
-      css.left = "#{ (i * width).toFixed(2) }%"
-
-    view.render()
-    view.$el.css css
-            .appendTo 'body'
-      
 
 renderAll = (container, views) ->
   for view in views

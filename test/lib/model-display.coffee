@@ -1,7 +1,7 @@
 _ = require 'underscore'
 {View, Model} = require 'backbone'
 
-module.exports = class ModelDisplay extends View
+class exports.ModelDisplay extends View
 
   tagName: 'code'
 
@@ -38,3 +38,19 @@ module.exports = class ModelDisplay extends View
     @$el.html _.escape JSON.stringify data, null, 2
     @toggleMinimised()
 
+exports.renderModelDisplays = (views...) ->
+  width = (100 / views.length)
+  for view, i in views
+    isLast = (i + 1 is views.length)
+    css =
+      width: "#{ width.toFixed(2) }%"
+
+    if isLast
+      css.right = 0
+    else
+      css.left = "#{ (i * width).toFixed(2) }%"
+
+    view.render()
+    view.$el.css css
+            .appendTo 'body'
+      
