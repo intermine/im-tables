@@ -7,6 +7,7 @@ Templates = require '../../templates'
 SummaryStats = require './summary-stats' # when it is numeric.
 SummaryItems = require './summary-items' # when it is a list of items.
 OnlyOneItem = require './only-one-item'  # when there is only one.
+NoResults = require './no-results'       # when there is nothing
 
 # This class presents the items contained in the summary information, either
 # as a list for frequencies, or showing statistics for numerical summaries.
@@ -20,6 +21,8 @@ module.exports = class FacetItems extends CoreView
 
   className: 'im-facet-items'
 
+  # This model has a reference to the NumericRange model, so it can
+  # be passed on the SummaryStats child if this path turns out to be numeric.
   initialize: ({@range}) -> super
 
   template: Templates.template 'facet_frequency'
@@ -27,19 +30,14 @@ module.exports = class FacetItems extends CoreView
   # model values read by the template or which cause the subviews to need re-creation.
   RERENDER_EVENT: 'change:error change:numeric change:uniqueValues change:initialized'
 
-  # Make model available as state is, as the model has *optional* properties, and so cannot
-  # be statically accessed using the standard context lookup mechanism.
-  getData: -> _.extend super, model: @model.toJSON()
-
   # If data has been fetched, then display it.
   postRender: -> if @model.get('initialized')
     @renderChild 'items', @getItems()
 
-  getItems: -> # dispatch to one of the child view implementations.
-    if @model.get 'numeric'
-      new SummaryStats {@model, @range}
-    else if @model.get('uniqueValues') > 1
-      new SummaryItems {@model}
-    else
-      new OnlyOneItem {@model}
+  # dispatch to one of the child view implementations.
+  getItems: -> switch
+    when @model.get 'numeric'            then new SummaryStats {@model, @range}
+    when @model.get('uniqueValues') > 1  then new SummaryItems {@model}
+    when @model.get('uniqueValues') is 0 then new OnlyOneItem {@model}
+    else new NoResults {@state}
 

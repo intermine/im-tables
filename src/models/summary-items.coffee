@@ -26,6 +26,7 @@ inty = (type) -> type in ['int', 'Integer', 'long', 'Long', 'short', 'Short']
 module.exports = class SummaryModel extends CoreModel
 
   defaults: ->
+    error: null
     maxCount: null
     loading: false
     initialized: false

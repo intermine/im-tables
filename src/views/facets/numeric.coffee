@@ -59,10 +59,6 @@ fracWithinRange = (range, min, max) ->
 # based on the size of the bucket and the amount of overlap.
 getPartialCount = (min, max, {count, range}) -> count * fracWithinRange range, min, max
 
-# Helper that constructs a scale fn from the given input domain to the given output range
-scale = (input, output) -> d3.scale.linear().domain(input).range(output)
-
-# TODO - draw chart still needs work.
 module.exports = class NumericDistribution extends VisualisationBase
 
   className: "im-numeric-distribution"
@@ -72,7 +68,6 @@ module.exports = class NumericDistribution extends VisualisationBase
   bottomMargin: 18
   rightMargin: 14
   chartHeight: 70
-  chartWidth: 0 # the width we have available - set during render.
 
   # Flag so we know if we are selecting paths.
   __selecting_paths: false
@@ -107,26 +102,8 @@ module.exports = class NumericDistribution extends VisualisationBase
   # is available on the SummaryItems model as 'buckets', the
   # histogram can be accessed with SummaryItems::getHistogram.
 
-  # Each bucket is represented by a rect which is placed on the canvas. Axes
-  # are drawn with tick-lines.
-  _drawD3Chart: ->
-    @initChart()
-    scales = @getScales()
-    chart = @getCanvas()
-
-    # Bind each histogram bucket to a rectangle in the chart.
-    rects = chart.selectAll('rect').data @getChartData scales
-
-    # Remove any unneeded rectangles
-    rects.exit().remove()
-
-    # Initialise any new rectangles.
-    @enter rects.enter(), scales
-
-    # Make sure the rectangles have the correct height.
-    @update rects, scales
-
-    @drawAxes scales
+  # Each bucket is represented by a rect which is placed on the canvas.
+  selectNodes: (chart) -> chart.selectAll 'rect'
 
   # For convenience we store the bucket number with the count, although it
   # is trivial to calculate from the index. The range is also stored, which
@@ -138,7 +115,7 @@ module.exports = class NumericDistribution extends VisualisationBase
 
   # Set properties that we need access to the DOM to calculate.
   initChart: ->
-    @chartWidth = @$el.closest(':visible').width()
+    super
     @bucketWidth = (@model.get('max') - @model.get('min')) / @model.get('buckets')
     @stepWidth = (@chartWidth - (@leftMargin + 1)) / @model.get('buckets')
 
@@ -179,14 +156,6 @@ module.exports = class NumericDistribution extends VisualisationBase
 
   # Return a function we can use to round values we calculate from x positions.
   getRounder: -> if @isIntish() then Math.round else _.identity
-
-  # Get the canvas if it exists, or create it.
-  getCanvas: ->
-    @paper ?= d3.select(@el)
-                .append('svg')
-                  .attr('class', 'im-summary-chart')
-                  .attr('width', @chartWidth)
-                  .attr('height', @chartHeight)
 
   # The things we do to new rectangles.
   enter: (selection, scales) ->
@@ -233,9 +202,10 @@ module.exports = class NumericDistribution extends VisualisationBase
              .attr 'height', height
              .attr 'y', (d) -> h - bm - (height d) - 0.5
 
-  drawAxes: (scales) ->
+  # Axes are drawn with tick-lines.
+  drawAxes: (chart, scales) ->
+    chart ?= @getCanvas()
     scales ?= @getScales()
-    chart = @getCanvas()
 
     # Draw a line across the bottom of the chart.
     chart.append('line')

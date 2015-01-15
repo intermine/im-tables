@@ -21,6 +21,7 @@ Messages.setWithPrefix 'summary',
   Toggle: 'Toggle selection'
   SelectFilter: 'Select filter type'
   FacetBar: 'rgba(206, 210, 222, <%= opacity %>)' # The colour of facet bars.
+  NoResults: 'No results for <%= path %>'
   Total: """
     <% if (filtered) { %>(filtered from <%= formatNumber(total) %>)<% } %>
   """

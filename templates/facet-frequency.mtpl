@@ -1,15 +1,16 @@
-<% if (model.error) { %>
+<% /* requires: error, initialized */ %>
+<% if (error) { %>
     <% /* Oh noes - something went wrong. */ %>
     <div class="alert alert-warning">
         <%= Icons.icon('Error') %>
         <strong><%- Messages.getText('Error') %></strong>
-        <% if (data.error.key) { %>
-            <%- Messages.getText(data.error.key) %>
+        <% if (error.key) { %>
+            <%- Messages.getText(error.key) %>
         <% } else { %>
-            <%- data.error.message || data.error %>
+            <%- error.message || error %>
         <% } %>
     </div>
-<% } else if (model.initialized) { %>
+<% } else if (initialized) { %>
     <% /* Huzzah - there is data, which will be added here as child views */ %>
 <% } else { %>
     <% /* Boo - no data. Show an indeterminate progress bar while we wait. */ %>
