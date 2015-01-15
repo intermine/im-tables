@@ -31,6 +31,7 @@ SummaryItems = require 'imtables/models/summary-items'
 FacetItems = require 'imtables/views/facets/items'
 SummaryHeading = require 'imtables/views/facets/summary-heading'
 NumericDistribution = require 'imtables/views/facets/numeric'
+FacetVisualisation = require 'imtables/views/facets/visualisation'
 
 root = "http://localhost:8080/intermine-demo"
 conn = imjs.Service.connect(root: root)
@@ -49,12 +50,12 @@ renderQuery = (container, query) ->
 
   # This is what we actually care about.
   heading = new SummaryHeading {model, state}
-  distribution = new NumericDistribution {model, range}
+  viz = new FacetVisualisation {model, range}
   stats = new FacetItems {model, range}
 
   renderModelDisplays display, state_display, range_display
 
-  renderAll container, [heading, distribution, stats]
+  renderAll container, [heading, viz, stats]
 
 renderAll = (container, views) ->
   for view in views

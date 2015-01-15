@@ -23,10 +23,13 @@ imjs = require "imjs"
 {renderModelDisplays, ModelDisplay} = require '../lib/model-display.coffee'
 CoreModel = require 'imtables/core-model'
 
+# Models
 SummaryItems = require 'imtables/models/summary-items'
+NumericRange = require 'imtables/models/numeric-range'
 
+# views
 SummaryHeading = require 'imtables/views/facets/summary-heading'
-#FacetVisualisation = require 'imtables/views/facets/visualisation'
+FacetVisualisation = require 'imtables/views/facets/visualisation'
 FacetItems = require 'imtables/views/facets/items'
 
 root = "http://localhost:8080/intermine-demo"
@@ -35,7 +38,9 @@ conn = imjs.Service.connect(root: root)
 renderQuery = (container, query) ->
   # These are the things that need doing.
   model = new SummaryItems {query, view: query.makePath('department.name')}
+  range = new NumericRange
   state = new CoreModel
+  model.on 'change:min change:max', -> range.setLimits model.pick 'min', 'max'
 
   # These display the data on the bottom of the screen.
   display = new ModelDisplay {model: model}
@@ -43,12 +48,12 @@ renderQuery = (container, query) ->
 
   # This is what we actually care about.
   items = new FacetItems {model, state}
-  #vis = new FacetVisualisation {model, state, range}
+  vis = new FacetVisualisation {model, state, range}
   heading = new SummaryHeading {model, state}
 
   renderModelDisplays display, state_display
 
-  renderAll container, [heading, items]
+  renderAll container, [heading, vis, items]
 
 renderAll = (container, views) ->
   for view in views
