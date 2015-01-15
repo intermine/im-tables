@@ -6,7 +6,7 @@ module.exports = class BooleanChart extends PieChart
 
   initialize: ->
     super
-    @listenTo @model.items 'change:selected', @deselectOthers
+    @listenTo @model.items, 'change:selected', @deselectOthers
     
   # Only one value can be selected at a time (unlike pie charts and histograms,
   # which model multi-selection), so if something gets selected go through all the
