@@ -9,6 +9,9 @@ VisualisationBase = require './visualisation-base'
 
 NULL_SELECTION_WIDTH = 25
 
+# Helper that constructs a scale fn from the given input domain to the given output range
+scale = (input, output) -> d3.scale.linear().domain(input).range(output)
+
 # A function that takes the number of a bucket and a function that will turn that into
 # a value in the continous range of values for the paths and produces an object saying
 # what the range of values are for the bucket.

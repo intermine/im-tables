@@ -7,10 +7,10 @@ VisualisationBase = require './visualisation-base'
 
 require '../../messages/summary' # include the summary messages.
 
+{bool} = require '../../utils/casts'
+
 # Helper that constructs a scale fn from the given input domain to the given output range
 scale = (input, output) -> d3.scale.linear().domain(input).range(output)
-
-bool = (x) -> !!x
 
 module.exports = class HistoFacet extends VisualisationBase
 
