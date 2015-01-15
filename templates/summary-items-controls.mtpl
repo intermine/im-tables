@@ -34,9 +34,11 @@
           title="<%- Messages.getText('summary.Reset') %>">
     <%= Icons.icon('Undo') %>
   </button>
-  <button class="btn btn-default btn-toggle-selection"
-          title="<%- Messages.getText('summary.Toggle') %>">
-    <%= Icons.icon('Toggle') %>
-  </button>
+  <% if (!(/boolean/i).test(type)) { %>
+    <button class="btn btn-default btn-toggle-selection"
+            title="<%- Messages.getText('summary.Toggle') %>">
+        <%= Icons.icon('Toggle') %>
+    </button>
+  <% } %>
 </div>
 
