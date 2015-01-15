@@ -1,6 +1,7 @@
 .im-summary-chart {
-    .im-bucket {
+    .im-bucket, .im-item-bar {
         fill: @brand-primary;
+        stroke: lighten(@brand-primary, 80%);
     }
     .rubberband-selection {
         fill: fadeout(@brand-success, 70%);
@@ -24,9 +25,11 @@
 
 .im-summary-items {
 
-    .im-facet-row.im-selected {
-        background-color: @selected-row-color;
-        border: @selected-row-border;
+    .im-facet-row {
+        &.im-selected, &.hover {
+            background-color: @selected-row-color;
+            border: @selected-row-border;
+        }
     }
     .im-count-col {
         .im-facet-bar {

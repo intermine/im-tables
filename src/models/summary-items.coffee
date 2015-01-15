@@ -72,9 +72,9 @@ module.exports = class SummaryModel extends CoreModel
     if current?
       parts = current.toLowerCase().split /\s+/
       test = (str) -> _.all parts, (part) -> !!(str and ~str.toLowerCase().indexOf(part))
-      @items.each (x) -> x.set visible: test x.get 'item'
+      @items.each (x) -> x.show test x.get 'item'
     else
-      @items.each (x) -> x.set visible: true
+      @items.each (x) -> x.show()
 
   increaseLimit: (factor = 2) ->
     limit = factor * @get 'limit'
@@ -146,6 +146,23 @@ class SummaryItemModel extends CoreModel
     hover: false
     count: 0
     item: null
+
+  # Declarative setters for the boolean attributes.
+
+  select: -> @set selected: false
+
+  deselect: -> @set selected: false
+
+  # Unconditionally hide this model.
+  hide: -> @set visible: false
+
+  # can be used to show unconditionally: model.show()
+  # or it can be used to show if a condition is met: model.show ifCondition
+  show: (ifCondition = true) -> @set visible: ifCondition
+
+  mousein: -> @set hover: true
+
+  mouseout: -> @set hover: false
 
 # This is a collection of SummaryItemModels
 class SummaryItems extends Collection

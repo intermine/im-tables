@@ -18,6 +18,7 @@ module.exports = class HistoFacet extends VisualisationBase
 
   chartHeight: 50
   leftMargin: 25
+  rightMargin: 25
   bottomMargin: 0.5
   stepWidth: 0 # The width of each bar, in pixels - set during render.
 
@@ -37,7 +38,7 @@ module.exports = class HistoFacet extends VisualisationBase
   # Set properties that we need access to the DOM to calculate.
   initChart: ->
     super
-    @stepWidth = (@chartWidth - (@leftMargin + 1)) / @model.items.size()
+    @stepWidth = (@chartWidth - (@leftMargin + @rightMargin + 1)) / @model.items.size()
 
   shouldNotDrawChart: -> @allCountsAreOne()
 
@@ -50,7 +51,7 @@ module.exports = class HistoFacet extends VisualisationBase
     indices = [0, @model.items.size()] # the indices of the bars, i .. n
     counts = [0, @model.get 'maxCount'] # The range of counts, zeroed.
     yPositions = [0, @chartHeight - @bottomMargin]
-    xPositions = [@leftMargin, @chartWidth]
+    xPositions = [@leftMargin, @chartWidth - @rightMargin]
 
     x = (scale indices, xPositions)
     y = (scale counts, yPositions)
@@ -77,20 +78,20 @@ module.exports = class HistoFacet extends VisualisationBase
              .attr 'height', 0        # Correct value set in transition
              .attr 'x', (_, i) -> scales.x i
              .on 'click', (model) -> model.toggle 'selected'
-             .on 'mouseover', (model) -> model.set hover: true
-             .on 'mouseout', (model) -> mode.set hover: false
+             .on 'mouseover', (model) -> model.mousein()
+             .on 'mouseout', (model) -> model.mouseout()
 
   # Transition to the correct height and selected state.
   update: (selection, scales) ->
     {Duration, Easing} = Options.get('D3.Transition')
-    h = @chartHeight
+    h = @chartHeight - @bottomMargin
     height = (model) -> scales.y model.get 'count'
+    selection.classed 'selected', (model) -> model.get 'selected'
     selection.transition()
              .duration Duration
              .ease Easing
-             .classed 'selected', (model) -> bool model.get 'selected'
              .attr 'height', height
-             .attr 'y', (model) -> h - (height model) - @bottomMargin
+             .attr 'y', (model) -> h - (height model)
 
   # Draw an X-axis.
   drawAxes: (chart, scales) ->

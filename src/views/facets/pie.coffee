@@ -1,5 +1,5 @@
 _ = require 'underscore'
-d3 = require 'd3'
+d3 = require 'd3-browserify'
 
 Options = require '../../options'
 
@@ -109,9 +109,11 @@ module.exports = class PieChart extends VisualisationBase
     @exit paths.exit()
     @enter paths.enter()
 
+    {Duration, Easing} = Options.get 'D3.Transition'
+
     paths.attr('fill', @colour)
     paths.transition()
-      .duration(Options.get 'D3.Transition.Duration')
-      .ease(Options.get 'D3.Transition.Easing')
-      .attrTween('d', (getTween @arc))
+      .duration Duration
+      .ease Easing
+      .attrTween 'd', (getTween @arc)
 
