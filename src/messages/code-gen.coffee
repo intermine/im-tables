@@ -5,6 +5,8 @@ Messages.setWithPrefix 'codegen',
     Generated <%= Messages.getText("codegen.Lang", {lang: lang}) %>
     Code for <%= query.name || "Query" %>
   """
+  PrimaryAction: 'Save'
+  ChooseLang: 'Choose Language'
   Lang: ({lang}) -> switch lang
     when 'py' then 'Python'
     when 'pl' then 'Perl'

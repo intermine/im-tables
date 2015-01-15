@@ -66,7 +66,6 @@ module.exports = class Modal extends View
 
   postRender: ->
     @renderFooter()
-    @show() if @shown # In the case of (unlikely) full re-rendering.
 
   onHidden: (e) ->
     if e? and e.target isnt @el # ignore bubbled events from sub-dialogues.
@@ -99,6 +98,10 @@ module.exports = class Modal extends View
     body = @body data
     modalSize = "modal-#{ _.result @, 'modalSize' }"
     modalTemplate {title, body, modalSize}
+
+  reRenderBody: -> if @rendered
+    body = @body @getData()
+    @$('.modal-body').html body
 
   shown: false
 

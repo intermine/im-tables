@@ -1,0 +1,26 @@
+<div class="row">
+  <div class="col-sm-2">
+    <% /* requires lang :: string, options.Langs :: [string] */ %>
+    <div class="btn-group language-selector">
+      <button type="button"
+              data-toggle="dropdown"
+              aria-expanded="false"
+              class="btn btn-default dropdown-toggle">
+        <span class="im-current-lang">
+          <%- Messages.getText('codegen.Lang', {lang: lang}) %>
+        </span>
+        <span class="caret"></span>
+      </button>
+      <ul class="dropdown-menu im-code-gen-langs" role="menu">
+        <% _.each(options.Langs, function (l) { %>
+            <li data-lang="<%- l %>">
+              <a href="#"><%- Messages.getText('codegen.Lang', {lang: l}) %></a>
+            </li>
+        <% }); %>
+      </ul>
+    </div>
+  </div>
+  <div class="col-sm-10">
+    <pre class="im-generated-code"><%- state.generatedCode %></pre>
+  </div>
+</div>
