@@ -13,7 +13,8 @@
       </button>
       <ul class="dropdown-menu im-code-gen-langs" role="menu">
         <% _.each(options.Langs, function (l) { %>
-            <li data-lang="<%- l %>">
+            <li data-lang="<%- l %>"
+                class="<%= (l === lang) ? 'active' : void 0 %>">
               <a href="#"><%- Messages.getText('codegen.Lang', {lang: l}) %></a>
             </li>
         <% }); %>
