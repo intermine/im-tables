@@ -148,8 +148,9 @@ class Options extends Model
     icons: 'fontawesome'
     D3:
       Transition:
-        Easing: 'elastic'
-        Duration: 750
+        Easing: 'exp' # one of linear, quad, cubic, sin, exp, circle, elastic, back, bounce
+        Duration: 500
+        DurationShort: 200
     brand: # keys cannot have dots in them, hence the weirdo uris
       "http://www_flymine_org/query/service/":
         name: "FlyMine"
