@@ -8,6 +8,7 @@ Messages.setWithPrefix 'codegen',
   PrimaryAction: 'Save'
   ChooseLang: 'Choose Language'
   ShowBoilerPlate: 'Show comments'
+  HighlightSyntax: 'Highlight Syntax'
   Lang: ({lang}) -> switch lang
     when 'py' then 'Python'
     when 'pl' then 'Perl'

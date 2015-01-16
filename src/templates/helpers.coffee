@@ -5,6 +5,11 @@ pluralize = require 'pluralize'
 
 select_html = fs.readFileSync __dirname + '/select.html', 'utf8'
 select_templ = _.template select_html, variable: 'data'
+checkbox_html = fs.readFileSync __dirname + '/checkbox.html', 'utf8'
+checkbox_templ = _.template checkbox_html
+
+exports.checkbox = (label, checked, inputClass) ->
+  checkbox_templ {checked, inputClass, label}
 
 exports.select = (options,
   selectedTest = (-> false),

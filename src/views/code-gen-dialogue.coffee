@@ -9,11 +9,14 @@ Templates = require '../templates'
 
 require '../messages/code-gen'
 
+indentXml = require '../utils/indent-xml'
+
 class CodeGenModel extends CoreModel
 
   defaults: ->
     lang: Options.get('CodeGen.Default')
     showBoilerPlate: false
+    highlightSyntax: false
 
 OCTOTHORPE_COMMENTS = /\s*#.*$/gm
 C_STYLE_COMMENTS = /(\s*\/\/.*$|\/\*(\*(?!\/)|[^*])*\*\/)/gm
@@ -56,7 +59,7 @@ module.exports = class CodeGenDialogue extends Modal
   generateCode: ->
     lang = @model.get 'lang'
     switch lang
-      when 'xml' then @state.set generatedCode: @query.toXML()
+      when 'xml' then @state.set generatedCode: indentXml @query.toXML()
       else @query.fetchCode(lang).then (code) => @state.set generatedCode: code
 
   title: -> Messages.getText 'codegen.DialogueTitle', query: @query, lang: @model.get('lang')
@@ -78,8 +81,10 @@ module.exports = class CodeGenDialogue extends Modal
   events: ->
     'click .dropdown-menu.im-code-gen-langs li': 'chooseLang'
     'change .im-show-boilerplate': 'toggleShowBoilerPlate'
+    'change .im-highlight-syntax': 'toggleHighlightSyntax'
     
   toggleShowBoilerPlate: -> @model.toggle 'showBoilerPlate'
+  toggleHighlightSyntax: -> @model.toggle 'highlightSyntax'
 
   chooseLang: (e) ->
     lang = @$(e.target).closest('li').data 'lang'
