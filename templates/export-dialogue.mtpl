@@ -1,6 +1,6 @@
 <div class="row">
-    <nav class="col-md-3 menu">
+    <nav class="col-sm-3 menu">
     </nav>
-    <div class="col-md-9 main">
+    <div class="col-sm-9 main">
     </div>
 </div>
