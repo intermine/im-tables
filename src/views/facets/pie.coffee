@@ -140,11 +140,11 @@ module.exports = class PieChart extends VisualisationBase
     @exit paths.exit()
     @enter paths.enter()
 
-    {Duration, Easing} = Options.get 'D3.Transition'
+    {DurationShort, Easing} = Options.get 'D3.Transition'
 
     paths.attr('fill', @colour)
     paths.transition()
-      .duration Duration
+      .duration DurationShort
       .ease Easing
       .attrTween 'd', (getTween @arc)
 
