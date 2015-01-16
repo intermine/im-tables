@@ -62,6 +62,14 @@ module.exports = class SelectedCount extends CoreView
     else
       @sumSelectedItems()
 
+  preRender: ->
+    return @$el.hide() unless @rendered
+    if not @state.get 'selectedCount'
+      @$el.slideUp()
+
+  postRender: -> if @state.get 'selectedCount'
+    @$el.slideDown()
+
   sumSelectedItems: ->
     selected = @model.items.where selected: true
     count = sum ((i) -> i.get 'count'), selected

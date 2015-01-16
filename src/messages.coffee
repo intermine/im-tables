@@ -8,12 +8,13 @@ tableMessages = require './messages/table'
 constraintMsgs = require './messages/constraints'
 common = require './messages/common'
 
-{numToString} = require './templates/helpers'
+{numToString, pluralise} = require './templates/helpers'
 
 DEFAULTS = [common, actionMessages, tableMessages, constraintMsgs]
 
 HELPERS = # All message templates have access to these helpers.
   formatNumber: numToString
+  pluralise: pluralise
 
 class Messages extends Backbone.Model
 
