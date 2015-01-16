@@ -1,13 +1,18 @@
+<% /* Renders an alert box at various levels, with appropriate icons and messages */ %>
 <% if (error) { %>
-    <div class="pull-left alert alert-danger">
+    <div class="pull-left alert <%- errorAlert(error) %>">
         <% if (!error.cannotDismiss) { %>
             <button type="button" class="dismiss">
                 <span aria-hidden="true">&times;</span>
                 <span class="sr-only">Close</span>
             </button>
         <% } %>
-        <%= Icons.icon('Error') %>
-        <strong><%- Messages.get('Error') %></strong>
-        <%- error.message || error %>
+        <%= Icons.icon(errorIcon(error)) %>
+        <strong><%- Messages.getText('ErrorTitle', error) %></strong>
+        <% if (error.key != null) { %>
+            <%- Messages.getText(error.key) %>
+        <% } else { %>
+            <%- error.message || error %>
+        <% } %>
     </div>
 <% } %>

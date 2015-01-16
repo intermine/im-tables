@@ -15,3 +15,9 @@ module.exports =
   'modal.DefaultTitle': 'Excuse me...'
   'modal.Dismiss': 'Close'
   'modal.OK': 'OK'
+  ErrorTitle: ({level}) -> switch level
+    when 'Error' then 'Error'
+    when 'Warning' then 'Warning'
+    when 'Info' then 'nb'
+    when 'Positive' then 'Success'
+    else 'Error'

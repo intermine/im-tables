@@ -1,4 +1,5 @@
 _ = require 'underscore'
+{Promise} = require 'es6-promise'
 
 # Base class
 Modal = require './modal'
@@ -23,8 +24,21 @@ withResource = require '../utils/with-cdn-resource'
 # Comment finding regexen
 OCTOTHORPE_COMMENTS = /\s*#.*$/gm
 C_STYLE_COMMENTS = /(\s*\/\/.*$|\/\*(\*(?!\/)|[^*])*\*\/)/gm
+XML_MIMETYPE = 'application/xml;charset=utf8'
+CANNOT_SAVE = {level: 'Info', key: 'codegen.CannotExportXML'}
 
 withPrettyPrintOne = _.partial withResource, 'prettify', 'prettyPrintOne'
+
+withFileSaver = _.partial withResource, 'filesaver', 'saveAs'
+
+alreadyRejected = Promise.reject 'Requirements not met'
+
+canSaveFromMemory = ->
+  console.log 'can we save from memory'
+  if not 'Blob' in global
+    alreadyRejected
+  else
+    withFileSaver _.identity
 
 # The data model has three bits - the language, and a couple of presentation
 # options.
@@ -88,10 +102,19 @@ module.exports = class CodeGenDialogue extends Modal
       when 'java' then C_STYLE_COMMENTS
       else null
 
+  act: -> # only called for XML data, and only in supported browsers.
+    blob = new Blob [@state.get('generatedCode')], type: XML_MIMETYPE
+    saveAs blob, "#{ @query.name ? 'name' }.xml"
+
   onChangeLang: ->
     lang = @model.get 'lang'
     @$('.im-current-lang').text Messages.getText 'codegen.Lang', {lang}
     @$('.modal-title').text @title()
+    if lang is 'xml'
+      canSaveFromMemory().then => @state.unset 'error'
+                         .then null, => @state.set error: CANNOT_SAVE
+    else
+      @state.unset 'error'
     @generateCode()
     @setExportLink()
 

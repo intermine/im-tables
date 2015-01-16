@@ -5,6 +5,10 @@ Messages.setWithPrefix 'codegen',
     Generated <%= Messages.getText("codegen.Lang", {lang: lang}) %>
     Code for <%= query.name || "Query" %>
   """
+  CannotExportXML: """
+    You cannot save the XML as a file directly. Please use your browser's cut
+    and paste functionality.
+  """
   PrimaryAction: 'Save'
   ChooseLang: 'Choose Language'
   ShowBoilerPlate: 'Show comments'

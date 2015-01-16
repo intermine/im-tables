@@ -45,6 +45,7 @@ ICONS.glyphicons =
   Info: 'glyphicon-info-sign'
   Warning: "glyphicon-warning-sign"
   Remove: "glyphicon-minus-sign"
+  OK: "glyphicon-ok"
   Check: "glyphicon-ok"
   UnCheck: "glyphicon-none"
   CheckUnCheck: "glyphicon-ok-none"
@@ -99,6 +100,7 @@ ICONS.fontawesome =
   Script: "fa-cog"
   Export: "fa-cloud-download"
   Remove: "fa-minus-circle"
+  OK: "fa-check"
   Check: "fa-toggle-on"
   UnCheck: "fa-toggle-off"
   CheckUnCheck: "fa-toggle-on fa-toggle-off"

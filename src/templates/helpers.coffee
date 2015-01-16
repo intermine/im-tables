@@ -39,3 +39,17 @@ exports.numToString = (number) ->
     rets.unshift groups[i].join("")
     i++
   return rets.join(sep) + (if frac is '000' then '' else ".#{ frac }")
+
+# Functions for mapping error levels to presentational elements
+
+# Get the css class for div.alert box
+exports.errorAlert = ({level}) -> switch level
+  when 'Error' then 'alert-danger'
+  when 'Warning' then 'alert-warning'
+  when 'Info' then 'alert-info'
+  when 'OK' then 'alert-success'
+  else 'alert-danger'
+
+# Get the icon for the appropriate level
+# The error levels are designed to map one-to-one to icon names (see imtables/icons)
+exports.errorIcon = ({level}) -> (level ? 'Error')

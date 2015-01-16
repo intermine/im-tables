@@ -13,7 +13,7 @@ promiseResource = (ident, globalVar) ->
     # Found it on the global context
     Promise.resolve global[globalVar]
   else
-    # Fetching it from the CDN.
+    # "Fetching #{ ident } from the CDN."
     CDN.load(ident).then (-> global[globalVar]), (console.error.bind console)
 
 # A function that guarantees to try and load something at most once, and return
