@@ -12,7 +12,7 @@ CDN =
   resources:
     prettify: [
       '/js/google-code-prettify/latest/prettify.js',
-      '/js/google-code-prettify/latest/prettify.css'
+      # '/js/google-code-prettify/latest/prettify.css' we have our own style.
     ]
     d3: '/js/d3/3.0.6/d3.v3.min.js'
     glyphicons: "/css/bootstrap/2.3.2/css/bootstrap-icons.css"

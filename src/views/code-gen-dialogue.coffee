@@ -23,7 +23,7 @@ withResource = require '../utils/with-cdn-resource'
 
 # Comment finding regexen
 OCTOTHORPE_COMMENTS = /\s*#.*$/gm
-C_STYLE_COMMENTS = /(\s*\/\/.*$|\/\*(\*(?!\/)|[^*])*\*\/)/gm
+C_STYLE_COMMENTS = /\/\*(\*(?!\/)|[^*])*\*\//gm # just strip blocks.
 XML_MIMETYPE = 'application/xml;charset=utf8'
 CANNOT_SAVE = {level: 'Info', key: 'codegen.CannotExportXML'}
 
