@@ -12,12 +12,18 @@ class ModalFooter extends View
 
   className: 'modal-footer'
 
-  RERENDER_EVENT: 'change:error'
+  # model properties we read in the template.
+  # The error is a blocking error to display to the user, which will disable
+  # the main action.
+  # The href is used by dialogues that perform export using GETs to URLs that support
+  # disposition = attachment, which browsers will perform as a download if this href is
+  # used in a link.
+  RERENDER_EVENT: 'change:error change:exportLink'
 
   initialize: ({@template, @actionNames, @actionIcons}) ->
     super
 
-  getData: -> _.extend {error: null}, @actionNames, @actionIcons, super
+  getData: -> _.extend {error: null, exportLink: null}, @actionNames, @actionIcons, super
 
 module.exports = class Modal extends View
 
@@ -39,7 +45,7 @@ module.exports = class Modal extends View
   events: ->
     'click .modal-footer .alert .dismiss': 'dismissError' # Dismiss error
     'click .modal-footer .btn-cancel': 'hide' # Establish a convention for closing modals.
-    'click .modal-footer > .btn-primary': 'act' # Establish a convention for acting.
+    'click .modal-footer > button.btn-primary': 'act' # Establish a convention for acting.
     'hidden.bs.modal': 'onHidden' # Can be caused by user clicking off the modal.
     'click .close': 'hide' # Establish a convention for closing modals.
 

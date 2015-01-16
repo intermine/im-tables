@@ -34,6 +34,8 @@ INITIAL_STATE =
 
 FOOTER = ['progress_bar', 'modal_error', 'export_dialogue_footer']
 
+# The errors users cannot just dismiss, but have to do something to make
+# go away.
 class UndismissableError
 
   cannotDismiss: true
@@ -42,8 +44,10 @@ class UndismissableError
     @key = 'export.error.' + key
     @message = Messages.get @key
 
+# The model backing this view.
 class ExportModel extends Model
 
+  # The different attributes that define the data we care about.
   defaults: ->
     filename: 'results'
     format: Formats.getFormat('tab') # Should be one of the Formats
@@ -129,9 +133,8 @@ module.exports = class ExportDialogue extends Modal
 
     rowCount = @getRowCount()
 
-    # Establish the error state. TODO - use Message.getText
     error = if columns.length is 0
-      new UndismissableError 'NoColumnsSelected' 
+      new UndismissableError 'NoColumnsSelected'
     else if start >= max
       new UndismissableError 'OffsetOutOfBounds'
     else

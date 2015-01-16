@@ -44,6 +44,7 @@ module.exports = class CodeGenDialogue extends Modal
   initialize: ({@query}) ->
     super
     @generateCode()
+    @setExportLink()
 
   # The static descriptive stuff.
 
@@ -74,7 +75,7 @@ module.exports = class CodeGenDialogue extends Modal
   stateEvents: -> 'change:generatedCode': @reRenderBody
 
   # The DOM events - setting the attributes of the model.
-  events: ->
+  events: -> _.extend super,
     'click .dropdown-menu.im-code-gen-langs li': 'chooseLang'
     'change .im-show-boilerplate': 'toggleShowBoilerPlate'
     'change .im-highlight-syntax': 'toggleHighlightSyntax'
@@ -92,12 +93,19 @@ module.exports = class CodeGenDialogue extends Modal
     @$('.im-current-lang').text Messages.getText 'codegen.Lang', {lang}
     @$('.modal-title').text @title()
     @generateCode()
+    @setExportLink()
 
   generateCode: ->
     lang = @model.get 'lang'
     switch lang
       when 'xml' then @state.set generatedCode: indentXml @query.toXML()
       else @query.fetchCode(lang).then (code) => @state.set generatedCode: code
+
+  setExportLink: ->
+    lang = @model.get 'lang'
+    switch lang
+      when 'xml' then @state.set exportLink: null
+      else @state.set exportLink: @query.getCodeURI lang
 
   # This could potentially go into Modal, but it would need more stuff
   # to make it generic (dealing with children, etc). Not worth it for

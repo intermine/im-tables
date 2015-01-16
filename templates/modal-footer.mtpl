@@ -1,10 +1,18 @@
 <button type="button" class="btn btn-cancel">
     <%- dismissAction %>
 </button>
-<button type="button"
+<% if (exportLink != null) { %>
+    <a class="btn btn-primary"
         <%= (error) ? 'disabled' : void 0 %>
-        class="btn btn-primary">
-    <%= Icons.icon(primaryIcon) %>
-    <%- primaryAction %>
-</button>
-
+        href="<%- exportLink %>">
+        <%= Icons.icon(primaryIcon) %>
+        <%- primaryAction %>
+    </a>
+<% } else { %>
+    <button type="button"
+            <%= (error) ? 'disabled' : void 0 %>
+            class="btn btn-primary">
+        <%= Icons.icon(primaryIcon) %>
+        <%- primaryAction %>
+    </button>
+<% } %>
