@@ -1,4 +1,4 @@
-{Promise} = require 'es6-promises'
+{Promise} = require 'es6-promise'
 _ = require 'underscore'
 $ = require 'jquery'
 
