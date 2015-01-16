@@ -144,6 +144,7 @@ ICONS.fontawesome =
   Attribute: 'fa-tag'
   ClosedReference: 'fa-plus-square'
   OpenReference: 'fa-plus-square-o'
+  CodeFile: 'fa-file-code-o'
   tsv: 'fa-list'
   csv: 'fa-list'
   xml: 'fa-code'

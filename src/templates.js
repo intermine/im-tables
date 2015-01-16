@@ -9,5 +9,12 @@ exports.templateFromParts = function (names, opts) {
   return _.template(src, opts);
 };
 function getTemplate (name) {
-  return TEMPLATES[name];
+  if (!name) throw new Error('Name is required.');
+  name = name.replace(/-/g, '_');
+  templ = TEMPLATES[name];
+  if (templ) {
+    return templ;
+  } else {
+    throw new Error('No template registered as "' + name + '"');
+  }
 }

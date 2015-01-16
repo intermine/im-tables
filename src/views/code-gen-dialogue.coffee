@@ -4,14 +4,14 @@ _ = require 'underscore'
 # Base class
 Modal = require './modal'
 
-# Base model
-CoreModel = require '../core-model'
 # Text strings
 Messages = require '../messages'
 # Configuration
 Options = require '../options'
 # Templating
 Templates = require '../templates'
+# The model for this class.
+CodeGenModel = require '../models/code-gen'
 # This class uses the code-gen message bundle.
 require '../messages/code-gen'
 # We use this xml indenter
@@ -34,20 +34,10 @@ withFileSaver = _.partial withResource, 'filesaver', 'saveAs'
 alreadyRejected = Promise.reject 'Requirements not met'
 
 canSaveFromMemory = ->
-  console.log 'can we save from memory'
   if not 'Blob' in global
     alreadyRejected
   else
     withFileSaver _.identity
-
-# The data model has three bits - the language, and a couple of presentation
-# options.
-class CodeGenModel extends CoreModel
-
-  defaults: ->
-    lang: Options.get('CodeGen.Default') # The code-gen lang. See Options.CodeGen.Langs
-    showBoilerPlate: false # Should we show language boilerplate.
-    highlightSyntax: true  # Should we do syntax highlighting
 
 module.exports = class CodeGenDialogue extends Modal
 
@@ -165,6 +155,7 @@ module.exports = class CodeGenDialogue extends Modal
   toggleHighlightSyntax: -> @model.toggle 'highlightSyntax'
 
   chooseLang: (e) ->
+    e.stopPropagation()
     lang = @$(e.target).closest('li').data 'lang'
     @model.set lang: lang
 
