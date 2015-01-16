@@ -20,12 +20,6 @@ bucketRange = (bucketVal, bucket) ->
   [min, max] = (bucketVal(bucket + delta) for delta in [0, 1])
   {min, max}
 
-# get a filter to find buckets fully contained in a given range.
-fullyContained = (min, max) -> (d) -> d.range.min >= min and d.range.max <= max
-# get a filter to find buckets partially overlapping a range to its left or right
-partiallyOverlapping = (min, max) -> (d) ->
-  (d.range.min < min and d.range.max > min) or (d.range.max > max and d.range.min < max)
-
 # Function that enforces limits on a value.
 limited = (min, max) -> (x) ->
   if x < min
@@ -34,33 +28,6 @@ limited = (min, max) -> (x) ->
     max
   else
     x
-
-# Sum up the .count properties of the things in an array.
-sumCounts = (xs) -> _.reduce xs, ((total, x) -> total + x.count), 0
-
-# Sum up a list of partially overlapping buckets.
-sumPartials = (min, max, partials) ->
-  fn = (sum, bucket) -> sum + (getPartialCount min, max, bucket)
-  _.reduce partials, fn, 0
-
-# Get the amount of of a given range a particular span overlaps.
-# eg: ({min: 0, max: 10}, 0, 10) -> 1
-# eg: ({min: 0, max: 10}, 20, 21) -> 0
-# eg: ({min: 0, max: 10}, 0, 7) -> 0.7
-# eg: ({min: 0, max: 10}, 5, 7) -> 0.2
-fracWithinRange = (range, min, max) ->
-  return 0 unless range
-  rangeSize = range.max - range.min
-  overlap = if range.min < min
-    Math.min(range.max, max) - min
-  else
-    max - Math.max(range.min, min)
-  overlap / rangeSize
-
-# Given a particular span, and a bucket, return an estimate of the number
-# of values within the span, assuming that the bucket is evenly populated
-# based on the size of the bucket and the amount of overlap.
-getPartialCount = (min, max, {count, range}) -> count * fracWithinRange range, min, max
 
 module.exports = class NumericDistribution extends VisualisationBase
 
@@ -77,9 +44,6 @@ module.exports = class NumericDistribution extends VisualisationBase
 
   # The rubber-band selection.
   selection: null
-
-  # An estimated count of the number in the selection.
-  estCount: null
 
   # Range is shared by other components, so we accept it from the outside.
   # We listen to changes on the range and respond by drawing a selection box.
@@ -239,27 +203,6 @@ module.exports = class NumericDistribution extends VisualisationBase
   events: ->
     'mouseout': => @__selecting_paths = false # stop selecting when the mouse leaves the el.
 
-  # Draw a label saying how many things we thing are contained within the current selection.
-  drawEstCount: ->
-    # Create it if it doesn't exist.
-    @estCount ?= @getCanvas().append('text')
-                             .classed('im-est-count', true)
-                             .attr('x', @chartWidth * 0.75)
-                             .attr('y', @chartHeight * 0.25)
-    # Set it to display the current estimated count.
-    @estCount.text("~#{ @estimateCount() }")
-
-  # Estimate how many values are likely to be contained in the given selected range.
-  estimateCount: ->
-    if @range.nulled
-      0
-    else
-      {min, max} = @range.toJSON()
-      histogram = @getChartData()
-      fullBuckets = histogram.filter fullyContained min, max
-      partials = histogram.filter partiallyOverlapping min, max
-      Math.round (sumCounts fullBuckets) + (sumPartials min, max, partials)
-
   # Draw the rubber-band selection over the top of the canvas. The selection
   # is a full height box starting at x and extending to the right for width pixels.
   drawSelection: (x, width) ->
@@ -282,14 +225,8 @@ module.exports = class NumericDistribution extends VisualisationBase
       start = scales.valToX min
       width = (scales.valToX max) - start
       @drawSelection(start, width)
-      @drawEstCount()
     else
       @removeSelection()
-      @removeEstCount()
-
-  removeEstCount: ->
-    @estCount?.remove()
-    @estCount = null
 
   removeSelection: ->
     @selection?.remove()
@@ -300,7 +237,6 @@ module.exports = class NumericDistribution extends VisualisationBase
 
   remove: -> # remove the chart if necessary.
     @removeSelection()
-    @removeEstCount()
     @paper?.remove()
     super
 

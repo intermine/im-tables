@@ -34,6 +34,9 @@ Messages.setWithPrefix 'summary',
   SelectFilter: 'Select filter type'
   FacetBar: 'rgba(206, 210, 222, <%= opacity %>)' # The colour of facet bars.
   NoResults: 'No results for <%= path %>'
+  SelectedCount: """
+    <%= isApprox ? "ca. " : void 0 %><%= formatNumber(selectedCount) %> Items Selected
+  """
   Total: """
     <% if (filtered) { %>(filtered from <%= formatNumber(total) %>)<% } %>
   """

@@ -1,0 +1,7 @@
+<% if (state.selectedCount) { %>
+    <div class="alert alert-info im-selected-count">
+        <strong>
+            <%- Messages.getText('summary.SelectedCount', state) %>:
+        </strong>
+    </div>
+<% } %>

@@ -39,6 +39,8 @@ module.exports = class NumericRange extends Backbone.Model
     else
       super(arguments...)
 
+  isAll: -> not @isNotAll()
+
   isNotAll: ->
     return false if @nulled
     {min, max} = @toJSON()

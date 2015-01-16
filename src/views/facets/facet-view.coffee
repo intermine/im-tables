@@ -13,6 +13,7 @@ NumericRange = require '../../models/numeric-range'
 # The child views of this view.
 SummaryHeading = require './summary-heading'
 FacetItems = require './items'
+SelectedCount = require './selected-count'
 FacetVisualisation = require './visualisation'
 
 module.exports = class FacetView extends CoreView
@@ -57,6 +58,7 @@ module.exports = class FacetView extends CoreView
   postRender: ->
     @renderTitle()
     @renderVisualisation()
+    @renderSelectedCount()
     @renderItems()
     @honourOpenness()
 
@@ -65,6 +67,9 @@ module.exports = class FacetView extends CoreView
 
   renderVisualisation: ->
     @renderChild 'viz', (new FacetVisualisation {@model, @state, @range})
+
+  renderSelectedCount: ->
+    @renderChild 'count', (new SelectedCount {@model, @range})
 
   renderItems: ->
     @renderChild 'facet', (new FacetItems {@model, @state, @range})
