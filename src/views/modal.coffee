@@ -99,10 +99,6 @@ module.exports = class Modal extends View
     modalSize = "modal-#{ _.result @, 'modalSize' }"
     modalTemplate {title, body, modalSize}
 
-  reRenderBody: -> if @rendered
-    body = @body @getData()
-    @$('.modal-body').html body
-
   shown: false
 
   # Can be called multiple times, and called on re-render.

@@ -68,6 +68,15 @@ module.exports = class CodeGenDialogue extends Modal
 
   body: Templates.template 'code_gen_body'
 
+  # This could potentially go into Modal, but it would need more stuff
+  # to make it generic (dealing with children, etc). Not worth it for
+  # such a simple method.
+  reRenderBody: -> if @rendered
+    # Replace the body with the current state of the body.
+    @$('.modal-body').html @body @getData()
+    # Trigger any DOM modifications, also re-renders the footer.
+    @trigger 'rendered', @rendered
+
   getData: -> _.extend super, options: Options.get('CodeGen'), generatedCode: @getCode()
 
   getCode: ->
