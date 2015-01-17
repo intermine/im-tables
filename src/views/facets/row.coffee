@@ -3,6 +3,7 @@ _ = require 'underscore'
 CoreView = require '../../core-view'
 Templates = require '../../templates'
 
+Checkbox = require '../../core/checkbox'
 RowSurrogate = require './row-surrogate'
 
 require '../../messages/summary'
@@ -12,9 +13,9 @@ bool = (x) -> !!x
 # Row in the drop down summary.
 module.exports = class FacetRow extends CoreView
 
-  # Not all of these are expected to actually change, but these are the things
-  # the template depends on.
-  RERENDER_EVENT: 'change:count change:selected change:item change:symbol change:share'
+  # Not all of these are expected to actually change,
+  # but these are the things the template depends on.
+  RERENDER_EVENT: 'change:count change:item change:symbol change:share'
 
   tagName: "tr"
 
@@ -48,9 +49,13 @@ module.exports = class FacetRow extends CoreView
   # Subviews and interactions with the DOM.
 
   postRender: ->
+    @addCheckbox()
     @onChangeVisibility()
     @onChangeHover()
     @onChangeSelected()
+
+  addCheckbox: ->
+    @renderChildAt '.checkbox', (new Checkbox {@model, attr: 'selected'})
 
   onChangeVisibility: -> @$el.toggleClass 'im-hidden', not @model.get "visible"
 

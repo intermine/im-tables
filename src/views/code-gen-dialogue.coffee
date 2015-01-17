@@ -12,6 +12,8 @@ Options = require '../options'
 Templates = require '../templates'
 # The model for this class.
 CodeGenModel = require '../models/code-gen'
+# The checkbox sub-component.
+Checkbox = require '../core/checkbox'
 # This class uses the code-gen message bundle.
 require '../messages/code-gen'
 # We use this xml indenter
@@ -81,8 +83,6 @@ module.exports = class CodeGenDialogue extends Modal
   # The DOM events - setting the attributes of the model.
   events: -> _.extend super,
     'click .dropdown-menu.im-code-gen-langs li': 'chooseLang'
-    'change .im-show-boilerplate': 'toggleShowBoilerPlate'
-    'change .im-highlight-syntax': 'toggleHighlightSyntax'
 
   # Get a regular expression that will strip comments.
   getBoilerPlateRegex: ->
@@ -131,7 +131,18 @@ module.exports = class CodeGenDialogue extends Modal
 
   postRender: ->
     super
+    @addCheckboxes()
     @highlightCode()
+
+  addCheckboxes: ->
+    @renderChildAt '.im-show-boilerplate', new Checkbox
+      model: @model
+      attr: 'showBoilerPlate'
+      label: 'codegen.ShowBoilerPlate'
+    @renderChildAt '.im-highlight-syntax', new Checkbox
+      model: @model
+      attr: 'highlightSyntax'
+      label: 'codegen.HighlightSyntax'
 
   highlightCode: -> if @model.get 'highlightSyntax'
     lang = @model.get 'lang'

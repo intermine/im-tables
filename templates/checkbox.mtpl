@@ -1,0 +1,6 @@
+<label>
+    <input type="checkbox" 
+           <%= checked ? 'checked' : void 0 %>
+           >
+    <%- label %>
+</label>

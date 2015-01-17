@@ -1,7 +1,7 @@
 <% /* requires: selected, symbol, item, count, percent, opacity, share */ %>
 <td class="im-selector-col">
   <span><%- symbol %></span>
-  <input type="checkbox" <%= selected ? 'checked' : void 0 %>>
+  <div class="checkbox"></div>
 </td>
 
 <td class="im-item-col">
