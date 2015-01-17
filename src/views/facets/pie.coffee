@@ -25,13 +25,15 @@ getChartPalette = ->
 
 getStartPosition = (model) -> model.get('currentPieCoords') ? TWEEN_START
 
+opacity = (d) -> if d.data.get('visible') then 1 else 0.25
+
 getEndPosition = (startAngle, endAngle, model) ->
   startAngle: startAngle
   endAngle: endAngle
   selected: (if model.get 'selected' then 1 else 0)
 
 # close over the arc function.
-getTween = (arc) -> ({startAngle, endAngle, data}) ->
+getArcTween = (arc) -> ({startAngle, endAngle, data}) ->
   # Interpolate from start position to current position.
   model = data
   start = getStartPosition model
@@ -63,7 +65,7 @@ module.exports = class PieChart extends VisualisationBase
 
   initialize: ->
     super
-    @listenTo @model.items, 'change:selected', @update
+    @listenTo @model.items, 'change:selected change:visible', @update
     @listenTo Options, 'change:PieColors', @onChangePalette
     @onChangePalette()
     console.log 'pie chart initialised'
@@ -146,5 +148,6 @@ module.exports = class PieChart extends VisualisationBase
     paths.transition()
       .duration DurationShort
       .ease Easing
-      .attrTween 'd', (getTween @arc)
+      .style 'opacity', opacity
+      .attrTween 'd', (getArcTween @arc)
 
