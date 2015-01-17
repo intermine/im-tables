@@ -37,13 +37,15 @@ module.exports = class CoreView extends Backbone.View
 
   @include = (mixin) -> _.extend @.prototype, mixin
 
+  hasOwnModel: true # True if the model does not belong to anyone else
+
   initialize: ({@state}) ->
     @children = {}
     Model = (@Model or CoreModel)
-    unless @model?
-      @model = new Model
-    unless @model.toJSON?
-      @model = new Model @model
+    @hasOwnModel = false if (@model?.toJSON?) 
+    @model = new Model unless @model? # Make sure we have one
+    @model = new Model @model unless @model.toJSON? # Lift to Model
+
     @state ?= new CoreModel # State holds transient and computed data.
     unless @state.toJSON?
       @state = new CoreModel @state

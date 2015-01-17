@@ -6,6 +6,7 @@ Modal = require './modal'
 # Model base class
 CoreModel = require '../core-model'
 CoreView = require '../core-view'
+CoreCollection = require '../core/collection'
 
 # Text strings
 Messages = require '../messages'
@@ -25,9 +26,28 @@ class CreateListModel extends CoreModel
     listName: null
     listDesc: null
 
+  initialize: ->
+    @tags = new CoreCollection
+    if @has 'tags'
+      @tags.reset( {id: tag} for tag in @get 'tags' )
+    @listenTo @tags, 'destroy', (t) => @tags.remove t
+
+  toJSON: -> _.extend super, tags: @tags.map (t) -> t.get 'id'
+
+  addTag: ->
+    tag = @get 'nextTag'
+    throw new Error('No tag to add') unless tag?
+    @tags.add {id: tag}
+    @unset 'nextTag'
+    @trigger 'add:tag', tag
+
+  destroy: ->
+    @tags.close()
+    super
+
 class ModalBody extends CoreView
 
-  RERENDER_EVENT: 'change:listName'
+  RERENDER_EVENT: 'change:listName add:tag'
 
   template: Templates.template 'list-dialogue-body'
 
@@ -46,6 +66,12 @@ class ModalBody extends CoreView
   events: ->
     'change .im-list-name': 'setListName'
     'change .im-list-desc': 'setListDesc'
+    'keyup .im-next-tag input': 'setNextTagContent'
+    'click .im-next-tag button': 'addNextTag'
+
+  addNextTag: -> @model.addTag()
+
+  setNextTagContent: (e) -> @model.set nextTag: e.target.value
 
   setListName: (e) -> @model.set listName: e.target.value
 
@@ -54,6 +80,8 @@ class ModalBody extends CoreView
 module.exports = class CreateListDialogue extends Modal
 
   Model: CreateListModel
+
+  className: -> super + ' im-create-list'
 
   title: -> Messages.getText 'lists.CreateListTitle'
 
@@ -71,4 +99,8 @@ module.exports = class CreateListDialogue extends Modal
   postRender: ->
     super
     @renderChild 'body', (new ModalBody {@model}), @$ '.modal-body'
+
+  remove: ->
+    @model.destroy()
+    super
 

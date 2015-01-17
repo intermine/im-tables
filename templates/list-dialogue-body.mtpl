@@ -10,3 +10,29 @@
            placeholder="<%- Messages.getText('lists.params.DescPlaceholder') %>"
            value="<%- listDesc %>">
 </div>
+
+<div class="well im-tags">
+    <% _.each(tags, function (tag) { %>
+        <span class="label label-primary"><%- tag %></span>
+    <% }); %>
+    <div class="row">
+      <div class="col-sm-6">
+        <% if (!tags.length) { %>
+          <span class="im-apology">
+            <%- Messages.getText('lists.NoTags') %>
+          </span>
+        <% } %>
+      </div>
+      <div class="col-sm-6">
+        <div class="input-group im-next-tag">
+          <input type="text" class="form-control"
+                 placeholder="<%- Messages.getText('lists.AddTag') %>">
+          <span class="input-group-btn">
+            <button class="btn btn-default" type="button">
+              <%- Messages.getText('lists.AddTagBtn') %>
+            </button>
+          </span>
+        </div>
+      </div>
+    </div>
+</div>
