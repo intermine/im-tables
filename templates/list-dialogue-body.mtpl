@@ -1,0 +1,12 @@
+<div class="<%- listNameClasses %>">
+    <label><%- Messages.getText('lists.params.Name') %></label>
+    <input class="form-control im-list-name"
+           placeholder="<%- Messages.getText('lists.params.NamePlaceholder') %>"
+           value="<%- listName %>">
+</div>
+<div class="form-group">
+    <label><%- Messages.getText('lists.params.Desc') %></label>
+    <input class="form-control im-list-desc"
+           placeholder="<%- Messages.getText('lists.params.DescPlaceholder') %>"
+           value="<%- listDesc %>">
+</div>
