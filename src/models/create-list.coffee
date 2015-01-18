@@ -9,8 +9,8 @@ trim = (s) -> s.replace(/(^\s+|\s+$)/g, '')
 module.exports = class CreateListModel extends CoreModel
 
   defaults: ->
-    listName: null
-    listDesc: null
+    name: null
+    desc: null
 
   initialize: ->
     @tags = new CoreCollection

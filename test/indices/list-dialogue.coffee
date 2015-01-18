@@ -17,7 +17,7 @@ renderQueryWithCounter = require '../lib/render-query-with-counter-and-displays.
 done = console.log.bind(console, 'SUCCESS')
 fail = console.error.bind(console)
 
-create = (query) -> new Dialogue {query}
+create = (query) -> new Dialogue {query, path: 'employees.id'}
 showDialogue = (dialogue) -> dialogue.show().then done, fail
 
 renderQuery = renderQueryWithCounter create, showDialogue

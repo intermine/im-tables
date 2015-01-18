@@ -49,6 +49,10 @@ module.exports = class CoreView extends Backbone.View
   # which will then be overriden but available to other instances.
   optionalParameters: []
 
+  # Implement this method to set values on the state object. Well, that is
+  # the purpose at least. Called after variants have been asserted.
+  initState: ->
+
   initialize: (opts = {}) ->
     @state = opts.state # separate to avoid override issues in parameters
     params = (_.result @, 'parameters') ? []
@@ -73,6 +77,7 @@ module.exports = class CoreView extends Backbone.View
     @on 'rendering', @preRender
     @on 'rendered', @postRender
     @assertInvariants()
+    @initState()
     listenToModel.call @
     listenToState.call @
     listenToCollection.call @

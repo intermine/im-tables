@@ -34,16 +34,7 @@ class ModalBody extends CoreView
 
   getData: -> _.extend super, @classSets
 
-  modelEvents: ->
-    'add:tag': 'addTag'
-
-  initialize: ->
-    super
-    # construct the class sets
-    @classSets =
-      listNameClasses: new ClassSet
-        'form-group': true
-        'has-error': => not @model.get 'listName'
+  modelEvents: -> 'add:tag': 'addTag'
 
   $tags: null # cache the .im-active-tags selector here
 
@@ -77,7 +68,7 @@ class ModalBody extends CoreView
 
   renderListNameInput: -> @renderChildAt '.im-list-name', new InputWithLabel
     model: @model
-    attr: 'listName'
+    attr: 'name'
     label: 'lists.params.Name'
     helpMessage: 'lists.params.help.Name'
     placeholder: 'lists.params.NamePlaceholder'
@@ -85,7 +76,7 @@ class ModalBody extends CoreView
 
   renderListDescInput: -> @renderChildAt '.im-list-desc', new InputWithLabel
     model: @model
-    attr: 'listDesc'
+    attr: 'desc'
     label: 'lists.params.Desc'
     placeholder: 'lists.params.DescPlaceholder'
 
@@ -99,24 +90,43 @@ module.exports = class CreateListDialogue extends Modal
 
   className: -> super + ' im-create-list'
 
-  title: -> Messages.getText 'lists.CreateListTitle'
+  title: -> Messages.getText 'lists.CreateListTitle', @getData()
 
   primaryAction: -> Messages.getText 'lists.Create'
 
-  initialize: ({@query}) -> super
+  parameters: ['query', 'path']
 
-  # Things that must be true.
+  modelEvents: ->
+    'change:type': 'setTypeName' # The type can change when selecting items
 
-  invariants: ->
-    hasQuery: "No query"
+  # If the things that inform the title changes, replace it.
+  stateEvents: ->
+    'change:typeName change:count': 'setTitle'
+    'change:typeName': 'setListName'
+  
+  setTitle: -> @$('.modal-title').text @title()
 
-  hasQuery: -> @query?
+  setListName: ->
+    @model.set name: Messages.getText 'lists.DefaultName', @state.toJSON()
+
+  initState: ->
+    @setTypeName()
+    @setCount()
+
+  setCount: ->
+    @query.summarise(@path)
+          .then ({stats: {uniqueValues}}) => @state.set count: uniqueValues
+          .then null, (e) => @state.set error: e
+
+  setTypeName: ->
+    @query.makePath @path
+          .getParent()
+          .getType()
+          .getDisplayName()
+          .then (typeName) => @state.set {typeName}
+          .then null, (e) => @state.set error: e
 
   postRender: ->
     super
     @renderChild 'body', (new ModalBody {@model}), @$ '.modal-body'
-
-  remove: ->
-    @model.destroy()
-    super
 
