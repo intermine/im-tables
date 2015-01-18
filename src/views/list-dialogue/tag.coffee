@@ -9,9 +9,9 @@ module.exports = class ListTag extends CoreView
   template: Templates.template 'list-tag'
 
   events: ->
-    'click .im-remove': 'remove'
+    'click .im-remove': 'removeAndDestroy'
 
-  remove: ->
+  removeAndDestroy: ->
     @model.destroy()
-    super
+    @remove()
 

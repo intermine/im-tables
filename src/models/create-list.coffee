@@ -2,6 +2,10 @@ _ = require 'underscore'
 CoreModel = require '../core-model'
 CoreCollection = require '../core/collection'
 
+ON_COMMA = /,\s*/
+
+trim = (s) -> s.replace(/(^\s+|\s+$)/g, '')
+
 module.exports = class CreateListModel extends CoreModel
 
   defaults: ->
@@ -13,15 +17,18 @@ module.exports = class CreateListModel extends CoreModel
     if @has 'tags'
       @tags.reset( {id: tag} for tag in @get 'tags' )
     @listenTo @tags, 'destroy', (t) => @tags.remove t
+    @listenTo @tags, 'add', (t) =>
+      @trigger 'add:tag', t
+      @trigger 'change'
 
   toJSON: -> _.extend super, tags: @tags.map (t) -> t.get 'id'
 
   addTag: ->
-    tag = @get 'nextTag'
-    throw new Error('No tag to add') unless tag?
-    @tags.add {id: tag}
+    tags = @get 'nextTag'
+    throw new Error('No tag to add') unless tags?
     @unset 'nextTag'
-    @trigger 'add:tag', @tags.get tag
+    for tag in trim(tags).split ON_COMMA 
+      @tags.add {id: tag}
 
   destroy: ->
     @tags.close()
