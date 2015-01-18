@@ -11,6 +11,8 @@ Messages.setWithPrefix 'lists',
   AddTag: 'Add a new tag'
   AddTagBtn: 'add'
 
+Messages.setWithPrefix 'lists.error',
+  MustBeLoggedIn: 'You are not logged in. Anonymous users cannot create lists'
 Messages.setWithPrefix 'lists.params',
   Name: 'List Name'
   NamePlaceholder: 'List name is required'

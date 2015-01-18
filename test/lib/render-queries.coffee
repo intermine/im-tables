@@ -7,7 +7,8 @@ conn = imjs.Service.connect(root: root)
 onError = (q, e) ->
   console.log "Could not render query", q, (e.stack ? e)
 
-module.exports = (queries, renderQuery) ->
+module.exports = (queries, renderQuery, authed = false) ->
+  c = conn.connectAs if authed then 'test-user-token' else null
   container = document.querySelector("#demo")
   queries.forEach (q) ->
     div = document.createElement("div")
@@ -15,7 +16,7 @@ module.exports = (queries, renderQuery) ->
     container.appendChild div
     h2.innerHTML = q.name
     div.appendChild h2
-    conn.query(q)
-        .then renderQuery.bind(null, h2, div)
-        .then null, _.partial onError, q
+    c.query(q)
+     .then renderQuery.bind(null, h2, div)
+     .then null, _.partial onError, q
 

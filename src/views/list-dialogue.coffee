@@ -112,6 +112,7 @@ module.exports = class CreateListDialogue extends Modal
   initState: ->
     @setTypeName()
     @setCount()
+    @checkAuth()
 
   setCount: ->
     @query.summarise(@path)
@@ -125,6 +126,10 @@ module.exports = class CreateListDialogue extends Modal
           .getDisplayName()
           .then (typeName) => @state.set {typeName}
           .then null, (e) => @state.set error: e
+
+  checkAuth: ->
+    @query.service.whoami().then null, =>
+      @state.set error: {level: 'Error', key: 'lists.error.MustBeLoggedIn'}
 
   postRender: ->
     super

@@ -22,4 +22,4 @@ showDialogue = (dialogue) -> dialogue.show().then done, fail
 
 renderQuery = renderQueryWithCounter create, showDialogue
 
-$ -> renderQueries queries, renderQuery, authed = true
+$ -> renderQueries queries, renderQuery
