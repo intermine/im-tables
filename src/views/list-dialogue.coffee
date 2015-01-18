@@ -21,6 +21,7 @@ CreateListModel = require '../models/create-list'
 InputWithButton = require '../core/input-with-button'
 ListTag = require './list-dialogue/tag'
 TagsApology = require './list-dialogue/tags-apology'
+InputWithLabel = require '../core/input-with-label'
 
 # This view uses the lists messages bundle.
 require '../messages/lists'
@@ -28,8 +29,6 @@ require '../messages/lists'
 class ModalBody extends CoreView
 
   Model: CreateListModel
-
-  RERENDER_EVENT: 'change:listName'
 
   template: Templates.template 'list-dialogue-body'
 
@@ -48,34 +47,51 @@ class ModalBody extends CoreView
 
   $tags: null # cache the .im-active-tags selector here
 
-  postRender: ->
-    {tags} = @model
+  postRender: -> # Render child views.
+    @renderListNameInput()
+    @renderListDescInput()
+    @renderTags()
+
+  renderTags: ->
     @$tags = @$ '.im-active-tags'
-    tags.each (t) => @addTag t
-    @renderChildAt '.im-apology', (new TagsApology collection: tags)
+    @addTags()
+    @renderApology()
+    @renderTagAdder()
+
+  renderTagAdder: ->
     nextTagView = new InputWithButton
       model: @model
       placeholder: 'lists.AddTag'
       button: 'lists.AddTagBtn'
       sets: 'nextTag'
     @listenTo nextTagView, 'act', @addNextTag
-
     @renderChildAt '.im-next-tag', nextTagView
+
+  addTags: -> @model.tags.each (t) => @addTag t
 
   addTag: (t) -> if @rendered
     @renderChild "tag-#{ t.get 'id' }", (new ListTag model: t), @$tags
 
+  renderApology: ->
+    @renderChildAt '.im-apology', (new TagsApology collection: @model.tags)
+
+  renderListNameInput: -> @renderChildAt '.im-list-name', new InputWithLabel
+    model: @model
+    attr: 'listName'
+    label: 'lists.params.Name'
+    helpMessage: 'lists.params.help.Name'
+    placeholder: 'lists.params.NamePlaceholder'
+    getProblem: (name) -> not name?.length
+
+  renderListDescInput: -> @renderChildAt '.im-list-desc', new InputWithLabel
+    model: @model
+    attr: 'listDesc'
+    label: 'lists.params.Desc'
+    placeholder: 'lists.params.DescPlaceholder'
+
   # DOM->model data-flow.
 
-  events: ->
-    'change .im-list-name': 'setListName'
-    'change .im-list-desc': 'setListDesc'
-
   addNextTag: -> @model.addTag()
-
-  setListName: (e) -> @model.set listName: e.target.value
-
-  setListDesc: (e) -> @model.set listDesc: e.target.value
 
 module.exports = class CreateListDialogue extends Modal
 

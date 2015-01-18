@@ -39,10 +39,28 @@ module.exports = class CoreView extends Backbone.View
 
   hasOwnModel: true # True if the model does not belong to anyone else
 
-  initialize: ({@state}) ->
+  # Properties of the options object which will be made available on the
+  # view at @[prop]. Additionally, their presence (via non-null check)
+  # will be asserted as an invariant.
+  parameters: []
+
+  # Properties of the options object which will be made available on the
+  # view at @[prop]. Default values should be provided on the prototype,
+  # which will then be overriden but available to other instances.
+  optionalParameters: []
+
+  initialize: (opts = {}) ->
+    @state = opts.state # separate to avoid override issues in parameters
+    params = (_.result @, 'parameters') ? []
+    optParams = (_.result @, 'optionalParameters') ? []
+    # Set all required parameters.
+    _.extend @, _.pick opts, params...
+    # Set optional parameters if provided.
+    for p in optParams when p of opts
+      @[p] = opts[p]
     @children = {}
     Model = (@Model or CoreModel)
-    @hasOwnModel = false if (@model?.toJSON?) 
+    @hasOwnModel = false if (@model?.toJSON?) # We did not create this model
     @model = new Model unless @model? # Make sure we have one
     @model = new Model @model unless @model.toJSON? # Lift to Model
 
@@ -165,6 +183,7 @@ module.exports = class CoreView extends Backbone.View
 
   remove: ->
     @$el.parent().trigger 'childremoved', @ # Tell parents we are leaving.
+    @model.destroy() if @hasOwnModel # Destroy the model if we created it.
     @stopListening()
     @removeAllChildren()
     @off()
@@ -193,5 +212,8 @@ module.exports = class CoreView extends Backbone.View
   assertInvariant: (condition, message) -> throw new Error(message) unless condition
 
   assertInvariants: ->
+    params = (_.result @, 'parameters') ? []
+    for p in params
+      @assertInvariant @[p]?, "Missing required option: #{ p }"
     for condition, message of @invariants()
       @assertInvariant (_.result @, condition), message

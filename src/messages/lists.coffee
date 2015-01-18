@@ -13,3 +13,6 @@ Messages.setWithPrefix 'lists.params',
   Desc: 'List Description'
   DescPlaceholder: 'Enter a description'
 
+Messages.setWithPrefix 'lists.params.help',
+  Name: 'You must provide a unique list name'
+

@@ -1,0 +1,7 @@
+<label><%- Messages.getText(label) %></label>
+<input class="form-control"
+       placeholder="<%- Messages.getText(placeholder) %>"
+       value="<%- value %>">
+<% if (helpMessage) { %>
+    <span class="help-block"><%- Messages.getText(helpMessage) %></span>
+<% } %>
