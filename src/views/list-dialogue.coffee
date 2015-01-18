@@ -76,7 +76,7 @@ class ModalBody extends CoreView
 
   renderListDescInput: -> @renderChildAt '.im-list-desc', new InputWithLabel
     model: @model
-    attr: 'desc'
+    attr: 'description'
     label: 'lists.params.Desc'
     placeholder: 'lists.params.DescPlaceholder'
 
@@ -93,6 +93,11 @@ module.exports = class CreateListDialogue extends Modal
   title: -> Messages.getText 'lists.CreateListTitle', @getData()
 
   primaryAction: -> Messages.getText 'lists.Create'
+
+  act: ->
+    toRun = @query.selectPreservingImpliedConstraints [@path]
+    toRun.saveAsList @model.toJSON()
+         .then @resolve, (e) => @state.set error: e
 
   parameters: ['query', 'path']
 

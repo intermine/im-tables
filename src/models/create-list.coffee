@@ -10,7 +10,7 @@ module.exports = class CreateListModel extends CoreModel
 
   defaults: ->
     name: null
-    desc: null
+    description: null
 
   initialize: ->
     @tags = new CoreCollection
