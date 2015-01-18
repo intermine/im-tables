@@ -12,6 +12,7 @@ module.exports = class ListTag extends CoreView
     'click .im-remove': 'removeAndDestroy'
 
   removeAndDestroy: ->
+    @model.collection.remove @model
     @model.destroy()
     @remove()
 

@@ -16,7 +16,9 @@ module.exports = class CreateListModel extends CoreModel
     @tags = new CoreCollection
     if @has 'tags'
       @tags.reset( {id: tag} for tag in @get 'tags' )
-    @listenTo @tags, 'destroy', (t) => @tags.remove t
+    @listenTo @tags, 'remove', (t) =>
+      @trigger 'remove:tag', t
+      @trigger 'change'
     @listenTo @tags, 'add', (t) =>
       @trigger 'add:tag', t
       @trigger 'change'
