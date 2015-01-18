@@ -1,0 +1,5 @@
+<% if (!hasTags) { %>
+  <span>
+    <%- Messages.getText('lists.NoTags') %>
+  </span>
+<% } %>

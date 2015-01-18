@@ -4,9 +4,7 @@ _ = require 'underscore'
 # Base class
 Modal = require './modal'
 # Model base class
-CoreModel = require '../core-model'
 CoreView = require '../core-view'
-CoreCollection = require '../core/collection'
 
 # Text strings
 Messages = require '../messages'
@@ -17,41 +15,28 @@ Templates = require '../templates'
 # CSS class helpers.
 ClassSet = require '../utils/css-class-set'
 
+CreateListModel = require '../models/create-list'
+
+# Sub-components
+InputWithButton = require '../core/input-with-button'
+ListTag = require './list-dialogue/tag'
+TagsApology = require './list-dialogue/tags-apology'
+
 # This view uses the lists messages bundle.
 require '../messages/lists'
 
-class CreateListModel extends CoreModel
-
-  defaults: ->
-    listName: null
-    listDesc: null
-
-  initialize: ->
-    @tags = new CoreCollection
-    if @has 'tags'
-      @tags.reset( {id: tag} for tag in @get 'tags' )
-    @listenTo @tags, 'destroy', (t) => @tags.remove t
-
-  toJSON: -> _.extend super, tags: @tags.map (t) -> t.get 'id'
-
-  addTag: ->
-    tag = @get 'nextTag'
-    throw new Error('No tag to add') unless tag?
-    @tags.add {id: tag}
-    @unset 'nextTag'
-    @trigger 'add:tag', tag
-
-  destroy: ->
-    @tags.close()
-    super
-
 class ModalBody extends CoreView
 
-  RERENDER_EVENT: 'change:listName add:tag'
+  Model: CreateListModel
+
+  RERENDER_EVENT: 'change:listName'
 
   template: Templates.template 'list-dialogue-body'
 
   getData: -> _.extend super, @classSets
+
+  modelEvents: ->
+    'add:tag': 'addTag'
 
   initialize: ->
     super
@@ -61,17 +46,32 @@ class ModalBody extends CoreView
         'form-group': true
         'has-error': => not @model.get 'listName'
 
+  $tags: null # cache the .im-active-tags selector here
+
+  postRender: ->
+    {tags} = @model
+    @$tags = @$ '.im-active-tags'
+    tags.each (t) => @addTag t
+    @renderChildAt '.im-apology', (new TagsApology collection: tags)
+    nextTagView = new InputWithButton
+      model: @model
+      placeholder: 'lists.AddTag'
+      button: 'lists.AddTagBtn'
+      sets: 'nextTag'
+    @listenTo nextTagView, 'act', @addNextTag
+
+    @renderChildAt '.im-next-tag', nextTagView
+
+  addTag: (t) -> if @rendered
+    @renderChild "tag-#{ t.get 'id' }", (new ListTag model: t), @$tags
+
   # DOM->model data-flow.
 
   events: ->
     'change .im-list-name': 'setListName'
     'change .im-list-desc': 'setListDesc'
-    'keyup .im-next-tag input': 'setNextTagContent'
-    'click .im-next-tag button': 'addNextTag'
 
   addNextTag: -> @model.addTag()
-
-  setNextTagContent: (e) -> @model.set nextTag: e.target.value
 
   setListName: (e) -> @model.set listName: e.target.value
 

@@ -1,0 +1,2 @@
+<%- id %>
+<span class="im-remove"><%= Icons.icon('Remove') %></span>

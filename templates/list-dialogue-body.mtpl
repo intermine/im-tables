@@ -12,27 +12,14 @@
 </div>
 
 <div class="well im-tags">
-    <% _.each(tags, function (tag) { %>
-        <span class="label label-primary"><%- tag %></span>
-    <% }); %>
-    <div class="row">
-      <div class="col-sm-6">
-        <% if (!tags.length) { %>
-          <span class="im-apology">
-            <%- Messages.getText('lists.NoTags') %>
-          </span>
-        <% } %>
-      </div>
-      <div class="col-sm-6">
-        <div class="input-group im-next-tag">
-          <input type="text" class="form-control"
-                 placeholder="<%- Messages.getText('lists.AddTag') %>">
-          <span class="input-group-btn">
-            <button class="btn btn-default" type="button">
-              <%- Messages.getText('lists.AddTagBtn') %>
-            </button>
-          </span>
-        </div>
+  <div class="row im-active-tags">
+  </div>
+  <div class="row">
+    <div class="col-sm-6 im-apology">
+    </div>
+    <div class="col-sm-6">
+      <div class="im-next-tag">
       </div>
     </div>
+  </div>
 </div>
