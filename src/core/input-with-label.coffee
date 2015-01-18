@@ -60,7 +60,6 @@ module.exports = class InputWithLabel extends CoreView
 
   onChangeValidity: ->
     problem = @state.get 'problem'
-    console.log 'problem is now', problem
     help = @$ '.help-block'
     if problem
       @$el.toggleClass 'has-warning', (problem.level is 'warning')
