@@ -15,7 +15,10 @@ Messages.setWithPrefix 'lists',
   AddTagBtn: 'add'
   RemoveTag: 'Remove this tag'
   ShowExtraOptions: """<% if (minimised) { %>Show <% } %>Optional attributes"""
-  NoObjectsSelected: 'No objects selected. Choose objects from the table'
+  NoObjectsSelected: """
+    No objects selected. Choose objects from the table beneath it. You can
+    drag this dialog around if it is in the way.
+  """
 
 Messages.setWithPrefix 'lists.error',
   MustBeLoggedIn: 'You are not logged in. Anonymous users cannot create lists'

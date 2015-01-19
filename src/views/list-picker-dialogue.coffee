@@ -31,7 +31,7 @@ NO_COMMON_TYPE =
   cannotDismiss: true
 
 NO_OBJECTS_SELECTED =
-  level: 'Warning'
+  level: 'Info'
   key: 'lists.NoObjectsSelected'
   cannotDismiss: true
 
