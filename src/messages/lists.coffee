@@ -10,6 +10,7 @@ Messages.setWithPrefix 'lists',
   NoTags: 'No tags'
   AddTag: 'Add a new tag'
   AddTagBtn: 'add'
+  RemoveTag: 'Remove this tag'
 
 Messages.setWithPrefix 'lists.error',
   MustBeLoggedIn: 'You are not logged in. Anonymous users cannot create lists'

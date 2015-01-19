@@ -1,2 +1,4 @@
 <%- id %>
-<span class="im-remove"><%= Icons.icon('Remove') %></span>
+<span class="im-remove" title="<%- Messages.getText('lists.RemoveTag') %>">
+    <%= Icons.icon('Remove') %>
+</span>
