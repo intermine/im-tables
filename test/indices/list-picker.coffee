@@ -1,5 +1,5 @@
 queries = [ # We are creating a query here just for its service.
-  { select: ["Department.name"] }
+  { select: ["Department.name", "Department.employees.name"] }
 ]
 
 require 'imtables/shim'
@@ -12,6 +12,8 @@ objects = new Collection
 
 renderQueries = require '../lib/render-queries.coffee'
 renderQueryWithCounter = require '../lib/render-query-with-counter-and-displays.coffee'
+renderItemSelector = require '../lib/item-selector'
+
 fail = console.error.bind(console)
 done = (res) ->
   return console.log('dialogue dismissed - no list created') if res is 'dismiss'
@@ -21,8 +23,10 @@ done = (res) ->
       .then -> console.log 'Cleaned up ', list.name
       .then null, (e) -> console.error "Failed to delete #{ list.name }", e
 
-# There are better ways to lay our hands on a service, really.
-create = (query) -> new Dialogue {collection: objects, service: query.service}
+create = (query) ->
+  renderItemSelector query, 1, objects
+  new Dialogue {collection: objects, service: query.service}
+
 showDialogue = (dialogue) -> dialogue.show().then done, fail
 
 renderQuery = renderQueryWithCounter create, showDialogue

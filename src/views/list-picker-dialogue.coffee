@@ -37,9 +37,13 @@ NO_OBJECTS_SELECTED =
 
 module.exports = class ListPickerDialogue extends ListDialogue
 
+  className: 'modal im-list-picker im-create-list'
+
   @include Floating
 
   parameters: ['service']
+
+  initiallyMinimised: true
 
   initState: ->
     super
@@ -58,7 +62,8 @@ module.exports = class ListPickerDialogue extends ListDialogue
     @setType()
 
   # The count is the number of ids.
-  setCount: -> @state.set count: @collection.size()
+  setCount: ->
+    @state.set count: @collection.size()
 
   # Returns the TypeInfo object for the current type. Or nothing.
   getType: ->
@@ -71,11 +76,13 @@ module.exports = class ListPickerDialogue extends ListDialogue
     return unless @schema? # have to wait until we have a model.
     unless @collection.size() # No objects -> no types.
       return @state.set error: NO_OBJECTS_SELECTED
-    types = @collection.map (o) -> o.get 'type'
+    types = @collection.map (o) -> o.get 'class'
     commonType = @schema.findCommonType types
     if commonType
       @model.set type: commonType
+      @state.set error: null
     else
-      @model.set type: null, error: NO_COMMON_TYPE
+      @model.set type: null
+      @state.set error: NO_COMMON_TYPE
       @state.unset 'typeName'
 
