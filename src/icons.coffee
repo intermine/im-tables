@@ -72,6 +72,7 @@ ICONS.glyphicons =
   ExtraValue: 'glyphicon-map-marker'
   Tree: 'glyphicon-plus'
   Download: 'glyphicon-file'
+  Options: 'glyphicon-tasks'
   ClipBoard: 'glyphicon-paper-clip'
   Composed: 'glyphicon-tags'
   RemoveConstraint: 'glyphicon-remove-sign'
@@ -129,6 +130,7 @@ ICONS.fontawesome =
   Tree: 'fa-sitemap'
   ReverseRef: 'fa-retweet'
   Reorder: "fa-reorder"
+  Options: 'fa-tasks'
   Edit: 'fa-edit'
   ExtraValue: 'fa-database'
   Download: 'fa-file-archive-o'

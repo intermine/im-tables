@@ -19,4 +19,35 @@
             }
         }
     }
+
+    .im-more-options {
+
+      h4 {
+        text-align: center;
+        position: relative;
+        font-size: 12px;
+        font-weight: bold;
+        overflow: hidden;
+
+        &:before {
+          margin-left: -50%;
+          margin-left: e("-webkit-calc(-50% - 1em)");
+          margin-left: e("calc(-50% - 1em)");
+        }
+        &:after {
+          margin-left: 1em;
+        }
+        &:before, &:after {
+          position: absolute;
+          content: '';
+          z-index: 3;
+          width: 50%;
+          top: 50%;
+          height: 0;
+          border-top: 1px solid rgba(0,0,0,.1);
+          border-bottom: 1px solid rgba(255,255,255,.2)
+        }
+      }
+
+    }
 }

@@ -6,24 +6,7 @@ Templates = require '../templates'
 
 modalTemplate = Templates.template 'modal_base'
 
-class ModalFooter extends View
-  
-  tagName: 'div'
-
-  className: 'modal-footer'
-
-  # model properties we read in the template.
-  # The error is a blocking error to display to the user, which will disable
-  # the main action.
-  # The href is used by dialogues that perform export using GETs to URLs that support
-  # disposition = attachment, which browsers will perform as a download if this href is
-  # used in a link.
-  RERENDER_EVENT: 'change:error change:exportLink'
-
-  initialize: ({@template, @actionNames, @actionIcons}) ->
-    super
-
-  getData: -> _.extend {error: null, exportLink: null}, @actionNames, @actionIcons, super
+ModalFooter = require './modal-footer'
 
 module.exports = class Modal extends View
 
@@ -58,6 +41,8 @@ module.exports = class Modal extends View
 
   primaryIcon: -> null
 
+  Footer: ModalFooter
+
   renderFooter: ->
     return unless @rendered
     dismissAction = _.result @, 'dismissAction'
@@ -68,7 +53,7 @@ module.exports = class Modal extends View
       model: @state
       actionNames: {dismissAction, primaryAction}
       actionIcons: {primaryIcon}
-    @renderChild 'footer', (new ModalFooter opts), @$ '.modal-content'
+    @renderChild 'footer', (new this.Footer opts), @$ '.modal-content'
 
   postRender: ->
     @renderFooter()
@@ -81,9 +66,16 @@ module.exports = class Modal extends View
     @remove()
 
   remove: ->
-    return @$el.modal 'hide' if @shown # Allow removal and hiding to go together.
-    @reject new Error 'unresolved before removal' # no-op if already resolved or rejected.
-    super
+    # While this looks dangerous (since rejection triggers removal), it in fact can
+    # cause no more than one nested call since rejection is a no-op if the promise is
+    # already resolved or rejected.
+    @reject new Error 'unresolved before removal'
+
+    # Allow removal and hiding to go together.
+    # note that we return here to avoid infinite recursion, since hiding triggers removal.
+    return @_hideModal() if @shown
+
+    super()
 
   # Override these to provide better text. Can be function or value. You should
   # always override title and primaryAction
@@ -114,10 +106,17 @@ module.exports = class Modal extends View
     p.then (=> @remove()), (=> @remove())
 
     try
-      @$el.modal().modal 'show'
+      @_showModal()
       @trigger 'shown', @shown = true
     catch e
       @reject e
 
     return p
 
+  # Actually show the modal dialogue. Override to customise.
+  # This is a protected method - if you are not a modal yourself, do not call this method.
+  _showModal: -> @$el.modal().modal 'show'
+
+  # Actually hide the modal dialogue. Override to customise.
+  # This is a protected method - if you are not a modal yourself, do not call this method.
+  _hideModal: -> @$el.modal 'hide'

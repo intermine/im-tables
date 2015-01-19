@@ -3,5 +3,8 @@
        placeholder="<%- Messages.getText(placeholder) %>"
        value="<%- value %>">
 <% if (helpMessage) { %>
-    <span class="help-block"><%- Messages.getText(helpMessage) %></span>
+  <span style="display:<%= hasProblem ? 'block' : 'none' %>"
+        class="help-block">
+        <%- Messages.getText(helpMessage) %>
+  </span>
 <% } %>

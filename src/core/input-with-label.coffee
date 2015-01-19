@@ -26,7 +26,7 @@ module.exports = class InputWithLabel extends CoreView
 
   # Nothing by default - provide one to give help if there is a problem. Also,
   # problems may define their own help (see ::getProblem).
-  helpMessage: null 
+  helpMessage: null
 
   initialize: ->
     super
@@ -39,6 +39,7 @@ module.exports = class InputWithLabel extends CoreView
     label: @label
     placeholder: @placeholder
     helpMessage: @helpMessage
+    hasProblem: @state.get('problem')
 
   postRender: ->
     @$el.addClass @className # in case we were renderedAt

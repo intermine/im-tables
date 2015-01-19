@@ -1,15 +1,26 @@
 <div class="im-list-name"></div>
 
-<div class="im-list-desc"></div>
-
-<div class="well im-tags">
-  <div class="row im-active-tags">
+<div class="row">
+  <div class="col-sm-12 im-more-options">
+    <h4>
+      <%= Icons.icon('Options') %>
+      <span class="msg"><%- Messages.getText('lists.ShowExtraOptions', state) %></span>
+    </h4>
   </div>
-  <div class="row">
-    <div class="col-sm-6 im-apology">
+</div>
+
+<div class="im-optional-attributes" style="<%- state.minimised ? 'display:none' : void 0 %>">
+  <div class="im-list-desc"></div>
+
+  <div class="well im-tags">
+    <div class="row im-active-tags">
     </div>
-    <div class="col-sm-6">
-      <div class="im-next-tag">
+    <div class="row">
+      <div class="col-sm-6 im-apology">
+      </div>
+      <div class="col-sm-6">
+        <div class="im-next-tag">
+        </div>
       </div>
     </div>
   </div>
