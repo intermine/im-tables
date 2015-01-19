@@ -15,8 +15,18 @@ var serverPort = (grunt.option('port') || env.PORT || env.npm_package_config_por
 grunt.initConfig({
   watch: { // Hwat! This task lays out the dependency graph.
     coffee: {
-      files: ['src/**', 'templates/**', 'package.json', 'test/indices/*', 'test/lib/*'],
-      tasks: ['build'],
+      files: ['src/**', 'templates/**', 'package.json'],
+      tasks: [
+        'compile',
+        'bundle'
+      ],
+      options: {spawn: false}
+    },
+    indices: {
+      files: ['test/indices/*', 'test/lib/*'],
+      tasks: [
+        'bundle'
+      ],
       options: {spawn: false}
     },
     less: {
