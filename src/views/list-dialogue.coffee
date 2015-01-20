@@ -1,4 +1,5 @@
 _ = require 'underscore'
+{Promise} = require 'es6-promise'
 
 # Base class
 Modal = require './modal'
@@ -27,11 +28,11 @@ module.exports = class CreateListDialogue extends Modal
   primaryAction: -> Messages.getText 'lists.Create'
 
   act: ->
-    toRun = @getQuery()
-    toRun.saveAsList @model.toJSON()
-         .then @resolve, (e) => @state.set error: e
+    saveOptions = @model.toJSON()
+    @getQuery().then (toRun) -> toRun.saveAsList saveOptions
+               .then @resolve, (e) => @state.set error: e
 
-  getQuery: -> @query.selectPreservingImpliedConstraints [@path]
+  getQuery: -> Promise.resolve @query.selectPreservingImpliedConstraints [@path]
 
   modelEvents: ->
     'change:type': 'setTypeName' # The type can change when selecting items

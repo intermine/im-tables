@@ -16,7 +16,7 @@ Messages.setWithPrefix 'lists',
   RemoveTag: 'Remove this tag'
   ShowExtraOptions: """<% if (minimised) { %>Show <% } %>Optional attributes"""
   NoObjectsSelected: """
-    No objects selected. Choose objects from the table beneath it. You can
+    No objects selected. Choose objects from the table beneath. You can
     drag this dialog around if it is in the way.
   """
 

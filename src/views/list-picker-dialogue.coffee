@@ -54,6 +54,13 @@ module.exports = class ListPickerDialogue extends ListDialogue
   fetchModel: -> # call it schema to distinguish from model
     @service.fetchModel().then (model) => @schema = model
 
+  getQuery: -> @service.query
+    from: @model.get 'type'
+    select: ['id']
+    where: [{path: @model.get('type'), op: 'IN', ids: @getIds()}]
+
+  getIds: -> @collection.map (o) -> o.get('id')
+
   collectionEvents: ->
     'add remove': @onChangeCollection
 
