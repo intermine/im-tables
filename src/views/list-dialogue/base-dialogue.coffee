@@ -38,12 +38,15 @@ module.exports = class BaseCreateListDialogue extends Modal
   primaryAction: -> Messages.getText 'lists.Create'
 
   act: ->
-    saveOptions = @model.toJSON()
-    @getQuery().then (toRun) -> toRun.saveAsList saveOptions
+    @getQuery().then (toRun) => @processQuery toRun
                .then @resolve, (e) => @state.set error: e
 
+  processQuery: (query) -> query.saveAsList @model.toJSON()
+
   modelEvents: ->
-    'change:type': 'setTypeName' # The type can change when selecting items
+    'change:type': 'onChangeType' # The type can change when selecting items
+
+  onChangeType: -> @setTypeName()
 
   # If the things that inform the title changes, replace it.
   stateEvents: ->
@@ -73,7 +76,9 @@ module.exports = class BaseCreateListDialogue extends Modal
   checkAuth: -> @getService().whoami().then null, =>
     @state.set error: {level: 'Error', key: 'lists.error.MustBeLoggedIn'}
 
+  getBodyOptions: -> {@model, @state}
+
   postRender: ->
     super
-    @renderChild 'body', (new this.Body {@model, @state}), @$ '.modal-body'
+    @renderChild 'body', (new this.Body @getBodyOptions()), @$ '.modal-body'
 

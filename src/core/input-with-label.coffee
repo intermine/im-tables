@@ -13,7 +13,7 @@ module.exports = class InputWithLabel extends CoreView
 
   template: Templates.template 'input-with-label'
 
-  parameters: ['attr', 'placeholder', 'label']
+  parameters: -> ['attr', 'placeholder', 'label']
 
   optionalParameters: ['getProblem', 'helpMessage']
 
@@ -71,7 +71,8 @@ module.exports = class InputWithLabel extends CoreView
       @$el.removeClass 'has-warning has-error'
       help.slideUp()
 
-  setModelValue: (e) -> @model.set @attr, e.target.value
+  setModelValue: (e) ->
+    @model.set @attr, @$(e.target).val() # Use val so sub-classes can use it.
 
   setDOMValue: ->
     $input = @$ 'input'

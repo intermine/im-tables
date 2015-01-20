@@ -13,7 +13,7 @@ class exports.ModelDisplay extends Backbone.View
 
   initialize: (opts) ->
     @state = new Backbone.Model minimised: (opts.initiallyMinimised ? true)
-    @listenTo @model, 'change', @render
+    @listenTo @model, 'change add remove reset', @render
     @listenTo @model, 'change:error', @logError
     @listenTo @state, 'change:minimised', @toggleMinimised
 

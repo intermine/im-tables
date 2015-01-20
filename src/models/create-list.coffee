@@ -29,7 +29,7 @@ module.exports = class CreateListModel extends CoreModel
     tags = @get 'nextTag'
     throw new Error('No tag to add') unless tags?
     @unset 'nextTag'
-    for tag in trim(tags).split ON_COMMA 
+    for tag in trim(tags).split ON_COMMA
       @tags.add {id: tag}
 
   destroy: ->

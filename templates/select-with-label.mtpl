@@ -1,0 +1,17 @@
+<label><%- Messages.getText(label) %></label>
+
+<select class="form-control">
+    <% _.each(options, function (option) { %>
+        <option selected="<%= selected(option) ? 'selected' : void 0 %>"
+                value="<%- option.name %>">
+            <%- Messages.getText(optionLabel, option) %>
+        </option>
+    <% }) %>
+</select>
+
+<% if (helpMessage) { %>
+  <span style="display:<%= hasProblem ? 'block' : 'none' %>"
+        class="help-block">
+        <%- Messages.getText(helpMessage) %>
+  </span>
+<% } %>

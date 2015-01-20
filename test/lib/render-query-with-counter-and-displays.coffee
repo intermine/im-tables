@@ -1,13 +1,13 @@
 Counter = require './counter.coffee'
 MD = require './model-display.coffee'
 
-module.exports = (create, afterRender = (->)) -> (heading, container, query) ->
-  counter = new Counter el: heading, query: query
+module.exports = (create, afterRender = (->), props = ['model', 'state']) -> (h2, div, query) ->
+  counter = new Counter el: h2, query: query
   view = create query
 
   counter.render()
-  MD.displayModels view, ['model', 'state'], false
-  view.$el.appendTo container
+  MD.displayModels view, props, false
+  view.$el.appendTo div
   view.render()
   afterRender view
 
