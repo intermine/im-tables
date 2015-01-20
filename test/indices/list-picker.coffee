@@ -6,7 +6,7 @@ require 'imtables/shim'
 $ = require 'jquery'
 
 Collection = require 'imtables/core/collection'
-Dialogue = require 'imtables/views/list-picker-dialogue'
+Dialogue = require 'imtables/views/list-dialogue/create-from-selection'
 
 objects = new Collection
 

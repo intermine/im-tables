@@ -1,3 +1,4 @@
+require './shim' # This loads jquery plugins and sets up Backbone
 Backbone = require 'backbone'
 _ = require 'underscore'
 $ = require 'jquery'

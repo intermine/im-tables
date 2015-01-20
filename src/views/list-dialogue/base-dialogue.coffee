@@ -1,27 +1,37 @@
 _ = require 'underscore'
-{Promise} = require 'es6-promise'
 
 # Base class
-Modal = require './modal'
+Modal = require '../modal'
 # Text strings
-Messages = require '../messages'
+Messages = require '../../messages'
 
-CreateListModel = require '../models/create-list'
-
-ListDialogueBody = require './list-dialogue/body'
+CreateListModel = require '../../models/create-list'
+ListDialogueBody = require './body'
 
 # This view uses the lists messages bundle.
-require '../messages/lists'
+require '../../messages/lists'
 
-module.exports = class CreateListDialogue extends Modal
+ABSTRACT = -> throw new Error 'not implemented'
 
-  parameters: ['query', 'path']
+module.exports = class BaseCreateListDialogue extends Modal
+
+  # :: -> Promise<Query>
+  getQuery: ABSTRACT
+
+  # :: -> Promise<int>
+  fetchCount: ABSTRACT
+
+  # :: -> PathInfo?
+  getType: ABSTRACT
+
+  # :: -> Service
+  getService: -> ABSTRACT
 
   Model: CreateListModel
 
   Body: ListDialogueBody
 
-  className: -> super + ' im-create-list'
+  className: -> super + ' im-list-dialogue im-create-list'
 
   title: -> Messages.getText 'lists.CreateListTitle', @getData()
 
@@ -31,8 +41,6 @@ module.exports = class CreateListDialogue extends Modal
     saveOptions = @model.toJSON()
     @getQuery().then (toRun) -> toRun.saveAsList saveOptions
                .then @resolve, (e) => @state.set error: e
-
-  getQuery: -> Promise.resolve @query.selectPreservingImpliedConstraints [@path]
 
   modelEvents: ->
     'change:type': 'setTypeName' # The type can change when selecting items
@@ -54,24 +62,16 @@ module.exports = class CreateListDialogue extends Modal
     @checkAuth()
 
   setCount: ->
-    @query.summarise(@path)
-          .then ({stats: {uniqueValues}}) => @state.set count: uniqueValues
-          .then null, (e) => @state.set error: e
+    @fetchCount().then (count) => @state.set count: count
+                 .then null, (e) => @state.set error: e
 
   setTypeName: ->
     @getType()?.getDisplayName()
                .then (typeName) => @state.set {typeName}
                .then null, (e) => @state.set error: e
 
-  getType: ->
-    @query.makePath @path
-          .getParent()
-          .getType()
-
   checkAuth: -> @getService().whoami().then null, =>
     @state.set error: {level: 'Error', key: 'lists.error.MustBeLoggedIn'}
-
-  getService: -> @query.service
 
   postRender: ->
     super

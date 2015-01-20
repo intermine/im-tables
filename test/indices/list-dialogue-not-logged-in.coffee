@@ -10,7 +10,7 @@ queries = [
 require 'imtables/shim'
 $ = require 'jquery'
 
-Dialogue = require 'imtables/views/list-dialogue'
+Dialogue = require 'imtables/views/list-dialogue/create-from-path'
 
 renderQueries = require '../lib/render-queries.coffee'
 renderQueryWithCounter = require '../lib/render-query-with-counter-and-displays.coffee'
