@@ -33,7 +33,7 @@ module.exports = class CreateListModel extends CoreModel
       @tags.add {id: tag}
 
   destroy: ->
-    @tags.close()
+    @tags?.close()
     super
 
 
