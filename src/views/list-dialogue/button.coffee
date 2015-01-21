@@ -6,6 +6,7 @@ Collection = require '../../core/collection'
 Templates = require '../../templates'
 
 ClassSet = require '../../utils/css-class-set'
+PathModel = require '../../models/path'
 
 # The four dialogues of the apocalypse
 AppendPicker = require './append-from-selection'
@@ -15,25 +16,6 @@ CreateFromPath = require './create-from-path'
 
 require '../../messages/lists'
 
-class PathModel extends CoreModel
-
-  defaults: ->
-    path: null
-    type: null
-    displayName: null
-    typeName: null
-
-  constructor: (path) ->
-    super()
-    @set
-      id: (path.toString() + '.id')
-      path: path.toString()
-      type: path.getType().name
-
-    path.getDisplayName().then (name) =>
-      @set displayName: name
-    path.getType().getDisplayName().then (name) =>
-      @set typeName: name
 
 class Paths extends Collection
 
