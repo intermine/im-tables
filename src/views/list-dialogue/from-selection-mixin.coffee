@@ -64,12 +64,14 @@ module.exports = (Base) ->
   # Finds the common type from the collection, and sets that on the model.
   setType: ->
     return unless @schema? # have to wait until we have a model.
-    return unless @collection.size() # No objects -> no types.
-    types = @collection.map (o) -> o.get 'class'
-    commonType = @schema.findCommonType types
+    commonType = if @collection.size()
+      commonType = @schema.findCommonType @collection.map (o) -> o.get 'class'
+    else
+      null
+
     if commonType
       @model.set type: commonType
     else
       @model.set type: null
-      @state.unset 'typeName'
+      @state.set typeName: null
 

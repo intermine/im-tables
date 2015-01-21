@@ -12,7 +12,7 @@ class Item extends Backbone.View
 
   initialize: ({@selected}) ->
     @setSelected()
-    @listenTo @selected, 'add remove', @setSelected
+    @listenTo @selected, 'add remove reset', @setSelected
     @listenTo @model, 'change:selected', @render
 
   setSelected: ->
