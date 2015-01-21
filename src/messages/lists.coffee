@@ -4,6 +4,7 @@ Messages.setWithPrefix 'lists',
   DefaultName: '<%= typeName %> List (<%= new Date() %>)'
   Create: 'Create List'
   Append: 'Add to List'
+  CreateListOrAppendToList: 'Save as List'
   CreateListTitle: """
     Create a new List
     <% if (state.count) { %>

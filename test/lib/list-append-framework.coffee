@@ -33,8 +33,9 @@ done = (res) ->
   tearDown()
 
 showDialogue = (dialogue) -> dialogue.show().then done, fail
+listToDefault = ['model', 'possibleLists', 'state']
 
-exports.runWithQuery = (queries, create, listenTo = ['model', 'possibleLists', 'state']) ->
-  renderQuery = renderQueryWithCounter create, showDialogue, listenTo
+exports.runWithQuery = (queries, create, listenTo = listToDefault, after = showDialogue) ->
+  renderQuery = renderQueryWithCounter create, after, listenTo
   $ -> setup().then (-> renderQueries queries, renderQuery, authed = true), fail
 

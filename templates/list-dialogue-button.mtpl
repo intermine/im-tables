@@ -1,0 +1,18 @@
+<button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+    <%- Messages.getText('lists.CreateListOrAppendToList') %>
+    <span class="caret"></span>
+</button>
+
+<ul class="dropdown-menu" role="menu">
+    <li class="divider"></li>
+    <li>
+        <div class="btn-group" role="group">
+            <button class="<%- createBtnClasses %>">
+                <%- Messages.getText('lists.Create') %>
+            </button>
+            <button class="<%- appendBtnClasses %>">
+                <%- Messages.getText('lists.Append') %>
+            </button>
+        </div>
+    </li>
+</ul>
