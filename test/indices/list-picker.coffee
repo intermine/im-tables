@@ -1,4 +1,4 @@
-queries = [ # We are creating a query here just for its service.
+queries = [ # We are creating a query here just for its service, oh, and its table.
   { select: ["Department.name", "Department.employees.name"] }
 ]
 

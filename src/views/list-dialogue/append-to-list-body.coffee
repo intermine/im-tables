@@ -25,6 +25,7 @@ module.exports = class AppendToListBody extends CoreView
       label: 'lists.params.Target'
       optionLabel: 'lists.PossibleAppendTarget'
       helpMessage: 'lists.params.help.Target'
+      noOptionsMessage: 'lists.append.NoSuitableLists'
       getProblem: (target) -> not target?.length
     @listenTo selector.state, 'change:error', console.error.bind(console)
     @renderChild 'list-selector', selector

@@ -52,3 +52,13 @@ Messages.setWithPrefix 'lists.params.help',
 Messages.setWithPrefix 'lists.picker',
   Expand: 'show more options'
   Collapse: 'show fewer options'
+
+Messages.setWithPrefix 'lists.append',
+  NoSuitableLists: """
+    No suitable lists were found
+    <% if (model.type) { %>
+      for <%- model.type %>.
+    <% } else { %>
+      because no items are selected, or they have no common type.
+    <% } %>
+  """

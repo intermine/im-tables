@@ -74,9 +74,9 @@ module.exports = class BaseAppendDialogue extends BaseCreateListDialogue
 
   initialize: ->
     super
-    @possibleLists = new PossibleLists service: @getService()
+    @listenTo @getPossibleLists(), 'remove reset', @verifyState
 
-    @listenTo @possibleLists, 'remove reset', @checkThereAreLists
+  getPossibleLists: ->  @possibleLists ?= new PossibleLists service: @getService()
 
   processQuery: (query) -> query.appendToList @model.get 'target'
   
@@ -86,27 +86,30 @@ module.exports = class BaseAppendDialogue extends BaseCreateListDialogue
   initState: ->
     super
     @fetchSuitableLists()
-    @verifyTarget()
+    @verifyState()
 
-  checkThereAreLists: -> unless @possibleLists.size()
+  checkThereAreLists: -> unless @getPossibleLists().size()
     @state.set error: NO_SUITABLE_LISTS
 
   onChangeTarget: ->
     @setTitle()
+    @verifyState()
+
+  verifyState: ->
+    @state.unset 'error' # it will be set down the line.
+    @checkThereAreLists()
     @verifyTarget()
+    @verifyTargetExistsAndIsSuitable()
 
   verifyTarget: ->
-    @state.unset 'error' # it will be set down the line.
     unless @model.get('target')
-      console.log 'there is no effing target!'
       @state.set error: NO_TARGET_SELECTED
-    @verifyTargetExistsAndIsSuitable()
 
   onChangeType: ->
     super
     @fetchSuitableLists()
 
-  getBodyOptions: -> _.extend super, collection: @possibleLists
+  getBodyOptions: -> _.extend super, collection: @getPossibleLists()
 
   verifyTargetExistsAndIsSuitable: ->
     type = @getType()
@@ -121,7 +124,7 @@ module.exports = class BaseAppendDialogue extends BaseCreateListDialogue
 
   fetchSuitableLists: ->
     type = @getType()
-    return @possibleLists.reset() unless type?
+    return @getPossibleLists().reset() unless type?
 
     path = type.model.makePath type.name
 
@@ -129,6 +132,6 @@ module.exports = class BaseAppendDialogue extends BaseCreateListDialogue
                  .then (lists) -> _.filter lists, (list) -> path.isa list.type
                  .then onlyCurrent
                  .then unpackLists
-                 .then (ls) => @possibleLists.reset ls
+                 .then (ls) => @getPossibleLists().reset ls
                  .then null, (e) => @state.set error: e
 

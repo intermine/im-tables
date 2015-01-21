@@ -12,7 +12,11 @@ module.exports = class SelectWithLabel extends InputWithLabel
 
   parameters: -> ['model', 'collection', 'attr', 'label', 'optionLabel']
 
+  optionalParameters: -> ['noOptionsMessage'].concat super
+
   template: Templates.template 'select-with-label'
+
+  noOptionsMessage: 'core.NoOptions'
 
   events: ->
     'change select': 'setModelValue'
@@ -24,9 +28,11 @@ module.exports = class SelectWithLabel extends InputWithLabel
     currentlySelected = @model.get @attr
     _.extend @getBaseData(),
       label: @label
+      model: @model.toJSON()
       selected: (list) -> list.name is currentlySelected
       options: @collection.toJSON()
       optionLabel: @optionLabel
       helpMessage: @helpMessage
+      noOptionsMessage: @noOptionsMessage
       hasProblem: @state.get('problem')
 

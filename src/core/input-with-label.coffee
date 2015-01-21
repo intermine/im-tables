@@ -15,7 +15,7 @@ module.exports = class InputWithLabel extends CoreView
 
   parameters: -> ['attr', 'placeholder', 'label']
 
-  optionalParameters: ['getProblem', 'helpMessage']
+  optionalParameters: -> ['getProblem', 'helpMessage']
 
   # A function that takes the model value and returns a Problem if there is one
   # A Problem is any truthy value. For simple cases `true` will do just fine,

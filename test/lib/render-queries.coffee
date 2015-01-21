@@ -1,14 +1,13 @@
 _ = require 'underscore'
 imjs = require "imjs"
 
-root = "http://localhost:8080/intermine-demo"
-conn = imjs.Service.connect(root: root)
+{connection, authenticatedConnection} = require './connect-to-service.coffee'
 
 onError = (q, e) ->
   console.log "Could not render query", q, (e.stack ? e)
 
 module.exports = (queries, renderQuery, authed = false) ->
-  c = conn.connectAs if authed then 'test-user-token' else null
+  c = if authed then authenticatedConnection else connection
   container = document.querySelector("#demo")
   queries.forEach (q) ->
     div = document.createElement("div")

@@ -14,7 +14,7 @@ module.exports = (Base) ->
     @query.summarise @path
           .then ({stats: {uniqueValues}}) -> uniqueValues
 
-  # :: -> PathInfo?
+  # :: -> Table?
   getType: -> @query.makePath(@path).getParent().getType()
 
   # :: -> Service
