@@ -18,13 +18,22 @@ require '../../messages/lists'
 class PathModel extends CoreModel
 
   defaults: ->
-    displayName: null
     path: null
+    type: null
+    displayName: null
+    typeName: null
 
   constructor: (path) ->
     super()
-    @set id: path.toString(), path: path.toString()
-    path.getDisplayName().then (name) => @set displayName: name
+    @set
+      id: (path.toString() + '.id')
+      path: path.toString()
+      type: path.getType().name
+
+    path.getDisplayName().then (name) =>
+      @set displayName: name
+    path.getType().getDisplayName().then (name) =>
+      @set typeName: name
 
 class Paths extends Collection
 
@@ -32,13 +41,29 @@ class Paths extends Collection
 
 class SelectableNode extends CoreView
 
+  parameters: ['query', 'model', 'showDialogue']
+
   tagName: 'li'
 
-  RERENDER_EVENT: 'change:displayName'
+  modelEvents: -> 'change:displayName change:typeName': @reRender
+
+  stateEvents: -> 'change:count': @reRender
 
   Model: PathModel
 
   template: Templates.template 'list-dialogue-button-node'
+
+  events: -> click: 'openDialogue'
+
+  initialize: ->
+    super
+    console.log 'summarising', @model.get 'path'
+    @query.summarise @model.get 'id'
+          .then ({stats}) => @state.set count: stats.uniqueValues
+
+  openDialogue: ->
+    args = {@query, path: @model.get('id')}
+    @showDialogue args
 
 module.exports = class ListDialogueButton extends CoreView
 
@@ -72,8 +97,10 @@ module.exports = class ListDialogueButton extends CoreView
 
   postRender: ->
     menu = @$ '.dropdown-menu'
-    @paths.each (pathModel, i) =>
-      @renderChild "path-#{ i }", (new SelectableNode model: pathModel), menu, 'prepend'
+    @paths.each (model, i) =>
+      showDialogue = (args) => @showPathDialogue args
+      node = new SelectableNode {@query, model, showDialogue}
+      @renderChild "path-#{ i }", node, menu, 'prepend'
 
   setActionIsCreate: (e) ->
     e.stopPropagation()
@@ -85,21 +112,29 @@ module.exports = class ListDialogueButton extends CoreView
     e.preventDefault()
     @state.set action: 'append'
 
+  showDialogue: (Dialogue, args) ->
+    dialogue = new Dialogue args
+    @renderChild 'dialogue', dialogue
+    success = (list) => @trigger "list:#{ action }", list
+    failure = (e) => @trigger "failure:#{ action }", e
+    dialogue.show().then success, failure
+
+  showPathDialogue: (args) ->
+    action = @state.get 'action'
+    Dialogue = switch action
+      when 'append' then AppendFromPath
+      when 'create' then CreateFromPath
+      else throw new Error "Unknown action: #{ action }"
+    @showDialogue Dialogue, args
+
   startPicking: ->
     action = @state.get 'action'
     args = {collection: @selected, service: @query.service}
-    console.log 'Lets get picking!', action
-    try
-      dialogue = switch action
-        when 'append' then new AppendPicker args
-        when 'create' then new CreatePicker args
-        else throw new Error "Unknown action: #{ action }"
-      @renderChild 'dialogue', dialogue
-      success = (list) => @trigger "list:#{ action }", list
-      failure = (e) => @trigger "failure:#{ action }", e
-      dialogue.show().then success, failure
-    catch e
-      @state.set error: e
+    Dialogue = switch action
+      when 'append' then AppendPicker
+      when 'create' then CreatePicker
+      else throw new Error "Unknown action: #{ action }"
+    @showDialogue Dialogue, args
 
   setActionButtonState: ->
     action = @state.get 'action'

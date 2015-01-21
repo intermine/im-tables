@@ -15,13 +15,22 @@ SelectionTable = require '../lib/selection-table'
 
 objects = new Collection
 
+onListAppend = (res) ->
+  ListAppendFramework.done(res).then ListAppendFramework.setup
+
+onListCreate = (res) ->
+  return console.log('dismissed') if res is 'dismiss'
+  list = res
+  list.del().then -> console.log 'cleaned up', list
+            .then null, (e) -> console.error 'err', e
+
 create = (query) ->
   table = new SelectionTable {query, selected: objects}
   table.render().$el.appendTo 'body'
 
   button = new Button {query: query, selected: objects}
-  button.on 'list:create list:append', (res) ->
-    ListAppendFramework.done(res).then ListAppendFramework.setup
+  button.on 'list:append', onListAppend
+  button.on 'list:create', onListCreate
   return button
 
 ListAppendFramework.runWithQuery queries, create, ['model', 'state'], (->)

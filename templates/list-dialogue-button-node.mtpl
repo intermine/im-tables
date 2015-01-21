@@ -1,1 +1,9 @@
-<a href="#"><%- displayName || path %></a>
+<a href="#">
+    <strong>
+        <%- displayName || path %>
+    </strong>
+    <% if (state.count) { %>
+        (<%- numToString(state.count) %>
+        <%- pluralise((typeName || type), state.count) %>)
+    <% } %>
+</a>
