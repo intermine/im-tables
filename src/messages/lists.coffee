@@ -36,9 +36,12 @@ Messages.setWithPrefix 'lists',
     drag this dialog around if it is in the way.
   """
   StartPicking: 'Pick items from the table'
+  NoCommonType: 'There is no common type for these objects.'
 
 Messages.setWithPrefix 'lists.error',
-  MustBeLoggedIn: 'You are not logged in. Anonymous users cannot create lists'
+  MustBeLoggedIn: """
+    You are not logged in. Anonymous users cannot create lists.
+  """
 
 Messages.setWithPrefix 'lists.params',
   Name: 'List Name'
