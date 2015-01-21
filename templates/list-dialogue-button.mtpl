@@ -6,13 +6,19 @@
 <ul class="dropdown-menu" role="menu">
     <li class="divider"></li>
     <li>
-        <div class="btn-group" role="group">
-            <button class="<%- createBtnClasses %>">
+        <a class="im-pick-items" href="#">
+            <%- Messages.getText('lists.StartPicking') %>
+        </a>
+    </li>
+    <li class="divider"></li>
+    <li>
+        <div class="btn-group btn-group-justified" role="group">
+            <a role="button" class="<%- createBtnClasses %>">
                 <%- Messages.getText('lists.Create') %>
-            </button>
-            <button class="<%- appendBtnClasses %>">
+            </a>
+            <a role="button" class="<%- appendBtnClasses %>">
                 <%- Messages.getText('lists.Append') %>
-            </button>
+            </a>
         </div>
     </li>
 </ul>

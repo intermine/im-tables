@@ -41,6 +41,8 @@ module.exports = class BaseCreateListDialogue extends Modal
     @getQuery().then (toRun) => @processQuery toRun
                .then @resolve, (e) => @state.set error: e
 
+  verifyState: -> @state.set error: null
+
   processQuery: (query) -> query.saveAsList @model.toJSON()
 
   modelEvents: ->

@@ -55,7 +55,7 @@ module.exports = (Base) ->
     @verifyState()
 
   verifyState: ->
-    Base::verifyState.call @
+    Base::verifyState?.call @
     if not @collection.size()
       @state.set error: NO_OBJECTS_SELECTED
     else if not @model.get 'type'

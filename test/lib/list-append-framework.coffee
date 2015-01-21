@@ -19,14 +19,14 @@ tearDown = (quiet = false) ->
          .then -> console.log 'cleaned up successfully'
          .then null, (e) -> console.error 'Failed to clean up!!', e unless quiet
 
-setup = -> new Promise (resolve, reject) ->
+exports.setup = setup = -> new Promise (resolve, reject) ->
   c = authenticatedConnection
   getQuery = c.query select: ['Employee.id'], where: {'department.name': 'Sales'}
   makeList = (q) -> q.saveAsList tempListAttrs
   tryToMakeList = -> getQuery.then(makeList).then resolve, reject
   tearDown(quiet = true).then tryToMakeList, tryToMakeList
 
-done = (res) ->
+exports.done = done = (res) ->
   return console.log('dialogue dismissed - no list created') if res is 'dismiss'
   list = res
   console.log 'SUCCESS - appended to', list

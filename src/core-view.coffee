@@ -159,15 +159,16 @@ module.exports = class CoreView extends Backbone.View
   # the child may be null, in which case it will be ignored.
   # A name really ought to be supplied, but one will be generated if needed.
   # If no container is given, the child is appended to the element of this view.
-  renderChild: (name, view, container = @el, append = true) ->
+  renderChild: (name, view, container = @el, placement = 'append') ->
     return this unless view?
     name ?= getKid()
     @removeChild name
     @children[name] = view
-    if append
-      view.$el.appendTo container
-    else
-      view.setElement(container[0] or container)
+    switch placement
+      when 'append' then view.$el.appendTo container
+      when 'prepend' then view.$el.prependTo container
+      when 'at' then view.setElement(container[0] or container)
+      else throw new Error "Unknown position: #{ placement }"
     view.render()
     this
 
@@ -175,7 +176,7 @@ module.exports = class CoreView extends Backbone.View
   # as the element of the component.
   renderChildAt: (name, view, element) ->
     element ?= @$ name
-    @renderChild name, view, element, false
+    @renderChild name, view, element, 'at'
 
   # Remove a child by name, if it exists.
   removeChild: (name) ->

@@ -19,6 +19,9 @@ create = (query) ->
   table = new SelectionTable {query, selected: objects}
   table.render().$el.appendTo 'body'
 
-  new Button {query: query}
+  button = new Button {query: query, selected: objects}
+  button.on 'list:create list:append', (res) ->
+    ListAppendFramework.done(res).then ListAppendFramework.setup
+  return button
 
 ListAppendFramework.runWithQuery queries, create, ['model', 'state'], (->)

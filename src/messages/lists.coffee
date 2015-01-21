@@ -35,6 +35,7 @@ Messages.setWithPrefix 'lists',
     No objects selected. Choose objects from the table beneath. You can
     drag this dialog around if it is in the way.
   """
+  StartPicking: 'Pick items from the table'
 
 Messages.setWithPrefix 'lists.error',
   MustBeLoggedIn: 'You are not logged in. Anonymous users cannot create lists'
