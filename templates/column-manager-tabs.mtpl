@@ -1,0 +1,12 @@
+<ul class="nav nav-tabs">
+    <li role="presentation" class="<%- classes.view %>">
+      <a href="#">
+        <%- Messages.getText('columns.ViewTabTitle') %>
+      </a>
+    </li>
+    <li role="presentation" class="<%- classes.sortorder %>">
+      <a href="#">
+        <%- Messages.getText('columns.SortOrderTabTitle') %>
+      </a>
+    </li>
+</ul>

@@ -9,6 +9,8 @@ Messages.setWithPrefix 'columns',
   SortTitle: 'Sort-Order'
   OnlyColsInView: 'Only show columns in the table:'
   SortingHelpTitle: 'What Columns Can I Sort by?'
+  ViewTabTitle: 'Selected Columns'
+  SortOrderTabTitle: 'Sort Order'
   SortingHelpContent: """
     A table can be sorted by any of the attributes of the objects
     which are in the output columns or constrained by a filter, so
