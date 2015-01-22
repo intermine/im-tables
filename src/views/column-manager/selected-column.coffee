@@ -6,6 +6,20 @@ Templates = require '../../templates'
 
 PathModel = require '../../models/path'
 
+decr = (i) -> i - 1
+incr = (i) -> i + 1
+
+# (*) Note that when we use the buttons to re-arrange, we do the swapping in
+# the event handlers. This is ugly, since we are updating the model _and_ the
+# DOM in the same method, rather than having the DOM reflect the model.
+# However, the reason for this is as follows: there are two ways to rearrange
+# the view - dragging or button clicks. Dragging does not need a re-render,
+# just a model update, which is performed in the parent component; Button
+# clicks don't need a re-render as such, just a re-arrangement, but
+# re-arranging on change:index would cause re-renders when the model is updated
+# after drag, causing flicker. Also, we don't really _need_ to re-render the
+# whole parent, just swap two neighbouring elements. Since this is easy to do,
+# it makes sense to do it here.
 module.exports = class SelectedColumn extends CoreView
 
   Model: PathModel
@@ -39,7 +53,21 @@ module.exports = class SelectedColumn extends CoreView
 
   events: ->
     'click .im-remove-view': 'removeView'
+    'click .im-move-up': 'moveUp'
+    'click .im-move-down': 'moveDown'
     'binned': 'removeView'
+
+  moveDown: ->
+    next = @model.collection.at incr @model.get 'index'
+    next.swap 'index', decr
+    @model.swap 'index', incr
+    @$el.insertAfter @$el.next() # this is ugly, but see *
+
+  moveUp: ->
+    prev = @model.collection.at decr @model.get 'index'
+    prev.swap 'index', incr
+    @model.swap 'index', decr
+    @$el.insertBefore @$el.prev() # this is ugly, but see *
 
   removeView: ->
     @model.collection.remove @model

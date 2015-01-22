@@ -14,7 +14,7 @@ class Icons extends Model
     classes = []
     ps = ("#{ prop }=\"#{ _.escape propVal }\"" for prop, propVal of props \
                                                     when prop isnt 'className')
-    classes.push _.escape props.className if 'className' in props
+    classes.push( _.escape props.className ) if 'className' of props
     classes.push @iconClasses key
     classes.push @getSize size if size
     """<i class="#{ classes.join ' ' }" #{ ps.join ' ' }></i>"""

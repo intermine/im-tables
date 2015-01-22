@@ -24,6 +24,7 @@ module.exports = class SelectListEditor extends CoreView
     @listenTo @rubbishBin, 'remove', @restoreView
 
   collectionEvents: ->
+    'change:index': 'reSort'
     'remove': 'moveToBin'
     'add remove': 'reRender'
 
@@ -43,7 +44,8 @@ module.exports = class SelectListEditor extends CoreView
     sorted = _.sortBy views, (v) -> v.$el.offset().top
     for v, i in sorted
       v.model.set index: i
-    @collection.sort()
+
+  reSort: -> @collection.sort()
 
   postRender: ->
     columns = @$ '.im-active-view'

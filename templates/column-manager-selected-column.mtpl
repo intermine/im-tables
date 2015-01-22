@@ -1,9 +1,15 @@
 <div class="im-position-controls">
     <% if (index > 0) { %>
-        <%= Icons.iconWithProps('ASC', {title: Messages.getText('columns.MoveUp')}) %>
+        <%= Icons.iconWithProps('ASC', {
+            className: 'im-move-up',
+            title: Messages.getText('columns.MoveUp')
+        }) %>
     <% } %>
     <% if (!isLast) { %>
-        <%= Icons.iconWithProps('DESC', {title: Messages.getText('columns.MoveDown')}) %>
+        <%= Icons.iconWithProps('DESC', {
+            className: 'im-move-down',
+            title: Messages.getText('columns.MoveDown')
+        }) %>
     <% } %>
 </div>
 

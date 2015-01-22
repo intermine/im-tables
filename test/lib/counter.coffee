@@ -7,6 +7,7 @@ module.exports = Counter = View.extend
     @query = opts.query
     @model.set count: 0
     @listenTo @query, "change:constraints", @updateCount
+    @listenTo @query, "change:views", @updateCount
     @listenTo @model, "change", @render
     @updateCount()
     return
