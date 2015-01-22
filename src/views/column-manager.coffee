@@ -37,6 +37,10 @@ module.exports = class ColumnManager extends Modal
 
   primaryAction: -> Messages.getText 'columns.ApplyChanges'
 
+  act: -> unless @state.get 'disabled'
+    @query.select @getCurrentView() # select the current view.
+    @resolve 'changed'
+
   stateEvents: ->
     'change:currentTab': @renderTabContent
 
@@ -53,8 +57,10 @@ module.exports = class ColumnManager extends Modal
       @sortOrder.add {direction, path: @query.makePath(path)}
     @listenTo @selectList, 'sort add remove', @setDisabled
 
+  getCurrentView: -> @selectList.pluck 'path'
+
   setDisabled: ->
-    currentView = @selectList.pluck('path').join(' ')
+    currentView = @getCurrentView().join ' '
     initialView = @query.views.join(' ')
     @state.set disabled: (currentView is initialView) # no changes - nothing to do.
 

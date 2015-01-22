@@ -1,6 +1,10 @@
 <div class="im-position-controls">
-    <%= Icons.iconWithProps('ASC', {title: Messages.getText('columns.MoveUp')}) %>
-    <%= Icons.iconWithProps('DESC', {title: Messages.getText('columns.MoveDown')}) %>
+    <% if (index > 0) { %>
+        <%= Icons.iconWithProps('ASC', {title: Messages.getText('columns.MoveUp')}) %>
+    <% } %>
+    <% if (!isLast) { %>
+        <%= Icons.iconWithProps('DESC', {title: Messages.getText('columns.MoveDown')}) %>
+    <% } %>
 </div>
 
 <span class="im-path-name">
