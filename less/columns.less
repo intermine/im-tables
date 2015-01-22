@@ -1,0 +1,79 @@
+.im-column-manager-tabs {
+    li {
+        margin-left: 2em;
+    }
+}
+
+.im-selected-column {
+    cursor: move;
+    i {
+        cursor: pointer;
+    }
+}
+
+.im-current-view {
+
+    .im-rubbish-bin {
+        text-align: center;
+        color: @gray-light;
+        border: 1px dashed @gray-light;
+        border-radius: @border-radius-large;
+
+        &.im-can-remove-column {
+            border-color: @brand-danger;
+            color: @brand-danger;
+        }
+        &.im-will-remove-column {
+            background-color: @state-danger-bg;
+            color: @state-danger-text;
+        }
+    }
+
+    .im-remove-view {
+        color: @brand-danger;
+    }
+
+    .im-view-list-placeholder {
+        min-height: 2.5em;
+        background-color: @brand-info;
+        list-style-type: none;
+    }
+
+    .im-position-controls {
+        position: relative;
+        float: left;
+
+        i {
+            color: @gray-light;
+            position: absolute;
+            left: 0;
+
+            &:last-child {
+                top: 0.6em;
+            }
+        }
+
+    }
+
+    .im-path-name {
+        margin-left: 1em;
+
+        .im-name-part {
+            color: @gray-light;
+
+            &:after {
+                content: "\00bb";
+                margin-left: 0.5em;
+            }
+
+            &:last-child {
+                color: @gray-dark;
+
+                &:after {
+                    content: '';
+                }
+            }
+        }
+
+    }
+}

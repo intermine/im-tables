@@ -10,9 +10,16 @@ registerIconSet = (name, icons) -> ICONS[name] = _.extend {}, icons
 
 class Icons extends Model
 
-  icon: (key, size) ->
-    sizeCls = if size then @getSize(size) else ''
-    """<i class="#{ @iconClasses key } #{ sizeCls }"></i>"""
+  icon: (key, size, props = {}) ->
+    classes = []
+    ps = ("#{ prop }=\"#{ _.escape propVal }\"" for prop, propVal of props \
+                                                    when prop isnt 'className')
+    classes.push _.escape props.className if 'className' in props
+    classes.push @iconClasses key
+    classes.push @getSize size if size
+    """<i class="#{ classes.join ' ' }" #{ ps.join ' ' }></i>"""
+
+  iconWithProps: (key, props) -> @icon key, null, props
 
   getSize: (size) -> @get("size#{ size.toUpperCase() }") ? ''
 
@@ -84,6 +91,7 @@ ICONS.glyphicons =
   xml: 'glyphicon-xml'
   json: 'glyphicon-json'
   fake: 'glyphicon-bug'
+  Rubbish: 'glyphicon glyphicon-trash'
 
 ICONS.fontawesome =
   Base: 'fa'
@@ -147,6 +155,7 @@ ICONS.fontawesome =
   ClosedReference: 'fa-plus-square'
   OpenReference: 'fa-plus-square-o'
   CodeFile: 'fa-file-code-o'
+  Rubbish: 'fa-trash-o'
   tsv: 'fa-list'
   csv: 'fa-list'
   xml: 'fa-code'

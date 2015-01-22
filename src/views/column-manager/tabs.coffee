@@ -12,12 +12,16 @@ tabClassSet = (tab, state) ->
 
 module.exports = class ColumnManagerTabs extends CoreView
 
+  @TABS: ['view', 'sortorder']
+
   template: Templates.template 'column-manager-tabs'
+
+  className: 'im-column-manager-tabs'
 
   getData: -> _.extend super, classes: @classSets
 
   initState: ->
-    @state.set currentTab: 'view'
+    @state.set currentTab: ColumnManagerTabs.TABS[0]
 
   initialize: ->
     super

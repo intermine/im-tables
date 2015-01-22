@@ -1,0 +1,18 @@
+<button class="pull-right btn btn-success im-add-view-path">
+    <%= Icons.icon('Add') %>
+    <%- Messages.getText('columns.FindColumnToAdd') %>
+</button>
+
+<h4><%- Messages.getText('columns.ColumnsSelected', {columns: collection}) %></h4>
+
+<span class="help-block"><%- Messages.getText('columns.CurrentViewHelp') %></span>
+
+<div class="well im-current-view">
+    <ul class="list-group">
+    </ul>
+    <div class="im-rubbish-bin">
+        <%= Icons.icon('Rubbish', 'lg') %>
+    </div>
+</div>
+
+

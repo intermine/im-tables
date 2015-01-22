@@ -109,8 +109,8 @@ module.exports = class CoreView extends Backbone.View
 
   getBaseData: -> _.extend {state: @state.toJSON(), Messages, Icons}, (_.result @, 'helpers')
 
-  # By default, the model extended with state, helpers, Messages and Icons
-  getData: -> _.extend @getBaseData(), @model.toJSON()
+  # By default, the model and collection, extending state, helpers, Messages and Icons
+  getData: -> _.extend @getBaseData(), @model.toJSON(), collection: (@collection?.toJSON() ? [])
 
   # Like render, but only happens if already rendered at least once.
   reRender: ->
