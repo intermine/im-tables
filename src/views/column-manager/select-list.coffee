@@ -44,7 +44,13 @@ module.exports = class SelectListEditor extends CoreView
 
   onDragToBin: (e, ui) -> ui.draggable.trigger 'binned'
 
-  moveToBin: (model) -> @rubbishBin.add @query.makePath model.get 'path'
+  moveToBin: (model) ->
+    @rubbishBin.add @query.makePath model.get 'path'
+    @reIndexFrom model.get 'index'
+
+  reIndexFrom: (idx) ->
+    for i in [idx .. @collection.size()]
+      @collection.at(i)?.set index: i
 
   restoreView: (model) -> @collection.add @query.makePath model.get 'path'
 
