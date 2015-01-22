@@ -1,7 +1,7 @@
 _ = require 'underscore'
 
 Options = require '../options'
-View = require '../core-view'
+CoreView = require '../core-view'
 
 Attribute = require './pathtree/attribute'
 RootClass = require './pathtree/root'
@@ -10,15 +10,18 @@ ReverseReference = require './pathtree/reverse-reference'
 
 appendField = (pth, fld) -> pth.append fld
 
-module.exports = class PathChooser extends View
+module.exports = class PathChooser extends CoreView
+
+  # Model must have 'path'
+  parameters: ['model', 'query', 'chosenPaths', 'openNodes', 'view', 'trail']
 
   tagName: 'ul'
       
   className: 'im-path-chooser'
 
-  initialize: ({@query, @chosenPaths, @openNodes, @view, @trail}) ->
+  initialize: ->
     super
-    @path  = (_.last(@trail) or @model.get 'root')
+    @path  = (_.last(@trail) or @model.get('root') or @query.makePath(@query.root))
     @cd    = @path.getEndClass()
     toPath = appendField.bind null, @path
 

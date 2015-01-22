@@ -4,6 +4,7 @@ Messages.setWithPrefix 'columns',
   DialogueTitle: 'Manage Columns'
   ApplyChanges: 'Apply Changes'
   FindColumnToAdd: 'Add a Column'
+  AddColumn: 'Add chosen column'
   OrderVerb: 'Add / Remove / Re-Arrange'
   OrderTitle: 'Columns'
   SortVerb: 'Configure'
@@ -18,6 +19,7 @@ Messages.setWithPrefix 'columns',
     <%= columns.length %> <%= pluralise("Column", columns.length) %>
     Selected<% if (removed) { %>, <%= removed %> Removed<% } %>
   """
+  ChooseAPathFrom: 'Choose a path from <%= root %>'
   RemoveColumn: 'Remove this column'
   MoveUp: 'Move this column up'
   MoveDown: 'Move this column down'

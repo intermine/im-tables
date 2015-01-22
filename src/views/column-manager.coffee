@@ -37,12 +37,15 @@ module.exports = class ColumnManager extends Modal
 
   primaryAction: -> Messages.getText 'columns.ApplyChanges'
 
+  dismissAction: -> Messages.getText 'Cancel'
+
   act: -> unless @state.get 'disabled'
     @query.select @getCurrentView() # select the current view.
     @resolve 'changed'
 
   stateEvents: ->
     'change:currentTab': @renderTabContent
+    'change:adding': @setDisabled
 
   initialize: ->
     super
@@ -60,6 +63,7 @@ module.exports = class ColumnManager extends Modal
   getCurrentView: -> @selectList.pluck 'path'
 
   setDisabled: ->
+    return @state.set disabled: true if @state.get('adding') # cannot confirm while adding.
     currentView = @getCurrentView().join ' '
     initialView = @query.views.join(' ')
     @state.set disabled: (currentView is initialView) # no changes - nothing to do.
@@ -72,7 +76,7 @@ module.exports = class ColumnManager extends Modal
 
   renderTabContent: -> if @rendered
     main = switch @state.get('currentTab')
-      when 'view' then new SelectListEditor {@query, @rubbishBin, collection: @selectList}
+      when 'view' then new SelectListEditor {@state, @query, @rubbishBin, collection: @selectList}
       else throw new Error "Cannot render #{ @state.get 'currentTab' }"
     @renderChild 'main', main, @$ '.modal-body'
 

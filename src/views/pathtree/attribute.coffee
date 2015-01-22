@@ -56,6 +56,9 @@ module.exports = class Attribute extends View
     e.stopPropagation()
     e.preventDefault()
 
+    if (@model.get 'dontSelectView') and (@view?.contains @path)
+      return
+
     if @chosenPaths.contains @path
       @chosenPaths.remove @path
     else

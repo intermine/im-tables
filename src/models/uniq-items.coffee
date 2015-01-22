@@ -1,6 +1,7 @@
 Backbone = require 'backbone'
 _ = require 'underscore'
 CoreModel = require '../core-model'
+Collection = require '../core/collection'
 
 # OK, this is kind of daft. We could/should be using the
 # standard Backbone.Collection id property.
@@ -19,7 +20,7 @@ class Item extends CoreModel
 # Each item is represented werapped up in its own {item: item}
 # model, and no two models will exist in the collection where 
 # item is item.
-module.exports = class UniqItems extends Backbone.Collection
+module.exports = class UniqItems extends Collection
 
   model: Item
 

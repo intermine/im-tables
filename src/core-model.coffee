@@ -22,7 +22,7 @@ module.exports = class CoreModel extends Backbone.Model
   destroy: ->
     @stopListening()
     @destroyed = true
-    @trigger 'destroy'
+    @trigger 'destroy', @, @collection
     @trigger 'change'
     @off()
     for prop of @ # need to do this last of all.

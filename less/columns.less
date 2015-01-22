@@ -11,76 +11,96 @@
     }
 }
 
-.im-current-view {
+.im-select-list-editor {
+    .im-addition {
+        .im-path-chooser {
+            width: 100%;
+            overflow-y: auto;
+            margin-left: 0;
+            padding-left: 2em;
 
-    .im-rubbish-bin {
-        text-align: center;
-        color: @gray-light;
-        border: 1px dashed @gray-light;
-        border-radius: @border-radius-large;
-
-        &.im-can-remove-column {
-            border-color: @brand-danger;
-            color: @brand-danger;
-        }
-        &.im-will-remove-column {
-            background-color: @state-danger-bg;
-            color: @state-danger-text;
-        }
-    }
-    
-    .im-remove-view {
-        color: @brand-danger;
-    }
-
-    .im-removed-view {
-        margin-left: 1em;
-        margin-right: 1em;
-        text-align: left;
-        text-align: start;
-    }
-
-    .im-view-list-placeholder {
-        min-height: 2.5em;
-        background-color: @brand-info;
-        list-style-type: none;
-    }
-
-    .im-position-controls {
-        position: relative;
-        float: left;
-
-        i {
-            color: @gray-light;
-            position: absolute;
-            left: 0;
-
-            &:nth-child(2) {
-                top: 0.6em;
-            }
-        }
-
-    }
-
-    .im-path-name {
-        margin-left: 1em;
-
-        .im-name-part {
-            color: @gray-light;
-
-            &:after {
-                content: "\00bb";
-                margin-left: 0.5em;
-            }
-
-            &:last-child {
-                color: @gray-dark;
-
-                &:after {
-                    content: '';
+            .in-view {
+                background: @gray-lighter;
+                a {
+                    cursor: not-allowed;
                 }
             }
         }
-
     }
+
+    .im-current-view {
+
+        .im-rubbish-bin {
+            text-align: center;
+            color: @gray-light;
+            border: 1px dashed @gray-light;
+            border-radius: @border-radius-large;
+
+            &.im-can-remove-column {
+                border-color: @brand-danger;
+                color: @brand-danger;
+            }
+            &.im-will-remove-column {
+                background-color: @state-danger-bg;
+                color: @state-danger-text;
+            }
+        }
+        
+        .im-remove-view {
+            color: @brand-danger;
+        }
+
+        .im-removed-view {
+            margin-left: 1em;
+            margin-right: 1em;
+            text-align: left;
+            text-align: start;
+        }
+
+        .im-view-list-placeholder {
+            min-height: 2.5em;
+            background-color: @brand-info;
+            list-style-type: none;
+        }
+
+        .im-position-controls {
+            position: relative;
+            float: left;
+
+            i {
+                color: @gray-light;
+                position: absolute;
+                left: 0;
+
+                &:nth-child(2) {
+                    top: 0.6em;
+                }
+            }
+
+        }
+
+        .im-path-name {
+            margin-left: 1em;
+
+            .im-name-part {
+                color: @gray-light;
+
+                &:after {
+                    content: "\00bb";
+                    margin-left: 0.5em;
+                }
+
+                &:last-child {
+                    color: @gray-dark;
+
+                    &:after {
+                        content: '';
+                    }
+                }
+            }
+
+        }
+    }
+
 }
+

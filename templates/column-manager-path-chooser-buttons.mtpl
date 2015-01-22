@@ -1,0 +1,8 @@
+<button class="btn btn-default im-rearrange-columns">
+  <%- Messages.getText('Cancel') %>
+</button>
+<button class="btn btn-success im-add-column"
+  <%= collection.length ? (void 0) : 'disabled' %> >
+  <%- Messages.getText('columns.AddColumn') %>
+</button>
+

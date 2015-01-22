@@ -20,6 +20,9 @@ incr = (i) -> i + 1
 # after drag, causing flicker. Also, we don't really _need_ to re-render the
 # whole parent, just swap two neighbouring elements. Since this is easy to do,
 # it makes sense to do it here.
+#
+# As for the moveUp/moveDown methods - these are only available when the view
+# is not first/last, this they are null safe with regards to prev/next models.
 module.exports = class SelectedColumn extends CoreView
 
   Model: PathModel
@@ -57,12 +60,14 @@ module.exports = class SelectedColumn extends CoreView
     'click .im-move-down': 'moveDown'
     'binned': 'removeView'
 
+  # Move this view element to the right.
   moveDown: ->
     next = @model.collection.at incr @model.get 'index'
     next.swap 'index', decr
     @model.swap 'index', incr
     @$el.insertAfter @$el.next() # this is ugly, but see *
 
+  # Move this view element to the left.
   moveUp: ->
     prev = @model.collection.at decr @model.get 'index'
     prev.swap 'index', incr

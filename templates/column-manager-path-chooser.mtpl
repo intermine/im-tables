@@ -1,0 +1,6 @@
+<div class="btn-group pull-right">
+</div>
+<h4>
+  <%- Messages.getText('columns.ChooseAPathFrom', {root: state.rootName}) %>
+</h4>
+

@@ -1,24 +1,28 @@
-<button class="pull-right btn btn-success im-add-view-path">
-    <%= Icons.icon('Add') %>
-    <%- Messages.getText('columns.FindColumnToAdd') %>
-</button>
+<div class="im-removal-and-rearrangement">
+  <button class="pull-right btn btn-success im-add-view-path">
+      <%= Icons.icon('Add') %>
+      <%- Messages.getText('columns.FindColumnToAdd') %>
+  </button>
 
-<h4>
-  <%- Messages.getText('columns.ColumnsSelected', {columns: collection, removed: hasRubbish}) %>
-</h4>
+  <h4>
+    <%- Messages.getText('columns.ColumnsSelected', {columns: collection, removed: hasRubbish}) %>
+  </h4>
 
-<span class="help-block"><%- Messages.getText('columns.CurrentViewHelp') %></span>
+  <span class="help-block"><%- Messages.getText('columns.CurrentViewHelp') %></span>
 
-<div class="well im-current-view">
-    <ul class="list-group im-active-view">
-    </ul>
-    <div class="im-rubbish-bin">
-        <%= Icons.icon((hasRubbish ? 'RubbishFull' : 'Rubbish'), 'lg') %>
-        <% if (hasRubbish) { %>
-            <ul class="list-group im-removed-view">
-            </ul>
-        <% } %>
-    </div>
+  <div class="well im-current-view">
+      <ul class="list-group im-active-view">
+      </ul>
+      <div class="im-rubbish-bin">
+          <%= Icons.icon((hasRubbish ? 'RubbishFull' : 'Rubbish'), 'lg') %>
+          <% if (hasRubbish) { %>
+              <ul class="list-group im-removed-view">
+              </ul>
+          <% } %>
+      </div>
+  </div>
 </div>
 
+<div class="im-addition">
+</div>
 

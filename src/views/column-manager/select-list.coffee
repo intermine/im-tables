@@ -5,6 +5,7 @@ Templates = require '../../templates'
 
 SelectedColumn = require './selected-column'
 UnselectedColumn = require './unselected-column'
+ColumnChooser = require './path-chooser'
 
 childId = (model) -> "path_#{ model.get 'id' }"
 binnedId = (model) -> "expath_#{ model.get 'id' }"
@@ -23,6 +24,9 @@ module.exports = class SelectListEditor extends CoreView
     super
     @listenTo @rubbishBin, 'remove', @restoreView
 
+  initState: ->
+    @state.set adding: false
+
   collectionEvents: ->
     'change:index': 'reSort'
     'remove': 'moveToBin'
@@ -31,12 +35,33 @@ module.exports = class SelectListEditor extends CoreView
   events: ->
     'drop .im-rubbish-bin': 'onDragToBin'
     'sortupdate .im-active-view': 'onOrderChanged'
+    'click .im-add-view-path': 'setAddingTrue'
+
+  stateEvents: ->
+    'change:adding': 'onChangeMode'
+
+  setAddingTrue: -> @state.set adding: true
 
   onDragToBin: (e, ui) -> ui.draggable.trigger 'binned'
 
   moveToBin: (model) -> @rubbishBin.add @query.makePath model.get 'path'
 
   restoreView: (model) -> @collection.add @query.makePath model.get 'path'
+
+  onChangeMode: -> if @rendered
+    if @state.get 'adding'
+      @$('.im-removal-and-rearrangement').hide()
+      @$('.im-addition').show()
+      @renderPathChooser()
+    else
+      @$('.im-removal-and-rearrangement').show()
+      @$('.im-addition').hide()
+      @removeChild 'columnChooser'
+
+  renderPathChooser: ->
+    columns = new ColumnChooser {@query, @collection}
+    @listenTo columns, 'done', => @state.set adding: false
+    @renderChild 'columnChooser', columns, @$ '.im-addition'
 
   onOrderChanged: (e, ui) ->
     kids = @children
@@ -67,6 +92,8 @@ module.exports = class SelectListEditor extends CoreView
       accept: '.im-selected-column'
       activeClass: 'im-can-remove-column'
       hoverClass: 'im-will-remove-column'
+
+    @onChangeMode() # make sure we are in the right mode.
 
   remove: ->
     if @rendered
