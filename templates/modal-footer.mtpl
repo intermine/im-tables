@@ -10,7 +10,7 @@
     </a>
 <% } else { %>
     <button type="button"
-            <%= (error) ? 'disabled' : void 0 %>
+            <%= (error || disabled) ? 'disabled' : void 0 %>
             class="btn btn-primary">
         <%= Icons.icon(primaryIcon) %>
         <%- primaryAction %>

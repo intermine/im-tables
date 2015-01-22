@@ -2,6 +2,11 @@ _ = require 'underscore'
 CoreView = require '../core-view'
 Templates = require '../templates'
 
+defaultData = ->
+  error: null
+  exportLink: null
+  disabled: false
+
 module.exports = class ModalFooter extends CoreView
   
   tagName: 'div'
@@ -18,5 +23,5 @@ module.exports = class ModalFooter extends CoreView
 
   parameters: ['template', 'actionNames', 'actionIcons']
 
-  getData: -> _.extend {error: null, exportLink: null}, @actionNames, @actionIcons, super
+  getData: -> _.extend defaultData(), @actionNames, @actionIcons, super
 

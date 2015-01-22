@@ -2,6 +2,7 @@ Messages = require '../messages'
 
 Messages.setWithPrefix 'columns',
   DialogueTitle: 'Manage Columns'
+  ApplyChanges: 'Apply Changes'
   FindColumnToAdd: 'Add a Column'
   OrderVerb: 'Add / Remove / Re-Arrange'
   OrderTitle: 'Columns'
@@ -13,10 +14,15 @@ Messages.setWithPrefix 'columns',
   SortOrderTabTitle: 'Sort Order'
   CurrentView: 'Current Columns'
   CurrentViewHelp: 'Re-arrange or remove columns by dragging, or by using the buttons'
-  ColumnsSelected: '<%= columns.length %> <%= pluralise("Column", columns.length) %> Selected'
+  ColumnsSelected: """
+    <%= columns.length %> <%= pluralise("Column", columns.length) %>
+    Selected<% if (removed) { %>, <%= removed %> Removed<% } %>
+  """
   RemoveColumn: 'Remove this column'
   MoveUp: 'Move this column up'
   MoveDown: 'Move this column down'
+  ColumnWillBeRemoved: 'This column will be removed'
+  RestoreColumn: 'Add this column back to the table'
   SortingHelpContent: """
     A table can be sorted by any of the attributes of the objects
     which are in the output columns or constrained by a filter, so

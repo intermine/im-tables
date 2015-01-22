@@ -3,15 +3,21 @@
     <%- Messages.getText('columns.FindColumnToAdd') %>
 </button>
 
-<h4><%- Messages.getText('columns.ColumnsSelected', {columns: collection}) %></h4>
+<h4>
+  <%- Messages.getText('columns.ColumnsSelected', {columns: collection, removed: hasRubbish}) %>
+</h4>
 
 <span class="help-block"><%- Messages.getText('columns.CurrentViewHelp') %></span>
 
 <div class="well im-current-view">
-    <ul class="list-group">
+    <ul class="list-group im-active-view">
     </ul>
     <div class="im-rubbish-bin">
-        <%= Icons.icon('Rubbish', 'lg') %>
+        <%= Icons.icon((hasRubbish ? 'RubbishFull' : 'Rubbish'), 'lg') %>
+        <% if (hasRubbish) { %>
+            <ul class="list-group im-removed-view">
+            </ul>
+        <% } %>
     </div>
 </div>
 

@@ -92,6 +92,7 @@ ICONS.glyphicons =
   json: 'glyphicon-json'
   fake: 'glyphicon-bug'
   Rubbish: 'glyphicon glyphicon-trash'
+  RubbishFull: 'glyphicon glyphicon-trash'
 
 ICONS.fontawesome =
   Base: 'fa'
@@ -156,6 +157,7 @@ ICONS.fontawesome =
   OpenReference: 'fa-plus-square-o'
   CodeFile: 'fa-file-code-o'
   Rubbish: 'fa-trash-o'
+  RubbishFull: 'fa-trash'
   tsv: 'fa-list'
   csv: 'fa-list'
   xml: 'fa-code'
