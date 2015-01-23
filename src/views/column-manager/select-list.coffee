@@ -3,6 +3,8 @@ _ = require 'underscore'
 CoreView = require '../../core-view'
 Templates = require '../../templates'
 
+HandlesDOMReSort = require '../../mixins/handles-dom-resort'
+
 SelectedColumn = require './selected-column'
 UnselectedColumn = require './unselected-column'
 ColumnChooser = require './path-chooser'
@@ -12,6 +14,8 @@ binnedId = (model) -> "expath_#{ model.get 'id' }"
 incr = (x) -> x + 1
 
 module.exports = class SelectListEditor extends CoreView
+
+  @include HandlesDOMReSort
 
   parameters: ['query', 'collection', 'rubbishBin']
 
@@ -29,7 +33,6 @@ module.exports = class SelectListEditor extends CoreView
     @state.set adding: false
 
   collectionEvents: ->
-    'change:index': 'reSort'
     'remove': 'moveToBin'
     'add remove': 'reRender'
 
@@ -130,14 +133,7 @@ module.exports = class SelectListEditor extends CoreView
     # event, since this is O(1), not O(n*n).
     kids[childId added].$el.insertBefore kids[childId toBump[0]].el
 
-  onDOMResort: ->
-    kids = @children
-    views = @collection.map (model) -> kids[childId model]
-    sorted = _.sortBy views, (v) -> v.$el.offset().top
-    for v, i in sorted
-      v.model.set index: i
-
-  reSort: -> @collection.sort()
+  onDOMResort: -> @setChildIndices childId
 
   postRender: ->
     columns = @$ '.im-active-view'

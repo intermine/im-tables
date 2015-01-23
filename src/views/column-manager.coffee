@@ -17,7 +17,15 @@ class OrderByModel extends PathModel
     direction ?= 'ASC'
     @set {direction}
 
-class SelectList extends Collection
+class IndexedCollection extends Collection
+
+  comparator: 'index'
+
+  constructor: ->
+    super
+    @listenTo @, 'change:index', @sort
+
+class SelectList extends IndexedCollection
 
   model: (p) => # Create a model, setting the index on the model itself.
     index = @size()
@@ -25,9 +33,7 @@ class SelectList extends Collection
     model.set {index}
     return model
 
-  comparator: 'index'
-
-class OrderByList extends Collection
+class OrderByList extends IndexedCollection
 
   model: (args) -> new OrderByModel args
 

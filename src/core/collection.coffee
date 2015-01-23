@@ -8,10 +8,10 @@ module.exports = class CoreCollection extends Backbone.Collection
 
   close: ->
     @trigger 'close'
+    @off() # prevent trigger loops.
     while m = @pop()
       if m.collection is @
         delete m.collection
         m.destroy()
     @reset()
-    @off()
     @stopListening()

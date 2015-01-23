@@ -20,8 +20,7 @@ module.exports = class OrderElement extends SelectedColumn
   modelEvents: -> _.extend super,
     'change:direction': @reRender
 
-  events: -> # Same logic as remove - remove from collection.
-    'click .im-restore-view': 'removeView'
+  events: -> _.extend super,
     'click .im-change-direction': 'changeDirection'
 
   changeDirection: ->

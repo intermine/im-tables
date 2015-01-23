@@ -3,6 +3,7 @@ _ = require 'underscore'
 CoreView = require '../../core-view'
 Templates = require '../../templates'
 AvailableColumns = require '../../models/available-columns'
+HandlesDOMReSort = require '../../mixins/handles-dom-resort'
 
 AvailablePath = require './available-path'
 OrderElement = require './order-element'
@@ -11,6 +12,8 @@ activeId = (model) -> "active_#{ model.get 'id' }"
 inactiveId = (model) -> "inactive_#{ model.get 'id' }"
 
 module.exports = class SortOrderEditor extends CoreView
+
+  @include HandlesDOMReSort
 
   parameters: ['collection', 'query']
 
@@ -22,6 +25,7 @@ module.exports = class SortOrderEditor extends CoreView
 
   collectionEvents: ->
     'add remove': @reRender
+    'remove': @makeAvailable
 
   initialize: ->
     super
@@ -31,7 +35,7 @@ module.exports = class SortOrderEditor extends CoreView
       # sort once, when they are all added.
       @availableColumns.add path, sort: false
     @availableColumns.sort()
-    @listenTo @availableColumns, 'sort', @resortAvailable
+    @listenTo @availableColumns, 'sort add remove', @resortAvailable
     @listenTo @availableColumns, 'remove', @addToSortOrder
 
   getRelevantPaths: ->
@@ -42,7 +46,13 @@ module.exports = class SortOrderEditor extends CoreView
      .flatten()
      .value()
 
+
+  currentSortOrder: ->
+    @collection.map (m) -> "#{ m.get 'path' } #{ m.get 'direction' }"
+               .join ' '
+
   postRender: ->
+    console.log @currentSortOrder()
     @resortSortOrder()
     @resortAvailable()
     @activateSortables()
@@ -66,6 +76,20 @@ module.exports = class SortOrderEditor extends CoreView
 
   events: ->
     'drop .im-empty-collection': 'addSortElement'
+    'sortupdate .im-active-oes': 'onOrderChanged'
+
+  onOrderChanged: (e, ui) ->
+    if ui.sender?
+      @addToSortOrderViaDrag ui.item
+    else
+      @onDOMResort()
+
+  onDOMResort: ->
+    console.log 'on DOM re-sort!'
+    @setChildIndices activeId
+
+  makeAvailable: (active) ->
+    @availableColumns.add @query.makePath active.get 'path'
 
   addSortElement: (e, ui) ->
     $el = ui.draggable
@@ -76,8 +100,10 @@ module.exports = class SortOrderEditor extends CoreView
     @addToSortOrder available
 
   addToSortOrder: (availableColumnModel) ->
-    oe = path: (@query.makePath availableColumnModel.get 'path')
-    availableColumnModel.destroy() # remove from collection, etc.
+    path = @query.makePath availableColumnModel.get 'path'
+    oe = id: (String path), path: path
+    # remove from collection, etc.
+    availableColumnModel.destroy()
     @collection.add oe
 
   # Cleanest way I could think of to do this.
@@ -96,3 +122,6 @@ module.exports = class SortOrderEditor extends CoreView
   setAvailableHeight: ->
     @$('.im-rubbish-bin').css 'max-height': Math.max(200, (@$el.closest('.modal').height() - 450))
 
+  remove: ->
+    @availableColumns.close()
+    super
