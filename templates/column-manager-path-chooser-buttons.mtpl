@@ -3,6 +3,6 @@
 </button>
 <button class="btn btn-success im-add-column"
   <%= collection.length ? (void 0) : 'disabled' %> >
-  <%- Messages.getText('columns.AddColumn') %>
+  <%- Messages.getText('columns.AddColumn', {num: collection.length}) %>
 </button>
 

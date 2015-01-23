@@ -4,7 +4,13 @@ Messages.setWithPrefix 'columns',
   DialogueTitle: 'Manage Columns'
   ApplyChanges: 'Apply Changes'
   FindColumnToAdd: 'Add a Column'
-  AddColumn: 'Add chosen column'
+  AddColumn: """
+    <% if (num < 1) { %>
+      No columns chosen
+    <% } else { %>
+      Add <%= num %> new <%= pluralise('column', num) %>
+    <% } %>
+  """
   OrderVerb: 'Add / Remove / Re-Arrange'
   OrderTitle: 'Columns'
   SortVerb: 'Configure'
