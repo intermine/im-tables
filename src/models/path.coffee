@@ -1,5 +1,7 @@
 CoreModel = require '../core-model'
 
+{Model: {NUMERIC_TYPES, BOOLEAN_TYPES}} = require 'imjs'
+
 module.exports = class PathModel extends CoreModel
 
   defaults: ->
@@ -7,6 +9,9 @@ module.exports = class PathModel extends CoreModel
     type: null
     displayName: null
     typeName: null
+    parts: []
+    isNumeric: false
+    isBoolean: false
 
   constructor: (path) ->
     super()
@@ -18,6 +23,13 @@ module.exports = class PathModel extends CoreModel
 
     type = (if path.isAttribute() then path.getParent() else path).getType()
     path.getDisplayName().then (name) =>
-      @set displayName: name
+      @set displayName: name, parts: name.split(' > ')
     type.getDisplayName().then (name) =>
       @set typeName: name
+
+    if path.isAttribute()
+      atype = path.getType()
+      if atype in NUMERIC_TYPES
+        @set isNumeric: true
+      else if atype in BOOLEAN_TYPES
+        @set isBoolean: true

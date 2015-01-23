@@ -125,7 +125,9 @@ module.exports = class CoreView extends Backbone.View
 
   hasAll = (model, props) -> _.all props, (p) -> model.has p
 
-  onRenderError: (e) -> @state.set error: e
+  onRenderError: (e) ->
+    console.error 'RENDER FAILED', @, e
+    @state.set error: e
 
   # Safely remove all existing children, apply template if
   # available, and mark as rendered. Most Views will not need

@@ -21,8 +21,15 @@ Messages.setWithPrefix 'columns',
   SortOrderTabTitle: 'Sort Order'
   CurrentView: 'Current Columns'
   CurrentViewHelp: 'Re-arrange or remove columns by dragging, or by using the buttons'
-  CurrentSortOrder: 'Current Sort Order'
+  CurrentSortOrder: """
+    <% if (oes.length) { %>
+      <%= oes.length %> Order <%= pluralise('Elements', oes.length) %>
+    <% } else { %>
+      Not sorted.
+    <% } %>
+  """
   NoSortOrder: 'No sort order. Drop columns here to sort the table.'
+  RemoveOrderElement: 'Remove this column from the sort-order'
   CurrentSortOrderHelp: """
     Re-arrange, add or remove columns. The full set of available
     columns is listed below.
@@ -37,6 +44,13 @@ Messages.setWithPrefix 'columns',
   MoveDown: 'Move this column down'
   ColumnWillBeRemoved: 'This column will be removed'
   RestoreColumn: 'Add this column back to the table'
+  ChangeDirection: 'Change sort direction'
+  CurrentDirection: """
+    Sorted in
+    <%= (dir === 'DESC') ? 'reverse' : void 0 %>
+    <%= numeric ? 'numerical' : 'alphabetical' %>
+    order.
+  """
   SortingHelpContent: """
     A table can be sorted by any of the attributes of the objects
     which are in the output columns or constrained by a filter, so

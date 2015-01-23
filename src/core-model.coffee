@@ -19,7 +19,7 @@ module.exports = class CoreModel extends Backbone.Model
 
   # Release listeners in both directions, and delete
   # all instance properties.
-  destroy: ->
+  destroy: -> unless @destroyed # re-entrant.
     @stopListening()
     @destroyed = true
     @trigger 'destroy', @, @collection

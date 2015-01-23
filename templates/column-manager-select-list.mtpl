@@ -16,7 +16,7 @@
       <div class="im-rubbish-bin">
           <%= Icons.icon((hasRubbish ? 'RubbishFull' : 'Rubbish'), 'lg') %>
           <% if (hasRubbish) { %>
-              <ul class="list-group im-removed-view im-connected-list">
+              <ul class="list-group im-removed im-removed-view im-connected-list">
               </ul>
           <% } %>
       </div>

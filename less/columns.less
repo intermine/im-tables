@@ -1,5 +1,11 @@
 .im-column-manager {
 
+  .im-view-list-placeholder {
+      min-height: 2.5em;
+      background-color: @brand-info;
+      list-style-type: none;
+  }
+
   .im-addition {
     .im-path-chooser {
       width: 100%;
@@ -22,10 +28,21 @@
     }
   }
 
-  .im-selected-column {
+  .ui-draggable {
     cursor: move;
+  }
+
+  .im-selected-column {
+    font-size: small;
     i {
       cursor: pointer;
+    }
+
+    &.ui-dragging {
+      opacity: 0.6;
+    }
+    &.ui-draggable-dragging {
+      width: 88.5%;
     }
   }
   .im-empty-collection {
@@ -38,6 +55,7 @@
     color: @gray-light;
     border: 1px dashed @gray-light;
     border-radius: @border-radius-large;
+    overflow-y: auto;
 
     &.im-can-remove-column {
       border-color: @brand-danger;
@@ -46,6 +64,14 @@
     &.im-will-remove-column {
       background-color: @state-danger-bg;
       color: @state-danger-text;
+    }
+    &.im-can-add-column {
+      border-color: @brand-success;
+      color: @brand-success;
+    }
+    &.im-will-add-column {
+      background-color: @state-success-bg;
+      color: @state-success-text;
     }
   }
   .im-path-name {
@@ -68,30 +94,23 @@
       }
     }
   }
+  .im-removed {
+    margin-left: 1em;
+    margin-right: 1em;
+    text-align: left;
+    text-align: start;
+  }
+  .im-remove-view {
+      color: @brand-danger;
+  }
+
 }
 
 
 .im-select-list-editor {
 
     .im-current-view {
-
         
-        .im-remove-view {
-            color: @brand-danger;
-        }
-
-        .im-removed-view {
-            margin-left: 1em;
-            margin-right: 1em;
-            text-align: left;
-            text-align: start;
-        }
-
-        .im-view-list-placeholder {
-            min-height: 2.5em;
-            background-color: @brand-info;
-            list-style-type: none;
-        }
 
         .im-position-controls {
             position: relative;

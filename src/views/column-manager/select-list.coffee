@@ -170,10 +170,9 @@ module.exports = class SelectListEditor extends CoreView
 
     @onChangeMode() # make sure we are in the right mode.
 
-  remove: ->
+  removeAllChildren: ->
     if @rendered
       @$('.im-active-view').sortable 'destroy'
       @$('.im-removed-view').sortable 'destroy'
       @$('.im-rubbish-bin').droppable 'destroy'
     super
-    

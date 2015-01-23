@@ -38,7 +38,7 @@ module.exports = class SelectedColumn extends CoreView
   className: 'list-group-item im-selected-column'
 
   modelEvents: ->
-    'change:displayName': 'resetParts'
+    'change:parts': 'resetParts'
 
   template: Templates.templateFromParts TEMPLATE_PARTS
 
@@ -53,10 +53,11 @@ module.exports = class SelectedColumn extends CoreView
     @parts = new Collection
     @listenTo @parts, 'add remove reset', @reRender
     @resetParts()
-    @listenTo @model.collection, 'sort', @reRender
+    @listenTo @model.collection, 'sort', @onCollectionSorted
 
-  resetParts: -> if @model.get 'displayName'
-    @parts.reset({part, id} for part, id in @model.get('displayName').split(' > '))
+  onCollectionSorted: -> @reRender()
+
+  resetParts: -> @parts.reset({part, id} for part, id in @model.get 'parts')
 
   postRender: ->
     # Activate tooltips.

@@ -42,6 +42,10 @@ ICONS.glyphicons =
   headerIconRemove: "glyphicon-remove"
   headerIconHide: "glyphicon-minus"
   headerIconReveal: 'glyphicon-fullscreen'
+  SortStringASC:   'glyphicon-sort-by-alphabet'
+  SortStringDESC:  'glyphicon-sort-by-alphabet-alt'
+  SortNumericASC:  'glyphicon-sort-by-order'
+  SortNumericDESC: 'glyphicon-sort-by-order-alt'
   RootClass: 'glyphicon-stop'
   Yes: "glyphicon-star"
   No: "glyphicon-star-empty"
@@ -99,6 +103,10 @@ ICONS.fontawesome =
   unsorted: "fa-unsorted"
   ASC: "fa-sort-up"
   DESC: "fa-sort-down"
+  SortStringASC: 'fa-sort-alpha-asc'
+  SortStringDESC: 'fa-sort-alpha-desc'
+  SortNumericASC: 'fa-sort-numeric-asc'
+  SortNumericDESC: 'fa-sort-numeric-desc'
   headerIcon: "fa"
   headerIconRemove: "fa-times"
   headerIconHide: "fa-ellipsis-h"

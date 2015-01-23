@@ -1,0 +1,10 @@
+<% /* requires: direction, isNumeric */ %>
+<span class="im-change-direction"
+  title="<%- Messages.getText('columns.ChangeDirection') %>">
+  <span class="sr-only">
+    <%- Messages.getText('columns.CurrentDirection', {
+      dir: direction, numeric: isNumeric
+    }) %>
+  </span>
+  <%= Icons.icon('Sort' + (isNumeric ? 'Numeric' : 'String') + direction) %>
+</span>

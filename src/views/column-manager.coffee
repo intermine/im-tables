@@ -14,6 +14,7 @@ class OrderByModel extends PathModel
 
   constructor: ({path, direction}) ->
     super path
+    direction ?= 'ASC'
     @set {direction}
 
 class SelectList extends Collection

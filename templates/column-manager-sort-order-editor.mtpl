@@ -1,8 +1,7 @@
-<% /* requires: collection, hasRubbish */ %>
+<% /* requires: collection, available */ %>
 <h4>
   <%- Messages.getText('columns.CurrentSortOrder', {
-    oes: collection,
-    removed: hasRubbish
+    oes: collection
   }) %>
 </h4>
 
@@ -20,11 +19,9 @@
     </div>
   <% } %>
 
-
-  <div class="im-rubbish-bin">
-    <%= Icons.icon((hasRubbish ? 'RubbishFull' : 'Rubbish'), 'lg') %>
-    <% if (hasRubbish) { %>
-      <ul class="list-group im-removed-oes im-connected-list"></ul>
-    <% } %>
-  </div>
+  <% if (available) { %>
+    <div class="im-rubbish-bin">
+      <ul class="list-group im-removed im-available-oes im-connected-list"></ul>
+    </div>
+  <% } %>
 </div>
