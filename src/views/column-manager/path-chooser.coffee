@@ -1,5 +1,6 @@
 CoreView = require '../../core-view'
 Templates = require '../../templates'
+Options = require '../../options'
 
 PathSet = require '../../models/path-set'
 OpenNodes = require '../../models/open-nodes'
@@ -56,7 +57,9 @@ module.exports = class ColumnChooser extends CoreView
     @renderChildAt '.btn-group', btns
 
   openPathChooser: ->
-    model = dontSelectView: true
+    model =
+      dontSelectView: true
+      multiSelect: (Options.get 'ColumnManager.SelectColumn.Multi')
     pathChooser = new PathChooser {model, @query, @chosenPaths, @openNodes, @view, trail: []}
     @renderChild 'pathChooser', pathChooser
     @setPathChooserHeight()

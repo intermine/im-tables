@@ -163,6 +163,9 @@ class Options extends Model
     Formatters: # TODO - install formatters here.
       testmodel: {}
       genomic: {}
+    ColumnManager:
+      SelectColumn:
+        Multi: true
 
 # Export the main instance.
 module.exports = new Options
