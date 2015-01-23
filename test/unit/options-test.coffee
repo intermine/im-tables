@@ -143,8 +143,8 @@ describe 'Destination Options', ->
     destinations = (d for d in options.get('Destinations') \
                             when options.get(['Destination', d, 'Enabled']))
 
-    it 'should find 5 enabled destinations', ->
-      destinations.length.should.eql 5
+    it 'should find 3 enabled destinations', ->
+      destinations.length.should.eql 3
 
   describe 'disabling one of them', ->
 
@@ -153,6 +153,6 @@ describe 'Destination Options', ->
     destinations = (d for d in options.get('Destinations') \
                             when options.get(['Destination', d, 'Enabled']))
 
-    it 'should find 4 enabled destinations', ->
-      destinations.length.should.eql 4
+    it 'should find 2 enabled destinations', ->
+      destinations.length.should.eql 2
 

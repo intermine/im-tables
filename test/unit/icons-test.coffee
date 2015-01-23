@@ -14,7 +14,7 @@ describe 'Default icons', ->
 
   it 'should be able to create the HTML for an icon', ->
 
-    icons.icon('Check').should.eql '<i class="fa fa-toggle-on"></i>'
+    icons.icon('Check').should.eql '<i class="fa fa-toggle-on" ></i>'
 
 describe 'Different icon set', ->
 
@@ -25,7 +25,7 @@ describe 'Different icon set', ->
 
   it 'should be able to create the HTML for an icon', ->
 
-    icons.icon('Check').should.eql '<i class="glyphicon glyphicon-ok"></i>'
+    icons.icon('Check').should.eql '<i class="glyphicon glyphicon-ok" ></i>'
 
 describe 'Custom icon set', ->
 
@@ -37,7 +37,17 @@ describe 'Custom icon set', ->
 
   it 'should be able to create the HTML for an icon', ->
 
-    icons.icon('Check').should.eql '<i class="custom-icons checked"></i>'
+    icons.icon('Check').should.eql '<i class="custom-icons checked" ></i>'
+
+describe 'Custom properties', ->
+
+  icons = new Icons
+  ensureDestroyed icons
+
+  it 'should be able to supply custom options', ->
+
+    icons.iconWithProps 'Check', title: 'foo'
+         .should.eql '<i class="fa fa-toggle-on" title="foo"></i>'
 
 describe 'Changing icon set', ->
 
@@ -49,4 +59,4 @@ describe 'Changing icon set', ->
 
   it 'should be able to create the HTML for an icon', ->
 
-    icons.icon('Check').should.eql '<i class="custom-icons checked"></i>'
+    icons.icon('Check').should.eql '<i class="custom-icons checked" ></i>'

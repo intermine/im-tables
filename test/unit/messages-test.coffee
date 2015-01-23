@@ -40,9 +40,9 @@ describe 'Changing messages', ->
 describe 'Precompiled template support', ->
 
   messages = new Messages
-  messages.set squared: (x) -> "#{ x } squared is #{ x * x }"
+  messages.set squared: ({x}) -> "#{ x } squared is #{ x * x }"
 
   after -> messages.destroy()
 
   it 'should use the new template', ->
-    messages.getText('squared', 10).should.eql "10 squared is 100"
+    messages.getText('squared', x: 10).should.eql "10 squared is 100"
