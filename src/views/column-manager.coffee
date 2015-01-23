@@ -1,3 +1,5 @@
+_ = require 'underscore'
+
 Modal = require './modal'
 
 Templates = require '../templates'
@@ -24,7 +26,7 @@ class IndexedCollection extends Collection
 
   constructor: ->
     super
-    @listenTo @, 'change:index', @sort
+    @listenTo @, 'change:index', -> _.defer => @sort()
 
   modelFactory: Collection::model # by default, make a model.
 
