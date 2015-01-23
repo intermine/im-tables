@@ -1,0 +1,23 @@
+<% /* requires: collection, hasRubbish */ %>
+<h4>
+  <%- Messages.getText('columns.CurrentSortOrder', {
+    oes: collection,
+    removed: hasRubbish
+  }) %>
+</h4>
+
+<span class="help-block">
+  <%- Messages.getText('columns.CurrentSortOrderHelp') %>
+</span>
+
+<div class="well im-current-sort-order">
+
+  <ul class="list-group im-active-oes im-connected-list"></ul>
+
+  <div class="im-rubbish-bin">
+    <%= Icons.icon((hasRubbish ? 'RubbishFull' : 'Rubbish'), 'lg') %>
+    <% if (hasRubbish) { %>
+      <ul class="list-group im-removed-oes im-connected-list"></ul>
+    <% } %>
+  </div>
+</div>

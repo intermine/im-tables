@@ -6,6 +6,7 @@ Collection = require '../core/collection'
 PathModel = require '../models/path'
 ColumnManagerTabs = require './column-manager/tabs'
 SelectListEditor = require './column-manager/select-list'
+SortOrderEditor = require './column-manager/sort-order'
 
 require '../messages/columns'
 
@@ -32,6 +33,8 @@ class OrderByList extends Collection
 module.exports = class ColumnManager extends Modal
 
   parameters: ['query']
+
+  className: -> super + ' im-column-manager'
 
   title: -> Messages.getText 'columns.DialogueTitle'
 
@@ -77,6 +80,7 @@ module.exports = class ColumnManager extends Modal
   renderTabContent: -> if @rendered
     main = switch @state.get('currentTab')
       when 'view' then new SelectListEditor {@state, @query, @rubbishBin, collection: @selectList}
+      when 'sortorder' then new SortOrderEditor {@query, collection: @sortOrder}
       else throw new Error "Cannot render #{ @state.get 'currentTab' }"
     @renderChild 'main', main, @$ '.modal-body'
 

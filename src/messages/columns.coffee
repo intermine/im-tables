@@ -15,6 +15,11 @@ Messages.setWithPrefix 'columns',
   SortOrderTabTitle: 'Sort Order'
   CurrentView: 'Current Columns'
   CurrentViewHelp: 'Re-arrange or remove columns by dragging, or by using the buttons'
+  CurrentSortOrder: 'Current Sort Order'
+  CurrentSortOrderHelp: """
+    Re-arrange, add or remove columns. The full list of available
+    columns is listed below.
+  """
   ColumnsSelected: """
     <%= columns.length %> <%= pluralise("Column", columns.length) %>
     Selected<% if (removed) { %>, <%= removed %> Removed<% } %>
