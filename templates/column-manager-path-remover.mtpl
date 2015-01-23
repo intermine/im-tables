@@ -1,0 +1,6 @@
+<% /* requires: removeTitle */ %>
+<span class="pull-right im-remove-view"
+      title="<%- Messages.getText(removeTitle) %>">
+    <%= Icons.icon('Remove') %>
+</span>
+

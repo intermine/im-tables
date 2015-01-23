@@ -12,7 +12,14 @@
 
 <div class="well im-current-sort-order">
 
-  <ul class="list-group im-active-oes im-connected-list"></ul>
+  <% if (collection.length) { %>
+    <ul class="list-group im-active-oes im-connected-list"></ul>
+  <% } else { %>
+    <div class="im-empty-collection">
+      <%- Messages.getText('columns.NoSortOrder') %>
+    </div>
+  <% } %>
+
 
   <div class="im-rubbish-bin">
     <%= Icons.icon((hasRubbish ? 'RubbishFull' : 'Rubbish'), 'lg') %>

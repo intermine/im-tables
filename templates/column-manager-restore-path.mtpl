@@ -1,0 +1,5 @@
+<span class="pull-right im-restore-view"
+    title="<%- Messages.getText('columns.RestoreColumn') %>">
+    <%= Icons.icon('Add') %>
+</span>
+

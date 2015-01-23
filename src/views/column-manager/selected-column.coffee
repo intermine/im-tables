@@ -9,6 +9,12 @@ PathModel = require '../../models/path'
 decr = (i) -> i - 1
 incr = (i) -> i + 1
 
+TEMPLATE_PARTS = [
+  'column-manager-position-controls',
+  'column-manager-path-name',
+  'column-manager-path-remover'
+]
+
 # (*) Note that when we use the buttons to re-arrange, we do the swapping in
 # the event handlers. This is ugly, since we are updating the model _and_ the
 # DOM in the same method, rather than having the DOM reflect the model.
@@ -34,11 +40,13 @@ module.exports = class SelectedColumn extends CoreView
   modelEvents: ->
     'change:displayName': 'resetParts'
 
-  template: Templates.template 'column-manager-selected-column'
+  template: Templates.templateFromParts TEMPLATE_PARTS
+
+  removeTitle: 'columns.RemoveColumn'
 
   getData: ->
     isLast = (@model is @model.collection.last())
-    _.extend super, isLast: isLast, parts: (@parts.map (p) -> p.get 'part')
+    _.extend super, {@removeTitle, isLast, parts: (@parts.pluck 'part')}
 
   initialize: ->
     super

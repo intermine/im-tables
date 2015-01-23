@@ -16,8 +16,9 @@ Messages.setWithPrefix 'columns',
   CurrentView: 'Current Columns'
   CurrentViewHelp: 'Re-arrange or remove columns by dragging, or by using the buttons'
   CurrentSortOrder: 'Current Sort Order'
+  NoSortOrder: 'No sort order. Drop columns here to sort the table.'
   CurrentSortOrderHelp: """
-    Re-arrange, add or remove columns. The full list of available
+    Re-arrange, add or remove columns. The full set of available
     columns is listed below.
   """
   ColumnsSelected: """

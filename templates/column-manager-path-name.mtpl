@@ -1,0 +1,7 @@
+<% /* requires parts */ %>
+<span class="im-path-name">
+    <% _.each(parts, function (part) { %>
+        <span class="im-name-part"><%- part %></span>
+    <% }); %>
+</span>
+
