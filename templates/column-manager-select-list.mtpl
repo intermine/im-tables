@@ -11,12 +11,12 @@
   <span class="help-block"><%- Messages.getText('columns.CurrentViewHelp') %></span>
 
   <div class="well im-current-view">
-      <ul class="list-group im-active-view">
+      <ul class="list-group im-active-view im-connected-list">
       </ul>
       <div class="im-rubbish-bin">
           <%= Icons.icon((hasRubbish ? 'RubbishFull' : 'Rubbish'), 'lg') %>
           <% if (hasRubbish) { %>
-              <ul class="list-group im-removed-view">
+              <ul class="list-group im-removed-view im-connected-list">
               </ul>
           <% } %>
       </div>
