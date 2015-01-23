@@ -17,6 +17,7 @@ class OrderByModel extends PathModel
     direction ?= 'ASC'
     @set {direction}
 
+# Requires ::modelFactory
 class IndexedCollection extends Collection
 
   comparator: 'index'
@@ -25,17 +26,21 @@ class IndexedCollection extends Collection
     super
     @listenTo @, 'change:index', @sort
 
-class SelectList extends IndexedCollection
+  modelFactory: Collection::model # by default, make a model.
 
-  model: (p) => # Create a model, setting the index on the model itself.
+  model: (args) =>
     index = @size()
-    model = new PathModel p
+    model = new @modelFactory args
     model.set {index}
     return model
 
+class SelectList extends IndexedCollection
+
+  modelFactory: PathModel
+
 class OrderByList extends IndexedCollection
 
-  model: (args) -> new OrderByModel args
+  modelFactory: OrderByModel
 
 module.exports = class ColumnManager extends Modal
 

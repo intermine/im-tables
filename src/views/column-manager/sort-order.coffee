@@ -46,7 +46,6 @@ module.exports = class SortOrderEditor extends CoreView
      .flatten()
      .value()
 
-
   currentSortOrder: ->
     @collection.map (m) -> "#{ m.get 'path' } #{ m.get 'direction' }"
                .join ' '

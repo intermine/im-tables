@@ -74,6 +74,11 @@
       color: @state-success-text;
     }
   }
+
+  .im-change-direction {
+    margin-left: 1em;
+  }
+
   .im-path-name {
     margin-left: 1em;
 
@@ -103,32 +108,20 @@
   .im-remove-view {
       color: @brand-danger;
   }
+  .im-position-controls {
+      position: relative;
+      float: left;
+
+      i {
+          color: @gray-light;
+          position: absolute;
+          left: 0;
+
+          &:nth-child(2) {
+              top: 0.6em;
+          }
+      }
+
+  }
 
 }
-
-
-.im-select-list-editor {
-
-    .im-current-view {
-        
-
-        .im-position-controls {
-            position: relative;
-            float: left;
-
-            i {
-                color: @gray-light;
-                position: absolute;
-                left: 0;
-
-                &:nth-child(2) {
-                    top: 0.6em;
-                }
-            }
-
-        }
-
-    }
-
-}
-

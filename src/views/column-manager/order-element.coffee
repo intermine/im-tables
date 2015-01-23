@@ -4,6 +4,7 @@ SelectedColumn = require './selected-column'
 Templates = require '../../templates'
 
 TEMPLATE_PARTS = [
+  'column-manager-position-controls',
   'column-manager-order-direction',
   'column-manager-path-name',
   'column-manager-path-remover'
