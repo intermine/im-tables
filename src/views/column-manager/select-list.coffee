@@ -107,7 +107,7 @@ module.exports = class SelectListEditor extends CoreView
     # Destroy the binned view - this triggers the model's
     # removal from the bin, which triggers restoreView - so
     # once it returns, the path has been added back to the view.
-    if toRestore? 
+    if toRestore?
       toRestore.destroy()
     else
       console.error 'could not find model for:', $el
@@ -139,6 +139,11 @@ module.exports = class SelectListEditor extends CoreView
     columns = @$ '.im-active-view'
     binnedCols = @$ '.im-removed-view'
 
+    #TODO: cut-and paste from sort-order.coffee - move to separate file.
+    cutoff = 900
+    modalWidth = @$el.closest('.modal').width()
+    wide = (modalWidth >= cutoff)
+
     @collection.each (model) =>
       @renderChild (childId model), (new SelectedColumn {model}), columns
     @rubbishBin.each (model) =>
@@ -148,7 +153,7 @@ module.exports = class SelectListEditor extends CoreView
       placeholder: 'im-view-list-placeholder'
       opacity: 0.6
       cancel: 'i,a,button'
-      axis: 'y'
+      axis: (if wide then null else 'y')
       appendTo: @el
 
     @$('.im-removed-view').sortable
@@ -156,7 +161,7 @@ module.exports = class SelectListEditor extends CoreView
       connectWith: columns
       opacity: 0.6
       cancel: 'i,a,button'
-      axis: 'y'
+      axis: (if wide then null else 'y')
       appendTo: @el
 
     @$('.im-rubbish-bin').droppable

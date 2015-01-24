@@ -119,7 +119,10 @@ module.exports = class ColumnManager extends Modal
     @state.set disabled: (viewUnchanged and soUnchanged)
 
   initState: -> # open the dialogue with the default tab open, and main button disabled.
-    @state.set disabled: true, currentTab: ColumnManagerTabs.TABS[0]
+    @state.set
+      disabledReason: 'columns.NoChangesToApply'
+      disabled: true
+      currentTab: ColumnManagerTabs.TABS[0]
 
   renderTabs: ->
     @renderChild 'tabs', (new ColumnManagerTabs {@state}), @$ '.modal-body'

@@ -9,10 +9,17 @@
         <%- primaryAction %>
     </a>
 <% } else { %>
-    <button type="button"
-            <%= (error || disabled) ? 'disabled' : void 0 %>
-            class="btn btn-primary">
-        <%= Icons.icon(primaryIcon) %>
-        <%- primaryAction %>
-    </button>
+    <% /* We need the wrapper to deal with the fact that tooltips do not
+        * work on disabled buttons. */ %>
+    <div class="im-tooltip-wrapper"
+        <% if (disabled && disabledReason) { %>
+          title="<%- Messages.getText(disabledReason)  %>"
+        <% } %>>
+        <button type="button"
+                <%= (error || disabled) ? 'disabled' : void 0 %>
+                class="btn btn-primary">
+            <%= Icons.icon(primaryIcon) %>
+            <%- primaryAction %>
+        </button>
+    </div>
 <% } %>

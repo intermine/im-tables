@@ -55,7 +55,6 @@ module.exports = class SortOrderEditor extends CoreView
     # copied out of bootstrap variables - if only they could be shared!
     cutoff = 900
     modalWidth = @$el.closest('.modal').width()
-    console.log modalWidth, 'vs', cutoff
     wide = (modalWidth >= cutoff)
 
     if @collection.size()
