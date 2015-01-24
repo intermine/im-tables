@@ -1,15 +1,20 @@
 require 'imtables/shim'
 $ = require 'jquery'
+Backbone = require 'backbone'
 
 Dialogue = require 'imtables/views/column-manager'
 
 renderQueries = require '../lib/render-queries.coffee'
 renderWithCounter = require '../lib/render-query-with-counter-and-displays'
+SelectionTable = require '../lib/selection-table'
 
 done = console.log.bind(console, 'SUCCESS')
 fail = console.error.bind(console)
 
-create = (query) -> new Dialogue {query}
+create = (query) ->
+  table = new SelectionTable {query, model: new Backbone.Model}
+  table.render().$el.appendTo 'body'
+  new Dialogue {query}
 showDialogue = (dialogue) -> dialogue.show().then done, fail
 
 queries = [
