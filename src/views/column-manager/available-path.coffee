@@ -1,6 +1,8 @@
 _ = require 'underscore'
 UnselectedColumn = require './unselected-column'
 
+CUTOFF = 900
+
 module.exports = class AvailablePath extends UnselectedColumn
 
   # a function that will help us find the connected list, without
@@ -20,11 +22,9 @@ module.exports = class AvailablePath extends UnselectedColumn
   # will not be available.
   fixAppendTo: ->
     @$el.draggable 'option', 'appendTo', @$el.closest('.well')
-    cutoff = 992 
     modalWidth = @$el.closest('.modal').width()
-    wide = (modalWidth >= cutoff)
+    wide = (modalWidth >= CUTOFF)
     @$el.draggable 'option', 'axis', (if wide then null else 'y')
-
 
   onDragStart: ->
     @state.set dragged: @model.get 'path'
@@ -37,9 +37,8 @@ module.exports = class AvailablePath extends UnselectedColumn
   postRender: ->
     # copied out of bootstrap variables - if only they could be shared!
     # TODO - move to common file.
-    cutoff = 992 
     modalWidth = @$el.closest('.modal').width()
-    wide = (modalWidth >= cutoff)
+    wide = (modalWidth >= CUTOFF)
     @$el.draggable
       axis: (if wide then null else 'y')
       connectToSortable: @findActives()

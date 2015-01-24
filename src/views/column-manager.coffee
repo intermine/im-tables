@@ -66,6 +66,7 @@ module.exports = class ColumnManager extends Modal
 
   act: -> unless @state.get 'disabled'
     @query.select @getCurrentView() # select the current view.
+    @query.orderBy @getCurrentSortOrder() # order by the new sort-order.
     @resolve 'changed'
 
   stateEvents: ->
@@ -103,6 +104,8 @@ module.exports = class ColumnManager extends Modal
      .value()
 
   getCurrentView: -> @selectList.pluck 'path'
+
+  getCurrentSortOrder: -> @sortOrder.map (m) -> m.asOrderElement()
 
   setDisabled: ->
     return @state.set disabled: true if @state.get('adding') # cannot confirm while adding.

@@ -53,7 +53,7 @@ module.exports = class SortOrderEditor extends CoreView
   activateSortables: ->
     active = @$('.im-active-oes')
     # copied out of bootstrap variables - if only they could be shared!
-    cutoff = 992 
+    cutoff = 900
     modalWidth = @$el.closest('.modal').width()
     console.log modalWidth, 'vs', cutoff
     wide = (modalWidth >= cutoff)
