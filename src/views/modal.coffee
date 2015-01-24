@@ -28,7 +28,7 @@ module.exports = class Modal extends View
   events: ->
     'click .modal-footer .alert .dismiss': 'dismissError' # Dismiss error
     'click .modal-footer .btn-cancel': 'hide' # Establish a convention for closing modals.
-    'click .modal-footer > button.btn-primary': 'act' # Establish a convention for acting.
+    'click .modal-footer button.btn-primary': 'act' # Establish a convention for acting.
     'hidden.bs.modal': 'onHidden' # Can be caused by user clicking off the modal.
     'click .close': 'hide' # Establish a convention for closing modals.
 
