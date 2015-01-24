@@ -9,6 +9,8 @@ PathModel = require '../models/path'
 ColumnManagerTabs = require './column-manager/tabs'
 SelectListEditor = require './column-manager/select-list'
 SortOrderEditor = require './column-manager/sort-order'
+AvailableColumns = require '../models/available-columns'
+
 
 require '../messages/columns'
 
@@ -48,6 +50,8 @@ module.exports = class ColumnManager extends Modal
 
   parameters: ['query']
 
+  modalSize: -> 'lg'
+
   className: -> super + ' im-column-manager'
 
   title: -> Messages.getText 'columns.DialogueTitle'
@@ -70,12 +74,29 @@ module.exports = class ColumnManager extends Modal
     # query.
     @selectList = new SelectList
     @rubbishBin = new SelectList
+    @sortOrder = new OrderByList
+    @availableColumns = new AvailableColumns
+    # Populate the view
     for v in @query.views
       @selectList.add @query.makePath v
-    @sortOrder = new OrderByList
+    # Populate the sort-order
     for {path, direction} in @query.sortOrder
       @sortOrder.add {direction, path: @query.makePath(path)}
+    # Find the relevant sort paths which are not in the sort order already.
+    for path in @getRelevantPaths() when (not @sortOrder.get path.toString())
+      @availableColumns.add path, sort: false
+    @availableColumns.sort() # sort once, when they are all added.
+
     @listenTo @selectList, 'sort add remove', @setDisabled
+    @listenTo @sortOrder, 'sort add remove', @setDisabled
+
+  getRelevantPaths: ->
+    # Relevant paths are all the attributes of all the inner-joined query nodes.
+    _.chain @query.getQueryNodes()
+     .filter (n) => not @query.isOuterJoined n
+     .map (n) -> (cn for cn in n.getChildNodes() when cn.isAttribute() and (cn.end.name isnt 'id'))
+     .flatten()
+     .value()
 
   getCurrentView: -> @selectList.pluck 'path'
 
@@ -94,7 +115,7 @@ module.exports = class ColumnManager extends Modal
   renderTabContent: -> if @rendered
     main = switch @state.get('currentTab')
       when 'view' then new SelectListEditor {@state, @query, @rubbishBin, collection: @selectList}
-      when 'sortorder' then new SortOrderEditor {@query, collection: @sortOrder}
+      when 'sortorder' then new SortOrderEditor {@query, @availableColumns, collection: @sortOrder}
       else throw new Error "Cannot render #{ @state.get 'currentTab' }"
     @renderChild 'main', main, @$ '.modal-body'
 
@@ -107,6 +128,7 @@ module.exports = class ColumnManager extends Modal
     @selectList.close()
     @rubbishBin.close()
     @sortOrder.close()
+    @availableColumns.close()
     super
 
 

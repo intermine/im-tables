@@ -20,6 +20,11 @@ module.exports = class AvailablePath extends UnselectedColumn
   # will not be available.
   fixAppendTo: ->
     @$el.draggable 'option', 'appendTo', @$el.closest('.well')
+    cutoff = 992 
+    modalWidth = @$el.closest('.modal').width()
+    wide = (modalWidth >= cutoff)
+    @$el.draggable 'option', 'axis', (if wide then null else 'y')
+
 
   onDragStart: ->
     @state.set dragged: @model.get 'path'
@@ -30,8 +35,13 @@ module.exports = class AvailablePath extends UnselectedColumn
     @$el.removeClass 'ui-dragging'
 
   postRender: ->
+    # copied out of bootstrap variables - if only they could be shared!
+    # TODO - move to common file.
+    cutoff = 992 
+    modalWidth = @$el.closest('.modal').width()
+    wide = (modalWidth >= cutoff)
     @$el.draggable
-      axis: 'y'
+      axis: (if wide then null else 'y')
       connectToSortable: @findActives()
       helper: 'clone'
       revert: 'invalid'

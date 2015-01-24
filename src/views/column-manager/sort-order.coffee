@@ -3,7 +3,6 @@ _ = require 'underscore'
 CoreView = require '../../core-view'
 CoreModel = require '../../core-model'
 Templates = require '../../templates'
-AvailableColumns = require '../../models/available-columns'
 HandlesDOMReSort = require '../../mixins/handles-dom-resort'
 
 AvailablePath = require './available-path'
@@ -16,7 +15,7 @@ module.exports = class SortOrderEditor extends CoreView
 
   @include HandlesDOMReSort
 
-  parameters: ['collection', 'query']
+  parameters: ['collection', 'query', 'availableColumns']
 
   className: 'im-sort-order-editor'
 
@@ -32,22 +31,8 @@ module.exports = class SortOrderEditor extends CoreView
   initialize: ->
     super
     @dragState = new CoreModel
-    @availableColumns = new AvailableColumns
-    # Find the relevant sort paths which are not in the sort order already.
-    for path in @getRelevantPaths() when (not @collection.get path.toString())
-      # sort once, when they are all added.
-      @availableColumns.add path, sort: false
-    @availableColumns.sort()
     @listenTo @availableColumns, 'sort add remove', @resortAvailable
     @listenTo @availableColumns, 'remove', @addToSortOrder
-
-  getRelevantPaths: ->
-    # Relevant paths are all the attributes of all the inner-joined query nodes.
-    _.chain @query.getQueryNodes()
-     .filter (n) => not @query.isOuterJoined n
-     .map (n) -> (cn for cn in n.getChildNodes() when cn.isAttribute() and (cn.end.name isnt 'id'))
-     .flatten()
-     .value()
 
   currentSortOrder: ->
     @collection.map (m) -> "#{ m.get 'path' } #{ m.get 'direction' }"
@@ -67,13 +52,18 @@ module.exports = class SortOrderEditor extends CoreView
 
   activateSortables: ->
     active = @$('.im-active-oes')
+    # copied out of bootstrap variables - if only they could be shared!
+    cutoff = 992 
+    modalWidth = @$el.closest('.modal').width()
+    console.log modalWidth, 'vs', cutoff
+    wide = (modalWidth >= cutoff)
 
     if @collection.size()
       @$actives = active.sortable
         placeholder: 'im-view-list-placeholder'
         opacity: 0.6
         cancel: 'i,a,button'
-        axis: 'y'
+        axis: (if wide then null else 'y')
         appendTo: @el
     else
       @$droppable = @$('.im-empty-collection').droppable
@@ -150,6 +140,5 @@ module.exports = class SortOrderEditor extends CoreView
     @$('.im-rubbish-bin').css 'max-height': Math.max(200, (@$el.closest('.modal').height() - 450))
 
   remove: ->
-    @availableColumns.close()
     @dragState.destroy()
     super

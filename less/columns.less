@@ -33,7 +33,7 @@
   }
 
   .im-selected-column {
-    font-size: smaller;
+    font-size: small;
     i {
       cursor: pointer;
     }
@@ -41,8 +41,10 @@
     &.ui-dragging {
       opacity: 0.6;
     }
-    &.ui-draggable-dragging {
-      width: 88.5%;
+    @media (max-width: @screen-md-min) {
+      &.ui-draggable-dragging {
+        width: 88.5%;
+      }
     }
   }
   .im-empty-collection {

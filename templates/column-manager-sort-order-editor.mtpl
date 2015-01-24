@@ -11,17 +11,24 @@
 
 <div class="well im-current-sort-order">
 
-  <% if (collection.length) { %>
-    <ul class="list-group im-active-oes im-connected-list"></ul>
-  <% } else { %>
-    <div class="im-empty-collection">
-      <%- Messages.getText('columns.NoSortOrder') %>
+  <div class="row">
+    <div class="col-md-6">
+        <% if (collection.length) { %>
+          <ul class="list-group im-active-oes im-connected-list"></ul>
+        <% } else { %>
+          <div class="im-empty-collection">
+            <%- Messages.getText('columns.NoSortOrder') %>
+          </div>
+        <% } %>
     </div>
-  <% } %>
 
-  <% if (available) { %>
-    <div class="im-rubbish-bin">
-      <ul class="list-group im-removed im-available-oes im-connected-list"></ul>
+    <div class="col-md-6">
+        <% if (available) { %>
+          <div class="im-rubbish-bin">
+            <ul class="list-group im-removed im-available-oes im-connected-list">
+            </ul>
+          </div>
+        <% } %>
     </div>
-  <% } %>
+  </div>
 </div>

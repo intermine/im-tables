@@ -11,15 +11,25 @@
   <span class="help-block"><%- Messages.getText('columns.CurrentViewHelp') %></span>
 
   <div class="well im-current-view">
-      <ul class="list-group im-active-view im-connected-list">
-      </ul>
-      <div class="im-rubbish-bin">
-          <%= Icons.icon((hasRubbish ? 'RubbishFull' : 'Rubbish'), 'lg') %>
-          <% if (hasRubbish) { %>
-              <ul class="list-group im-removed im-removed-view im-connected-list">
-              </ul>
-          <% } %>
+
+    <div class="row">
+
+      <div class="col-md-6">
+        <ul class="list-group im-active-view im-connected-list">
+        </ul>
       </div>
+
+      <div class="col-md-6">
+        <div class="im-rubbish-bin">
+            <%= Icons.icon((hasRubbish ? 'RubbishFull' : 'Rubbish'), 'lg') %>
+            <% if (hasRubbish) { %>
+                <ul class="list-group im-removed im-removed-view im-connected-list">
+                </ul>
+            <% } %>
+        </div>
+      </div>
+
+    </div>
   </div>
 </div>
 
