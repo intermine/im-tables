@@ -21,6 +21,10 @@ class OrderByModel extends PathModel
     direction ?= 'ASC'
     @set {direction}
 
+  asOrderElement: -> @pick 'path', 'direction'
+
+  toOrderString: -> "#{ @get 'path'} #{ @get 'direction' }"
+
 # Requires ::modelFactory
 class IndexedCollection extends Collection
 
@@ -104,7 +108,12 @@ module.exports = class ColumnManager extends Modal
     return @state.set disabled: true if @state.get('adding') # cannot confirm while adding.
     currentView = @getCurrentView().join ' '
     initialView = @query.views.join(' ')
-    @state.set disabled: (currentView is initialView) # no changes - nothing to do.
+    currentSO = @sortOrder.map( (m) -> m.toOrderString() ).join ' '
+    initialSO = @query.getSorting()
+    viewUnchanged = (currentView is initialView)
+    soUnchanged = (currentSO is initialSO)
+    # if no changes, then disable, since there are no changes to apply.
+    @state.set disabled: (viewUnchanged and soUnchanged)
 
   initState: -> # open the dialogue with the default tab open, and main button disabled.
     @state.set disabled: true, currentTab: ColumnManagerTabs.TABS[0]
