@@ -111,8 +111,26 @@
     text-align: left;
     text-align: start;
   }
+  .im-remove-view, .im-restore-view {
+      border-left: 1px solid @list-group-border;
+      padding: 10px 1em;
+      margin-top: -10px;
+      margin-right: -15px;
+  }
+  .im-restore-view {
+      color: @brand-success;
+      &:hover {
+          background-color: @state-success-bg;
+          color: @state-success-text;
+      }
+  }
   .im-remove-view {
       color: @brand-danger;
+
+      &:hover {
+          background-color: @state-danger-bg;
+          color: @state-danger-text;
+      }
   }
   .im-position-controls {
       position: relative;

@@ -11,6 +11,7 @@ Messages.setWithPrefix 'columns',
       Add <%= num %> new <%= pluralise('column', num) %>
     <% } %>
   """
+  AddColumnToSortOrder: 'Sort by this column'
   NoChangesToApply: 'There are no changes to apply.'
   OrderVerb: 'Add / Remove / Re-Arrange'
   OrderTitle: 'Columns'

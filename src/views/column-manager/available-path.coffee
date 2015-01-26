@@ -9,6 +9,8 @@ module.exports = class AvailablePath extends UnselectedColumn
   # having a reverence to the parent directly.
   parameters: ['findActives']
 
+  restoreTitle: 'columns.AddColumnToSortOrder'
+
   events: -> _.extend super,
     mousedown: 'onMouseDown'
     dragstart: 'onDragStart'
@@ -39,6 +41,7 @@ module.exports = class AvailablePath extends UnselectedColumn
     # TODO - move to common file.
     modalWidth = @$el.closest('.modal').width()
     wide = (modalWidth >= CUTOFF)
+    index = @model.collection.indexOf @model
     @$el.draggable
       axis: (if wide then null else 'y')
       connectToSortable: @findActives()
@@ -47,3 +50,5 @@ module.exports = class AvailablePath extends UnselectedColumn
       opacity: 0.8
       cancel: 'i,a,button'
       zIndex: 1000
+
+    @$('[title]').tooltip placement: (if index is 0 then 'bottom' else 'top')

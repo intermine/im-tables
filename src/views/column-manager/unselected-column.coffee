@@ -1,5 +1,6 @@
-SelectedColumn = require './selected-column'
+_ = require 'underscore'
 
+SelectedColumn = require './selected-column'
 Templates = require '../../templates'
 
 TEMPLATE_PARTS = [
@@ -13,5 +14,9 @@ module.exports = class UnselectedColumn extends SelectedColumn
 
   events: -> # Same logic as remove - remove from collection.
     'click .im-restore-view': 'removeView'
+
+  restoreTitle: 'columns.RestoreColumn'
+
+  getData: -> _.extend super, {@restoreTitle}
 
 

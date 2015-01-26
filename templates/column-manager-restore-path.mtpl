@@ -1,5 +1,6 @@
+<% /* requires: restoreTitle */ %>
 <span class="pull-right im-restore-view"
-    title="<%- Messages.getText('columns.RestoreColumn') %>">
+    title="<%- Messages.getText(restoreTitle) %>">
     <%= Icons.icon('Add') %>
 </span>
 
