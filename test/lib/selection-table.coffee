@@ -18,9 +18,9 @@ class TableRow extends Backbone.Model
     @set id: id
     @cells = new TableCells
     for cell in cells # one model per cell value.
-      _.extend cell, _cellId: cell.column + ':' + cell.id
-      allCells.add cell
-      @cells.add allCells.get cell._cellId
+      c = _.extend {_cellId: (cell.column + ':' + cell.id)}, cell
+      allCells.add c
+      @cells.add allCells.get c._cellId
 
   toJSON: -> _.extend super, cells: @cells.toJSON()
 
@@ -124,12 +124,21 @@ class Row extends Backbone.View
   tagName: 'tr'
 
   initialize: ({@selected, @selecting}) ->
+    @cells = []
 
   render: ->
     @model.cells.each (model) =>
       cell = new Cell {model, @selected, @selecting}
       cell.render().$el.appendTo @el
+      @cells.push cell
     this
+
+  remove: ->
+    while c = @cells.pop()
+      c.remove()
+    super
+
+NULL = """<code>null</null>"""
 
 class Cell extends Backbone.View
 
@@ -155,12 +164,14 @@ class Cell extends Backbone.View
   getChecked: -> if @model.get('selected') then 'checked' else null
 
   render: ->
+    value = if @model.get('value')? then @model.escape('value') else NULL
+
     if @selecting
       @$el.html """
         <input type="checkbox" #{ @getChecked() } >
-        #{ @model.escape 'value' }
+        #{ value }
       """
     else
-      @$el.html @model.escape 'value'
+      @$el.html value
 
     this
