@@ -75,7 +75,10 @@ module.exports = class SelectionTable extends Backbone.View
 
   populate: ->
     xml = @query.toXML() # xml is query key.
+    @_pop_called = our_call = _.now()
     @query.tableRows().then (rows) =>
+      # Do nothing if another call was made since this one.
+      return if @_pop_called isnt our_call
       @collection.set(new TableRow row, "#{ xml }:#{ i }" for row, i in rows)
 
   addRow: (model) -> if @$tbody
