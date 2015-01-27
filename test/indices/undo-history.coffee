@@ -33,7 +33,7 @@ create = (query) ->
   history.getCurrentQuery().addToSelect 'employees.end'
   history.getCurrentQuery().orderBy ['name']
   history.getCurrentQuery().addSortOrder 'employees.name'
-  history.getCurrentQuery().addConstraint ['employees.age', '<', 60], 'or'
+  history.getCurrentQuery().addConstraint ['employees.age', '<', 60]
 
   new Button {collection: history}
 
