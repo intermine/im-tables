@@ -1,0 +1,18 @@
+<% if (!state.current) { %>
+  <button class="btn btn-default btn-small im-state-revert"
+      title="<%- Messages.getText('undo.RevertToState') %>">
+      <%= Icons.icon('Undo') %>
+  </button>
+<% } %>
+
+<h4><%- Messages.getText('undo.StepTitle', title) %></h4>
+
+<% if (state.current) { %>
+  <span class="help-block"><%- Messages.getText('undo.IsCurrentState') %></span>
+<% } %>
+
+<span class="im-step-count">
+  <%- Messages.getText('undo.StepCount', state) %>
+</span>
+
+<div class="im-step-details"></div>

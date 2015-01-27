@@ -12,24 +12,35 @@ module.exports = class PathModel extends CoreModel
     parts: []
     isNumeric: false
     isBoolean: false
+    isReference: false
 
   constructor: (path) ->
     super()
+    @set @pathAttributes path
+    @setDisplayName path
+    @setTypeName path
+
+  setDisplayName: (path) ->
+    path.getDisplayName().then (name) =>
+      @set displayName: name, parts: name.split(' > ')
+
+  setTypeName: (path) ->
+    type = (if path.isAttribute() then path.getParent() else path).getType()
+    type.getDisplayName().then (name) => @set typeName: name
+
+  pathAttributes: (path) ->
     str = String path
-    @set
+    attrs =
       id: (if path.isAttribute() then str else "#{ str }.id")
       path: str
       type: path.getType().name
 
-    type = (if path.isAttribute() then path.getParent() else path).getType()
-    path.getDisplayName().then (name) =>
-      @set displayName: name, parts: name.split(' > ')
-    type.getDisplayName().then (name) =>
-      @set typeName: name
-
     if path.isAttribute()
       atype = path.getType()
-      if atype in NUMERIC_TYPES
-        @set isNumeric: true
-      else if atype in BOOLEAN_TYPES
-        @set isBoolean: true
+      attrs.isNumeric = (atype in NUMERIC_TYPES)
+      attrs.isBoolean = (atype in BOOLEAN_TYPES)
+    else
+      attrs.isReference = true
+
+    return attrs
+

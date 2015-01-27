@@ -10,20 +10,9 @@ ColumnManagerTabs = require './column-manager/tabs'
 SelectListEditor = require './column-manager/select-list'
 SortOrderEditor = require './column-manager/sort-order'
 AvailableColumns = require '../models/available-columns'
-
+OrderByModel = require '../models/order-element'
 
 require '../messages/columns'
-
-class OrderByModel extends PathModel
-
-  constructor: ({path, direction}) ->
-    super path
-    direction ?= 'ASC'
-    @set {direction}
-
-  asOrderElement: -> @pick 'path', 'direction'
-
-  toOrderString: -> "#{ @get 'path'} #{ @get 'direction' }"
 
 # Requires ::modelFactory
 class IndexedCollection extends Collection

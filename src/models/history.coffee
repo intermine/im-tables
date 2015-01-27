@@ -1,70 +1,118 @@
-do ->
+_ = require 'underscore'
+Collection = require '../core/collection'
+StepModel = require './step'
 
-  # TODO - combine the data model for this collection with that of the tables.
-  class History extends Backbone.Collection
+module.exports = class History extends Collection
 
-    initialize: ->
-      @currentStep = 0
-      @currentQuery = null
-      @on 'revert', @revert, @
+  model: StepModel
 
-    unwatch: ->
-      if @currentQuery?.off?
-        @stopListening @currentQuery
+  currentQuery: null
 
-    watch: ->
-      if q = @currentQuery
-        @listenTo q, "change:constraints", => @onChange q, 'constraints', 'filter'
-        @listenTo q, "change:views", => @onChange q, 'views', 'column'
-        @listenTo q, "change:joins", => @addStep "Changed joins", q
-        @listenTo q, "set:sortorder", => @addStep "Changed sort order", q
-        @listenTo q, "count:is", (n) => @last().set count: n
-        @listenTo q, "undo", => @popState()
+  initialize: ->
+    super
+    @listenTo @, 'remove', @unwatch
+    @listenTo @, 'add', @watch
 
-    onChange: (query, prop, label) ->
-      xs = @last().get('query')[prop]
-      ys = query[prop]
-      was = xs.length
-      now = ys.length
-      n = Math.abs was - now
-      quantity = if n is 1 then 'a ' else if n then "#{ n } " else ''
-      pl = if n isnt 1 then 's' else ''
-      verb = if was < now
-        'Added'
-      else if was > now
-        'Removed'
-      else if now is _.union(xs, ys).length
-        'Rearranged'
-      else
-        'Changed'
+  # Monotonically increasing revision counter.
+  currentStep: 0
 
-      title = "#{ verb } #{ quantity }#{ label }#{pl}"
-      @addStep title, query
+  # Sort by revision.
+  # (Not really needed, but good to be explicit).
+  comparator: 'revision'
 
-    addStep: (title, query) ->
-      was = @currentQuery
-      @unwatch()
-      @currentQuery = query.clone()
-      @currentQuery.revision = @currentStep
-      @watch()
-      @each (state) -> state.set current: false
-      @add query: query.clone(), current: true, title: title, stepNo: @currentStep++
-      was?.trigger 'replaced:by', @currentQuery
+  # The current query is the query of the last (most
+  # recent) state.
+  getCurrentQuery: -> @currentQuery
 
-    popState: -> @revert @at @length - 2
+  setCurrentQuery: (m) ->
+    @currentQuery = m.get('query').clone()
 
-    revert: (target) ->
-      @unwatch()
-      was = @currentQuery
-      while @last().get('stepNo') > target.get('stepNo')
-        @pop()
-      current = @last()
-      current?.set current: true
-      @currentQuery = current?.get('query')?.clone()
-      @currentQuery.revision = current.get('stepNo')
-      @watch()
-      @trigger 'reverted', @currentQuery
-      was?.trigger 'replaced:by', @currentQuery
+  # Stop listening to changes to the current query,
+  # or the given query.
+  unwatch: (model) ->
+    q = (model?.get('query') ? @getCurrentQuery())
+    return unless q? # Nothing to stop listening to!
+    @stopListening q
 
-  scope 'intermine.models.table', {History}
+  watch: (m) ->
+    @setCurrentQuery m
+    q = @getCurrentQuery()
+    return unless q?
+    @listenTo q, "change:constraints", @onChangeConstraints
+    @listenTo q, "change:views", @onChangeViews
+    @listenTo q, "change:joins", @onChangeJoins
+    @listenTo q, "change:sortorder", @onChangeSortOrder
+    @listenTo q, "undo", @popState
+
+  # TODO - get rid of labels - they are pointless. Use the query prop instead
+
+  onChangeConstraints: ->
+    @onChange 'constraints', 'filter', JSON.stringify
+
+  onChangeViews: ->
+    @onChange 'views', 'column'
+
+  onChangeJoins: ->
+    @onChange 'joins', 'join', (style, path) -> "#{ path }:#{ style }"
+
+  onChangeSortOrder: ->
+    @onChange 'sortOrder', 'sort order element', JSON.stringify
+
+  # Inform clients that the current query is different
+  triggerChangedCurrent: ->
+    @trigger 'changed:current', @last()
+
+  # Handle a change event, analysing what has changed
+  # and adding a step that records that change.
+  onChange: ( prop, label, f = (x) -> x ) ->
+    query = @currentQuery
+    prev = @last().get 'query'
+    xs = _.map prev[prop], f
+    ys = _.map query[prop], f
+    was = xs.length
+    now = ys.length
+    n = Math.abs was - now
+
+    verb = switch
+      when was < now then 'Added'
+      when was > now then 'Removed'
+      when now is _.union(xs, ys).length then 'Rearranged'
+      else 'Changed'
+
+    @addStep verb, n, label, query
+
+  # Set the root query of this history.
+  setInitialState: (q) ->
+    @reset() if @size()
+    @addStep null, null, 'Initial', q
+
+  # Add a new state to the history, setting it as the new
+  # current query.
+  addStep: (verb, number, label, query) ->
+    was = @currentQuery
+    now = query.clone()
+    @unwatch() # unbind listeners for the current query.
+    @add
+      query: now
+      revision: @currentStep++
+      title:
+        verb: verb
+        number: number
+        label: label
+    was?.trigger 'replaced:by', now
+    @triggerChangedCurrent()
+
+  # Revert to the state before the most recent one.
+  popState: -> @revertToIndex -2
+
+  revertToIndex: (index) ->
+    now = @at( if index >= 0 then index else @size() - index )
+    was = @getCurrentQuery()
+    revision = target.get 'revision'
+    # Remove everything after the target
+    while @last().get('revision') > revision
+      @pop()
+    @watch now # Nothing added, but the current query has changed.
+    was?.trigger 'replaced:by', now.get('query')
+    @triggerChangedCurrent()
 

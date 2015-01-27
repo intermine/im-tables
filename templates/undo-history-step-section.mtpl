@@ -1,0 +1,17 @@
+<div class="im-section-summary">
+  <% if (collection.length) { %>
+    <%= Icons.icon(state.open ? 'Expanded' : 'Collapsed') %>
+  <% } %>
+  <strong>
+    <%- Messages.getText(summaryLabel, {n: collection.length}) %>
+  </strong>
+</div>
+<% if (collection.length) { %>
+  <div class="<%- collectionClasses %>">
+    <% _.each(collection, function (e) { %>
+      <span class="label label-<%= e.added ? 'success' : 'default' %>">
+        <%- labelContent(e) %>
+      </span>
+    <% }); %>
+  </div>
+<% } %>

@@ -50,7 +50,7 @@ module.exports = class SelectionTable extends Backbone.View
 
   rows: {} # store rows here.
 
-  initialize: ({@selected, @query}) ->
+  initialize: ({@selected, query}) ->
     @rows = {} # instance level var.
     @model ?= new Backbone.Model selecting: true
     @collection = new TableRows
@@ -58,9 +58,14 @@ module.exports = class SelectionTable extends Backbone.View
     @listenTo @collection, 'add', @addRow
     @listenTo @collection, 'remove', @removeRow
     @listenTo @headers, 'add remove reset sort', @renderHeaders
+    @listenTo @model, 'change:selecting', @render
+    @setQuery query if query?
+
+  setQuery: (query) ->
+    @stopListening(@query) if @query?
+    @query = query
     @listenTo @query, QUERY_EVTS, @populate
     @listenTo @query, 'change:views', @setHeaders
-    @listenTo @model, 'change:selecting', @render
     @setHeaders()
     @populate()
 

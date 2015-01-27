@@ -1,0 +1,14 @@
+<button class="btn btn-default im-undo">
+  <%= Icons.icon('Undo') %>
+  <span class="visible-lg-inline">
+    <%- Messages.getText('Undo') %>
+  </span>
+</button>
+
+<button class="btn btn-default dropdown-toggle"
+        data-toggle="dropdown">
+  <span class="caret"></span>
+</button>
+
+<ul class="dropdown-menu im-state-list">
+</ul>
