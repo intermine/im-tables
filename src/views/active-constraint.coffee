@@ -1,12 +1,12 @@
 _ = require 'underscore'
 $ = require 'jquery'
-fs = require 'fs'
 
 {Promise} = require 'es6-promise'
 {Query, Model} = require 'imjs'
 
 # Support
 Messages = require '../messages'
+Templates = require '../templates'
 Icons = require '../icons'
 Options = require '../options'
 View = require '../core-view'
@@ -14,9 +14,9 @@ View = require '../core-view'
 ConstraintSummary = require './constraint-summary'
 ConstraintEditor = require './constraint-editor'
 
-html = fs.readFileSync __dirname + '/../templates/active-constraint.html', 'utf8'
-
-# It is very important that the ValuePlaceholder get set to the appropriate mine value.
+# It is very important that the ValuePlaceholder get set to the
+# appropriate mine value.
+# That should probably happen in some options system.
 Messages.set
   'conbuilder.Add': 'Add constraint'
   'conbuilder.Update': 'Update'
@@ -96,7 +96,6 @@ module.exports = class ActiveConstraint extends View
           @setDisplayName()
 
   cancelEditing: ->
-    console.debug 'cancelling editing'
     @state.set editing: false
     @model.set _.omit @constraint, 'path'
     @model.set error: null
@@ -202,7 +201,7 @@ module.exports = class ActiveConstraint extends View
     con = @model.toJSON()
     {icons, messages, con}
 
-  template: _.template html, variable: 'data'
+  template: Templates.template 'active-constraint', variable: 'data'
 
   toggleEditor: ->
     if @state.get('editing') and @rendered

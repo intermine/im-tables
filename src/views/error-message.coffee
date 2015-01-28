@@ -1,18 +1,16 @@
 _ = require 'underscore'
 fs = require 'fs'
 
-View = require '../core-view'
+CoreView = require '../core-view'
 Icons = require '../icons'
+Templates = require '../templates'
 
-html = fs.readFileSync __dirname + '/../templates/error-message.html', 'utf8'
-
-module.exports = class ErrorMessage extends View
+module.exports = class ErrorMessage extends CoreView
 
   className: 'im-error-message'
 
-  initialize: ->
-    @listenTo @model, 'change:error', @reRender
-    @listenTo @model, 'change:error', @logError
+  modelEvents: ->
+    'change:error': @reRender
 
   getData: -> icons: Icons, error: @model.get('error')
 
@@ -20,4 +18,4 @@ module.exports = class ErrorMessage extends View
     if e = @model.get('error')
       console.error e, e.stack
 
-  template: _.template html
+  template: Templates.template 'error-message'
