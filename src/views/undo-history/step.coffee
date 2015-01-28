@@ -8,8 +8,6 @@ ConstraintModel = require '../../models/constraint'
 OrderElementModel = require '../../models/order-element'
 QueryProperty = require './query-property-section'
 
-{count} = require '../../utils/count-executor'
-
 require '../../messages/undo'
 require '../../messages/constraints'
 
@@ -51,29 +49,30 @@ module.exports = class UndoStep extends CoreView
 
   getCountDiff: ->
     if @state.has 'prevCount'
-      @state.get('count') - @state.get('prevCount')
+      @model.get('count') - @state.get('prevCount')
     else
       null
 
   initialize: ->
     super
     q = @model.get 'query'
-    count(q).then (c) => @state.set count: c
-    if prev = @getPrevModel()
-      count(prev.get 'query').then (c) => @state.set prevCount: c
+    @initPrevCount()
     lifter = liftPathAndType q
     @listenTo @model.collection, 'add remove', @setCurrent
     @views = new ViewList q.views.map lifter
     @constraints = new ConstraintList q.constraints.map lifter
     @sortOrder = new SortOrder q.sortOrder.map lifter
     title = @model.get 'title'
-    console.log title
     if title.verb in ['Added', 'Removed', 'Changed']
       switch title.label
         when 'column' then @diffView()
         when 'sort order element' then @diffSortOrder()
         when 'filter' then @diffConstraints()
         else console.log 'Cannot diff', title.label
+
+  initPrevCount: -> if prev = @getPrevModel()
+    @state.set prevCount: prev.get 'count'
+    @listenTo prev, 'change:count', => @state.set prevCount: prev.get 'count'
 
   getPrevModel: ->
     index = @model.collection.indexOf @model
@@ -104,7 +103,6 @@ module.exports = class UndoStep extends CoreView
       not _.findWhere q.constraints, c
 
   initState: ->
-    @state.set count: 0
     @setCurrent()
 
   setCurrent: ->
@@ -114,6 +112,9 @@ module.exports = class UndoStep extends CoreView
     @state.set current: (index is size - 1)
 
   stateEvents: ->
+    'change': @reRender
+
+  modelEvents: -> # the only prop we expect to change is count.
     'change': @reRender
 
   events: ->

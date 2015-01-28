@@ -1,5 +1,20 @@
 .im-undo-history {
 
+  .im-state-list {
+    
+    .im-toggle-trivial {
+      position: relative;
+      top: -0.5em;
+    }
+
+    li > .btn {
+      .pull-right();
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+      margin-right: -0.5px;
+    }
+  }
+
   .im-step {
 
     min-width: 280px;
@@ -7,13 +22,6 @@
 
     &:last-child {
       border-bottom: none;
-    }
-
-    .im-state-revert {
-      .pull-right();
-      border-top-right-radius: 0;
-      border-bottom-right-radius: 0;
-      margin-right: -0.5px;
     }
 
     .im-section-summary {

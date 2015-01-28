@@ -12,7 +12,7 @@
 <% } %>
 
 <span class="im-step-count">
-  <%- Messages.getText('undo.StepCount', state) %>
+  <%- Messages.getText('undo.StepCount', {count: count}) %>
   <% if (diff) { %>
     <span class="label im-label-<%= (diff > 0 ) ? 'pos' : 'neg' %>">
       <% if (diff > 0) { %>+<% } %><%- numToString(diff) %>

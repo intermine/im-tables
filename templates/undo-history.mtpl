@@ -11,4 +11,11 @@
 </button>
 
 <ul class="dropdown-menu im-state-list">
+    <li>
+      <button
+          title="<%- Messages.getText('undo.ToggleTrivialTitle', state) %>"
+          class="btn btn-xs btn-default im-toggle-trivial <%= state.hideTrivial ? 'active' : void 0 %>">
+        <%- Messages.getText('undo.ToggleTrivial', state) %>
+      </button>
+    </li>
 </ul>

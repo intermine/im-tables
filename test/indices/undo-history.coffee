@@ -15,22 +15,10 @@ fail = console.error.bind(console)
 onChangeRevision = (s) ->
   console.log "Current state is now revision #{ s.get 'revision' }"
 
-create = (query, counter) ->
-  xmlDisplay = new XMLDisplay {query} 
-  xmlDisplay.render().$el.appendTo 'body'
+# Our history of query states.
+history = new History
 
-  table = new SelectionTable model: (new Backbone.Model)
-  table.render().$el.appendTo 'body'
-
-  history = new History
-  history.setInitialState query
-
-  history.on 'changed:current', onChangeRevision
-  history.on 'changed:current', (state) ->
-    table.setQuery state.get 'query'
-    xmlDisplay.setQuery state.get 'query'
-    counter.setQuery state.get 'query'
-
+playBackHistory = ->
   history.getCurrentQuery().orderBy ['name']
   history.getCurrentQuery().addToSelect ['employees.name', 'employees.age']
   history.getCurrentQuery().addConstraint ['name', '=', 'S*']
@@ -39,9 +27,27 @@ create = (query, counter) ->
   history.getCurrentQuery().removeFromSelect 'employees.age'
   q6 = history.getCurrentQuery() # Rearranged view
   q6.select _.shuffle q6.views
-  q7 = history.getCurrentQuery() # Changed sort order
-  q7.addOrSetSortOrder path: 'name', direction: 'DESC'
   history.getCurrentQuery().addConstraint ['employees.age', '<', 60]
+  q8 = history.getCurrentQuery() # Changed sort order
+  q8.addOrSetSortOrder path: 'name', direction: 'DESC'
+
+create = (query, counter) ->
+  history.setInitialState query
+
+  xmlDisplay = new XMLDisplay {query} 
+  xmlDisplay.render().$el.appendTo 'body'
+
+  table = new SelectionTable model: (new Backbone.Model)
+  table.render().$el.appendTo 'body'
+
+  history.on 'changed:current', onChangeRevision
+  history.on 'changed:current', (state) ->
+    table.setQuery state.get 'query'
+    xmlDisplay.setQuery state.get 'query'
+    counter.setQuery state.get 'query'
+
+  # Simulate a sequence of actions over a history of query states.
+  playBackHistory()
 
   new Button {collection: history}
 
