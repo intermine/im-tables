@@ -1,3 +1,4 @@
+_ = require 'underscore'
 CoreView = require '../core-view'
 Templates = require '../templates'
 Messages = require '../messages'
@@ -18,7 +19,7 @@ class Ellipsis extends CoreView
 
   className: 'im-step im-ellipsis'
 
-  template: -> '...'
+  template: -> _.escape "#{ Messages.getText 'undo.MoreSteps', {@more} } ..."
 
   attributes: -> title: Messages.getText('undo.ShowAllStates', n: @more)
 

@@ -57,4 +57,5 @@ Messages.setWithPrefix 'undo',
   ToggleTrivialTitle: '<%= hideTrivial ? "Hiding" : "Hide" %> steps that did not change the row count'
   Revision: 'no. <%= v %>'
   RevisionTitle: 'revision <%= v %>'
+  MoreSteps: '<%= more %> more <%= pluralise("step", more) %>'
 
