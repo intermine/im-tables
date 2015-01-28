@@ -70,6 +70,8 @@ ICONS.glyphicons =
   Columns: "glyphicon-wrench"
   Collapsed: "glyphicon-chevron-right"
   Expanded: "glyphicon-chevron-down"
+  CollapsedSection: 'glyphicon-triangle-right'
+  ExpandedSection: 'glyphicon-triangle-bottom'
   MoveDown: "glyphicon-chevron-down"
   GoBack: "glyphicon-chevron-left"
   GoForward: "glyphicon-chevron-right"
@@ -132,11 +134,13 @@ ICONS.fontawesome =
   GenomeSpace: 'fa-cloud-upload'
   Filter: "fa-filter"
   Summary: "fa-bar-chart-o"
-  Undo: "fa-refresh"
+  Undo: "fa-undo"
   Refresh: "fa-refresh"
   Columns: "fa-wrench"
   Collapsed: "fa-chevron-right"
   Expanded: "fa-chevron-down"
+  CollapsedSection: 'fa-caret-right'
+  ExpandedSection: 'fa-caret-down'
   MoveDown: "fa-chevron-down"
   GoBack: "fa-chevron-left"
   GoForward: "fa-chevron-right"

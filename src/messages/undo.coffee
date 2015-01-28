@@ -55,4 +55,6 @@ Messages.setWithPrefix 'undo',
   ShowAllStates: """Show <%= n %> hidden <%= pluralise('state', n) %>"""
   ToggleTrivial: '<%= hideTrivial ? "Hiding" : "Hide" %> minor steps'
   ToggleTrivialTitle: '<%= hideTrivial ? "Hiding" : "Hide" %> steps that did not change the row count'
+  Revision: 'no. <%= v %>'
+  RevisionTitle: 'revision <%= v %>'
 

@@ -5,19 +5,28 @@
   </button>
 <% } %>
 
-<h4><%- Messages.getText('undo.StepTitle', title) %></h4>
+<h4>
+    <%- Messages.getText('undo.StepTitle', title) %>
+</h4>
 
 <% if (state.current) { %>
   <span class="help-block"><%- Messages.getText('undo.IsCurrentState') %></span>
 <% } %>
+<div style="clear:both"></div>
 
-<span class="im-step-count">
-  <%- Messages.getText('undo.StepCount', {count: count}) %>
+<span class="im-revision" title="<%- Messages.getText('undo.RevisionTitle', {v: revision}) %>">
+  <%- Messages.getText('undo.Revision', {v: revision}) %>
+</span>
+
+<div class="im-step-count">
+  <span><%- Messages.getText('undo.StepCount', {count: count}) %></span>
   <% if (diff) { %>
     <span class="label im-label-<%= (diff > 0 ) ? 'pos' : 'neg' %>">
       <% if (diff > 0) { %>+<% } %><%- numToString(diff) %>
     </span>
   <% } %>
-</span>
+</div>
 
 <div class="im-step-details"></div>
+
+<div style="clear:both"></div>

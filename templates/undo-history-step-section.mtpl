@@ -1,10 +1,8 @@
 <div class="im-section-summary">
   <% if (collection.length) { %>
-    <%= Icons.icon(state.open ? 'Expanded' : 'Collapsed') %>
+    <%= Icons.icon(state.open ? 'ExpandedSection' : 'CollapsedSection') %>
   <% } %>
-  <strong>
-    <%- Messages.getText(summaryLabel, {n: count}) %>
-  </strong>
+  <%- Messages.getText(summaryLabel, {n: count}) %>
 </div>
 <% if (collection.length) { %>
   <div class="<%- collectionClasses %>">

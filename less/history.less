@@ -13,11 +13,27 @@
       border-bottom-right-radius: 0;
       margin-right: -0.5px;
     }
+
   }
 
   .im-step {
 
-    min-width: 280px;
+    padding-left: 0.3em;
+
+    h4 {
+        font-size: 16px; 
+
+        .im-revision {
+            font-size: 0.9em;
+        }
+    }
+
+    &.im-current-state {
+      background: @gray-lighter;
+      margin-top: -1em;
+    }
+
+    min-width: 300px;
     border-bottom: 1px solid @dropdown-border;
 
     &:last-child {
@@ -26,6 +42,12 @@
 
     .im-section-summary {
         cursor: pointer;
+    }
+
+    .im-revision {
+        .pull-right();
+        .help-block();
+        margin: 0 1em;
     }
 
     .well {
@@ -42,10 +64,20 @@
             .label-variant(@neg-diff-label-bg);
         }
     }
+
+    .im-step-count {
+        .pull-right();
+        span {
+            float: right;
+        }
+        .label {
+            margin-right: 0.5em;
+        }
+    }
   }
 
   .im-ellipsis {
-      box-shadow: inset 0 6px 6px -3px #bbb;
+      box-shadow: inset 0 6px 6px -3px #ddd;
       min-height: 2em;
       text-align: center;
       font-weight: bold;

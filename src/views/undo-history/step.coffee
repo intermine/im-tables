@@ -126,6 +126,7 @@ module.exports = class UndoStep extends CoreView
 
   postRender: ->
     @$details = @$ '.im-step-details'
+    @$el.toggleClass 'im-current-state', @state.get('current')
     @$('.btn[title]').tooltip placement: 'right'
     # Only show what has changed.
     if @state.get('current')

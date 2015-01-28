@@ -28,13 +28,16 @@ playBackHistory = ->
   q6 = history.getCurrentQuery() # Rearranged view
   q6.select _.shuffle q6.views
   history.getCurrentQuery().addConstraint ['employees.age', '<', 60]
+  # A lost state.
+  history.getCurrentQuery().addToSelect ['company.bank.name']
+  history.popState()
   q8 = history.getCurrentQuery() # Changed sort order
   q8.addOrSetSortOrder path: 'name', direction: 'DESC'
 
 create = (query, counter) ->
   history.setInitialState query
 
-  xmlDisplay = new XMLDisplay {query} 
+  xmlDisplay = new XMLDisplay {query}
   xmlDisplay.render().$el.appendTo 'body'
 
   table = new SelectionTable model: (new Backbone.Model)
