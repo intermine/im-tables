@@ -10,8 +10,8 @@ onChange = require '../../utils/on-change'
 
 FormattedSorting = require '../formatted-sorting'
 SingleColumnConstraints = require '../constraints/single-column'
-DropDownColumnSummary = require './column-summary' # FIXME
-OuterJoinDropDown = require './outerjoin-column-summary' # FIXME
+DropDownColumnSummary = require './column-summary'
+OuterJoinDropDown = require './outerjoin-column-summary'
 
 {getFormatter} = require '../../path-formatting'
 

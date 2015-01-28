@@ -1,43 +1,63 @@
+_ = require 'underscore'
 CoreView = require '../../core-view'
+Templates = require '../../templates'
+Collection = require '../../core/collection'
+PathModel = require '../../models/path'
+DropDownColumnSummary = require './column-summary'
 
-# FIXME FIXME FIXME
+class SubColumns extends Collection
+
+  model: PathModel
+
+class SubColumn extends CoreView
+
+  parameters: ['showPathSummary']
+
+  className: 'im-subpath im-outer-joined-path'
+
+  tagName: 'li'
+
+  template: _.template """
+    <a href="#">#{ Templates.column_manager_path_name }</a>
+  """
+
+  modelEvents: -> change: @reRender
+
+  events: -> click: @onClick
+  
+  onClick: (e) ->
+    e.stopPropagation()
+    e.preventDefault()
+    @showPathSummary @model.get 'path'
+
 module.exports = class OuterJoinDropDown extends CoreView
 
-  className: "im-summary-selector no-margins"
+  parameters: ['query']
+
+  className: 'im-summary-selector'
 
   tagName: 'ul'
 
-  initialize: ({@query}) ->
+  initialize: ->
     super
-    {@replaces, @isFormatted, @path} = @model.toJSON()
+    @subColumns = new SubColumns
+    for c in @model.get 'replaces'
+      @subColumns.add @query.makePath c
+    @path = new PathModel @query.makePath @model.get 'path'
 
-  getSubpaths: -> @replaces.slice()
+  getSubpaths: -> @subColumns
 
-  render: ->
-    vs = []
-    node = @path
-    vs = @getSubpaths()
-
-    if vs.length is 1
-      @showPathSummary(vs[0])
-    else
-      for v in vs then do (v) =>
-        li = $ """<li class="im-subpath im-outer-joined-path"><a href="#"></a></li>"""
-        @$el.append li
-        $.when(node.getDisplayName(), @query.getPathInfo(v).getDisplayName()).done (parent, name) ->
-          li.find('a').text name.replace(parent, '').replace(/^\s*>\s*/, '')
-        li.click (e) =>
-          e.stopPropagation()
-          e.preventDefault()
-          @showPathSummary(v)
-    this
+  postRender: ->
+    paths = @getSubpaths()
+    return @showPathSummary paths.first() if paths.length is 1
+    showPathSummary = (v) => @showPathSummary v
+    @getSubpaths().each (model, i) =>
+      @renderChild i, (new SubColumn {model, showPathSummary})
 
   showPathSummary: (v) ->
-    summ = new intermine.query.results.DropDownColumnSummary(@query, v)
-    @$el.parent().html(summ.render().el)
-    @summ = summ
-    @$el.remove() # Detach, but stay alive so we can remove summ later.
-
-  remove: ->
-    @summ?.remove()
-    super()
+    @undelegateEvents() # stop listening to the element we are ceding control of
+    @removeAllChildren() # remove all the LIs we added.
+    summ = new DropDownColumnSummary {@query, path: v}
+    @children.summ = summ # reference it so it can be reaped.
+    summ.setElement @el # pass control of element to new view.
+    summ.render()
