@@ -3,13 +3,13 @@
     <%= Icons.icon(state.open ? 'Expanded' : 'Collapsed') %>
   <% } %>
   <strong>
-    <%- Messages.getText(summaryLabel, {n: collection.length}) %>
+    <%- Messages.getText(summaryLabel, {n: count}) %>
   </strong>
 </div>
 <% if (collection.length) { %>
   <div class="<%- collectionClasses %>">
     <% _.each(collection, function (e) { %>
-      <span class="label label-<%= e.added ? 'success' : 'default' %>">
+      <span class="label label-<%= e.added ? 'success' : (e.removed ? 'danger' : 'default') %>">
         <%- labelContent(e) %>
       </span>
     <% }); %>

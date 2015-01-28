@@ -35,6 +35,7 @@ create = (query, counter) ->
   history.getCurrentQuery().addConstraint ['name', '=', 'S*']
   history.getCurrentQuery().addToSelect 'employees.end'
   history.getCurrentQuery().addSortOrder 'employees.name'
+  history.getCurrentQuery().removeFromSelect 'employees.age'
   history.getCurrentQuery().addConstraint ['employees.age', '<', 60]
 
   new Button {collection: history}

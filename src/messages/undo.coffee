@@ -8,6 +8,8 @@ Messages.setWithPrefix 'undo',
       Added <%= formatNumber(number) %> <%= pluralise(label, number) %>
     <% } else if (verb === 'Changed') { %>
       Changed <%= label %>
+    <% } else if (verb === 'Removed') { %>
+      Removed <%= formatNumber(number) %> <%= pluralise(label, number) %>
     <% } else { %>
       !!!Cannot handle <%= verb %> <%= label %>!!!
     <% } %>

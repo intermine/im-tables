@@ -15,12 +15,16 @@ require '../../messages/constraints'
 
 # A class annotation that adds an 'added :: bool'
 # attribute to a Model
-withAdded = (Base) -> class WithAdded extends Base
-  defaults: -> _.extend super, added: false
+withAdded = (Base) -> class WithAddedAndRemoved extends Base
+  defaults: -> _.extend super, added: false, removed: false
+
+class ObjConstructorPM extends PathModel
+
+  constructor: ({path}) -> super path
 
 class ViewList extends Collection
 
-  model: withAdded PathModel
+  model: withAdded ObjConstructorPM
 
 class ConstraintList extends Collection
 
@@ -31,10 +35,11 @@ class SortOrder extends Collection
   model: withAdded OrderElementModel
 
 # Return a factory that will lift .path and .type to Path from strings.
-liftPathAndType = (query) -> (con) ->
-  attrs = path: query.makePath con.path
-  attrs.type = query.makePath con.type if con.type 
-  _.extend attrs, (_.omit con, 'path', 'type')
+liftPathAndType = (query) -> (obj) ->
+  obj = if (_.isString obj) then {path: obj} else obj
+  attrs = path: query.makePath obj.path
+  attrs.type = query.makePath obj.type if obj.type 
+  _.extend attrs, (_.omit obj, 'path', 'type')
 
 module.exports = class UndoStep extends CoreView
 
@@ -58,12 +63,12 @@ module.exports = class UndoStep extends CoreView
       count(prev.get 'query').then (c) => @state.set prevCount: c
     lifter = liftPathAndType q
     @listenTo @model.collection, 'add remove', @setCurrent
-    @views = new ViewList( q.makePath v for v in q.views )
+    @views = new ViewList q.views.map lifter
     @constraints = new ConstraintList q.constraints.map lifter
     @sortOrder = new SortOrder q.sortOrder.map lifter
     title = @model.get 'title'
     console.log title
-    if title.verb is 'Added'
+    if title.verb in ['Added', 'Removed']
       switch title.label
         when 'column' then @diffView()
         when 'sort order element' then @diffSortOrder()
@@ -79,8 +84,13 @@ module.exports = class UndoStep extends CoreView
     prev = @getPrevModel()
     currQuery = @model.get 'query'
     prevQuery = prev.get 'query'
+    # Find added, mark as such.
     for e, i in currQuery[prop] when test e, prevQuery
       coll.at(i).set added: true
+    # Find removed elements, add them and mark them as such
+    lifter = liftPathAndType prevQuery
+    for e, i in prevQuery[prop] when test e, currQuery
+      coll.add(lifter(e), at: i).set removed: true
 
   diffView: ->
     @diff 'views', @views, (v, {views}) -> v not in views

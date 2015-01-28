@@ -22,7 +22,8 @@ module.exports = class QueryProperty extends CoreView
 
   getData: ->
     summaryLabel = _.result @, 'summaryLabel'
-    _.extend super, {summaryLabel, @labelContent, @collectionClasses}
+    count = @collection.where(removed: false).length
+    _.extend super, {count, summaryLabel, @labelContent, @collectionClasses}
 
   events: ->
     'click .im-section-summary': 'toggleOpen'
