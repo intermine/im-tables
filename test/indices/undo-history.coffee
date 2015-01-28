@@ -1,4 +1,5 @@
 $ = require 'jquery'
+_ = require 'underscore'
 Backbone = require 'backbone'
 # project code.
 Button = require 'imtables/views/undo-history'
@@ -36,6 +37,10 @@ create = (query, counter) ->
   history.getCurrentQuery().addToSelect 'employees.end'
   history.getCurrentQuery().addSortOrder 'employees.name'
   history.getCurrentQuery().removeFromSelect 'employees.age'
+  q6 = history.getCurrentQuery() # Rearranged view
+  q6.select _.shuffle q6.views
+  q7 = history.getCurrentQuery() # Changed sort order
+  q7.addOrSetSortOrder path: 'name', direction: 'DESC'
   history.getCurrentQuery().addConstraint ['employees.age', '<', 60]
 
   new Button {collection: history}

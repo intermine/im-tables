@@ -68,7 +68,7 @@ module.exports = class UndoStep extends CoreView
     @sortOrder = new SortOrder q.sortOrder.map lifter
     title = @model.get 'title'
     console.log title
-    if title.verb in ['Added', 'Removed']
+    if title.verb in ['Added', 'Removed', 'Changed']
       switch title.label
         when 'column' then @diffView()
         when 'sort order element' then @diffSortOrder()

@@ -5,11 +5,29 @@ Messages.setWithPrefix 'undo',
     <% if (label === 'Initial') { %>
       Initial State
     <% } else if (verb === 'Added') { %>
-      Added <%= formatNumber(number) %> <%= pluralise(label, number) %>
-    <% } else if (verb === 'Changed') { %>
-      Changed <%= label %>
+      <% if (label === 'sort order element') { %>
+        Added <%= formatNumber(number) %> <%= pluralise('column', number) %> to the sort order
+      <% } else if (label === 'column') { %>
+        Selected <%= formatNumber(number) %> <%= pluralise('column', number) %>
+      <% } else { %>
+        Added <%= formatNumber(number) %> <%= pluralise(label, number) %>
+      <% } %>
     <% } else if (verb === 'Removed') { %>
-      Removed <%= formatNumber(number) %> <%= pluralise(label, number) %>
+      <% if (label === 'sort order element') { %>
+        Removed <%= formatNumber(number) %> <%= pluralise('column', number) %> from the sort order
+      <% } else if (label === 'column') { %>
+        Unselected <%= formatNumber(number) %> <%= pluralise('column', number) %>
+      <% } else { %>
+        Removed <%= formatNumber(number) %> <%= pluralise(label, number) %>
+      <% } %>
+    <% } else if (verb === 'Changed') { %>
+      <% if (label === 'sort order element') { %>
+        Changed sort order
+      <% } else { %>
+        Changed <%= pluralise(label, 2) %>
+      <% } %>
+    <% } else if (verb === 'Rearranged') { %>
+      Rearranged <%= pluralise(label, 2) %>
     <% } else { %>
       !!!Cannot handle <%= verb %> <%= label %>!!!
     <% } %>
