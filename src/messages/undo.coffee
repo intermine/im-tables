@@ -18,6 +18,13 @@ Messages.setWithPrefix 'undo',
   RevertToState: 'Revert to this state'
   IsCurrentState: 'This is the current state'
   ViewCount: '<%= n %> <%= pluralise("column", n) %> selected'
+  ConstraintCount: """
+    <% if (n) { %>
+      <%= n %> <%= pluralise('filter', n) %>
+    <% } else { %>
+      No filters
+    <% } %>
+  """
   OrderElemCount: """
     <% if (n) { %>
       Sorted on <%= n %> <%= pluralise('column', n) %>
@@ -25,4 +32,5 @@ Messages.setWithPrefix 'undo',
       Not sorted
     <% } %>
   """
+  ShowAllStates: """Show <%= n %> hidden <%= pluralise('state', n) %>"""
 

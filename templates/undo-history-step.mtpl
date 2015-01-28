@@ -13,6 +13,11 @@
 
 <span class="im-step-count">
   <%- Messages.getText('undo.StepCount', state) %>
+  <% if (diff) { %>
+    <span class="im-diff-<%= (diff > 0 ) ? 'pos' : 'neg' %>">
+        [<% if (diff > 0) { %>+<% } %><%- numToString(diff) %>]
+    </span>
+  <% } %>
 </span>
 
 <div class="im-step-details"></div>

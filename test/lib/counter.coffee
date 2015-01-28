@@ -1,28 +1,39 @@
 View = require("imtables/core-view")
+Model = require 'imtables/core-model'
+Executor = require 'imtables/utils/count-executor'
 
-module.exports = Counter = View.extend
+class CountModel extends Model
+
+  defaults: ->
+    count: 0
+
+module.exports = class Counter extends View
+
+  Model: CountModel
 
   initialize: (opts) ->
-    View::initialize.apply this, arguments
-    @query = opts.query
-    @model.set count: 0
+    super
+    @setQuery opts.query
+
+  modelEvents: ->
+    'change:count': @render
+
+  setQuery: (query) ->
+    @stopListening @query if @query?
+    @query = query
     @listenTo @query, "change:constraints", @updateCount
     @listenTo @query, "change:views", @updateCount
-    @listenTo @model, "change", @render
     @updateCount()
-    return
 
   updateCount: ->
-    self = this
-    @query.count().then (c) ->
-      self.model.set count: c
-      return
-
-    return
+    Executor.count @query
+            .then (c) => @model.set count: c
+            .then null, console.error.bind console
 
   render: ->
-    name = @query.name
-    count = @model.get("count")
-    @$el.empty().text "#{ name } (#{ count } rows, #{ @query.constraints.length } constraints)"
-    return
+    name = (@query.name ? 'Query')
+    rows = @model.get("count")
+    cons = @query.constraints.length
+    @$el.empty().text "#{ name } (#{ rows } rows, #{ cons } constraints)"
+    this
 

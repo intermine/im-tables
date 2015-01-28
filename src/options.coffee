@@ -166,6 +166,8 @@ class Options extends Model
     ColumnManager:
       SelectColumn:
         Multi: true
+    UndoHistory:
+      ShowAllStatesCutOff: 6
 
 # Export the main instance.
 module.exports = new Options

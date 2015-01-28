@@ -14,7 +14,7 @@ fail = console.error.bind(console)
 onChangeRevision = (s) ->
   console.log "Current state is now revision #{ s.get 'revision' }"
 
-create = (query) ->
+create = (query, counter) ->
   xmlDisplay = new XMLDisplay {query} 
   xmlDisplay.render().$el.appendTo 'body'
 
@@ -28,10 +28,12 @@ create = (query) ->
   history.on 'changed:current', (state) ->
     table.setQuery state.get 'query'
     xmlDisplay.setQuery state.get 'query'
+    counter.setQuery state.get 'query'
 
-  history.getCurrentQuery().addToSelect 'employees.age'
-  history.getCurrentQuery().addToSelect 'employees.end'
   history.getCurrentQuery().orderBy ['name']
+  history.getCurrentQuery().addToSelect ['employees.name', 'employees.age']
+  history.getCurrentQuery().addConstraint ['name', '=', 'S*']
+  history.getCurrentQuery().addToSelect 'employees.end'
   history.getCurrentQuery().addSortOrder 'employees.name'
   history.getCurrentQuery().addConstraint ['employees.age', '<', 60]
 
@@ -41,8 +43,9 @@ renderQuery = renderWithCounter create
 
 queries = [ # We are creating a query here just for its service, oh, and its table.
   {
+    name: 'History query'
     from: 'Department'
-    select: ["company.name", "name", "employees.name"]
+    select: ["company.name", "name"]
     where: [ ['employees.age', '>', 30] ]
   }
 ]

@@ -1,4 +1,5 @@
 .im-undo-history {
+
   .im-step {
 
     min-width: 280px;
@@ -10,11 +11,29 @@
 
     .im-state-revert {
       .pull-right();
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+      margin-right: -0.5px;
     }
 
     .im-section-summary {
         cursor: pointer;
     }
+
+    .im-step-count {
+        .im-diff-pos {
+            color: @state-success-text;
+        }
+        .im-diff-neg {
+            color: @state-danger-text;
+        }
+    }
+  }
+
+  .im-ellipsis {
+      text-align: center;
+      background: @gray-lighter;
+      color: @gray-light;
   }
 
 }

@@ -106,9 +106,14 @@ module.exports = class History extends Collection
   popState: -> @revertToIndex -2
 
   revertToIndex: (index) ->
-    now = @at( if index >= 0 then index else @size() - index )
+    index = (@length + index) if index < 0
+    now = @at index
+    @revertTo now
+
+  revertTo: (now) ->
+    throw new Error('State not in history') unless @contains now
     was = @getCurrentQuery()
-    revision = target.get 'revision'
+    revision = now.get 'revision'
     # Remove everything after the target
     while @last().get('revision') > revision
       @pop()

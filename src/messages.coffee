@@ -5,12 +5,11 @@ _ = require 'underscore'
 # would break browserify. You would want to do that, would you?
 actionMessages = require './messages/actions'
 tableMessages = require './messages/table'
-constraintMsgs = require './messages/constraints'
 common = require './messages/common'
 
 {numToString, pluralise} = require './templates/helpers'
 
-DEFAULTS = [common, actionMessages, tableMessages, constraintMsgs]
+DEFAULTS = [common, actionMessages, tableMessages]
 
 HELPERS = # All message templates have access to these helpers.
   formatNumber: numToString

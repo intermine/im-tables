@@ -6,6 +6,8 @@ Templates = require '../templates'
 ConstraintAdder = require './constraint-adder'
 ActiveConstraint = require './active-constraint'
 
+require '../messages/constraints'
+
 module.exports = class Constraints extends CoreView
 
   className: "im-constraints"
