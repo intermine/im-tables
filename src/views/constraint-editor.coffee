@@ -3,7 +3,7 @@ fs = require 'fs'
 
 Messages = require '../messages'
 Icons = require '../icons'
-View = require '../core-view'
+CoreView = require '../core-view'
 
 TypeValueControls = require './type-value-controls'
 AttributeValueControls = require './attribute-value-controls'
@@ -35,13 +35,14 @@ operatorsFor = (path) ->
   else
     ATTRIBUTE_OPS
 
-module.exports = class ConstraintEditor extends View
+module.exports = class ConstraintEditor extends CoreView
 
   tagName: 'div'
 
   className: 'form'
 
-  # The buttonDelegate can be provided to trigger the button actions instead of our own.
+  # The buttonDelegate can be provided to trigger the button actions
+  # instead of our own.
   # (TODO - find a better way to do that).
   initialize: ({@query, @buttonDelegate}) ->
     super
