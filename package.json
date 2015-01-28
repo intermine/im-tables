@@ -77,7 +77,7 @@
     "grunt-contrib-watch": "^0.6.1",
     "grunt-notify": "^0.4.1",
     "grunt-run": "^0.3.0",
-    "imjs": "^3.11.0",
+    "imjs": "^3.11.1",
     "jquery": "^2.1.1",
     "jquery-ui": "^1.10.5",
     "less": "^2.1.1",
