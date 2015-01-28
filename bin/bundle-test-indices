@@ -14,11 +14,13 @@ for loader in test/indices/*.coffee; do
         --transform coffeeify \
         --extension ".coffee" \
         --outfile test/bundles/${name}-loader.js \
-        --entry $loader
+        --entry $loader &
 
     # Build the html to load.
     ./bin/build-test-html $name
 done
+ 
+wait
 
 echo finished bundling
 grunt notify:build
