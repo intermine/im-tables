@@ -20,20 +20,30 @@
         cursor: pointer;
     }
 
-    .im-step-count {
-        .im-diff-pos {
-            color: @state-success-text;
+    .well {
+        .label {
+            display: inline-block;
         }
-        .im-diff-neg {
-            color: @state-danger-text;
+    }
+
+    .im-step-count {
+        .im-label-pos {
+            .label-variant(@pos-diff-label-bg);
+        }
+        .im-label-neg {
+            .label-variant(@neg-diff-label-bg);
         }
     }
   }
 
   .im-ellipsis {
+      box-shadow: inset 0 6px 6px -3px #bbb;
+      min-height: 2em;
       text-align: center;
+      font-weight: bold;
       background: @gray-lighter;
       color: @gray-light;
+      cursor: pointer;
   }
 
 }
