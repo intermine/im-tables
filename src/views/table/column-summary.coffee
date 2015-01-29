@@ -2,7 +2,7 @@ CoreView = require '../../core-view'
 Options = require '../../options'
 
 SummaryItems = require '../../models/summary-items'
-ColumnSummary = require '../column-summary'
+FacetView = require '../facets/facet-view'
 SummaryHeading = require '../facets/summary-heading'
 
 SetsPathNames = require '../../mixins/sets-path-names'
@@ -37,5 +37,5 @@ module.exports = class DropDownColumnSummary extends CoreView
     model = @state # The state becomes the model of the the children.
     # Create two child views, which share the same model representing the summary information.
     @renderChild 'heading', (new SummaryHeading {@query, view, model})
-    @renderChild 'summary', ColumnSummary.create @getSummaryArgs()
+    @renderChild 'summary', (new FacetView @getSummaryArgs())
 

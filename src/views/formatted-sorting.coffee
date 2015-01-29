@@ -14,13 +14,16 @@ module.exports = class FormattedSorting extends CoreView
 
   initialize: ({@query}) ->
     super
-    @setPathNames() # initialise the path display name dictionary, and update if nec.
+    @setPathNames() # initialise the path display name dictionary
     @listenTo @model, 'change:path change:replaces', @setPathNames
 
-  # in this class we make use of the state as a path display name lookup dictionary.
-  # which means we also need to make sure we have an entry of each of them.
+  initState: ->
+    @state.set group: ''
+
+  # in this class we make use of the state as a path display name lookup
+  # dictionary which means we also need to make sure we have an entry of
+  # each of them.
   setPathNames: ->
-    @state.set group: '' unless @state.has 'group'
     # The @path is the parent under which multiple paths may be grouped.
     @model.get('path').getDisplayName().then (name) => @state.set group: name
     for p in @getPaths() then do (p) =>
@@ -31,14 +34,14 @@ module.exports = class FormattedSorting extends CoreView
   # :: [PathInfo]
   getPaths: ->
     replaces = @model.get('replaces')
-    if replaces.length > 1 # I'm not sure if this makes a huge amount of sense...
+    if replaces.length > 1
       replaces.slice()
     else
       [@model.get('path')]
 
   preRender: (e) ->
     [path] = paths = @getPaths()   # find the paths, and extract the first one.
-    if paths.length is 1           # Nothing for the user to choose from, so don't render
+    if paths.length is 1           # Nothing for the user to choose from
       e.cancel()                   # cancels impending render.
       sortQueryByPath @query, path # sort on the first (and only) path
 
