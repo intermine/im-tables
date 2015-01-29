@@ -1,41 +1,18 @@
-CoreView = require '../../core-view'
-Options = require '../../options'
-
-SummaryItems = require '../../models/summary-items'
 FacetView = require '../facets/facet-view'
-SummaryHeading = require '../facets/summary-heading'
 
-SetsPathNames = require '../../mixins/sets-path-names'
+PathModel = require '../../models/path'
 
-{getColumnSummary} = require '../../services/column-summary'
+NO_QUERY = 'No query in call to new DropDownColumnSummary'
+BAD_MODEL = 'No PathModel in call to new DropDownColumnSummary'
 
-module.exports = class DropDownColumnSummary extends CoreView
+# Thin wrapper that converts from the ColumnHeader calling convention
+# of {query :: Query, model :: HeaderModel} to the FacetView constructor
+# of {query :: Query, view :: PathInfo}.
+module.exports = class DropDownColumnSummary extends FacetView
 
-  @include SetsPathNames
+  className: -> "#{ super } im-dropdown-summary"
 
-  className: "im-dropdown-summary"
-
-  initialize: ({@query}) ->
-    super
-    @items = new SummaryItems {fetch: _.partial getColumnSummary @query, @model.get 'path'}
-    @getNames()
-    @listenForChange @model, @getNames, 'path'
-
-  getNames: -> # Do this here so that we have it available in all downstream components.
-    @view = @model.get 'path'
-    @setPathNames()
-
-  getSummaryArgs: ->
-    view: @model.get 'path'
-    model: @state
-    collection: @items
-    noTitle: true
-
-  # templateless render - this just a basic composition of two sub-views
-  postRender: ->
-    view = @model.get 'path'
-    model = @state # The state becomes the model of the the children.
-    # Create two child views, which share the same model representing the summary information.
-    @renderChild 'heading', (new SummaryHeading {@query, view, model})
-    @renderChild 'summary', (new FacetView @getSummaryArgs())
-
+  constructor: ({query, model}) ->
+    throw new Error(NO_QUERY) unless query
+    throw new Error(BAD_MODEL) unless model instanceof PathModel
+    super {query, view: model.pathInfo()}

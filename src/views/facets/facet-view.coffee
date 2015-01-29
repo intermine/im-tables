@@ -18,9 +18,9 @@ FacetVisualisation = require './visualisation'
 
 module.exports = class FacetView extends CoreView
 
-  className: 'im-facet-view'
-
   @include SetsPathNames
+
+  className: -> 'im-facet-view'
 
   modelEvents: ->
     'change:min change:max': @setLimits
@@ -28,14 +28,21 @@ module.exports = class FacetView extends CoreView
   stateEvents: ->
     'change:open': @honourOpenness
 
+  parameters: ['query', 'view']
+
+  optionalParameters: ['noTitle']
+
+  Model: => new SummaryItems {@query, @view}
+
   # May inherit state, defines a model based on @query and @view
-  initialize: ({@query, @view, @noTitle}) ->
-    @model = new SummaryItems {@query, @view}
-    @range = new NumericRange
+  initialize: ->
     super
-    @state.set(open: Options.get 'Facets.Initally.Open') unless @state.has 'open'
+    @range = new NumericRange
     @setPathNames()
     @setLimits()
+
+  initState: ->
+    @state.set(open: Options.get 'Facets.Initally.Open') unless @state.has 'open'
 
   setLimits: -> if @model.get 'numeric'
     @range.setLimits @model.pick 'min', 'max'

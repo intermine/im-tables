@@ -9,9 +9,9 @@ firstResult = _.compose _.first, _.compact, _.map
 # Managed model - needs reference to the query, so
 # that it may listen to update properties such as
 # sortable, sortDirection, numOfCons, etc
-class HeaderModel extends PathModel
+module.exports = class HeaderModel extends PathModel
 
-  defaults: -> _.extends super,
+  defaults: -> _.extend super,
     replaces: []
     isFormatted: false
     isComposed: false
@@ -24,6 +24,8 @@ class HeaderModel extends PathModel
 
   # The query is needed to update derived properties.
   constructor: (opts, @query) ->
+    throw new Error('no query') unless @query?.on
+    throw new Error('no options') unless opts?
     super opts.path
     @set _.omit opts, 'path'
     @listenTo @query, 'change:joins', @setOuterJoined
@@ -49,7 +51,7 @@ class HeaderModel extends PathModel
     sortable = not outerJoined
     @set {outerJoined, isComposed, sortable}
 
-  setSortOrder: ->
+  setSortDirection: ->
     replaces = @get 'replaces'
     view = @getView()
     getDirection = (p) => @query.getSortDirection p

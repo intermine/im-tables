@@ -1,4 +1,4 @@
-$ = require 'jquery'
+_ = require 'underscore'
 
 CoreView = require '../../core-view'
 Collection = require '../../core/collection'
@@ -31,7 +31,7 @@ module.exports = class ColumnHeader extends CoreView
 
   className: 'im-column-th'
 
-  RERENDER_EVT: onChange [ # All the things that would cause us to re-render.
+  RERENDER_EVENT: onChange [ # All the things that would cause us to re-render.
     'composed',
     'direction',
     'expanded',
@@ -47,9 +47,13 @@ module.exports = class ColumnHeader extends CoreView
 
   namePopoverTemplate: Templates.template 'column_name_popover'
 
-  initialize: ({@query, @blacklistedFormatters}) ->
+  parameters: ['query']
+  optionalParameters: ['blacklistedFormatters']
+
+  blacklistedFormatters: new Collection
+
+  initialize: ->
     super
-    @blacklistedFormatters ?= new Collection
 
     # TODO - replace these abominations with a data-model.
     @listenTo @query, 'subtable:expanded', @onSubtableExpanded
@@ -60,22 +64,22 @@ module.exports = class ColumnHeader extends CoreView
 
     @createClassSets()
 
-  path: -> @query.makePath @model.get 'path'
+  path: -> @model.pathInfo()
 
   createClassSets: -> # Class sets that are always up-to-date.
     @classSets = {}
-    classSets.headerClasses = new ClassSet
+    @classSets.headerClasses = new ClassSet
       'im-column-header': true
       'im-minimised-th': ModelReader @model, 'minimised'
       'im-is-composed': ModelReader @model, 'composed'
       'im-has-constraint': ModelReader @model, 'numOfCons'
-    classSets.colTitleClasses = new ClassSet
+    @classSets.colTitleClasses = new ClassSet
       'im-col-title': true
       'im-hidden': ModelReader @model, 'minimised'
 
   # Make sure we are only showing one column summary at once, so make way for
   # other column summaries that are displayed.
-  removeMySummary: (path) -> unless path.equals @model.get 'path'
+  removeMySummary: (path) -> unless path.equals @model.pathInfo()
     @removeChild 'summary'
 
   onSubtableExpanded: (node) -> if node.toString().match @model.getView()
@@ -97,7 +101,7 @@ module.exports = class ColumnHeader extends CoreView
       'im-non-root-parent': hasAncestors
       'im-last': (not last) # in which case the penult is actually last.
 
-    _.extend {penultClasses, colTitleClasses, last, penult}, @classSets, super
+    _.extend {penultClasses, last, penult}, @classSets, super
 
   events: ->
     'click .im-col-sort': 'setSortOrder'
@@ -156,6 +160,7 @@ module.exports = class ColumnHeader extends CoreView
     if (el.offset().left + 350) >= (bounds.offset().left + bounds.width())
       @$el.addClass 'too-far-over'
 
+  # Generic helper that will show a view in a dropdown menu which it shows.
   showSummary: (selector, View, e) =>
     ignore e
 
@@ -166,8 +171,9 @@ module.exports = class ColumnHeader extends CoreView
     summary = new View {@query, @model}
     $menu = @$ selector + ' .dropdown-menu'
     throw new Error "#{ selector } not found" unless $menu.length
-    $menu.empty()
+    $menu.empty() # Whatever we are showing replaces all the content.
     @renderChild 'summary', summary, $menu
+    @$(selector).addClass 'open'
 
   showColumnSummary: (e) =>
     cls = if @model.get 'isReference'
@@ -187,7 +193,6 @@ module.exports = class ColumnHeader extends CoreView
   setSortOrder: (e) ->
     if @model.get('replaces').length # we need to let the user choose from amongst them.
       @showSummary '.im-col-sort', FormattedSorting, e
-      @$('.im-col-sort').toggleClass 'open'
     else
       sortQueryByPath @query, @model.getView()
       @$('.im-col-sort').removeClass 'open'

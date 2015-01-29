@@ -36,6 +36,8 @@ module.exports = class SummaryModel extends CoreModel
 
   constructor: ({@query, @view}) ->
     super()
+    throw new Error('No query in call to new SummaryModel') unless @query?
+    throw new Error('No view in call to new SummaryModel') unless @view?
     @fetch = _.partial getColumnSummary, @query, @view
     type = @view.getType()
     integral = inty type

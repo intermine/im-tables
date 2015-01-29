@@ -28,3 +28,15 @@ module.exports = class CoreModel extends Backbone.Model
     for prop of @ # need to do this last of all.
       delete @[prop]
 
+  _frozen: []
+
+  _validate: (attrs, opts) ->
+    for p in @_frozen when p of attrs
+      throw new Error("#{ p } is frozen")
+    super
+
+  # Calls to set(prop) after freeze(prop) will throw.
+  freeze: (properties...) ->
+    @_frozen = @_frozen.concat properties
+    this
+

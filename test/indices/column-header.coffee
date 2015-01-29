@@ -2,6 +2,8 @@ $ = require 'jquery'
 _ = require 'underscore'
 Backbone = require 'backbone'
 
+CoreModel = require 'imtables/core-model'
+Options = require 'imtables/options'
 HeaderModel = require 'imtables/models/header'
 ColumnHeader = require 'imtables/views/table/header'
 
@@ -19,18 +21,27 @@ class BasicTable extends Backbone.View
   className: 'table table-striped'
 
   initialize: ({@query}) ->
+    @model = new CoreModel 
     @headers = new Headers
-    for v in @query.views
-      @headers.add path: @query.makePath v
+    @setHeaders()
+    @listenTo @query, 'change:views', @setHeaders
+    @listenTo @headers, 'add remove', @render
+
+  setHeaders: ->
+    hds = for v in @query.views
+      new HeaderModel {path: @query.makePath v}, @query
+    @headers.set hds
 
   render: ->
     @$el.html '<thead><tr></tr></thead>'
     head = @$ 'thead tr'
     @headers.each (model) =>
       h = new ColumnHeader {model, @query}
-      h.appendTo head
+      h.$el.appendTo head
       h.render()
     this
+
+Options.set 'ModelDisplay.Initially.Closed', true
 
 create = (query) -> return new BasicTable {query}
 
@@ -43,6 +54,6 @@ queries = [
   }
 ]
 
-renderQuery = renderWithCounter create
+renderQuery = renderWithCounter create, (->), ['headers']
 
 $ -> renderQueries queries, renderQuery

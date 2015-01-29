@@ -1,12 +1,12 @@
-<% /* requires:
-    *  numOfCons, penult, last, headerClasses, colTitleClasses, penultClasses, composed,
-    *  path, sortable, direction, Icons, Messages, minimised
+<% /* requires the properties of HeaderModel +
+    *  penult, last, headerClasses, colTitleClasses, penultClasses
+    *  and the usual Icons, Messages
     */ %>
 <div class="<%- headerClasses %>">
 
 <div class="im-th-buttons">
     
-    <% if (outerJoined && !path.isAttribute()) { %>
+    <% if (outerJoined && isReference) { %>
       <a href="#" 
           class="im-subtable-expander im-th-button"
           title="<%- Messages.getText('table.header.ToggleTables') %>">
@@ -18,7 +18,7 @@
         <span class="im-th-dropdown im-col-sort dropdown">
             <a class="im-th-button im-col-sort-indicator"
                 title="<%- Messages.getText('table.header.SortColumn') %>">
-                <%= Icons.icon(direction || 'unsorted') %>
+                <%= Icons.icon(sortDirection || 'unsorted') %>
             </a>
             <div class="dropdown-menu">
                 <div><%- Messages.getText('table.header.FailedToInitSortMenu') %></div>
@@ -58,7 +58,7 @@
         </div>
     </span>
 
-    <% if (composed) { %>
+    <% if (isComposed) { %>
         <a class="im-th-button im-col-composed"
             title="<%- Messages.getText('table.header.Composed', {replaces: replaces}) %>">
             <%= Icons.icon('Composed') %>
