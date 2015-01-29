@@ -163,17 +163,22 @@ module.exports = class ColumnHeader extends CoreView
   # Generic helper that will show a view in a dropdown menu which it shows.
   showSummary: (selector, View, e) =>
     ignore e
-
-    return false if @$(selector).hasClass 'open'
-
+    $sel = @$ selector
     path = @path()
+
+    if $sel.hasClass 'open'
+      @query.trigger 'hiding:column-summary', path
+      $sel.removeClass 'open'
+      @removeChild 'summary'
+      return
+
     @query.trigger 'showing:column-summary', path
     summary = new View {@query, @model}
     $menu = @$ selector + ' .dropdown-menu'
     throw new Error "#{ selector } not found" unless $menu.length
     $menu.empty() # Whatever we are showing replaces all the content.
     @renderChild 'summary', summary, $menu
-    @$(selector).addClass 'open'
+    $sel.addClass 'open'
 
   showColumnSummary: (e) =>
     cls = if @model.get 'isReference'

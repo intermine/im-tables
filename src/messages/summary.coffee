@@ -24,7 +24,7 @@ Messages.setWithPrefix 'summary',
   """
   NumericDistribution: 'Showing distribution of <%= formatNumber(n) %>'
   FilterValuesPlaceholder: 'Filter values'
-  DownloadData: 'Download column summary'
+  DownloadData: 'Download data'
   DownloadFormat: 'As'
   MoreItems: 'Load more items'
   Include: 'Restrict table to matching rows'

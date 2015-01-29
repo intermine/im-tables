@@ -1,6 +1,8 @@
-FacetView = require '../facets/facet-view'
+_ = require 'underscore'
 
+FacetView = require '../facets/facet-view'
 PathModel = require '../../models/path'
+{ignore} = require '../../utils/events'
 
 NO_QUERY = 'No query in call to new DropDownColumnSummary'
 BAD_MODEL = 'No PathModel in call to new DropDownColumnSummary'
@@ -16,3 +18,5 @@ module.exports = class DropDownColumnSummary extends FacetView
     throw new Error(NO_QUERY) unless query
     throw new Error(BAD_MODEL) unless model instanceof PathModel
     super {query, view: model.pathInfo()}
+
+  events: -> _.extend super, click: ignore
