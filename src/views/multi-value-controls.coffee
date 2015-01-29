@@ -1,13 +1,15 @@
 _ = require 'underscore'
 {Collection} = require 'backbone'
-fs = require 'fs'
 
 Messages = require '../messages'
+Templates = require '../templates'
 Icons = require '../icons'
 View = require '../core-view'
 Model = require '../core-model'
+Collection = require '../core/collection'
 Options = require '../options'
 {IS_BLANK} = require '../patterns'
+{ignore} = require '../utils/events'
 
 Messages.set
   'multivalue.AddValue': 'Add value'
@@ -15,10 +17,22 @@ Messages.set
 
 mustacheSettings = require '../templates/mustache-settings'
 
-valueRow = fs.readFileSync __dirname + '/../templates/value-control-row.html', 'utf8'
-html = fs.readFileSync __dirname + '/../templates/add-value-control.html', 'utf8'
+class ValueModel extends Model
+
+  defaults: ->
+    editing: false
+    scratch: null
+    selected: true
+
+  idAttribute: 'value'
+
+class Values extends Collection
+
+  model: ValueModel
 
 class ValueControl extends View
+
+  Model: ValueModel
 
   tagName: 'tr'
 
@@ -36,26 +50,30 @@ class ValueControl extends View
     'click': 'toggleSelected' # Very broad - want to capture row clicks too.
 
   updateScratch: (e) ->
-    e?.stopPropagation()
+    ignore e
     @model.set scratch: e.target.value
 
+  # scratch value becomes real value. Editing stops.
   saveValue: (e) ->
-    e?.stopPropagation()
+    ignore e
     @model.set editing: false, value: @model.get('scratch')
 
+  # reset scratch value with real value. Editing stops.
   cancelEditing: (e) ->
-    e?.stopPropagation()
+    ignore e
     @model.set editing: false, scratch: @model.get('value')
 
   editValue: (e) ->
-    e?.stopPropagation()
+    ignore e
     @model.toggle 'editing'
 
-  toggleSelected: -> @model.toggle 'selected'
+  toggleSelected: (e) ->
+    ignore e
+    @model.toggle 'selected'
 
   getData: -> _.extend {icons: Icons, messages: Messages}, @model.toJSON()
 
-  template: _.template valueRow, mustacheSettings
+  template: Templates.template 'value-control-row', mustacheSettings
 
 module.exports = class MultiValueControls extends View
 
@@ -63,51 +81,74 @@ module.exports = class MultiValueControls extends View
 
   initialize: ->
     super
-    @values = new Collection
+    @values = new Values
     for v in (@model.get('values') or [])
-      @values.add new Model value: v, selected: true
+      @values.add value: v
     @listenTo @values, 'change:selected change:value add', @updateModel
-    @listenTo @values, 'add reset', @reRender
+    @listenTo @values, 'add', @renderValue
+    @listenTo @values, 'remove', @removeValue
 
-    # Help translate between multi-value and =
-    @listenTo @model, 'change:values', =>
-      were = @model.previous 'values'
-      unless were? # Allow to be reset with new values.
-        @values.reset(new Model value: v, selected: true for v in @model.get 'values')
-    @listenTo @model, 'change:op', =>
-      newOp = @model.get 'op'
-      if newOp in ['=', '!='] and (not @model.has 'value')
-        @model.set values: null, value: @values.first().get('value')
+  stateEvents: ->
+    'change:value': @onChangeNewValue
+
+  # Help translate between multi-value and =
+  # changing the op elsewhere triggers this controller to change the
+  # value(s).
+  modelEvents: ->
+    'change:op': @onChangeOp
+    'change:values': @onChangeValues
+
+  onChangeValues: ->
+    # We only need to reset if transitioning from non-multi constraint.
+    return if @model.previous('values')?
+    current = @model.get 'values'
+    @values.set({value} for value in (current ? []))
+
+  onChangeOp: ->
+    newOp = @model.get 'op'
+    if newOp in ['=', '!='] and (not @model.has 'value')
+      @model.set values: null, value: @values.first().get('value')
 
   events: ->
-    'click .im-add': 'addValue'
-    'keyup .im-new-multi-value': 'updateNewValue'
+    'keyup .im-new-multi-value': @updateNewValue
+    'click .im-add': @addValue
+
+  # Two-way binding between state.value and .im-new-multi-value
+  onChangeNewValue: ->
+    @$('.im-new-multi-value').val @state.get 'value'
 
   updateNewValue: ->
     @state.set value: @$('.im-new-multi-value').val()
 
   addValue: (e) ->
-    e?.preventDefault()
-    e?.stopPropagation()
+    ignore e
     value = @state.get 'value'
     if (not value?) or IS_BLANK.test value
       @model.set error: new Error('please enter a value')
       @listenToOnce @state, 'change:value', => @model.unset 'error'
     else
-      @values.add new Model {value, selected: true}
+      @values.add {value}
+      @state.unset 'value'
 
   updateModel: ->
     @model.set values: (m.get 'value' for m in @values.where selected: true)
 
   getData: -> messages: Messages
 
-  template: _.template html
+  template: Templates.template 'add-value-control'
 
-  render: ->
+  postRender: ->
+    @$table = @$ 'table'
+    @renderRows()
+
+  renderRows: -> @values.each (m) => @renderValue m
+
+  removeValue: -> @removeChild m.id
+
+  renderValue: (m) ->
+    @renderChild m.id, (new ValueControl model: m), @$table
+
+  remove: ->
+    @values.close()
     super
-    table = @$ 'table'
-    @renderRows table
-
-  renderRows: (container) -> @values.each (m, i) =>
-    @renderChild i, (new ValueControl model: m), container
 
