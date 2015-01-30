@@ -30,6 +30,8 @@ class BasicTable extends CoreView
     @listenTo @query, 'change:views', @setHeaders
     @listenTo @headers, 'add remove', @render
     @listenTo @headers, 'remove', (m) -> m.destroy()
+    @blacklist = new Backbone.Collection
+    @listenTo @blacklist, 'add', (m) -> console.debug 'formatter added to blacklist'
 
   setHeaders: ->
     paths = (@query.makePath v for v in @query.views)
@@ -50,7 +52,8 @@ class BasicTable extends CoreView
     head = @$ 'thead tr'
     @headers.each (model) =>
       console.log 'rendering', model.id
-      @renderChild model.id, (new ColumnHeader {model, @query}), head
+      opts = {model, @query, blacklistedFormatters: @blacklist}
+      @renderChild model.id, (new ColumnHeader opts), head
     this
 
 Options.set 'ModelDisplay.Initially.Closed', true

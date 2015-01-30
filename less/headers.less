@@ -38,25 +38,14 @@
         }
     }
 
+    .im-col-sort-menu {
+        .fake-dropdown();
+    }
+
     .im-summary {
         .im-summary-selector {
             min-width: 300px;
-            list-style-type: none;
-            margin-left: 0;
-            padding-left: 0;
-
-            li {
-                padding: 0 0.25em;
-                &:hover {
-                    background: @dropdown-link-active-bg;
-                    a {
-                        color: @dropdown-link-active-color;
-                    }
-                }
-                a {
-                    text-decoration: none;
-                }
-            }
+            .fake-dropdown();
         }
     }
 

@@ -118,10 +118,11 @@ module.exports = class ColumnHeader extends CoreView
     'click .im-col-remover': 'removeColumn'
     'hidden.bs.dropdown': -> @removeChild 'summary'
     'shown.bs.dropdown': 'onDropdownShown'
-    'toggle .im-th-button': 'summaryToggled' # should we use the bootstrap events
+    'toggle .im-th-button': 'summaryToggled'
+    'click .summary-img': @showColumnSummary
+    'click .im-col-composed': @addFormatterToBlacklist
 
   postRender: ->
-    @bindRecalcitrantButtons()
     @setTitlePopover()
     @announceExpandedState()
     @activateTooltips()
@@ -138,13 +139,6 @@ module.exports = class ColumnHeader extends CoreView
       right = "#{ ddRect.left }px"
       console.log 'setting right', right
       e.target.style.right = right
-
-  # Bind events to buttons that experience interference from dropdowns when
-  # their events are bound from ::events
-  bindRecalcitrantButtons: ->
-    @$('.summary-img').click @showColumnSummary
-    @$('.im-col-filters').click @showFilterSummary
-    @$('.im-col-composed').click @addFormatterToBlacklist
 
   addFormatterToBlacklist: ->
     @blacklistedFormatters.add formatter: @model.get 'formatter'
