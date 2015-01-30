@@ -36,7 +36,6 @@ module.exports = class ColumnHeader extends CoreView
 
   RERENDER_EVENT: onChange [ # All the things that would cause us to re-render.
     'composed',
-    'direction',
     'expanded',
     'minimised',
     'numOfCons',
@@ -44,6 +43,7 @@ module.exports = class ColumnHeader extends CoreView
     'parts',
     'path'
     'sortable',
+    'sortDirection',
   ]
 
   template: Templates.template 'column-header'

@@ -51,6 +51,7 @@ queries = [
     select: ["name", "company.name", "manager.name", "employees.age"]
     from: "Department"
     where: [ [ "employees.age", ">", 35 ] ]
+    orderBy: [ ['name', 'DESC'] ]
   }
 ]
 

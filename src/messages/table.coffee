@@ -6,7 +6,15 @@ module.exports =
   'table.header.ViewSummary': 'View column summary'
   'table.header.ToggleColumn': 'Toggle column visibility'
   'table.header.RemoveColumn': 'Remove this column'
-  'table.header.SortColumn': 'Sort this column'
+  'table.header.SortColumn': """
+    <% if (dir === 'ASC') { %>
+      Sorted in ascending order.
+    <% } else if (dir === 'DESC') { %>
+      Sorted in descending order.
+    <% } else { %>
+      Sort this column.
+    <% } %>
+  """
   'table.header.ToggleTables': 'Expand/collapse all sub-tables'
   'table.header.Composed': """
     This column replaces <%= replaces.length %> others. Click here
