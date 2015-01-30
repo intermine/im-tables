@@ -65,15 +65,14 @@ module.exports = class FacetRow extends CoreView
     if isHovered
       return @showSurrogateUnlessVisible()
     else
-      return @removeSuggogate()
+      return @removeSurrogate()
 
   onChangeSelected: -> @$el.toggleClass 'im-selected', @model.get('selected')
 
-  removeSuggogate: ->
-    @removeChild 'surrogate'
+  removeSurrogate: -> @removeChild 'surrogate'
 
   showSurrogateUnlessVisible: ->
-    @removeSuggogate() # to be sure
+    @removeSurrogate() # to be sure
     unless @isVisible()
       above = @isAbove()
       surrogate = new RowSurrogate {@model, above}
@@ -81,10 +80,9 @@ module.exports = class FacetRow extends CoreView
       table = @getTable()
       @renderChild 'surrogate', surrogate, table
       newTop = if above
-        $s.css top: 0
+        $s.css top: table.scrollTop()
       else
         $s.css bottom: 0 - table.scrollTop()
-        # table.scrollTop() + table.offset().top + table.outerHeight() #- $s.outerHeight()
 
   getTable: -> @$el.closest('.im-item-table')
 
