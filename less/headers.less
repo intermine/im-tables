@@ -15,10 +15,26 @@
         overflow-y: auto;
     }
 
+    .im-th-button i {
+        color: @brand-primary;
+    }
+
     .open {
-        .im-th-button {
-            background-color: @btn-primary-bg;
-            color: @btn-primary-color;
+        .im-th-button i {
+            background-color: @brand-primary;
+            color: @brand-primary-constrast;
+        }
+    }
+
+    .im-has-constraint {
+        .im-th-button.im-col-filters i {
+            color: @brand-secondary;
+        }
+        .open {
+            .im-th-button.im-col-filters i {
+                background-color: @brand-secondary;
+                color: @brand-secondary-constrast;
+            }
         }
     }
 
