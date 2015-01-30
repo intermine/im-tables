@@ -11,7 +11,7 @@ bool = (x) -> !!x
 negateOps = (ops) ->
   ret = {}
   ret.multi = if ops.multi is 'ONE OF' then 'NONE OF' else 'ONE OF'
-  ret.single = if ops.single is '==' then '!==' else '=='
+  ret.single = if ops.single is '==' then '!=' else '=='
   ret.absent = if ops.absent is 'IS NULL' then 'IS NOT NULL' else 'IS NULL'
   ret
 
