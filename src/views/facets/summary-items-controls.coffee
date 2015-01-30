@@ -133,10 +133,11 @@ module.exports = class SummaryItemsControls extends CoreView
     if unselected.length is 0
       return @model.set error: (new Error 'All items are selected')
 
-    # If we know all the possible values, and there are more selected than un-selected
-    # values (above a certain cut-off), then make the smaller constraint. This means if
-    # a user selects 95 of 100 values, the resulting constraint will only hold 5 values.
-    if (not @hasMore()) and (MIN_VALS_OPTIMISATION > vals.length > unselected.length)
+    # If we know all the possible values, and there are more selected than
+    # un-selected values (above a certain cut-off), then make the smaller
+    # constraint. This means if a user selects 95 of 100 values, the resulting
+    # constraint will only hold 5 values.
+    if @model.hasAll() and (MIN_VALS_OPTIMISATION > vals.length > unselected.length)
       return @constrainTo (negateOps ops), (item.get('item') for item in unselected)
     else # add the constraint as is.
       return @constrainTo ops, vals
@@ -144,15 +145,24 @@ module.exports = class SummaryItemsControls extends CoreView
   # The new constraint is either a multi-value constraint, a single-value constraint,
   # or a null constraint. Helper for addConstraint
   constrainTo: (ops, vals) ->
-    return @model.set error: (new Error 'No values are selected') unless vals?.length
+    unless vals?.length
+      return @model.set error: (new Error 'No values are selected') 
+    q = @model.query
+    path = @model.view.toString()
     [val] = vals
-
     newCon = switch
       when vals.length then {op: ops.multi, values: vals}
       when val? then {op: ops.single, value: String val}
       else {op: ops.absent}
 
-    @model.query.addConstraint _.extend newCon, path: @model.view.toString()
+    # use an existing constraint, if it makes sense to do so.
+    if (not /or/.test q.constraintLogic) and (newCon.op is 'ONE OF')
+      if existing = (_.findWhere q.constraints, path: path, op: 'ONE OF')
+        # This should probably be in imjs.
+        existing.values = newCon.values
+        return q.trigger 'change:constraints', q.constraints
+    # Couldn't replace - add instead.
+    q.addConstraint _.extend newCon, {path}
 
   # Set the selection state for the items - helper for unsetSelection, toggleSelection
   changeSelection: (f) ->

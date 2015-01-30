@@ -95,7 +95,7 @@ module.exports = class SummaryStats extends CoreView
     query = @model.query
     existingConstraints =  _.where query.constraints, {path}
 
-    newConstraints if @range.nulled
+    newConstraints = if @range.nulled
       [{path, op: 'IS NULL'}]
     else
       [

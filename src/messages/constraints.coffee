@@ -1,7 +1,7 @@
 Messages = require '../messages'
 
 Messages.setWithPrefix 'constraints',
-  Heading: 'Active Filters'
+  Heading: '<%= n %> Active <%= pluralise("Filter", n) %>'
   AddNewFilter: 'Add New Filter'
   AddFilter: 'Add filter'
   AddNew: "Add Filter"
@@ -12,3 +12,4 @@ Messages.setWithPrefix 'constraints',
   NoOfIds: '<%= (n === 1) ? "one" : formatNumber(n) %> <%= pluralise("ID", n) %>'
   ISA: 'is a'
   LookupIn: 'in'
+  AddConFor: 'Add filter to <%= typeName %> <%= _.last(parts) %>'

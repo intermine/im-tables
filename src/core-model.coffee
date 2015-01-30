@@ -19,14 +19,14 @@ module.exports = class CoreModel extends Backbone.Model
 
   # Release listeners in both directions, and delete
   # all instance properties.
+  # Unlike in the standard backboniverse, this does not
+  # attempt to sync with anywhere.
   destroy: -> unless @destroyed # re-entrant.
     @stopListening()
     @destroyed = true
     @trigger 'destroy', @, @collection
     @trigger 'change'
     @off()
-    for prop of @ # need to do this last of all.
-      delete @[prop]
 
   _frozen: []
 

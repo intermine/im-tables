@@ -183,6 +183,14 @@ module.exports = class ColumnHeader extends CoreView
       $sel.addClass 'open'
       return true
 
+  ensureDropdownIsWithinTable: (target, selector, minWidth = 360) ->
+    elRect = target.getBoundingClientRect()
+    table = @$el.closest('table')[0]
+    return unless table?
+    tableRect = table.getBoundingClientRect()
+    if (elRect.left + minWidth) > tableRect.right
+      @$(selector + ' .dropdown-menu').addClass 'dropdown-menu-right'
+
   showColumnSummary: (e) =>
     cls = if @model.get 'isReference'
       OuterJoinDropDown
@@ -192,15 +200,11 @@ module.exports = class ColumnHeader extends CoreView
     if shown = @showSummary '.im-summary', cls, e
       h = getViewPortHeight() # Allow taller tables on larger screens.
       @$('.im-item-table').css 'max-height': Math.max 350, (h / 2)
-      elRect = e.target.getBoundingClientRect()
-      table = @$el.closest('table')[0]
-      return unless table?
-      tableRect = table.getBoundingClientRect()
-      if (elRect.left + 360) > tableRect.right
-        @$('.im-summary .dropdown-menu').addClass 'dropdown-menu-right'
+      @ensureDropdownIsWithinTable e.target, '.im-summary'
 
   showFilterSummary: (e) =>
-    @showSummary '.im-filter-summary', SingleColumnConstraints, e
+    if shown = @showSummary '.im-filter-summary', SingleColumnConstraints, e
+      @ensureDropdownIsWithinTable e.target, '.im-filter-summary', 400
 
   toggleColumnVisibility: (e) =>
     ignore e

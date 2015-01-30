@@ -1,8 +1,8 @@
 _ = require 'underscore'
 
 CoreModel = require '../core-model'
+Collection = require '../core/collection'
 Options = require '../options'
-{Collection} = require 'backbone'
 
 {getColumnSummary} = require '../services/column-summary'
 
@@ -50,7 +50,13 @@ module.exports = class SummaryModel extends CoreModel
     @items = new SummaryItems()         # Most common items, most frequent first.
     @listenTo @, 'change:filterTerm', @onFilterChange
     @listenTo @, 'change:summaryLimit', @onLimitChange
+    @listenTo @query, 'change:constraints', @load
     @load()
+
+  destroy: ->
+    @histogram.close()
+    @items.close()
+    super
 
   # The max count is set if the data is initialized.
   getMaxCount: -> @get 'maxCount'

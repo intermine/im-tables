@@ -70,12 +70,15 @@ module.exports = class ConstraintAdder extends View
       console.debug 'nothing chosen'
       @model.unset 'constraint'
 
-  onChangeConstraint: ->
+  renderConstraintEditor: ->
     constraint = @model.get 'constraint'
-    if constraint?
+    editor = new NewConstraint {@buttonDelegate, @query, constraint}
+    @renderChild 'con', editor, @$ '.im-new-constraint'
+
+  onChangeConstraint: -> if @rendered
+    if @model.get 'constraint'
       @model.set showTree: false
-      div = @$ '.im-new-constraint'
-      @renderChild 'con', (new NewConstraint {@buttonDelegate, @query, constraint}), div
+      @renderConstraintEditor()
     else
       @removeChild 'con'
 

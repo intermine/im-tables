@@ -1,4 +1,6 @@
-<h3><%- Messages.getText('constraints.Heading') %></h3>
+<h3>
+  <%- Messages.getText('constraints.Heading', {n: constraints.length}) %>
+</h3>
 
 <div class="well">
     <p class="well-help">

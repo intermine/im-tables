@@ -1,8 +1,9 @@
 Constraints = require '../constraints'
+SingleColumnConstraintAdder = require './single-column-adder'
 
 module.exports = class SingleColumnConstraints extends Constraints
 
-  getConAdder: -> null #-> new SingleConstraintAdder?
+  getConAdder: -> new SingleColumnConstraintAdder {@query, path: @model.get 'path'}
 
   getConstraints: ->
     view = @model.get 'path'
