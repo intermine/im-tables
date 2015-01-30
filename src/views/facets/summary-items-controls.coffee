@@ -151,7 +151,7 @@ module.exports = class SummaryItemsControls extends CoreView
     path = @model.view.toString()
     [val] = vals
     newCon = switch
-      when vals.length then {op: ops.multi, values: vals}
+      when vals.length > 1 then {op: ops.multi, values: vals}
       when val? then {op: ops.single, value: String val}
       else {op: ops.absent}
 

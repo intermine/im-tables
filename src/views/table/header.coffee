@@ -174,6 +174,7 @@ module.exports = class ColumnHeader extends CoreView
       @removeChild 'summary'
       return false
     else
+      @$('.dropdown.open').removeClass 'open' # in case we already have one open.
       @query.trigger 'showing:column-summary', path
       summary = new View {@query, @model}
       $menu = @$ selector + ' .dropdown-menu'

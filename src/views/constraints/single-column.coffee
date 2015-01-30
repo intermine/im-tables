@@ -1,9 +1,14 @@
 Constraints = require '../constraints'
 SingleColumnConstraintAdder = require './single-column-adder'
 
+# Consumes some kind of PathModel.
 module.exports = class SingleColumnConstraints extends Constraints
 
-  getConAdder: -> new SingleColumnConstraintAdder {@query, path: @model.get 'path'}
+  getConAdder: -> if @shouldShowAdder()
+    new SingleColumnConstraintAdder {@query, path: @model.get 'path'}
+
+  # Numeric paths can handle multiple constraints - others should just have one.
+  shouldShowAdder: -> @model.get('numeric') or (not @getConstraints().length)
 
   getConstraints: ->
     view = @model.get 'path'
