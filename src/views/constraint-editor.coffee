@@ -28,6 +28,7 @@ TEMPLATE = _.template html, variable: 'data'
 NO_OP = -> # A function that doesn't do anything
 
 operatorsFor = (path) ->
+  throw new Error('No path or wrong type') unless path?.isReference
   if path.isReference() or path.isRoot()
     REFERENCE_OPS.concat Query.RANGE_OPS
   else if path.getType() in BOOLEAN_TYPES
@@ -46,10 +47,17 @@ module.exports = class ConstraintEditor extends CoreView
   # (TODO - find a better way to do that).
   initialize: ({@query, @buttonDelegate}) ->
     super
-    @listenTo @model, 'change:op change:displayName', @reRender
     @path = @model.get 'path'
 
+  invariants: -> modelHasPath: 'No path found on model'
+
+  modelHasPath: -> @model.get 'path'
+
   getType: -> @model.get('path').getType()
+
+  modelEvents: ->
+    'change:op change:displayName': @reRender
+    'destroy': @stopListening
 
   events: ->
     'submit': (e) -> e.preventDefault(); e.stopPropagation()

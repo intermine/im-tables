@@ -88,18 +88,31 @@
             border-bottom-right-radius: 0;
             border-top-right-radius: 0;
         }
+        .im-constraint-adder-options > .btn-group {
+            .pull-right();
+            .im-add-constraint {
+                .pull-left();
+            }
+        }
 
         .path-label {
-            .col-xs-12();
+            width: 100%;
             text-align: center;
         }
 
         .im-operator {
-            .col-xs-3();
+            @media (min-width: 500px) {
+                width: 33.3%;
+            }
+            .form-control.im-ops {
+                margin-bottom: 1em;
+            }
         }
 
         .im-value-section {
-            .col-xs-9();
+            @media (min-width: 500px) {
+                width: 66.6%;
+            }
 
             .im-multi-value-table {
                 .im-table-height-wrapper {

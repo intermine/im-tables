@@ -1,14 +1,19 @@
 Constraints = require '../constraints'
 SingleColumnConstraintAdder = require './single-column-adder'
+ComposedColumnConstraintAdder = require './composed-column-adder'
 
-# Consumes some kind of PathModel.
+# Consumes a HeaderModel
 module.exports = class SingleColumnConstraints extends Constraints
 
   getConAdder: -> if @shouldShowAdder()
-    new SingleColumnConstraintAdder {@query, path: @model.get 'path'}
+    if @model.get('isComposed')
+      new ComposedColumnConstraintAdder {@query, paths: @model.get('replaces')}
+    else
+      new SingleColumnConstraintAdder {@query, path: @model.get 'path'}
 
   # Numeric paths can handle multiple constraints - others should just have one.
-  shouldShowAdder: -> @model.get('numeric') or (not @getConstraints().length)
+  shouldShowAdder: ->
+    @model.get('numeric') or @model.get('isComposed') or (not @getConstraints().length)
 
   getConstraints: ->
     view = @model.get 'path'

@@ -11,6 +11,8 @@ ColumnHeader = require 'imtables/views/table/header'
 renderQueries = require '../lib/render-queries.coffee'
 renderWithCounter = require '../lib/render-query-with-counter-and-displays'
 
+flatMap = (coll, f) -> _.flatten (_.map coll, f), shallow = true
+
 class Headers extends Backbone.Collection
 
   model: HeaderModel
@@ -30,8 +32,16 @@ class BasicTable extends CoreView
     @listenTo @headers, 'remove', (m) -> m.destroy()
 
   setHeaders: ->
-    hds = for v in @query.views
-      new HeaderModel {path: @query.makePath v}, @query
+    paths = (@query.makePath v for v in @query.views)
+    byNode = _.groupBy paths, (p) -> p.getParent().toString()
+    hds = _.map byNode, (viewPaths, nodePath) =>
+      console.log nodePath, viewPaths.length
+      if viewPaths.length is 1
+        new HeaderModel {path: viewPaths[0]}, @query
+      else
+        node = @query.makePath nodePath
+        new HeaderModel {path: node, replaces: viewPaths}, @query
+    console.log(m.get 'path' for m in hds)
     @headers.set hds
 
   template: -> '<thead><tr></tr></thead>'
@@ -50,9 +60,25 @@ create = (query) -> return new BasicTable {query}
 queries = [
   {
     name: "older than 35"
-    select: ["name", "company.name", "manager.name", "employees.age"]
+    select: [
+      "name",
+      "manager.name",
+      "employees.name",
+      "employees.age",
+      "company.name",
+    ]
     from: "Department"
-    where: [ [ "employees.age", ">", 35 ] ]
+    where: [
+      [ "employees.age", ">", 35 ],
+      [ 'name', 'ONE OF', [
+        'Accounting',
+        'Board of Directors',
+        'Kantine',
+        'Sales',
+        'Verwaltung'
+        'Warehouse',
+      ]]
+    ]
     orderBy: [ ['name', 'DESC'] ]
   }
 ]

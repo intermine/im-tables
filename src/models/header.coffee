@@ -5,6 +5,8 @@ Options = require '../options'
 uc = (s) -> s?.toUpperCase()
 firstResult = _.compose _.first, _.compact, _.map
 
+looksLikePath = (r) -> r? and r.isReference? and r.isAttribute?
+
 # Model of each column header in the table.
 # Managed model - needs reference to the query, so
 # that it may listen to update properties such as
@@ -38,9 +40,21 @@ module.exports = class HeaderModel extends PathModel
     @setSortDirection()
     @setConstraintNum()
 
+  # the output of this method must be serializable, so we stringify the paths.
+  toJSON: -> _.extend super, replaces: @get('replaces').map String
+
   getView: ->
     {replaces, isFormatted, path} = @toJSON()
     String if replaces.length is 1 and isFormatted then replaces[0] else path
+
+  validate: (attrs, opts) ->
+    if 'replaces' of attrs
+      rs = attrs.replaces
+      if not _.isArray rs
+        return new Error 'replaces must be an array'
+      if (rs.length) and (not _.all rs, looksLikePath)
+        return new Error 'all elements in replaces must be PathInfo objects'
+    return
 
   setOuterJoined: ->
     view = @getView()

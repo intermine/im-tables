@@ -79,7 +79,7 @@ module.exports = class ActiveConstraint extends View
     @listenTo @model, 'apply', @applyChanges
     
     try
-      @model.set path: @query.getPathInfo @constraint.path
+      @model.set path: @query.makePath @constraint.path
     catch e
       @model.set error: e
       @state.set editing: true

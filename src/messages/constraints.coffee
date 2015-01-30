@@ -12,4 +12,8 @@ Messages.setWithPrefix 'constraints',
   NoOfIds: '<%= (n === 1) ? "one" : formatNumber(n) %> <%= pluralise("ID", n) %>'
   ISA: 'is a'
   LookupIn: 'in'
-  AddConFor: 'Add filter to <%= typeName %> <%= _.last(parts) %>'
+  AddConFor: """
+    Add filter to
+    <% if (isAttribute && !hideType) { %><%= typeName %><% } %>
+    <%= _.last(parts) %>
+  """
