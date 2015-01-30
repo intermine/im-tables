@@ -6,11 +6,17 @@
     <div class="input-group">
       <input type="text" value="{{ value }}" class="form-control">
       <span class="input-group-btn">
-        <button class="btn btn-default im-save" type="button">
-            {{ messages.getText('multivalue.SaveValue') }}
+        <button class="btn btn-success im-save"
+                title="{{ messages.getText('multivalue.SaveValue') }}"
+                type="button">
+            {{{ icons.icon('OK') }}}
+            <span class="im-long">{{ messages.getText('multivalue.SaveValue') }}</span>
         </button>
-        <button class="btn btn-default im-cancel" type="button">
-            {{ messages.getText('Cancel') }}
+        <button class="btn btn-warning im-cancel"
+                title="{{ messages.getText('Cancel') }}"
+                type="button">
+            {{{ icons.icon('Cancel') }}}
+            <span class="im-long">{{ messages.getText('Cancel') }}</span>
         </button>
       </span>
     </div>

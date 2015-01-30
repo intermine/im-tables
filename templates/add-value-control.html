@@ -1,9 +1,12 @@
-<table class="table table-condensed"></table>
+<div class="im-table-height-wrapper">
+    <table class="table table-condensed"></table>
+</div>
 <div class="input-group">
     <input type="text" class="im-new-multi-value form-control">
     <span class="input-group-btn">
         <button class="btn btn-primary im-add" type="button">
-          <%- messages.getText('multivalue.AddValue') %>
+            <span class="im-long"><%- messages.getText('multivalue.AddValue') %></span>
+            <span class="im-short"><%- messages.getText('multivalue.AddValueShort') %></span>
         </button>
     </span>
 </div>

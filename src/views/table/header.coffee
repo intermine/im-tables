@@ -26,6 +26,9 @@ ModelReader = (model, attr) -> -> model.get attr
 getViewPortHeight = ->
   Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
 
+getViewPortWidth = ->
+  Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
+
 module.exports = class ColumnHeader extends CoreView
 
   Model: HeaderModel
@@ -87,10 +90,10 @@ module.exports = class ColumnHeader extends CoreView
     @$('.dropdown.open').removeClass 'open'
 
   onSubtableExpanded: (node) -> if node.toString().match @model.getView()
-    @model.set expanded: true 
+    @model.set expanded: true
 
   onSubtableCollapsed: (node) -> if node.toString().match @model.getView()
-    @model.set expanded: false 
+    @model.set expanded: false
 
   getData: ->
     [ancestors..., penult, last] = parts = @model.get 'parts'
@@ -114,6 +117,7 @@ module.exports = class ColumnHeader extends CoreView
     'click .im-subtable-expander': 'toggleSubTable'
     'click .im-col-remover': 'removeColumn'
     'hidden.bs.dropdown': -> @removeChild 'summary'
+    'shown.bs.dropdown': 'onDropdownShown'
     'toggle .im-th-button': 'summaryToggled' # should we use the bootstrap events
 
   postRender: ->
@@ -125,6 +129,15 @@ module.exports = class ColumnHeader extends CoreView
   activateTooltips: -> @$('.im-th-button').tooltip
     placement: 'top'
     container: @el
+
+  onDropdownShown: (e) -> _.defer ->
+    # Reset the right prop, so that the following calculation returns the truth.
+    delete e.target.style.right
+    ddRect = e.target.getBoundingClientRect()
+    if ddRect.left < 0
+      right = "#{ ddRect.left }px"
+      console.log 'setting right', right
+      e.target.style.right = right
 
   # Bind events to buttons that experience interference from dropdowns when
   # their events are bound from ::events
@@ -182,14 +195,23 @@ module.exports = class ColumnHeader extends CoreView
       $menu.empty() # Whatever we are showing replaces all the content.
       @renderChild 'summary', summary, $menu
       $sel.addClass 'open'
+      @onDropdownShown target: $menu[0]
       return true
 
   ensureDropdownIsWithinTable: (target, selector, minWidth = 360) ->
     elRect = target.getBoundingClientRect()
     table = @$el.closest('table')[0]
     return unless table?
+    h = getViewPortWidth()
+    $menu = @$ selector + ' .dropdown-menu'
+    if minWidth >= h
+      return $menu.addClass('im-fullwidth-dropdown').css width: h
+    else
+      $menu.css width: null
+
+    return if (minWidth >= getViewPortWidth())
     tableRect = table.getBoundingClientRect()
-    if (elRect.left + minWidth) > tableRect.right
+    if (elRect.left + minWidth  > tableRect.right)
       @$(selector + ' .dropdown-menu').addClass 'dropdown-menu-right'
 
   showColumnSummary: (e) =>
@@ -205,7 +227,7 @@ module.exports = class ColumnHeader extends CoreView
 
   showFilterSummary: (e) =>
     if shown = @showSummary '.im-filter-summary', SingleColumnConstraints, e
-      @ensureDropdownIsWithinTable e.target, '.im-filter-summary', 400
+      @ensureDropdownIsWithinTable e.target, '.im-filter-summary', 500
 
   toggleColumnVisibility: (e) =>
     ignore e

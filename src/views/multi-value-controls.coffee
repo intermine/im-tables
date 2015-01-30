@@ -11,9 +11,10 @@ Options = require '../options'
 {IS_BLANK} = require '../patterns'
 {ignore} = require '../utils/events'
 
-Messages.set
-  'multivalue.AddValue': 'Add value'
-  'multivalue.SaveValue': 'Save changes'
+Messages.setWithPrefix 'multivalue',
+  AddValue: 'Add value'
+  AddValueShort: '+'
+  SaveValue: 'Save changes'
 
 mustacheSettings = require '../templates/mustache-settings'
 

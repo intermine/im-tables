@@ -39,7 +39,12 @@
     }
 
     .im-dropdown-summary {
-        min-width: 360px;
+        @media (max-width: 360px) {
+            width: 100%;
+        }
+        @media (min-width: 360px) {
+            min-width: 360px;
+        }
 
         h3 {
             padding: 0 0.5em;
@@ -53,13 +58,25 @@
         .alert {
             border-radius: 0;
         }
+
+        &.im-fullwidth-dropdown {
+            width: 100%;
+            position: fixed;
+            left: 0;
+            top: 5px;
+        }
     }
 
     .im-constraints {
         h3 {
             padding: 0 0.5em;
         }
-        min-width: 400px;
+        @media (max-width: 500px) {
+            width: 100%;
+        }
+        @media (min-width: 500px) {
+            min-width: 500px;
+        }
         .well {
             .well-sm();
         }
@@ -70,6 +87,63 @@
             .pull-right();
             border-bottom-right-radius: 0;
             border-top-right-radius: 0;
+        }
+
+        .path-label {
+            .col-xs-12();
+            text-align: center;
+        }
+
+        .im-operator {
+            .col-xs-3();
+        }
+
+        .im-value-section {
+            .col-xs-9();
+
+            .im-multi-value-table {
+                .im-table-height-wrapper {
+                    max-height: 300px;
+                    overflow-y: auto;
+                }
+                table {
+                    tbody {
+                        tr {
+                            border-left: 1px solid @table-border-color;
+                            border-right: 1px solid @table-border-color;
+                            .im-multi-value {
+                                .input-group {
+                                    input {
+                                        min-width: 12em;
+                                    }
+                                    .input-group-btn {
+                                        .btn {
+                                            padding-left: 0.5em;
+                                            padding-right: 0.5em;
+                                        }
+                                        .im-long {
+                                            display: none;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        &:last-child {
+                            border-bottom: 1px solid @table-border-color;
+                        }
+                    }
+                }
+                .im-add {
+                    font-weight: bold;
+                    .im-long {
+                        display: none;
+                    }
+                    .im-short {
+                        display: inline;
+                    }
+                }
+
+            }
         }
     }
 

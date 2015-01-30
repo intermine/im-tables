@@ -32,6 +32,8 @@ module.exports = class FacetItems extends CoreView
 
   modelHasRequiredAttrs: -> (_.intersection REQ_ATTRS, _.keys @model.attributes).length is 2
 
+  modelEvents: -> destroy: @stopListening
+
   template: Templates.template 'facet_frequency'
 
   # model values read by the template or which cause the subviews to need re-creation.
