@@ -6,4 +6,7 @@ module.exports = class OnlyOneItem extends CoreView
 
   className: 'im-only-one'
 
+  modelEvents: -> change: @reRender
+  stateEvents: -> change: @reRender
+
   template: Templates.template 'only_one_item'
