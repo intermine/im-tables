@@ -1,3 +1,16 @@
+.im-name-part {
+    &:after {
+        content: "\00bb";
+        margin-left: 0.5em;
+    }
+
+    &:last-child {
+        &:after {
+            content: '';
+        }
+    }
+}
+
 .im-column-manager {
 
   .im-view-list-placeholder {
@@ -91,17 +104,8 @@
     .im-name-part {
       color: @gray-light;
 
-      &:after {
-        content: "\00bb";
-        margin-left: 0.5em;
-      }
-
       &:last-child {
         color: @gray-dark;
-
-        &:after {
-          content: '';
-        }
       }
     }
   }

@@ -28,7 +28,7 @@ class SubColumn extends CoreView
   onClick: (e) ->
     e.stopPropagation()
     e.preventDefault()
-    @showPathSummary @model.get 'path'
+    @showPathSummary @model
 
 module.exports = class OuterJoinDropDown extends CoreView
 
@@ -50,14 +50,14 @@ module.exports = class OuterJoinDropDown extends CoreView
   postRender: ->
     paths = @getSubpaths()
     return @showPathSummary paths.first() if paths.length is 1
-    showPathSummary = (v) => @showPathSummary v
+    showPathSummary = (m) => @showPathSummary m
     @getSubpaths().each (model, i) =>
       @renderChild i, (new SubColumn {model, showPathSummary})
 
-  showPathSummary: (v) ->
+  showPathSummary: (model) ->
     @undelegateEvents() # stop listening to the element we are ceding control of
     @removeAllChildren() # remove all the LIs we added.
-    summ = new DropDownColumnSummary {@query, path: v}
+    summ = new DropDownColumnSummary {@query, model}
     @children.summ = summ # reference it so it can be reaped.
     summ.setElement @el # pass control of element to new view.
     summ.render()

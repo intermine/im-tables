@@ -15,21 +15,21 @@
     </thead>
 </table>
 
-<div class="row">
-    <div class="col-sm-4">
+<div class="row im-range-controls">
+    <div class="col-sm-4 im-range-from">
         <input type="text"
                class="form-control im-range-min input im-range-val"
                value="<%- min %>">
     </div>
-    <div class="col-sm-1">
+    <div class="col-sm-1 im-ellipsis">
         <span>...</span>
     </div>
-    <div class="col-sm-4">
+    <div class="col-sm-4 im-range-to">
         <input type="text"
                class="form-control im-range-max input im-range-val"
                value="<%- max %>">
     </div>
-    <div class="col-sm-3">
+    <div class="col-sm-3 im-range-buttons">
         <div class="btn-group pull-right">
             <button class="btn btn-primary disabled">Apply</button>
             <button class="btn btn-cancel disabled">Reset</button>

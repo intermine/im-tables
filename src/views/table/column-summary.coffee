@@ -20,3 +20,8 @@ module.exports = class DropDownColumnSummary extends FacetView
     super {query, view: model.pathInfo()}
 
   events: -> _.extend super, click: ignore
+
+  postRender: ->
+    super
+    # there is one situation where this view is mounted, not appended.
+    @$el.addClass @className()
