@@ -9,7 +9,7 @@ module.exports = class SummaryHeading extends CoreView
 
   className: 'im-summary-heading'
 
-  modelEvents: -> change: @reRender
+  modelEvents: -> change: @reRender, destroy: @stopListening
   stateEvents: -> change: @reRender
 
   renderRequires: ['numeric', 'available', 'got', 'uniqueValues']

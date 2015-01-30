@@ -44,11 +44,13 @@
     .im-facet-row {
         &.hover {
             background-color: lighten(@selected-row-color, 2%);
-            border: @selected-row-border;
+            border-top: @selected-row-border;
+            border-bottom: @selected-row-border;
         }
         &.im-selected {
             background-color: @selected-row-color;
-            border: @selected-row-border;
+            border-top: @selected-row-border;
+            border-bottom: @selected-row-border;
         }
 
         .checkbox {
@@ -79,6 +81,24 @@
         border: none;
         position: relative;
         display: block;
+    }
+
+    .im-facet-surrogate {
+        width: 100%;
+        position: absolute;
+        padding: 0.5em 0;
+        background: @state-info-bg;
+        color: @state-info-text;
+        border-top: 1px solid;
+
+        &.above {
+            border-top: none;
+            border-bottom: 1px solid;
+        }
+    }
+
+    .im-item-table {
+        position: relative;
     }
 
 }

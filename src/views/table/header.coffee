@@ -23,6 +23,9 @@ OuterJoinDropDown = require './outer-join-summary'
 
 ModelReader = (model, attr) -> -> model.get attr
 
+getViewPortHeight = ->
+  Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
+
 module.exports = class ColumnHeader extends CoreView
 
   Model: HeaderModel
@@ -81,6 +84,7 @@ module.exports = class ColumnHeader extends CoreView
   # other column summaries that are displayed.
   removeMySummary: (path) -> unless path.equals @model.pathInfo()
     @removeChild 'summary'
+    @$('.dropdown.open').removeClass 'open'
 
   onSubtableExpanded: (node) -> if node.toString().match @model.getView()
     @model.set expanded: true 
@@ -109,6 +113,7 @@ module.exports = class ColumnHeader extends CoreView
     'click .im-col-filters': 'showFilterSummary'
     'click .im-subtable-expander': 'toggleSubTable'
     'click .im-col-remover': 'removeColumn'
+    'hidden.bs.dropdown': -> @removeChild 'summary'
     'toggle .im-th-button': 'summaryToggled' # should we use the bootstrap events
 
   postRender: ->
@@ -116,13 +121,10 @@ module.exports = class ColumnHeader extends CoreView
     @setTitlePopover()
     @announceExpandedState()
     @activateTooltips()
-    # @activateDropdowns()
 
   activateTooltips: -> @$('.im-th-button').tooltip
     placement: 'top'
     container: @el
-
-  # activateDropdowns: -> @$('.dropdown .dropdown-toggle').dropdown()
 
   # Bind events to buttons that experience interference from dropdowns when
   # their events are bound from ::events
@@ -170,15 +172,16 @@ module.exports = class ColumnHeader extends CoreView
       @query.trigger 'hiding:column-summary', path
       $sel.removeClass 'open'
       @removeChild 'summary'
-      return
-
-    @query.trigger 'showing:column-summary', path
-    summary = new View {@query, @model}
-    $menu = @$ selector + ' .dropdown-menu'
-    throw new Error "#{ selector } not found" unless $menu.length
-    $menu.empty() # Whatever we are showing replaces all the content.
-    @renderChild 'summary', summary, $menu
-    $sel.addClass 'open'
+      return false
+    else
+      @query.trigger 'showing:column-summary', path
+      summary = new View {@query, @model}
+      $menu = @$ selector + ' .dropdown-menu'
+      throw new Error "#{ selector } not found" unless $menu.length
+      $menu.empty() # Whatever we are showing replaces all the content.
+      @renderChild 'summary', summary, $menu
+      $sel.addClass 'open'
+      return true
 
   showColumnSummary: (e) =>
     cls = if @model.get 'isReference'
@@ -186,7 +189,15 @@ module.exports = class ColumnHeader extends CoreView
     else
       DropDownColumnSummary
 
-    @showSummary '.im-summary', cls, e
+    if shown = @showSummary '.im-summary', cls, e
+      h = getViewPortHeight() # Allow taller tables on larger screens.
+      @$('.im-item-table').css 'max-height': Math.max 350, (h / 2)
+      elRect = e.target.getBoundingClientRect()
+      table = @$el.closest('table')[0]
+      return unless table?
+      tableRect = table.getBoundingClientRect()
+      if (elRect.left + 360) > tableRect.right
+        @$('.im-summary .dropdown-menu').addClass 'dropdown-menu-right'
 
   showFilterSummary: (e) =>
     @showSummary '.im-filter-summary', SingleColumnConstraints, e

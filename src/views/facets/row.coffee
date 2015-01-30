@@ -74,16 +74,17 @@ module.exports = class FacetRow extends CoreView
 
   showSurrogateUnlessVisible: ->
     @removeSuggogate() # to be sure
-    unless @isVisible() # TODO - add styles for the surrogate
+    unless @isVisible()
       above = @isAbove()
       surrogate = new RowSurrogate {@model, above}
+      $s = surrogate.$el
       table = @getTable()
       @renderChild 'surrogate', surrogate, table
       newTop = if above
-        table.offset().top + table.scrollTop()
+        $s.css top: 0
       else
-        table.scrollTop() + table.offset().top + table.outerHeight() - surrogate.outerHeight()
-      surrogate.offset top: newTop
+        $s.css bottom: 0 - table.scrollTop()
+        # table.scrollTop() + table.offset().top + table.outerHeight() #- $s.outerHeight()
 
   getTable: -> @$el.closest('.im-item-table')
 

@@ -1,3 +1,4 @@
+_ = require 'underscore'
 CoreView = require '../../core-view'
 Templates = require '../../templates'
 
@@ -11,6 +12,7 @@ module.exports = class RowSurrogate extends CoreView
 
   getData: -> _.extend super, {@above}
 
-  postRender: -> @$el.addClass if above then 'above' else 'below'
+  postRender: -> @$el.addClass if @above then 'above' else 'below'
 
   remove: -> @$el.fadeOut 'fast', => super()
+
