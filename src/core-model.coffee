@@ -25,14 +25,20 @@ module.exports = class CoreModel extends Backbone.Model
     @stopListening()
     @destroyed = true
     @trigger 'destroy', @, @collection
-    @trigger 'change'
+    @_frozen = []
+    @clear()
     @off()
 
   _frozen: []
 
   _validate: (attrs, opts) ->
-    for p in @_frozen when p of attrs
-      throw new Error("#{ p } is frozen")
+    for p in @_frozen when (p of attrs) and (attrs[p] isnt @get p)
+      msg = "#{ p } is frozen (trying to set it to #{ attrs[p] } - is #{ @get p })"
+      if opts.merge
+        console.log 'Ignoring merge: ' + msg
+        attrs[p] = @get p # otherwise it will be overwritten.
+      else
+        throw new Error msg
     super
 
   # Calls to set(prop) after freeze(prop) will throw.
