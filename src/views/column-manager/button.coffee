@@ -8,11 +8,8 @@ require '../../messages/columns'
 # will show the column manager dialogue.
 module.exports = class ColumnMangerButton extends CoreView
 
-  # This component is a button element.
-  tagName: 'button'
-
   # Bootstrap classes and an identifying class.
-  className: 'btn btn-default im-column-manager-button'
+  className: 'im-column-manager-button'
 
   # The template for this component.
   template: Templates.template 'column-manager-button'
@@ -23,7 +20,7 @@ module.exports = class ColumnMangerButton extends CoreView
   events: -> click: @onClick
 
   # Show the dialogue, if the click was on this very element.
-  onClick: (e) -> if e.target is @el # Ignore bubbled clicks.
+  onClick: (e) -> if /im-open-dialogue/.test e.target.className # Ignore bubbled clicks.
     dialogue = new ColumnManger {@query}
     @renderChild 'dialogue', dialogue
     done = => @removeChild 'dialogue'
