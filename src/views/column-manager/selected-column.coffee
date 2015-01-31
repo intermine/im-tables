@@ -37,9 +37,6 @@ module.exports = class SelectedColumn extends CoreView
 
   className: 'list-group-item im-selected-column'
 
-  modelEvents: ->
-    'change:parts': 'resetParts'
-
   template: Templates.templateFromParts TEMPLATE_PARTS
 
   removeTitle: 'columns.RemoveColumn'
@@ -54,6 +51,10 @@ module.exports = class SelectedColumn extends CoreView
     @listenTo @parts, 'add remove reset', @reRender
     @resetParts()
     @listenTo @model.collection, 'sort', @onCollectionSorted
+
+  modelEvents: ->
+    destroy: @stopListeningTo
+    'change:parts': @resetParts
 
   onCollectionSorted: -> @reRender()
 

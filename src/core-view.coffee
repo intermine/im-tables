@@ -22,9 +22,11 @@ listenToCollection = -> listenToThing.call @, 'collection'
 listenToThing = (thing) ->
   definitions = _.result @, "#{ thing }Events"
   return unless _.size definitions
-  throw new Error("No #{ thing }") unless @[thing]?
+  throw new Error("Cannot listen to #{ thing } - it is null.") unless @[thing]?
   for event, handler of definitions
-    @listenTo @[thing], event, (if _.isFunction handler then handler else @[handler])
+    handler = if _.isFunction handler then handler else @[handler]
+    throw new Error("No handler for #{thing}:#{event}") unless handler?
+    @listenTo @[thing], event, handler
 
 # Class defining the core conventions of views in the application
 #  - adds a data -> template -> render flow
@@ -82,6 +84,14 @@ module.exports = class CoreView extends Backbone.View
     listenToModel.call @
     listenToState.call @
     listenToCollection.call @
+
+  # Restricted arity version of @stopListening - just takes an object, no event names
+  # or whatnot. The purpose of this is to be used in event listeners listening for removal
+  # events, eg:
+  #   destroy: @stopListeningTo
+  # rather than:
+  #   destroy: (m) -> @stopListening m
+  stopListeningTo: (obj) -> @stopListening obj
 
   # Declarative model event binding. Use these hooks rather than binding in initialize.
 
