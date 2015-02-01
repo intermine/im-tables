@@ -1,13 +1,18 @@
 <div class="im-con-overview">
-  <a class="im-remove-constraint">
-    <%= data.icons.icon('RemoveConstraint') %>
-  </a>
-  <% if (data.con.locked) { %>
+  <% if (data.con.editable != null && data.con.editable === false) { %>
     <a title="<%- data.messages.getText('conbuilder.NotEditable') %>">
-    <%= data.icons.icon('Lock') %>
+        <%= data.icons.icon('Lock') %>
+    </a>
+  <% } else { %>
+    <a class="im-remove-constraint"
+        title="<%- data.messages.getText('conbuilder.Remove') %>"
+        >
+        <%= data.icons.icon('RemoveConstraint') %>
+    </a>
+    <a class="im-edit" title="<%- data.messages.getText('conbuilder.EditCon') %>">
+        <%= data.icons.icon('Edit') %>
     </a>
   <% } %>
-  <a class="im-edit"><%= data.icons.icon('Edit') %></a>
 </div>
 
 <div class="im-constraint-editor">

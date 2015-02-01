@@ -17,24 +17,25 @@ ConstraintEditor = require './constraint-editor'
 # It is very important that the ValuePlaceholder get set to the
 # appropriate mine value.
 # That should probably happen in some options system.
-Messages.set
-  'conbuilder.Add': 'Add constraint'
-  'conbuilder.Update': 'Update'
-  'conbuilder.Cancel': 'Cancel'
-  'conbuilder.Remove': 'Remove'
-  'conbuilder.NotEditable': 'This constraint is not editable'
-  'conbuilder.ValuePlaceholder': 'David*'
-  'conbuilder.ExtraPlaceholder': 'Wernham-Hogg'
-  'conbuilder.ExtraLabel': 'in'
-  'conbuilder.IsA': 'is a'
-  'conbuilder.NoValue': 'No value selected. Please enter a value.'
-  'conbuilder.NoOperator': 'No operator selected. Please choose an operator.'
-  'conbuilder.BadLoop': 'The selected path is not in the query.'
-  'conbuilder.NaN': 'The value provided is not a number.'
-  'conbuilder.Duplicate': 'This constraint is already on the query'
-  'conbuilder.TooManySuggestions': 'We cannot show you all the possible values'
-  'conbuilder.NoSuitableLists': 'No lists of this type are available'
-  'conbuilder.NoSuitableLoops': 'No suitable loop paths were found'
+Messages.setWithPrefix 'conbuilder',
+  Add: 'Add constraint'
+  Update: 'Update'
+  Cancel: 'Cancel'
+  Remove: 'Remove'
+  EditCon: 'Edit filter'
+  NotEditable: 'This constraint is not editable'
+  ValuePlaceholder: 'David*'
+  ExtraPlaceholder: 'Wernham-Hogg'
+  ExtraLabel: 'in'
+  IsA: 'is a'
+  NoValue: 'No value selected. Please enter a value.'
+  NoOperator: 'No operator selected. Please choose an operator.'
+  BadLoop: 'The selected path is not in the query.'
+  NaN: 'The value provided is not a number.'
+  Duplicate: 'This constraint is already on the query'
+  TooManySuggestions: 'We cannot show you all the possible values'
+  NoSuitableLists: 'No lists of this type are available'
+  NoSuitableLoops: 'No suitable loop paths were found'
 
 aeql = (xs, ys) ->
   if not xs and not ys
@@ -201,7 +202,7 @@ module.exports = class ActiveConstraint extends View
     con = @model.toJSON()
     {icons, messages, con}
 
-  template: Templates.template 'active-constraint', variable: 'data'
+  template: (Templates.template 'active-constraint', variable: 'data')
 
   toggleEditor: ->
     if @state.get('editing') and @rendered
@@ -214,8 +215,7 @@ module.exports = class ActiveConstraint extends View
     opts = {@model}
     @renderChild 'summary', (new ConstraintSummary opts), @$ '.im-con-overview'
 
-  render: ->
-    super
+  postRender: ->
     @renderSummary()
     @toggleEditor()
-    this
+    @$('[title]').tooltip()

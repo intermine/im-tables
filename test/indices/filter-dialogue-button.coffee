@@ -2,7 +2,10 @@ QUERY =
   name: 'Older employees'
   from: 'Department'
   select: ["company.name", "name", "employees.name"]
-  where: [ ['employees.age', '>', 30] ]
+  where: [
+    {path: 'employees.age', op: '>', value: 30, editable: false}
+    {path: 'employees.age', op: '<', value: 60}
+  ]
 
 $ = require 'jquery'
 _ = require 'underscore'
