@@ -8,6 +8,10 @@ Joins = require '../models/joins'
 
 require '../messages/joins'
 
+# Simple flat array equals
+areEql = (xs, ys) ->
+  (xs.length is ys.length) and (_.all xs, (x, i) -> x is ys[i])
+
 module.exports = class FilterDialogue extends Modal
 
   parameters: ['query']
@@ -23,8 +27,23 @@ module.exports = class FilterDialogue extends Modal
   initialize: ->
     super
     @joins = Joins.fromQuery @query
+    @listenTo @joins, 'change:style', @setDisabled
 
-  act: -> throw new Error 'TODO'
+  initState: ->
+    @state.set disabled: true
+
+  act: -> unless @state.get('disabled')
+    newJoins = @joins.getJoins()
+    @query.joins = newJoins
+    @query.trigger 'change:joins', newJoins
+    @resolve newJoins
+
+  setDisabled: ->
+    current = _.keys @joins.getJoins()
+    initial = (p for p, s of @query.joins when s is 'OUTER')
+    current.sort()
+    initial.sort()
+    @state.set disabled: (areEql current, initial)
 
   postRender: ->
     super

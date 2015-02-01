@@ -1,0 +1,11 @@
+<ul class="list-group"></ul>
+
+<div class="alert alert-info">
+  <%= Icons.icon('Info') %>
+  <strong class="im-clickable">
+    <%- Messages.getText('joins.ExplanationTitle') %>
+  </strong>
+  <p class="<%= (!state.explaining) ? 'im-hidden' : void 0 %>">
+    <%- Messages.getText('joins.Explanation') %>
+  </p>
+</div>

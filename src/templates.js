@@ -18,3 +18,4 @@ function getTemplate (name) {
     throw new Error('No template registered as "' + name + '"');
   }
 }
+TEMPLATES.clear = '<div style="clear:both"></div>';

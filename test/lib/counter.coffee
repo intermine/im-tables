@@ -23,6 +23,7 @@ module.exports = class Counter extends View
     @query = query
     @listenTo @query, "change:constraints", @updateCount
     @listenTo @query, "change:views", @updateCount
+    @listenTo @query, "change:joins", @updateCount
     @updateCount()
 
   updateCount: ->

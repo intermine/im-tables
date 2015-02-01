@@ -7,8 +7,7 @@ QUERY =
     "employees.name",
     "employees.address.address",
   ]
-  joins:
-    company: 'OUTER'
+  joins: ['company', 'employees.address']
   where: [
     {path: 'employees.age', op: '>', value: 30, editable: false}
     {path: 'employees.age', op: '<', value: 60}
@@ -16,18 +15,17 @@ QUERY =
 
 $ = require 'jquery'
 _ = require 'underscore'
-Backbone = require 'backbone'
 
 # project code.
 Button = require 'imtables/views/join-manager/button'
 # test code.
-SelectionTable = require '../lib/selection-table'
+XMLDisplay = require '../lib/xml-display'
 renderQueries = require '../lib/render-queries.coffee'
 renderWithCounter = require '../lib/render-query-with-counter-and-displays'
 
 create = (query) ->
-  table = new SelectionTable query: query, model: (new Backbone.Model)
-  table.render().$el.appendTo 'body'
+  display = new XMLDisplay query: query
+  display.render().$el.appendTo 'body'
 
   new Button {query}
 

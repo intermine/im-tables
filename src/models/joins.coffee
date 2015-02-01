@@ -22,6 +22,8 @@ module.exports = class Joins extends Collection
     super
     @listenTo @, 'change:displayName', @sort
 
+  getJoins: -> _.object @where(style: 'OUTER').map (m) -> [m.get('path'), m.get('style')]
+
 # Create an initialized collection from a query, effectively
 # snap-shotting the join state.
 Joins.fromQuery = (query) ->

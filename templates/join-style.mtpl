@@ -7,4 +7,3 @@
     <%- Messages.getText('joins.Outer') %>
   </button>
 </div>
-<div style="clear:both"></div>

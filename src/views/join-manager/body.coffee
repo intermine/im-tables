@@ -6,8 +6,9 @@ ClassSet = require '../../utils/css-class-set'
 require '../../messages/joins'
 
 LINE_PARTS = [
-  'column-manager-path-name',
   'join-style',
+  'column-manager-path-name',
+  'clear',
 ]
 
 class BtnClasses extends ClassSet
@@ -49,19 +50,33 @@ class Join extends CoreView
 
 module.exports = class JoinManagerBody extends CoreView
 
-  tagName: 'ul'
+  template: Templates.template 'join-manager-body'
 
-  className: 'list-group'
+  initState: ->
+    @state.set explaining: false
 
   postRender: ->
+    @$group = @$ '.list-group'
     @collection.each (m) => @addJoin m
 
   addJoin: (model) -> if @rendered
-    @renderChild model.id, (new Join {model})
+    @renderChild model.id, (new Join {model}), @$group
 
   removeJoin: (model) -> @removeChild model.id
+
+  events: ->
+    'click .alert-info strong': -> @state.toggle 'explaining'
+
+  stateEvents: ->
+    'change:explaining': @onChangeExplaining
 
   collectionEvents: ->
     add: @addJoin
     remove: @removeJoin
+    sort: @reRender
+
+  onChangeExplaining: -> if @rendered
+    p = @$ '.alert-info p'
+    meth = if @state.get('explaining') then 'slideDown' else 'slideUp'
+    p[meth]()
 
