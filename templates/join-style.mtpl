@@ -1,0 +1,10 @@
+<% /* requires innerJoinBtn, outerJoinBtn */ %>
+<div class="btn-group pull-right">
+  <button class="<%- innerJoinBtn %>">
+    <%- Messages.getText('joins.Inner') %>
+  </button>
+  <button class="<%- outerJoinBtn %>">
+    <%- Messages.getText('joins.Outer') %>
+  </button>
+</div>
+<div style="clear:both"></div>

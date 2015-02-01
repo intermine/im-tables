@@ -40,7 +40,7 @@ module.exports = class FilterDialogue extends Modal
     @state.set adding: true, disabled: true
 
   dismissAction: -> Messages.getText 'Cancel'
-  primaryAction: -> _.escape Messages.getText 'constraints.DefineNew'
+  primaryAction: -> Messages.getText 'constraints.DefineNew'
 
   initialize: ->
     super

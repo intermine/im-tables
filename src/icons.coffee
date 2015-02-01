@@ -172,6 +172,7 @@ ICONS.fontawesome =
   CodeFile: 'fa-file-code-o'
   Rubbish: 'fa-trash-o'
   RubbishFull: 'fa-trash'
+  Joins: 'fa-share-alt'
   tsv: 'fa-list'
   csv: 'fa-list'
   xml: 'fa-code'
