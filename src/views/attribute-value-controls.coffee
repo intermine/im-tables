@@ -50,7 +50,7 @@ module.exports = class AttributeValueControls extends CoreView
 
   modelEvents: ->
     destroy: -> @stopListening() # If the model is gone, then shut up and wait to be removed.
-    'change:value': @reRender
+    'change:value': @onChangeValue
     'change:op': @onChangeOp
 
   # Help translate between multi-value and =
@@ -58,6 +58,8 @@ module.exports = class AttributeValueControls extends CoreView
     newOp = @model.get 'op'
     if newOp in Query.MULTIVALUE_OPS
       @model.set value: null, values: [@model.get('value')]
+
+  onChangeValue: -> @updateInput()
 
   removeAllChildren: ->
     @removeTypeAheads()
@@ -163,7 +165,7 @@ module.exports = class AttributeValueControls extends CoreView
 
     ({percent: getPercent(f), value: numToString(getValue(f))} for f in [0, 0.5, 1])
 
-  makeSlider: Templates.template 'slider', variable: 'markers'
+  makeSlider: (Templates.template 'slider', variable: 'markers')
 
   handleNumericSummary: ({min, max, average}) ->
     path = @model.get 'path'
