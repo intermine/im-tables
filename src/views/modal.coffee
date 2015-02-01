@@ -87,6 +87,10 @@ module.exports = class Modal extends View
   # Override to provide the modal body. Not required if loading child components.
   body: ->
 
+  # Can be used to update the title. Calling reRender will stuff up the modal.
+  renderTitle: -> if @rendered
+    @$('.modal-title').text _.result @, 'title'
+
   # Override to customise the footer.
   footer: Templates.templateFromParts ['modal_error', 'modal_footer']
 

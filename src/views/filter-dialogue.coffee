@@ -9,19 +9,19 @@ Constraints = require './constraints'
 
 require '../messages/constraints'
 
-class ConAdderButton extends CoreView
-
-  tagName: 'button'
-
-  className: 'btn btn-primary im-add-constraint'
-
-  template: -> _.escape Messages.getText 'constraints.DefineNew'
-
 class Body extends Constraints
 
   template: Templates.template 'active-constraints'
 
-  getConAdder: -> new ConAdderButton
+  stateEvents: ->
+    'change:adding': @reRender
+
+  postRender: ->
+    super
+    mth = if @state.get('adding') then 'slideUp' else 'slideDown'
+    @$('.im-current-constraints')[mth] 400
+
+  getConAdder: -> super if @state.get 'adding'
 
 module.exports = class FilterDialogue extends Modal
 
@@ -33,14 +33,26 @@ module.exports = class FilterDialogue extends Modal
 
   title: -> Messages.getText 'constraints.Heading', n: @query.constraints.length
 
+  initState: ->
+    @state.set adding: false, disabled: false
+
+  act: ->
+    @state.set adding: true, disabled: true
+
   dismissAction: -> Messages.getText 'Cancel'
+  primaryAction: -> _.escape Messages.getText 'constraints.DefineNew'
 
   initialize: ->
     super
     @listenTo @, 'shown', @renderBodyContent
+    @listenTo @query, 'change:constraints', @onChangeConstraints
+
+  onChangeConstraints: ->
+    @initState()
+    @renderTitle()
 
   renderBodyContent: -> if @shown
     body = @$ '.modal-body'
-    _.defer => @renderChild 'cons', (new Body query: @query.clone()), body
+    _.defer => @renderChild 'cons', (new Body {@state, @query}), body
 
 

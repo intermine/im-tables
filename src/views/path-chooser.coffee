@@ -36,8 +36,28 @@ module.exports = class PathChooser extends CoreView
 
   showRoot: -> @getDepth() is 0 and @model.get('canSelectReferences')
 
-  render: () ->
-    super # does things like trigger shown, removes kids, etc.
+  # Machinery for preserving scroll positions.
+  events: -> scroll: @onScroll
+
+  onScroll: -> unless @state.get('ignoreScroll')
+    st = @el.scrollTop
+    diff = if @state.has('scroll') then Math.abs(@state.get('scroll') - st) else 0
+    if (st isnt 0) or (diff < 50) # Within the range of manual scrolling, allow it.
+      @state.set scroll: st
+    else # very likely reset due to tree activity.
+      _.defer => @el.scrollTop = @state.get 'scroll'
+
+  startIgnoringScroll: ->
+    @state.set ignoreScroll: true # Ignore during the main render, since it will wipe scroll top.
+
+  startListeningForScroll: ->
+    if @state.has('scroll') # Preserve the scroll position.
+      @el.scrollTop = @state.get('scroll')
+    @state.set ignoreScroll: false # start listening for scroll again.
+
+  preRender: -> @startIgnoringScroll()
+
+  postRender: ->
     showId = Options.get 'ShowId'
 
     if @showRoot() # then show the root class
@@ -53,8 +73,7 @@ module.exports = class PathChooser extends CoreView
     for path in @references.concat(@collections)
       ref = @createReference path
       @renderChild path.toString(), ref
-
-    this
+    @startListeningForScroll()
 
   createRoot: ->
     new RootClass {@query, @model, @chosenPaths, @openNodes, @cd}

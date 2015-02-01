@@ -27,13 +27,18 @@ module.exports = class ConstraintAdderOptions extends View
   initialize: ({@query, @openNodes, @chosenPaths}) ->
     super
     @state.set chosen: [] # default value.
-    @listenTo @model, 'change:showTree change:allowRevRefs', @reRender
-    @listenTo @state, 'change:chosen change:suggestions', @reRender
     @listenTo @openNodes, 'add remove reset', @reRender
     @listenTo @chosenPaths, 'add remove reset', @reRender
     @listenTo @chosenPaths, 'add remove reset', @setChosen
     @setChosen()
     @generatePathSuggestions()
+
+  modelEvents: ->
+    destroy: @stopListeningTo
+    'change:showTree change:allowRevRefs': @reRender
+
+  stateEvents: ->
+    'change:chosen change:suggestions': @reRender
 
   pathAcceptable: (path) ->
     if path.end?.name is 'id'

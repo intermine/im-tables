@@ -7,7 +7,7 @@ module.exports = class CoreCollection extends Backbone.Collection
   model: CoreModel
 
   close: ->
-    @trigger 'close'
+    @trigger 'close', @
     @off() # prevent trigger loops.
     while m = @pop()
       if m.collection is @

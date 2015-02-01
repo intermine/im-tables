@@ -1,5 +1,6 @@
 Icons = require '../../icons'
 Attribute = require './attribute'
+{ignore} = require '../../utils/events'
 
 module.exports = class Reference extends Attribute
 
@@ -7,7 +8,7 @@ module.exports = class Reference extends Attribute
     super
     @state.set collapsed: true
     @listenTo @openNodes, 'add remove', @setCollapsed
-    @listenTo @state, 'change:collapsed', @render
+    @listenTo @state, 'change:collapsed', @onChangeCollapsed
     @setCollapsed()
 
   setCollapsed: ->
@@ -15,8 +16,7 @@ module.exports = class Reference extends Attribute
     @state?.set collapsed: not @openNodes.contains @path
 
   handleClick: (e) ->
-    e?.preventDefault()
-    e?.stopPropagation()
+    ignore e
     if @$(e.target).is('i') or (not @model.get('canSelectReferences'))
       @openNodes.togglePresence @path
     else
@@ -27,9 +27,13 @@ module.exports = class Reference extends Attribute
     d.icon = Icons.icon if @state.get('collapsed') then 'ClosedReference' else 'OpenReference'
     return d
 
-  render: ->
-    super
-    unless @state.get('collapsed')
+  postRender: ->
+    @onChangeCollapsed()
+
+  onChangeCollapsed: ->
+    if @state.get('collapsed')
+      @removeChild 'subfinder'
+    else
       trail = @trail.concat [@path]
       subfinder = @createSubFinder {trail}
       @renderChild 'subfinder', subfinder

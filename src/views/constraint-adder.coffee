@@ -47,10 +47,12 @@ module.exports = class ConstraintAdder extends View
     @chosenPaths = new PathSet
     @view = new PathSet(@query.makePath p for p in @query.views)
     @openNodes = new OpenNodes @query.getViewNodes() # Open by default
-    @listenTo @model, 'change:showTree', @toggleTree
     @listenTo @query, 'change:constraints', @remove # our job is done
-    @listenTo @model, 'approved', @handleApproval
-    @listenTo @model, 'change:constraint', @onChangeConstraint
+
+  modelEvents: ->
+    approved: @handleApproval
+    'change:showTree': @toggleTree
+    'change:constraint': @onChangeConstraint
 
   getTreeRoot: -> @model.get 'root'
 
@@ -104,9 +106,7 @@ module.exports = class ConstraintAdder extends View
     opts = {@model, @openNodes, @chosenPaths, @query}
     @renderChild 'opts', (new ConstraintAdderOptions opts), @$ '.im-constraint-adder-options'
 
-  render: ->
-    super
+  postRender: ->
     @renderOptions()
     @toggleTree() # respect the open status.
-    this
 

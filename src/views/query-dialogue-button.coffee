@@ -27,12 +27,17 @@ module.exports = class QueryDialogueButton extends CoreView
   # This component receives a query from its parent.
   parameters: ['query']
 
+  initState: -> @state.set disabled: false
+
   events: -> click: @onClick
 
   # Show the dialogue, if the click was on this very element.
-  onClick: (e) -> if /im-open-dialogue/.test e.target.className # Ignore bubbled clicks.
+  onClick: (e) -> unless (@state.get 'disabled')
     dialogue = new @Dialogue {@query}
     @renderChild 'dialogue', dialogue
-    done = => @removeChild 'dialogue'
+    @state.set disabled: true
+    done = =>
+      @removeChild 'dialogue'
+      _.defer => @state.set disabled: false
     dialogue.show().then done, done
 

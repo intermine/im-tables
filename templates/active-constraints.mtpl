@@ -1,5 +1,5 @@
 <% /* requires: constraints.length */ %>
-<div class="well">
+<div class="well im-current-constraints">
     <p class="well-help">
       <% if (constraints.length) { %>
         <%- Messages.getText('constraints.EditOrRemove') %>
