@@ -54,4 +54,5 @@ Messages.setWithPrefix 'columns',
     order.
   """
   ManageColumns: 'Manage Columns'
+  ManageColumnsShort: 'Columns'
 

@@ -20,7 +20,7 @@ module.exports = class Constraints extends CoreView
 
   events: -> click: (e) -> e?.stopPropagation()
 
-  template: Templates.template 'constraints'
+  template: Templates.templateFromParts ['constraints-heading', 'active-constraints']
 
   postRender: ->
     container = @$ '.im-active-constraints'

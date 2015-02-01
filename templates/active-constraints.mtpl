@@ -1,7 +1,4 @@
-<h3>
-  <%- Messages.getText('constraints.Heading', {n: constraints.length}) %>
-</h3>
-
+<% /* requires: constraints.length */ %>
 <div class="well">
     <p class="well-help">
       <% if (constraints.length) { %>

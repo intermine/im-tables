@@ -17,3 +17,5 @@ Messages.setWithPrefix 'constraints',
     <% if (isAttribute && !hideType) { %><%= typeName %><% } %>
     <%= _.last(parts) %>
   """
+  ManageFilters: 'Manage Filters'
+  ManageFiltersShort: 'Filters'

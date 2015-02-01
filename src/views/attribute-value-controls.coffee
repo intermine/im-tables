@@ -1,9 +1,10 @@
 $ = require 'jquery'
 _ = require 'underscore'
+{Promise} = require 'es6-promise'
 
 Messages = require '../messages'
 Templates = require '../templates'
-View = require '../core-view'
+CoreView = require '../core-view'
 Options = require '../options'
 {IS_BLANK} = require '../patterns'
 HasTypeaheads = require '../mixins/has-typeaheads'
@@ -11,9 +12,6 @@ HasTypeaheads = require '../mixins/has-typeaheads'
 SuggestionSource = require '../utils/suggestion-source'
 
 {Model: {INTEGRAL_TYPES, NUMERIC_TYPES}, Query} = require 'imjs'
-
-html = Templates.attribute_value_controls
-slider_html = Templates.slider
 
 selectTemplate = Templates.template 'attribute_value_select'
 
@@ -29,13 +27,13 @@ Messages.set
     There is only one possible value: <%- value %>. You might want to remove this constraint
   """
 
-module.exports = class AttributeValueControls extends View
+module.exports = class AttributeValueControls extends CoreView
   
   @include HasTypeaheads
 
   className: 'im-attribute-value-controls'
 
-  template: _.template html
+  template: Templates.template 'attribute_value_controls'
 
   getData: -> messages: Messages, con: @model.toJSON()
 
@@ -46,23 +44,28 @@ module.exports = class AttributeValueControls extends View
     @cast = if @model.get('path').getType() in NUMERIC_TYPES then numify else trim
     # Declare rendering dependency on messages
     @listenTo Messages, 'change', @reRender
-    @listenTo @model, 'change:value', @updateInput
     if @query?
       @listenTo @query, 'change:constraints', @clearCachedData
       @listenTo @query, 'change:constraints', @reRender
-    # Help translate between multi-value and =
-    @listenTo @model, 'change:op', =>
-      newOp = @model.get 'op'
-      if newOp in Query.MULTIVALUE_OPS
-        @model.set value: null, values: [@model.get('value')]
 
-  remove: ->
+  modelEvents: ->
+    destroy: -> @stopListening() # If the model is gone, then shut up and wait to be removed.
+    'change:value': @reRender
+    'change:op': @onChangeOp
+
+  # Help translate between multi-value and =
+  onChangeOp: ->
+    newOp = @model.get 'op'
+    if newOp in Query.MULTIVALUE_OPS
+      @model.set value: null, values: [@model.get('value')]
+
+  removeAllChildren: ->
     @removeTypeAheads()
     @removeSliders()
     super
 
   removeSliders: ->
-    while (sl = @sliders.shift())
+    while sl = @sliders.pop()
       try
         sl.slider('destroy')
         sl.remove()
@@ -85,12 +88,9 @@ module.exports = class AttributeValueControls extends View
 
   setAttributeValue: -> @model.set value: @readAttrValue()
 
-  render: ->
-    super
+  postRender: ->
     @provideSuggestions().then null, (error) => @model.set {error}
     @$('.im-con-value-attr').focus()
-
-    this
 
   provideSuggestions: -> @getSuggestions().then ({stats, results}) =>
     if stats.uniqueValues is 0
@@ -110,18 +110,23 @@ module.exports = class AttributeValueControls extends View
     @model.unset 'error'
 
   getSuggestions: -> @__suggestions ?= do =>
+    return Promise.reject(new Error 'no path') unless @model.get 'path'
     clone = @query.clone()
-    pstr = @model.get('path').toString()
-    value = @model.get('value')
-    maxSuggestions = Options.get('MaxSuggestions')
+    value = @model.get 'value'
+    pstr = String @model.get 'path'
+    maxSuggestions = Options.get 'MaxSuggestions'
     clone.constraints = (c for c in clone.constraints when not (c.path is pstr and c.value is value))
 
     clone.summarise pstr, maxSuggestions
 
   replaceInputWithSelect: (items) ->
-    value = @model.get('value')
-    if value? and not (_.any items, ({item}) -> item is value)
-      items.push item: value
+    if @model.has 'value'
+      value = @model.get('value')
+      if value? and not (_.any items, ({item}) -> item is value)
+        items.push item: value
+    else
+      @model.set value: items[0].item
+
     @$el.html selectTemplate {Messages, items, value}
 
   # Here we supply the suggestions using typeahead.js
@@ -158,7 +163,7 @@ module.exports = class AttributeValueControls extends View
 
     ({percent: getPercent(f), value: numToString(getValue(f))} for f in [0, 0.5, 1])
 
-  makeSlider: _.template slider_html, variable: 'markers'
+  makeSlider: Templates.template 'slider', variable: 'markers'
 
   handleNumericSummary: ({min, max, average}) ->
     path = @model.get 'path'

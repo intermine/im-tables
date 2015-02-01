@@ -1,0 +1,4 @@
+<% /* requires constraints.length */ %>
+<h3>
+  <%- Messages.getText('constraints.Heading', {n: constraints.length}) %>
+</h3>
