@@ -56,20 +56,7 @@ do ($ = jQuery) ->
 
     uniquelyFlat = _.compose _.uniq, _.flatten
 
-    longestCommonPrefix = (paths) ->
-      parts = paths[0].split /\./
-      prefix = parts.shift() # Root, must be common prefix.
-      prefixesAll = (pf) -> _.all paths, (path) -> 0 is path.indexOf pf
-      for part in parts when prefixesAll nextPrefix = "#{prefix}.#{part}"
-        prefix = nextPrefix
-      prefix
 
-    getReplacedTest = (replacedBy, explicitReplacements) -> (col) ->
-      p = col.path
-      return false unless intermine.results.shouldFormat(p) or explicitReplacements[p]
-      replacer = replacedBy[p]
-      replacer ?= replacedBy[p.getParent()] if p.isAttribute() and p.end.name is 'id'
-      replacer and replacer.formatter? and col isnt replacer
     
     getOrganisms = (q, cb) -> $.when(q).then (query) ->
       def = $.Deferred()

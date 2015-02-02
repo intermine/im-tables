@@ -44,7 +44,7 @@ module.exports = class HeaderModel extends PathModel
   toJSON: -> _.extend super, replaces: @get('replaces').map String
 
   getView: ->
-    {replaces, isFormatted, path} = @toJSON()
+    {replaces, isFormatted, path} = @pick 'replaces', 'isFormatted', 'path'
     String if replaces.length is 1 and isFormatted then replaces[0] else path
 
   validate: (attrs, opts) ->
