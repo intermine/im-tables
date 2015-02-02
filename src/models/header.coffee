@@ -45,7 +45,7 @@ module.exports = class HeaderModel extends PathModel
 
   getView: ->
     {replaces, isFormatted, path} = @pick 'replaces', 'isFormatted', 'path'
-    String if replaces.length is 1 and isFormatted then replaces[0] else path
+    String if isFormatted and replaces.length is 1 then replaces[0] else path
 
   validate: (attrs, opts) ->
     if 'replaces' of attrs
@@ -61,7 +61,7 @@ module.exports = class HeaderModel extends PathModel
     replaces = @get 'replaces'
     outerJoined = @query.isOuterJoined view
     # This column is composed if it represents more than one replaced column.
-    isComposed = (not outerJoined) and (replaces.length > 1)
+    isComposed = @get('isFormatted') and (replaces.length > 1)
     sortable = not outerJoined
     @set {outerJoined, isComposed, sortable}
 

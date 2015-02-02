@@ -4,7 +4,6 @@ HeaderModel = require './header'
 createColumns = require '../create-columns'
 isKeyField = require '../utils/is-key-field'
 getReplacedTest = require '../utils/get-replaced-test'
-calculateRowTemplate = require '../utils/calculate-row-template'
 Formatting = require '../formatting'
 
 # We can use a formatter if it hasn't been blacklisted.
@@ -51,8 +50,7 @@ class ColumnHeaders extends Collection
     getFormatter = returnIfOK Formatting.getFormatter, notBanned banList
 
     # Create the columns :: [{path :: PathInfo, replaces :: [PathInfo]}]
-    row = calculateRowTemplate query
-    cols = createColumns row, query
+    cols = createColumns query
 
     # Find formatters for the attribute columns (i.e. not the outer-joined
     # collections) and if those formatters specify which columns they replace,
@@ -66,22 +64,25 @@ class ColumnHeaders extends Collection
       parent = col.path.getParent()
       for replaced in (fmtr.replaces ? [])
         subPath = "#{ parent }.#{ replaced }"
+        # That path is replaced by this column.
         replacedBy[subPath] ?= col
         # This column replaces that subpath if the subpath is in the view.
         col.replaces.push(query.makePath subPath) if subPath in query.views
 
     # Build the explicit replacement information, indexing which column replaces which
-    # view path either due to formatting or due to outer-join sub-tables.
+    # view path either due to formatting or due to outer-join sub-tables, where
+    # replaces is the list of query.views that this column replaces.
     for col in cols
       for replaced in col.replaces
         explicitReplacements[replaced] = col
 
-    # Define a filter that weeds out view paths that are in fact handled by the formatter
-    # registered on another column. This means that the final list of headers can in fact
-    # be shorter than the actual view, collapsing two or more columns down onto a single
-    # column.
+    # Define a filter that weeds out view paths that are in fact handled by the
+    # formatter registered on another column. This means that the final list of
+    # headers can in fact be shorter than the actual view, collapsing two or more
+    # columns down onto a single column.
     isReplaced = getReplacedTest replacedBy, explicitReplacements
 
+    # OK, now filter out the columns that have been replaced.
     newHeaders = for col in cols when not isReplaced col
       if col.isFormatted
         # Ensure that the column.replaces info contains the column's path.
