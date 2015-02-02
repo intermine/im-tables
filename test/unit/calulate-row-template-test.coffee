@@ -263,3 +263,151 @@ describe 'utils/calculate-row-template', ->
 
         it 'should eql [departments.name, departments.employees]', -> getView.then (view) ->
           view.should.eql ['Company.departments.name', 'Company.departments.employees']
+
+  describe 'when the query has nested outer join groups, nested-group-first', ->
+
+    query =
+      select: [
+        'name',
+        'bank.name',
+        'departments.employees.name',
+        'departments.employees.age',
+        'departments.name',
+      ]
+      from: 'Company'
+      joins: ['departments', 'departments.employees']
+
+    buildRow = conn.query(query).then calculateRowTemplate
+
+    it 'should return something', -> buildRow.then (row) ->
+      should.exist row
+
+    it 'should return 3 somethings', -> buildRow.then (row) ->
+      row.length.should.equal 3
+
+    it 'each element should have a column attribute', -> buildRow.then (row) ->
+      row.forEach (col) -> col.should.have.property 'column'
+
+    describe 'the columns', ->
+
+      getColumns = buildRow.then (row) -> (c.column for c in row)
+      exp = ['Company.name', 'Company.bank.name', 'Company.departments']
+
+      it 'should have the correct column paths', -> getColumns.then (cs) ->
+        cs.should.eql exp
+
+    describe 'the last column', ->
+
+      getLastColumn = buildRow.then ([cols..., last]) -> last
+
+      it 'should have a sub-view', -> getLastColumn.then (col) ->
+        col.should.have.property 'view'
+
+      describe 'and its view', ->
+
+        getView = getLastColumn.then ({view}) -> view
+        exp = ['Company.departments.employees', 'Company.departments.name']
+
+        it 'should eql [departments.employees,departments.name]', -> getView.then (view) ->
+          view.should.eql exp
+
+  describe 'when the query has nested outer join groups, discontiguous declaration', ->
+
+    query =
+      select: [
+        'name',
+        'bank.name',
+        'departments.employees.name',
+        'departments.name',
+        'departments.employees.age',
+      ]
+      from: 'Company'
+      joins: ['departments', 'departments.employees']
+
+    buildRow = conn.query(query).then calculateRowTemplate
+
+    it 'should return something', -> buildRow.then (row) ->
+      should.exist row
+
+    it 'should return 3 somethings', -> buildRow.then (row) ->
+      row.length.should.equal 3
+
+    it 'each element should have a column attribute', -> buildRow.then (row) ->
+      row.forEach (col) -> col.should.have.property 'column'
+
+    describe 'the columns', ->
+
+      getColumns = buildRow.then (row) -> (c.column for c in row)
+      exp = ['Company.name', 'Company.bank.name', 'Company.departments']
+
+      it 'should have the correct column paths', -> getColumns.then (cs) ->
+        cs.should.eql exp
+
+    describe 'the last column', ->
+
+      getLastColumn = buildRow.then ([cols..., last]) -> last
+
+      it 'should have a sub-view', -> getLastColumn.then (col) ->
+        col.should.have.property 'view'
+
+      describe 'and its view', ->
+
+        getView = getLastColumn.then ({view}) -> view
+        exp = ['Company.departments.employees', 'Company.departments.name']
+
+        it 'should eql [departments.employees,departments.name]', -> getView.then (view) ->
+          view.should.eql exp
+
+  describe 'when the query has nested outer join groups, some of which are references', ->
+
+    query =
+      select: [
+        'name',
+        'bank.name',
+        'departments.name',
+        'departments.manager.name',
+        'departments.manager.seniority',
+        'departments.employees.name',
+        'departments.employees.age',
+      ]
+      from: 'Company'
+      joins: ['departments', 'departments.manager', 'departments.employees']
+
+    buildRow = conn.query(query).then calculateRowTemplate
+
+    it 'should return something', -> buildRow.then (row) ->
+      should.exist row
+
+    it 'should return 3 somethings', -> buildRow.then (row) ->
+      row.length.should.equal 3
+
+    it 'each element should have a column attribute', -> buildRow.then (row) ->
+      row.forEach (col) -> col.should.have.property 'column'
+
+    describe 'the columns', ->
+
+      getColumns = buildRow.then (row) -> (c.column for c in row)
+      exp = ['Company.name', 'Company.bank.name', 'Company.departments']
+
+      it 'should have the correct column paths', -> getColumns.then (cs) ->
+        cs.should.eql exp
+
+    describe 'the last column', ->
+
+      getLastColumn = buildRow.then ([cols..., last]) -> last
+
+      it 'should have a sub-view', -> getLastColumn.then (col) ->
+        col.should.have.property 'view'
+
+      describe 'and its view', ->
+
+        getView = getLastColumn.then ({view}) -> view
+        exp = [
+          'Company.departments.name',
+          'Company.departments.manager.name',
+          'Company.departments.manager.seniority',
+          'Company.departments.employees',
+        ]
+
+        it 'should eql should contain attrs of dep and manager, and a group for emps', ->
+          getView.then (view) -> view.should.eql exp
