@@ -4,6 +4,7 @@ Backbone = require 'backbone'
 
 CoreView = require '../core-view'
 Options = require '../options'
+TableModel = require '../models/table'
 
 renderError = require './table/render-error'
 Page = require '../models/page'
@@ -19,40 +20,41 @@ ResultsTable = require './table/inner'
 PageSizer = require './table/page-sizer'
 TableSummary = require './table/summary'
 
-# FIXME - check references to this.
-NUMERIC_TYPES = ["int", "Integer", "double", "Double", "float", "Float"]
-
 class RowModel extends Backbone.Model # Currently no content.
+
+# QUERY EVENTS
+# Ideally we should use fewer events, and more models.
+FRESHNESS_EVT = 'change:sortorder change:views change:constraints'
+START_LIST_EVT = 'start:list-creation'
+STOP_LIST_EVT = 'stop:list-creation'
+TABLE_FILL_EVT = 'table:filled'
 
 module.exports = class Table extends CoreView
 
+  Model: TableModel
+
   className: "im-table-container"
+
+  parameters: ['query']
+
+  optionalParameters: ['columnHeaders']
+
+  initState: ->
+    @state.set pipeFactor: 10
 
   # @param query The query this view is bound to.
   # @param selector Where to put this table.
-  initialize: (@query, @columnHeaders, {start, size} = {}) ->
+  initialize: ->
     super
     @itemModels = new ObjectStore @query
-    @_pipe_factor = 10
-    @visibleViews = @query.views.slice()
 
     # columnHeaders contains the header information.
-    @columnHeaders ?= new Backbone.Collection
+    @columnHeaders ?= new ColumnHeaders
     # rows contains the current rows in the table
     @rows = new Backbone.Collection
     # Formatters we are not allowed to use.
     @blacklistedFormatters = new UniqItems
     # initialise model, making it clear what we expect
-    @model.set
-      selecting: false
-      state: 'FETCHING' # FETCHING, SUCCESS or ERROR
-      start: (start ? 0)
-      size: (size ? Options.get('DefaultPageSize'))
-      count: null,
-      lowerBound: null
-      upperBound: null
-      cache: null
-      error: null
 
     @setFreshness()
 
@@ -78,19 +80,14 @@ module.exports = class Table extends CoreView
     @fillRows().then (-> console.debug 'initial data loaded'), (error) => @model.set {error}
     console.debug 'initialised table'
 
-  FRESHNESS_EVT = 'change:sortorder change:views change:constraints'
-  # Ideally we should use fewer events, and more models.
-  START_LIST_EVT = 'start:list-creation'
-  STOP_LIST_EVT = 'stop:list-creation'
-  TABLE_FILL_EVT = 'table:filled'
-
   listenToQuery: ->
     @listenTo query, FRESHNESS_EVT, @setFreshness
     @listenTo query, START_LIST_EVT, @setSelecting
     @listenTo query, STOP_LIST_EVT, @unsetSelecting
     @listenTo query, TABLE_FILL_EVT, @onDraw
 
-  onDraw: => # Preserve list creation state across pages.
+  # TODO - move this to a model shared between the list dialogue button and the cells.
+  onDraw: -> # Preserve list creation state across pages.
     @query.trigger("start:list-creation") if @model.get 'selecting'
 
   remove: -> # remove self, and all children, and remove listeners
@@ -111,67 +108,12 @@ module.exports = class Table extends CoreView
   canUseFormatter: (formatter) ->
     formatter? and (not @blacklistedFormatters.contains formatter)
 
-  # TODO - move to a separate class for testability.
-  buildColumnHeaders: -> @query.service.get("/classkeys").then ({classes}) =>
-    q = @query
-    # need at least one example row - any will do.
-    # if there isn't one, then return and wait to be called later.
-    return unless @model.get('cache')?.length
-    [row] = @model.get 'cache'
-    classKeys = classes
-    replacedBy = {}
-    {longestCommonPrefix, getReplacedTest} = intermine.utils
-
-    # Create the columns
-    cols = for cell in row
-      path = q.getPathInfo cell.column
-      replaces = if cell.view? # subtable of this cell.
-        commonPrefix = longestCommonPrefix cell.view
-        path = q.getPathInfo commonPrefix
-        replaces = (q.getPathInfo(v) for v in cell.view)
-      else
-        []
-      {path, replaces}
-
-    # Build the replacement information.
-    for col in cols when col.path.isAttribute() and intermine.results.shouldFormat col.path
-      p = col.path
-      formatter = intermine.results.getFormatter p
-      
-      # Check to see if we should apply this formatter.
-      if @canUseFormatter formatter
-        col.isFormatted = true
-        col.formatter = formatter
-        for r in (formatter.replaces ? [])
-          subPath = "#{ p.getParent() }.#{ r }"
-          replacedBy[subPath] ?= col
-          col.replaces.push q.getPathInfo subPath if subPath in q.views
-
-    isKeyField = (col) ->
-      return false unless col.path.isAttribute()
-      pType = col.path.getParent().getType().name
-      fName = col.path.end.name
-      return "#{pType}.#{fName}" in (classKeys?[pType] ? [])
-
-    explicitReplacements = {}
-    for col in cols
-      for r in col.replaces
-        explicitReplacements[r] = col
-
-    isReplaced = getReplacedTest replacedBy, explicitReplacements
-
-    newHeaders = for col in cols when not isReplaced col
-      if col.isFormatted
-        col.replaces.push col.path unless col.path in col.replaces
-        col.path = col.path.getParent() if (isKeyField(col) or col.replaces.length > 1)
-      col
-
-    @columnHeaders.reset newHeaders
-
   # Anything that can bust the cache should go in here.
   # As of this point, that just means the state of the query,
   # which can be represented as an (xml) string.
   setFreshness: -> @model.set freshness: @query.toXML()
+
+  buildColumnHeaders: -> @columnHeaders.setHeaders @query
 
   ## Filling the rows is a two step process - first we check the row cache to see
   ## if we already have these rows, or update it if not. Only then do we go about
@@ -251,24 +193,25 @@ module.exports = class Table extends CoreView
   ##
   getRequestPage: ->
     {start, size, cache, lowerBound, upperBound} = @model.toJSON()
+    pipe_factor = @state.get 'pipeFactor'
     page = new Page(start, size)
     unless cache
       ## Can ignore the cache
-      page.size *= @_pipe_factor
+      page.size *= pipe_factor
       return page
 
     # When paging backwards - extend page towards 0.
     if start < lowerBound
-        page.start = Math.max 0, start - (size * @_pipe_factor)
+        page.start = Math.max 0, start - (size * pipe_factor)
 
     if size > 0
-        page.size *= @_pipe_factor
+        page.size *= pipe_factor
     else
         page.size = '' # understood by server as all.
 
     # Don't permit gaps, if the query itself conforms with the cache.
     if page.size && (page.end() < lowerBound)
-      if (lowerBound - page.end()) > (page.size * @_pipe_factor)
+      if (lowerBound - page.end()) > (page.size * pipe_factor)
         @model.unset 'cache'
         page.size *= 2
         return page
@@ -279,7 +222,7 @@ module.exports = class Table extends CoreView
       if (page.start - upperBound) > (page.size * 10)
         @model.unset 'cache'
         page.size *= 2
-        page.start = Math.max(0, page.start - (size * @_pipe_factor))
+        page.start = Math.max(0, page.start - (size * pipe_factor))
         return page
       if page.size
         page.size += page.start - upperBound

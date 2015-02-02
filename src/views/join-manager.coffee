@@ -16,8 +16,6 @@ module.exports = class FilterDialogue extends Modal
 
   parameters: ['query']
 
-  modalSize: -> 'lg'
-
   className: -> super + ' im-join-manager'
 
   title: -> Messages.getText 'joins.Heading'
