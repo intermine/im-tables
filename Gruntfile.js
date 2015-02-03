@@ -12,27 +12,37 @@ var env = process.env;
 
 var serverPort = (grunt.option('port') || env.PORT || env.npm_package_config_port);
 
+var NO_SPAWN = {spawn: false};
+
 grunt.initConfig({
   watch: { // Hwat! This task lays out the dependency graph.
     coffee: {
       files: ['src/**', 'templates/**', 'package.json'],
       tasks: [
         'compile',
+        'run:test',
         'bundle'
       ],
-      options: {spawn: false}
+      options: NO_SPAWN
+    },
+    test: {
+      files: ['test/unit/**'],
+      tasks: [
+        'test'
+      ],
+      options: NO_SPAWN
     },
     indices: {
       files: ['test/indices/*', 'test/lib/*'],
       tasks: [
         'bundle'
       ],
-      options: {spawn: false}
+      options: NO_SPAWN
     },
     less: {
       files: ['less/**'],
       tasks: ['run:lessc'],
-      options: {spawn: false}
+      options: NO_SPAWN
     }
   },
   coffee: {
@@ -78,6 +88,9 @@ grunt.initConfig({
         wait: false
       }
     },
+    test: {
+      exec: "mocha --compilers coffee:coffee-script/register test/unit/*"
+    },
     lessc: {
       exec: "lessc --include-path=less:node_modules less/main.less > dist/main.css"
     },
@@ -120,6 +133,9 @@ grunt.registerTask('clean', ['run:clean']);
 grunt.registerTask('compile', ['-compile', '-post-compile']);
 grunt.registerTask('-compile', ['coffee', 'copy:templates']);
 grunt.registerTask('-post-compile', ['run:inject_version', '-inline_templates']);
+
+// Run tests.
+grunt.registerTask('test', ['compile', 'run:test']);
 
 // Copy src files to the build dir, and inline the templates.
 grunt.registerTask('-inline_templates', ['copy:js', 'run:inline_templates']);
