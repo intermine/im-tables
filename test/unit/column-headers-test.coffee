@@ -1,34 +1,38 @@
 should = require 'should'
 {Service} = require 'imjs'
+Backbone = require 'backbone'
 
-calculateRowTemplate = require 'imtables/utils/calculate-row-template'
+ColumnHeaders = require 'imtables/models/column-headers'
 
 URL = (process.env.TESTMODEL_URL ? 'http://localhost:8080/intermine-demo')
 
-describe 'utils/calculate-row-template', ->
+emptyBlackList = new Backbone.Collection
+
+setHeaders = (headers) -> (query) -> headers.setHeaders query, emptyBlackList
+
+get = (attr) -> (model) -> model.get attr
+
+describe 'models/column-headers', ->
 
   conn = Service.connect root: URL
 
-  describe 'when the query is fully inner joined', ->
+  describe 'when the query is fully inner joined, the headers', ->
 
+    headers = new ColumnHeaders
     inner =
       select: ['name', 'company.name', 'employees.name', 'employees.age']
       from: 'Department'
 
-    buildRow = conn.query(inner).then calculateRowTemplate
+    setHeaders = conn.query(inner).then setHeaders headers
 
-    it 'should return something', -> buildRow.then (row) ->
-      should.exist row
+    it 'should contain 4 headers', -> setHeaders.then ->
+      headers.length.should.equal 4
 
-    it 'should return 4 somethings', -> buildRow.then (row) ->
-      row.length.should.equal 4
+    it 'should have one column for each view', -> setHeaders.then ->
+      console.log 'HEADERS', JSON.stringify headers
+      headers.map(get 'path').should.eql ("Department.#{ v }" for v in inner.select)
 
-    it 'each element should have a column attribute', -> buildRow.then (row) ->
-      row.forEach (col) -> col.should.have.property 'column'
-
-    it 'the columns should be the same as the view', -> buildRow.then (row) ->
-      (c.column for c in row).should.eql ("Department.#{ v }" for v in inner.select)
-
+###
   describe 'when the query has an outer joined reference', ->
 
     outerRef =
@@ -408,3 +412,4 @@ describe 'utils/calculate-row-template', ->
 
         it 'should eql should contain attrs of dep and manager, and a group for emps', ->
           getView.then (view) -> view.should.eql exp
+###

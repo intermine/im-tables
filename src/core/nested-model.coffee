@@ -12,6 +12,9 @@ setSection = (m, k) ->
   else
     v
 
+isPlainObject = (value) ->
+  (_.isObject value) and (not _.isFunction value) and (not _.isArray value)
+
 # A version of Model that supports nested keys.
 module.exports = class NestedModel extends Model
 
@@ -51,15 +54,15 @@ module.exports = class NestedModel extends Model
     throw new Error("No key") unless key?
     if _.isArray(key) # Handle key paths.
       # Recurse into subkeys.
-      if _.isObject(value) and not _.isArray(value)
+      if isPlainObject value
         for k, v of value
           @set key.concat([k]), v
         return
 
       [head, mid..., end] = key
       headVal = @get head
-      # Ensure the root is an object.
-      if headVal and (not _.isObject headVal) # primitive - unset it first.
+      # Ensure the root is an object, unsetting it if it is a primitive or function.
+      if headVal and (_.isFunction(headVal) or (not _.isObject headVal))
         @unset head
       # Merge or create new path to value
       root = (headVal ? {})

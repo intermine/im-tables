@@ -3,7 +3,7 @@ HeaderModel = require './header'
 
 buildHeaders = require '../utils/build-headers'
 
-class ColumnHeaders extends Collection
+module.exports = class ColumnHeaders extends Collection
 
   model: HeaderModel
 
@@ -14,5 +14,5 @@ class ColumnHeaders extends Collection
     @listenTo @, 'change:index', @sort
 
   setHeaders: (query, banList) -> buildHeaders(query, banList).then (newHeaders) =>
-    @set(new HeaderModel h for h in newHeaders)
+    @set(new HeaderModel h, query for h in newHeaders)
 

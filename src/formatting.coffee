@@ -1,4 +1,4 @@
-NestedModel = require '../core/nested-model'
+NestedModel = require './core/nested-model'
 
 # This module provides logic for finding formatters registered for specific
 # paths.  The semantics are that formatters are functions that are used to
@@ -26,7 +26,7 @@ lastCd = (path) ->
 # :: PathInfo -> [string]
 getAncestors = (path) ->
   cd = lastCd path
-  [cd.name].concat model.getAncestorsOf cd
+  [cd.name].concat path.model.getAncestorsOf cd
 
 bool = (x) -> !!x # boolean type coercion.
 

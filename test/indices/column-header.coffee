@@ -42,8 +42,8 @@ class BasicTable extends CoreView
         new HeaderModel {path: viewPaths[0]}, @query
       else
         node = @query.makePath nodePath
-        new HeaderModel {path: node, replaces: viewPaths}, @query
-    console.log(m.get 'path' for m in hds)
+        isFormatted = not node.isCollection() # lets pretend that collections are outer-joined.
+        new HeaderModel {path: node, isFormatted, replaces: viewPaths}, @query
     @headers.set hds
 
   template: -> '<thead><tr></tr></thead>'
@@ -69,6 +69,7 @@ queries = [
       "employees.name",
       "employees.age",
       "company.name",
+      "company.vatNumber",
     ]
     from: "Department"
     where: [

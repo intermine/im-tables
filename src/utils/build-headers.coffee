@@ -8,7 +8,7 @@ Formatting = require '../formatting'
 notBanned = (blacklist) -> (fmtr) -> not blacklist.any (b) -> fmtr is b.get('formatter')
 
 #:: Function<a, b> -> Function<b, bool> -> b?
-returnIfOK = (f) -> (test) -> (x) ->
+returnIfOK = (f, test) -> (x) ->
   r = f x
   if test r then r else null
 
@@ -26,7 +26,7 @@ index = (xs) -> for x, i in xs
 # sense get huge), so it is very unlikely to become a bottleneck.
 #
 # :: (Query, Collection) -> Promise
-module.exports = (query, banList) -> query.fetchClassKeys().then (classKeys) ->
+module.exports = (query, banList) -> query.service.fetchClassKeys().then (classKeys) ->
   # A function that tests a path to see if it is a key field.
   keyField = isKeyField classKeys
   # This holds a mapping from query views to the column that replaces them due to
@@ -47,7 +47,8 @@ module.exports = (query, banList) -> query.fetchClassKeys().then (classKeys) ->
   # The replacement info is specified as an array of headless paths (e.g:
   # ['start', 'end', 'locatedOn.primaryIdentifier']). As we do this, record
   # which was the first column encountered that replaces each given column.
-  for col in cols when col.path.isAttribute() and fmtr = getFormatter col.path
+  for col in cols when col.path.isAttribute() and (fmtr = getFormatter col.path)
+    console.log "#{ col.path } is formatted by #{ fmtr }"
     col.isFormatted = true
     col.formatter = fmtr
     parent = col.path.getParent()
