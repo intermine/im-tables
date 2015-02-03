@@ -12,9 +12,12 @@ setHeaders = (headers) -> (query) -> headers.setHeaders query, emptyBlackList
 
 get = (attr) -> (model) -> model.get attr
 
+depEmpNameAndAge = ['Department.employees.name', 'Department.employees.age']
+
 describe 'models/column-headers', ->
 
   conn = Service.connect root: URL
+  setup = (query, headers) -> -> conn.query(query).then setHeaders headers
 
   describe 'when the query is fully inner joined, the headers', ->
 
@@ -23,204 +26,195 @@ describe 'models/column-headers', ->
       select: ['name', 'company.name', 'employees.name', 'employees.age']
       from: 'Department'
 
-    setHeaders = conn.query(inner).then setHeaders headers
+    before setup inner, headers
 
-    it 'should contain 4 headers', -> setHeaders.then ->
+    it 'should contain 4 headers', ->
       headers.length.should.equal 4
 
-    it 'should have one column for each view', -> setHeaders.then ->
-      console.log 'HEADERS', JSON.stringify headers
+    it 'should have one column for each view', ->
       headers.map(get 'path').should.eql ("Department.#{ v }" for v in inner.select)
 
-###
-  describe 'when the query has an outer joined reference', ->
+  describe 'when the query has an outer joined reference, the headers', ->
 
+    headers = new ColumnHeaders
     outerRef =
       select: ['name', 'company.name', 'employees.name', 'employees.age']
       from: 'Department'
       joins: ['company']
 
-    buildRow = conn.query(outerRef).then calculateRowTemplate
+    before setup outerRef, headers
 
-    it 'should return something', -> buildRow.then (row) ->
-      should.exist row
+    it 'should contain 4 headers', ->
+      headers.length.should.equal 4
 
-    it 'should return 4 somethings', -> buildRow.then (row) ->
-      row.length.should.equal 4
-
-    it 'each element should have a column attribute', -> buildRow.then (row) ->
-      row.forEach (col) -> col.should.have.property 'column'
-
-    it 'the columns should be the same as the view', -> buildRow.then (row) ->
-      (c.column for c in row).should.eql ("Department.#{ v }" for v in outerRef.select)
+    it 'should have one column for each view', ->
+      headers.map(get 'path').should.eql ("Department.#{ v }" for v in outerRef.select)
 
   describe 'when the query has a single contiguous outer joined collection group', ->
 
-    outerRef =
+    headers = new ColumnHeaders
+    outerColl =
       select: ['name', 'company.name', 'employees.name', 'employees.age']
       from: 'Department'
       joins: ['employees']
 
-    buildRow = conn.query(outerRef).then calculateRowTemplate
+    before setup outerColl, headers
 
-    it 'should return something', -> buildRow.then (row) ->
-      should.exist row
+    it 'should contain 3 headers', ->
+      headers.length.should.equal 3
 
-    it 'should return 3 somethings', -> buildRow.then (row) ->
-      row.length.should.equal 3
-
-    it 'each element should have a column attribute', -> buildRow.then (row) ->
-      row.forEach (col) -> col.should.have.property 'column'
-
-    it 'the columns should be the same as the view', -> buildRow.then (row) ->
+    it 'The columns should hae the join group replacing the joined columns', ->
       exp = ['Department.name', 'Department.company.name', 'Department.employees']
-      (c.column for c in row).should.eql exp
+      headers.map(get 'path').should.eql exp
 
     describe 'the last column', ->
 
-      getLastColumn = buildRow.then ([hds..., last]) -> last
+      it 'should have a sub-view', ->
+        headers.last().get('replaces').should.have.lengthOf 2
 
-      it 'should have a sub-view', -> getLastColumn.then (last) ->
-        last.should.have.property 'view'
+      describe ', and its subview', ->
 
-      describe 'the subview', ->
+        it 'should replace the two outer-joined columns', ->
+          headers.last().get('replaces').map(String).should.eql depEmpNameAndAge
 
-        getSubView = getLastColumn.then ({view}) -> view
+        it 'should include the two outer-joined columns', ->
+          headers.last().get('subview').map(String).should.eql depEmpNameAndAge
 
-        it 'should include the two outer-joined columns', -> getSubView.then (view) ->
-          view.should.eql ['Department.employees.name', 'Department.employees.age']
+  describe 'when the query has a single discontiguous outer joined collection group, the headers', ->
 
-  describe 'when the query has a single discontiguous outer joined collection group', ->
-
+    headers = new ColumnHeaders
     discontig =
       select: ['name', 'employees.name', 'company.name', 'employees.age']
       from: 'Department'
       joins: ['employees']
 
-    buildRow = conn.query(discontig).then calculateRowTemplate
+    before setup discontig, headers
 
-    it 'should return something', -> buildRow.then (row) ->
-      should.exist row
+    it 'should contain 3 headers', ->
+      headers.length.should.equal 3
 
-    it 'should return 3 somethings', -> buildRow.then (row) ->
-      row.length.should.equal 3
-
-    it 'each element should have a column attribute', -> buildRow.then (row) ->
-      row.forEach (col) -> col.should.have.property 'column'
-
-    it 'should have sub-views on cell 1', -> buildRow.then ([a, b, c]) ->
-      b.should.have.property 'view'
-
-    it 'employees should appear once in the column list', -> buildRow.then (row) ->
-      exp = [
-        'Department.name',
-        'Department.employees',
-        'Department.company.name',
-      ]
-      (c.column for c in row).should.eql exp
+    it 'The columns should hae the join group replacing the joined columns', ->
+      exp = ['Department.name', 'Department.employees', 'Department.company.name']
+      headers.map(get 'path').should.eql exp
 
     describe 'the outer-joined column', ->
 
-      getGroupedColumn = buildRow.then ([fst, snd, thd]) -> snd
+      it 'should replace the two outer-joined columns', ->
+        headers.at(1).get('replaces').map(String).should.eql depEmpNameAndAge
 
-      it 'should have a sub-view', -> getGroupedColumn.then (group) ->
-        group.should.have.property 'view'
+      it 'should include the two outer-joined columns', ->
+        headers.at(1).get('subview').map(String).should.eql depEmpNameAndAge
 
-      describe 'the subview', ->
+  describe 'when there are multiple outer joined collection groups, the headers', ->
 
-        getSubView = getGroupedColumn.then ({view}) -> view
+    headers = new ColumnHeaders
+    query =
+      select: ['name', 'bank.name', 'departments.name', 'departments.employees.name', 'secretarys.name']
+      from: 'Company'
+      joins: ['departments', 'secretarys']
 
-        it 'should include the two outer-joined columns', -> getSubView.then (view) ->
-          view.should.eql ['Department.employees.name', 'Department.employees.age']
+    before setup query, headers
 
-  describe 'when the query has a multiple discontiguous outer joined collection groups', ->
+    it 'should have four columns', ->
+      headers.length.should.equal 4
 
+    it 'should have two outer-joined groups', ->
+      headers.filter((m) -> m.get('replaces').length).should.have.lengthOf 2
+
+    it 'should have one group lifted to its column, and the other not', ->
+      exp = [
+        'Company.name',
+        'Company.bank.name',
+        'Company.departments',
+        'Company.secretarys.name',
+      ]
+      headers.map(get 'path').should.eql exp
+
+    it 'column 2 should have a view of [departments.name, departments.employees.name]', ->
+      exp =  ['Company.departments.name', 'Company.departments.employees.name']
+      headers.at(2).get('subview').map(String).should.eql exp
+
+    it 'column 3 should have a view of [secretarys.name]', ->
+      headers.at(3).get('subview').map(String).should.eql ['Company.secretarys.name']
+
+  describe 'when there are multiple singleton outer joined collection groups, the headers', ->
+
+    headers = new ColumnHeaders
     query =
       select: ['name', 'bank.name', 'departments.name', 'secretarys.name']
       from: 'Company'
       joins: ['departments', 'secretarys']
 
-    buildRow = conn.query(query).then calculateRowTemplate
+    before setup query, headers
 
-    it 'should return something', -> buildRow.then (row) ->
-      should.exist row
-
-    it 'should return 4 somethings', -> buildRow.then (row) ->
-      row.length.should.equal 4
-
-    it 'each element should have a column attribute', -> buildRow.then (row) ->
-      row.forEach (col) -> col.should.have.property 'column'
-
-    it 'should have sub-views on cells 2 and 3', -> buildRow.then ([a, b, c, d]) ->
-      c.should.have.property 'view'
-      d.should.have.property 'view'
-
-    it 'The column list should have two groups', -> buildRow.then (row) ->
-      exp = [
-        'Company.name',
-        'Company.bank.name',
-        'Company.departments',
-        'Company.secretarys',
-      ]
-      (c.column for c in row).should.eql exp
-
-    it 'column c should have a view of [departments.name]', -> buildRow.then ([a, b, c]) ->
-      c.view.should.eql ['Company.departments.name']
-
-    it 'column d should have a view of [secretarys.name]', -> buildRow.then ([a, b, c, d]) ->
-      d.view.should.eql ['Company.secretarys.name']
-
-  describe 'when the query a single outerjoin group within an inner join group', ->
-
-    query =
-      select: [
-        'name',
-        'bank.name',
-        'departments.name',
-        'departments.employees.name',
-        'departments.employees.age',
-        'departments.employees.end',
-      ]
-      from: 'Company'
-      joins: ['departments.employees']
-
-    buildRow = conn.query(query).then calculateRowTemplate
-
-    it 'should return something', -> buildRow.then (row) ->
-      should.exist row
-
-    it 'should return 4 somethings', -> buildRow.then (row) ->
-      row.length.should.equal 4
-
-    it 'each element should have a column attribute', -> buildRow.then (row) ->
-      row.forEach (col) -> col.should.have.property 'column'
-
-    it 'The column list should have the one group', -> buildRow.then (row) ->
+    it 'should be the same as the view', ->
       exp = [
         'Company.name',
         'Company.bank.name',
         'Company.departments.name',
-        'Company.departments.employees',
+        'Company.secretarys.name',
       ]
-      (c.column for c in row).should.eql exp
+      headers.map(get 'path').should.eql exp
 
-    describe 'the last column', ->
+  describe 'when there are multiple singleton outer joined collection groups of varying depths, the headers', ->
 
-      getLastColumn = buildRow.then ([cols..., last]) -> last
+    headers = new ColumnHeaders
+    query =
+      select: ['name', 'bank.name', 'departments.employees.name', 'secretarys.name']
+      from: 'Company'
+      joins: ['departments', 'secretarys']
 
-      it 'should have a sub-view', -> getLastColumn.then (last) ->
-        last.should.have.property 'view'
+    before setup query, headers
 
-      describe 'and its view', ->
+    it 'should be the same as the view', ->
+      exp = [
+        'Company.name',
+        'Company.bank.name',
+        'Company.departments.employees.name',
+        'Company.secretarys.name',
+      ]
+      headers.map(get 'path').should.eql exp
 
-        getView = getLastColumn.then ({view}) -> view
-        exp = ("Company.departments.employees.#{ f }" for f in ['name', 'age', 'end'])
+  describe 'when there is a single outerjoin group within an inner join group', ->
 
-        it 'should contain the properties of employees' , -> getView.then (view) ->
-          view.should.eql exp
+    describe ', the headers', ->
 
-  describe 'when the query has nested outer join groups', ->
+      headers = new ColumnHeaders
+      query =
+        select: [
+          'name',
+          'bank.name',
+          'departments.name',
+          'departments.employees.name',
+          'departments.employees.age',
+          'departments.employees.end',
+        ]
+        from: 'Company'
+        joins: ['departments.employees']
 
+      before setup query, headers
+
+      it 'should have 4 columns', ->
+        headers.length.should.equal 4
+
+      it 'should have the one group', ->
+        exp = [
+          'Company.name',
+          'Company.bank.name',
+          'Company.departments.name',
+          'Company.departments.employees',
+        ]
+        headers.map(get 'path').should.eql exp
+
+      describe 'the last column', ->
+
+        it 'should replace the outer joined group', ->
+          exp = ("Company.departments.employees.#{ f }" for f in ['name', 'age', 'end'])
+          headers.last().get('replaces').map(String).should.eql exp
+
+  describe 'when the query has nested outer join groups, the headers', ->
+
+    headers = new ColumnHeaders
     query =
       select: [
         'name',
@@ -232,38 +226,28 @@ describe 'models/column-headers', ->
       from: 'Company'
       joins: ['departments', 'departments.employees']
 
-    buildRow = conn.query(query).then calculateRowTemplate
+    before setup query, headers
 
-    it 'should return something', -> buildRow.then (row) ->
-      should.exist row
+    it 'should have 3 columns', ->
+      headers.length.should.equal 3
 
-    it 'should return 3 somethings', -> buildRow.then (row) ->
-      row.length.should.equal 3
-
-    it 'each element should have a column attribute', -> buildRow.then (row) ->
-      row.forEach (col) -> col.should.have.property 'column'
-
-    describe 'the columns', ->
-
-      getColumns = buildRow.then (row) -> (c.column for c in row)
+    it 'should have the correct column paths', ->
       exp = ['Company.name', 'Company.bank.name', 'Company.departments']
-
-      it 'should have the correct column paths', -> getColumns.then (cs) ->
-        cs.should.eql exp
+      headers.map(get 'path').should.eql exp
 
     describe 'the last column', ->
 
-      getLastColumn = buildRow.then ([cols..., last]) -> last
+      it 'should itself have have a sub-group', ->
+        exp = ['Company.departments.name', 'Company.departments.employees']
+        headers.last().get('subview').map(String).should.eql exp
 
-      it 'should have a sub-view', -> getLastColumn.then (col) ->
-        col.should.have.property 'view'
-
-      describe 'and its view', ->
-
-        getView = getLastColumn.then ({view}) -> view
-
-        it 'should eql [departments.name, departments.employees]', -> getView.then (view) ->
-          view.should.eql ['Company.departments.name', 'Company.departments.employees']
+      it 'should replace everything in its outer-join group', ->
+        exp = [
+          'Company.departments.name',
+          'Company.departments.employees.name',
+          'Company.departments.employees.age',
+        ]
+        headers.last().get('replaces').map(String).should.eql exp
 
   describe 'when the query has nested outer join groups, nested-group-first', ->
 
@@ -278,86 +262,30 @@ describe 'models/column-headers', ->
       from: 'Company'
       joins: ['departments', 'departments.employees']
 
-    buildRow = conn.query(query).then calculateRowTemplate
+    describe ', the headers', ->
 
-    it 'should return something', -> buildRow.then (row) ->
-      should.exist row
+      headers = new ColumnHeaders
+      before setup query, headers
 
-    it 'should return 3 somethings', -> buildRow.then (row) ->
-      row.length.should.equal 3
+      it 'should have 3 columns', -> headers.length.should.equal 3
 
-    it 'each element should have a column attribute', -> buildRow.then (row) ->
-      row.forEach (col) -> col.should.have.property 'column'
+      it 'should have one column group', ->
+        exp = ['Company.name', 'Company.bank.name', 'Company.departments']
+        headers.map(get 'path').should.eql exp
 
-    describe 'the columns', ->
+      describe 'the last column', ->
 
-      getColumns = buildRow.then (row) -> (c.column for c in row)
-      exp = ['Company.name', 'Company.bank.name', 'Company.departments']
+        it 'should itself have have a sub-group', ->
+          exp = ['Company.departments.employees', 'Company.departments.name']
+          headers.last().get('subview').map(String).should.eql exp
 
-      it 'should have the correct column paths', -> getColumns.then (cs) ->
-        cs.should.eql exp
-
-    describe 'the last column', ->
-
-      getLastColumn = buildRow.then ([cols..., last]) -> last
-
-      it 'should have a sub-view', -> getLastColumn.then (col) ->
-        col.should.have.property 'view'
-
-      describe 'and its view', ->
-
-        getView = getLastColumn.then ({view}) -> view
-        exp = ['Company.departments.employees', 'Company.departments.name']
-
-        it 'should eql [departments.employees,departments.name]', -> getView.then (view) ->
-          view.should.eql exp
-
-  describe 'when the query has nested outer join groups, discontiguous declaration', ->
-
-    query =
-      select: [
-        'name',
-        'bank.name',
-        'departments.employees.name',
-        'departments.name',
-        'departments.employees.age',
-      ]
-      from: 'Company'
-      joins: ['departments', 'departments.employees']
-
-    buildRow = conn.query(query).then calculateRowTemplate
-
-    it 'should return something', -> buildRow.then (row) ->
-      should.exist row
-
-    it 'should return 3 somethings', -> buildRow.then (row) ->
-      row.length.should.equal 3
-
-    it 'each element should have a column attribute', -> buildRow.then (row) ->
-      row.forEach (col) -> col.should.have.property 'column'
-
-    describe 'the columns', ->
-
-      getColumns = buildRow.then (row) -> (c.column for c in row)
-      exp = ['Company.name', 'Company.bank.name', 'Company.departments']
-
-      it 'should have the correct column paths', -> getColumns.then (cs) ->
-        cs.should.eql exp
-
-    describe 'the last column', ->
-
-      getLastColumn = buildRow.then ([cols..., last]) -> last
-
-      it 'should have a sub-view', -> getLastColumn.then (col) ->
-        col.should.have.property 'view'
-
-      describe 'and its view', ->
-
-        getView = getLastColumn.then ({view}) -> view
-        exp = ['Company.departments.employees', 'Company.departments.name']
-
-        it 'should eql [departments.employees,departments.name]', -> getView.then (view) ->
-          view.should.eql exp
+        it 'should replace everything in its outer-join group', ->
+          exp = [
+            'Company.departments.employees.name',
+            'Company.departments.employees.age',
+            'Company.departments.name',
+          ]
+          headers.last().get('replaces').map(String).should.eql exp
 
   describe 'when the query has nested outer join groups, some of which are references', ->
 
@@ -374,42 +302,36 @@ describe 'models/column-headers', ->
       from: 'Company'
       joins: ['departments', 'departments.manager', 'departments.employees']
 
-    buildRow = conn.query(query).then calculateRowTemplate
+    describe 'the headers', ->
 
-    it 'should return something', -> buildRow.then (row) ->
-      should.exist row
+      headers = new ColumnHeaders
+      before setup query, headers
 
-    it 'should return 3 somethings', -> buildRow.then (row) ->
-      row.length.should.equal 3
+      it 'should have 3 columns', ->
+        headers.length.should.equal 3
 
-    it 'each element should have a column attribute', -> buildRow.then (row) ->
-      row.forEach (col) -> col.should.have.property 'column'
+      it 'should have the correct column paths', ->
+        exp = ['Company.name', 'Company.bank.name', 'Company.departments']
+        headers.map(get 'path').should.eql exp
 
-    describe 'the columns', ->
+      describe 'the last column', ->
 
-      getColumns = buildRow.then (row) -> (c.column for c in row)
-      exp = ['Company.name', 'Company.bank.name', 'Company.departments']
-
-      it 'should have the correct column paths', -> getColumns.then (cs) ->
-        cs.should.eql exp
-
-    describe 'the last column', ->
-
-      getLastColumn = buildRow.then ([cols..., last]) -> last
-
-      it 'should have a sub-view', -> getLastColumn.then (col) ->
-        col.should.have.property 'view'
-
-      describe 'and its view', ->
-
-        getView = getLastColumn.then ({view}) -> view
-        exp = [
+        subview = [
           'Company.departments.name',
           'Company.departments.manager.name',
           'Company.departments.manager.seniority',
           'Company.departments.employees',
         ]
+        replaces = [
+          'Company.departments.name',
+          'Company.departments.manager.name',
+          'Company.departments.manager.seniority',
+          'Company.departments.employees.name',
+          'Company.departments.employees.age'
+        ]
 
-        it 'should eql should contain attrs of dep and manager, and a group for emps', ->
-          getView.then (view) -> view.should.eql exp
-###
+        it 'should have a sub-view with one sub-group', ->
+          headers.last().get('subview').map(String).should.eql subview
+
+        it 'should replace everything in its outer-join group', ->
+          headers.last().get('replaces').map(String).should.eql replaces
