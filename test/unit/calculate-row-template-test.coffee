@@ -129,7 +129,7 @@ describe 'utils/calculate-row-template', ->
         it 'should include the two outer-joined columns', -> getSubView.then (view) ->
           view.should.eql ['Department.employees.name', 'Department.employees.age']
 
-  describe 'when the query has a multiple discontiguous outer joined collection groups', ->
+  describe 'when there are multiple discontiguous outer joined collection groups', ->
 
     query =
       select: ['name', 'bank.name', 'departments.name', 'secretarys.name']
