@@ -18,11 +18,13 @@ module.exports = createColumns = (query) -> structure(query).map (cell) ->
     # 'Company.departments' if the subviews arE '~.employees.*' etc,
     # with none of the department's attributes selected,
     # then it makes more sense to say this is a collection of employees
-    # than a collection of departments.
+    # than a collection of departments. In fact, this will also lift a subtable of
+    # a single column to that column, so that a subtable of '~.employees.name'
+    # will be labelled as 'Employee Names'
     commonPrefix = longestCommonPrefix cell.view
     path = query.makePath commonPrefix
     subview = (query.makePath v for v in cell.view)
-    replaces = (query.makePath v for v in query.view \
+    replaces = (query.makePath v for v in query.views \
                                   when 0 is v.indexOf commonPrefix)
   else # A single value column.
     path = query.makePath cell.column
