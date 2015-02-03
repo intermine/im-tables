@@ -4,9 +4,10 @@ Backbone = require 'backbone'
 
 CoreView = require '../core-view'
 Options = require '../options'
-TableModel = require '../models/table'
 
 renderError = require './table/render-error'
+TableModel = require '../models/table'
+ColumnHeaders = require '../models/column-headers'
 Page = require '../models/page'
 NestedTableModel = require '../models/nested-table'
 CellModel = require '../models/cell'
@@ -22,22 +23,16 @@ TableSummary = require './table/summary'
 
 class RowModel extends Backbone.Model # Currently no content.
 
-# QUERY EVENTS
-# Ideally we should use fewer events, and more models.
-FRESHNESS_EVT = 'change:sortorder change:views change:constraints'
-START_LIST_EVT = 'start:list-creation'
-STOP_LIST_EVT = 'stop:list-creation'
-TABLE_FILL_EVT = 'table:filled'
-
 module.exports = class Table extends CoreView
 
+  # The data model for the table.
   Model: TableModel
 
   className: "im-table-container"
 
   parameters: ['query']
 
-  optionalParameters: ['columnHeaders']
+  optionalParameters: ['columnHeaders', 'blacklistedFormatters']
 
   initState: ->
     @state.set pipeFactor: 10
@@ -50,26 +45,14 @@ module.exports = class Table extends CoreView
 
     # columnHeaders contains the header information.
     @columnHeaders ?= new ColumnHeaders
+    # Formatters we are not allowed to use.
+    @blacklistedFormatters ?= new UniqItems
     # rows contains the current rows in the table
     @rows = new Backbone.Collection
-    # Formatters we are not allowed to use.
-    @blacklistedFormatters = new UniqItems
-    # initialise model, making it clear what we expect
 
     @setFreshness()
 
-    @listenTo @model, 'change:state', @render
-    @listenTo @model, 'change:freshness', => @model.set cache: null
-    @listenTo @model, 'change:freshness change:start change:size', @fillRows
-    @listenTo @model, 'change:cache', => @buildColumnHeaders()
-    @listenTo @blacklistedFormatters, 'reset add remove', => @buildColumnHeaders()
-    @listenTo @model, 'change:cache', => # Ensure model consistency
-      @model.set(lowerBound: null, upperBound: null) unless @model.get('cache')?
-    @listenTo @model, 'change:count', => # Previously propagated.
-      @query.trigger 'count:is', @data.get 'count'
-    @listenTo @model, 'change:error', =>
-      err = @model.get 'error'
-      @model.set(state: 'ERROR') if err?
+    @listenTo @blacklistedFormatters, 'reset add remove', @buildColumnHeaders
 
     @listenToQuery()
     # Always good to know the API version, but we
@@ -80,22 +63,38 @@ module.exports = class Table extends CoreView
     @fillRows().then (-> console.debug 'initial data loaded'), (error) => @model.set {error}
     console.debug 'initialised table'
 
-  listenToQuery: ->
-    @listenTo query, FRESHNESS_EVT, @setFreshness
-    @listenTo query, START_LIST_EVT, @setSelecting
-    @listenTo query, STOP_LIST_EVT, @unsetSelecting
-    @listenTo query, TABLE_FILL_EVT, @onDraw
+  modelEvents: ->
+    'change:state': @reRender
+    'change:freshness': @unsetCache
+    'change:freshness change:start change:size': @fillRows
+    'change:cache': @buildColumnHeaders
+    'change:cache': @onChangeCache
+    'change:count': @onChangeCount
+    'change:error': @onChangeError
+
+  # Ideally we should use fewer events, and more models.
+  queryEvents: ->
+    'change:sortorder change:views change:constraints change:joins': @setFreshness
+    'start:list-creation': @setSelecting
+    'stop:list-creation': @unsetSelecting
+    'table:filled': @onDraw
+
+  unsetCache: -> @model.unset 'cache'
+  onChangeCache: -> @model.set(lowerBound: null, upperBound: null) unless @model.get('cache')?
+  onChangeCount: -> @query.trigger 'count:is', @model.get 'count' # daft - TODO: remove
+  onChangeError: -> @model.set(state: 'ERROR') if @model.get('error')
+
+  listenToQuery: -> for evt, hander of @queryEvents()
+    @listenTo @query, evt, handler
 
   # TODO - move this to a model shared between the list dialogue button and the cells.
   onDraw: -> # Preserve list creation state across pages.
     @query.trigger("start:list-creation") if @model.get 'selecting'
 
   remove: -> # remove self, and all children, and remove listeners
-    @table?.remove() # TODO - use removeChild
-    @model.off()
     @itemModels.destroy()
     delete @itemModels
-    super # Cleans up listeners attached with @listenTo
+    super
 
   getPage: ->
     {start, size} = @model.toJSON()
@@ -113,7 +112,7 @@ module.exports = class Table extends CoreView
   # which can be represented as an (xml) string.
   setFreshness: -> @model.set freshness: @query.toXML()
 
-  buildColumnHeaders: -> @columnHeaders.setHeaders @query
+  buildColumnHeaders: -> @columnHeaders.setHeaders @query, @blacklistedFormatters
 
   ## Filling the rows is a two step process - first we check the row cache to see
   ## if we already have these rows, or update it if not. Only then do we go about
@@ -346,14 +345,13 @@ module.exports = class Table extends CoreView
     tel = @makeTable()
     frag.appendChild tel
 
-    @table = new ResultsTable @query, @blacklistedFormatters, @columnHeaders, @rows
-    @table.setElement tel
-    @table.render()
+    table = new ResultsTable @query, @blacklistedFormatters, @columnHeaders, @rows
+    @renderChildAt 'inner', table, tel
 
     return frag
 
   render: ->
-    @table?.remove()
+    @removeAllChildren()
     state = @model.get('state')
 
     if state is 'FETCHING'
@@ -366,22 +364,17 @@ module.exports = class Table extends CoreView
       console.debug 'state is success'
       @$el.html @renderTable()
 
-  renderChild: (name, container, Child) ->
-    console.debug "placing #{ name }"
-    child = new Child {@model}
-    @children[name]?.remove()
-    @children[name] = child
-    child.render()
-    child.$el.appendTo container
+  renderWidget: (name, container, Child) ->
+    @renderChild name, (new Child {@model}), container
 
   placePagination: ($widgets) ->
-    @renderChild 'pagination', $widgets, Pagination
+    @renderWidget 'pagination', $widgets, Pagination
 
   placePageSizer: ($widgets) ->
-    @renderChild 'pagesizer', $widgets, PageSizer
+    @renderWidget 'pagesizer', $widgets, PageSizer
 
   placeTableSummary: ($widgets) ->
-    @renderChild 'tablesummary', $widgets, TableSummary
+    @renderWidget 'tablesummary', $widgets, TableSummary
 
   # FIXME - check references
   getCurrentPageSize: -> @model.get 'size'
