@@ -13,6 +13,41 @@ describe 'StructuralTypeAssertion', ->
     name: TypeAssertions.String
     foo: fooStructure
 
+  maybeCallable = TypeAssertions.Maybe TypeAssertions.Callable
+
+  describe 'maybe types', ->
+
+    assertion = maybeCallable
+
+    describe 'against null', ->
+
+      nothing = null
+      isOk = assertion.test nothing
+
+      it 'should say that it is ok', ->
+        isOk.should.be.true
+
+    describe 'against a thing', ->
+
+      something = (->)
+      isOk = assertion.test something
+
+      it 'should say that it is ok', ->
+        isOk.should.be.true
+
+    describe 'against wrong type', ->
+
+      wrong = 'foo'
+      isOk = assertion.test wrong
+      msg = assertion.message 'wrong'
+
+      it 'should say that it is not ok', ->
+        isOk.should.be.false
+
+      it 'should say why', ->
+        msg.should.eql 'wrong is not callable'
+
+
   describe 'nested structure', ->
 
     assertion = quuxStructure

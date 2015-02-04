@@ -61,3 +61,13 @@ exports.Number =
 exports.String =
   test: _.isString
   message: (p) -> "#{ p } is not a string"
+
+# Test if something is either null or that it passes a type-assertion.
+exports.Maybe = (assertion) ->
+  test: (v) -> (not v?) or (assertion.test v)
+  message: (p) -> assertion.message p # If not null, then the assertion will know what is wrong.
+
+# Test that something has a call method - (like a function).
+exports.Callable =
+  test: (v) -> v? and _.isFunction v.call
+  message: (p) -> "#{ p } is not callable"
