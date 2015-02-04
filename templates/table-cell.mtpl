@@ -1,0 +1,28 @@
+<input class="list-chooser" type="checkbox"
+  <% if (checked) { %> checked <% } %>
+  <% if (disabled) { %> disabled <% } %>
+  style="display: <%= display %>"
+>
+<a class="im-cell-link" target="<%= target %>" href="<%= url %>">
+  <% if (isForeign) { %>
+    <% if (icon) { %>
+      <img src="<%= icon %>" class="im-external-link"></img>
+    <% } else { %>
+      <i class="icon-globe"></i>
+    <% } %>
+  <% } %>
+  <% if (value == null) { %>
+    <span class="null-value">&nbsp;</span>
+  <% } else { %>
+    <span class="im-displayed-value">
+      <%= value %>
+    </span>
+  <% } %>
+</a>
+<% if (rawValue != null && field == 'url' && rawValue != url) { %>
+    <a class="im-cell-link external" href="<%= rawValue %>">
+      <i class="icon-globe"></i>
+      link
+    </a>
+<% } %>
+
