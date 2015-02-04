@@ -1,3 +1,6 @@
+SelectedObjects = require '../../models/selected-objects'
+TypeAssertions = require '../../core/type-assertions'
+
 NO_COMMON_TYPE =
   level: 'Error'
   key: 'lists.NoCommonType'
@@ -10,7 +13,10 @@ NO_OBJECTS_SELECTED =
 
 module.exports = (Base) ->
 
-  parameters: ['service', 'collection']
+  parameters: ['service', 'collection'] # collection must be SelectedObjects
+
+  parameterTypes:
+    collection: (new TypeAssertions.InstanceOfAssertion SelectedObjects, 'SelectedObjects')
 
   className: -> Base::className.call(@) + ' im-list-picker'
 
@@ -37,13 +43,6 @@ module.exports = (Base) ->
 
   initiallyMinimised: true
 
-  initState: ->
-    Base::initState.call @
-    @fetchModel().then => @setType()
-
-  fetchModel: -> # call it schema to distinguish from model
-    @service.fetchModel().then (model) => @schema = model
-
   getIds: -> @collection.map (o) -> o.get('id')
 
   onChangeCollection: ->
@@ -63,15 +62,5 @@ module.exports = (Base) ->
 
   # Finds the common type from the collection, and sets that on the model.
   setType: ->
-    return unless @schema? # have to wait until we have a model.
-    commonType = if @collection.size()
-      commonType = @schema.findCommonType @collection.map (o) -> o.get 'class'
-    else
-      null
-
-    if commonType
-      @model.set type: commonType
-    else
-      @model.set type: null
-      @state.set typeName: null
-
+    @model.set type: @collection.state.get('commonType')
+    @state.set typeName: @collection.state.get('typeName')

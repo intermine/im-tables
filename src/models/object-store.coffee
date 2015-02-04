@@ -1,23 +1,33 @@
-Backbone = require 'backbone'
 _ = require 'underscore'
 
 IMObject = require './intermine-object'
 
+# A simple class to cache object construction, guaranteeing there is only ever one
+# entity object for each entity. It also manages merging in the properties of the
+# entities when multiple fields have been selected.
+# 
+# This means that a query that selects Employee.name and Employee.age will only have
+# one Employee entity per employee object (keyed by id), and each object will have the
+# appropriate `name` and `age` fields.
 module.exports = class ObjectStore
 
-  constructor: (@query) ->
-    @base = @query.service.root.replace /\/service\/?$/, ""
+  constructor: (root, @schema) ->
+    throw new Error('No root') unless root?
+    throw new Error('no schema') unless @schema?
+    @base = root.replace /\/service\/?$/, "" # trim the /service
     @_objects = {}
 
   get: (obj, field) ->
-    model = (@_objects[obj.id] ?= new IMObject @query, @base)
+    model = (@_objects[obj.id] ?= @_newObject obj)
     model.merge obj, field
     return model
+
+  _newObject: (obj) ->
+    new IMObject @base, (@schema.makePath obj['class']), obj.id
 
   destroy: ->
     for id, model of @_objects
       model.destroy()
-    delete @objects
-    delete @query
+    delete @selectedObjects
+    delete @_objects
 
-_.extend ObjectStore.prototype, Backbone.Events

@@ -1,27 +1,25 @@
 _ = require 'underscore'
 $ = jQuery = require 'jquery' # Used for overlays
-Backbone = require 'backbone'
 
 CoreView = require '../core-view'
 Options = require '../options'
+Templates = require '../templates'
+Collection = require '../core/collection'
+CoreModel = require '../core-model'
 
 renderError = require './table/render-error'
 TableModel = require '../models/table'
 ColumnHeaders = require '../models/column-headers'
 Page = require '../models/page'
-NestedTableModel = require '../models/nested-table'
-CellModel = require '../models/cell'
-NullObject = require '../models/null-object'
-FPObject = require '../models/fast-path-object'
-ObjectStore = require '../models/object-store'
 UniqItems = require '../models/uniq-items'
+CellModelFactory = require '../utils/cell-model-factory'
 
 Pagination = require './table/pagination'
 ResultsTable = require './table/inner'
 PageSizer = require './table/page-sizer'
 TableSummary = require './table/summary'
 
-class RowModel extends Backbone.Model # Currently no content.
+class RowModel extends CoreModel # Currently no content.
 
 module.exports = class Table extends CoreView
 
@@ -30,25 +28,31 @@ module.exports = class Table extends CoreView
 
   className: "im-table-container"
 
-  parameters: ['query']
+  parameters: [
+    'query',          # the query this table contains results for.
+    'selectedObjects' # currently selected entities, shared with components that need selections
+  ]
 
   optionalParameters: ['columnHeaders', 'blacklistedFormatters']
 
   initState: ->
+    # terrible name for this property - it means the factor by
+    # which we multiply the page size when requesting rows - so a table
+    # with ten rows will request 100 rows, so that paging is quicker.
     @state.set pipeFactor: 10
 
   # @param query The query this view is bound to.
   # @param selector Where to put this table.
   initialize: ->
     super
-    @itemModels = new ObjectStore @query
+    @cellModelFactory = new CellModelFactory @query, @selectedObjects
 
     # columnHeaders contains the header information.
     @columnHeaders ?= new ColumnHeaders
     # Formatters we are not allowed to use.
     @blacklistedFormatters ?= new UniqItems
     # rows contains the current rows in the table
-    @rows = new Backbone.Collection
+    @rows = new Collection
 
     @setFreshness()
 
@@ -56,7 +60,9 @@ module.exports = class Table extends CoreView
 
     @listenToQuery()
     # Always good to know the API version, but we
-    # aren't currently using it for anything.
+    # aren't currently using it for anything, but it
+    # is a chance to fail very early if we cannot access
+    # the web-service.
     @query.service.fetchVersion (error, version) => @model.set {error, version}
     @query.count (error, count) => @model.set {error, count}
 
@@ -92,8 +98,8 @@ module.exports = class Table extends CoreView
     @query.trigger("start:list-creation") if @model.get 'selecting'
 
   remove: -> # remove self, and all children, and remove listeners
-    @itemModels.destroy()
-    delete @itemModels
+    @cellModelFactory.destroy()
+    delete @cellModelFactory
     super
 
   getPage: ->
@@ -259,37 +265,9 @@ module.exports = class Table extends CoreView
 
     @model.set {cache, lowerBound, upperBound}
 
-  makeCellModel: (obj) => # TODO: this should not live in a View
-    objects = @itemModels
-    cm = if _.has(obj, 'rows')
-      node = @query.getPathInfo obj.column
-      # Here we lift some properties to more useful types
-      new NestedTableModel _.extend {}, obj,
-        node: node # Duplicate name - not necessary?
-        column: node
-        rows: (r.map(@makeCellModel) for r in obj.rows)
-    else
-      column = @query.getPathInfo(obj.column)
-      node = column.getParent()
-      field = obj.column.replace(/^.*\./, '')
-
-      model = if obj.id?
-        objects.get obj, field
-      else if not obj.class?
-        type = node.getParent().name
-        new NullObject {}, {@query, field, type}
-      else # FastPathObjects don't have ids, and cannot be in lists.
-        new FPObject({}, {@query, obj, field})
-
-      new CellModel
-        query: @query # TODO - stop passing the query around!
-        cell: model
-        node: node
-        column: column
-        field: field
-        value: obj.value
-
-    return cm
+  # Take a cell returned from the web-service and produce a model.
+  makeCellModel: (cell) ->
+    @cellModelFactory.makeCellModel cell
 
   ##
   ## Populate the rows collection with the current rows from cache.
@@ -340,7 +318,7 @@ module.exports = class Table extends CoreView
     for component in Options.get('TableWidgets', []) when "place#{ component }" of @
       method = "place#{ component }"
       @[ method ]( $widgets )
-    $widgets.append """<div style="clear:both"></div>"""
+    $widgets.append Templates.clear
 
     tel = @makeTable()
     frag.appendChild tel

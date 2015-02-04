@@ -18,4 +18,5 @@ function getTemplate (name) {
     throw new Error('No template registered as "' + name + '"');
   }
 }
+// Simple templates we can define inline.
 TEMPLATES.clear = '<div style="clear:both"></div>';

@@ -52,6 +52,15 @@ module.exports = class CoreView extends Backbone.View
   # which will then be overriden but available to other instances.
   optionalParameters: []
 
+  # Type assertions, one for each parameter, keyed by parameter name.
+  #
+  # An assertion is an object with the following structure:
+  #   test :: (value :: Any) -> bool
+  #   message :: (name :: String) -> String
+  # 
+  # Types do not need to be defined for all parameters, but they will be asserted if they are.
+  parameterTypes: {}
+
   # Implement this method to set values on the state object. Well, that is
   # the purpose at least. Called after variants have been asserted.
   initState: ->
@@ -236,7 +245,25 @@ module.exports = class CoreView extends Backbone.View
 
   assertInvariants: ->
     params = (_.result @, 'parameters') ? []
+    optionalParams = (_.result @, 'optionalParameters') ? []
+    paramTypes = (_.result @, 'parameterTypes') ? {}
+
+    # Assert that we have all our required parameters.
     for p in params
-      @assertInvariant @[p]?, "Missing required option: #{ p }"
+      v = @[p]
+      @assertInvariant v?, "Missing required option: #{ p }"
+
+    # Assert that all our parameters (optional and required) meet their expectations.
+    for p in params.concat(optionalParameters)
+      typeAssertion = parameterTypes[p]
+      if typeAssertion?
+        # The constract of these calls is that they are evaluated in this order, so
+        # that ::message() has access to data collected during ::test() (if it wants to do
+        # so. DO NOT REORDER.
+        assertion = typeAssertion.test v
+        message = typeAssertion.message p
+        @assertInvariant assertion, message
+
+    # Assert any other more specific invariants.
     for condition, message of @invariants()
       @assertInvariant (_.result @, condition), message

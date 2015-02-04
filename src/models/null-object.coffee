@@ -2,13 +2,10 @@ IMObject = require './intermine-object'
 
 module.exports = class NullObject extends IMObject
 
-  initialize: (_, {query, field, type}) ->
+  constructor: (type, field) ->
     @set
       'id': null
-      'obj:type': type
-      'is:selected': false
-      'is:selectable': false
-      'is:selecting': false
+      'class': type
       'service:base': ''
       'service:url': ''
     @set field, null if field

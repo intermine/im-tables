@@ -4,7 +4,13 @@ CoreModel = require '../core-model'
 module.exports = class CellModel extends CoreModel
 
   initialize: ->
-    type = @get('cell').get('obj:type')
-    @get('column').getDisplayName().then (columnName) => @set {columnName}
-    @get('query').model.makePath(type).getDisplayName().then (typeName) => @set {typeName}
+    super
+    type = (@get('entity').get('class') ? @get('node'))
+    column = @get('column')
+    column.getDisplayName().then (columnName) => @set {columnName}
+    column.model.makePath(type).getDisplayName().then (typeName) => @set {typeName}
 
+  defaults: ->
+    selected: false
+    selecting: false
+    selectable: true
