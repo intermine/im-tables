@@ -15,6 +15,103 @@ describe 'StructuralTypeAssertion', ->
 
   maybeCallable = TypeAssertions.Maybe TypeAssertions.Callable
 
+  arrayOfString = TypeAssertions.ArrayOf TypeAssertions.String
+
+  arrayOfNumber = TypeAssertions.ArrayOf TypeAssertions.Number
+
+  describe 'array of', ->
+
+    strings = ['foo', 'bar', 'baz']
+    numbers = [1, 2, 3]
+    objects = [{x: 1, y: 2}, {x: 3, y: 4}]
+    mixed = ['foo', 1]
+    empty = []
+    nothing = null
+    string = 'foo'
+
+    describe 'strings', ->
+
+      describe 'matching nothing',  ->
+      
+        isOk = arrayOfString.test nothing
+        msg = arrayOfString.message 'nothing'
+
+        it 'should say that it is not ok', ->
+          isOk.should.be.false
+
+        it 'should say why', ->
+          msg.should.eql 'nothing is not an array of string'
+
+      describe 'matching numbers', ->
+
+        isOk = arrayOfString.test numbers
+        msg = arrayOfString.message 'numbers'
+
+        it 'should say that it is not ok', ->
+          isOk.should.be.false
+
+        it 'should say why', ->
+          msg.should.eql 'numbers is not an array of string'
+
+      describe 'matching mixed', ->
+
+        isOk = arrayOfString.test mixed
+        msg = arrayOfString.message 'mixed'
+
+        it 'should say that it is not ok', ->
+          isOk.should.be.false
+
+        it 'should say why', ->
+          msg.should.eql 'mixed is not an array of string'
+
+      describe 'matching string', ->
+
+        isOk = arrayOfString.test string
+        msg = arrayOfString.message 'string'
+
+        it 'should say that it is not ok', ->
+          isOk.should.be.false
+
+        it 'should say why', ->
+          msg.should.eql 'string is not an array of string'
+
+      describe 'matching empty', ->
+
+        isOk = arrayOfString.test empty
+
+        it 'should say that it is ok', ->
+          isOk.should.be.true
+
+      describe 'matching strings', ->
+
+        isOk = arrayOfString.test strings
+
+        it 'should say that it is ok', ->
+          isOk.should.be.true
+
+    describe 'numbers', ->
+
+      describe 'matching empty', ->
+
+        isOk = arrayOfNumber.test empty
+
+        it 'should say that it is ok', ->
+          isOk.should.be.true
+
+      describe 'matching strings', ->
+
+        isOk = arrayOfNumber.test strings
+
+        it 'should say that it is not ok', ->
+          isOk.should.be.false
+
+      describe 'matching numbers', ->
+
+        isOk = arrayOfNumber.test numbers
+
+        it 'should say that it is ok', ->
+          isOk.should.be.true
+
   describe 'maybe types', ->
 
     assertion = maybeCallable
