@@ -5,12 +5,14 @@ CoreCollection = require './collection'
 class InstanceOfAssertion
 
   constructor: (@type, @name) ->
+    unless @ instanceof InstanceOfAssertion # Allow construction without `new`
+      return new InstanceOfAssertion @type, @name 
 
   test: (m) -> m instanceof @type
 
   message: (p) -> "#{ p } is not an instance of #{ @name }"
 
-exports.InstanceOfAssertion = InstanceOfAssertion
+exports.InstanceOf = InstanceOfAssertion
 
 # Arbitrarily nested type assertions.
 class exports.StructuralTypeAssertion

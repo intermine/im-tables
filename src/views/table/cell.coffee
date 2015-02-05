@@ -2,6 +2,13 @@ _ = require 'underscore'
 
 CoreView = require '../../core-view'
 Templates = require '../../templates'
+Options = require '../../options'
+Messages = require '../../messages'
+
+Messages.setWithPrefix 'table.cell', Link: 'link'
+
+SelectedObjects = require '../../models/selected-objects'
+types = require '../../core/type-assertions'
 
 # Null safe isa test.
 _isa = (type, commonType) ->
@@ -20,237 +27,248 @@ _isa = (type, commonType) ->
 #
 isa = _.memoize _isa, (type, ct) -> "#{ type }<#{ ct ? '!' }"
 
-CELL_HTML = (data) ->
-  {url, host} = data
-  data.isForeign = (url and not url.match host)
-  data.target = if data.isForeign then '_blank' else ''
-  _CELL_HTML data
-
-# FIXME FIXME FIXME - this is a work in progress!
+# A Cell representing a single attribute value.
 class Cell extends CoreView
 
-    tagName: "td"
-    className: "im-result-field"
+  # This is a table cell.
+  tagName: 'td'
 
-    # A function that when called returns an HTML string suitable for direct inclusion.
-    formatter: (imobject) ->
-      value = @model.get('value')
-      if value?
-        _.escape value
-      else
-        Templates.null_value
+  # Identifying class name.
+  className: 'im-result-field'
 
-    parameters: ['query', 'selectedObjects']
+  # A function that when called returns an HTML string suitable
+  # for direct inclusion. The default formatter is very simple
+  # and just returns the escaped value.
+  #
+  formatter: (imobject, service, value) ->
+    if value? then (_.escape value) else Templates.null_value
 
-    initialize: ->
-      super
+  parameters: ['query', 'selectedObjects', 'tableState']
 
-      @_setSelected()
-      @_setSelectable()
+  optionalParameters: ['formatter']
 
-      @listenToEntity()
-      @listenToSelectedObjects()
+  parameterTypes:
+    selectedObjects: (types.InstanceOf SelectedObjects, 'SelectedObjects')
+    formatter: types.Callable
+    tableState: types.CoreModel
 
-      @path = @model.get('column') # Cell Views must have a path :: PathInfo property.
+  initialize: ->
+    super
+    @listen()
 
-      for opt in ['IndicateOffHostLinks', 'CellPreviewTrigger', 'ExternalLinkIcons']
-        intermine.onChangeOption opt, @render, @
+  id: -> _.uniqueId 'im_table_cell_'
 
-    # Event listeners.
-    listenToSelectedObjects: ->
-      @listenTo @selectedObjects, 'add remove reset', @_setSelected
-      @listenTo @selectedObjects, 'add remove reset change:commonType', @_setSelectable
+  listen: ->
+    @listenToEntity()
+    @listenToSelectedObjects()
+    @listenTo Options, 'change:TableCell.*', @reRender
+    @listenToTableState()
 
-    listenToEntity: ->
-      entity = @model.get 'entity'
-      @listenTo entity, 'change', @updateValue # Allow formatters to recalculate the value.
+  listenToTableState: -> # TODO - make this work!
+    @listenTo @tableState, 'change:picking', @setInputDisplay
+    @listenTo @tableState, 'change:previewOwner', @_closeOwnPreview
+    @listenTo @tableState, 'change:highlightNode', @_setHighlit
 
-    modelEvents: ->
-      'change:entity': @onChangeEntity # make sure we unbind if it changes.
-      'change:selected change:selectable change:selecting': @reRender
+  initState: ->
+    @_setSelected()
+    @_setSelectable()
 
-    events: ->
-      'shown.bs.popover': => @cellPreview?.reposition() # FIXME - move to the cell preview.
-      'show.bs.popover': (e) => # FIXME - move to the cell preview.
-        @model.get('query').trigger 'showing:preview', @el
-        e?.preventDefault() if @model.get('cell').get 'is:selecting'
-      'hide.bs.popover': (e) => @model.get('cell').cachedPopover?.detach() # FIXME - move to the cell preview.
-      'click': @activateChooser
-      'click a.im-cell-link': (e) =>
-        # Prevent bootstrap from closing dropdowns, etc.
-        e?.stopPropagation()
-        # Allow the table to handle this event, if
-        # it chooses to.
-        e.object = @model # one arg good, more args bad.
-        @options.query.trigger 'object:view', e # FIXME - replace with an event bus.
+  # Event listeners.
 
-    ### FIXME!!: replace all these events by listening to a table state that reports:
-    #  popovercell - which cell is currently showing a popover (maybe none of them)
-    #  picking - whether the table is selecting (initiated by the list dialogues)
-    #  hoveredNode - which column (node) is hovered
-   
-    listenToQuery: (q) ->
-      onListCreation = =>
-        @model.get('cell').set 'is:selecting': true
-      onStopListCreation = =>
-        @model.get('cell').set 'is:selecting': false, 'is:selected': false
-      onShowingPreview = (el) => # Close ours if another is being opened.
-        @cellPreview?.hide() unless el is @el
-      onStartHighlightNode = (node) =>
-        if @model.get('node')?.toString() is node.toString()
-          @$el.addClass "im-highlight"
-      onStopHighlight = => @$el.removeClass "im-highlight"
-      listenToReplacement = (replacement) =>
-        q.off "start:list-creation", onListCreation
-        q.off "stop:list-creation", onStopListCreation
-        q.off 'showing:preview', onShowingPreview
-        q.off "start:highlight:node", onStartHighlightNode
-        q.off "stop:highlight", onStopHighlight
-        q.off "replaced:by", listenToReplacement
-        @listenToQuery replacement
+  # Close our preview if another cell has opened theirs
+  _closeOwnPreview: ->
+    myId = @el.id
+    currentOwner = @tableState.get 'previewOwner'
+    @children.preview?.hide() unless (myId is currentOwner)
 
-      q.on "start:list-creation", onListCreation
-      q.on "stop:list-creation", onStopListCreation
-      q.on 'showing:preview', onShowingPreview
-      q.on "start:highlight:node", onStartHighlightNode
-      q.on "stop:highlight", onStopHighlight
-      q.on "replaced:by", listenToReplacement
-    ###
+  _setHighlit: ->
+    myNode = @model.get('node')
+    @model.set highlit: (myNode.equals @tableState.get 'highlightNode')
 
-    # Event handlers.
-    select: -> @selectedObjects.add @model.get('entity')
+  listenToSelectedObjects: ->
+    arr = 'add remove reset'
+    @listenTo @selectedObjects, arr, @_setSelected
+    @listenTo @selectedObjects, "#{ arr } change:commonType", @_setSelectable
 
-    unselect: -> @selectedObjects.remove @model.get('entity')
+  # Listen to the entity that backs this cell, updating the value if it
+  # changes. This is important for cell formatters so that they can
+  # request new information in a uniform manner.
+  listenToEntity: ->
+    @listenTo (@model.get 'entity'), 'change', @updateValue 
 
-    toggleSelection: ->
-      ent = @model.get 'entity'
-      return unless ent?
-      if found = @selectedObjects.get ent
-        @selectedObjects.remove found
-      else
-        @selectedObjects.add found
+  modelEvents: ->
+    'change:entity': @onChangeEntity # make sure we unbind if it changes.
+    'change:selectable': @toggleInputDisabled
+    'change:selected': @onChangeSelected
+    'change:highlit': @setActiveClass
 
-    _setSelected: -> @model.set 'selected': @selectedObjects.get(@)?
+  events: ->
+    'shown.bs.popover': => @cellPreview?.reposition() # FIXME - move to the cell preview.
+    'show.bs.popover': (e) => # FIXME - move to the cell preview.
+      @model.get('query').trigger 'showing:preview', @el
+      e?.preventDefault() if @model.get('cell').get 'is:selecting'
+    'hide.bs.popover': (e) => @model.get('cell').cachedPopover?.detach() # FIXME - move to the cell preview.
+    'click': @activateChooser
+    'click a.im-cell-link': (e) =>
+      # Prevent bootstrap from closing dropdowns, etc.
+      e?.stopPropagation()
+      # Allow the table to handle this event, if
+      # it chooses to.
+      e.object = @model # one arg good, more args bad.
+      @options.query.trigger 'object:view', e # FIXME - replace with an event bus.
 
-    _setSelectable: ->
-      commonType = @selectedObjects.state.get('commonType')
-      size = @selectedObjects.size()
-      # Selectable when nothing is selected or it is of the right type.
-      selectable = (size is 0) or (isa @type, commonType)
-      @model.set 'selectable'
+  # Event handlers.
+  select: -> @selectedObjects.add @model.get('entity')
 
-    onChangeEntity: -> # Should literally never happen.
-      @stopListening @model.previous 'entity'
-      @listenToEntity()
+  unselect: -> @selectedObjects.remove @model.get('entity')
 
-    remove: ->
-      @popover?.remove()
-      super
+  toggleSelection: ->
+    ent = @model.get 'entity'
+    return unless ent?
+    if found = @selectedObjects.get ent
+      @selectedObjects.remove found
+    else
+      @selectedObjects.add found
 
-    getPopoverContent: =>
-      cell = @model.get 'cell'
-      return cell.cachedPopover if cell.cachedPopover?
+  _setSelected: -> @model.set 'selected': @selectedObjects.get(@)?
 
-      type = cell.get 'obj:type'
-      id = cell.get 'id'
+  _setSelectable: ->
+    commonType = @selectedObjects.state.get('commonType')
+    size = @selectedObjects.size()
+    # Selectable when nothing is selected or it is of the right type.
+    selectable = (size is 0) or (isa @type, commonType)
+    @model.set 'selectable'
 
-      popover = @popover = new intermine.table.cell.Preview
-        service: @model.get('query').service
-        schema: @model.get('query').model
-        model: {type, id}
+  onChangeEntity: -> # Should literally never happen.
+    @stopListening @model.previous 'entity'
+    @listenToEntity()
 
-      content = popover.$el
+  activateChooser: ->
+    selectable = @tableState.get 'picking'
+    selectable = @model.get 'selectable'
+    if selectable and selecting # then toggle state of 'selected'
+      @toggleSelection()
 
-      popover.on 'rendered', => @cellPreview.reposition()
-      popover.render()
+  updateValue: -> _.defer =>
+    @$('.im-displayed-value').html @formatter(@model.get('cell'))
 
-      cell.cachedPopover = content
+  selectingStateChange: ->
+    {checked, disabled, display} = @getInputState()
+    @$el.toggleClass "active", checked
+    @$('input').attr({checked, disabled}).css {display}
 
-    getPopoverPlacement: (popover) =>
-      table = @$el.closest ".im-table-container"
-      {left} = @$el.offset()
+  getFormattedValue: ->
+    {entity, value} = @model.pick 'entity', 'value'
+    {service} = @query
+    @formatter.call null, entity, service, value
 
-      limits = table.offset()
-      _.extend limits,
-        right: limits.left + table.width()
-        bottom: limits.top + table.height()
+  getData: ->
+    opts = Options.get 'TableCell'
+    host = if opts.IndicateOffHostLinks then global.location.host else /.*/
 
-      w = @$el.width()
-      h = @$el.height()
-      elPos = @$el.offset()
+    data = @model.toJSON()
+    data.formattedValue = @getFormattedValue()
+    data.input = @getInputState()
+    data.icon = null
+    data.url = reportUri = data.entity['report:uri']
+    data.isForeign = (reportUri and not reportUri.match host)
+    data.target = if data.isForeign then '_blank' else ''
+    data.NULL_VALUE = Templates.null_value
 
-      pw = $(popover).outerWidth()
-      ph = $(popover)[0].offsetHeight
+    for domain, url of opts.ExternalLinkIcons when reportUri.match domain
+      data.icon ?= url
 
-      fitsOnRight = left + w + pw <= limits.right
-      fitsOnLeft = limits.left <= left - pw
+    return data
 
-      if fitsOnLeft
-        return 'left'
-      if fitsOnRight
-        return 'right'
-      else
-        return 'top'
+  getInputState: ->
+    selecting = @tableState.get 'picking'
+    {selected, selectable} = @model.pick 'selected', 'selectable'
+    checked = selected
+    disabled = not selectable
+    display = if selecting and selectable then 'inline' else 'none'
+    {checked, disabled, display}
 
-    setupPreviewOverlay: ->
-      options =
-        container: @el
-        containment: '.im-query-results'
-        html: true # well, technically we are using Elements.
-        title: => @model.get 'typeName' # function, as not available until render is called
-        trigger: intermine.options.CellPreviewTrigger # click or hover
-        delay: {show: 250, hide: 250} # Slight delays to prevent jumpiness.
-        classes: 'im-cell-preview'
-        content: @getPopoverContent
-        placement: @getPopoverPlacement
+  template: Templates.template 'table-cell'
 
-      @cellPreview?.destroy()
-      @cellPreview = new intermine.bootstrap.DynamicPopover @el, options
+  postRender: ->
+    attrType = @model.get('column').getType()
+    @$el.addClass 'im-type-' + attrType.toLowerCase()
+    @setActiveClass()
+    @setupPreviewOverlay() if @model.get('entity').get('id')
 
-    updateValue: -> _.defer =>
-      @$('.im-displayed-value').html @formatter(@model.get('cell'))
+  onChangeSelected: ->
+    @setActiveClass()
+    @$('input').css checked: @getInputState().checked
 
-    getInputState: ->
-      {selected, selectable, selecting} = @model.get('cell').selectionState()
-      checked = selected
-      disabled = not selectable
-      display = if selecting and selectable then 'inline' else 'none'
-      {checked, disabled, display}
+  setActiveClass: ->
+    {highlit, selected} = @model.pick 'highlit', 'selected'
+    @$el.toggleClass 'active', (highlit or selected)
 
-    selectingStateChange: ->
-      {checked, disabled, display} = @getInputState()
-      @$el.toggleClass "active", checked
-      @$('input').attr({checked, disabled}).css {display}
+  setInputDisplay: ->
+    @$('input').css display: @getInputState().display
 
-    getData: ->
-      {IndicateOffHostLinks, ExternalLinkIcons} = intermine.options
-      field = @model.get('field')
-      data =
-        value: (@formatter.call @, @model.get 'entity')
-        rawValue: @model.get('value')
-        field: field
-        url: @model.get('cell').get('service:url')
-        host: if IndicateOffHostLinks then window.location.host else /.*/
-        icon: null
-      _.extend data, @getInputState()
+  toggleInputDisabled: ->
+    @$('input').attr disabled: @getInputState().disabled
 
-      unless /^http/.test(data.url)
-        data.url = @model.get('cell').get('service:base') + data.url
+  # The below needs lots of work. FIXME
 
-      for domain, url of ExternalLinkIcons when data.url.match domain
-        data.icon ?= url
-      data
+  setupPreviewOverlay: ->
+    options =
+      container: @el
+      containment: '.im-query-results'
+      html: true # well, technically we are using Elements.
+      title: => @model.get 'typeName' # function, as not available until render is called
+      trigger: intermine.options.CellPreviewTrigger # click or hover
+      delay: {show: 250, hide: 250} # Slight delays to prevent jumpiness.
+      classes: 'im-cell-preview'
+      content: @getPopoverContent
+      placement: @getPopoverPlacement
 
-    render: ->
-      data = @getData()
-      @$el.addClass 'im-type-' + @path.getType().toLowerCase()
-      @$el.addClass 'active' if data.checked
-      @$el.html CELL_HTML data
-      @setupPreviewOverlay() if @model.get('cell').get('id')
-      this
+    @cellPreview?.destroy()
+    @cellPreview = new intermine.bootstrap.DynamicPopover @el, options
 
-    activateChooser: ->
-      s = @model.pick 'selectable', 'selecting'
-      if s.selectable and s.selecting # then toggle state of 'selected'
-        @toggleSelection()
+  getPopoverPlacement: (popover) =>
+    table = @$el.closest ".im-table-container"
+    {left} = @$el.offset()
+
+    limits = table.offset()
+    _.extend limits,
+      right: limits.left + table.width()
+      bottom: limits.top + table.height()
+
+    w = @$el.width()
+    h = @$el.height()
+    elPos = @$el.offset()
+
+    pw = $(popover).outerWidth()
+    ph = $(popover)[0].offsetHeight
+
+    fitsOnRight = left + w + pw <= limits.right
+    fitsOnLeft = limits.left <= left - pw
+
+    if fitsOnLeft
+      return 'left'
+    if fitsOnRight
+      return 'right'
+    else
+      return 'top'
+
+  getPopoverContent: =>
+    cell = @model.get 'cell'
+    return cell.cachedPopover if cell.cachedPopover?
+
+    type = cell.get 'obj:type'
+    id = cell.get 'id'
+
+    popover = @popover = new intermine.table.cell.Preview
+      service: @model.get('query').service
+      schema: @model.get('query').model
+      model: {type, id}
+
+    content = popover.$el
+
+    popover.on 'rendered', => @cellPreview.reposition()
+    popover.render()
+
+    cell.cachedPopover = content
 

@@ -93,6 +93,7 @@ ICONS.glyphicons =
   Dismiss: 'glyphicon-remove-sign'
   Lock: 'glyphicon-lock'
   Attribute: "glyphicon-unchecked"
+  ExternalLink: 'glyphicon-globe'
   tsv: 'glyphicon-list'
   csv: 'glyphicon-list'
   xml: 'glyphicon-xml'
@@ -173,6 +174,7 @@ ICONS.fontawesome =
   Rubbish: 'fa-trash-o'
   RubbishFull: 'fa-trash'
   Joins: 'fa-share-alt'
+  ExternalLink: 'fa-globe'
   tsv: 'fa-list'
   csv: 'fa-list'
   xml: 'fa-code'

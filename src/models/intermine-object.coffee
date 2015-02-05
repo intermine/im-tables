@@ -14,8 +14,13 @@ module.exports = class IMObject extends CoreModel
     @set 'service:base': base
     @freeze 'id', 'class' # Do not allow these properties to change.
 
-  toJSON: -> _.extend super,
-    'report:uri': (@get('service:base') + @get('service:url'))
+  toJSON: ->
+    url = @get 'service:url'
+    uri = if (/^http/.test url)
+      url
+    else
+      @get('service:base') + url
+    _.extend super, 'report:uri': uri
 
   merge: (obj, field) ->
     @set field, obj.value

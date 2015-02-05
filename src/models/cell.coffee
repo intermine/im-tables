@@ -12,5 +12,6 @@ module.exports = class CellModel extends CoreModel
 
   defaults: ->
     selected: false
-    selecting: false
     selectable: true
+
+  toJSON: -> _.extend super, entity: @get('entity').toJSON()

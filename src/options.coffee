@@ -16,10 +16,11 @@ class Options extends NestedModel
     MaxSuggestions: 1000 # Max number of suggestions to fetch and show when editing constraints.
     ListCategorisers: ['organism.name', 'department.company.name']
     PieColors: 'category10'
-    CellPreviewTrigger: 'hover' # click
-    IndicateOffHostLinks: true
-    ExternalLinkIcons:
-      "http://some.host.somewhere": "http://some.host.somewhere/logo.png"
+    TableCell:
+      PreviewTrigger: 'hover' # one of: hover, click
+      IndicateOffHostLinks: true
+      ExternalLinkIcons:
+        "http://some.host.somewhere": "http://some.host.somewhere/logo.png"
     StylePrefix: 'intermine'
     SuggestionDepth: 4 # When suggestion paths, follow up to this many references.
     Events:
