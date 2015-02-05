@@ -50,7 +50,7 @@ class Cell extends CoreView
   parameterTypes:
     selectedObjects: (types.InstanceOf SelectedObjects, 'SelectedObjects')
     formatter: types.Callable
-    tableState: types.CoreModel
+    tableState: types.Model
 
   initialize: ->
     super
