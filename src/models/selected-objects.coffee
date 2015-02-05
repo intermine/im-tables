@@ -1,6 +1,8 @@
 CoreModel = require '../core-model'
 Collection = require '../core/collection'
 
+types = require '../core/type-assertions'
+
 # This class defines our expectations for the data that 
 # the selected objects collection contains.
 class SelectionModel extends CoreModel
@@ -26,7 +28,8 @@ module.exports = class SelectedObjects extends Collection
   model: SelectionModel
 
   constructor: (service) ->
-    super
+    super()
+    types.assertMatch types.Service, service, 'service'
     @state = new CoreModel commonType: null, typeName: null
     @listenTo @state, 'change:commonType', @onChangeType
     @listenTo @, 'add remove reset', @setType

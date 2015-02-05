@@ -10,8 +10,4 @@ module.exports = class CellModel extends CoreModel
     column.getDisplayName().then (columnName) => @set {columnName}
     column.model.makePath(type).getDisplayName().then (typeName) => @set {typeName}
 
-  defaults: ->
-    selected: false
-    selectable: true
-
   toJSON: -> _.extend super, entity: @get('entity').toJSON()

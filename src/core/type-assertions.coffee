@@ -4,6 +4,11 @@ Backbone = require 'backbone'
 CoreModel = require '../core-model'
 CoreCollection = require './collection'
 
+exports.assertMatch = (assertion, value, paramName = 'value') ->
+  isOk = assertion.test value
+  unless isOk
+    throw new Error assertion.message paramName
+
 class InstanceOfAssertion
 
   constructor: (@type, @name) ->
@@ -43,7 +48,7 @@ exports.InstanceOf = InstanceOfAssertion
 exports.StructuralTypeAssertion = StructuralTypeAssertion
 
 # Check that something is a model.
-exports.Model = new InstanceOfAssertion Backbone.Model, 'model'
+exports.Model = new InstanceOfAssertion Backbone.Model, 'Backbone.Model'
 
 # Check that something is a core-model.
 exports.CoreModel = new InstanceOfAssertion CoreModel, 'core-model'
@@ -107,21 +112,27 @@ exports.HasProperty = (prop) ->
 # of queries (possibly constructed with different classes)
 # and it would be good to support mocking more easily too.
 #
-# This is not the full Query API, but as just a sampling
-# that has a very high probability of finding if something
-# is a Query
+# The selected properties do not represent the full public
+# API of these classes, but they should be more than enough to
+# positively identify instances of them with a very low chance
+# of false positives, and zero false negatives.
+
+exports.Service = InterMineService = new StructuralTypeAssertion 'Service',
+  root: StringType
+  query: Callable
+  fetchModel: Callable
+  fetchLists: Callable
+  count: Callable
+  whoami: Callable
+
+exports.DataModel = DataModel = new StructuralTypeAssertion 'imjs.Model',
+  name: StringType
+  makePath: Callable
+  findCommonType: Callable
+
 exports.Query = new StructuralTypeAssertion 'Query',
-  service: # Just a sampling of the required methods.
-    root: StringType
-    query: Callable
-    fetchModel: Callable
-    fetchLists: Callable
-    count: Callable
-    whoami: Callable
-  model:
-    name: StringType
-    makePath: Callable
-    findCommonType: Callable
+  service: InterMineService
+  model: DataModel
   rows: Callable
   count: Callable
   toXML: Callable

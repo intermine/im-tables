@@ -1,0 +1,5 @@
+<div class="alert alert-error">
+    <h4>Error</h4>
+    <p>Sorry. We could not fetch the preview due to an error:</p>
+    <code><%- message %></code>
+</div>

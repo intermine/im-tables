@@ -5,10 +5,8 @@ queries = [ # We are creating a query here just for its service, oh, and its tab
 require 'imtables/shim'
 $ = require 'jquery'
 
-Collection = require 'imtables/core/collection'
 Dialogue = require 'imtables/views/list-dialogue/create-from-selection'
-
-objects = new Collection
+SelectedObjects = require 'imtables/models/selected-objects'
 
 renderQueries = require '../lib/render-queries.coffee'
 renderQueryWithCounter = require '../lib/render-query-with-counter-and-displays.coffee'
@@ -24,6 +22,7 @@ done = (res) ->
       .then null, (e) -> console.error "Failed to delete #{ list.name }", e
 
 create = (query) ->
+  objects = new SelectedObjects query.service
   renderItemSelector query, 1, objects
   new Dialogue {collection: objects, service: query.service}
 

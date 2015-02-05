@@ -1,0 +1,13 @@
+<tr>
+  <td class="im-field-name"><%- name %></td>
+  <td class="im-field-value <%- field.toLowerCase() %>">
+    <%- value %>
+    <span class="im-overspill"><%- valueOverspill %></span>
+    <% if (tooLong) { %>
+      <a class="im-too-long">
+        <span class="im-ellipsis">...</span>
+        <%= Icons.icon('More') %>
+      </a>
+    <% } %>
+  </td>
+</tr>

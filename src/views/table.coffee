@@ -19,7 +19,23 @@ ResultsTable = require './table/inner'
 PageSizer = require './table/page-sizer'
 TableSummary = require './table/summary'
 
-class RowModel extends CoreModel # Currently no content.
+# A row in the table, basically just a container for cells.
+class RowModel extends CoreModel
+
+  defaults: ->
+    index: null
+    cells: []
+
+  toJSON: -> _.extend super, cells: (c.toJSON() for c in @get 'cells')
+
+# An ordered collection of rows
+class RowsCollection extends Collection
+
+  model: RowModel
+
+  idAttribute: 'index'
+
+  comparator: 'index'
 
 module.exports = class Table extends CoreView
 
@@ -291,10 +307,9 @@ module.exports = class Table extends CoreView
 
     # FIXME - make sure cells know their node...
 
-    fields = ([@query.getPathInfo(v).getParent(), v.replace(/^.*\./, "")] for v in @query.views)
-
-    @rows.reset rows.map (row) =>
-      new RowModel cells: row.map (cell, idx) => @makeCellModel cell
+    @rows.set rows.map (row, i) =>
+      cells = row.map (cell) => @makeCellModel cell
+      new RowModel index: (start + i), cells: cells
 
     console.debug 'rows filled', @rows.size()
 
@@ -323,7 +338,8 @@ module.exports = class Table extends CoreView
     tel = @makeTable()
     frag.appendChild tel
 
-    table = new ResultsTable @query, @blacklistedFormatters, @columnHeaders, @rows
+    table = new ResultsTable {@query, tableState: @model, @blacklistedFormatters, @columnHeaders, @rows}
+
     @renderChildAt 'inner', table, tel
 
     return frag

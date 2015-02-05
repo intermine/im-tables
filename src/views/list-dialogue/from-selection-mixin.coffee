@@ -16,7 +16,7 @@ module.exports = (Base) ->
   parameters: ['service', 'collection'] # collection must be SelectedObjects
 
   parameterTypes:
-    collection: (new TypeAssertions.InstanceOfAssertion SelectedObjects, 'SelectedObjects')
+    collection: (TypeAssertions.InstanceOf SelectedObjects, 'SelectedObjects')
 
   className: -> Base::className.call(@) + ' im-list-picker'
 

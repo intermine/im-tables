@@ -1,0 +1,6 @@
+<tr>
+    <td class="im-field-name"><%- name %></td>
+    <td class="im-field-value <%- field.toLowerCase() %>">
+        <%- values.join(', ') %>
+    </td>
+</tr>

@@ -8,12 +8,10 @@ queries = [ # We are creating a query here just for its service, oh, and its tab
 
 # project code.
 Button = require 'imtables/views/list-dialogue/button'
-Collection = require 'imtables/core/collection'
+SelectedObjects = require 'imtables/models/selected-objects'
 # test code.
 ListAppendFramework = require '../lib/list-append-framework'
 SelectionTable = require '../lib/selection-table'
-
-objects = new Collection
 
 onListAppend = (res) ->
   ListAppendFramework.done(res).then ListAppendFramework.setup
@@ -25,6 +23,8 @@ onListCreate = (res) ->
             .then null, (e) -> console.error 'err', e
 
 create = (query) ->
+  objects = new SelectedObjects query.service
+
   table = new SelectionTable {query, selected: objects}
   table.render().$el.appendTo 'body'
 

@@ -244,9 +244,9 @@ module.exports = class CoreView extends Backbone.View
   assertInvariant: (condition, message) -> throw new Error(message) unless condition
 
   assertInvariants: ->
-    params = (_.result @, 'parameters') ? []
+    params         = (_.result @, 'parameters') ? []
     optionalParams = (_.result @, 'optionalParameters') ? []
-    paramTypes = (_.result @, 'parameterTypes') ? {}
+    paramTypes     = (_.result @, 'parameterTypes') ? {}
 
     # Assert that we have all our required parameters.
     for p in params
@@ -254,12 +254,13 @@ module.exports = class CoreView extends Backbone.View
       @assertInvariant v?, "Missing required option: #{ p }"
 
     # Assert that all our parameters (optional and required) meet their expectations.
-    for p in params.concat(optionalParameters)
-      typeAssertion = parameterTypes[p]
+    for p in params.concat(optionalParams)
+      typeAssertion = paramTypes[p]
       if typeAssertion?
         # The constract of these calls is that they are evaluated in this order, so
         # that ::message() has access to data collected during ::test() (if it wants to do
         # so. DO NOT REORDER.
+        v = @[p]
         assertion = typeAssertion.test v
         message = typeAssertion.message p
         @assertInvariant assertion, message

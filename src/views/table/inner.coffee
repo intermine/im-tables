@@ -2,17 +2,22 @@ _ = require 'underscore'
 
 View = require '../../core-view'
 
+types = require '../../core/type-assertions'
+
 PathSet = require '../../models/path-set'
 NestedTableModel = require '../../models/nested-table'
 ColumnHeader = require './header'
+ColumnHeaders = require '../../models/column-headers'
+PopoverFactory = require '../../utils/popover-factory'
 
 # FIXME - check this import
 SubTable = require './subtable'
-# FIXME - check this import
 Cell = require './cell'
 # FIXME - create this file, make sure it returns a template
 #      - make sure that there is a .btn.undo in it
 NoResults = require '../templates/no-results'
+
+Preview = require './cell-preview'
 
 # Inner class that only knows how to render results,
 # but not where they come from.
@@ -43,10 +48,29 @@ module.exports = class ResultsTable extends View
     </tr>
   """
 
-  initialize: (@query, @blacklistedFormatters, @columnHeaders, @rows) ->
+  parameters: [
+    'query',
+    'blacklistedFormatters',
+    'columnHeaders',
+    'rows',
+    'tableState',
+    'selectedObjects'
+  ]
+
+  parameterTypes:
+    query: types.Query
+    blacklistedFormatters: types.Collection
+    rows: types.Collection
+    tableState: types.Model
+    columnHeaders: (types.InstanceOf ColumnHeaders, 'ColumnHeaders')
+    selectedObjects: (types.InstanceOf SelectedObjects, 'SelectedObjects')
+
+  initialize: ->
+    super
     @minimisedCols = {}
-    @query.on 'columnvis:toggle', @onColvisToggle
+    # TODO: manage onColvisToggle
     @expandedSubtables = new PathSet
+    @popoverFactory  = new PopoverFactory @query.service, Preview
 
     @listenTo @columnHeaders, 'reset add remove', @renderHeaders
     @listenTo @columnHeaders, 'reset add remove', @fill
@@ -79,12 +103,12 @@ module.exports = class ResultsTable extends View
 
     docfrag = document.createDocumentFragment()
 
-    replacer_of = {}
+    column_for = {}
     @columnHeaders.each (col) ->
       for r in (rs = col.get('replaces'))
-        replacer_of[r] = col
+        column_for[r] = col
 
-    @rows.each (row) => @appendRow docfrag, row, replacer_of
+    @rows.each (row) => @appendRow docfrag, row, column_for
 
     # Careful - there might be subtables out there - be specific.
     @$el.children('tbody').html docfrag
@@ -103,38 +127,45 @@ module.exports = class ResultsTable extends View
   """
 
   renderCell: (cell) =>
-    base = @query.service.root.replace /\/service\/?$/, ""
+    service = @query.service
+    base = service.root.replace /\/service\/?$/, ""
     if cell instanceof NestedTableModel
-      # FIXME - use expandedSubtables - specifically this should
-      # replace all the expanded/collapsed events.
-      node = @query.getPathInfo obj.column
       return new SubTable
         model: cell
-        cellify: @renderCell
-        canUseFormatter: (f) => @canUseFormatter
-        mainTable: @
+        cellify: @renderCell # bound method of this class.
+        canUseFormatter: @canUseFormatter # bound method of this class.
         expandedSubtables: @expandedSubtables
     else
-      return new Cell(model: cell)
+      return new Cell
+        model: cell
+        service: service
+        popovers: @popoverFactory
+        selectedObjects: @selectedObjects
+        tableState: @tableState
 
-  canUseFormatter: (formatter) ->
-    formatter? and (not @blacklistedFormatters.any (f) -> f.get('formatter') is formatter)
+  # can be used if it exists and hasn't been black-listed.
+  canUseFormatter: (formatter) =>
+    formatter? and (not @blacklistedFormatters.findWhere {formatter})
 
-  # tbody :: HTMLElement, row :: RowModel, replacer_of :: {string => Formatter}
-  appendRow: (tbody, row, replacer_of) =>
+  # tbody :: HTMLElement, row :: RowModel, column_for :: {string => Column}
+  appendRow: (tbody, row, column_for) =>
     tr = document.createElement 'tr'
     tbody.appendChild tr
-    minWidth = 10
-    processed = {}
+    minWidth = 10  # TODO: does this really need to be here?
+    processed = {} # keep a track of which paths we have processed.
 
     # Render models into views
     cellViews = (@renderCell cell for cell in row.get('cells'))
 
     # cell :: Cell | SubTable, i :: int
     for cell, i in cellViews then do (cell, i) =>
-      cellPath = cell.path
-      return if processed[cellPath]
+      # What we are doing here is looking for paths to skip because they are
+      # replaced due to formatting.
+      cellPath = cell.getPath()
+      return if processed[cellPath] # skip this path - it has been processed.
       processed[cellPath] = true
+      column = column_for[cellPath]
+
       {replaces, formatter, path} = (replacer_of[cellPath]?.toJSON() ? {})
       if replaces?.length > 1
         # Only accept if it is the right type, since formatters expect a type.
@@ -158,13 +189,19 @@ module.exports = class ResultsTable extends View
     docfrag = document.createDocumentFragment()
     tr = document.createElement 'tr'
     docfrag.appendChild tr
+    headerOpts = {@query, @expandedSubtables, @blacklistedFormatters}
 
-    @columnHeaders.each @renderHeader tr
+    @columnHeaders.each @renderHeader tr, headerOpts
             
     # children selector because we only want to go down 1 layer.
     @$el.children('thead').html docfrag
 
   # Render a single header to the row of headers
-  renderHeader: (tr) -> (model, i) =>
-    header = new ColumnHeader {model, @query, @blacklistedFormatters}
+  renderHeader: (tr, opts) -> (model, i) =>
+    header = new ColumnHeader _.extend {model}, opts
     @renderChild "header_#{ i }", header, tr
+
+  remove: ->
+    @popoverFactory.destroy()
+    delete @popoverFactory
+    super

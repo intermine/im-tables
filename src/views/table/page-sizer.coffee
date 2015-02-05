@@ -2,19 +2,18 @@ _  = require 'underscore'
 
 Paging = require './paging'
 HasDialogues = require '../has-dialogues'
-View = require '../../core-view'
+CoreView = require '../../core-view'
 Templates = require '../../templates'
 Events = require '../../events'
 
 # Dialogues
 NewFilterDialogue = require '../new-filter-dialogue'
-# FIXME
 ExportDialogue = require '../export-dialogue'
 LargeTableDisuader = require './large-table-disuader'
 
-# This needs a test/index
+# TODO This needs a test/index
 
-module.exports = class PageSizer extends View
+module.exports = class PageSizer extends CoreView
   
   @include Paging
   @include HasDialogues
@@ -24,8 +23,10 @@ module.exports = class PageSizer extends View
 
   sizes: [[10], [25], [50], [100], [250]] # [0, 'All']]
 
+  parameters: ['query']
+
   # We need the query because we will pass it on to modal dialogues we open.
-  initialize: ({@query}) ->
+  initialize: ->
     super
     size = @model.get 'size'
     if size? and not _.include (s for [s] in @sizes), size

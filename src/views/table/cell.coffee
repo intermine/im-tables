@@ -4,6 +4,7 @@ CoreView = require '../../core-view'
 Templates = require '../../templates'
 Options = require '../../options'
 Messages = require '../../messages'
+CellModel = require '../../models/cell'
 
 Messages.setWithPrefix 'table.cell', Link: 'link'
 
@@ -28,7 +29,10 @@ _isa = (type, commonType) ->
 isa = _.memoize _isa, (type, ct) -> "#{ type }<#{ ct ? '!' }"
 
 # A Cell representing a single attribute value.
+# Forms a pair with ./subtable
 class Cell extends CoreView
+
+  Model: CellModel
 
   # This is a table cell.
   tagName: 'td'
@@ -43,18 +47,29 @@ class Cell extends CoreView
   formatter: (imobject, service, value) ->
     if value? then (_.escape value) else Templates.null_value
 
-  parameters: ['query', 'selectedObjects', 'tableState']
+  parameters: [
+    'model', # We need a cell model to function.
+    'service', # We pass the service on to some child elements.
+    'selectedObjects', # the set of selected objects.
+    'tableState' # {picking, previewOwner, highlightNode, count, start, size}
+    'popovers' # creates popovers
+  ]
 
   optionalParameters: ['formatter']
 
   parameterTypes:
+    model: (types.InstanceOf CellModel, 'models/cell')
     selectedObjects: (types.InstanceOf SelectedObjects, 'SelectedObjects')
     formatter: types.Callable
     tableState: types.Model
+    service: types.Service
 
   initialize: ->
     super
     @listen()
+
+  # getPath is part of the RowCell API
+  getPath: -> @model.get 'column'
 
   id: -> _.uniqueId 'im_table_cell_'
 
@@ -72,6 +87,7 @@ class Cell extends CoreView
   initState: ->
     @_setSelected()
     @_setSelectable()
+    @_setHighlit()
 
   # Event listeners.
 
@@ -80,10 +96,6 @@ class Cell extends CoreView
     myId = @el.id
     currentOwner = @tableState.get 'previewOwner'
     @children.preview?.hide() unless (myId is currentOwner)
-
-  _setHighlit: ->
-    myNode = @model.get('node')
-    @model.set highlit: (myNode.equals @tableState.get 'highlightNode')
 
   listenToSelectedObjects: ->
     arr = 'add remove reset'
@@ -130,27 +142,31 @@ class Cell extends CoreView
     else
       @selectedObjects.add found
 
-  _setSelected: -> @model.set 'selected': @selectedObjects.get(@)?
+  _setSelected: -> @state.set 'selected': @selectedObjects.get(@model.get('entity'))?
 
   _setSelectable: ->
     commonType = @selectedObjects.state.get('commonType')
     size = @selectedObjects.size()
     # Selectable when nothing is selected or it is of the right type.
     selectable = (size is 0) or (isa @type, commonType)
-    @model.set 'selectable'
+    @state.set 'selectable'
+
+  _setHighlit: ->
+    myNode = @model.get('node')
+    @state.set highlit: (myNode.equals @tableState.get 'highlightNode')
 
   onChangeEntity: -> # Should literally never happen.
     @stopListening @model.previous 'entity'
     @listenToEntity()
 
   activateChooser: ->
-    selectable = @tableState.get 'picking'
-    selectable = @model.get 'selectable'
+    selecting = @tableState.get 'picking'
+    selectable = @state.get 'selectable'
     if selectable and selecting # then toggle state of 'selected'
       @toggleSelection()
 
   updateValue: -> _.defer =>
-    @$('.im-displayed-value').html @formatter(@model.get('cell'))
+    @$('.im-displayed-value').html @getFormattedValue()
 
   selectingStateChange: ->
     {checked, disabled, display} = @getInputState()
@@ -159,8 +175,7 @@ class Cell extends CoreView
 
   getFormattedValue: ->
     {entity, value} = @model.pick 'entity', 'value'
-    {service} = @query
-    @formatter.call null, entity, service, value
+    @formatter.call null, entity, @service, value
 
   getData: ->
     opts = Options.get 'TableCell'
@@ -254,21 +269,6 @@ class Cell extends CoreView
       return 'top'
 
   getPopoverContent: =>
-    cell = @model.get 'cell'
-    return cell.cachedPopover if cell.cachedPopover?
-
-    type = cell.get 'obj:type'
-    id = cell.get 'id'
-
-    popover = @popover = new intermine.table.cell.Preview
-      service: @model.get('query').service
-      schema: @model.get('query').model
-      model: {type, id}
-
-    content = popover.$el
-
-    popover.on 'rendered', => @cellPreview.reposition()
-    popover.render()
-
-    cell.cachedPopover = content
+    obj = @model.get 'entity'
+    popoverFactory.get obj
 

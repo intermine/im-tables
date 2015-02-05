@@ -1,4 +1,5 @@
 CoreView = require '../../core-view'
+Options = require '../../options'
 TypeAssertions = require '../../core/type-assertions'
 HeaderModel = require '../../models/header'
 NestedTableModel = require '../../models/nested-table'
@@ -13,9 +14,14 @@ module.exports = class SubTable extends CoreView
     tagName: "td"
     className: "im-result-subtable"
 
-    parameters: ['cellify', 'column', 'canUseFormatter', 'mainTable', 'expandedSubtables']
-
     Model: NestedTableModel
+
+    parameters: [
+      'cellify',
+      'column',
+      'canUseFormatter',
+      'expandedSubtables'
+    ]
 
     parameterTypes:
       column: (new TypeAssertions.InstanceOfAssertion HeaderModel, 'HeaderModel')
@@ -25,10 +31,10 @@ module.exports = class SubTable extends CoreView
 
     initialize: ->
       super
-      @path = @get('column') # Cell Views must have a path :: PathInfo property.
-      @model.on 'expand', => @renderTable().slideDown()
-      @model.on 'collapse', => @$('.im-subtable').slideUp()
       @listenTo @expandedSubtables, 'add remove reset', @onChangeExpandedSubtables
+
+    # getPath is part of the RowCell API
+    getPath: -> @model.get 'column'
 
     stateEvents: ->
       'change:open': @onChangeOpen
@@ -224,7 +230,9 @@ module.exports = class SubTable extends CoreView
         </table>
       """
 
-      if intermine.options.SubtableInitialState is 'open' or @options.mainTable.SubtableInitialState is 'open'
+      openInitially = Options.get 'Subtables.Initially.expanded'
+
+      if openInitially
         @toggleTable()
 
       this

@@ -1,0 +1,4 @@
+<li class="im-relation">
+  <span class="pull-left"><%- name %></span>
+  <span class="pull-right im-count"><%- numToString(count) %></span>
+</li>

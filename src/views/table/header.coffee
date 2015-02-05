@@ -54,14 +54,19 @@ module.exports = class ColumnHeader extends CoreView
   namePopoverTemplate: Templates.template 'column_name_popover'
 
   parameters: ['query']
-  optionalParameters: ['blacklistedFormatters']
+  optionalParameters: [
+    'blacklistedFormatters',
+    'expandedSubtables',
+  ]
 
+  # Default values of optional parameters.
+  expandedSubtables: new Collection
   blacklistedFormatters: new Collection
 
   initialize: ->
     super
 
-    # TODO - replace these abominations with a data-model.
+    # FIXME - replace these abominations with a data-model.
     @listenTo @query, 'subtable:expanded', @onSubtableExpanded
     @listenTo @query, 'subtable:collapsed', @onSubtableCollapsed
     @listenTo @query, 'showing:column-summary', @removeMySummary
