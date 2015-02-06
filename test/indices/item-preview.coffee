@@ -16,22 +16,37 @@ colleaguesQuery = (id) ->
 
 opts =
   Department: ['employees']
-  Employee: [{label: 'colleagues', query: colleaguesQuery}]
+  Employee: [{label: 'Colleagues', query: colleaguesQuery}]
 
 Options.set ['Preview', 'Count', connection.root], opts
 
-query =
- select: ['id']
- from: 'Employee'
- where: {name: 'David Brent'}
-
 main = ->
-  connection.rows query
-            .then ([[id]]) -> id
-            .then renderPreview
+  findAndRender 'Employee', 'David Brent'
+  findAndRender 'Company', 'Wernham-Hogg'
 
-renderPreview = (id) ->
-  view = new Preview service: connection, model: {id, type: 'Employee'}
-  view.render().$el.appendTo 'body'
+findAndRender = (type, name) -> fetchId(find type, name).then renderPreview type
+
+fetchId = (query) -> connection.rows(query).then ([[id]]) -> id
+
+find = (type, name) ->
+  select: ['id']
+  from: type
+  where: {name}
+
+createPanel = ->
+  p = document.createElement 'div'
+  p.className = 'panel panel-default'
+  b = document.querySelector 'body'
+  b.appendChild p
+  pbody = document.createElement 'div'
+  pbody.className = 'panel-body'
+  p.appendChild pbody
+  return pbody
+
+renderPreview = (type) -> (id) ->
+  p = createPanel()
+
+  view = new Preview service: connection, model: {id, type}
+  p.appendChild view.render().el
 
 $ main

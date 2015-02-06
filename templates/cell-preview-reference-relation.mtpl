@@ -1,4 +1,6 @@
-<li class="im-relation">
-  <span class="pull-left"><%- displayName %></span>
-  <span class="pull-right im-count"><%- numToString(count) %></span>
-</li>
+<% _.each(collection, function (relation) { %>
+  <li class="im-relation">
+    <span class="im-name"><%- _.last(relation.parts) %></span>
+    <span class="im-count"><%- numToString(relation.count) %></span>
+  </li>
+<% }); %>

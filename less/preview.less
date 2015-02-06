@@ -1,0 +1,43 @@
+.im-cell-preview-inner {
+
+    h4 {
+        font-size: 1.1em;
+        font-style: italic;
+    }
+
+    .im-related-counts {
+        list-style-type: none;
+        margin-left: 0;
+        padding-left: 0;
+
+        .im-relation {
+            padding: 0.1em 1em;
+            width: 50%;
+            .pull-left();
+            display: inline-block;
+
+            &:nth-child(odd) {
+                border-right: 1px solid @gray-lighter;
+            }
+            &:last-child {
+                border-right: none;
+            }
+
+            .im-name {
+                .pull-left();
+            }
+
+            .im-count {
+                .pull-right();
+            }
+        }
+    }
+
+    .im-item-details {
+        .im-field-value {
+            &.boolean {
+                font-family: @font-family-monospace;
+            }
+        }
+    }
+}

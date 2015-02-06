@@ -81,8 +81,6 @@ module.exports = class Preview extends CoreView
     @fieldDetails = new SortedByName
     @referenceFields = new SortedByName
 
-    @service.fetchModel().then (@schema) => @reRender()
-
   modelEvents: ->
     'change:phase': @reRender
     'change:error': @reRender
@@ -121,7 +119,10 @@ module.exports = class Preview extends CoreView
     referenceCounts = new ReferenceCounts collection: @referenceFields
     @renderChild 'counts', referenceCounts
 
-  fetchData: ->
+  # Fetching requires the InterMine data model, which we name
+  # schema here for reasons of sanity (namely collision with the
+  # Backbone model located at @model)
+  fetchData: -> @service.fetchModel().then (@schema) =>
     type = @model.get 'type'
     types = type.split ',' # could be a dynamic object.
 
@@ -152,6 +153,7 @@ module.exports = class Preview extends CoreView
 
     return null
 
+  # Turns references returned from into name: values pairs
   handleSubObj: (item, field, value) ->
     values = getLeaves value, HIDDEN_FIELDS
     path = @schema.makePath "#{ item['class'] }.#{ field }"
@@ -167,7 +169,7 @@ module.exports = class Preview extends CoreView
     details = {tooLong, path, field, value: valueString}
 
     if tooLong # Try and break on whitespace
-      snipPoint = valueString.indexOf ' ', cuttoff * 0.9 
+      snipPoint = valueString.indexOf ' ', cuttoff * 0.9
       snipPoint = cuttoff if snipPoint is -1 # too bad, break here then.
       details.valueOverspill = valueString.substring(snipPoint)
       details.value = valueString.substring 0, snipPoint
@@ -176,26 +178,28 @@ module.exports = class Preview extends CoreView
 
   getRelationCounts: (types) ->
     root = @service.root
-    opts = Options.get ['Preview', 'Count', root]
-    return [] unless opts?
+    opts = (Options.get ['Preview', 'Count', root]) ? {}
 
     countSets = for type in types
-      for settings in (opts[type] ? [])
+      cld = @schema.classes[type]
+      for settings in (opts[type] ? (c for c of cld.collections))
         @getRelationCount settings, type
 
     # Flatten the sets of promises into a single collection.
     countSets.reduce concat, []
 
   getRelationCount: (settings, type) ->
-    console.log settings, type
     id = @model.get 'id'
 
     if _.isObject settings
       {query, label} = settings
-      counter = query id # query is a function from id -> query # TODO!!!
+      counter = query id # query is a function from id -> query
+      details = (c) -> parts: [label], id: label, displayName: label, count: c
     else
-      label = settings
-      counter = select: settings + '.id', from: type, where: {id}
+      path = @schema.makePath "#{ type }.#{ settings }"
+      counter = select: [settings + '.id'], from: type, where: {id}
+      details = (c) -> new DetailsModel {path, count: c}
 
-    @service.count(counter).then (c) =>
-      @referenceFields.add id: label, displayName: label, count: c
+    @service.count counter
+            .then details
+            .then (d) => @referenceFields.add d

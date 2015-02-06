@@ -1,9 +1,5 @@
-_ = require 'underscore'
-
 Templates = require '../../templates'
 CoreView = require '../../core-view'
-
-RELATION = Templates.template 'cell-preview-reference-relation'
 
 module.exports = class ReferenceCounts extends CoreView
 
@@ -11,11 +7,6 @@ module.exports = class ReferenceCounts extends CoreView
 
   tagName: 'ul'
 
-  collectionEvents: ->
-    'add change sort': @reRender
+  collectionEvents: -> 'add change sort': @reRender
 
-  postRender: ->
-    baseData = @getBaseData()
-    @collection.each (details) =>
-      @$el.append RELATION _.extend details.toJSON(), baseData
-    @trigger 'ready'
+  template: Templates.template 'cell-preview-reference-relation'
