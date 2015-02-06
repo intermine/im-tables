@@ -5,14 +5,15 @@ CoreModel = require '../core-model'
 # by using colons in their field names, which are illegal data field name characters.
 module.exports = class IMObject extends CoreModel
 
+  type: null # :: PathInfo
+
   # @param base [String] the base URL
   # @param type [PathInfo] The type of this entity.
   # @param id [any] the (opaque) id of this entity.
-  constructor: (base, type, id) ->
-    super class: String(type), id: id # set identifying values.
-    @type = type
+  constructor: (base, @type, id) ->
+    super class: String(@type), id: id # set identifying values.
     @set 'service:base': base
-    @freeze 'id', 'class' # Do not allow these properties to change.
+    @freeze 'service:base', 'id', 'class' # Do not allow these properties to change.
 
   toJSON: ->
     url = @get 'service:url'

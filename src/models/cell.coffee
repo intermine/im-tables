@@ -3,6 +3,15 @@ CoreModel = require '../core-model'
 # Forms a pair with ./nested-table
 module.exports = class CellModel extends CoreModel
 
+  defaults: ->
+    columnName: null
+    typeName: null
+    entity: null # :: IMObject
+    column: null # :: PathInfo
+    node: null # :: PathInfo
+    field: null # :: String
+    value: null # :: Any
+
   initialize: ->
     super
     type = (@get('entity').get('class') ? @get('node'))

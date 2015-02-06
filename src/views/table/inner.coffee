@@ -141,7 +141,7 @@ module.exports = class ResultsTable extends View
         service: service
         popovers: @popoverFactory
         selectedObjects: @selectedObjects
-        tableState: @tableState
+        tableState: @tableState # TableModel injected from container.
 
   # can be used if it exists and hasn't been black-listed.
   canUseFormatter: (formatter) =>

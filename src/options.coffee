@@ -17,7 +17,8 @@ class Options extends NestedModel
     ListCategorisers: ['organism.name', 'department.company.name']
     PieColors: 'category10'
     TableCell:
-      PreviewTrigger: 'hover' # one of: hover, click
+      PreviewTrigger: 'click' # one of: hover, click
+      HoverDelay: 200 # ms
       IndicateOffHostLinks: true
       ExternalLinkIcons:
         "http://some.host.somewhere": "http://some.host.somewhere/logo.png"
