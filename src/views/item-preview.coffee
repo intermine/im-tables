@@ -119,6 +119,8 @@ module.exports = class Preview extends CoreView
     referenceCounts = new ReferenceCounts collection: @referenceFields
     @renderChild 'counts', referenceCounts
 
+    @$el.append Templates.clear
+
   # Fetching requires the InterMine data model, which we name
   # schema here for reasons of sanity (namely collision with the
   # Backbone model located at @model)

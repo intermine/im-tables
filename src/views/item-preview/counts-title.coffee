@@ -4,7 +4,7 @@ CoreView = require '../../core-view'
 Messages = require '../../messages'
 
 Messages.setWithPrefix 'preview',
-  RelatedItemsHeading: 'Counts'
+  RelatedItemsHeading: 'Related Items'
 
 module.exports = class CountsTitle extends CoreView
 
