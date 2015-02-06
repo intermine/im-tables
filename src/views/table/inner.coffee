@@ -17,7 +17,7 @@ Cell = require './cell'
 #      - make sure that there is a .btn.undo in it
 NoResults = require '../templates/no-results'
 
-Preview = require './cell-preview'
+Preview = require '../item-preview'
 
 # Inner class that only knows how to render results,
 # but not where they come from.

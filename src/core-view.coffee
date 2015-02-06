@@ -215,7 +215,7 @@ module.exports = class CoreView extends Backbone.View
   remove: ->
     @stopListening()
     @$el.parent().trigger 'childremoved', @ # Tell parents we are leaving.
-    @trigger 'remove'
+    @trigger 'remove', @
     @model.destroy() if @hasOwnModel # Destroy the model if we created it.
     @removeAllChildren()
     @off()

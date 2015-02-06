@@ -3,9 +3,11 @@
 $ = require "jquery"
 {connection} = require '../lib/connect-to-service'
 
+Backbone = require 'backbone'
 CoreView = require 'imtables/core-view'
 Templates = require 'imtables/templates'
 Preview = require 'imtables/views/item-preview'
+PopoverFactory = require 'imtables/utils/popover-factory'
 Options = require 'imtables/options'
 
 colleaguesQuery = (id) ->
@@ -24,6 +26,8 @@ Options.set ['Preview', 'Count', connection.root], opts
 
 classyPopover = Templates.template 'classy-popover'
 
+popoverFactory = new PopoverFactory connection, Preview
+
 class Button extends CoreView
 
   className: 'btn btn-default'
@@ -33,7 +37,7 @@ class Button extends CoreView
   attributes:
     style: 'margin:10px'
 
-  template: -> "Tell me all about #{ @model.get 'name' }"
+  template: -> "#{ @model.get 'type' }: #{ @model.get 'name' }"
 
   events: -> click: @triggerPopover
 
@@ -51,11 +55,15 @@ class Button extends CoreView
 
   postRender: ->
     @popover ?= @initPopover()
+    @popover.then null, (e) ->
+      console.error 'Failed to init popover', e
     
+  # :: Promise<View>
   initPopover: ->
     {type, name} = @model.toJSON()
     getContent = fetchId(find type, name).then getPopoverContent type
     getContent.then (view) =>
+      console.log view
       @listenTo view, 'rendered', => @$el.popover 'show'
       @$el.popover
         trigger: 'manual'
@@ -68,11 +76,13 @@ class Button extends CoreView
         viewport:
           selector: 'body'
           padding: 5
-      return view
+
+    return getContent
 
 main = ->
   renderButton 'Company', 'Wernham-Hogg'
   renderButton 'Employee', 'David Brent'
+  renderButton 'Employee', 'David Brent' # yes, twice.
   renderButton 'Department', 'Verwaltung'
   renderButton 'Secretary', 'Pam'
 
@@ -88,6 +98,8 @@ find = (type, name) ->
   where: {name}
 
 getPopoverContent = (type) -> (id) ->
-  view = new Preview service: connection, model: {id, type}
+  # We need to wrap the factory method in a model, for that
+  # is what it takes.
+  popoverFactory.get new Backbone.Model {'class': type, id}
 
 $ main

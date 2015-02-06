@@ -65,6 +65,13 @@ acceptAttr = -> (f, v) ->
   v? and (not v.objectId) and (f not in HIDDEN_FIELDS)
 acceptRef = -> (f, v) -> value?.objectId
 
+# Define the bits of the service we need.
+ServiceType = new types.StructuralTypeAssertion 'ServiceType',
+  root: types.String
+  count: types.Function
+  findById: types.Function
+  fetchModel: types.Function
+
 module.exports = class Preview extends CoreView
 
   Model: PreviewModel
@@ -74,7 +81,7 @@ module.exports = class Preview extends CoreView
   parameters: ['service']
 
   parameterTypes:
-    service: types.Service
+    service: ServiceType
 
   initialize: ->
     super
@@ -95,7 +102,7 @@ module.exports = class Preview extends CoreView
 
   fetching: null
 
-  template: ({state, error}) -> switch state
+  template: ({phase, error}) -> switch phase
     when 'FETCHING' then THROBBER
     when 'ERROR' then ERROR error
     else null
@@ -138,6 +145,7 @@ module.exports = class Preview extends CoreView
 
   getDetails: (type) ->
     id = @model.get('id')
+
     @service.findById(type, id).then @handleItem
 
   # Reads values from the returned items and adds details objects to the 
