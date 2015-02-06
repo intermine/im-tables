@@ -1,9 +1,9 @@
 <tr>
-  <td class="im-field-name"><%- name %></td>
-  <td class="im-field-value <%- field.toLowerCase() %>">
+  <td class="im-field-name"><%- _.last(parts) %></td>
+  <td class="im-field-value <%- field.toLowerCase() %> <%- type %>">
     <%- value %>
-    <span class="im-overspill"><%- valueOverspill %></span>
     <% if (tooLong) { %>
+      <span class="im-overspill"><%- valueOverspill %></span>
       <a class="im-too-long">
         <span class="im-ellipsis">...</span>
         <%= Icons.icon('More') %>

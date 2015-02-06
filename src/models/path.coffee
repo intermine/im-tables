@@ -35,15 +35,16 @@ module.exports = class PathModel extends CoreModel
 
   pathAttributes: (path) ->
     str = String path
+    isAttr = path.isAttribute()
+    type = path.getType()
     attrs =
-      id: (if path.isAttribute() then str else "#{ str }.id")
+      id: (if isAttr then str else "#{ str }.id")
       path: str
-      type: path.getType().name
+      type: (type.name ? type)
 
-    if path.isAttribute()
-      atype = path.getType()
-      attrs.isNumeric = (atype in NUMERIC_TYPES)
-      attrs.isBoolean = (atype in BOOLEAN_TYPES)
+    if isAttr
+      attrs.isNumeric = (type in NUMERIC_TYPES)
+      attrs.isBoolean = (type in BOOLEAN_TYPES)
     else
       attrs.isReference = true
       attrs.isAttribute = false
