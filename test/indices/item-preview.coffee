@@ -23,6 +23,8 @@ Options.set ['Preview', 'Count', connection.root], opts
 main = ->
   findAndRender 'Employee', 'David Brent'
   findAndRender 'Company', 'Wernham-Hogg'
+  findAndRender 'Department', 'Verwaltung'
+  findAndRender 'Secretary', 'Pam'
 
 findAndRender = (type, name) -> fetchId(find type, name).then renderPreview type
 
