@@ -116,12 +116,22 @@ class ResultCache
     offset = @offset
     if cache? # may not exist if this is the first request, or we have dumped the cache.
       upperBound = @offset + cache.length
+
       # Add rows we don't have to the front - TODO: use splice rather than slice!
       if page.start < offset
-        cache = rows.concat cache.slice page.end() - offset
-      # Add rows we don't have to the end
-      if upperBound < page.end() or page.all()
+        if page.end() < offset
+          throw new Error("Cannot add #{ page } to #{ @ } - non contiguous")
+        if page.all() or page.end() > upperBound
+          cache = rows.slice() # containment, rows replace cache.
+        else # concat together
+          cache = rows.concat cache.slice page.end() - offset
+      else if page.start > upperBound
+        throw new Error("Cannot add #{ page } to #{ @ } - non contiguous")
+      else if page.all() or upperBound < page.end()
+        # Add rows we don't have to the end
         cache = cache.slice(0, (page.start - offset)).concat(rows)
+      else
+        console.error "Useless cache add - we already had these rows: #{ page }"
 
       offset = Math.min offset, page.start
     else
@@ -134,8 +144,8 @@ class ResultCache
   # Extract the given rows from the cache. When this method is called the
   # cache must have been populated by `updateCache`, so don't call it
   # directly.
-  getRows: (start, size) ->
-    throw new Error 'Cache has not been updated' unless cache?
+  getRows: ({start, size}) ->
+    throw new Error 'Cache has not been updated' unless @rows?
     rows = @rows.slice() # copy the cached rows, so we don't truncate the cache.
     # Splice off the undesired sections.
     rows.splice(0, start - @offset)

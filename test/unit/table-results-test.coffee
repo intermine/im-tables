@@ -17,15 +17,156 @@ class FakeQuery
   # Return an array of numbers from start to size.
   tableRows: ({start, size}) ->
     @requests++
-    Promise.resolve [start .. size]
+    Promise.resolve [start .. (start + size - 1)]
 
 legalInputs = [] # A large number of legal pages.
 for start in (range 0, 100, 10)
   legalInputs.push new Page(start, null)
-  for size in [0 .. 200]
+  for size in (range 0, 1000, 25)
     legalInputs.push new Page(start, size)
 
 describe 'ResultCache', ->
+
+  describe 'addRowsToCache', ->
+
+    describe 'on a new cache', ->
+
+      cache = new ResultCache(new FakeQuery)
+      cache.addRowsToCache(new Page 10, 10)([0 .. 9])
+
+      it 'should add all rows', ->
+        cache.rows.should.eql [0 .. 9]
+
+      it 'should have set the offset correctly', ->
+        cache.offset.should.eql 10
+
+    describe 'on a cache with stuff in it', ->
+
+      describe 'attempting to add a non-contiguous section', ->
+
+        cache = new ResultCache(new FakeQuery)
+
+        beforeEach ->
+          cache.rows = [10 .. 19]
+          cache.offset = 10
+
+        it 'should throw an error on append', ->
+          (-> cache.addRowsToCache(new Page 21, 1)([100])).should.throw /contig/
+
+        it 'should be ok to add at the end', ->
+          cache.addRowsToCache(new Page 20, 1)([100])
+          cache.rows.should.eql [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 100]
+
+        it 'should throw an error on prepend', ->
+          (-> cache.addRowsToCache(new Page 8, 1)(['foo'])).should.throw /contig/
+
+        it 'should be ok to add at the beginning', ->
+          cache.addRowsToCache(new Page 9, 1)([100])
+          cache.rows.should.eql [100, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+
+      describe 'after current cache', ->
+
+        cache = new ResultCache(new FakeQuery)
+        cache.rows = [10 .. 19]
+        cache.offset = 10
+        cache.addRowsToCache(new Page 20, 10)([20 .. 29])
+
+        it 'should have appended to the cache', ->
+          cache.rows.should.eql [10 .. 29]
+
+        it 'should have not changed the offset', ->
+          cache.offset.should.eql 10
+
+      describe 'building a cache from appends', ->
+
+        cache = new ResultCache(new FakeQuery)
+        cache.addRowsToCache(new Page(0, 4))("this".split '')
+        cache.addRowsToCache(new Page(4, 3))(" is".split '')
+        cache.addRowsToCache(new Page(7, 2))(" a".split '')
+        cache.addRowsToCache(new Page(9, 6))(" cache".split '')
+
+        it 'should have built up the right cache', ->
+          cache.rows.join('').should.eql 'this is a cache'
+
+      describe 'before current cache', ->
+
+        cache = new ResultCache(new FakeQuery)
+        cache.rows = [10 .. 19]
+        cache.offset = 10
+        cache.addRowsToCache(new Page 5, 5)([5, 6, 7, 8, 9])
+
+        it 'should have prepended to the cache', ->
+          cache.rows.should.eql [5 .. 19]
+
+        it 'should have changed the offset', ->
+          cache.offset.should.eql 5
+
+      describe 'overlapping current cache', ->
+
+        cache = new ResultCache(new FakeQuery)
+        cache.rows = [10 .. 19]
+        cache.offset = 10
+        cache.addRowsToCache(new Page 5, 20)([5 .. 24])
+
+        it 'should have appended and prepended to the cache', ->
+          cache.rows.should.eql [5 .. 24]
+
+        it 'should have changed the offset', ->
+          cache.offset.should.eql 5
+
+  describe 'getRows', ->
+
+    describe 'on a new cache', ->
+
+      cache = new ResultCache(new FakeQuery)
+
+      describe 'for all legal inputs', ->
+
+        it 'should throw', ->
+          for p in legalInputs
+            (-> cache.getRows p).should.throw 'Cache has not been updated'
+
+    describe 'on a populated cache', ->
+
+      describe 'with no offset', ->
+
+        cache = new ResultCache(new FakeQuery)
+        cache.rows = [0 .. 24]
+
+        it 'should be able to get all rows', ->
+          cache.getRows(new Page 0, 25).should.eql [0 .. 24]
+
+        it 'shoud be able to get some rows', ->
+          cache.getRows(new Page 10, 5).should.eql [10, 11, 12, 13, 14]
+
+        it 'requesting a section beyond the end should be truncated', ->
+          cache.getRows(new Page 20, 10).should.eql [20, 21, 22, 23, 24]
+
+        it 'altering the results should not alter the cache', ->
+          rows = cache.getRows new Page 0, 25
+          rows[0] = 'foo'
+          cache.rows[0].should.eql 0
+
+      describe  'with an offset', ->
+
+        cache = new ResultCache(new FakeQuery)
+        cache.rows = [20 .. 39]
+        cache.offset = 20
+
+        it 'should be able to get all rows', ->
+          cache.getRows(new Page 20, 20).should.eql [20 .. 39]
+
+        it 'shoud be able to get some rows', ->
+          cache.getRows(new Page 25, 5).should.eql [25, 26, 27, 28, 29]
+          cache.getRows(new Page 20, 10).should.eql [20 .. 29]
+
+        it 'requesting a section beyond the end should be truncated', ->
+          cache.getRows(new Page 35, 10).should.eql [35, 36, 37, 38, 39]
+
+        it 'altering the results should not alter the cache', ->
+          rows = cache.getRows new Page 20, 10
+          rows[0] = 'foo'
+          cache.rows[0].should.eql 20
 
   describe 'contains', ->
 
