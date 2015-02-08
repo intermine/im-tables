@@ -27,6 +27,83 @@ for start in (range 0, 100, 10)
 
 describe 'ResultCache', ->
 
+  describe 'getRequestPage', ->
+
+    describe 'on a new cache', ->
+
+      cache = new ResultCache(new FakeQuery)
+
+      describe 'bounded from the beginning', ->
+
+        inPage = new Page 0, 10
+        outPage = cache.getRequestPage inPage
+        expected = new Page 0, 100
+
+        it "should be #{ expected }", ->
+          outPage.should.eql expected
+
+      describe 'bounded from the middle', ->
+
+        inPage = new Page 10, 10
+        outPage = cache.getRequestPage inPage
+        expected = new Page 10, 100
+
+        it "should be #{ expected }", ->
+          outPage.should.eql expected
+
+      describe 'unbounded from the beginning', ->
+
+        inPage = new Page 0
+        outPage = cache.getRequestPage inPage
+        expected = new Page 0
+
+        it "should be #{ expected }", ->
+          outPage.should.eql expected
+
+    describe 'on a cache with rows', ->
+
+      cache = new ResultCache(new FakeQuery)
+
+      beforeEach ->
+        cache.rows = [200 .. 204]
+        cache.offset = 200
+
+      describe 'bounded from the beginning', ->
+
+        inPage = new Page 0, 10
+        expected = new Page 0, 200
+
+        it "should be #{ expected }", ->
+          outPage = cache.getRequestPage inPage
+          outPage.should.eql expected
+
+      describe 'paging backwards', ->
+
+        inPage = new Page 190, 10
+        expected = new Page 90, 110
+
+        it "should be #{ expected }", ->
+          outPage = cache.getRequestPage inPage
+          outPage.should.eql expected
+
+      describe 'before the beginning', ->
+
+        inPage = new Page 10, 10
+        expected = new Page 0, 200
+
+        it "should be #{ expected }", ->
+          outPage = cache.getRequestPage inPage
+          outPage.should.eql expected
+
+      describe 'unbounded from the beginning', ->
+
+        inPage = new Page 0
+        expected = new Page 0
+
+        it "should be #{ expected }", ->
+          outPage = cache.getRequestPage inPage
+          outPage.should.eql expected
+
   describe 'addRowsToCache', ->
 
     describe 'on a new cache', ->
@@ -63,6 +140,32 @@ describe 'ResultCache', ->
         it 'should be ok to add at the beginning', ->
           cache.addRowsToCache(new Page 9, 1)([100])
           cache.rows.should.eql [100, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+
+      describe 'left overlap current cache', ->
+
+        cache = new ResultCache(new FakeQuery)
+        cache.rows = [10 .. 14]
+        cache.offset = 10
+        cache.addRowsToCache(new Page 8, 4) ['a', 'b', 'c', 'd']
+
+        it 'should have added to the cache', ->
+          cache.rows.should.eql ['a', 'b', 'c', 'd', 12, 13, 14] 
+
+        it 'should have changed the offset', ->
+          cache.offset.should.eql 8
+
+      describe 'right overlap current cache', ->
+
+        cache = new ResultCache(new FakeQuery)
+        cache.rows = [10 .. 14]
+        cache.offset = 10
+        cache.addRowsToCache(new Page 13, 4) ['a', 'b', 'c', 'd']
+
+        it 'should have added to the cache', ->
+          cache.rows.should.eql [10, 11, 12, 'a', 'b', 'c', 'd']
+
+        it 'should not have changed the offset', ->
+          cache.offset.should.eql 10
 
       describe 'after current cache', ->
 

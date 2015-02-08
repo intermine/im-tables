@@ -72,15 +72,19 @@ class ResultCache
     cache = @rows
     factor = Options.get 'TableResults.CacheFactor'
     requestLimit = Options.get 'TableResults.RequestLimit'
-    size = if page.all() then null else page.size * factor
+    size = if page.all() then page.size else page.size * factor
 
     # Can ignore the cache if it hasn't been set, just return the expanded page.
-    return new Page(page.start, size) unless cache?
+    if not cache?
+      console.log 'no cache, return early'
+      return new Page(page.start, size)
+
+    console.log 'what is in the cache'
 
     upperBound = @offset + cache.length
 
     # When paging backwards - extend page towards 0.
-    start = if page.all() or page.start >= offset
+    start = if page.all() or (page.start >= @offset)
       page.start
     else
       Math.max 0, page.start - size
@@ -90,12 +94,14 @@ class ResultCache
     # Don't permit gaps, so try to keep the cache contiguous.
 
     # We only care if the requestPage is entirely left or right of the current cache.
-    if gap = requestPage.leftGap @offset
+    if requestPage.isBefore @offset
+      gap = requestPage.rightGap @offset
       if (gap + requestPage.size) > requestLimit
         @dropRows() # prefer to dump the cache rather than request this much
       else
         requestPage.size += gap
-    else if gap = requestPage.rightGap upperBound
+    else if requestPage.isAfter upperBound
+      gap = requestPage.lefttGap upperBound
       if (gap + requestPage.size) > requestLimit
         @dropRows() # prefer to dump the cache rather than request this much
       else
