@@ -38,7 +38,7 @@ class ResultCache
   # :: start :: int, size :: int?  -> Promise<rows>
   fetchRows: (start = 0, size = null) ->
     page = new Page start, size
-    updating = @upateCache page
+    updating = @updateCache page
     updating.then => @getRows page
 
   updateCache: (page) ->
@@ -46,7 +46,6 @@ class ResultCache
 
     # Return a promise to update the cache
     p = @getRequestPage page
-    console.debug 'requesting', p
 
     # @overlayTable() # FIXME - move overlay stuff back to table.
     # fetching.then @removeOverlay, @removeOverlay
@@ -76,10 +75,7 @@ class ResultCache
 
     # Can ignore the cache if it hasn't been set, just return the expanded page.
     if not cache?
-      console.log 'no cache, return early'
       return new Page(page.start, size)
-
-    console.log 'what is in the cache'
 
     upperBound = @offset + cache.length
 
@@ -146,6 +142,7 @@ class ResultCache
 
     @offset = offset
     @rows = cache
+    return true
 
   # Extract the given rows from the cache. When this method is called the
   # cache must have been populated by `updateCache`, so don't call it

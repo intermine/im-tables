@@ -27,6 +27,65 @@ for start in (range 0, 100, 10)
 
 describe 'ResultCache', ->
 
+  describe 'fetchRows', ->
+
+    describe 'on a new cache', ->
+
+      query = new FakeQuery
+      cache = new ResultCache(query)
+      fetching = cache.fetchRows(50, 10)
+
+      it 'should call the tableRows method', ->
+        fetching.then -> query.requests.should.eql 1
+
+      it 'should now have 100 rows in cache', -> fetching.then ->
+        cache.rows.length.should.eql 100
+        cache.offset.should.eql 50
+
+      it 'should have retrieved the correct rows', -> fetching.then (rows) ->
+        rows.should.eql [50 .. 59]
+
+    describe 'on a cache that contains the rows', ->
+
+      query = new FakeQuery
+      cache = new ResultCache(query)
+      cache.rows = [0 .. 99]
+      fetching = cache.fetchRows(50, 10)
+
+      it 'should not call the tableRows method', -> fetching.then ->
+        query.requests.should.eql 0
+
+      it 'should still have 100 rows in cache', -> fetching.then ->
+        cache.rows.length.should.eql 100
+        cache.offset.should.eql 0
+
+      it 'should have retrieved the correct rows', -> fetching.then (rows) ->
+        rows.should.eql [50 .. 59]
+
+  describe 'updateCache', ->
+
+    describe 'on a new cache', ->
+
+      query = new FakeQuery
+      cache = new ResultCache(query)
+      updating = cache.updateCache(new Page 50, 10)
+
+      it 'should call the tableRows method', ->
+        updating.then -> query.requests.should.eql 1
+
+      it 'should now have 100 rows in cache', -> updating.then ->
+        cache.rows.length.should.eql 100
+        cache.offset.should.eql 50
+
+    describe 'on a cache that contains the rows', ->
+
+      query = new FakeQuery
+      cache = new ResultCache(query)
+      cache.rows = [0 .. 99]
+
+      it 'should not call the tableRows method', ->
+        cache.updateCache(new Page 0, 10).then -> query.requests.should.eql 0
+
   describe 'getRequestPage', ->
 
     describe 'on a new cache', ->
