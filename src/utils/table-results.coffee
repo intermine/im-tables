@@ -101,12 +101,12 @@ class ResultCache
       else
         requestPage.size += gap
     else if requestPage.isAfter upperBound
-      gap = requestPage.lefttGap upperBound
+      gap = requestPage.leftGap upperBound
       if (gap + requestPage.size) > requestLimit
         @dropRows() # prefer to dump the cache rather than request this much
       else
-        page.size += gap
-        page.start = upperBound
+        requestPage.size += gap
+        requestPage.start = upperBound
 
     return requestPage
 

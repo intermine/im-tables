@@ -104,6 +104,24 @@ describe 'ResultCache', ->
           outPage = cache.getRequestPage inPage
           outPage.should.eql expected
 
+      describe 'gap on the right', ->
+
+        inPage = new Page 250, 10
+        expected = new Page 205, 145
+
+        it "should be #{ expected }", ->
+          outPage = cache.getRequestPage inPage
+          outPage.should.eql expected
+
+      describe 'too big a gap on the right', ->
+
+        inPage = new Page 10000, 10
+        expected = new Page 10000, 100
+
+        it "should be #{ expected }", ->
+          outPage = cache.getRequestPage inPage
+          outPage.should.eql expected
+
   describe 'addRowsToCache', ->
 
     describe 'on a new cache', ->
