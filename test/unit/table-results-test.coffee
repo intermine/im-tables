@@ -117,10 +117,16 @@ describe 'ResultCache', ->
 
         inPage = new Page 10000, 10
         expected = new Page 10000, 100
+        outPage = null
+        beforeEach ->
+          outPage = cache.getRequestPage inPage
 
         it "should be #{ expected }", ->
-          outPage = cache.getRequestPage inPage
           outPage.should.eql expected
+
+        it 'should have dropped the cache', ->
+          should.not.exist cache.rows
+          cache.offset.should.eql 0
 
   describe 'addRowsToCache', ->
 
