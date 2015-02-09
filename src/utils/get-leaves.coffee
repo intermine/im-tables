@@ -1,10 +1,5 @@
 module.exports = getLeaves = (o, exceptList) ->
-  leaves = []
-  values = (leaf for name, leaf of o when name not in exceptList)
-  for x in values when x?
-    if x.objectId
-      leaves = leaves.concat(getLeaves(x, exceptList))
-    else
-      leaves.push(x)
-  leaves
-
+  values = (leaf for name, leaf of o when leaf? and name not in exceptList)
+  attrs = (v for v in values when not v.objectId?)
+  refs = (v for v in values when v.objectId?)
+  refs.reduce ((ls, ref) -> ls.concat(getLeaves(ref, exceptList))), attrs
