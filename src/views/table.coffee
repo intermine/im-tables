@@ -11,6 +11,7 @@ renderError = require './table/render-error'
 TableModel = require '../models/table'
 ColumnHeaders = require '../models/column-headers'
 UniqItems = require '../models/uniq-items'
+RowsCollection = require '../models/rows'
 CellModelFactory = require '../utils/cell-model-factory'
 TableResults = require '../utils/table-results'
 
@@ -18,24 +19,6 @@ Pagination = require './table/pagination'
 ResultsTable = require './table/inner'
 PageSizer = require './table/page-sizer'
 TableSummary = require './table/summary'
-
-# A row in the table, basically just a container for cells.
-class RowModel extends CoreModel
-
-  defaults: ->
-    index: null
-    cells: []
-
-  toJSON: -> _.extend super, cells: (c.toJSON() for c in @get 'cells')
-
-# An ordered collection of rows
-class RowsCollection extends Collection
-
-  model: RowModel
-
-  idAttribute: 'index'
-
-  comparator: 'index'
 
 module.exports = class Table extends CoreView
 
@@ -68,7 +51,7 @@ module.exports = class Table extends CoreView
     # Formatters we are not allowed to use.
     @blacklistedFormatters ?= new UniqItems
     # rows contains the current rows in the table
-    @rows = new Collection
+    @rows = new RowsCollection
 
     @setFreshness()
 
@@ -188,11 +171,12 @@ module.exports = class Table extends CoreView
   ##
   fillRowsCollection: (rows) =>
     factory = @cellModelFactory
-    start = @model.get 'start'
+    offset = @model.get 'start'
+    models = rows.map (row, i) ->
+      index: (offset + i)
+      cells: (factory.createModel c for c in row)
 
-    @rows.set rows.map (row, i) ->
-      cells = (factory.createModel c for c in row)
-      new RowModel index: (start + i), cells: cells
+    @rows.set models
 
   makeTable: -> @make 'table',
     class: "table table-striped table-bordered"

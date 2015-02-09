@@ -1,7 +1,8 @@
 Options = require '../options'
+CoreModel = require '../core-model'
 PathSet = require './path-set'
 
-class TableModel extends CoreModel
+module.exports = class TableModel extends CoreModel
 
   defaults: ->
     phase: 'FETCHING' # FETCHING, SUCCESS or ERROR

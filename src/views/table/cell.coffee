@@ -13,7 +13,8 @@ types = require '../../core/type-assertions'
 
 popoverTemplate = Templates.template('classy-popover') classes: 'item-preview'
 
-# Null safe isa test.
+# Null safe isa test. Tests if the path is an instance of the
+# given type, eg: PathInfo(Department.employees) isa 'Employee' => true
 # :: (PathInfo, String) -> boolean
 _isa = (path, ct) -> if ct? then (path.isa ct) else false
 
@@ -38,7 +39,7 @@ isa = _.memoize _isa, (p, ct) -> "#{ p }<#{ ct ? '!' }"
 
 # A Cell representing a single attribute value.
 # Forms a pair with ./subtable
-class Cell extends CoreView
+module.exports = class Cell extends CoreView
 
   Model: CellModel
 
@@ -61,12 +62,14 @@ class Cell extends CoreView
   formatter: (imobject, service, value) ->
     if value? then (_.escape value) else Templates.null_value
 
+  # Initialization
+
   parameters: [
-    'model', # We need a cell model to function.
-    'service', # We pass the service on to some child elements.
+    'model',           # We need a cell model to function.
+    'service',         # We pass the service on to some child elements.
     'selectedObjects', # the set of selected objects.
-    'tableState' # provides {selecting, previewOwner, highlitNode}
-    'popovers' # creates popovers
+    'tableState',      # provides {selecting, previewOwner, highlitNode}
+    'popovers'         # creates popovers
   ]
 
   optionalParameters: ['formatter']
@@ -77,6 +80,7 @@ class Cell extends CoreView
     formatter: types.Callable
     tableState: types.Model
     service: types.Service
+    popovers: (new types.StructuralTypeAssertion 'HasGet', get: types.Function)
 
   initialize: ->
     super
@@ -96,12 +100,16 @@ class Cell extends CoreView
   getType: -> @model.get 'node'
 
   # Event wiring:
+
   listen: ->
     @listenToEntity()
     @listenToSelectedObjects()
+    @listenToOptions()
+    @listenToTableState()
+
+  listenToOptions: ->
     @listenTo Options, 'change:TableCell.*', @reRender
     @listenTo Options, 'change:TableCell.*', @delegateEvents
-    @listenToTableState()
 
   listenToTableState: ->
     ts = @tableState
@@ -132,8 +140,8 @@ class Cell extends CoreView
     opts = Options.get 'TableCell'
     trigger = opts.PreviewTrigger
     if trigger is 'hover'
-      events['mouseover'] = => _.delay (=> @showPreview()), opts.HoverDelay
-      events['mouseout'] = @hidePreview
+      events['mouseover .im-cell-link'] = @showPreview
+      events['mouseout .im-cell-link'] = @hidePreview
       events['click'] = @activateChooser
     else if trigger is 'click'
       events['click'] = @clickTogglePreview
@@ -213,14 +221,24 @@ class Cell extends CoreView
     if selectable and selecting # then toggle state of 'selected'
       @toggleSelection()
 
-  showPreview: -> if @rendered
-    @children.popover?.render()
+  showPreview: -> @state.set showPreview: true
+  hidePreview: -> @state.set showPreview: false
 
-  hidePreview: -> if @rendered
+  _showPreview: -> if @rendered
+    opts = Options.get 'TableCell'
+    show = =>
+      # We test here too since it may have been hidden during the hover delay.
+      if @state.get('showPreview') then @children.popover?.render()
+    if opts.PreviewTrigger is 'hover'
+      _.delay show, opts.HoverDelay
+    else
+      show()
+
+  _hidePreview: -> if @rendered
     @$el.popover 'hide'
 
   onChangeShowPreview: ->
-    if @state.get('showPreview') then @showPreview() else @hidePreview()
+    if @state.get('showPreview') then @_showPreview() else @_hidePreview()
 
   # Rather than full re-renders, which would get expensive for many cells,
   # we just reach in and twiddle these specific DOM attributes:
@@ -311,7 +329,7 @@ class Cell extends CoreView
   
   initPreview: ->
     # Create the popover now, but no data will be fetched until render is called.
-    content = popoverFactory.get @model.get 'entity'
+    content = @popovers.get @model.get 'entity'
 
     @$el.popover
       trigger: 'manual'

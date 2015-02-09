@@ -1,3 +1,5 @@
+_ = require 'underscore'
+
 ObjectStore      = require '../models/object-store'
 NestedTableModel = require '../models/nested-table'
 CellModel        = require '../models/cell'

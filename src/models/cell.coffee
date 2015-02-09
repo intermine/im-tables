@@ -1,3 +1,4 @@
+_ = require 'underscore'
 CoreModel = require '../core-model'
 
 # Forms a pair with ./nested-table
@@ -19,4 +20,7 @@ module.exports = class CellModel extends CoreModel
     column.getDisplayName().then (columnName) => @set {columnName}
     column.model.makePath(type).getDisplayName().then (typeName) => @set {typeName}
 
-  toJSON: -> _.extend super, entity: @get('entity').toJSON()
+  toJSON: -> _.extend super,
+    column: @get('column').toString()
+    node: @get('node').toString()
+    entity: @get('entity').toJSON()

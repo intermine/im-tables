@@ -172,17 +172,19 @@ module.exports = class Preview extends CoreView
     @fieldDetails.add new RefDetailsModel details
 
   handleAttribute: (item, field, rawValue) ->
-    cuttoff = Options.get 'CellCutoff'
     path = @schema.makePath "#{ item['class'] }.#{ field }"
-    valueString = String rawValue
-    tooLong = valueString.length > cuttoff
-    details = {tooLong, path, field, value: valueString}
+    details = {path, field, value: rawValue}
 
-    if tooLong # Try and break on whitespace
-      snipPoint = valueString.indexOf ' ', cuttoff * 0.9
-      snipPoint = cuttoff if snipPoint is -1 # too bad, break here then.
-      details.valueOverspill = valueString.substring(snipPoint)
-      details.value = valueString.substring 0, snipPoint
+    if rawValue? and (path.getType() is 'String') or (/Clob/.test path.getType())
+      cuttoff = Options.get 'CellCutoff'
+      valueString = String rawValue
+      tooLong = rawValue.length > cuttoff
+      if tooLong # Try and break on whitespace
+        snipPoint = valueString.indexOf ' ', cuttoff * 0.9
+        snipPoint = cuttoff if snipPoint is -1 # too bad, break here then.
+        details.tooLong = true
+        details.valueOverspill = valueString.substring(snipPoint)
+        details.value = valueString.substring 0, snipPoint
 
     @fieldDetails.add new AttrDetailsModel details
 
@@ -207,6 +209,7 @@ module.exports = class Preview extends CoreView
       details = (c) -> parts: [label], id: label, displayName: label, count: c
     else
       path = @schema.makePath "#{ type }.#{ settings }"
+      return Promise.resolve(true) unless path.getType()?.attributes.id # Skip if no id.
       counter = select: [settings + '.id'], from: type, where: {id}
       details = (c) -> new DetailsModel {path, count: c}
 

@@ -11,6 +11,13 @@ exports.getCache = (query) ->
   root = query.service.root
   CACHES[root + ':' + xml] ?= new ResultCache query
 
+# TODO - make sure that the caches are informed of list change events.
+exports.onListChange = (listName) ->
+  for name, cache of CACHES
+    if listName in listNamesFor(cache.query)
+      cache.dropRows() # we cannot rely on this cache if one of its queries has changed.
+  return false
+
 # An object that maintains a results cache for a given version of a query. Instances
 # of this object should *only* be obtained with the `getCache` method, which
 # guarantees that the results will be correct.

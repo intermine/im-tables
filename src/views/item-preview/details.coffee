@@ -1,3 +1,5 @@
+_ = require 'underscore'
+
 Templates = require '../../templates'
 CoreView = require '../../core-view'
 {ignore} = require '../../utils/events'
@@ -24,8 +26,11 @@ module.exports = class ItemDetails extends CoreView
   postRender: -> @collection.each (details) => @addDetail details
 
   addDetail: (details) ->
-    t = if ('ATTR' is details.get 'fieldType') then ATTR else REFERENCE
-    @$el.append t details.toJSON()
+    @$el.append @['render' + details.get('fieldType')] details.toJSON()
+
+  renderATTR: (data) -> ATTR _.extend @getBaseData(), data
+  
+  renderREF: REFERENCE
 
   revealLongField: (e) ->
     ignore e

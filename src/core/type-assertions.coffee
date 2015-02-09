@@ -13,7 +13,7 @@ class InstanceOfAssertion
 
   constructor: (@type, @name) ->
     unless @ instanceof InstanceOfAssertion # Allow construction without `new`
-      return new InstanceOfAssertion @type, @name 
+      return new InstanceOfAssertion @type, @name
 
   test: (m) -> m instanceof @type
 

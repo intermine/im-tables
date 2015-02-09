@@ -1,7 +1,11 @@
 <tr>
   <td class="im-field-name"><%- _.last(parts) %></td>
   <td class="im-field-value <%- field.toLowerCase() %> <%- type %>">
-    <%- value %>
+    <% if (isNumeric) { %>
+      <%- numToString(+value) %>
+    <% } else { %>
+      <%- value %>
+    <% } %>
     <% if (tooLong) { %>
       <span class="im-overspill"><%- valueOverspill %></span>
       <a class="im-too-long">

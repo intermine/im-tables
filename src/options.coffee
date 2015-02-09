@@ -20,7 +20,7 @@ class Options extends NestedModel
       CacheFactor: 10
       RequestLimit: 5000 # Dump the cache rather than request more rows than this
     TableCell:
-      PreviewTrigger: 'click' # one of: hover, click
+      PreviewTrigger: 'hover' # one of: hover, click
       HoverDelay: 200 # ms
       IndicateOffHostLinks: true
       ExternalLinkIcons:
