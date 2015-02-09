@@ -155,7 +155,6 @@ module.exports = class Preview extends CoreView
     coll = @fieldDetails
     testAttr = acceptAttr coll
     testRef = acceptRef coll
-    console.log item
 
     for field, value of item when (testAttr field, value)
       @handleAttribute item, field, value

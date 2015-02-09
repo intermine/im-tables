@@ -27,6 +27,7 @@ Options.set 'ModelDisplay.Initially.Closed', true
 # Make these toggleable...
 Options.set 'TableCell.PreviewTrigger', 'hover'
 Options.set 'TableCell.IndicateOffHostLinks', false
+Options.set 'TableResults.CacheFactor', 2
 
 formatters =
   Company: formatCompany
@@ -56,7 +57,6 @@ class BasicTable extends CoreView
     TableResults.getCache @query
                 .fetchRows 0, 10
                 .then (rows) => @setRows rows
-                .then -> console.log 'set rows'
                 .then null, (e) -> console.error 'error setting rows', e
 
   template: _.template """
@@ -84,7 +84,6 @@ class BasicTable extends CoreView
     @rows.forEach (row) => @addRow row
 
   setRows: (rows) -> # the same logic as Table::fillRowsCollection, minus start.
-    console.log 'GOT', rows
     createModel = @cellModelFactory.getCreator @query
     models = rows.map (row, i) ->
       index: i
