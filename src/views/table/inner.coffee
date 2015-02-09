@@ -48,7 +48,6 @@ module.exports = class ResultsTable extends View
   initialize: ->
     super
     @query = @history.getCurrentQuery()
-    # TODO: manage onColvisToggle FIXME!! - see TableModel
     @expandedSubtables = new PathSet
     @popoverFactory = new PopoverFactory @query.service, Preview
     @cellFactory = cellFactory @query.service, @

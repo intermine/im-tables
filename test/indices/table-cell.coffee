@@ -48,7 +48,7 @@ class BasicTable extends CoreView
 
   initialize: ({@query}) ->
     super
-    @cellModelFactory = new CellModelFactory @query, @selectedObjects
+    @cellModelFactory = new CellModelFactory @query.service, @query.model
     @rows = new RowsCollection
     @listenTo @rows, 'add remove reset', @reRender
     # This table doesn't do paging, reloading or anything fancy at all, therefore
@@ -85,10 +85,10 @@ class BasicTable extends CoreView
 
   setRows: (rows) -> # the same logic as Table::fillRowsCollection, minus start.
     console.log 'GOT', rows
-    factory = @cellModelFactory
+    createModel = @cellModelFactory.getCreator @query
     models = rows.map (row, i) ->
       index: i
-      cells: (factory.createModel c for c in row)
+      cells: (createModel c for c in row)
 
     @rows.set models
 

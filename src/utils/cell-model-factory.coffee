@@ -11,45 +11,51 @@ FPObject         = require '../models/fast-path-object'
 # values, fast-path objects and sub-tables.
 module.exports = class CellModelFactory
 
-  constructor: (@query) ->
-    @itemModels = new ObjectStore @query.service.root, @query.model
+  constructor: (service, model) ->
+    @itemModels = new ObjectStore service.root, model
 
   # Take a cell returned from the web-service and produce a model.
-  createModel: (cell) ->
-    if _.has(cell, 'rows')
-      @_make_sub_table_model cell
-    else
-      @_make_simple_cell_model cell
+  getCreator: (query) ->
+    throw new Error('No query') unless query
+    creator = (cell) =>
+      path = query.makePath cell.column
+      if _.has(cell, 'rows')
+        @_make_sub_table_model cell, path, creator
+      else
+        @_make_simple_cell_model cell, path
 
-  _make_sub_table_model: (nestedTable) ->
+  _make_sub_table_model: (nestedTable, column, createModel) ->
     # Here we lift some properties to more useful types, then wrap it up in
     # a structured object.
-    node = @query.makePath nestedTable.column
 
-    new NestedTableModel _.extend {}, nestedTable, # TODO: do we need to assign from nestedTable?
-      node: node # Duplicate name - not necessary?
-      column: node
-      rows: (r.map((subcell) => @createModel subcell) for r in nestedTable.rows)
+    # TODO: do we need to assign from nestedTable?
+    new NestedTableModel _.extend {}, nestedTable,
+      node: column # Duplicate name - not necessary?
+      column: column
+      rows: (r.map((subcell) -> createModel subcell) for r in nestedTable.rows)
 
-  _make_simple_cell_model: (obj) ->
-    column = @query.makePath(obj.column) # The attr this cell represents (eg. Employee.name)
-    node = column.getParent()            # The obj this attr belongs to (eg. Employee)
-    field = obj.column.replace(/^.*\./, '')
+  _make_simple_cell_model: (obj, column) ->
+    # The obj this attr belongs to (eg. Employee)
+    node = column.getParent()
+    # The raw attribute name.
+    field = column.end.name
 
-    model = if obj.id?
+    # Can be either a full InterMineObject, a null placeholder, or
+    # a light-weight fast-path object.
+   
+    entity = if obj.id?
       @itemModels.get obj, field # Get or create 
     else if not obj.class? # create a new null-cell for this cell.
-      type = node.getParent().name
-      new NullObject {}, {@query, field, type}
+      new NullObject node.getType().name, field
     else # FastPathObjects don't have ids, and cannot be in lists.
-      new FPObject {}, {@query, obj, field}
+      new FPObject obj, field
 
     # A cell model is a nested model, containing cell, a sub-model containing
     # the data for this entity, not just this cell.
-    # There is one CellModel for each cell displayed in the table, but there is only one
-    # InterMineObject for each entity represented in the table.
+    # There is one CellModel for each cell displayed in the table, but there
+    # is only one InterMineObject for each entity represented in the table.
     new CellModel
-      entity: model
+      entity: entity
       node: node
       column: column
       field: field
@@ -57,6 +63,5 @@ module.exports = class CellModelFactory
 
   destroy: ->
     @itemModels?.destroy()
-    delete @query
     delete @itemModels
     this
