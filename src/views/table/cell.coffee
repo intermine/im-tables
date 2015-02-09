@@ -320,7 +320,7 @@ module.exports = class Cell extends CoreView
   # InterMine objects (i.e. objects with ids) can have previews.
   # We find the preview information using `Query::findById` and
   # queries that use the `id` property, so this is a requirement.
-  canHavePreview: -> @model.get('entity').get('id')?
+  canHavePreview: -> (not @state.get 'minimised') and @model.get('entity').get('id')?
 
   # Make sure this element has the correct classes, and initialise the preview popover.
   postRender: ->
@@ -342,6 +342,12 @@ module.exports = class Cell extends CoreView
     while con.length is 0
       con = @$el.closest candidates.shift()
     return con
+
+  removeAllChildren: ->
+    if @children.popover?
+      @stopListeningTo(@children.popover)
+      @$el.popover('destroy')
+    super
   
   initPreview: ->
     # Create the popover now, but no data will be fetched until render is called.
