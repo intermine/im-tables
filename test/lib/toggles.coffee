@@ -18,14 +18,16 @@ module.exports = class Toggles extends CoreView
 
   events: ->
     e = {}
+    m = @model
     @toggles.forEach (t) ->
-      if t.type is 'bool'
-        e["click .#{ t.attr } .btn-on"] = -> @model.set t.attr, true
-        e["click .#{ t.attr } .btn-off"] = -> @model.set t.attr, false
-      else
-        e["click .#{ t.attr } .btn-unset"] = -> @model.set t.attr, null
-        t.opts.forEach (opt) ->
-          e["click .#{ t.attr } .btn-#{ toCssClass opt }"] = -> @model.set t.attr, opt
+      switch t.type
+        when 'bool'
+          e["click .#{ t.attr } .btn-on"] = -> m.set t.attr, true
+          e["click .#{ t.attr } .btn-off"] = -> m.set t.attr, false
+        when 'enum'
+          e["click .#{ t.attr } .btn-unset"] = -> m.set t.attr, null
+          t.opts.forEach (opt) ->
+            e["click .#{ t.attr } .btn-#{ toCssClass opt }"] = -> m.set t.attr, opt
 
     return e
 
@@ -44,7 +46,7 @@ module.exports = class Toggles extends CoreView
                 class="btn btn-off btn-default<%= !model[t.attr] ? ' active' : void 0 %>">
                 off
               </button>
-            <% } else { %>
+            <% } else if (t.type === 'enum') { %>
               <% t.opts.forEach(function(opt) { %>
                 <button type="button"
                   class="btn btn-<%- toCssClass(opt) %> btn-default<%= model[t.attr] === opt ? ' active' : void 0 %>">

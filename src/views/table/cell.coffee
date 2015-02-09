@@ -90,6 +90,7 @@ module.exports = class Cell extends CoreView
     @setSelected()
     @setSelectable()
     @setHighlit()
+    @setMinimised()
 
   # getPath is part of the RowCell API
   # :: -> PathInfo
@@ -119,6 +120,7 @@ module.exports = class Cell extends CoreView
     @listenTo ts, 'change:selecting',    @setInputDisplay
     @listenTo ts, 'change:previewOwner', @closeOwnPreview
     @listenTo ts, 'change:highlitNode',  @setHighlit
+    @listenTo ts, 'change:minimisedColumns', @setMinimised
 
   listenToSelectedObjects: ->
     objs = @selectedObjects
@@ -133,6 +135,7 @@ module.exports = class Cell extends CoreView
     'change:selectable': @setInputDisabled
     'change:selected': @setInputChecked
     'change:showPreview': @onChangeShowPreview
+    'change:minimised': @reRender # nothing for it - full re-render is required.
 
   events: -> # the specific DOM event set depends on the configured click behaviour.
     events =
@@ -213,6 +216,11 @@ module.exports = class Cell extends CoreView
     myNode = @model.get('node')
     highlit = @tableState.get 'highlitNode'
     @state.set highlit: (highlit? and (String(myNode) is String(highlit)))
+
+  setMinimised: ->
+    myColumn = @model.get('column')
+    minimised = @tableState.get('minimisedColumns').contains(myColumn)
+    @state.set {minimised}
 
   onChangeEntity: -> # Should literally never happen.
     prev = @model.previous 'entity'

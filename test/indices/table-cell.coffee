@@ -36,13 +36,15 @@ popoverFactory = new PopoverFactory connection, Preview
 selectedObjects = new SelectedObjects connection
 tableState = new TableModel
 
+pathToCssClass = (path) -> String(path).replace /\./g, '-'
+
 class BasicTable extends CoreView
 
   Model: TableModel
 
   tagName: 'table'
 
-  className: 'table table-striped'
+  className: 'table table-striped table-bordered table-condensed'
 
   initialize: ({@query}) ->
     super
@@ -61,14 +63,21 @@ class BasicTable extends CoreView
     <thead>
       <tr>
         <% _.each(headers, function (header) { %>
-          <th><%- header %></th>
+          <th class="<%- cssClass(header) %>"><%- header %></th>
         <% }); %>
       </tr>
     </thead>
     <tbody></tbody>
   """
 
-  getData: -> _.extend @getBaseData(), headers: @query.views
+  events: ->
+    e = {}
+    @query.views.forEach (v) =>
+      path = @query.makePath v
+      e["click th.#{ pathToCssClass v }"] = -> @model.get('minimisedColumns').toggle path
+    return e
+
+  getData: -> _.extend @getBaseData(), cssClass: pathToCssClass, headers: @query.views
 
   postRender: ->
     @$body = @$ 'tbody'
@@ -116,7 +125,7 @@ QUERY =
 
 toggles = [
   {attr: 'selecting', type: 'bool'},
-  {attr: 'highlitNode', opts: ['Department', 'Department.company', 'Department.employees']}
+  {attr: 'highlitNode', type: 'enum', opts: ['Department', 'Department.company', 'Department.employees']}
 ]
 
 renderQuery = renderWithCounter create, (->), ['model', 'rows']

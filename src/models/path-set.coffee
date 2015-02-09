@@ -9,6 +9,8 @@ module.exports = class PathSet extends UniqItems
   # True for X.y if X.y.z is open
   contains: (path) -> @any (model) -> path.equals model.get 'item'
 
+  toggle: (path) -> if (@contains path) then (@remove path) else (@add path)
+
   remove: (path) ->
     if path instanceof Backbone.Model
       return super
