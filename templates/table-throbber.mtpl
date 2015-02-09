@@ -1,0 +1,8 @@
+<tr class="im-table-throbber">
+  <td colspan="<%= colcount %>">
+    <h2><%- Messages.getText('table.RequestingData') %></h2>
+    <div class="progress progress-info progress-striped active">
+      <div class="bar" style="width: 100%"></div>
+    </div>
+  </td>
+</tr>

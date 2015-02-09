@@ -13,7 +13,7 @@ module.exports = class CellModelFactory
     @itemModels = new ObjectStore @query.service.root, @query.model
 
   # Take a cell returned from the web-service and produce a model.
-  makeCellModel: (cell) ->
+  createModel: (cell) ->
     if _.has(cell, 'rows')
       @_make_sub_table_model cell
     else
@@ -27,7 +27,7 @@ module.exports = class CellModelFactory
     new NestedTableModel _.extend {}, nestedTable, # TODO: do we need to assign from nestedTable?
       node: node # Duplicate name - not necessary?
       column: node
-      rows: (r.map((subcell) => @makeCellModel subcell) for r in nestedTable.rows)
+      rows: (r.map((subcell) => @createModel subcell) for r in nestedTable.rows)
 
   _make_simple_cell_model: (obj) ->
     column = @query.makePath(obj.column) # The attr this cell represents (eg. Employee.name)

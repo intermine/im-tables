@@ -1,4 +1,5 @@
 Options = require '../options'
+PathSet = require './path-set'
 
 class TableModel extends CoreModel
 
@@ -14,4 +15,12 @@ class TableModel extends CoreModel
     selecting: false # are we picking objects from the table?
     previewOwner: null # Who owns the currently displayed preview?
     highlitNode: null # Which node should we be highlighting?
+
+  initialize: ->
+    @minimisedColumns = new PathSet
+
+  toJSON: ->
+    data = super
+    data.minimisedColumns = @minimisedColumns.toJSON()
+    return data
 

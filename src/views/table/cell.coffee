@@ -11,15 +11,11 @@ Messages.setWithPrefix 'table.cell', Link: 'link'
 SelectedObjects = require '../../models/selected-objects'
 types = require '../../core/type-assertions'
 
+popoverTemplate = Templates.template('classy-popover') classes: 'item-preview'
+
 # Null safe isa test.
 # :: (PathInfo, String) -> boolean
-_isa = (type, commonType) ->
-  if commonType?
-    type.isa commonType
-  else
-    false
-
-classyPopover = Templates.template 'classy-popover'
+_isa = (path, ct) -> if ct? then (path.isa ct) else false
 
 # We memoize this to avoid re-walking the inheritance heirarchy, and because
 # we know a-priori that the same call will be repeated many times in the same
@@ -38,7 +34,7 @@ classyPopover = Templates.template 'classy-popover'
 # legal class name, and thus guaranteed not to collide with valid types.
 #
 # :: (PathInfo, String) -> boolean
-isa = _.memoize _isa, (type, ct) -> "#{ type }<#{ ct ? '!' }"
+isa = _.memoize _isa, (p, ct) -> "#{ p }<#{ ct ? '!' }"
 
 # A Cell representing a single attribute value.
 # Forms a pair with ./subtable
@@ -52,7 +48,8 @@ class Cell extends CoreView
   # Identifying class name.
   className: 'im-result-field'
 
-  template: Templates.template 'table-cell'
+  # Scoped unique element id.
+  id: -> _.uniqueId 'im_table_cell_'
 
   # A function that when called returns an HTML string suitable
   # for direct inclusion. The default formatter is very simple
@@ -68,7 +65,7 @@ class Cell extends CoreView
     'model', # We need a cell model to function.
     'service', # We pass the service on to some child elements.
     'selectedObjects', # the set of selected objects.
-    'tableState' # {selecting, previewOwner, highlitNode}
+    'tableState' # provides {selecting, previewOwner, highlitNode}
     'popovers' # creates popovers
   ]
 
@@ -91,12 +88,14 @@ class Cell extends CoreView
     @setHighlit()
 
   # getPath is part of the RowCell API
+  # :: -> PathInfo
   getPath: -> @model.get 'column'
 
+  # Return the Path representing the query node of this column.
+  # :: -> PathInfo
   getType: -> @model.get 'node'
 
-  id: -> _.uniqueId 'im_table_cell_'
-
+  # Event wiring:
   listen: ->
     @listenToEntity()
     @listenToSelectedObjects()
@@ -105,25 +104,26 @@ class Cell extends CoreView
     @listenToTableState()
 
   listenToTableState: ->
-    @listenTo @tableState, 'change:selecting', @setInputDisplay
-    @listenTo @tableState, 'change:previewOwner', @closeOwnPreview
-    @listenTo @tableState, 'change:highlitNode', @setHighlit
+    ts = @tableState
+    @listenTo ts, 'change:selecting',    @setInputDisplay
+    @listenTo ts, 'change:previewOwner', @closeOwnPreview
+    @listenTo ts, 'change:highlitNode',  @setHighlit
 
   listenToSelectedObjects: ->
-    arr = 'add remove reset'
-    @listenTo @selectedObjects, arr, @setSelected
-    @listenTo @selectedObjects, "#{ arr } change:commonType", @setSelectable
+    objs = @selectedObjects
+    @listenTo objs, 'add remove reset',                   @setSelected
+    @listenTo objs, 'add remove reset change:commonType', @setSelectable
 
   modelEvents: ->
     'change:entity': @onChangeEntity # make sure we unbind if it changes.
 
-  stateEvents: ->
-    'change:highlit': @setActiveClass
+  stateEvents: -> # these events cause DOM twiddling.
+    'change:highlit change:selected': @setActiveClass
     'change:selectable': @setInputDisabled
-    'change:selected': @onChangeSelected
+    'change:selected': @setInputChecked
     'change:showPreview': @onChangeShowPreview
 
-  events: ->
+  events: -> # the specific DOM event set depends on the configured click behaviour.
     events =
       'show.bs.popover': @onShowPreview
       'hide.bs.popover': @onHidePreview
@@ -160,7 +160,7 @@ class Cell extends CoreView
   closeOwnPreview: ->
     myId = @el.id
     currentOwner = @tableState.get 'previewOwner'
-    @hidePreview() unless (myId is currentOwner)
+    @hidePreview() unless myId is currentOwner
 
   # Listen to the entity that backs this cell, updating the value if it
   # changes. This is important for cell formatters so that they can
@@ -175,11 +175,7 @@ class Cell extends CoreView
   onHidePreview: -> # make sure we disclaim ownership.
     myId = @el.id
     currentOwner = @tableState.get 'previewOwner'
-    @tableState.set previewOwner: null if (myId is currentOwner)
-
-  select: -> @selectedObjects.add @model.get('entity')
-
-  unselect: -> @selectedObjects.remove @model.get('entity')
+    @tableState.set previewOwner: null if myId is currentOwner
 
   toggleSelection: ->
     ent = @model.get 'entity'
@@ -187,7 +183,7 @@ class Cell extends CoreView
     if found = @selectedObjects.get ent
       @selectedObjects.remove found
     else
-      @selectedObjects.add found
+      @selectedObjects.add ent
 
   setSelected: -> @state.set 'selected': @selectedObjects.get(@model.get('entity'))?
 
@@ -200,13 +196,18 @@ class Cell extends CoreView
 
   setHighlit: ->
     myNode = @model.get('node')
-    @state.set highlit: (myNode.equals @tableState.get 'highlitNode')
+    highlit = @tableState.get 'highlitNode'
+    @state.set highlit: highlit? and (myNode.equals highlit)
 
   onChangeEntity: -> # Should literally never happen.
-    @stopListening @model.previous 'entity'
+    prev = @model.previous 'entity'
+    @stopListening(prev) if prev?
     @listenToEntity()
 
-  activateChooser: ->
+  clickTogglePreview: -> # click handler when the preview trigger is 'click'
+    @activateChooser() or @state.toggle 'showPreview'
+
+  activateChooser: -> # click handler when the preview trigger is 'hover'
     selecting = @tableState.get 'selecting'
     selectable = @state.get 'selectable'
     if selectable and selecting # then toggle state of 'selected'
@@ -221,15 +222,8 @@ class Cell extends CoreView
   onChangeShowPreview: ->
     if @state.get('showPreview') then @showPreview() else @hidePreview()
 
-  clickTogglePreview: ->
-    if @tableState.get('selecting')
-      @activateChooser()
-    else
-      @state.toggle 'showPreview'
-
-  onChangeSelected: ->
-    @setActiveClass()
-    @$('input').css checked: @getInputState().checked
+  # Rather than full re-renders, which would get expensive for many cells,
+  # we just reach in and twiddle these specific DOM attributes:
 
   updateValue: -> _.defer =>
     @$('.im-displayed-value').html @getFormattedValue()
@@ -238,6 +232,9 @@ class Cell extends CoreView
     {highlit, selected} = @state.pick 'highlit', 'selected'
     @$el.toggleClass 'active', (highlit or selected)
 
+  setInputChecked: ->
+    @$('input').attr checked: @getInputState().checked
+
   setInputDisplay: ->
     @$('input').css display: @getInputState().display
 
@@ -245,6 +242,8 @@ class Cell extends CoreView
     @$('input').attr disabled: @getInputState().disabled
 
   # Rendering logic.
+  
+  template: Templates.template 'table-cell'
 
   getData: ->
     opts = Options.get 'TableCell'
@@ -262,11 +261,17 @@ class Cell extends CoreView
     for domain, url of opts.ExternalLinkIcons when reportUri.match domain
       data.icon ?= url
 
-    return data
+    _.extend @getBaseData(), data
 
+  # The mechanism by which we apply the formatter the cell.
+  # We call the foratter with the entity, its service and the raw value.
+  # We use call with this set to null so that we don't leak the API of
+  # this class to the formatters.
+  #
+  # If the value is null, then we always return null.
   getFormattedValue: ->
     {entity, value} = @model.pick 'entity', 'value'
-    @formatter.call null, entity, @service, value
+    if value? then @formatter.call(null, entity, @service, value) else null
 
   # Special get data method just for the input.
   # which is probably a good indication it should be its own view.
@@ -278,22 +283,30 @@ class Cell extends CoreView
     display = if selecting and selectable then 'inline' else 'none'
     {checked, disabled, display}
 
+  # InterMine objects (i.e. objects with ids) can have previews.
+  # We find the preview information using `Query::findById` and
+  # queries that use the `id` property, so this is a requirement.
   canHavePreview: -> @model.get('entity').get('id')?
 
+  # Make sure this element has the correct classes, and initialise the preview popover.
   postRender: ->
+    @setAttrClass()
+    @setActiveClass()
+    if @canHavePreview()
+      @children.popover ?= @initPreview()
+
+  setAttrClass: ->
     attrType = @model.get('column').getType()
     @$el.addClass 'im-type-' + attrType.toLowerCase()
-    @setActiveClass()
-    @children.popover ?= @initPreview() if @canHavePreview()
 
   # Code associated with the preview.
   
   getPreviewContainer: ->
     con = []
+    # we are bound to find one of these
     candidates = ['.im-query-results', '.im-table-container', 'table', 'body']
     while con.length is 0
-      sel = candidates.shift()
-      con = @$el.closest sel
+      con = @$el.closest candidates.shift()
     return con
   
   initPreview: ->
@@ -302,14 +315,16 @@ class Cell extends CoreView
 
     @$el.popover
       trigger: 'manual'
-      template: (classyPopover classes: 'item-preview')
+      template: popoverTemplate
       placement: 'auto left'
       container: @getPreviewContainer()
       html: true # well, technically we are using Elements.
       title: => @model.get 'typeName' # see CellModel
       content: content.el
 
-    # This is how we actually trigger the popover.
-    @listenTo view, 'rendered', => @$el.popover 'show'
-    return view
+    # This is how we actually trigger the popover, hence it
+    # is imporant to call re-render on the preview when we want
+    # to show it inside the popover - see `::showPreview()`
+    @listenTo content, 'rendered', => @$el.popover 'show'
+    return content
 

@@ -16,6 +16,9 @@ class Options extends NestedModel
     MaxSuggestions: 1000 # Max number of suggestions to fetch and show when editing constraints.
     ListCategorisers: ['organism.name', 'department.company.name']
     PieColors: 'category10'
+    TableResults:
+      CacheFactor: 10
+      RequestLimit: 5000 # Dump the cache rather than request more rows than this
     TableCell:
       PreviewTrigger: 'click' # one of: hover, click
       HoverDelay: 200 # ms

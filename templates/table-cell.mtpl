@@ -15,7 +15,7 @@
     <% } %>
   <% } %>
 
-  <% if (formattedValue) { %>
+  <% if (value != null && formattedValue != null) { %>
     <span class="im-displayed-value"><%= value %></span>
   <% } else { %>
     <%= NULL_VALUE %>

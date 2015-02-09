@@ -9,10 +9,9 @@ NestedTableModel = require '../../models/nested-table'
 ColumnHeader = require './header'
 ColumnHeaders = require '../../models/column-headers'
 PopoverFactory = require '../../utils/popover-factory'
+History = require '../../models/history'
+cellFactory = require './cell-factory'
 
-# FIXME - check this import
-SubTable = require './subtable'
-Cell = require './cell'
 # FIXME - create this file, make sure it returns a template
 #      - make sure that there is a .btn.undo in it
 NoResults = require '../templates/no-results'
@@ -23,33 +22,14 @@ Preview = require '../item-preview'
 # but not where they come from.
 module.exports = class ResultsTable extends View
 
-  @nextDirections =
-    ASC: "DESC"
-    DESC: "ASC"
-
   className: "im-results-table table table-striped table-bordered"
 
-  tagName: "table"
+  tagName: 'table'
 
-  attributes:
-    width: "100%"
-    cellpadding: 0
-    border: 0
-    cellspacing: 0
-
-  throbber: _.template """
-    <tr class="im-table-throbber">
-      <td colspan="<%= colcount %>">
-        <h2>Requesting Data</h2>
-        <div class="progress progress-info progress-striped active">
-          <div class="bar" style="width: 100%"></div>
-        </div>
-      </td>
-    </tr>
-  """
+  throbber: Templates.template 'table-throbber'
 
   parameters: [
-    'query',
+    'history',
     'blacklistedFormatters',
     'columnHeaders',
     'rows',
@@ -58,19 +38,20 @@ module.exports = class ResultsTable extends View
   ]
 
   parameterTypes:
-    query: types.Query
+    history: (types.InstanceOf History, 'History')
     blacklistedFormatters: types.Collection
     rows: types.Collection
-    tableState: types.Model
+    tableState: (types.InstanceOf TableModel, 'TableModel')
     columnHeaders: (types.InstanceOf ColumnHeaders, 'ColumnHeaders')
     selectedObjects: (types.InstanceOf SelectedObjects, 'SelectedObjects')
 
   initialize: ->
     super
-    @minimisedCols = {}
-    # TODO: manage onColvisToggle
+    @query = @history.getCurrentQuery()
+    # TODO: manage onColvisToggle FIXME!! - see TableModel
     @expandedSubtables = new PathSet
-    @popoverFactory  = new PopoverFactory @query.service, Preview
+    @popoverFactory = new PopoverFactory @query.service, Preview
+    @cellFactory = cellFactory @query.service, @
 
     @listenTo @columnHeaders, 'reset add remove', @renderHeaders
     @listenTo @columnHeaders, 'reset add remove', @fill
@@ -84,7 +65,9 @@ module.exports = class ResultsTable extends View
     @fill()
 
   events: ->
-    'click .btn.undo': => @query.trigger 'undo'
+    'click .btn.undo': @undo
+    
+  undo: -> @history.popState()
 
   render: ->
     @$el.empty()
@@ -122,26 +105,14 @@ module.exports = class ResultsTable extends View
     apology = NoResults q
     @$el.append apology
 
-  minimisedColumnPlaceholder: _.template """
-    <td class="im-minimised-col" style="width:<%= width %>px">&hellip;</td>
-  """
+  minimisedColumnPlaceholder: (width) ->
+    td = document.createElement 'td'
+    td.className = 'im-minimised-col'
+    td.style.width = "#{ width }px"
+    td.innerHTML = '&hellip;'
+    return td
 
-  renderCell: (cell) =>
-    service = @query.service
-    base = service.root.replace /\/service\/?$/, ""
-    if cell instanceof NestedTableModel
-      return new SubTable
-        model: cell
-        cellify: @renderCell # bound method of this class.
-        canUseFormatter: @canUseFormatter # bound method of this class.
-        expandedSubtables: @expandedSubtables
-    else
-      return new Cell
-        model: cell
-        service: service
-        popovers: @popoverFactory
-        selectedObjects: @selectedObjects
-        tableState: @tableState # TableModel injected from container.
+  renderCell: (cell) -> @cellFactory.create cell
 
   # can be used if it exists and hasn't been black-listed.
   canUseFormatter: (formatter) =>
@@ -154,19 +125,19 @@ module.exports = class ResultsTable extends View
     minWidth = 10  # TODO: does this really need to be here?
     processed = {} # keep a track of which paths we have processed.
 
-    # Render models into views
+    # :: [CellView] (common api is ::getPath())
     cellViews = (@renderCell cell for cell in row.get('cells'))
 
-    # cell :: Cell | SubTable, i :: int
     for cell, i in cellViews then do (cell, i) =>
       # What we are doing here is looking for paths to skip because they are
       # replaced due to formatting.
       cellPath = cell.getPath()
-      return if processed[cellPath] # skip this path - it has been processed.
+      return if processed[cellPath]
+
       processed[cellPath] = true
       column = column_for[cellPath]
 
-      {replaces, formatter, path} = (replacer_of[cellPath]?.toJSON() ? {})
+      {replaces, formatter, path} = (column?.toJSON() ? {})
       if replaces?.length > 1
         # Only accept if it is the right type, since formatters expect a type.
         return unless path.equals(cellPath.getParent())
@@ -179,7 +150,7 @@ module.exports = class ResultsTable extends View
       cell.formatter = formatter if formatter?
 
       if @minimisedCols[ cellPath ] or (path and @minimisedCols[path])
-        $(tr).append @minimisedColumnPlaceholder width: minWidth
+        tr.appendChild @minimisedColumnPlaceholder minWidth
       else
         cell.render()
         tr.appendChild cell.el
@@ -204,4 +175,5 @@ module.exports = class ResultsTable extends View
   remove: ->
     @popoverFactory.destroy()
     delete @popoverFactory
+    delete @cellFactory
     super
