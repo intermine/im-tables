@@ -51,7 +51,7 @@ class BasicTable extends CoreView
     super
     @cellModelFactory = new CellModelFactory @query.service, @query.model
     @rows = new RowsCollection
-    @listenTo @rows, 'add remove reset', @reRender
+    @listenTo @rows, 'add', (row) -> @addRow row
     # This table doesn't do paging, reloading or anything fancy at all, therefore
     # it does just this one single simple fetch.
     TableResults.getCache @query
@@ -80,8 +80,10 @@ class BasicTable extends CoreView
   getData: -> _.extend @getBaseData(), cssClass: pathToCssClass, headers: @query.views
 
   postRender: ->
+    frag = document.createDocumentFragment 'tbody'
     @$body = @$ 'tbody'
-    @rows.forEach (row) => @addRow row
+    @rows.forEach (row) => @addRow row, frag
+    @$body.html frag
 
   setRows: (rows) -> # the same logic as Table::fillRowsCollection, minus start.
     createModel = @cellModelFactory.getCreator @query
@@ -91,8 +93,9 @@ class BasicTable extends CoreView
 
     @rows.set models
 
-  addRow: (row) ->
-    @renderChild row.id, (new RowView model: row), @$body
+  addRow: (row, tbody) ->
+    tbody ?= @$ 'tbody'
+    @renderChild row.id, (new RowView model: row), tbody
 
 class RowView extends CoreView
 

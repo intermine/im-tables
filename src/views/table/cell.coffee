@@ -250,7 +250,7 @@ module.exports = class Cell extends CoreView
     else
       show()
 
-  _hidePreview: -> if @rendered
+  _hidePreview: -> if @children.popover?.rendered
     @$el.popover 'hide'
 
   onChangeShowPreview: ->
@@ -338,29 +338,32 @@ module.exports = class Cell extends CoreView
   getPreviewContainer: ->
     con = []
     # we are bound to find one of these
-    candidates = ['.im-query-results', '.im-table-container', 'table', 'body']
-    while con.length is 0
+    candidates = ['.im-query-results', '.im-table-container', '.panel', 'table', 'body']
+    while candidates.length and (con.length is 0)
       con = @$el.closest candidates.shift()
     return con
 
   removeAllChildren: ->
     if @children.popover?
       @stopListeningTo(@children.popover)
-      @$el.popover('destroy')
+      @$el.popover('destroy') if @children.popover.rendered
     super
   
   initPreview: ->
     # Create the popover now, but no data will be fetched until render is called.
     content = @popovers.get @model.get 'entity'
 
-    @$el.popover
-      trigger: 'manual'
-      template: popoverTemplate
-      placement: 'auto left'
-      container: @getPreviewContainer()
-      html: true # well, technically we are using Elements.
-      title: => @model.get 'typeName' # see CellModel
-      content: content.el
+    @listenToOnce content, 'rendered', =>
+      container = @getPreviewContainer()
+      console.log 'initing popover for', @model.get('entity').get('id'), container
+      @$el.popover
+        trigger: 'manual'
+        template: popoverTemplate
+        placement: 'auto left'
+        container: container
+        html: true # well, technically we are using Elements.
+        title: => @model.get 'typeName' # see CellModel
+        content: content.el
 
     # This is how we actually trigger the popover, hence it
     # is imporant to call re-render on the preview when we want
