@@ -104,9 +104,14 @@ QUERY =
   from: 'Department'
   where: [[ 'employees.age', '>', 35 ]]
 
+toggles = [
+  {attr: 'selecting', type: 'bool'},
+  {attr: 'highlitNode', opts: ['Department', 'Department.company', 'Department.employees']}
+]
+
 renderQuery = renderWithCounter create, (->), ['model', 'rows']
 
 $ ->
-  toggles = new Toggles model: tableState, toggles: ['selecting']
+  toggles = new Toggles model: tableState, toggles: toggles
   toggles.render().$el.appendTo 'body'
   renderQueries [QUERY], renderQuery

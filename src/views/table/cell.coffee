@@ -205,7 +205,7 @@ module.exports = class Cell extends CoreView
   setHighlit: ->
     myNode = @model.get('node')
     highlit = @tableState.get 'highlitNode'
-    @state.set highlit: highlit? and (myNode.equals highlit)
+    @state.set highlit: (highlit? and (String(myNode) is String(highlit)))
 
   onChangeEntity: -> # Should literally never happen.
     prev = @model.previous 'entity'
