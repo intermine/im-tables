@@ -16,6 +16,7 @@ TableResults     = require 'imtables/utils/table-results'
 Preview     = require 'imtables/views/item-preview'
 Cell        = require 'imtables/views/table/cell'
 
+Toggles = require '../lib/toggles'
 renderQueries = require '../lib/render-queries.coffee'
 renderWithCounter = require '../lib/render-query-with-counter-and-displays'
 {connection} = require '../lib/connect-to-service'
@@ -90,7 +91,7 @@ class RowView extends CoreView
     @model.get('cells').forEach (model, i) =>
       @renderChild i, (new Cell {model, service, popovers, selectedObjects, tableState})
 
-create = (query) -> return new BasicTable {query, model: tableState}
+create = (query) -> new BasicTable {query, model: tableState}
 
 QUERY =
   name: 'cell query'
@@ -105,4 +106,7 @@ QUERY =
 
 renderQuery = renderWithCounter create, (->), ['model', 'rows']
 
-$ -> renderQueries [QUERY], renderQuery
+$ ->
+  toggles = new Toggles model: tableState, toggles: ['selecting']
+  toggles.render().$el.appendTo 'body'
+  renderQueries [QUERY], renderQuery

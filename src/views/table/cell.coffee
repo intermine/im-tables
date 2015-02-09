@@ -251,13 +251,13 @@ module.exports = class Cell extends CoreView
     @$el.toggleClass 'active', (highlit or selected)
 
   setInputChecked: ->
-    @$('input').attr checked: @getInputState().checked
+    @$('input').prop checked: @getInputState().checked
 
   setInputDisplay: ->
     @$('input').css display: @getInputState().display
 
   setInputDisabled: ->
-    @$('input').attr disabled: @getInputState().disabled
+    @$('input').prop disabled: @getInputState().disabled
 
   # Rendering logic.
   
@@ -295,10 +295,10 @@ module.exports = class Cell extends CoreView
   # which is probably a good indication it should be its own view.
   getInputState: ->
     selecting = @tableState.get 'selecting'
-    {selected, selectable} = @model.pick 'selected', 'selectable'
+    {selected, selectable} = @state.pick 'selected', 'selectable'
     checked = selected
     disabled = not selectable
-    display = if selecting and selectable then 'inline' else 'none'
+    display = if selecting then 'inline' else 'none'
     {checked, disabled, display}
 
   # InterMine objects (i.e. objects with ids) can have previews.
