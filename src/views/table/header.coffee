@@ -66,9 +66,6 @@ module.exports = class ColumnHeader extends CoreView
   initialize: ->
     super
 
-    # FIXME - replace these abominations with a data-model.
-    @listenTo @query, 'subtable:expanded', @onSubtableExpanded
-    @listenTo @query, 'subtable:collapsed', @onSubtableCollapsed
     @listenTo @query, 'showing:column-summary', @removeMySummary
 
     @listenTo Options, 'change:icons', @reRender

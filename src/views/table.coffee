@@ -57,6 +57,8 @@ module.exports = class Table extends CoreView
 
     @listenTo @blacklistedFormatters, 'reset add remove', @buildColumnHeaders
 
+    @listenTo @columnHeaders, 'change:minimised', @onChangeHeaderMinimised
+
     @listenToQuery()
     # Always good to know the API version, but we
     # aren't currently using it for anything, but it
@@ -70,10 +72,7 @@ module.exports = class Table extends CoreView
 
   modelEvents: ->
     'change:phase': @reRender
-    'change:freshness': @unsetCache
     'change:freshness change:start change:size': @fillRows
-    'change:cache': @buildColumnHeaders
-    'change:cache': @onChangeCache
     'change:count': @onChangeCount
     'change:error': @onChangeError
 
@@ -102,6 +101,16 @@ module.exports = class Table extends CoreView
     delete @cellModelFactory
     super
 
+  # Write the change in minimised state to the table model
+  onChangeHeaderMinimised: (m) ->
+    path = @query.makePath m.get('path')
+    minimisedCols = @model.get('minimisedColumns')
+
+    if m.get('minimised')
+      minimisedCols.add path
+    else
+      minimisedCols.remove path
+
   setSelecting: => @model.set selecting: true
 
   unsetSelecting: => @model.set selecting: false
@@ -114,7 +123,15 @@ module.exports = class Table extends CoreView
   # which can be represented as an (xml) string.
   setFreshness: -> @model.set freshness: @query.toXML()
 
-  buildColumnHeaders: -> @columnHeaders.setHeaders @query, @blacklistedFormatters
+  # Set the column headers correctly for the current state of the query,
+  # setting the minimised state to respect the state of model.minimisedColumns
+  buildColumnHeaders: ->
+    silently = {silent: true}
+    minimisedCols = @model.get('minimisedColumns')
+    isMinimised = (ch) => minimisedCols.contains(@query.makePath ch.get('path'))
+
+    @columnHeaders.setHeaders @query, @blacklistedFormatters
+    @columnHeaders.forEach (ch) => ch.set {minimised: (isMinimised ch)}, silently
 
   ## Filling the rows is a two step process - first we check the row cache to see
   ## if we already have these rows, or update it if not. Only then do we go about
