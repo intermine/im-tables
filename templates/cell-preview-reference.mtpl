@@ -1,5 +1,5 @@
 <tr>
-    <td class="im-field-name"><%- displayName %></td>
+    <td class="im-field-name"><%- _.rest(parts).join(' ') %></td>
     <td class="im-field-value <%- field.toLowerCase() %>">
         <%- values.join(', ') %>
     </td>

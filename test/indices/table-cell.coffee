@@ -17,6 +17,8 @@ Preview     = require 'imtables/views/item-preview'
 Cell        = require 'imtables/views/table/cell'
 
 Toggles = require '../lib/toggles'
+Label = require '../lib/label'
+formatCompany = require '../lib/company-formatter'
 renderQueries = require '../lib/render-queries.coffee'
 renderWithCounter = require '../lib/render-query-with-counter-and-displays'
 {connection} = require '../lib/connect-to-service'
@@ -25,6 +27,9 @@ Options.set 'ModelDisplay.Initially.Closed', true
 # Make these toggleable...
 Options.set 'TableCell.PreviewTrigger', 'hover'
 Options.set 'TableCell.IndicateOffHostLinks', false
+
+formatters =
+  Company: formatCompany
 
 canUseFormatter = -> false
 popoverFactory = new PopoverFactory connection, Preview
@@ -89,7 +94,12 @@ class RowView extends CoreView
     service = connection
     popovers = popoverFactory
     @model.get('cells').forEach (model, i) =>
-      @renderChild i, (new Cell {model, service, popovers, selectedObjects, tableState})
+      opts = {model, service, popovers, selectedObjects, tableState}
+      type = model.get('entity').get('class')
+      if formatter = formatters[type]
+        opts.formatter = formatter
+
+      @renderChild i, (new Cell opts)
 
 create = (query) -> new BasicTable {query, model: tableState}
 
@@ -113,5 +123,12 @@ renderQuery = renderWithCounter create, (->), ['model', 'rows']
 
 $ ->
   toggles = new Toggles model: tableState, toggles: toggles
+  commonTypeLabel = new Label
+    model: selectedObjects
+    attr: 'Common Type'
+    getter: -> selectedObjects.state.get('commonType') if selectedObjects.length
+
   toggles.render().$el.appendTo 'body'
+  commonTypeLabel.render().$el.appendTo 'body'
+
   renderQueries [QUERY], renderQuery
