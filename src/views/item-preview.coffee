@@ -61,9 +61,9 @@ HIDDEN_FIELDS = ['class', 'objectId'] # We don't show these fields.
 # fn version of Array.concat
 concat = (xs, ys) -> xs.concat ys
 # Accept non-null attrs.
-acceptAttr = -> (f, v) ->
-  v? and (not v.objectId) and (f not in HIDDEN_FIELDS)
-acceptRef = -> (f, v) -> value?.objectId
+acceptAttr = -> (f, v) -> v? and (not v.objectId) and (f not in HIDDEN_FIELDS)
+# Accept references.
+acceptRef = -> (f, v) -> v?.objectId
 
 # Define the bits of the service we need.
 ServiceType = new types.StructuralTypeAssertion 'ServiceType',
@@ -111,6 +111,7 @@ module.exports = class Preview extends CoreView
     m = @model
     @fetching ?= @fetchData()
     @fetching.then (-> m.set phase: 'SUCCESS'), (e) ->
+      console.error e
       m.set phase: 'ERROR', error: e
 
   postRender: -> if 'SUCCESS' is @model.get('phase')
@@ -154,6 +155,7 @@ module.exports = class Preview extends CoreView
     coll = @fieldDetails
     testAttr = acceptAttr coll
     testRef = acceptRef coll
+    console.log item
 
     for field, value of item when (testAttr field, value)
       @handleAttribute item, field, value

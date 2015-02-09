@@ -56,5 +56,7 @@ module.exports = class SelectedObjects extends Collection
     if commonType?
       @state.set commonType: commonType
     else
-      @state.set commonType: null, typeName: null
+      @state.set
+        commonType: null
+        typeName: null
 

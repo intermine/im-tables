@@ -16,7 +16,7 @@ popoverTemplate = Templates.template('classy-popover') classes: 'item-preview'
 # Null safe isa test. Tests if the path is an instance of the
 # given type, eg: PathInfo(Department.employees) isa 'Employee' => true
 # :: (PathInfo, String) -> boolean
-_isa = (path, ct) -> if ct? then (path.isa ct) else false
+_compatible = (path, ct) -> if ct? then path.model.findSharedAncestor(path, ct)? else false
 
 # We memoize this to avoid re-walking the inheritance heirarchy, and because
 # we know a-priori that the same call will be repeated many times in the same
@@ -26,7 +26,7 @@ _isa = (path, ct) -> if ct? then (path.isa ct) else false
 # examinations of the common type, all of which are one of four calls, either
 # Department < CT, Employee < CT, CEO < CT or Manager < CT).
 #
-# eg. In a worst case scenario like the call `(isa Enhancer, BioEntity)`, for
+# eg. In a worst case scenario like the call `(compatible Enhancer, BioEntity)`, for
 # each enhancer in the table we would have to examine each of the 5 types in
 # the inheritance heirarchy between Enhancer and BioEntity.
 #
@@ -35,7 +35,7 @@ _isa = (path, ct) -> if ct? then (path.isa ct) else false
 # legal class name, and thus guaranteed not to collide with valid types.
 #
 # :: (PathInfo, String) -> boolean
-isa = _.memoize _isa, (p, ct) -> "#{ p }<#{ ct ? '!' }"
+compatible = _.memoize _compatible, (p, ct) -> "#{ p }<#{ ct ? '!' }"
 
 # A Cell representing a single attribute value.
 # Forms a pair with ./subtable
@@ -97,7 +97,10 @@ module.exports = class Cell extends CoreView
 
   # Return the Path representing the query node of this column.
   # :: -> PathInfo
-  getType: -> @model.get 'node'
+  getType: ->
+    node = @model.get 'node'
+    entityType = @model.get('entity').get('class')
+    if entityType? then node.model.makePath(entityType) else node
 
   # Event wiring:
 
@@ -148,6 +151,7 @@ module.exports = class Cell extends CoreView
     else
       throw new Error "Unknown cell preview: #{ trigger}"
 
+
     return events
 
   # Event listeners.
@@ -157,8 +161,11 @@ module.exports = class Cell extends CoreView
   # the page navigation (by e.preventDefault()) if they choose to do
   # something else.
   onClickCellLink: (e) ->
-    # Prevent bootstrap from closing dropdowns, etc.
-    e?.stopPropagation()
+    # When selecting, it just acts to select.
+    if @tableState.get('selecting')
+      e.preventDefault()
+      return
+
     # Allow the table to handle this event, if it so chooses
     # attach the entity for handlers to inspect.
     e.object = @model.get('entity').toJSON()
@@ -199,7 +206,7 @@ module.exports = class Cell extends CoreView
     commonType = @selectedObjects.state.get('commonType')
     size = @selectedObjects.size()
     # Selectable when nothing is selected or it is of the right type.
-    selectable = (size is 0) or (isa @getType(), commonType)
+    selectable = (size is 0) or (compatible @getType(), commonType)
     @state.set {selectable}
 
   setHighlit: ->
@@ -225,6 +232,7 @@ module.exports = class Cell extends CoreView
   hidePreview: -> @state.set showPreview: false
 
   _showPreview: -> if @rendered
+    return if @tableState.get('selecting') # don't show previews when selecting.
     opts = Options.get 'TableCell'
     show = =>
       # We test here too since it may have been hidden during the hover delay.
