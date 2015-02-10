@@ -3,6 +3,10 @@
 <% } else if (entity.id == null) { %>
   <% if (value != null && formattedValue != null) { %>
     <span class="im-displayed-value"><%= value %></span>
+  <% } else if (entity.isNULL) { %>
+    <span class="im-null-entity">
+      <%- Messages.getText('table.cell.NullEntity', {type: entity['class']}) %>
+    </span>
   <% } else { %>
     <%= NULL_VALUE %>
   <% } %>

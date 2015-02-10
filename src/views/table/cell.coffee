@@ -6,7 +6,9 @@ Options = require '../../options'
 Messages = require '../../messages'
 CellModel = require '../../models/cell'
 
-Messages.setWithPrefix 'table.cell', Link: 'link'
+Messages.setWithPrefix 'table.cell',
+  Link: 'link'
+  NullEntity: 'No <%= type %>'
 
 SelectedObjects = require '../../models/selected-objects'
 types = require '../../core/type-assertions'
