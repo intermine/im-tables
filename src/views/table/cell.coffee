@@ -58,7 +58,7 @@ module.exports = class Cell extends CoreView
   # A function that when called returns an HTML string suitable
   # for direct inclusion. The default formatter is very simple
   # and just returns the escaped value.
-  # 
+  #
   # Note that while a property of this class, this function
   # is called in such a way that it never has access to the this
   # reference.
@@ -135,7 +135,7 @@ module.exports = class Cell extends CoreView
 
   stateEvents: -> # these events cause DOM twiddling.
     'change:highlit change:selected': @setActiveClass
-    'change:selectable': @setInputDisabled
+    'change:selectable': @onChangeSelectable
     'change:selected': @setInputChecked
     'change:showPreview': @onChangeShowPreview
     'change:minimised': @reRender # nothing for it - full re-render is required.
@@ -190,7 +190,7 @@ module.exports = class Cell extends CoreView
     @listenTo (@model.get 'entity'), 'change', @updateValue
 
   # Event handlers.
-  
+
   onShowPreview: -> @tableState.set previewOwner: @el.id
 
   onHidePreview: -> # make sure we disclaim ownership.
@@ -225,8 +225,10 @@ module.exports = class Cell extends CoreView
     minimised = @tableState.get('minimisedColumns').contains(myColumn)
     @state.set {minimised}
 
-  onChangeEntity: -> # Should literally never happen.
+  onChangeEntity: ->
+    # Should literally never happen - we should probably throw an error.
     prev = @model.previous 'entity'
+    delete @_has_id
     @stopListening(prev) if prev?
     @listenToEntity()
 
@@ -234,10 +236,15 @@ module.exports = class Cell extends CoreView
     @activateChooser() or @state.toggle 'showPreview'
 
   activateChooser: -> # click handler when the preview trigger is 'hover'
+    # can only select things with ids.
+    return unless @hasID()
     selecting = @tableState.get 'selecting'
     selectable = @state.get 'selectable'
     if selectable and selecting # then toggle state of 'selected'
       @toggleSelection()
+
+  # Cachable query of the entity.
+  hasID: -> @_has_id ?= @model.get('entity').get('id')?
 
   showPreview: -> @state.set showPreview: true
   hidePreview: -> @state.set showPreview: false
@@ -259,6 +266,10 @@ module.exports = class Cell extends CoreView
   onChangeShowPreview: ->
     if @state.get('showPreview') then @_showPreview() else @_hidePreview()
 
+  onChangeSelectable: ->
+    @setDisabledCellClass()
+    @setInputDisabled()
+
   # Rather than full re-renders, which would get expensive for many cells,
   # we just reach in and twiddle these specific DOM attributes:
 
@@ -275,11 +286,14 @@ module.exports = class Cell extends CoreView
   setInputDisplay: ->
     @$('input').css display: @getInputState().display
 
+  setDisabledCellClass: ->
+    @$el.toggleClass 'im-not-selectable', (not @state.get 'selectable')
+
   setInputDisabled: ->
     @$('input').prop disabled: @getInputState().disabled
 
   # Rendering logic.
-  
+
   template: Templates.template 'table-cell'
 
   getData: ->
@@ -323,12 +337,13 @@ module.exports = class Cell extends CoreView
   # InterMine objects (i.e. objects with ids) can have previews.
   # We find the preview information using `Query::findById` and
   # queries that use the `id` property, so this is a requirement.
-  canHavePreview: -> (not @state.get 'minimised') and @model.get('entity').get('id')?
+  canHavePreview: -> @hasID() and (not @state.get 'minimised')
 
   # Make sure this element has the correct classes, and initialise the preview popover.
   postRender: ->
     @setAttrClass()
     @setActiveClass()
+    @setDisabledCellClass()
     if @canHavePreview()
       @children.popover ?= @initPreview()
 
@@ -337,7 +352,7 @@ module.exports = class Cell extends CoreView
     @$el.addClass 'im-type-' + attrType.toLowerCase()
 
   # Code associated with the preview.
-  
+
   getPreviewContainer: ->
     con = []
     # we are bound to find one of these
@@ -351,7 +366,7 @@ module.exports = class Cell extends CoreView
       @stopListeningTo(@children.popover)
       @$el.popover('destroy') if @children.popover.rendered
     super
-  
+
   initPreview: ->
     # Create the popover now, but no data will be fetched until render is called.
     content = @popovers.get @model.get 'entity'
@@ -373,4 +388,3 @@ module.exports = class Cell extends CoreView
     # to show it inside the popover - see `::showPreview()`
     @listenTo content, 'rendered', => @$el.popover 'show'
     return content
-
