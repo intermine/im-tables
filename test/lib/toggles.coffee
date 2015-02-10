@@ -9,11 +9,6 @@ module.exports = class Toggles extends CoreView
 
   parameters: ['toggles']
 
-  initialize: ->
-    super
-    toggles = (t.attr for t in @toggles)
-    console.log toggles, @model.pick(toggles)
-
   getData: ->
     toCssClass: toCssClass
     model: @model.pick(t.attr for t in @toggles)
@@ -43,27 +38,35 @@ module.exports = class Toggles extends CoreView
       <div class="row <%- toCssClass(t.attr) %>">
         <div class="col-md-3"><label><%- t.attr %></label></div>
         <div class="col-md-9">
-          <div class="btn-group" role="group">
+          <div class="btn-group btn-group-justified" role="group">
             <% if (t.type === 'bool') { %>
-              <button type="button"
-                class="btn btn-on btn-default<%= model[t.attr] ? ' active' : void 0 %>">
-                on
-              </button>
-              <button type="button"
-                class="btn btn-off btn-default<%= !model[t.attr] ? ' active' : void 0 %>">
-                off
-              </button>
+              <div class="btn-group" role="group">
+                <button type="button"
+                  class="btn btn-on btn-default<%= model[t.attr] ? ' active' : void 0 %>">
+                  on
+                </button>
+              </div>
+              <div class="btn-group" role="group">
+                <button type="button"
+                  class="btn btn-off btn-default<%= !model[t.attr] ? ' active' : void 0 %>">
+                  off
+                </button>
+              </div>
             <% } else if (t.type === 'enum') { %>
               <% t.opts.forEach(function(opt) { %>
-                <button type="button"
-                  class="btn btn-<%- toCssClass(opt) %> btn-default<%= model[t.attr] === opt ? ' active' : void 0 %>">
-                  <%- opt %>
-                </button>
+                <div class="btn-group" role="group">
+                  <button type="button"
+                    class="btn btn-<%- toCssClass(opt) %> btn-default<%= model[t.attr] === opt ? ' active' : void 0 %>">
+                    <%- opt %>
+                  </button>
+                </div>
               <% }); %>
-              <button type="button"
-                class="btn btn-unset btn-default<%= model[t.attr] == null ? ' active' : void 0 %>">
-                <i>unset</i>
-              </button>
+              <div class="btn-group" role="group">
+                <button type="button"
+                  class="btn btn-unset btn-default<%= model[t.attr] == null ? ' active' : void 0 %>">
+                  <i>unset</i>
+                </button>
+              </div>
             <% } %>
           </div>
         </div>
