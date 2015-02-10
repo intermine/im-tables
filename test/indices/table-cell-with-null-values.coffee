@@ -23,8 +23,32 @@ Options.set 'TableCell.PreviewTrigger', 'hover'
 Options.set 'TableCell.IndicateOffHostLinks', false
 Options.set 'TableResults.CacheFactor', 2
 
+QUERY =
+  name: 'cell query'
+  select: [
+    'name',
+    'employees.name',
+    'employees.end',
+    'employees.address.address'
+  ]
+  where: [
+    ['employees.name', '>', 'dan'],
+    ['employees.name', '<', 'erika']
+  ]
+  from: 'Department'
+  joins: ['employees.address']
+  orderBy: ['employees.name']
+
+TOGGLES = [
+  {attr: 'selecting', type: 'bool'},
+  {
+    attr: 'highlitNode',
+    type: 'enum',
+    opts: ['Department', 'Department.employees', 'Department.employees.address']}
+]
+
 selectedObjects = new SelectedObjects connection
-tableState = new TableModel
+tableState = new TableModel size: 25
 
 create = (query) ->
   new BasicTable
@@ -34,24 +58,10 @@ create = (query) ->
     modelFactory: (new CellModelFactory connection, query.model)
     selectedObjects: selectedObjects
 
-QUERY =
-  name: 'cell query'
-  select: [
-    'name',
-    'employees.name',
-    'employees.simpleObjects.name'
-  ]
-  from: 'Department'
-
-toggles = [
-  {attr: 'selecting', type: 'bool'},
-  {attr: 'highlitNode', type: 'enum', opts: ['Department', 'Department.employees']}
-]
-
 renderQuery = renderWithCounter create, (->), ['model', 'rows']
 
-$ ->
-  toggles = new Toggles model: tableState, toggles: toggles
+main = ->
+  toggles = new Toggles model: tableState, toggles: TOGGLES
   commonTypeLabel = new Label
     model: selectedObjects
     attr: 'Common Type'
@@ -61,3 +71,5 @@ $ ->
   commonTypeLabel.render().$el.appendTo 'body'
 
   renderQueries [QUERY], renderQuery
+
+$ main

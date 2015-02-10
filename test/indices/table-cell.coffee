@@ -55,7 +55,7 @@ class BasicTable extends CoreView
     # This table doesn't do paging, reloading or anything fancy at all, therefore
     # it does just this one single simple fetch.
     TableResults.getCache @query
-                .fetchRows 0, 10
+                .fetchRows 0, 15
                 .then (rows) => @setRows rows
                 .then null, (e) -> console.error 'error setting rows', e
 
