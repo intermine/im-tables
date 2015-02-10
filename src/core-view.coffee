@@ -72,7 +72,7 @@ module.exports = class CoreView extends Backbone.View
     # Set all required parameters.
     _.extend @, _.pick opts, params...
     # Set optional parameters if provided.
-    for p in optParams when p of opts
+    for p in optParams when opts[p]? # Ignore if null.
       @[p] = opts[p]
     @children = {}
     Model = (@Model or CoreModel)

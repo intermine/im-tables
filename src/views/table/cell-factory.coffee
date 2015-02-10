@@ -11,6 +11,7 @@ Cell = require './cell'
 #   popoverFactory :: PopoverFactory,
 #   selectedObjects :: SelectedObjects,
 #   tableState :: TableModel
+#   getFormatter :: fn (path) -> (obj, service) -> string
 # }
 # CellView = Cell | SubTable
 module.exports = (service, opts) ->
@@ -29,3 +30,5 @@ module.exports = (service, opts) ->
         popovers: opts.popoverFactory
         selectedObjects: opts.selectedObjects
         tableState: opts.tableState
+        formatter: (opts.getFormatter cell.get('node'))
+

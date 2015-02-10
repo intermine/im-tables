@@ -19,6 +19,8 @@ module.exports = class CellModel extends CoreModel
     column = @get('column')
     column.getDisplayName().then (columnName) => @set {columnName}
     column.model.makePath(type).getDisplayName().then (typeName) => @set {typeName}
+  
+  getPath: -> @get('column')
 
   toJSON: -> _.extend super,
     column: @get('column').toString()

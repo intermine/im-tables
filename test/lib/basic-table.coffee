@@ -1,12 +1,18 @@
 _ = require 'underscore'
 
 CoreView       = require 'imtables/core-view'
+Collection     = require 'imtables/core/collection'
 TableModel     = require 'imtables/models/table'
 RowsCollection = require 'imtables/models/rows'
+PathModel      = require 'imtables/models/path'
 TableResults   = require 'imtables/utils/table-results'
-Cell           = require 'imtables/views/table/cell'
+CellFactory    = require 'imtables/views/table/cell-factory'
 
 pathToCssClass = (path) -> String(path).replace /\./g, '-'
+
+class ViewList extends Collection
+
+  model: PathModel
 
 module.exports = class BasicTable extends CoreView
 
@@ -30,8 +36,16 @@ module.exports = class BasicTable extends CoreView
   initialize: ->
     super
     {start, size} = @model.pick 'start', 'size'
+    @views = new ViewList(new PathModel @query.makePath v for v in @query.views)
     @rows = new RowsCollection
-    @listenTo @rows, 'add', (row) -> @addRow row
+    @makeCell = CellFactory @query.service,
+      expandedSubtables: (new Collection)
+      popoverFactory: @popovers
+      selectedObjects: @selectedObjects
+      tableState: @model
+      canUseFormatter: (=> !!@model.get('formatting'))
+      getFormatter: ((p) => @formatters[p.getType().name]) # the real fn is more complex.
+
     # This table doesn't do paging, reloading or anything fancy at all, therefore
     # it does just this one single simple fetch.
     TableResults.getCache @query
@@ -39,31 +53,16 @@ module.exports = class BasicTable extends CoreView
                 .then (rows) => @setRows rows
                 .then null, (e) -> console.error 'error setting rows', e
 
-  template: _.template """
-    <thead>
-      <tr>
-        <% _.each(headers, function (header) { %>
-          <th class="<%- cssClass(header) %>"><%- header %></th>
-        <% }); %>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  """
-
-  events: ->
-    e = {}
-    @query.views.forEach (v) =>
-      path = @query.makePath v
-      e["click th.#{ pathToCssClass v }"] = -> @model.get('minimisedColumns').toggle path
-    return e
-
-  getData: -> _.extend @getBaseData(), cssClass: pathToCssClass, headers: @query.views
-
   postRender: ->
-    frag = document.createDocumentFragment 'tbody'
-    @$body = @$ 'tbody'
-    @rows.forEach (row) => @addRow row, frag
-    @$body.html frag
+    @renderHead()
+    @renderBody()
+
+  renderHead: ->
+    head = new TableHeader collection: @views, minimisedColumns: @model.get('minimisedColumns')
+    @renderChild 'thead', head
+
+  renderBody: ->
+    @renderChild 'tbody', (new TableBody collection: @rows, makeCell: @makeCell)
 
   setRows: (rows) -> # the same logic as Table::fillRowsCollection, minus start.
     createModel = @modelFactory.getCreator @query
@@ -73,29 +72,59 @@ module.exports = class BasicTable extends CoreView
 
     @rows.set models
 
+class TableHeader extends CoreView
+  
+  tagName: 'thead'
+
+  parameters: ['minimisedColumns']
+
+  collectionEvents: -> 'change:displayName': @reRender
+
+  template: _.template """
+    <tr>
+      <% _.each(collection, function (header) { %>
+        <th class="<%- cssClass(header.path) %>">
+          <%- header.displayName || header.path %>
+        </th>
+      <% }); %>
+    </tr>
+  """
+
+  getData: -> _.extend super, cssClass: pathToCssClass
+
+  events: -> _.object @collection.map (pm) ->
+    ename = "click th.#{ pathToCssClass pm.get('path') }"
+    handler = -> @minimisedColumns.toggle pm.pathInfo()
+    [ename, handler]
+
+class TableBody extends CoreView
+
+  tagName: 'tbody'
+
+  parameters: ['makeCell']
+
+  collectionEvents: -> add: (row) -> @addRow row
+
+  template: ->
+
+  postRender: ->
+    frag = document.createDocumentFragment 'tbody'
+    @collection.forEach (row) => @addRow row, frag
+    @el.appendChild frag
+
   addRow: (row, tbody) ->
-    tbody ?= @$ 'tbody'
-    @renderChild row.id, (new RowView model: row, table: @), tbody
+    tbody ?= @el
+    @renderChild row.id, (new RowView model: row, makeCell: @makeCell), tbody
 
 class RowView extends CoreView
 
   tagName: 'tr'
 
-  parameters: ['table']
+  parameters: ['makeCell']
 
   postRender: ->
-    {popovers, formatters, selectedObjects} = @table
-    service = @table.query.service
-    tableState = @table.model
-
-    @model.get('cells').forEach (model, i) =>
-      opts = {model, service, popovers, selectedObjects, tableState}
-      type = model.get('entity').get('class')
-      if formatter = formatters[type]
-        opts.formatter = formatter
-
-      @renderChild i, (new Cell opts)
+    @model.get('cells').forEach (model, i) => @renderChild i, (@makeCell model)
 
   remove: ->
-    delete @table
+    delete @makeCell
     super

@@ -1,21 +1,17 @@
 $ = require 'jquery'
-_ = require 'underscore'
-Backbone = require 'backbone'
 
-CoreModel = require 'imtables/core-model'
-CoreView = require 'imtables/core-view'
 Options = require 'imtables/options'
 
 # Code under test:
 TableModel      = require 'imtables/models/table'
 SelectedObjects = require 'imtables/models/selected-objects'
-RowsCollection  = require 'imtables/models/rows'
 CellModelFactory = require 'imtables/utils/cell-model-factory'
 PopoverFactory   = require 'imtables/utils/popover-factory'
-TableResults     = require 'imtables/utils/table-results'
 Preview     = require 'imtables/views/item-preview'
-Cell        = require 'imtables/views/table/cell'
+Formatting = require 'imtables/formatting'
 
+# Test helpers.
+BasicTable = require '../lib/basic-table'
 Toggles = require '../lib/toggles'
 Label = require '../lib/label'
 formatCompany = require '../lib/company-formatter'
@@ -29,90 +25,17 @@ Options.set 'TableCell.PreviewTrigger', 'hover'
 Options.set 'TableCell.IndicateOffHostLinks', false
 Options.set 'TableResults.CacheFactor', 2
 
-formatters =
-  Company: formatCompany
-
-canUseFormatter = -> false
-popoverFactory = new PopoverFactory connection, Preview
 selectedObjects = new SelectedObjects connection
-tableState = new TableModel
+tableState = new TableModel size: 10, formatting: true
 
-pathToCssClass = (path) -> String(path).replace /\./g, '-'
-
-class BasicTable extends CoreView
-
-  Model: TableModel
-
-  tagName: 'table'
-
-  className: 'table table-striped table-bordered table-condensed'
-
-  initialize: ({@query}) ->
-    super
-    @cellModelFactory = new CellModelFactory @query.service, @query.model
-    @rows = new RowsCollection
-    @listenTo @rows, 'add', (row) -> @addRow row
-    # This table doesn't do paging, reloading or anything fancy at all, therefore
-    # it does just this one single simple fetch.
-    TableResults.getCache @query
-                .fetchRows 0, 15
-                .then (rows) => @setRows rows
-                .then null, (e) -> console.error 'error setting rows', e
-
-  template: _.template """
-    <thead>
-      <tr>
-        <% _.each(headers, function (header) { %>
-          <th class="<%- cssClass(header) %>"><%- header %></th>
-        <% }); %>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  """
-
-  events: ->
-    e = {}
-    @query.views.forEach (v) =>
-      path = @query.makePath v
-      e["click th.#{ pathToCssClass v }"] = -> @model.get('minimisedColumns').toggle path
-    return e
-
-  getData: -> _.extend @getBaseData(), cssClass: pathToCssClass, headers: @query.views
-
-  postRender: ->
-    frag = document.createDocumentFragment 'tbody'
-    @$body = @$ 'tbody'
-    @rows.forEach (row) => @addRow row, frag
-    @$body.html frag
-
-  setRows: (rows) -> # the same logic as Table::fillRowsCollection, minus start.
-    createModel = @cellModelFactory.getCreator @query
-    models = rows.map (row, i) ->
-      index: i
-      cells: (createModel c for c in row)
-
-    @rows.set models
-
-  addRow: (row, tbody) ->
-    tbody ?= @$ 'tbody'
-    @renderChild row.id, (new RowView model: row), tbody
-
-class RowView extends CoreView
-
-  tagName: 'tr'
-
-  postRender: ->
-    service = connection
-    popovers = popoverFactory
-    @model.get('cells').forEach (model, i) =>
-      opts = {model, service, popovers, selectedObjects, tableState}
-      type = model.get('entity').get('class')
-      if formatter = formatters[type]
-        opts.formatter = formatter
-
-      @renderChild i, (new Cell opts)
-
-create = (query) -> new BasicTable {query, model: tableState}
+create = (query) ->
+  new BasicTable
+    model: tableState
+    query: query
+    popovers: (new PopoverFactory connection, Preview)
+    modelFactory: (new CellModelFactory connection, query.model)
+    selectedObjects: selectedObjects
+    formatters: {Company: formatCompany}
 
 QUERY =
   name: 'cell query'

@@ -4,8 +4,6 @@ TypeAssertions = require '../../core/type-assertions'
 HeaderModel = require '../../models/header'
 NestedTableModel = require '../../models/nested-table'
 
-# FIXME!!! This module needs fixing
-
 # A cell containing a subtable of other rows.
 # The table itself can be expanded or collapsed. When collapsed it is represented
 # by a summary line.
@@ -18,13 +16,12 @@ module.exports = class SubTable extends CoreView
 
     parameters: [
       'cellify',
-      'column',
       'canUseFormatter',
       'expandedSubtables'
     ]
 
     parameterTypes:
-      column: (new TypeAssertions.InstanceOfAssertion HeaderModel, 'HeaderModel')
+      column: (new TypeAssertions.InstanceOf HeaderModel, 'HeaderModel')
       cellify: TypeAssertions.Function
       canUseFormatter: TypeAssertions.Function
       expandedSubtables: TypeAssertions.Collection
