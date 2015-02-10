@@ -9,8 +9,9 @@ NestedTableModel = require '../../models/nested-table'
 # by a summary line.
 module.exports = class SubTable extends CoreView
 
-    tagName: "td"
-    className: "im-result-subtable"
+    tagName: 'td'
+
+    className: 'im-result-subtable'
 
     Model: NestedTableModel
 
@@ -32,6 +33,9 @@ module.exports = class SubTable extends CoreView
 
     # getPath is part of the RowCell API
     getPath: -> @model.get 'column'
+
+    initState: ->
+      @state.set open: Options.get('Subtables.Initially.expanded')
 
     stateEvents: ->
       'change:open': @onChangeOpen
@@ -192,8 +196,8 @@ module.exports = class SubTable extends CoreView
       @tableRendered = true
       $table
 
-    events:
-      'click .im-subtable-summary': 'toggleTable'
+    events: ->
+      'click .im-subtable-summary': @toggleTable
 
     toggleTable: (e) ->
       e?.stopPropagation()
@@ -227,10 +231,8 @@ module.exports = class SubTable extends CoreView
         </table>
       """
 
-      openInitially = Options.get 'Subtables.Initially.expanded'
-
-      if openInitially
-        @toggleTable()
+    postRender: ->
+      @onChangeOpen()
 
       this
 
