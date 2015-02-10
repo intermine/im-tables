@@ -9,6 +9,11 @@ module.exports = class Toggles extends CoreView
 
   parameters: ['toggles']
 
+  initialize: ->
+    super
+    toggles = (t.attr for t in @toggles)
+    console.log toggles, @model.pick(toggles)
+
   getData: ->
     toCssClass: toCssClass
     model: @model.pick(t.attr for t in @toggles)
@@ -27,13 +32,15 @@ module.exports = class Toggles extends CoreView
         when 'enum'
           e["click .#{ t.attr } .btn-unset"] = -> m.set t.attr, null
           t.opts.forEach (opt) ->
-            e["click .#{ t.attr } .btn-#{ toCssClass opt }"] = -> m.set t.attr, opt
+            ename = "click .#{ toCssClass t.attr } .btn-#{ toCssClass opt }"
+            handler = -> m.set t.attr, opt
+            e[ename] = handler
 
     return e
 
   template: _.template """
     <% _.each(toggles, function (t) { %>
-      <div class="row <%- t.attr %>">
+      <div class="row <%- toCssClass(t.attr) %>">
         <div class="col-md-3"><label><%- t.attr %></label></div>
         <div class="col-md-9">
           <div class="btn-group" role="group">

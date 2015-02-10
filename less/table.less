@@ -6,6 +6,15 @@
 .table {
     tbody > tr {
         td.im-result-field {
+            &.im-not-selectable {
+                color: @gray-lightish;
+                input {
+                    opacity: 0.5;
+                }
+                a {
+                    color: @gray-lightish;
+                }
+            }
             &.active {
                 background-color: @brand-primary;
                 color: @brand-primary-contrast;

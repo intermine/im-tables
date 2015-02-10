@@ -57,12 +57,17 @@ renderQuery = renderWithCounter create, (->), ['model', 'rows']
 
 $ ->
   toggles = new Toggles model: tableState, toggles: toggles
+  optionsΤοggles = new Toggles
+    model: Options
+    toggles: [{attr: 'TableCell.PreviewTrigger', type: 'enum', opts: ['hover', 'click']}]
+
   commonTypeLabel = new Label
     model: selectedObjects
     attr: 'Common Type'
     getter: -> selectedObjects.state.get('commonType') if selectedObjects.length
 
   toggles.render().$el.appendTo 'body'
+  optionsΤοggles.render().$el.appendTo 'body'
   commonTypeLabel.render().$el.appendTo 'body'
 
   renderQueries [QUERY], renderQuery

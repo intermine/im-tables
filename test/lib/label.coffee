@@ -15,8 +15,12 @@ module.exports = class Label extends CoreView
 
   template: _.template """
     <div class="row">
-      <div class="col-md-3"><label><%- attr %></label></div>
-      <div class="col-md-9"><code><%- value %></code></div>
+      <div class="col-md-3">
+        <label><%- attr %></label>
+      </div>
+      <div class="col-md-9">
+        <span class="label label-primary"><%- value %></span>
+      </div>
     </div>
   """
 

@@ -36,11 +36,21 @@ module.exports = class NestedModel extends Model
     else
       super key
 
-  _triggerPathChange: (key) ->
+  pick: (attrs...) -> _.object _.flatten(attrs).map (a) => [a, @get(a)]
+
+  # Trigger a change event for every segment.
+  # eg: changing a.b.c will trigger the following events:
+  #  * change
+  #  * change:a
+  #  * change:a.b
+  #  * change:a.b.c
+  # In that order.
+  _triggerPathChange: (key, value) ->
     path = []
+    @trigger "change", this, key.join('.'), value
     for section in key
       path.push section
-      @trigger "change:#{ path.join('.') }", this, @get path
+      @trigger "change:#{ path.join '.' }", this, @get path
 
   _triggerUnsetPath: (path, prev) ->
     if _.isObject(prev)
@@ -70,7 +80,7 @@ module.exports = class NestedModel extends Model
       prev = currentValue[end]
       currentValue[end] = value
       super head, root
-      @_triggerPathChange key
+      @_triggerPathChange key, value
       if prev? and not value?
         @_triggerUnsetPath key, prev
     else if _.isString(key) # Handle calls as (String, Object) ->

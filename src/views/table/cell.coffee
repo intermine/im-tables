@@ -115,8 +115,9 @@ module.exports = class Cell extends CoreView
     @listenToTableState()
 
   listenToOptions: ->
-    @listenTo Options, 'change:TableCell.*', @reRender
-    @listenTo Options, 'change:TableCell.*', @delegateEvents
+    @listenTo Options, 'change:TableCell.IndicateOffHostLinks', @reRender
+    @listenTo Options, 'change:TableCell.ExternalLinkIcons', @reRender
+    @listenTo Options, 'change:TableCell.PreviewTrigger', @redelegate
 
   listenToTableState: ->
     ts = @tableState
@@ -140,6 +141,8 @@ module.exports = class Cell extends CoreView
     'change:showPreview': @onChangeShowPreview
     'change:minimised': @reRender # nothing for it - full re-render is required.
 
+  redelegate: -> @delegateEvents() # so it can be registered as a model listener.
+
   events: -> # the specific DOM event set depends on the configured click behaviour.
     events =
       'show.bs.popover': @onShowPreview
@@ -156,7 +159,6 @@ module.exports = class Cell extends CoreView
       events['click'] = @clickTogglePreview
     else
       throw new Error "Unknown cell preview: #{ trigger}"
-
 
     return events
 

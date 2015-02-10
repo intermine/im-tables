@@ -36,7 +36,7 @@ module.exports = class BasicTable extends CoreView
   initialize: ->
     super
     {start, size} = @model.pick 'start', 'size'
-    @views = new ViewList(new PathModel @query.makePath v for v in @query.views)
+    @views = new ViewList(@query.makePath v for v in @query.views)
     @rows = new RowsCollection
     @makeCell = CellFactory @query.service,
       expandedSubtables: (new Collection)
@@ -50,21 +50,20 @@ module.exports = class BasicTable extends CoreView
     # it does just this one single simple fetch.
     TableResults.getCache @query
                 .fetchRows start, size
-                .then (rows) => @setRows rows
+                .then @setRows
                 .then null, (e) -> console.error 'error setting rows', e
 
-  postRender: ->
-    @renderHead()
-    @renderBody()
+  postRender: -> @renderHead(); @renderBody()
 
-  renderHead: ->
-    head = new TableHeader collection: @views, minimisedColumns: @model.get('minimisedColumns')
-    @renderChild 'thead', head
+  renderHead: -> @renderChild 'thead', new TableHeader
+    collection: @views
+    minimisedColumns: @model.get('minimisedColumns')
 
-  renderBody: ->
-    @renderChild 'tbody', (new TableBody collection: @rows, makeCell: @makeCell)
+  renderBody: -> @renderChild 'tbody', new TableBody
+    collection: @rows
+    makeCell: @makeCell
 
-  setRows: (rows) -> # the same logic as Table::fillRowsCollection, minus start.
+  setRows: (rows) => # the same logic as Table::fillRowsCollection, minus start.
     createModel = @modelFactory.getCreator @query
     models = rows.map (row, i) ->
       index: i
@@ -75,11 +74,13 @@ module.exports = class BasicTable extends CoreView
 class TableHeader extends CoreView
   
   tagName: 'thead'
-
   parameters: ['minimisedColumns']
-
   collectionEvents: -> 'change:displayName': @reRender
-
+  getData: -> _.extend super, cssClass: pathToCssClass
+  events: -> _.object @collection.map (pm) ->
+    ename = "click th.#{ pathToCssClass pm.get('path') }"
+    handler = -> @minimisedColumns.toggle pm.pathInfo()
+    [ename, handler]
   template: _.template """
     <tr>
       <% _.each(collection, function (header) { %>
@@ -90,41 +91,22 @@ class TableHeader extends CoreView
     </tr>
   """
 
-  getData: -> _.extend super, cssClass: pathToCssClass
-
-  events: -> _.object @collection.map (pm) ->
-    ename = "click th.#{ pathToCssClass pm.get('path') }"
-    handler = -> @minimisedColumns.toggle pm.pathInfo()
-    [ename, handler]
-
 class TableBody extends CoreView
 
   tagName: 'tbody'
-
   parameters: ['makeCell']
-
   collectionEvents: -> add: (row) -> @addRow row
-
   template: ->
-
   postRender: ->
     frag = document.createDocumentFragment 'tbody'
     @collection.forEach (row) => @addRow row, frag
     @el.appendChild frag
-
   addRow: (row, tbody) ->
     tbody ?= @el
     @renderChild row.id, (new RowView model: row, makeCell: @makeCell), tbody
 
 class RowView extends CoreView
-
   tagName: 'tr'
-
   parameters: ['makeCell']
-
-  postRender: ->
-    @model.get('cells').forEach (model, i) => @renderChild i, (@makeCell model)
-
-  remove: ->
-    delete @makeCell
-    super
+  postRender: -> @model.get('cells').forEach (model, i) =>
+    @renderChild i, (@makeCell model)
