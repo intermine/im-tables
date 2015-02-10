@@ -16,7 +16,8 @@ popoverTemplate = Templates.template('classy-popover') classes: 'item-preview'
 # Null safe isa test. Tests if the path is an instance of the
 # given type, eg: PathInfo(Department.employees) isa 'Employee' => true
 # :: (PathInfo, String) -> boolean
-_compatible = (path, ct) -> if ct? then path.model.findSharedAncestor(path, ct)? else false
+_compatible = (path, ct) ->
+  if ct? then path.model.findSharedAncestor(path, ct)? else false
 
 # We memoize this to avoid re-walking the inheritance heirarchy, and because
 # we know a-priori that the same call will be repeated many times in the same
@@ -292,7 +293,7 @@ module.exports = class Cell extends CoreView
     data.target = if data.isForeign then '_blank' else ''
     data.NULL_VALUE = Templates.null_value
 
-    for domain, url of opts.ExternalLinkIcons when reportUri.match domain
+    for domain, url of opts.ExternalLinkIcons when reportUri?.match domain
       data.icon ?= url
 
     _.extend @getBaseData(), data

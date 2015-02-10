@@ -1,5 +1,11 @@
 <% if (state.minimised) { %>
   &hellip;
+<% } else if (entity.id == null) { %>
+  <% if (value != null && formattedValue != null) { %>
+    <span class="im-displayed-value"><%= value %></span>
+  <% } else { %>
+    <%= NULL_VALUE %>
+  <% } %>
 <% } else { %>
   <input
     class="im-list-chooser"
