@@ -88,53 +88,17 @@ module.exports = class SubTable extends CoreView
     for row, i in rows
       @appendRow row, i, tbody
 
-    # Surely the following is not needed??
-    # if not @column.isCollection()
-    # @appendRow(columns, rows[0], tbodyFrag) # Odd hack to fix multiple repeated rows.
-
     $table.append tbody
 
     @tableRendered = true
     return $table
 
-  ###
-  # I don't think this is needed - there should never be single
-  # collapsed references. It just shouldn't happen.
-  getSummaryText: () ->
-    column = @model.get 'column'
-    rows = @model.get 'rows'
-    query = @get 'query'
-
-    if column.isCollection()
-        def.resolve """#{ rows.length } #{ @get 'columnTypeName' }s"""
-    else
-        # Single collapsed reference.
-        if rows.length is 0
-          view_0 = @get('view')[0]
-          # find the outer join:
-          level = if query.isOuterJoined(view_0)
-              query.getPathInfo query.getOuterJoin view_0
-          else
-              column
-          typePath = query.model.getPathInfo level.getType()
-          typePath.getDisplayName().then (name) -> def.resolve """
-              <span class="im-no-value">No #{ name }</span>
-            """
-        else # We hope that this is sensible and has a main object at the head position.
-          [first_row] = @get 'rows' # TODO - deal with nested sub tables
-          [main, attrs...] = first_row.map (c) -> c.get 'value'
-          def.resolve """#{main} (#{attrs.join(', ')})"""
-    def.promise()
-  ###
-
   buildHeaders: ->
-    rows = @model.get('rows')
-    return if rows.length is 0
-    [row] = rows
+    [row] = @model.get('rows')
+    return unless row? # No point building headers if the table is empty
 
     # Use the first row as a pattern.
     @headers.set(new PathModel c.get('column') for c in row)
-    console.log @headers
 
   ###
     # TODO: refactor the common code between this and Table#getEffectiveView
