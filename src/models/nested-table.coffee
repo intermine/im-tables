@@ -3,7 +3,7 @@ _ = require 'underscore'
 CoreModel = require '../core-model'
 
 # Forms a pair with models/cell
-#
+
 module.exports = class NestedTableModel extends CoreModel
 
   defaults: ->
@@ -32,7 +32,6 @@ module.exports = class NestedTableModel extends CoreModel
 
     node.getType().getDisplayName().then (name) => @set columnTypeName: name
     column.getDisplayName().then (name) =>
-      console.log views, name
       @set columnName: name
       @set(fieldName: _.last(name.split ' > ')) if column.isAttribute()
       @set contentName: _.compact([@get('columnTypeName'), @get('fieldName')]).join(' ')
@@ -43,4 +42,3 @@ module.exports = class NestedTableModel extends CoreModel
     column: @get('column').toString()
     node: @get('node').toString()
     rows: @get('rows').map (r) -> r.map (c) -> c.toJSON()
-

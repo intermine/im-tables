@@ -19,8 +19,9 @@ renderQueries = require '../lib/render-queries.coffee'
 renderWithCounter = require '../lib/render-query-with-counter-and-displays'
 {connection} = require '../lib/connect-to-service'
 
-Options.set 'ModelDisplay.Initially.Closed', true
+Options.set 'ModelDisplay.Initially.Closed', false
 # Make these toggleable...
+Options.set 'Subtables.Initially.expanded', false
 Options.set 'TableCell.PreviewTrigger', 'hover'
 Options.set 'TableCell.IndicateOffHostLinks', false
 Options.set 'TableResults.CacheFactor', 2
@@ -45,6 +46,10 @@ QUERY =
   ]
   from: 'Company'
   joins: ['departments']
+  where: [
+    ['departments.employees.name', '>=', 'F'],
+    ['departments.employees.name', '<', 'M'],
+  ]
 
 toggles = [
   {attr: 'selecting', type: 'bool'},

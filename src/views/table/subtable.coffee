@@ -36,7 +36,6 @@ module.exports = class SubTable extends CoreView
 
   initialize: ->
     super
-    console.log 'SUBTABLE MODEL', @model
     @headers = new Collection
     @listenTo @expandedSubtables, 'add remove reset', @onChangeExpandedSubtables
     @buildHeaders()
@@ -54,12 +53,12 @@ module.exports = class SubTable extends CoreView
     'change:contentName': @reRender
 
   onChangeOpen: ->
-    $wrapper = @$('.im-table-wrapper')
+    wrapper = @el.querySelector '.im-table-wrapper'
     if @state.get('open')
-      @renderTable()
-      $wrapper.slideDown()
+      if @renderTable(wrapper) # no point in sliding down unless this returned true.
+        @$(wrapper).slideDown()
     else
-      $wrapper.slideUp()
+      @$(wrapper).slideUp()
 
   onChangeExpandedSubtables: ->
     @state.set open: @expandedSubtables.contains @getPath()
@@ -76,22 +75,30 @@ module.exports = class SubTable extends CoreView
   postRender: ->
     @onChangeOpen()
 
-  renderTable: ->
-    $table = @$ '.im-subtable'
+  tableRendered: false
+
+  subtableClassName: 'im-subtable table table-condensed table-striped'
+
+  # Render the table, and return true if there is anything to show.
+  renderTable: (wrapper) ->
     rows = @model.get 'rows'
 
-    return $table if @tableRendered or (rows.length is 0)
+    return @tableRendered if (@tableRendered or (rows.length is 0))
 
+    table = document.createElement('table')
     tbody = document.createElement('tbody')
 
-    @renderHead() if @model.get('view').length > 1
+    table.className = @subtableClassName
+    table.appendChild tbody
+
+    @renderHead(table) if @model.get('view').length > 1
     for row, i in rows
       @appendRow row, i, tbody
 
-    $table.append tbody
+    wrapper.appendChild table
+    console.log wrapper, table
 
     @tableRendered = true
-    return $table
 
   buildHeaders: ->
     [row] = @model.get('rows')
@@ -144,13 +151,12 @@ module.exports = class SubTable extends CoreView
     return view
   ###
 
-  renderHead: ->
-    $table = @$ '.im-subtable'
+  renderHead: (table) ->
     head = new SubtableHeader
       query: @query
       collection: @headers
       columnModel: @model
-    @renderChild 'thead', head, $table
+    @renderChild 'thead', head, table
 
   appendRow: (row, i, tbody) ->
     tr = document.createElement 'tr'

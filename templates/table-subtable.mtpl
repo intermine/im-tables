@@ -4,9 +4,8 @@
   <% } else { %>
     <%= Icons.icon('EmptyTable') %>
   <% } %>
-  <%- rows.length %> <%- pluralise(contentName, rows.length) %>
+  <%- rows.length %>
+  <%- pluralise(contentName, rows.length) %>
 </span>
 <div class="im-table-wrapper">
-    <table class="im-subtable table table-condensed table-striped">
-    </table>
 </div>
