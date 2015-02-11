@@ -141,7 +141,10 @@ module.exports = class Cell extends CoreView
     'change:showPreview': @onChangeShowPreview
     'change:minimised': @reRender # nothing for it - full re-render is required.
 
-  redelegate: -> @delegateEvents() # so it can be registered as a model listener.
+  redelegate: ->
+    @destroyPreview()
+    @initPreview()
+    @delegateEvents() # so it can be registered as a model listener.
 
   events: -> # the specific DOM event set depends on the configured click behaviour.
     events =
@@ -263,7 +266,7 @@ module.exports = class Cell extends CoreView
       show()
 
   _hidePreview: -> if @children.popover?.rendered
-    @$el.popover 'hide'
+    @popoverTarget?.popover 'hide'
 
   onChangeShowPreview: ->
     if @state.get('showPreview') then @_showPreview() else @_hidePreview()
@@ -346,8 +349,7 @@ module.exports = class Cell extends CoreView
     @setAttrClass()
     @setActiveClass()
     @setDisabledCellClass()
-    if @canHavePreview()
-      @children.popover ?= @initPreview()
+    @initPreview()
 
   setAttrClass: ->
     attrType = @model.get('column').getType()
@@ -364,19 +366,30 @@ module.exports = class Cell extends CoreView
     return con
 
   removeAllChildren: ->
+    @destroyPreview()
     if @children.popover?
       @stopListeningTo(@children.popover)
       @$el.popover('destroy') if @children.popover.rendered
     super
 
+  destroyPreview: -> if @children.popover?
+    @stopListeningTo(@children.popover)
+    @popoverTarget?.popover('destroy') if @children.popover.rendered
+    delete @popoverTarget
+    @removeChild 'popover'
+
+  popoverTarget: null
+
   initPreview: ->
+    return if @children.popover? or (not @canHavePreview())
     # Create the popover now, but no data will be fetched until render is called.
     content = @popovers.get @model.get 'entity'
+    trigger = Options.get 'TableCell.PreviewTrigger'
+    @popoverTarget = if trigger is 'hover' then @$('.im-cell-link') else @$el
 
     @listenToOnce content, 'rendered', =>
       container = @getPreviewContainer()
-      console.log 'initing popover for', @model.get('entity').get('id'), container
-      @$el.popover
+      @popoverTarget.popover
         trigger: 'manual'
         template: popoverTemplate
         placement: 'auto left'
@@ -388,5 +401,5 @@ module.exports = class Cell extends CoreView
     # This is how we actually trigger the popover, hence it
     # is imporant to call re-render on the preview when we want
     # to show it inside the popover - see `::showPreview()`
-    @listenTo content, 'rendered', => @$el.popover 'show'
-    return content
+    @listenTo content, 'rendered', => @popoverTarget.popover 'show'
+    @children.popover = content

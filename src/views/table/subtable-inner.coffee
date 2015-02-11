@@ -1,6 +1,10 @@
 CoreView = require '../../core-view'
 SubtableHeader = require './subtable-header'
 
+# This class renders the rows and column headers of
+# nested subtables. It is a thin wrapper around the 
+# subcomponents that render the column headers and
+# cells.
 module.exports = class SubtableInner extends CoreView
 
   tagName: 'table'
@@ -71,5 +75,4 @@ module.exports = class SubtableInner extends CoreView
 
     tr.appendTo tbody
     null # Called in void context, no need to collect results.
-
 

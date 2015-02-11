@@ -1,10 +1,6 @@
-<tr>
-    <% collection.forEach(function (header) { %>
-        <th>
-            <%= Icons.icon('Remove') %>
-            <% if (header.displayName && columnName) { %>
-              <%- header.displayName.replace(columnName, '').replace(/^ > /, '') %>
-            <% } %>
-        </th>
-    <% }); %>
-</tr>
+<a title="<%- Messages.getText('subtables.RemoveColumn') %>">
+  <%= Icons.icon('Remove') %>
+</a>
+<% if (displayName && columnName) { %>
+  <%- displayName.replace(columnName, '').replace(/^ > /, '') %>
+<% } %>

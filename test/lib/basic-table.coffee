@@ -36,9 +36,7 @@ module.exports = class BasicTable extends CoreView
 
   initialize: ->
     super
-    {start, size} = @model.pick 'start', 'size'
     @views = new ColumnHeaders()
-    @views.setHeaders(@query, (new Collection))
     @rows = new RowsCollection
     @makeCell = CellFactory @query.service,
       query: @query
@@ -49,8 +47,12 @@ module.exports = class BasicTable extends CoreView
       canUseFormatter: (=> !!@model.get('formatting'))
       getFormatter: ((p) => @formatters[p.getType().name]) # the real fn is more complex.
 
-    # This table doesn't do paging, reloading or anything fancy at all, therefore
-    # it does just this one single simple fetch.
+    @loadData()
+    @listenTo @query, 'change:constraints change:views', @loadData
+
+  loadData: ->
+    @views.setHeaders(@query, (new Collection))
+    {start, size} = @model.pick 'start', 'size'
     TableResults.getCache @query
                 .fetchRows start, size
                 .then @setRows
@@ -72,7 +74,7 @@ module.exports = class BasicTable extends CoreView
       index: i
       cells: (createModel c for c in row)
 
-    @rows.set models
+    @rows.reset models
 
 class TableHeader extends CoreView
   
@@ -81,7 +83,7 @@ class TableHeader extends CoreView
   parameters: ['minimisedColumns']
 
   collectionEvents: ->
-    'add change:displayName': @reRender
+    'add remove change:displayName': @reRender
 
   getData: -> _.extend super, cssClass: pathToCssClass
 
@@ -106,7 +108,12 @@ class TableBody extends CoreView
 
   parameters: ['makeCell']
 
-  collectionEvents: -> add: (row) -> @addRow row
+  collectionEvents: ->
+    reset: @reRender
+    add: (row) -> @addRow row
+    remove: (row) ->
+      console.log 'removing', row.id
+      @removeChild row.id
 
   template: ->
 
