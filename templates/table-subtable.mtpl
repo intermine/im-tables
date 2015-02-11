@@ -1,0 +1,12 @@
+<span class="im-subtable-summary">
+  <% if (rows.length) { %>
+    <%= Icons.icon('Table') %>
+  <% } else { %>
+    <%= Icons.icon('EmptyTable') %>
+  <% } %>
+  <%- rows.length %> <%- pluralise(columnTypeName, rows.length) %>
+</span>
+<div class="im-table-wrapper">
+    <table class="im-subtable table table-condensed table-striped">
+    </table>
+</div>

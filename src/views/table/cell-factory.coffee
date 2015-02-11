@@ -6,6 +6,7 @@ Cell = require './cell'
 # where
 # service = Service
 # opts = {
+#   query :: Query
 #   canUseFormatter :: fn -> bool,
 #   expandedSubtables :: Collection,
 #   popoverFactory :: PopoverFactory,
@@ -19,10 +20,11 @@ module.exports = (service, opts) ->
   cellify = (cell) ->
     if cell instanceof NestedTableModel
       return new SubTable
+        query: opts.query
         model: cell
         cellify: cellify
         canUseFormatter: opts.canUseFormatter
-        expandedSubtables: ops.expandedSubtables
+        expandedSubtables: opts.expandedSubtables
     else
       return new Cell
         model: cell

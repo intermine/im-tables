@@ -13,6 +13,8 @@ module.exports = class ColumnHeaders extends Collection
     super
     @listenTo @, 'change:index', @sort
 
-  setHeaders: (query, banList) -> buildHeaders(query, banList).then (newHeaders) =>
-    @set(new HeaderModel h, query for h in newHeaders)
+  # (Query, Collection) -> Promise
+  setHeaders: (query, banList) ->
+    building = buildHeaders(query, banList)
+    building.then (hs) => @set(new HeaderModel h, query for h in hs)
 

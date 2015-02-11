@@ -5,6 +5,7 @@ Collection     = require 'imtables/core/collection'
 TableModel     = require 'imtables/models/table'
 RowsCollection = require 'imtables/models/rows'
 PathModel      = require 'imtables/models/path'
+ColumnHeaders  = require 'imtables/models/column-headers'
 TableResults   = require 'imtables/utils/table-results'
 CellFactory    = require 'imtables/views/table/cell-factory'
 
@@ -36,9 +37,11 @@ module.exports = class BasicTable extends CoreView
   initialize: ->
     super
     {start, size} = @model.pick 'start', 'size'
-    @views = new ViewList(@query.makePath v for v in @query.views)
+    @views = new ColumnHeaders()
+    @views.setHeaders(@query, (new Collection))
     @rows = new RowsCollection
     @makeCell = CellFactory @query.service,
+      query: @query
       expandedSubtables: (new Collection)
       popoverFactory: @popovers
       selectedObjects: @selectedObjects
@@ -74,13 +77,19 @@ module.exports = class BasicTable extends CoreView
 class TableHeader extends CoreView
   
   tagName: 'thead'
+
   parameters: ['minimisedColumns']
-  collectionEvents: -> 'change:displayName': @reRender
+
+  collectionEvents: ->
+    'add change:displayName': @reRender
+
   getData: -> _.extend super, cssClass: pathToCssClass
+
   events: -> _.object @collection.map (pm) ->
     ename = "click th.#{ pathToCssClass pm.get('path') }"
     handler = -> @minimisedColumns.toggle pm.pathInfo()
     [ename, handler]
+
   template: _.template """
     <tr>
       <% _.each(collection, function (header) { %>

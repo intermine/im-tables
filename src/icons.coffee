@@ -119,6 +119,7 @@ ICONS.fontawesome =
   Yes: "fa-star"
   No: "fa-star-o"
   Table: 'fa-list'
+  EmptyTable: 'fa-table'
   Script: "fa-cog"
   Export: "fa-cloud-download"
   Remove: "fa-minus-circle"

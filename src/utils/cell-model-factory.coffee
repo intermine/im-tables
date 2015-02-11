@@ -28,7 +28,7 @@ module.exports = class CellModelFactory
     # Here we lift some properties to more useful types, then wrap it up in
     # a structured object.
 
-    # TODO: do we need to assign from nestedTable?
+    # We assign from nestedTable to get access to properties such as .view
     new NestedTableModel _.extend {}, nestedTable,
       node: column # Duplicate name - not necessary?
       column: column

@@ -1,0 +1,10 @@
+<tr>
+    <% collection.forEach(function (header) { %>
+        <th>
+            <%= Icons.icon('Remove') %>
+            <% if (header.displayName && columnName) { %>
+              <%- header.displayName.replace(columnName, '') %>
+            <% } %>
+        </th>
+    <% }); %>
+</tr>
