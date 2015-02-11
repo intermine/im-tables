@@ -7,14 +7,14 @@ Templates = require '../../templates'
 TypeAssertions = require '../../core/type-assertions'
 NestedTableModel = require '../../models/nested-table'
 PathModel = require '../../models/path'
-SubtableHeader = require './subtable-header'
+SubtableSummary = require './subtable-summary'
+SubtableInner = require './subtable-inner'
 
 {ignore} = require '../../utils/events'
 
 # A cell containing a subtable of other rows.
 # The table itself can be expanded or collapsed.
-# When collapsed it is represented
-# by a summary line.
+# When collapsed it is represented by a summary line.
 module.exports = class SubTable extends CoreView
 
   tagName: 'td'
@@ -92,6 +92,9 @@ module.exports = class SubTable extends CoreView
     @headers.set(new PathModel c.get('column') for c in row)
 
   ###
+  #  FIXME - the code below applies formatters to the appropriate headers - this
+  #  should be re-enabled, and hopefully in a way that doesn't involve too much code
+  #  duplication!
     # TODO: refactor the common code between this and Table#getEffectiveView
     {getReplacedTest, longestCommonPrefix} = intermine.utils
     {shouldFormat, getFormatter} = intermine.results
@@ -135,81 +138,3 @@ module.exports = class SubTable extends CoreView
     return view
   ###
 
-class SubtableInner extends CoreView
-
-  tagName: 'table'
-
-  className: 'im-subtable table table-condensed table-striped'
-
-  parameters: [ # things we want from the SubTable
-    'query'
-    'headers',
-    'model',
-    'rows',
-    'cellify',
-  ]
-
-  render: ->
-    @removeAllChildren()
-    @el.innerHTML = '' if @rendered
-    @renderHead() if @headers.length > 1
-    tbody = document.createElement('tbody')
-    for row, i in @rows
-      @appendRow row, i, tbody
-    @el.appendChild tbody
-    @trigger 'rendered', @rendered = true
-    return this
-
-  renderHead: (table) ->
-    head = new SubtableHeader
-      query: @query
-      collection: @headers
-      columnModel: @model
-    @renderChild 'thead', head, table
-
-  appendRow: (row, i, tbody) ->
-    tr = document.createElement 'tr'
-    tbody.appendChild tr
-    for cell, j in row
-      @renderChild "cell-#{ i }-#{ j }", @cellify(cell), tr
-    return null
-
-    processed = {}
-    replacedBy = {}
-    for c in columns
-      for r in c.replaces
-        replacedBy[r] = c
-
-    # Actual rendering happens here - subsequent code just determines whether to use.
-    cellViews = row.map @cellify
-
-    for cell in cellViews then do (tr, cell) ->
-      return if processed[cell.path]
-      processed[cell.path] = true
-      {replaces, formatter, path} = replacedBy[cell.path] ? {replaces: []}
-      if replaces.length > 1
-        # Only accept if it is the right type - otherwise break (aka return)
-        # this is required because formatters need to be based on a model of the
-        # right type, and the merge method is not guaranteed to be associative.
-        return unless path.equals(cell.path.getParent())
-        if formatter?.merge?
-          for otherC in row when _.any(replaces, (repl) -> repl.equals otherC.path)
-            formatter.merge(cell.model, otherC.model)
-      processed[r] = true for r in replaces
-      cell.formatter = formatter if formatter?
-
-      tr.append cell.el
-      cell.render()
-
-    tr.appendTo tbody
-    null # Called in void context, no need to collect results.
-
-class SubtableSummary extends CoreView
-
-  className: 'im-subtable-summary'
-  tagName: 'span'
-  template: Templates.template 'table-subtable-summary'
-
-  parameters: ['model']
-
-  modelEvents: -> 'change:contentName': @reRender
