@@ -118,6 +118,7 @@ module.exports = class Preview extends CoreView
     for t in @model.get('type').split(',')
       @$el.addClass t
 
+  renderChildren: ->
     itemDetailsTable = new ItemDetails collection: @fieldDetails
     @renderChild 'details', itemDetailsTable
 
