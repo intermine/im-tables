@@ -51,7 +51,7 @@ module.exports = class SubTable extends CoreView
     'change:open': @onChangeOpen
 
   modelEvents: ->
-    'change:columnTypeName': @reRender
+    'change:contentName': @reRender
 
   onChangeOpen: ->
     $wrapper = @$('.im-table-wrapper')
@@ -84,7 +84,7 @@ module.exports = class SubTable extends CoreView
 
     tbody = document.createElement('tbody')
 
-    @renderHead()
+    @renderHead() if @model.get('view').length > 1
     for row, i in rows
       @appendRow row, i, tbody
 

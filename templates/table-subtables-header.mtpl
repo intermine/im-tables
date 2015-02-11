@@ -3,7 +3,7 @@
         <th>
             <%= Icons.icon('Remove') %>
             <% if (header.displayName && columnName) { %>
-              <%- header.displayName.replace(columnName, '') %>
+              <%- header.displayName.replace(columnName, '').replace(/^ > /, '') %>
             <% } %>
         </th>
     <% }); %>

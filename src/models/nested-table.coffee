@@ -13,6 +13,9 @@ module.exports = class NestedTableModel extends CoreModel
     typeName: null
     column: null # :: PathInfo
     node: null # :: PathInfo
+    fieldName: null
+    contentName: null
+    view: [] # [String]
     rows: [] # [CellModel]
 
   initialize: ->
@@ -21,8 +24,18 @@ module.exports = class NestedTableModel extends CoreModel
 
   onChangeColumn: -> # Set the display names.
     column = @get 'column'
-    column.getDisplayName().then (name) => @set columnName: name
-    column.getType().getDisplayName().then (name) => @set columnTypeName: name
+    node = @get 'node'
+    views = @get 'view'
+    if views.length is 1 # Use the single column as our column.
+      column = column.model.makePath(views[0], column.subclasses)
+      node = if column.isAttribute() then column.getParent() else column
+
+    node.getType().getDisplayName().then (name) => @set columnTypeName: name
+    column.getDisplayName().then (name) =>
+      console.log views, name
+      @set columnName: name
+      @set(fieldName: _.last(name.split ' > ')) if column.isAttribute()
+      @set contentName: _.compact([@get('columnTypeName'), @get('fieldName')]).join(' ')
 
   getPath: -> @get 'column'
 
@@ -30,3 +43,4 @@ module.exports = class NestedTableModel extends CoreModel
     column: @get('column').toString()
     node: @get('node').toString()
     rows: @get('rows').map (r) -> r.map (c) -> c.toJSON()
+
