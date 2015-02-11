@@ -1,0 +1,7 @@
+<% if (rows.length) { %>
+  <%= Icons.icon('Table') %>
+<% } else { %>
+  <%= Icons.icon('EmptyTable') %>
+<% } %>
+<%- rows.length %>
+<%- pluralise(contentName, rows.length) %>

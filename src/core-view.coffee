@@ -173,9 +173,13 @@ module.exports = class CoreView extends Backbone.View
       catch e
         @onRenderError e
 
+    @renderChildren()
+
     @trigger 'rendered', @rendered = true
 
     return this
+
+  renderChildren: -> # Implement this method to insert children during render.
 
   # Renders a child, appending it to part of this view.
   # Should happen after the main view is rendered.

@@ -21,7 +21,7 @@ renderWithCounter = require '../lib/render-query-with-counter-and-displays'
 
 Options.set 'ModelDisplay.Initially.Closed', false
 # Make these toggleable...
-Options.set 'Subtables.Initially.expanded', false
+Options.set 'Subtables.Initially.expanded', true
 Options.set 'TableCell.PreviewTrigger', 'hover'
 Options.set 'TableCell.IndicateOffHostLinks', false
 Options.set 'TableResults.CacheFactor', 2

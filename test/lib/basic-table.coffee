@@ -103,13 +103,18 @@ class TableHeader extends CoreView
 class TableBody extends CoreView
 
   tagName: 'tbody'
+
   parameters: ['makeCell']
+
   collectionEvents: -> add: (row) -> @addRow row
+
   template: ->
-  postRender: ->
+
+  renderChildren: ->
     frag = document.createDocumentFragment 'tbody'
     @collection.forEach (row) => @addRow row, frag
     @el.appendChild frag
+
   addRow: (row, tbody) ->
     tbody ?= @el
     @renderChild row.id, (new RowView model: row, makeCell: @makeCell), tbody

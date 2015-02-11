@@ -1,3 +1,5 @@
+_ = require 'underscore'
+
 CoreView = require '../../core-view'
 Options = require '../../options'
 Collection = require '../../core/collection'
@@ -49,9 +51,6 @@ module.exports = class SubTable extends CoreView
   stateEvents: ->
     'change:open': @onChangeOpen
 
-  modelEvents: ->
-    'change:contentName': @reRender
-
   onChangeOpen: ->
     wrapper = @el.querySelector '.im-table-wrapper'
     if @state.get('open')
@@ -66,38 +65,23 @@ module.exports = class SubTable extends CoreView
   events: ->
     'click .im-subtable-summary': @toggleTable
 
-  toggleTable: (e) ->
-    ignore e
-    @state.toggle 'open'
+  toggleTable: -> @state.toggle 'open'
 
   template: Templates.template 'table-subtable'
 
-  postRender: ->
+  renderChildren: ->
+    @renderChildAt '.im-subtable-summary', (new SubtableSummary {@model})
     @onChangeOpen()
 
   tableRendered: false
 
-  subtableClassName: 'im-subtable table table-condensed table-striped'
-
   # Render the table, and return true if there is anything to show.
   renderTable: (wrapper) ->
     rows = @model.get 'rows'
-
     return @tableRendered if (@tableRendered or (rows.length is 0))
+    inner = new SubtableInner _.extend {rows}, (_.pick @, SubtableInner::parameters)
 
-    table = document.createElement('table')
-    tbody = document.createElement('tbody')
-
-    table.className = @subtableClassName
-    table.appendChild tbody
-
-    @renderHead(table) if @model.get('view').length > 1
-    for row, i in rows
-      @appendRow row, i, tbody
-
-    wrapper.appendChild table
-    console.log wrapper, table
-
+    @renderChild 'inner', inner, wrapper
     @tableRendered = true
 
   buildHeaders: ->
@@ -151,6 +135,31 @@ module.exports = class SubTable extends CoreView
     return view
   ###
 
+class SubtableInner extends CoreView
+
+  tagName: 'table'
+
+  className: 'im-subtable table table-condensed table-striped'
+
+  parameters: [ # things we want from the SubTable
+    'query'
+    'headers',
+    'model',
+    'rows',
+    'cellify',
+  ]
+
+  render: ->
+    @removeAllChildren()
+    @el.innerHTML = '' if @rendered
+    @renderHead() if @headers.length > 1
+    tbody = document.createElement('tbody')
+    for row, i in @rows
+      @appendRow row, i, tbody
+    @el.appendChild tbody
+    @trigger 'rendered', @rendered = true
+    return this
+
   renderHead: (table) ->
     head = new SubtableHeader
       query: @query
@@ -194,3 +203,13 @@ module.exports = class SubTable extends CoreView
 
     tr.appendTo tbody
     null # Called in void context, no need to collect results.
+
+class SubtableSummary extends CoreView
+
+  className: 'im-subtable-summary'
+  tagName: 'span'
+  template: Templates.template 'table-subtable-summary'
+
+  parameters: ['model']
+
+  modelEvents: -> 'change:contentName': @reRender
