@@ -83,9 +83,17 @@ class TableHeader extends CoreView
   parameters: ['minimisedColumns']
 
   collectionEvents: ->
+    'add remove': -> @delegateEvents()
     'add remove change:displayName': @reRender
 
-  getData: -> _.extend super, cssClass: pathToCssClass
+  initialize: ->
+    super
+    @listenTo @minimisedColumns, 'add remove', @reRender
+
+  getData: -> _.extend super, cssClass: pathToCssClass, minimised: @getMinimisedState()
+
+  getMinimisedState: ->
+    _.object @minimisedColumns.map (p) -> [p.get('item').toString(), true]
 
   events: -> _.object @collection.map (pm) ->
     ename = "click th.#{ pathToCssClass pm.get('path') }"
@@ -96,7 +104,11 @@ class TableHeader extends CoreView
     <tr>
       <% _.each(collection, function (header) { %>
         <th class="<%- cssClass(header.path) %>">
-          <%- header.displayName || header.path %>
+          <% if (minimised[header.path]) { %>
+            &hellip;
+          <% } else { %>
+            <%- header.displayName || header.path %>
+          <% } %>
         </th>
       <% }); %>
     </tr>

@@ -114,24 +114,25 @@ module.exports = class Cell extends CoreView
     @listenToOptions()
     @listenToTableState()
 
-  listenToOptions: ->
+  listenToOptions: -> # these events are expected to be rare.
     @listenTo Options, 'change:TableCell.IndicateOffHostLinks', @reRender
     @listenTo Options, 'change:TableCell.ExternalLinkIcons', @reRender
-    @listenTo Options, 'change:TableCell.PreviewTrigger', @redelegate
+    @listenTo Options, 'change:TableCell.PreviewTrigger', @onChangeTrigger
 
-  listenToTableState: ->
+  listenToTableState: -> # these events deal with co-ordination with global table state.
     ts = @tableState
     @listenTo ts, 'change:selecting',    @setInputDisplay
     @listenTo ts, 'change:previewOwner', @closeOwnPreview
     @listenTo ts, 'change:highlitNode',  @setHighlit
     @listenTo ts, 'change:minimisedColumns', @setMinimised
 
+  # We listen to find out if the user selected us by clicking on another related cell.
   listenToSelectedObjects: ->
     objs = @selectedObjects
     @listenTo objs, 'add remove reset',                   @setSelected
     @listenTo objs, 'add remove reset change:commonType', @setSelectable
 
-  modelEvents: ->
+  modelEvents: -> # The model for a cell is pretty static.
     'change:entity': @onChangeEntity # make sure we unbind if it changes.
 
   stateEvents: -> # these events cause DOM twiddling.
@@ -140,11 +141,6 @@ module.exports = class Cell extends CoreView
     'change:selected': @setInputChecked
     'change:showPreview': @onChangeShowPreview
     'change:minimised': @reRender # nothing for it - full re-render is required.
-
-  redelegate: ->
-    @destroyPreview()
-    @initPreview()
-    @delegateEvents() # so it can be registered as a model listener.
 
   events: -> # the specific DOM event set depends on the configured click behaviour.
     events =
@@ -166,6 +162,11 @@ module.exports = class Cell extends CoreView
     return events
 
   # Event listeners.
+
+  onChangeTrigger: ->
+    @destroyPreview()
+    @initPreview()
+    @delegateEvents()
 
   # The purpose of this handler is to propagate an event up the DOM
   # so that higher level listeners can capture it and possibly prevent
