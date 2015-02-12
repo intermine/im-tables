@@ -1,4 +1,3 @@
-
 $ = require 'jquery'
 
 Options = require 'imtables/options'
@@ -16,6 +15,7 @@ BasicTable = require '../lib/basic-table'
 Toggles = require '../lib/toggles'
 Label = require '../lib/label'
 formatCompany = require '../lib/formatters/testmodel/company'
+formatManager = require '../lib/formatters/testmodel/manager'
 renderQueries = require '../lib/render-queries.coffee'
 renderWithCounter = require '../lib/render-query-with-counter-and-displays'
 {connection} = require '../lib/connect-to-service'
@@ -27,7 +27,7 @@ Options.set 'TableCell.IndicateOffHostLinks', false
 Options.set 'TableResults.CacheFactor', 2
 
 selectedObjects = new SelectedObjects connection
-tableState = new TableModel size: 10
+tableState = new TableModel size: 10, formatting: true
 
 create = (query) ->
   new BasicTable
@@ -36,29 +36,23 @@ create = (query) ->
     popovers: (new PopoverFactory connection, Preview)
     modelFactory: (new CellModelFactory connection, query.model)
     selectedObjects: selectedObjects
-    formatters: {Company: formatCompany}
+    formatters: {Company: formatCompany, Manager: formatManager}
 
 QUERY =
-  name: 'nested subtables'
+  name: 'cell query'
   select: [
     'name',
     'departments.name',
-    'departments.employees.name', 'departments.employees.age'
+    'departments.manager.name'
   ]
   from: 'Company'
-  joins: ['departments', 'departments.employees']
+  joins: ['departments']
 
-toggles = [
-  {
-    attr: 'selecting',
-    type: 'bool'
-  }
-]
-
-renderQuery = renderWithCounter create, (->), ['model']
+renderQuery = renderWithCounter create, (->), ['model', 'rows']
 
 $ ->
-  toggles = new Toggles model: tableState, toggles: toggles
+  toggles = new Toggles model: tableState, toggles: [{attr: 'selecting', type: 'bool'}]
+
   commonTypeLabel = new Label
     model: selectedObjects
     attr: 'Common Type'
