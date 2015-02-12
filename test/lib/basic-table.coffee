@@ -8,6 +8,7 @@ PathModel      = require 'imtables/models/path'
 ColumnHeaders  = require 'imtables/models/column-headers'
 TableResults   = require 'imtables/utils/table-results'
 CellFactory    = require 'imtables/views/table/cell-factory'
+TableBody      = require 'imtables/views/table/body'
 
 buildSkipped   = require 'imtables/utils/build-skipset'
 
@@ -77,10 +78,11 @@ module.exports = class BasicTable extends CoreView
   setRows: (rows) => # the same logic as Table::fillRowsCollection, minus start.
     createModel = @modelFactory.getCreator @query
     models = rows.map (row, i) ->
+      id: "#{ @query.toXML() }##{ i }"
       index: i
       cells: (createModel c for c in row)
 
-    @rows.reset models
+    @rows.set models
 
 class TableHeader extends CoreView
   
@@ -119,36 +121,3 @@ class TableHeader extends CoreView
       <% }); %>
     </tr>
   """
-
-class TableBody extends CoreView
-
-  tagName: 'tbody'
-
-  parameters: ['makeCell']
-
-  collectionEvents: ->
-    reset: @reRender
-    add: (row) -> @addRow row
-    remove: (row) ->
-      console.log 'removing', row.id
-      @removeChild row.id
-
-  template: ->
-
-  renderChildren: ->
-    frag = document.createDocumentFragment 'tbody'
-    @collection.forEach (row) => @addRow row, frag
-    @el.appendChild frag
-
-  addRow: (row, tbody) ->
-    tbody ?= @el
-    @renderChild row.id, (new RowView model: row, makeCell: @makeCell), tbody
-
-class RowView extends CoreView
-  tagName: 'tr'
-  parameters: ['makeCell']
-  postRender: ->
-    cells = @model.get('cells').map @makeCell
-    skipped = buildSkipped cells
-    for cell, i in cells when not skipped[cell.model.get('column')]
-      @renderChild i, cell

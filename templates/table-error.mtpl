@@ -1,0 +1,23 @@
+<div class="alert alert-error">
+
+  <h2><%- Messages.getText('error.Oops') %></h2>
+
+  <p>
+    <i><%- Messages.getText(error.key || 'error.' + domain + '.Heading') %></i>
+  </p>
+
+  <p><%- Messages.getText('error.' + domain + '.Body') %></p>
+
+  <a class="btn btn-primary pull-right" href="mailto://<%- mailto %>">
+    <%- Messages.getText('error.EmailHelp') %>
+  </a>
+
+  <button class="btn btn-error">
+    <%- Messages.getText('error.ShowQuery') %>
+  </button>
+
+  <p class="query-xml" style="display:none" class="well">
+    <textarea><%- indent(query) %></textarea>
+  <p>
+
+</div>

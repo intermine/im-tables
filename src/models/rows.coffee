@@ -18,7 +18,5 @@ module.exports = class RowsCollection extends Collection
 
   model: RowModel
 
-  idAttribute: 'index'
-
   comparator: 'index'
 

@@ -5,7 +5,7 @@ Formatting = require '../formatting'
 
 # We can use a formatter if it hasn't been blacklisted.
 #:: Collection -> Function -> bool
-notBanned = (blacklist) -> (fmtr) -> not blacklist.any (b) -> fmtr is b.get('formatter')
+notBanned = (blacklist) -> (formatter) -> not blacklist.findWhere {formatter}
 
 #:: Function<a, b> -> Function<b, bool> -> b?
 returnIfOK = (f, test) -> (x) ->
@@ -24,6 +24,11 @@ index = (xs) -> for x, i in xs
 # to do this (we loop over the columns multiple times), but also
 # that the set is very small (the view list cannot in any practical
 # sense get huge), so it is very unlikely to become a bottleneck.
+#
+# This is more complex (and less efficient) than build-skipset but it has
+# features necessary for column headers, specifically the need to record
+# what the column is replacing, and operating without access to the actual
+# data.
 #
 # :: (Query, Collection) -> Promise
 module.exports = (query, banList) -> query.service.fetchClassKeys().then (classKeys) ->
@@ -48,7 +53,6 @@ module.exports = (query, banList) -> query.service.fetchClassKeys().then (classK
   # ['start', 'end', 'locatedOn.primaryIdentifier']). As we do this, record
   # which was the first column encountered that replaces each given column.
   for col in cols when col.path.isAttribute() and (fmtr = getFormatter col.path)
-    console.log "#{ col.path } is formatted by #{ fmtr }"
     col.isFormatted = true
     col.formatter = fmtr
     parent = col.path.getParent()

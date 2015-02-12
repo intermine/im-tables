@@ -30,6 +30,8 @@ module.exports = class HeaderModel extends PathModel
     throw new Error('no options') unless opts?
     super opts.path
     @set _.omit opts, 'path'
+    # ID depends on query as well as path.
+    @set id: "#{ @query.toXML() }-#{ @get 'path' }"
     @listenTo @query, 'change:joins', @setOuterJoined
     @listenTo @query, 'change:sortorder', @setSortDirection
     @listenTo @query, 'change:constraints', @setConstraintNum

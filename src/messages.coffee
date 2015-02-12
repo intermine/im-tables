@@ -4,12 +4,11 @@ _ = require 'underscore'
 # HWAT! Do not be tempted to replace this with a loop to build DEFAULTS. That
 # would break browserify. You would want to do that, would you?
 actionMessages = require './messages/actions'
-tableMessages = require './messages/table'
 common = require './messages/common'
 
 {numToString, pluralise} = require './templates/helpers'
 
-DEFAULTS = [common, actionMessages, tableMessages]
+DEFAULTS = [common, actionMessages]
 
 HELPERS = # All message templates have access to these helpers.
   formatNumber: numToString

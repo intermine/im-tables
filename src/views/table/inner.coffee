@@ -1,26 +1,25 @@
 _ = require 'underscore'
 
-View = require '../../core-view'
-
-types = require '../../core/type-assertions'
-
+CoreView = require '../../core-view'
+Formatting = require '../../formatting'
 PathSet = require '../../models/path-set'
-NestedTableModel = require '../../models/nested-table'
-ColumnHeader = require './header'
 ColumnHeaders = require '../../models/column-headers'
 PopoverFactory = require '../../utils/popover-factory'
 History = require '../../models/history'
-cellFactory = require './cell-factory'
-
-# FIXME - create this file, make sure it returns a template
-#      - make sure that there is a .btn.undo in it
-NoResults = require '../templates/no-results'
-
 Preview = require '../item-preview'
+Types = require '../../core/type-assertions'
+CellFactory = require './cell-factory'
+TableBody = require './body'
+TableHead = require './head'
+
+# Flip the order of arguments.
+flip = (f) -> (x, y) -> f y, x
 
 # Inner class that only knows how to render results,
 # but not where they come from.
-module.exports = class ResultsTable extends View
+# Also, this is actually a table, with just headers and body.
+# Mostly, this class just serves to pass arguments to the children.
+module.exports = class ResultsTable extends CoreView
 
   className: "im-results-table table table-striped table-bordered"
 
@@ -30,149 +29,61 @@ module.exports = class ResultsTable extends View
 
   parameters: [
     'history',
-    'blacklistedFormatters',
     'columnHeaders',
     'rows',
     'tableState',
-    'selectedObjects'
+    'blacklistedFormatters',
+    'selectedObjects',
   ]
 
   parameterTypes:
-    history: (types.InstanceOf History, 'History')
-    blacklistedFormatters: types.Collection
-    rows: types.Collection
-    tableState: (types.InstanceOf TableModel, 'TableModel')
-    columnHeaders: (types.InstanceOf ColumnHeaders, 'ColumnHeaders')
-    selectedObjects: (types.InstanceOf SelectedObjects, 'SelectedObjects')
+    history: (Types.InstanceOf History, 'History')
+    blacklistedFormatters: Types.Collection
+    rows: Types.Collection
+    tableState: (Types.InstanceOf TableModel, 'TableModel')
+    columnHeaders: (Types.InstanceOf ColumnHeaders, 'ColumnHeaders')
+    selectedObjects: (Types.InstanceOf SelectedObjects, 'SelectedObjects')
 
   initialize: ->
     super
-    @query = @history.getCurrentQuery()
-    @expandedSubtables = new PathSet
-    @popoverFactory = new PopoverFactory @query.service, Preview
-    @cellFactory = cellFactory @query.service, @
+    {service} = @query = @history.getCurrentQuery()
+    @expandedSubtables = new PathSet # Owned by the table, used by CellFactory
+    @popoverFactory = new PopoverFactory service, Preview
+    @cellFactory = CellFactory service, @
 
-    @listenTo @columnHeaders, 'reset add remove', @renderHeaders
-    @listenTo @columnHeaders, 'reset add remove', @fill
-    @listenTo @blacklistedFormatters, 'reset add remove', @fill
-    @listenTo @rows, 'reset add remove', @fill
-
-  onColvisToggle: (view) =>
-    @minimisedCols[view] = not @minimisedCols[view]
-    # Copy the data, so that handlers cannot change our state.
-    @query.trigger 'change:minimisedCols', _.extend({}, @minimisedCols), view
-    @fill()
-
-  events: ->
-    'click .btn.undo': @undo
+    @listenTo @blacklistedFormatters, 'reset add remove', @renderBody
+    @listenTo @history, 'changed:current', @setQuery
     
-  undo: -> @history.popState()
+  # We need to maintain the query reference as it is part of the
+  # contract of the cell-factory.
+  setQuery: -> @query = @history.getCurrentQuery()
 
-  render: ->
-    @$el.empty()
-    @$el.append document.createElement 'thead'
-    @renderHeaders()
-    @$el.append document.createElement 'tbody'
-    @fill()
-
-  fill: ->
-    # Clean up old children.
-    previousCells = (@currentCells || []).slice()
-    for cell in previousCells
-      cell.remove()
-    @currentCells = []
-    return @handleEmptyTable() if @rows.size() < 1
-
-    docfrag = document.createDocumentFragment()
-
-    column_for = {}
-    @columnHeaders.each (col) ->
-      for r in (rs = col.get('replaces'))
-        column_for[r] = col
-
-    @rows.each (row) => @appendRow docfrag, row, column_for
-
-    # Careful - there might be subtables out there - be specific.
-    @$el.children('tbody').html docfrag
-
-    # Let listeners know that the table is ready to use.
-    @query.trigger "table:filled"
-
-  handleEmptyTable: () ->
-    q = @query
-    @$("tbody > tr").remove()
-    apology = NoResults q
-    @$el.append apology
-
-  minimisedColumnPlaceholder: (width) ->
-    td = document.createElement 'td'
-    td.className = 'im-minimised-col'
-    td.style.width = "#{ width }px"
-    td.innerHTML = '&hellip;'
-    return td
-
-  renderCell: (cell) -> @cellFactory.create cell
+  # Retrieve a formatter for a given leaf cell. Used by the cell factory.
+  getFormatter: flip Formatting.getFormatter
 
   # can be used if it exists and hasn't been black-listed.
+  # Used by the cell factory (hence bound)
   canUseFormatter: (formatter) =>
     formatter? and (not @blacklistedFormatters.findWhere {formatter})
 
-  # tbody :: HTMLElement, row :: RowModel, column_for :: {string => Column}
-  appendRow: (tbody, row, column_for) =>
-    tr = document.createElement 'tr'
-    tbody.appendChild tr
-    minWidth = 10  # TODO: does this really need to be here?
-    processed = {} # keep a track of which paths we have processed.
-
-    # :: [CellView] (common api is ::getPath())
-    cellViews = (@renderCell cell for cell in row.get('cells'))
-
-    for cell, i in cellViews then do (cell, i) =>
-      # What we are doing here is looking for paths to skip because they are
-      # replaced due to formatting.
-      cellPath = cell.getPath()
-      return if processed[cellPath]
-
-      processed[cellPath] = true
-      column = column_for[cellPath]
-
-      {replaces, formatter, path} = (column?.toJSON() ? {})
-      if replaces?.length > 1
-        # Only accept if it is the right type, since formatters expect a type.
-        return unless path.equals(cellPath.getParent())
-        if formatter?.merge?
-          for c in cellViews when _.any(replaces, (x) -> x.equals c.path)
-            formatter.merge(cell.model.get('cell'), c.model.get('cell'))
-
-        processed[r] = true for r in replaces
-
-      cell.formatter = formatter if formatter?
-
-      if @minimisedCols[ cellPath ] or (path and @minimisedCols[path])
-        tr.appendChild @minimisedColumnPlaceholder minWidth
-      else
-        cell.render()
-        tr.appendChild cell.el
+  renderChildren: ->
+    @renderHeaders()
+    @renderBody()
 
   # Add headers to the table
   renderHeaders: ->
-    docfrag = document.createDocumentFragment()
-    tr = document.createElement 'tr'
-    docfrag.appendChild tr
-    headerOpts = {@query, @expandedSubtables, @blacklistedFormatters}
+    @renderChild 'head', new TableHead (_.pick @, TableHead::parameters)
 
-    @columnHeaders.each @renderHeader tr, headerOpts
-            
-    # children selector because we only want to go down 1 layer.
-    @$el.children('thead').html docfrag
+  renderBody: -> @renderChild 'body', new TableBody
+    collection: @rows
+    makeCell: @cellFactory
 
-  # Render a single header to the row of headers
-  renderHeader: (tr, opts) -> (model, i) =>
-    header = new ColumnHeader _.extend {model}, opts
-    @renderChild "header_#{ i }", header, tr
-
+  # Clean up resources we control.
   remove: ->
+    @expandedSubtables.close()
+    delete @expandedSubtables
     @popoverFactory.destroy()
     delete @popoverFactory
     delete @cellFactory
     super
+

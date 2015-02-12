@@ -8,10 +8,8 @@ module.exports = class TableModel extends CoreModel
     phase: 'FETCHING' # FETCHING, SUCCESS or ERROR
     start: 0
     size: (Options.get 'DefaultPageSize')
-    count: null,
-    lowerBound: null
-    upperBound: null
-    cache: null
+    count: null
+    fill: 0 # counter of the number of times we have filled the rows
     error: null
     selecting: false # are we picking objects from the table?
     previewOwner: null # Who owns the currently displayed preview?
@@ -22,6 +20,8 @@ module.exports = class TableModel extends CoreModel
     minimisedColumns = @get 'minimisedColumns'
     @listenTo minimisedColumns, 'add remove reset', -> @trigger 'change:minimisedColumns change'
     @freeze 'minimisedColumns'
+
+  filled: => @swap 'filled', (n) -> n + 1
 
   toJSON: ->
     data = super

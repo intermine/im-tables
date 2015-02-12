@@ -55,22 +55,18 @@ class Options extends NestedModel
         Library: 'https://www.dropbox.com/static/api/2/dropins.js'
         Enabled: false # To enable, set this to true and provide auth.dropbox
     ShowId: false
-    TableWidgets: ['Pagination', 'PageSizer', 'TableSummary', 'ManagementTools', 'ScrollBar']
+    TableWidgets: # The widgets we render for the standard table.
+      Pagination:
+        enabled: true
+        index: 0
+      PageSizer:
+        enabled: true
+        index: 1
+      TableSummary:
+        enabled: true
+        index: 2
     CellCutoff: 100
     ShowHistory: true
-    ServerApplicationError:
-      Heading: "There was a problem with the request to the server"
-      Body: """
-        This is most likely related to the query that was just run. If you have
-        time, please send us an email with details of this query to help us diagnose and
-        fix this bug.
-      """
-    ClientApplicationError:
-      Heading: 'Client application error'
-      Body: """
-        This is due to an unexpected error in the tables
-        application - we are sorry for the inconvenience
-      """
     icons: 'fontawesome'
     D3:
       Transition:

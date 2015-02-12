@@ -1,6 +1,7 @@
+<% /* requires: doneness (float: 0 <= i <= 1) */ %>
 <% if (doneness != null && doneness >= 0) { %>
     <div class="progress">
-        <div class="progress-bar progressbar-striped active"
+        <div class="progress-bar progress-bar-striped active"
              role="progressbar"
              aria-valuenow="<%- doneness %>"
              aria-valuemin="0"
@@ -14,4 +15,3 @@
         </div>
     </div>
 <% } %>
-

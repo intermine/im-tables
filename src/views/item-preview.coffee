@@ -52,8 +52,6 @@ class PreviewModel extends CoreModel
     error: null
     phase: 'FETCHING' # one of FETCHING, SUCCESS, ERROR
 
-THROBBER = Templates.active_progress_bar
-
 ERROR = Templates.template 'cell-preview-error'
 
 HIDDEN_FIELDS = ['class', 'objectId'] # We don't show these fields.
@@ -103,7 +101,7 @@ module.exports = class Preview extends CoreView
   fetching: null
 
   template: ({phase, error}) -> switch phase
-    when 'FETCHING' then THROBBER
+    when 'FETCHING' then @helpers().IndeterminateProgressBar
     when 'ERROR' then ERROR error
     else null
 

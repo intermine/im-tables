@@ -1,0 +1,2 @@
+<h2><%- Messages.getText('table.Building') %></h2>
+<%= IndeterminateProgressBar %>

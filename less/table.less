@@ -3,6 +3,23 @@
     font-weight: bold;
     text-transform: uppercase;
 }
+
+.im-table-container {
+    .im-table-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: @modal-backdrop-bg;
+        opacity: @modal-backdrop-opacity;
+        h1 {
+            font-size: 72px;
+            position: absolute;
+            left: 25%;
+        }
+    }
+}
 .table {
     tbody > tr {
         .im-result-subtable {

@@ -5,10 +5,14 @@ $ = require 'jquery'
 
 CoreModel = require './core-model'
 Messages = require './messages'
+Templates = require './templates'
 Icons = require './icons'
 
 helpers = require './templates/helpers'
 onChange = require './utils/on-change'
+
+# We only need one copy of this - it is a very generic throbber.
+IndeterminateProgressBar = (Templates.template 'table-building') doneness: 1
 
 # private incrementing id counter for children
 kid = 0
@@ -83,7 +87,7 @@ module.exports = class CoreView extends Backbone.View
     @state ?= new CoreModel # State holds transient and computed data.
     unless @state.toJSON?
       @state = new CoreModel @state
-    if @RERENDER_EVENT? # TODO - check that this is used correctly, then remove.
+    if @RERENDER_EVENT?
       @listenTo @model, @RERENDER_EVENT, @reRender
 
     @on 'rendering', @preRender
@@ -124,7 +128,8 @@ module.exports = class CoreView extends Backbone.View
 
   renderError: (resp) -> renderError(@el) resp
 
-  helpers: -> _.extend {}, helpers # clone it to avoid mutation by subclasses.
+  # the helpers, cloned to avoid mutation by subclasses.
+  helpers: -> _.extend {IndeterminateProgressBar}, helpers
 
   getBaseData: ->
     helpers = _.result @, 'helpers'
@@ -231,7 +236,7 @@ module.exports = class CoreView extends Backbone.View
     $el = $(el)
     if attrs?
       for name, value of attrs
-        if name is 'class'
+        if name in ['class', 'className']
           $el.addClass(value)
         else
           $el.attr name, value

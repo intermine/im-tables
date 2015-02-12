@@ -3,21 +3,31 @@ _ = require 'underscore'
 CoreView = require '../core-view'
 Options = require '../options'
 Templates = require '../templates'
+Messages = require '../messages'
 Collection = require '../core/collection'
 CoreModel = require '../core-model'
 
-renderError = require './table/render-error'
-TableModel = require '../models/table'
-ColumnHeaders = require '../models/column-headers'
-UniqItems = require '../models/uniq-items'
+# Data models.
+TableModel     = require '../models/table'
+ColumnHeaders  = require '../models/column-headers'
+UniqItems      = require '../models/uniq-items'
 RowsCollection = require '../models/rows'
+
 CellModelFactory = require '../utils/cell-model-factory'
 TableResults = require '../utils/table-results'
 
-Pagination = require './table/pagination'
+# The sub-views that render the table state.
 ResultsTable = require './table/inner'
+ErrorNotice = require './table/error-notice'
+Pagination = require './table/pagination'
 PageSizer = require './table/page-sizer'
 TableSummary = require './table/summary'
+
+require '../messages/table'
+
+UNKNOWN_ERROR =
+  message: 'Unknown error'
+  key: 'error.Unknown'
 
 module.exports = class Table extends CoreView
 
@@ -27,8 +37,8 @@ module.exports = class Table extends CoreView
   className: "im-table-container"
 
   parameters: [
-    'history',        # History of states.
-    'selectedObjects' # currently selected entities, shared with components that need selections
+    'history',        # History of states, tells us the current query.
+    'selectedObjects' # currently selected entities
   ]
 
   optionalParameters: ['columnHeaders', 'blacklistedFormatters']
@@ -55,7 +65,6 @@ module.exports = class Table extends CoreView
 
     console.debug 'initialised table'
 
-
   onChangeQuery: ->
     # save a reference, just to make life easier.
     @query = @history.getCurrentQuery()
@@ -64,32 +73,41 @@ module.exports = class Table extends CoreView
     # us to diagnose connectivity problems before running a big query.
     @fetchVersion().then =>
       @query.count (error, count) => @model.set {error, count}
-      # Triggers page fill; see model events.
-      @setFreshness()
+      @setFreshness() # Triggers page fill; see model events.
 
+  # Always good to know the API version. We
+  # aren't currently using it for anything, but it
+  # is a chance to fail very early and cheaply
+  # if we cannot access the web-service.
   fetchVersion: ->
-    # Always good to know the API version. We
-    # aren't currently using it for anything, but it
-    # is a chance to fail very early and cheaply
-    # if we cannot access the web-service.
     @query.service
           .fetchVersion()
           .then (version) => @model.set {version}
           .then null, (e) => onConnectionError e
 
   onConnectionError: (e) ->
-    console.error e # Log this for diagnostics.
     err = new Error 'Could not connect to server'
-    err.key = 'setup.ConnectionError'
+    err.key = 'error.ConnectionError'
     @model.set error: err
 
+  # We fetch data if the query or the page changes.
+  # When we fetch data because the page changed we just overlay the
+  # table. When the query itself changed we reset back to fetching
+  # and run back through the table life-cycle phases.
   modelEvents: ->
-    'change:phase': @reRender
     'change:freshness change:start change:size': @fillRows
-    'change:count': @onChangeCount
+    'change:start change:size': @overlayTable
+    'change:fill': @removeOverlay
+    'change:freshness': @resetPhase
+    'change:phase': @onChangePhase
     'change:error': @onChangeError
 
-  onChangeCount: -> @query.trigger 'count:is', @model.get 'count' # daft - TODO: remove
+  onChangePhase: ->
+    @removeOverlay()
+    @reRender()
+
+  resetPhase: -> @model.set phase: 'FETCHING'
+
   onChangeError: -> @model.set(phase: 'ERROR') if @model.get('error')
 
   remove: -> # remove self, and all children, and remove listeners
@@ -124,23 +142,25 @@ module.exports = class Table extends CoreView
   buildColumnHeaders: ->
     silently = {silent: true}
     minimisedCols = @model.get('minimisedColumns')
-    isMinimised = (ch) => minimisedCols.contains(@query.makePath ch.get('path'))
+    isMin = (ch) => minimisedCols.contains(@query.makePath ch.get('path'))
 
     @columnHeaders.setHeaders @query, @blacklistedFormatters
-    @columnHeaders.forEach (ch) => ch.set {minimised: (isMinimised ch)}, silently
+    @columnHeaders.forEach (ch) => ch.set {minimised: (isMin ch)}, silently
 
   # Request some rows, using a cache as an intermediary, and then fill
-  # our rows collection with the result.
+  # our rows collection with the result, and then record how successful
+  # we were, finally bumping the fill count.
   fillRows: ->
     console.debug 'filling rows'
     {start, size} = @model.pick 'start', 'size'
     success = => @model.set phase: 'SUCCESS'
-    error   = (e) => @model.set phase: 'ERROR', error: (e ? new Error('unknown error'))
+    error   = (e = UNKNOWN_ERROR) => @model.set phase: 'ERROR', error: e
 
     TableResults.getCache @query
                 .fetchRows start, size
                 .then (rows) => @fillRowsCollection
                 .then success, error
+                .then @model.filled, @model.filled
 
   # Take the rows returned from somewhere (the cache, usually),
   # and then turn the data into cell models and stuff them in turn
@@ -148,33 +168,35 @@ module.exports = class Table extends CoreView
   fillRowsCollection: (rows) ->
     createModel = @cellModelFactory.getCreator @query
     offset = @model.get 'start'
+    # The ID lets us use set for efficient updates.
     models = rows.map (row, i) ->
+      id: "#{ @query.toXML() }##{ offset + i }"
       index: (offset + i)
       cells: (createModel c for c in row)
 
     @rows.set models
 
-  overlayTable: =>
-    # TODO - de-jquery this method.
-    return unless @table and @drawn
-    elOffset = @$el.offset()
-    tableOffset = @table.$el.offset()
-    jQuery('.im-table-overlay').remove()
-    @overlay = jQuery @make "div",
-      class: "im-table-overlay discrete " + Options.get('StylePrefix')
-    @overlay.css
-        top: elOffset.top
-        left: elOffset.left
-        width: @table.$el.outerWidth(true)
-        height: (tableOffset.top - elOffset.top) + @table.$el.outerHeight()
-    @overlay.append @make "h1", {}, "Requesting data..."
-    @overlay.find("h1").css
-        top: (@table.$el.height() / 2) + "px"
-        left: (@table.$el.width() / 4) + "px"
-    @overlay.appendTo 'body'
-    _.delay (=> @overlay.removeClass "discrete"), 100
+  overlayTable: ->
+    return unless @children.inner?.rendered
 
-  removeOverlay: => @overlay?.remove()
+    table = @children.inner.$el
+    elOffset = @$el.offset()
+    tableOffset = table.offset()
+
+    @removeOverlay()
+
+    @overlay = document.createElement 'div'
+    @overlay.className = 'im-table-overlay im-hidden'
+
+    h1 = @make 'h1', {}, Messages.getText('table.OverlayText')
+    h1.style.top = "#{ table.height() / 2 }px"
+    @overlay.appendChild h1
+
+    @el.appendChild @overlay
+
+    _.delay (=> @overlay.classList.remove 'im-hidden'), 100
+
+  removeOverlay: => @$(@overlay).remove() if @overlay?
 
   # Rendering logic
  
@@ -184,32 +206,49 @@ module.exports = class Table extends CoreView
     when 'SUCCESS' then @renderTable()
     else throw new Error "Unknown state: #{ @state.get 'phase' }"
 
-  renderFetching: -> """
-    <h2>Building table</h2>
-    <div class="progress progress-striped active progress-info">
-        <div class="bar" style="width: 100%"></div>
-    </div>
-  """
+  # What we render when we are fetching data.
+  renderFetching: Templates.template 'table-building'
 
-  renderError: -> renderError @query, @model.get('error')
+  # A helpful and contrite message.
+  renderError: ->
+    @removeChild 'error'
+    @children.error = e = new ErrorNotice {@query, @model}
+    e.render().el
 
+  # The actual data table.
   renderTable: ->
     frag = document.createDocumentFragment()
-    widgets = document.createElement 'div'
-    clear = document.createElement 'div'
 
-    frag.appendChild widgets
-    for component in Options.get('TableWidgets', []) when "place#{ component }" of @
-      method = "place#{ component }"
-      @[ method ]( widgets )
-    clear.style.clear = 'both'
-    widgets.appendChild clear
+    @renderWidgets frag
 
-    table = new ResultsTable {@query, tableState: @model, @blacklistedFormatters, @columnHeaders, @rows}
+    table = new ResultsTable _.extend _.pick(@, ResultsTable::parameters),
+      tableState: @model
 
     @renderChild 'inner', table, frag
 
     return frag
+
+  # There is some justification for turning the following methods
+  # into their own class.
+  renderWidgets: (container) ->
+    container ?= @el
+    widgets = _.chain Options.get 'TableWidgets'
+               .map ({enabled, index}, name) -> {name, index, enabled}
+               .where enabled: true
+               .sortBy 'index'
+               .pluck 'name'
+               .value()
+    
+    if widgets.length # otherwise don't bother appending anything.
+      widgetDiv = document.createElement 'div'
+      widgetDiv.className = 'im-table-controls'
+      clear = document.createElement 'div'
+      clear.style.clear = 'both'
+      for widgetName in widgets when "place#{ widgetName }" of @
+        method = "place#{ component }"
+        @[ method ]( widgetDiv )
+      widgetDiv.appendChild clear
+      container.appendChild widgetDiv
 
   renderWidget: (name, container, Child) ->
     @renderChild name, (new Child {@model}), container
