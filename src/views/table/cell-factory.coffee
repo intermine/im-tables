@@ -2,6 +2,7 @@ NestedTableModel = require '../../models/nested-table'
 SubTable = require './subtable' # FIXME!
 Cell = require './cell'
 
+# TODO: remove the service argument and read it from query.service!
 # :: (service, opts) -> (cell) -> CellView
 # where
 # service = Service

@@ -38,6 +38,9 @@ module.exports = class BasicTable extends CoreView
     super
     @views = new ColumnHeaders()
     @rows = new RowsCollection
+    getFormatter = (p) => # A very simple formatter assignment
+      @formatters[p.getType().name]
+
     @makeCell = CellFactory @query.service,
       query: @query
       expandedSubtables: (new Collection)
@@ -45,7 +48,7 @@ module.exports = class BasicTable extends CoreView
       selectedObjects: @selectedObjects
       tableState: @model
       canUseFormatter: (=> !!@model.get('formatting'))
-      getFormatter: ((p) => @formatters[p.getType().name]) # the real fn is more complex.
+      getFormatter: getFormatter
 
     @loadData()
     @listenTo @query, 'change:constraints change:views', @loadData
