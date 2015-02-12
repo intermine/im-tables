@@ -33,5 +33,5 @@ module.exports = (service, opts) ->
         popovers: opts.popoverFactory
         selectedObjects: opts.selectedObjects
         tableState: opts.tableState
-        formatter: (opts.getFormatter cell.get('node'))
+        formatter: (opts.getFormatter cell.get('node'), cell.get('column'))
 

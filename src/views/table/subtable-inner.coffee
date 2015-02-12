@@ -37,42 +37,34 @@ module.exports = class SubtableInner extends CoreView
       columnModel: @model
     @renderChild 'thead', head, table
 
+  buildSkipped: (cells) -> @_skipped ?= do =>
+    skipped = {}
+
+    # Mark cells we are going to skip, and fix the headers
+    # as we go about it.
+    for c in cells when c.formatter.replaces?
+      n = c.model.get('node').toString()
+      col = c.model.get('column')
+      p = col.toString()
+
+      if col.isAttribute() and c.formatter.replaces.length > 1
+        # Swap out the current header for its parent.
+        hi = @headers.indexOf @headers.get p
+        @headers.remove p
+        @headers.add col.getParent(), at: hi
+
+      for rp in (c.formatter.replaces.map (r) -> n + '.' + r) when rp isnt p
+        skipped[rp] = true
+        @headers.remove rp # remove the header for the skipped path.
+    return skipped
+
   appendRow: (row, i, tbody) ->
     tr = document.createElement 'tr'
     tbody.appendChild tr
-    for cell, j in row
-      @renderChild "cell-#{ i }-#{ j }", @cellify(cell), tr
-    return null
+    cells = (@cellify c for c in row)
 
-    # FIXME - the code below deals with the consequences of formatting. Do sth about it.
+    skipped = @buildSkipped cells
 
-    processed = {}
-    replacedBy = {}
-    for c in columns
-      for r in c.replaces
-        replacedBy[r] = c
-
-    # Actual rendering happens here - subsequent code just determines whether to use.
-    cellViews = row.map @cellify
-
-    for cell in cellViews then do (tr, cell) ->
-      return if processed[cell.path]
-      processed[cell.path] = true
-      {replaces, formatter, path} = replacedBy[cell.path] ? {replaces: []}
-      if replaces.length > 1
-        # Only accept if it is the right type - otherwise break (aka return)
-        # this is required because formatters need to be based on a model of the
-        # right type, and the merge method is not guaranteed to be associative.
-        return unless path.equals(cell.path.getParent())
-        if formatter?.merge?
-          for otherC in row when _.any(replaces, (repl) -> repl.equals otherC.path)
-            formatter.merge(cell.model, otherC.model)
-      processed[r] = true for r in replaces
-      cell.formatter = formatter if formatter?
-
-      tr.append cell.el
-      cell.render()
-
-    tr.appendTo tbody
-    null # Called in void context, no need to collect results.
+    for cell, j in cells when not skipped[cell.model.get('column')]
+      @renderChild "cell-#{ i }-#{ j }", cell, tr
 

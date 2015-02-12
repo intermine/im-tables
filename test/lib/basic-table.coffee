@@ -38,8 +38,9 @@ module.exports = class BasicTable extends CoreView
     super
     @views = new ColumnHeaders()
     @rows = new RowsCollection
-    getFormatter = (p) => # A very simple formatter assignment
-      @formatters[p.getType().name]
+    getFormatter = (n, c) => # A very simple formatter assignment
+      type = n.getType().name
+      @formatters[type] ? @formatters["#{ type }.#{ c.end.name }"]
 
     @makeCell = CellFactory @query.service,
       query: @query

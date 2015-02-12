@@ -12,6 +12,10 @@ SubtableInner = require './subtable-inner'
 
 {ignore} = require '../../utils/events'
 
+class PathCollection extends Collection
+
+  model: PathModel
+
 # A cell containing a subtable of other rows.
 # The table itself can be expanded or collapsed.
 # When collapsed it is represented by a summary line.
@@ -38,7 +42,7 @@ module.exports = class SubTable extends CoreView
 
   initialize: ->
     super
-    @headers = new Collection
+    @headers = new PathCollection
     @listenTo @expandedSubtables, 'add remove reset', @onChangeExpandedSubtables
     @buildHeaders()
 

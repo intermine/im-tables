@@ -33,20 +33,24 @@ create = (query) ->
   new BasicTable
     model: tableState
     query: query
+    selectedObjects: selectedObjects
     popovers: (new PopoverFactory connection, Preview)
     modelFactory: (new CellModelFactory connection, query.model)
-    selectedObjects: selectedObjects
-    formatters: {Company: formatCompany, Manager: formatManager}
+    formatters:
+      Company: formatCompany
+      'Manager.name': formatManager
 
 QUERY =
-  name: 'cell query'
+  name: 'formatting query'
   select: [
     'name',
     'departments.name',
-    'departments.manager.name'
+    'departments.manager.title',
+    'departments.manager.name',
+    'departments.manager.seniority',
   ]
   from: 'Company'
-  joins: ['departments']
+  joins: ['departments', 'departments.manager']
 
 renderQuery = renderWithCounter create, (->), ['model', 'rows']
 
