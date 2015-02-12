@@ -1,7 +1,7 @@
 _ = require 'underscore'
 
 simpleFormatter = require 'imtables/utils/simple-formatter'
-template = _.template '<%= manager.title %> <%= manager.name %>', variable: 'manager'
+template = _.template '<%= m.title %> <%= m.name %>', variable: 'm'
 
 module.exports = simpleFormatter 'Manager', ['title', 'name'], template
 
