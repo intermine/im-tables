@@ -9,6 +9,8 @@ ColumnHeaders  = require 'imtables/models/column-headers'
 TableResults   = require 'imtables/utils/table-results'
 CellFactory    = require 'imtables/views/table/cell-factory'
 
+buildSkipped   = require 'imtables/utils/build-skipset'
+
 pathToCssClass = (path) -> String(path).replace /\./g, '-'
 
 class ViewList extends Collection
@@ -145,5 +147,8 @@ class TableBody extends CoreView
 class RowView extends CoreView
   tagName: 'tr'
   parameters: ['makeCell']
-  postRender: -> @model.get('cells').forEach (model, i) =>
-    @renderChild i, (@makeCell model)
+  postRender: ->
+    cells = @model.get('cells').map @makeCell
+    skipped = buildSkipped cells
+    for cell, i in cells when not skipped[cell.model.get('column')]
+      @renderChild i, cell

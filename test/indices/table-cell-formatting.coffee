@@ -29,6 +29,8 @@ Options.set 'TableResults.CacheFactor', 2
 selectedObjects = new SelectedObjects connection
 tableState = new TableModel size: 10, formatting: true
 
+Formatting.registerFormatter formatCompany, 'testmodel', 'Company', formatCompany.replaces
+
 create = (query) ->
   new BasicTable
     model: tableState
@@ -37,13 +39,14 @@ create = (query) ->
     popovers: (new PopoverFactory connection, Preview)
     modelFactory: (new CellModelFactory connection, query.model)
     formatters:
-      Company: formatCompany
+      'Company.name': formatCompany
       'Manager.name': formatManager
 
 QUERY =
   name: 'formatting query'
   select: [
     'name',
+    'vatNumber',
     'departments.name',
     'departments.manager.title',
     'departments.manager.name',

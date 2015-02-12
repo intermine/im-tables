@@ -1,5 +1,6 @@
 CoreView = require '../../core-view'
 SubtableHeader = require './subtable-header'
+buildSkipped = require '../../utils/build-skipset'
 
 # This class renders the rows and column headers of
 # nested subtables. It is a thin wrapper around the 
@@ -37,26 +38,7 @@ module.exports = class SubtableInner extends CoreView
       columnModel: @model
     @renderChild 'thead', head, table
 
-  buildSkipped: (cells) -> @_skipped ?= do =>
-    skipped = {}
-
-    # Mark cells we are going to skip, and fix the headers
-    # as we go about it.
-    for c in cells when c.formatter.replaces?
-      n = c.model.get('node').toString()
-      col = c.model.get('column')
-      p = col.toString()
-
-      if col.isAttribute() and c.formatter.replaces.length > 1
-        # Swap out the current header for its parent.
-        hi = @headers.indexOf @headers.get p
-        @headers.remove p
-        @headers.add col.getParent(), at: hi
-
-      for rp in (c.formatter.replaces.map (r) -> n + '.' + r) when rp isnt p
-        skipped[rp] = true
-        @headers.remove rp # remove the header for the skipped path.
-    return skipped
+  buildSkipped: (cells) -> @_skipped ?= buildSkipped cells, @headers
 
   appendRow: (row, i, tbody) ->
     tr = document.createElement 'tr'

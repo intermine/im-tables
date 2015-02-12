@@ -19,9 +19,11 @@ class SubtableHeader extends CoreView
 
   events: -> 'click a': @removeView
 
-  removeView: -> @query.removeFromSelect @model.get('path')
+  removeView: ->
+    @query.removeFromSelect(@model.get('replaces') ? @model.get('path'))
 
-  postRender: -> @$('[title]').tooltip()
+  postRender: ->
+    @$('[title]').tooltip()
 
   initialize: ->
     super
