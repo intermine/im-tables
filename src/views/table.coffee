@@ -169,7 +169,7 @@ module.exports = class Table extends CoreView
     createModel = @cellModelFactory.getCreator @query
     offset = @model.get 'start'
     # The ID lets us use set for efficient updates.
-    models = rows.map (row, i) ->
+    models = rows.map (row, i) =>
       id: "#{ @query.toXML() }##{ offset + i }"
       index: (offset + i)
       cells: (createModel c for c in row)
@@ -207,7 +207,8 @@ module.exports = class Table extends CoreView
     else throw new Error "Unknown state: #{ @state.get 'phase' }"
 
   # What we render when we are fetching data.
-  renderFetching: Templates.template 'table-building'
+  renderFetching: ->
+    Templates.template('table-building') @getBaseData()
 
   # A helpful and contrite message.
   renderError: ->

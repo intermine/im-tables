@@ -1,14 +1,17 @@
 _ = require 'underscore'
 
 CoreView = require '../../core-view'
+Templates = require '../../templates'
 
 buildSkipped   = require '../../utils/build-skipset'
+
+require '../../messages/table'
 
 module.exports = class TableBody extends CoreView
 
   tagName: 'tbody'
 
-  parameters: ['makeCell', 'collection']
+  parameters: ['makeCell', 'collection', 'history']
 
   collectionEvents: ->
     reset: @reRender

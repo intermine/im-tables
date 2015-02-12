@@ -76,6 +76,7 @@ module.exports = class ResultsTable extends CoreView
 
   renderBody: -> @renderChild 'body', new TableBody
     collection: @rows
+    history: @history
     makeCell: @cellFactory
 
   # Clean up resources we control.

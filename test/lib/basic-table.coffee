@@ -1,4 +1,5 @@
 _ = require 'underscore'
+Backbone = require 'backbone'
 
 CoreView       = require 'imtables/core-view'
 Collection     = require 'imtables/core/collection'
@@ -17,6 +18,14 @@ pathToCssClass = (path) -> String(path).replace /\./g, '-'
 class ViewList extends Collection
 
   model: PathModel
+
+class FakeHistory
+
+  constructor: (@query) ->
+
+  getCurrentQuery: -> @query
+
+_.extend FakeHistory.prototype, Backbone.Events
 
 module.exports = class BasicTable extends CoreView
 
@@ -72,12 +81,13 @@ module.exports = class BasicTable extends CoreView
     minimisedColumns: @model.get('minimisedColumns')
 
   renderBody: -> @renderChild 'tbody', new TableBody
+    history: (new FakeHistory @query)
     collection: @rows
     makeCell: @makeCell
 
   setRows: (rows) => # the same logic as Table::fillRowsCollection, minus start.
     createModel = @modelFactory.getCreator @query
-    models = rows.map (row, i) ->
+    models = rows.map (row, i) =>
       id: "#{ @query.toXML() }##{ i }"
       index: i
       cells: (createModel c for c in row)

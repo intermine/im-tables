@@ -12,7 +12,7 @@ helpers = require './templates/helpers'
 onChange = require './utils/on-change'
 
 # We only need one copy of this - it is a very generic throbber.
-IndeterminateProgressBar = (Templates.template 'table-building') doneness: 1
+IndeterminateProgressBar = (Templates.template 'progress-bar') doneness: 1
 
 # private incrementing id counter for children
 kid = 0
