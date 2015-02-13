@@ -54,8 +54,17 @@ module.exports = class ColumnManager extends Modal
   dismissAction: -> Messages.getText 'Cancel'
 
   act: -> unless @state.get 'disabled'
-    @query.select @getCurrentView() # select the current view.
-    @query.orderBy @getCurrentSortOrder() # order by the new sort-order.
+    {viewChanged, orderChanged} = @state.pick 'viewChanged', 'orderChanged'
+    if viewChanged and (not orderChanged)
+      @query.select @getCurrentView() # select the current view.
+    else if orderChanged and (not viewChanged)
+      @query.orderBy @getCurrentSortOrder() # order by the new sort-order.
+    else
+      # Collect all the events and trigger them all at once.
+      opts = silent: true, events: []
+      @query.select @getCurrentView(), opts
+      @query.orderBy @getCurrentSortOrder(), opts
+      @query.trigger opts.events.join ' '
     @resolve 'changed'
 
   stateEvents: ->
@@ -105,7 +114,10 @@ module.exports = class ColumnManager extends Modal
     viewUnchanged = (currentView is initialView)
     soUnchanged = (currentSO is initialSO)
     # if no changes, then disable, since there are no changes to apply.
-    @state.set disabled: (viewUnchanged and soUnchanged)
+    @state.set
+      viewChanged: (not viewUnchanged)
+      orderChanged: (not soUnchanged)
+      disabled: (viewUnchanged and soUnchanged)
 
   initState: -> # open the dialogue with the default tab open, and main button disabled.
     @state.set
