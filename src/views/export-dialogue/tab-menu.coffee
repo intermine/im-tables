@@ -36,7 +36,16 @@ module.exports = class TabMenu extends View
     tabs = @getTabs()
     _.extend {tabs}, super
 
-  setTab: (tab) -> => @model.set {tab}
+  setTab: (tab) -> => unless @state.get('pinned')
+    @model.set {tab}
+
+  setPinned: (tab) -> =>
+    if @state.get('pinned') is tab
+      @state.set pinned: false
+    else
+      @state.set pinned: tab
+
+    @model.set tab: tab # for good measure - should have been set by mouseover
 
   next: ->
     tabs = (t.ident for t in @getTabs())
@@ -53,6 +62,10 @@ module.exports = class TabMenu extends View
 
   events: ->
     evt = Options.get 'Events.ActivateTab'
-    _.object( ["#{ evt } .im-tab-#{ ident }", (@setTab ident)] \
+    events = _.object( ["#{ evt } .im-tab-#{ ident }", (@setTab ident)] \
                                                          for {ident} in TABS )
+    if evt is 'mouseenter'
+      _.extend events, _.object( ["click .im-tab-#{ ident }", (@setPinned ident)] \
+                                                         for {ident} in TABS )
+    return events
     
