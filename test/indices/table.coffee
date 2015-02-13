@@ -1,4 +1,3 @@
-
 $ = require 'jquery'
 
 Options = require 'imtables/options'

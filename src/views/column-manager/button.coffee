@@ -1,5 +1,5 @@
 QueryDialogueButton = require '../query-dialogue-button'
-ColumnManger = require 'imtables/views/column-manager'
+ColumnManger = require '../column-manager'
 
 require '../../messages/columns'
 
