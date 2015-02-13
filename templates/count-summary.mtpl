@@ -1,9 +1,8 @@
-<span class="im-only-widescreen">Showing</span>
-<span>
-    <% if (last == 0) { %>
-        All
-    <% } else { %>
-        <%= first %> to <%= last %> of
-    <% } %>
-    <%= count %> <span class="visible-desktop"><%= roots %></span>
-</span>
+<% if (size && count) { %>
+  <% var msg = (size == 0 ? '.ShowingAll' : '.ShowingRange'); %>
+  <% ['xs', 'sm', 'md', 'lg'].forEach(function (pageSize) { %>
+    <span class="visible-<%= pageSize %>-inline">
+      <%- Messages.getText('table.' + pageSize + msg, page) %>
+    </span>
+  <% }); %>
+<% } %>

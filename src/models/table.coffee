@@ -21,7 +21,7 @@ module.exports = class TableModel extends CoreModel
     @listenTo minimisedColumns, 'add remove reset', -> @trigger 'change:minimisedColumns change'
     @freeze 'minimisedColumns'
 
-  filled: => @swap 'filled', (n) -> n + 1
+  filled: => @swap 'fill', (n) -> n + 1
 
   toJSON: ->
     data = super

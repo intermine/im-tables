@@ -16,8 +16,10 @@ module.exports = class TableHead extends CoreView
   template: ->
 
   initialize: ->
+    super
     @listenTo @columnHeaders, 'add reset sort', @reRender
     @listenTo @columnHeaders, 'remove', (ch) -> @removeChild ch.id
+    this
 
   renderChildren: ->
     docfrag = document.createDocumentFragment()

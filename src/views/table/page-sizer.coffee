@@ -23,7 +23,7 @@ module.exports = class PageSizer extends CoreView
 
   sizes: [[10], [25], [50], [100], [250]] # [0, 'All']]
 
-  parameters: ['query']
+  parameters: ['getQuery']
 
   # We need the query because we will pass it on to modal dialogues we open.
   initialize: ->
@@ -51,8 +51,8 @@ module.exports = class PageSizer extends CoreView
       switch action
         when 'back' then @goBack 1
         when 'forward' then @goForward 1
-        when 'constrain' then @openDialogue new NewFilterDialogue {@query}
-        when 'export' then @openDialogue ExportDialogue {@query}
+        when 'constrain' then @openDialogue new NewFilterDialogue query: @getQuery()
+        when 'export' then @openDialogue ExportDialogue query: @getQuery()
         else console.debug 'dismissed dialogue', action
 
     pending.then null, (e) -> console.error 'Error handling dialogues', e

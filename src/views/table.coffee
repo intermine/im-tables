@@ -158,7 +158,7 @@ module.exports = class Table extends CoreView
 
     TableResults.getCache @query
                 .fetchRows start, size
-                .then (rows) => @fillRowsCollection
+                .then (rows) => @fillRowsCollection (rows)
                 .then success, error
                 .then @model.filled, @model.filled
 
@@ -175,6 +175,7 @@ module.exports = class Table extends CoreView
       cells: (createModel c for c in row)
 
     @rows.set models
+    console.log "Loaded #{ models.length } rows, now we have #{ @rows.size() }"
 
   overlayTable: ->
     return unless @children.inner?.rendered
@@ -194,9 +195,11 @@ module.exports = class Table extends CoreView
 
     @el.appendChild @overlay
 
-    _.delay (=> @overlay.classList.remove 'im-hidden'), 100
+    _.delay (=> @overlay?.classList.remove 'im-hidden'), 100
 
-  removeOverlay: => @$(@overlay).remove() if @overlay?
+  removeOverlay: ->
+    @el.removeChild @overlay if @overlay?
+    delete @overlay
 
   # Rendering logic
  
@@ -252,7 +255,8 @@ module.exports = class Table extends CoreView
       container.appendChild widgetDiv
 
   renderWidget: (name, container, Child) ->
-    @renderChild name, (new Child {@model}), container
+    component = new Child {@model, getQuery: => @history.getCurrentQuery()}
+    @renderChild name, component, container
 
   placePagination: (widgets) ->
     @renderWidget 'pagination', widgets, Pagination
