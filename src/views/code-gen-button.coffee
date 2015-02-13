@@ -1,4 +1,3 @@
-
 _ = require 'underscore'
 
 CoreView = require '../core-view'
@@ -17,6 +16,8 @@ Dialogue = require './code-gen-dialogue'
 require '../messages/code-gen'
 
 module.exports = class CodeGenButton extends CoreView
+
+  parameters: ['query']
 
   # Connect this view with its model.
   Model: CodeGenModel
@@ -47,14 +48,3 @@ module.exports = class CodeGenButton extends CoreView
     @renderChild 'dialogue', dialogue
     # Returns a promise, but in this case we don't care about it.
     dialogue.show()
-
-  # We need a query
-  initialize: ({@query}) -> super
-
-  # Conditions which must be true on instantiation
-
-  invariants: ->
-    hasQuery: "No query"
-
-  hasQuery: -> @query?
-

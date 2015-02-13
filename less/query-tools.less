@@ -1,6 +1,37 @@
-.im-query-management {
-    & > div {
-        margin-right: 0.5em;
-        float: left;
+.imtables-dashboard {
+    .container-fluid();
+
+    .im-query-tools {
+        & > div {
+            display: inline-block;
+        }
+        .im-query-management {
+            width: 42%;
+
+            & > div {
+                margin-right: 0.5em;
+                display: inline-block;
+                float: left;
+                margin-bottom: 0.2em;
+            }
+        }
+
+        .im-history {
+            width: 10%;
+            & > div {
+                float: left;
+            }
+        }
+
+        .im-query-consumers {
+            width: 45%;
+            & > div {
+                margin-left: 0.5em;
+                margin-bottom: 0.2em;
+                display: inline-block;
+                float: right;
+            }
+        }
     }
+
 }

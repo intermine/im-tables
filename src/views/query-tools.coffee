@@ -4,8 +4,14 @@ Templates = require '../templates'
 ColumnMangerButton   = require './column-manager/button'
 FilterDialogueButton = require './filter-dialogue/button'
 JoinManagerButton    = require './join-manager/button'
+UndoHistory          = require './undo-history'
+ListDialogueButton   = require './list-dialogue/button'
+CodeGenButton        = require './code-gen-button'
+ExportDialogueButton = require './export-dialogue/button'
 
-SUBSECTIONS = ['im-query-management', 'im-query-consumers']
+SUBSECTIONS = ['im-query-management', 'im-history', 'im-query-consumers']
+
+subsection = (s) -> """<div class="#{ s }"></div>"""
 
 module.exports = class QueryTools extends CoreView
 
@@ -14,15 +20,17 @@ module.exports = class QueryTools extends CoreView
   parameters: ['tableState', 'history', 'selectedObjects']
 
   template: ->
-    sections = ("""<div class="#{ s }"></div>""" for s in SUBSECTIONS).join ''
-    sections + Templates.clear
+    subs = (SUBSECTIONS.map subsection).join ''
+    subs + Templates.clear
 
   initialize: ->
     super
-    @listenTo @history, 'changed:current', @reRender
+    @listenTo @history, 'changed:current', @renderManagementTools
+    @listenTo @history, 'changed:current', @renderQueryConsumers
 
   renderChildren: ->
     @renderManagementTools()
+    @renderUndo()
     @renderQueryConsumers()
 
   renderManagementTools: ->
@@ -32,6 +40,17 @@ module.exports = class QueryTools extends CoreView
     @renderChild 'cons', (new FilterDialogueButton {query}), $management
     @renderChild 'joins', (new JoinManagerButton {query}), $management
 
-  renderQueryConsumers: ->
+  renderUndo: ->
+    $undo = @$ '.im-history'
+    @renderChild 'undo', (new UndoHistory {collection: @history}), $undo
 
+  renderQueryConsumers: ->
+    $consumers = @$ '.im-query-consumers'
+    query = @history.getCurrentQuery()
+    selected = @selectedObjects
+    $consumers.empty()
+    @renderChild 'save', (new ExportDialogueButton {query}), $consumers
+    @renderChild 'code', (new CodeGenButton {query}), $consumers
+    @renderChild 'lists', (new ListDialogueButton {query, selected}), $consumers
+    $consumers.append Templates.clear
 

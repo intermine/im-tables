@@ -74,7 +74,9 @@ module.exports = class ExportDialogue extends Modal
 
   className: -> 'im-export-dialogue ' + super
 
-  initialize: ({@query}) ->
+  parameters: ['query']
+
+  initialize: ->
     super
     # Lift format to definition if supplied.
     if (@model.has 'format') and not (@model.get('format').ext)

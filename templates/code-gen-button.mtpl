@@ -3,8 +3,10 @@
     <button type="button"
             class="btn btn-default im-show-code-gen-dialogue">
         <%= Icons.icon('CodeFile') %>
-        <%- Messages.getText('codegen.GenerateCodeIn') %>
-        <span class="im-current-lang">
+        <span class="hidden-sm hidden-xs">
+          <%- Messages.getText('codegen.GenerateCodeIn') %>
+        </span>
+        <span class="hidden-xs im-current-lang">
             <%- Messages.getText('codegen.Lang', {lang: lang}) %>
         </span>
     </button>

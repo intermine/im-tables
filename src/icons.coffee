@@ -68,7 +68,7 @@ ICONS.glyphicons =
   Summary: "glyphicon-eye-open"
   Undo: "glyphicon-refresh"
   Refresh: "glyphicon-refresh"
-  Columns: "glyphicon-wrench"
+  Columns: "glyphicon-columns"
   Collapsed: "glyphicon-chevron-right"
   Expanded: "glyphicon-chevron-down"
   CollapsedSection: 'glyphicon-triangle-right'
@@ -140,7 +140,7 @@ ICONS.fontawesome =
   Summary: "fa-bar-chart-o"
   Undo: "fa-undo"
   Refresh: "fa-refresh"
-  Columns: "fa-wrench"
+  Columns: "fa-columns"
   Collapsed: "fa-chevron-right"
   Expanded: "fa-chevron-down"
   CollapsedSection: 'fa-caret-right'
