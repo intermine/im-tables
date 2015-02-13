@@ -1,8 +1,8 @@
 _ = require 'underscore'
 
-View = require '../core-view'
-Templates = require '../templates'
-{numToString} = require '../templates/helpers'
+View = require '../../core-view'
+Templates = require '../../templates'
+{numToString} = require '../../templates/helpers'
 
 template = Templates.template 'count_summary'
 

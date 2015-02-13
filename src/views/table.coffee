@@ -200,11 +200,11 @@ module.exports = class Table extends CoreView
 
   # Rendering logic
  
-  template: -> switch @state.get 'phase'
+  template: -> switch @model.get 'phase'
     when 'FETCHING' then @renderFetching()
     when 'ERROR' then @renderError()
     when 'SUCCESS' then @renderTable()
-    else throw new Error "Unknown state: #{ @state.get 'phase' }"
+    else throw new Error "Unknown phase: #{ @model.get 'phase' }"
 
   # What we render when we are fetching data.
   renderFetching: ->
@@ -246,7 +246,7 @@ module.exports = class Table extends CoreView
       clear = document.createElement 'div'
       clear.style.clear = 'both'
       for widgetName in widgets when "place#{ widgetName }" of @
-        method = "place#{ component }"
+        method = "place#{ widgetName }"
         @[ method ]( widgetDiv )
       widgetDiv.appendChild clear
       container.appendChild widgetDiv
