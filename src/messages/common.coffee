@@ -8,6 +8,7 @@ module.exports =
   Error: 'Error'
   Warning: 'Warning'
   Filter: 'Filter'
+  Loading: 'Loading'
   Undo: 'Undo'
   and: 'and'
   or: 'or'

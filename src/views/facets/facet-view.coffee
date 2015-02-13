@@ -1,7 +1,6 @@
 Event = require '../../event'
 CoreView = require '../../core-view'
 Options = require '../../options'
-Templates = require '../../templates'
 
 # methods we are composing in.
 SetsPathNames = require '../../mixins/sets-path-names'
