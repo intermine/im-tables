@@ -51,6 +51,6 @@ module.exports = class QueryTools extends CoreView
     $consumers.empty()
     @renderChild 'save', (new ExportDialogueButton {query}), $consumers
     @renderChild 'code', (new CodeGenButton {query}), $consumers
-    @renderChild 'lists', (new ListDialogueButton {query, selected}), $consumers
+    @renderChild 'lists', (new ListDialogueButton {query, @tableState, selected}), $consumers
     $consumers.append Templates.clear
 

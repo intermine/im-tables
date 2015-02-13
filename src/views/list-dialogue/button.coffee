@@ -57,6 +57,10 @@ module.exports = class ListDialogueButton extends CoreView
 
   parameters: ['query', 'selected']
 
+  optionalParameters: ['tableState']
+
+  tableState: new CoreModel
+
   initState: ->
     @state.set action: 'create'
 
@@ -116,7 +120,9 @@ module.exports = class ListDialogueButton extends CoreView
       when 'append' then AppendPicker
       when 'create' then CreatePicker
       else throw new Error "Unknown action: #{ action }"
-    @showDialogue Dialogue, args
+    @tableState.set selecting: true
+    stopPicking = => @tableState.set selecting: false
+    @showDialogue(Dialogue, args).then stopPicking, stopPicking
 
   setActionButtonState: ->
     action = @state.get 'action'
