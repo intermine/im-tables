@@ -62,10 +62,11 @@ module.exports = class ListDialogueButton extends CoreView
   tableState: new CoreModel
 
   initState: ->
-    @state.set action: 'create'
+    @state.set action: 'create', authenticated: false
 
   stateEvents: ->
     'change:action': @setActionButtonState
+    'change:authenticated': @setVisible
 
   events: ->
     'click .im-create-action': @setActionIsCreate
@@ -78,15 +79,19 @@ module.exports = class ListDialogueButton extends CoreView
     @paths = new Paths
     # Reversed, because we prepend them in order to the menu.
     @query.getQueryNodes().reverse().forEach (n) => @paths.add new PathModel n
+    @query.service.whoami().then (u) => @state.set authenticated: (!!u)
 
   getData: -> _.extend super, @classSets, paths: @paths.toJSON()
 
   postRender: ->
+    @setVisible()
     menu = @$ '.dropdown-menu'
     @paths.each (model, i) =>
       showDialogue = (args) => @showPathDialogue args
       node = new SelectableNode {@query, model, showDialogue}
       @renderChild "path-#{ i }", node, menu, 'prepend'
+
+  setVisible: -> @$el.toggleClass 'im-hidden', (not @state.get 'authenticated')
 
   setActionIsCreate: (e) ->
     e.stopPropagation()
