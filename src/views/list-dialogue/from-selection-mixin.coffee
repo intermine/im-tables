@@ -39,15 +39,12 @@ module.exports = (Base) ->
 
   # Our private implementation.
   collectionEvents: ->
-    'add remove': @onChangeCollection
+    'change:commonType change:typeName': @setType
+    'add remove': @setCount
 
   initiallyMinimised: true
 
   getIds: -> @collection.map (o) -> o.get('id')
-
-  onChangeCollection: ->
-    @setCount()
-    @setType()
 
   onChangeType: ->
     Base::onChangeType.call @
