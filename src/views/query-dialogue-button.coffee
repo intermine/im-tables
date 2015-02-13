@@ -38,6 +38,7 @@ module.exports = class QueryDialogueButton extends CoreView
     @state.set disabled: true
     done = =>
       @removeChild 'dialogue'
+      document.body.classList.remove 'modal-open' # hangs around.
       _.defer => @state.set disabled: false
     dialogue.show().then done, done
 

@@ -126,7 +126,9 @@ module.exports = class ListDialogueButton extends CoreView
       when 'create' then CreatePicker
       else throw new Error "Unknown action: #{ action }"
     @tableState.set selecting: true
-    stopPicking = => @tableState.set selecting: false
+    stopPicking = =>
+      @tableState.set selecting: false
+      @selected.reset()
     @showDialogue(Dialogue, args).then stopPicking, stopPicking
 
   setActionButtonState: ->
