@@ -19,7 +19,7 @@ module.exports = class PageSizer extends CoreView
   @include HasDialogues
 
   tagName: 'form'
-  className: "im-page-sizer form-inline"
+  className: "im-page-sizer im-table-control form-inline"
 
   sizes: [[10], [25], [50], [100], [250]] # [0, 'All']]
 

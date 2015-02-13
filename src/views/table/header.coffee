@@ -21,6 +21,8 @@ OuterJoinDropDown = require './outer-join-summary'
 {getFormatter} = require '../../path-formatting'
 {ignore} = require '../../utils/events'
 
+require '../../messages/table' # Our messages live here.
+
 ModelReader = (model, attr) -> -> model.get attr
 
 getViewPortHeight = ->

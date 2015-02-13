@@ -4,7 +4,10 @@
     text-transform: uppercase;
 }
 
+
 .im-table-container {
+    position: relative;
+
     .im-table-overlay {
         position: absolute;
         top: 0;
@@ -17,6 +20,23 @@
             font-size: 72px;
             position: absolute;
             left: 25%;
+        }
+    }
+
+    .im-table-controls {
+        .im-page-sizer, .im-table-summary {
+            margin: @line-height-computed 0;
+        }
+        .im-table-control {
+            float: right;
+            margin-left: 1em;
+        }
+        .im-table-summary {
+            height: @input-height-base; // Align with other elements.
+            line-height: @input-height-base; // So that the text is center aligned.
+            float: left;
+            margin-left: 0;
+            font-weight: bold;
         }
     }
 }

@@ -19,7 +19,7 @@ module.exports = class Pagination extends View
 
   tagName: 'nav'
 
-  className: 'im-table-pagination'
+  className: 'im-table-pagination im-table-control'
 
   RERENDER_EVENT: 'change:start change:count change:size'
 

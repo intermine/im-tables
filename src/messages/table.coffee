@@ -31,3 +31,32 @@ Messages.setWithPrefix 'table.xs',
   ShowingRange: """
     <%= formatNumber(first) %> to <%= formatNumber(last) %>
   """
+
+Messages.setWithPrefix 'table.header',
+  FailedToInitSortMenu: 'Could not initialise the sorting menu.'
+  FailedToInitFilter: 'Could not initialise the filter menu.'
+  FailedToInitSummary: 'Could not intitialise the column summary.'
+  ViewSummary: 'View column summary'
+  ToggleColumn: 'Toggle column visibility'
+  RemoveColumn: 'Remove this column'
+  SortColumn: """
+    <% if (dir === 'ASC') { %>
+      Sorted in ascending order.
+    <% } else if (dir === 'DESC') { %>
+      Sorted in descending order.
+    <% } else { %>
+      Sort this column.
+    <% } %>
+  """
+  ToggleTables: 'Expand/collapse all sub-tables'
+  Composed: """
+    This column replaces <%= replaces.length %> others. Click here
+    to show the individual columns separately.
+  """
+  FilterTitle: """
+    <% if (count > 0) { %>
+      <%= count %> active filters.
+    <% } else { %>
+      Filter by values in this column.
+    <% } %>
+  """

@@ -43,15 +43,12 @@ module.exports = class Table extends CoreView
 
   optionalParameters: ['columnHeaders', 'blacklistedFormatters']
 
+  cellModelFactory: null # initialised in Table::onChangeQuery
+
   # @param query The query this view is bound to.
   # @param selector Where to put this table.
   initialize: ->
     super
-    @onChangeQuery()
-    @listenTo @history, 'changed:current', @onChangeQuery
-
-    # A cell model factory for creating cell models.
-    @cellModelFactory ?= new CellModelFactory @query.service, @query.model
     # columnHeaders contains the header information.
     @columnHeaders ?= new ColumnHeaders
     # Formatters we are not allowed to use.
@@ -59,15 +56,21 @@ module.exports = class Table extends CoreView
     # rows contains the current rows in the table
     @rows = new RowsCollection
 
+    @listenTo @history, 'changed:current', @onChangeQuery
     @listenTo @blacklistedFormatters, 'reset add remove', @buildColumnHeaders
-
     @listenTo @columnHeaders, 'change:minimised', @onChangeHeaderMinimised
 
+    @onChangeQuery()
     console.debug 'initialised table'
 
   onChangeQuery: ->
     # save a reference, just to make life easier.
-    @query = @history.getCurrentQuery()
+    {service, model} = @query = @history.getCurrentQuery()
+
+    # A cell model factory for creating cell models
+    # does not need rebuilding.
+    @cellModelFactory ?= new CellModelFactory service, model
+    @buildColumnHeaders()
 
     # We wait for the version not because it is needed but because it allows
     # us to diagnose connectivity problems before running a big query.
