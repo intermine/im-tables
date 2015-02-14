@@ -1,0 +1,15 @@
+src
+oldsrc
+test
+bower.json
+js
+templates
+node_modules
+components
+*.tgz
+bower_components
+js/imtables-bundled.*
+*.log
+test/bundles
+fonts
+.tmp
