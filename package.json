@@ -15,7 +15,8 @@
     "bundle": "browserify build/main.js > dist/main.js",
     "less": "grunt run:lessc",
     "build": "grunt build",
-    "grunt": "grunt"
+    "grunt": "grunt",
+    "prepublish": "grunt build:dist"
   },
   "keywords": [
     "javascript",

@@ -168,6 +168,13 @@ grunt.registerTask('build', [
   'bundle'
 ]);
 
+grunt.registerTask('build:dist', [
+  'clean',
+  'compile',
+  'run:lessc',
+  'run:bundle_artifacts'
+]);
+
 grunt.registerTask('serve', [
   'build',
   'run:server',
