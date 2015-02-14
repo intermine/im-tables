@@ -50,9 +50,8 @@ asElement = (e) ->
 
 # Exported top-level API
 
-# Set global options.
-# :: options -> void
-exports.configure = (options) -> Options.set options; null
+# Set global options (see src/options)
+exports.configure = Options.set.bind(Options)
 
 # :: (elem, page, query) -> Promise Table
 exports.loadTable = load Table.create
