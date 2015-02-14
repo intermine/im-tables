@@ -4,26 +4,10 @@ set -e
 
 mkdir -p dist
 
-echo "Building dashboard"
-browserify \
-    --entry build/views/dashboard.js \
-    --outfile dist/query-table-dash.js \
-    --standalone InterMineQueryDashboard
-
-echo "Built dashboard"
-
-echo "Building result table"
-browserify \
-    --entry build/views/table.js \
-    --outfile dist/query-table.js \
-    --standalone InterMineQueryTable
-
-echo "Built result table"
-
 echo "Building imtables"
 browserify \
     --entry build/main.js \
-    --outfile dist/index.js \
+    --outfile dist/imtables.js \
     --standalone imtables
 
 echo "Built imtables"

@@ -1,9 +1,9 @@
 {
-  "name": "intermine-tables",
+  "name": "imtables",
   "version": "2.0.0",
   "description": "ui widgets for displaying query results in interactive tables",
   "main": [
-    "dist/main.js",
+    "dist/imtables.js",
     "dist/main.css"
   ],
   "dependencies": {
@@ -16,6 +16,8 @@
     "test/",
     "build/",
     "src/",
+    "js/",
+    "less/",
     "components",
     "examples",
     "Makefile",
@@ -23,7 +25,7 @@
     "coverage.html",
     "doc/",
     "node_modules/",
-    "*.json",
+    "package.json",
     "tasks/",
     "grunt.js",
     "BUILD_ORDER",

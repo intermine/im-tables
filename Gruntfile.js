@@ -5,6 +5,7 @@ var grunt = require('grunt');
 grunt.loadNpmTasks('grunt-contrib-watch');
 grunt.loadNpmTasks('grunt-contrib-coffee');
 grunt.loadNpmTasks('grunt-contrib-copy');
+grunt.loadNpmTasks('grunt-contrib-uglify');
 grunt.loadNpmTasks('grunt-notify');
 grunt.loadNpmTasks('grunt-run');
 
@@ -21,7 +22,9 @@ grunt.initConfig({
       tasks: [
         'compile',
         'run:test',
-        'bundle'
+        'build:dist',
+        'build:test',
+        'notify:build'
       ],
       options: NO_SPAWN
     },
@@ -43,7 +46,8 @@ grunt.initConfig({
     indices: {
       files: ['test/indices/*', 'test/lib/*'],
       tasks: [
-        'bundle'
+        'build:test',
+        'notify:build'
       ],
       options: NO_SPAWN
     },
@@ -139,6 +143,13 @@ grunt.initConfig({
         message: 'Server is ready!'
       }
     }
+  },
+  uglify: {
+    dist: {
+      files: {
+        'dist/imtables.min.js': ['dist/imtables.js']
+      }
+    }
   }
 });
 
@@ -154,25 +165,23 @@ grunt.registerTask('test', ['compile', 'run:test']);
 // Copy src files to the build dir, and inline the templates.
 grunt.registerTask('-inline_templates', ['copy:js', 'run:inline_templates']);
 
-grunt.registerTask('bundle', [
-  'run:bundle_artifacts',
-  'run:compile_umd_consumers',
-  'run:bundle_test_indices',
-  'notify:build'
-]);
-
 grunt.registerTask('build', [
-  'clean',
-  'compile',
-  'run:lessc',
-  'bundle'
+  'build:dist',
+  'build:test',
+  'notify:build'
 ]);
 
 grunt.registerTask('build:dist', [
   'clean',
   'compile',
   'run:lessc',
-  'run:bundle_artifacts'
+  'run:bundle_artifacts',
+  'uglify:dist'
+]);
+
+grunt.registerTask('build:test', [
+  'run:compile_umd_consumers',
+  'run:bundle_test_indices',
 ]);
 
 grunt.registerTask('serve', [
