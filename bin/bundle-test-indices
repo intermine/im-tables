@@ -4,9 +4,6 @@ set -e
 
 mkdir -p test/bundles
 
-# Build the html to load.
-./bin/build-test-html active-constraint
-
 for loader in test/indices/*.coffee; do
     name=$(basename $loader | sed 's/\.[^\.]*$//')
     echo bundling $name
@@ -19,8 +16,7 @@ for loader in test/indices/*.coffee; do
     # Build the html to load.
     ./bin/build-test-html $name
 done
- 
+
 wait
 
 echo finished bundling
-grunt notify:build

@@ -25,6 +25,14 @@ grunt.initConfig({
       ],
       options: NO_SPAWN
     },
+    umd_consumers: {
+      files: ['test/scripts/**'],
+      tasks: [
+        'run:compile_umd_consumers',
+        'notify:build'
+      ],
+      options: NO_SPAWN
+    },
     test: {
       files: ['test/unit/**'],
       tasks: [
@@ -97,6 +105,12 @@ grunt.initConfig({
     bundle_test_indices: {
       cmd: './bin/bundle-test-indices'
     },
+    bundle_artifacts: {
+      cmd: './bin/bundle-artifacts'
+    },
+    compile_umd_consumers: {
+      cmd: './bin/compile-umd-consumers'
+    },
     clean: {
       cmd: './bin/clean'
     },
@@ -141,7 +155,10 @@ grunt.registerTask('test', ['compile', 'run:test']);
 grunt.registerTask('-inline_templates', ['copy:js', 'run:inline_templates']);
 
 grunt.registerTask('bundle', [
-  'run:bundle_test_indices'
+  'run:bundle_artifacts',
+  'run:compile_umd_consumers',
+  'run:bundle_test_indices',
+  'notify:build'
 ]);
 
 grunt.registerTask('build', [

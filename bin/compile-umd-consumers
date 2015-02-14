@@ -1,0 +1,11 @@
+#!/bin/bash
+
+set -e
+
+mkdir -p test/bundles
+
+echo "Compiling UMD consumers"
+coffee \
+    --compile \
+    --output test/bundles \
+    test/scripts/umd-consume-global.coffee

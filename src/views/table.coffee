@@ -6,12 +6,15 @@ Templates = require '../templates'
 Messages = require '../messages'
 Collection = require '../core/collection'
 CoreModel = require '../core-model'
+Types = require '../core/type-assertions'
 
 # Data models.
-TableModel     = require '../models/table'
-ColumnHeaders  = require '../models/column-headers'
-UniqItems      = require '../models/uniq-items'
-RowsCollection = require '../models/rows'
+TableModel      = require '../models/table'
+ColumnHeaders   = require '../models/column-headers'
+UniqItems       = require '../models/uniq-items'
+RowsCollection  = require '../models/rows'
+SelectedObjects = require '../models/selected-objects'
+History         = require '../models/history'
 
 CellModelFactory = require '../utils/cell-model-factory'
 TableResults = require '../utils/table-results'
@@ -31,6 +34,15 @@ UNKNOWN_ERROR =
 
 module.exports = class Table extends CoreView
 
+  # Convenience for creating tables from the outside.
+  @create: (query, model) ->
+    Types.assertMatch Types.Query, query
+    model ?= new TableModel
+    history = new History
+    selectedObjects = new SelectedObjects
+    history.setInitialState query
+    new Table {history, model, selectedObjects}
+
   # The data model for the table.
   Model: TableModel
 
@@ -40,6 +52,10 @@ module.exports = class Table extends CoreView
     'history',        # History of states, tells us the current query.
     'selectedObjects' # currently selected entities
   ]
+
+  parameterTypes:
+    history: (Types.InstanceOf History, 'History')
+    selectedObjects: (Types.InstanceOf SelectedObjects, 'SelectedObjects')
 
   optionalParameters: ['columnHeaders', 'blacklistedFormatters']
 

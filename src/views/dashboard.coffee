@@ -7,6 +7,8 @@ SelectedObjects = require '../models/selected-objects'
 Table      = require './table'
 QueryTools = require './query-tools'
 
+ERR = 'Bad arguments to Dashboard - {query} is required'
+
 module.exports = class Dashboard extends CoreView
 
   tagName: 'div'
@@ -16,7 +18,7 @@ module.exports = class Dashboard extends CoreView
   Model: TableModel
 
   initialize: ({query}) ->
-    throw new Error('query is required') unless query?
+    throw new Error(ERR) unless query?
     super
     @history = new History
     @history.setInitialState query
