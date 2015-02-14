@@ -9,3 +9,4 @@ js/imtables-bundled.*
 test/bundles
 fonts
 .tmp
+dist
