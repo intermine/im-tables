@@ -85,9 +85,13 @@ exports.registerFormatter = (formatter, model, type, paths = ['*']) ->
     enableFormatter model, type, paths
 
 # Disable a formatter.
-exports.disableFormatter = disableFormatter = (model, type, paths = ['*']) ->
+exports.disableFormatter = (model, type, paths = ['*']) ->
   for p in paths
     formatters.set [model, "#{ type }.#{ p }"], false
+
+# Get a list of the enabled formatters.
+exports.list = (model) ->
+  (key for key, value of formatters.get([model]) when value)
 
 # Enable a formatter.
 exports.enableFormatter = enableFormatter = (model, type, paths = ['*']) ->

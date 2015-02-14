@@ -9,6 +9,7 @@ Types = require './core/type-assertions'
 Dashboard = require './views/dashboard'
 Table = require './views/table'
 Options = require './options'
+Formatting = require './formatting'
 
 # (Query, Obj -> V) -> (Elementable, {start, size}, QueryDef) -> Promise V
 #   where Elementable = Element | String | Indexed<Element>
@@ -58,4 +59,10 @@ exports.loadTable = load Table.create
 
 # :: (elem, page, query) -> Promise Dashboard
 exports.loadDash = load (query, model) -> new Dashboard {query, model}
+
+# re-export the public formatting API:
+#   * registerFormatter
+#   * disableFormatter
+#   * enableFormatter
+exports.formatting = _.omit Formatting, 'getFormatter', 'shouldFormat', 'reset'
 
