@@ -23,7 +23,7 @@
     "InterMine",
     "Bio-Informatics"
   ],
-  "main": "index.js",
+  "main": "build/main.js",
   "browser": {
     "d3js": "./bower_components/d3/d3.min.js"
   },
