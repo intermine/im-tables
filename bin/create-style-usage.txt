@@ -1,0 +1,7 @@
+usage:
+
+    create-imtables-style my-vars.less
+
+        Create a new style configured by the variables in the
+        specified variables file.
+

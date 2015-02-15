@@ -14,6 +14,7 @@
     "compile": "grunt compile",
     "less": "grunt run:lessc",
     "build": "grunt build",
+    "create-style": "bin/create-style.js",
     "grunt": "grunt",
     "prepublish": "grunt build:dist"
   },
@@ -24,6 +25,9 @@
     "Bio-Informatics"
   ],
   "main": "build/main.js",
+  "bin": {
+    "create-imtables-style": "bin/create-style.js"
+  },
   "browserify": {
     "transform": [
       "browserify-shim"
@@ -76,7 +80,6 @@
     "grunt-contrib-watch": "^0.6.1",
     "grunt-notify": "^0.4.1",
     "grunt-run": "^0.3.0",
-    "less": "^2.1.1",
     "mocha": "^2.0.1",
     "prefix-css-node": "~0.4.0",
     "selenium-webdriver": "^2.44.0",
@@ -95,6 +98,7 @@
     "imjs": "^3.12.0",
     "jquery": "^2.1.1",
     "jquery-ui": "^1.10.5",
+    "less": "^2.1.1",
     "pluralize": "^1.1.0",
     "stringify": "^3.0.0",
     "typeahead.js": "^0.10.5",
