@@ -349,12 +349,15 @@ module.exports = class Cell extends CoreView
   postRender: ->
     @setAttrClass()
     @setActiveClass()
+    @setMinimisedClass()
     @setDisabledCellClass()
     @initPreview()
 
   setAttrClass: ->
     attrType = @model.get('column').getType()
     @$el.addClass 'im-type-' + attrType.toLowerCase()
+
+  setMinimisedClass: -> @$el.toggleClass 'im-minimised', @state.get('minimised')
 
   # Code associated with the preview.
 

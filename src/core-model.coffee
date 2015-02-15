@@ -34,8 +34,8 @@ module.exports = class CoreModel extends Backbone.Model
   _validate: (attrs, opts) ->
     for p in @_frozen when (p of attrs) and (attrs[p] isnt @get p)
       msg = "#{ p } is frozen (trying to set it to #{ attrs[p] } - is #{ @get p })"
-      if opts.merge
-        console.log 'Ignoring merge: ' + msg
+      if opts.merge # Expected when calling set. Rethink this if this causes bugs.
+        # console.debug 'ignoring merge'
         attrs[p] = @get p # otherwise it will be overwritten.
       else
         throw new Error msg

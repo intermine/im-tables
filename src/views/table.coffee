@@ -194,7 +194,6 @@ module.exports = class Table extends CoreView
       cells: (createModel c for c in row)
 
     @rows.set models
-    console.log "Loaded #{ models.length } rows, now we have #{ @rows.size() }"
 
   overlayTable: ->
     return unless @children.inner?.rendered

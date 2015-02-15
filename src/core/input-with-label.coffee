@@ -80,6 +80,5 @@ module.exports = class InputWithLabel extends CoreView
     modelValue = @model.get @attr
     # We check that this is necessary to avoid futzing about with the cursor.
     if modelValue isnt domValue
-      console.log 'setting DOM value'
       $input.val modelValue
 

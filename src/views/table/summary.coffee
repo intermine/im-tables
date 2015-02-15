@@ -13,7 +13,6 @@ module.exports = class TableSummary extends CoreView
 
   getData: ->
     {start, size, count} = data = super
-    console.log data
     _.extend data, page:
       count: count
       first: start + 1

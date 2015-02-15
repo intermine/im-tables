@@ -140,7 +140,6 @@ module.exports = class ColumnHeader extends CoreView
     ddRect = e.target.getBoundingClientRect()
     if ddRect.left < 0
       right = "#{ ddRect.left }px"
-      console.log 'setting right', right
       e.target.style.right = right
 
   addFormatterToBlacklist: ->

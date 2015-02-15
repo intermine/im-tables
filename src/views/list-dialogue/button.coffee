@@ -39,7 +39,6 @@ class SelectableNode extends CoreView
 
   initialize: ->
     super
-    console.log 'summarising', @model.get 'path'
     @query.summarise @model.get 'id'
           .then ({stats}) => @state.set count: stats.uniqueValues
 

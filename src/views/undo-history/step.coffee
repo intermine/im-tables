@@ -68,7 +68,7 @@ module.exports = class UndoStep extends CoreView
         when 'column' then @diffView()
         when 'sort order element' then @diffSortOrder()
         when 'filter' then @diffConstraints()
-        else console.log 'Cannot diff', title.label
+        else console.error 'Cannot diff', title.label
 
   initPrevCount: -> if prev = @getPrevModel()
     @state.set prevCount: prev.get 'count'
@@ -137,7 +137,7 @@ module.exports = class UndoStep extends CoreView
         when 'column' then @renderViews()
         when 'filter' then @renderConstraints()
         when 'sort order element' then @renderSortOrder()
-        else console.log 'Cannot render', title.label
+        else console.error 'Cannot render', title.label
 
   renderAllSections: ->
     @renderViews()

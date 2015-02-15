@@ -39,7 +39,6 @@ module.exports = class SortOrderEditor extends CoreView
                .join ' '
 
   postRender: ->
-    console.log @currentSortOrder()
     # First we render the sort-order.
     @resortSortOrder()
     # Then we activate the drag/drop/sort-ables - this must be done
@@ -99,7 +98,6 @@ module.exports = class SortOrderEditor extends CoreView
   addSortElement: (e, ui) ->
     $el = ui.draggable
     available = @findAvailable $el[0]
-    console.log 'lets add', available
     @addToSortOrder available
 
   addToSortOrder: (availableColumnModel, atIndex) ->

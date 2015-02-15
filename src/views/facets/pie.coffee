@@ -68,18 +68,12 @@ module.exports = class PieChart extends VisualisationBase
     @listenTo @model.items, 'change:selected change:visible', @update
     @listenTo Options, 'change:PieColors', @onChangePalette
     @onChangePalette()
-    console.log 'pie chart initialised'
 
   onChangePalette: ->
     @colour = getChartPalette()
     @update()
 
-  addChart: ->
-    console.log 'adding chart'
-    super
-
   _drawD3Chart: ->
-    console.log 'drawing chart'
     h = @chartHeight
     w = @$el.closest(':visible').width()
     outerRadius = h * 0.4
