@@ -16,20 +16,22 @@ Messages.setWithPrefix 'table.lg',
 Messages.setWithPrefix 'table.md',
   ShowingAll: 'All <%= formatNumber(count) %> rows'
   ShowingRange: """
-    <%= formatNumber(first) %> to <%= formatNumber(last) %>
+    Showing rows <%= formatNumber(first) %> to <%= formatNumber(last) %>
     of <%= formatNumber(count) %>
   """
 
 Messages.setWithPrefix 'table.sm',
   ShowingAll: 'All rows'
   ShowingRange: """
-    <%= formatNumber(first) %> to <%= formatNumber(last) %>
+    Rows <%= formatNumber(first) %> to <%= formatNumber(last) %>
+    of <%= formatNumber(count) %>
   """
 
 Messages.setWithPrefix 'table.xs',
   ShowingAll: 'All rows'
   ShowingRange: """
     <%= formatNumber(first) %> to <%= formatNumber(last) %>
+    of <%= formatNumber(count) %>
   """
 
 Messages.setWithPrefix 'table.header',

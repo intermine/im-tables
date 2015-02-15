@@ -68,6 +68,7 @@ module.exports = class UndoStep extends CoreView
         when 'column' then @diffView()
         when 'sort order element' then @diffSortOrder()
         when 'filter' then @diffConstraints()
+        when 'Initial' then null # Ignore.
         else console.error 'Cannot diff', title.label
 
   initPrevCount: -> if prev = @getPrevModel()
@@ -137,6 +138,7 @@ module.exports = class UndoStep extends CoreView
         when 'column' then @renderViews()
         when 'filter' then @renderConstraints()
         when 'sort order element' then @renderSortOrder()
+        when 'Initial' then null # ignore
         else console.error 'Cannot render', title.label
 
   renderAllSections: ->
@@ -163,27 +165,26 @@ class SortOrderView extends QueryProperty
   summaryLabel: 'undo.OrderElemCount'
   labelContent: (oe) -> "#{ oe.displayName } #{ oe.direction }"
 
+valuesLength = (con) -> M.getText('constraints.NoOfValues', n: con.values.length)
+
+idsLength = (con) -> M.getText('constraints.NoOfIds', n: con.ids.length)
+
 class ConstraintsView extends QueryProperty
 
   summaryLabel: 'undo.ConstraintCount'
 
-  valuesLength: (con) -> M.getText('constraints.NoOfValues', n: con.values.length)
-
-  idsLength: (con) -> M.getText('constraints.NoOfIds', n: con.ids.length)
-
   labelContent: (con) ->
     parts = switch con.CONSTRAINT_TYPE
       when 'MULTI_VALUE'
-        [con.displayName, con.op, con.values.length, @valuesLength con]
+        [con.displayName, con.op, con.values.length, (valuesLength con)]
       when 'TYPE'
         [con.displayName, M.getText('constraints.ISA'), con.typeName]
       when 'IDS'
-        [con.displayName, con.op, @idsLength con]
+        [con.displayName, con.op, (idsLength con)]
       when 'LOOKUP'
         [con.displayName, con.op, con.value, M.getText('constraints.LookupIn'), con.extraValue]
       else # ATTR_VALUE, LIST, LOOP
         [con.displayName, con.op, con.value]
 
     parts.join ' '
-    
 

@@ -120,10 +120,16 @@ module.exports = class Table extends CoreView
     'change:freshness': @resetPhase
     'change:phase': @onChangePhase
     'change:error': @onChangeError
+    'change:count': @onChangeCount
 
   onChangePhase: ->
     @removeOverlay()
     @reRender()
+
+  onChangeCount: ->
+    {start, size, count} = @model.pick 'start', 'count', 'size'
+    if start >= count # This can happen if we change constraints and the result set shrinks.
+      @model.set start: (Math.max 0, count - size)
 
   resetPhase: -> @model.set phase: 'FETCHING'
 
