@@ -1,27 +1,33 @@
-.pagination {
-    .form-inline {
-        display: inline-block;
-        float: left;
+.im-table-pagination {
+    .pagination {
+        .form-inline {
+            display: inline-block;
+            float: left;
 
-        .form-control {
-            border-left: none;
-            .border-top-radius(0px);
-            .border-bottom-radius(0px);
+            .form-control {
+                border-left: none;
+                .border-top-radius(0px);
+                .border-bottom-radius(0px);
+            }
+            select {
+                -webkit-appearance: none;
+                -moz-appearance: none;
+            }
         }
-        select {
-            -webkit-appearance: none;
-            -moz-appearance: none;
-        }
-    }
 
-    li.disabled > a {
-        background: @gray-lighter;
-        &:hover {
+        li.disabled > a {
             background: @gray-lighter;
+            &:hover {
+                background: @gray-lighter;
+            }
         }
-    }
 
-    > li > a {
-        cursor: pointer;
+        > li > a {
+            cursor: pointer;
+            &:hover {
+                background: @brand-primary;
+                color: @brand-primary-contrast;
+            }
+        }
     }
 }

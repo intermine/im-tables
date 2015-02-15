@@ -7,6 +7,12 @@
         }
         .im-query-management {
             width: 42%;
+            @media (max-width: @screen-sm-min) {
+                width: 30%;
+            }
+            @media (max-width: @screen-xxs-max) {
+                width: 35%;
+            }
 
             & > div {
                 margin-right: 0.5em;
@@ -18,13 +24,25 @@
 
         .im-history {
             width: 10%;
+            @media (max-width: @screen-sm-min) {
+                width: 15%;
+            }
+            @media (max-width: @screen-xxs-max) {
+                width: 20%;
+            }
             & > div {
                 float: left;
             }
         }
 
         .im-query-consumers {
-            width: 45%;
+            width: 48%;
+            @media (max-width: @screen-sm-min) {
+                width: 55%;
+            }
+            @media (max-width: @screen-xxs-max) {
+                width: 45%;
+            }
             & > div {
                 margin-left: 0.5em;
                 margin-bottom: 0.2em;

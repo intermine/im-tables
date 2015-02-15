@@ -1,6 +1,9 @@
 <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-    <%- Messages.getText('lists.CreateListOrAppendToList') %>
-    <span class="caret"></span>
+  <%= Icons.icon('Lists') %>
+  <span class="hidden-xxs">
+    <%- Messages.getText('lists.SaveAsList') %>
+  </span>
+  <span class="caret"></span>
 </button>
 
 <ul class="dropdown-menu dropdown-menu-right" role="menu">

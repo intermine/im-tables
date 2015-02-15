@@ -1,8 +1,8 @@
 <ul class="pagination">
-    <li class="<%= gotoStart || 'im-goto-start' %>" title="Go to start">
+    <li class="hidden-xs <%= gotoStart || 'im-goto-start' %>" title="Go to start">
         <a class="im-pagination-button">&#x21e4;</a>
     </li>
-    <li class="<%= goFiveBack || 'im-go-back-5' %>"
+    <li class="hidden-xs hidden-sm <%= goFiveBack || 'im-go-back-5' %>"
         title="Go back five pages"
         class="visible-desktop">
         <a class="im-pagination-button">&#x219e;</a>
@@ -42,12 +42,12 @@
         title="Go to next page">
         <a class="im-pagination-button">&rarr;</a>
     </li>
-    <li class="<%= goFiveForward || 'im-go-fwd-5' %>"
+    <li class="hidden-xs hidden-sm <%= goFiveForward || 'im-go-fwd-5' %>"
         title="Go forward five pages"
         class="visible-desktop">
         <a class="im-pagination-button">&#x21a0;</a>
     </li>
-    <li class="<%= gotoEnd || 'im-goto-end' %>"
+    <li class="hidden-xs <%= gotoEnd || 'im-goto-end' %>"
         title="Go to last page">
         <a class="im-pagination-button">&#x21e5;</a>
     </li>

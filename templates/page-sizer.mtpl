@@ -1,10 +1,12 @@
-<label>
-    <span class="hidden-tablet">Rows per page:</span>
-</label>
-<select class="form-control" title="Rows per page">
-    <% sizes.forEach(function (s) { %>
-        <option value="<%= s[0] %>" <%= (s[0] === size) && 'selected' %>>
-        <%= s[1] || s[0] %>
-        </option>
-    <% }); %>
-</select>
+<% if (sizes.length) { %>
+    <label>
+        <span class="hidden-tablet">Rows per page:</span>
+    </label>
+    <select class="form-control" title="Rows per page">
+        <% sizes.forEach(function (s) { %>
+            <option value="<%= s[0] %>" <%= (s[0] === size) && 'selected' %>>
+            <%= s[1] || s[0] %>
+            </option>
+        <% }); %>
+    </select>
+<% } %>
