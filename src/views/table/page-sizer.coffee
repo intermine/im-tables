@@ -31,11 +31,14 @@ module.exports = class PageSizer extends CoreView
     size = @model.get 'size'
     if size? and not _.include (s for [s] in @sizes), size
       @sizes = [[size, size]].concat @sizes # assign, don't mutate
-    @listenTo @model, 'change:size', (m, v) => @$('select').val v
 
   events: ->
     'submit': Events.suppress
     'change select': 'changePageSize'
+
+  modelEvents: ->
+    'change:size': (m, v) -> @$('select').val v
+    'change:count': @reRender
 
   # TODO - make sure NewFilterDialogue supports the {@query} constructor and the show method
   # TODO - make sure ExportDialogue supports the {@query} constructor and the show method
