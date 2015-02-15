@@ -176,7 +176,7 @@ ICONS.fontawesome =
   RubbishFull: 'fa-trash'
   Joins: 'fa-share-alt'
   ExternalLink: 'fa-globe'
-  Lists: 'fa-cloud'
+  Lists: 'fa-cloud-upload'
   tsv: 'fa-file-excel-o'
   csv: 'fa-file-excel-o'
   xml: 'fa-code'
