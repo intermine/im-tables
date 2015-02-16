@@ -26,9 +26,9 @@ class Icons extends Model
   iconClasses: (key) -> "#{ @get 'Base' } #{ @get key }"
 
   _loadIconSet: ->
-    iconSet = ICONS[@options.get 'icons']
-    @clear()
-    @set iconSet if iconSet?
+    if iconSet = ICONS[@options.get 'icons']
+      @clear silent: true
+      @set iconSet if iconSet?
 
   initialize: (@options = Options) ->
     @_loadIconSet()

@@ -97,6 +97,10 @@ module.exports = class CoreView extends Backbone.View
     listenToModel.call @
     listenToState.call @
     listenToCollection.call @
+    @listenTo Icons, @ICONS, -> @reRender() if @template
+    @listenTo @model, 'destroy', -> @remove()
+
+  ICONS: 'change' # Specialise what icons to listen to here.
 
   # Restricted arity version of @stopListening - just takes an object, no event names
   # or whatnot. The purpose of this is to be used in event listeners listening for removal
@@ -141,7 +145,7 @@ module.exports = class CoreView extends Backbone.View
 
   # Like render, but only happens if already rendered at least once.
   reRender: ->
-    @render() if @rendered
+    @render() if (@rendered and not @removed)
     this
 
   # Default post-render hook. Override to hook into render-cycle
@@ -161,6 +165,7 @@ module.exports = class CoreView extends Backbone.View
   # to override this method - instead customise getData, template
   # and/or preRender and postRender
   render: ->
+    return if @removed
     requiredProps = _.result @, 'renderRequires'
     if (requiredProps?.length) and (not hasAll @model, requiredProps)
       evt = onChange requiredProps
@@ -221,8 +226,11 @@ module.exports = class CoreView extends Backbone.View
       for child in _.keys(@children)
         @removeChild child
 
-  remove: ->
+  removed: false
+
+  remove: -> unless @removed # re-entrant
     @stopListening()
+    @removed = true
     @$el.parent().trigger 'childremoved', @ # Tell parents we are leaving.
     @trigger 'remove', @
     @model.destroy() if @hasOwnModel # Destroy the model if we created it.
