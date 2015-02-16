@@ -22,8 +22,16 @@
 @import "./table.less";
 @import "./query-tools.less";
 
+/* Two hidden helpers - they differ in usage:
+ * hidden hides things you don't want to show.
+ * latent hides things until you want to show them.
+ */
 .im-hidden {
     display: none !important;
+}
+
+.im-latent {
+    display: none;
 }
 
 /* extra layer of selection */
