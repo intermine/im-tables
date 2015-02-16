@@ -150,8 +150,11 @@ module.exports = class ColumnHeader extends CoreView
 
   setTitlePopover: ->
     # title is html - cannot be implemented in the main template.
-    title = @namePopoverTemplate @getData()
-    @$('.im-col-title').popover {title, placement: 'bottom', html: true}
+    @$('.im-col-title').popover
+      content: => @namePopoverTemplate @getData()
+      container: @el
+      placement: 'bottom'
+      html: true
 
   summaryToggled: (e, isOpen) ->
     ignore e
