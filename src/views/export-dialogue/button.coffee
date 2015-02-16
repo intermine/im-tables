@@ -15,4 +15,10 @@ module.exports = class ExportDialogueButton extends QueryDialogueButton
   shortLabel: 'export.Export'
   icon: 'Download'
 
+  optionalParameters: ['tableState']
+
+  dialogueOptions: ->
+    page = @tableState?.pick('start', 'size')
+    {@query, model: {tablePage: page}}
+
   Dialogue: ExportDialogue
