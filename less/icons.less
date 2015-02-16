@@ -1,8 +1,25 @@
 // Extra icon additions.
+.json() {
+    &:before {
+        content: '{ }';
+    }
+}
+
+.glyphicon {
+    &.glyphicon-json {
+        font-weight: bold;
+        .json();
+    }
+    &.glyphicon-xml {
+        &:before {
+            font-weight: bold;
+            content: '</>';
+        }
+    }
+}
+
 .fa {
     &.fa-json {
-        &:before {
-            content: '{ }';
-        }
+        .json();
     }
 }

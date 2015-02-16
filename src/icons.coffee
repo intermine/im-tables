@@ -27,6 +27,7 @@ class Icons extends Model
 
   _loadIconSet: ->
     iconSet = ICONS[@options.get 'icons']
+    @clear()
     @set iconSet if iconSet?
 
   initialize: (@options = Options) ->
@@ -50,25 +51,25 @@ ICONS.glyphicons =
   Yes: "glyphicon-star"
   No: "glyphicon-star-empty"
   Table: 'glyphicon-list'
-  Script: "glyphicon-cog"
-  Export: "glyphicon-download-alt"
+  Script: "glyphicon-console"
+  Export: "glyphicon-cloud-download"
   Error: "glyphicon-warning-sign"
   Info: 'glyphicon-info-sign'
   Warning: "glyphicon-warning-sign"
   Remove: "glyphicon-minus-sign"
   OK: "glyphicon-ok"
   Cancel: "glyphicon-remove"
-  Check: "glyphicon-ok"
-  UnCheck: "glyphicon-none"
+  Check: "glyphicon-check"
+  UnCheck: "glyphicon-unchecked"
   CheckUnCheck: "glyphicon-ok-none"
   Add: "glyphicon-plus-sign"
   Move: "glyphicon-move"
   More: "glyphicon-plus-sign"
   Filter: "glyphicon-filter"
-  Summary: "glyphicon-eye-open"
+  Summary: "glyphicon-stats"
   Undo: "glyphicon-refresh"
   Refresh: "glyphicon-refresh"
-  Columns: "glyphicon-columns"
+  Columns: "glyphicon-pause"
   Collapsed: "glyphicon-chevron-right"
   Expanded: "glyphicon-chevron-down"
   CollapsedSection: 'glyphicon-triangle-right'
@@ -77,21 +78,25 @@ ICONS.glyphicons =
   GoBack: "glyphicon-chevron-left"
   GoForward: "glyphicon-chevron-right"
   MoveUp: "glyphicon-chevron-up"
-  Toggle: "glyphicon-retweet"
+  Toggle: "glyphicon-random"
   ExpandCollapse: "glyphicon-chevron-right icon-chevron-down"
   Help: "glyphicon-question-sign"
   ReverseRef: "glyphicon-retweet"
-  Reorder: "glyphicon-reorder"
+  Reorder: "glyphicon-menu-hamburger"
   Edit: 'glyphicon-edit'
   ExtraValue: 'glyphicon-map-marker'
   Tree: 'glyphicon-plus'
-  Download: 'glyphicon-file'
+  Download: 'glyphicon-save-file'
+  download: 'glyphicon-cloud-download'
   Options: 'glyphicon-tasks'
-  ClipBoard: 'glyphicon-paper-clip'
+  ClipBoard: 'glyphicon-paperclip'
   Composed: 'glyphicon-tags'
   RemoveConstraint: 'glyphicon-remove-sign'
   Dismiss: 'glyphicon-remove-sign'
+  ClosedReference: 'glyphicon-expand'
+  OpenReference: 'glyphicon-collapse-down'
   Lock: 'glyphicon-lock'
+  Lists: 'glyphicon-list-alt'
   Attribute: "glyphicon-unchecked"
   ExternalLink: 'glyphicon-globe'
   tsv: 'glyphicon-list'
@@ -99,8 +104,9 @@ ICONS.glyphicons =
   xml: 'glyphicon-xml'
   json: 'glyphicon-json'
   fake: 'glyphicon-bug'
-  Rubbish: 'glyphicon glyphicon-trash'
-  RubbishFull: 'glyphicon glyphicon-trash'
+  Rubbish: 'glyphicon-trash'
+  RubbishFull: 'glyphicon-trash'
+  Joins: 'glyphicon-link'
 
 ICONS.fontawesome =
   Base: 'fa'
@@ -120,7 +126,7 @@ ICONS.fontawesome =
   No: "fa-star-o"
   Table: 'fa-list'
   EmptyTable: 'fa-table'
-  Script: "fa-cog"
+  Script: "fa-file-code-o"
   Export: "fa-cloud-download"
   Remove: "fa-minus-circle"
   OK: "fa-check"
@@ -129,8 +135,8 @@ ICONS.fontawesome =
   UnCheck: "fa-toggle-off"
   CheckUnCheck: "fa-toggle-on fa-toggle-off"
   Add: "fa-plus"
-  Move: "fa-move"
-  More: "fa-plus-sign"
+  Move: "fa-arrows"
+  More: "fa-plus"
   Dropbox: 'fa-dropbox'
   Drive: 'fa-google'
   download: 'fa-cloud-download'
@@ -159,7 +165,7 @@ ICONS.fontawesome =
   Edit: 'fa-edit'
   ExtraValue: 'fa-database'
   Download: 'fa-file-archive-o'
-  ClipBoard: 'fa-paper-clip'
+  ClipBoard: 'fa-paperclip'
   Composed: 'fa-tags'
   RemoveConstraint: 'fa-times-circle'
   Dismiss: 'fa-times-circle'
@@ -187,3 +193,7 @@ module.exports = new Icons
 module.exports.Icons = Icons # Export constructor on default instance.
 module.exports.registerIconSet = registerIconSet
 
+# Get all registered icon names.
+module.exports.names = ->
+  listsOfNames = (_.keys(s) for n, s of ICONS)
+  _.union.apply null, listsOfNames

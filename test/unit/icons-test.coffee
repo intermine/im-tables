@@ -25,7 +25,7 @@ describe 'Different icon set', ->
 
   it 'should be able to create the HTML for an icon', ->
 
-    icons.icon('Check').should.eql '<i class="glyphicon glyphicon-ok" ></i>'
+    icons.icon('Check').should.eql '<i class="glyphicon glyphicon-check" ></i>'
 
 describe 'Custom icon set', ->
 

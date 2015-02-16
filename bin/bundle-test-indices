@@ -9,6 +9,7 @@ for loader in test/indices/*.coffee; do
     echo bundling $name
     browserify \
         --transform coffeeify \
+        --transform brfs \
         --extension ".coffee" \
         --outfile test/bundles/${name}-loader.js \
         --entry $loader &
