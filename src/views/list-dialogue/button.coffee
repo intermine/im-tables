@@ -23,7 +23,7 @@ class Paths extends Collection
 
 class SelectableNode extends CoreView
 
-  parameters: ['query', 'model', 'showDialogue']
+  parameters: ['query', 'model', 'showDialogue', 'highLight']
 
   tagName: 'li'
 
@@ -35,7 +35,10 @@ class SelectableNode extends CoreView
 
   template: Templates.template 'list-dialogue-button-node'
 
-  events: -> click: 'openDialogue'
+  events: ->
+    click: @openDialogue
+    'mouseenter a': -> _.defer => @highLight @model.get('path')
+    'mouseout a': -> @highLight null
 
   initialize: ->
     super
@@ -85,9 +88,10 @@ module.exports = class ListDialogueButton extends CoreView
   postRender: ->
     @setVisible()
     menu = @$ '.dropdown-menu'
+    highLight = (p) => @tableState.set highlitNode: p
+    showDialogue = (args) => @showPathDialogue args
     @paths.each (model, i) =>
-      showDialogue = (args) => @showPathDialogue args
-      node = new SelectableNode {@query, model, showDialogue}
+      node = new SelectableNode {@query, model, showDialogue, highLight}
       @renderChild "path-#{ i }", node, menu, 'prepend'
 
   setVisible: -> @$el.toggleClass 'im-hidden', (not @state.get 'authenticated')
