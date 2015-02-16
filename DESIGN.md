@@ -217,14 +217,14 @@ could look something like this:
 var SimpleView = CoreView.extend({
 
     // a model that has .favourite :: bool and .likes :: int attributes
-    Model: SimpleViewModel,
+    Model: SimpleViewModel, // see CoreModel below info on swap and toggle
 
     template: Templates.template('simple-view'),
 
     // DOM -> State bindings
     events: function () {
         'change .favourite': function (e) { this.model.toggle('favourite'); },
-        'click .like': function (e) { model.swap('likes', increment); }
+        'click .like': function (e) { this.model.swap('likes', increment); }
     },
 
     // State -> DOM bindings
@@ -232,6 +232,9 @@ var SimpleView = CoreView.extend({
         'change:favourite change:likes': this.reRender
     }
 });
+
+// Helper that increments a value.
+function increment (n) { return n + 1; }
 ```
 
 ### Child Management
