@@ -1,18 +1,13 @@
 # Makefile for intermine-tables
 #
-# Version 1.0
+# Version 2.0
 # Alex Kalderimis
-# Fri Feb 15 13:21:32 GMT 2013
+# Mon Feb 16 15:06:08 GMT 2015
 
-export PATH := $(PATH):$(shell find node_modules -name 'bin' -printf %p:)node_modules/.bin
+dist: $(shell find src -type f) $(shell find templates -type f)
+	npm run grunt -- build:dist
 
-deps:
-	npm install
+run-tests:
+	npm test
 
-deploy: deps
-	chernobyl deploy labs.intermine.org .
-
-test:
-	@echo No Tests!
-
-.PHONY: test
+.PHONY: run-tests
