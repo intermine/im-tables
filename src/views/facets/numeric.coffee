@@ -173,14 +173,26 @@ module.exports = class NumericDistribution extends VisualisationBase
   drawAxes: (chart, scales) ->
     chart ?= @getCanvas()
     scales ?= @getScales()
+    bottom = @chartHeight - @bottomMargin - .5
+    container = @el
+
+    # Draw a line for the average, if we are meant to.
+    if Options.get('Facets.DrawAverageLine')
+      chart.append('line')
+          .classed 'average', true
+          .attr 'x1', scales.valToX(@model.get 'average')
+          .attr 'x2', scales.valToX(@model.get 'average')
+          .attr 'y1', 0
+          .attr 'y2', bottom
+          .each -> $(@).tooltip {container, title: Messages.getText('summary.Average')}
 
     # Draw a line across the bottom of the chart.
     chart.append('line')
+         .classed 'axis', true
          .attr 'x1', 0
          .attr 'x2', @chartWidth
-         .attr 'y1', @chartHeight - @bottomMargin - .5
-         .attr 'y2', @chartHeight - @bottomMargin - .5
-         .style 'stroke', '#000'
+         .attr 'y1', bottom
+         .attr 'y2', bottom
 
     axis = chart.append('svg:g')
 
@@ -190,12 +202,11 @@ module.exports = class NumericDistribution extends VisualisationBase
     axis.selectAll('line').data(ticks)
         .enter()
           .append('svg:line')
-          .attr('x1', scales.x)
-          .attr('x2', scales.x)
-          .attr('y1', @chartHeight - (@bottomMargin * 0.75))
-          .attr('y2', @chartHeight - @bottomMargin)
-          .attr('stroke', 'gray')
-          .attr('text-anchor', 'start')
+          .classed 'tick-line', true
+          .attr 'x1', scales.x
+          .attr 'x2', scales.x
+          .attr 'y1', @chartHeight - (@bottomMargin * 0.75)
+          .attr 'y2', @chartHeight - @bottomMargin
 
   # Events, with their definitions and handlers.
   # Also, each bar has a handler (see ::enter) and the range itself

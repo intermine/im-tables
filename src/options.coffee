@@ -35,6 +35,7 @@ class Options extends NestedModel
       Initially:
         expanded: false # Set to true to show all subtables by default.
     Facets:
+      DrawAverageLine: true
       Initially:
         Open: true # set to false to show them closed, initially.
     Destinations: ['download', 'Galaxy', 'GenomeSpace', 'Drive', 'Dropbox']
