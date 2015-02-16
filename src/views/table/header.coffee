@@ -117,7 +117,7 @@ module.exports = class ColumnHeader extends CoreView
     'click .im-col-sort': 'setSortOrder'
     'click .im-col-minumaximiser': 'toggleColumnVisibility'
     'click .im-col-filters': 'showFilterSummary'
-    'click .im-subtable-expander': 'toggleSubTable'
+    'click .im-subtable-expander': @toggleSubTable
     'click .im-col-remover': 'removeColumn'
     'hidden.bs.dropdown': -> @removeChild 'summary'
     'shown.bs.dropdown': 'onDropdownShown'
@@ -236,10 +236,7 @@ module.exports = class ColumnHeader extends CoreView
       sortQueryByPath @query, @model.getView()
       @$('.im-col-sort').removeClass 'open'
 
-  toggleSubTable: (e) =>
+  toggleSubTable: (e) ->
     ignore e
-    isExpanded = @model.get 'expanded'
-    cmd = if isExpanded then 'collapse' else 'expand'
-    @query.trigger cmd + ':subtables', @path()
-    @model.toggle 'expanded'
+    @expandedSubtables.toggle @model.pathInfo()
 
