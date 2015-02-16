@@ -230,7 +230,8 @@ module.exports = class ColumnHeader extends CoreView
     @model.toggle 'minimised'
 
   setSortOrder: (e) ->
-    if @model.get('replaces').length # we need to let the user choose from amongst them.
+    ignore e
+    if @model.get('replaces').length # we need to let the user choose
       @showSummary '.im-col-sort', FormattedSorting, e
     else
       sortQueryByPath @query, @model.getView()
