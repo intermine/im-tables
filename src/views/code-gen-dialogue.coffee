@@ -35,6 +35,9 @@ withFileSaver = _.partial withResource, 'filesaver', 'saveAs'
 
 alreadyRejected = Promise.reject 'Requirements not met'
 
+stripEmptyValues = (q) ->
+  _.object( [k, v] for k, v of q when v and v.length isnt 0 )
+
 canSaveFromMemory = ->
   if not 'Blob' in global
     alreadyRejected
@@ -46,8 +49,16 @@ module.exports = class CodeGenDialogue extends Modal
   # Connect this view with its model.
   Model: CodeGenModel
 
+  parameters: ['query']
+
+  optionalParameters: ['page']
+
+  page:
+    start: 0
+    size: (Options.get 'DefaultPageSize')
+
   # We need a query, and we need to start generating our code.
-  initialize: ({@query}) ->
+  initialize: ->
     super
     @generateCode()
     @setExportLink()
@@ -89,7 +100,7 @@ module.exports = class CodeGenDialogue extends Modal
     return if @model.get 'showBoilerPlate'
     switch @model.get 'lang'
       when 'pl', 'py', 'rb' then OCTOTHORPE_COMMENTS
-      when 'java' then C_STYLE_COMMENTS
+      when 'java', 'js' then C_STYLE_COMMENTS
       else null
 
   act: -> # only called for XML data, and only in supported browsers.
@@ -100,7 +111,7 @@ module.exports = class CodeGenDialogue extends Modal
     lang = @model.get 'lang'
     @$('.im-current-lang').text Messages.getText 'codegen.Lang', {lang}
     @$('.modal-title').text @title()
-    if lang is 'xml'
+    if lang in ['js', 'xml']
       canSaveFromMemory().then => @state.unset 'error'
                          .then null, => @state.set error: CANNOT_SAVE
     else
@@ -111,8 +122,21 @@ module.exports = class CodeGenDialogue extends Modal
   generateCode: ->
     lang = @model.get 'lang'
     switch lang
-      when 'xml' then @state.set generatedCode: indentXml @query.toXML()
+      when 'xml' then @state.set generatedCode: @generateXML()
+      when 'js'  then @state.set generatedCode: @generateJS()
       else @query.fetchCode(lang).then (code) => @state.set generatedCode: code
+
+  generateXML: ->
+    indentXml @query.toXML()
+
+  generateJS: ->
+    t = Templates.template 'code-gen-js'
+    query = stripEmptyValues @query.toJSON()
+    data =
+      service: @query.service
+      query: query
+      page: @page
+    t data
 
   setExportLink: ->
     lang = @model.get 'lang'

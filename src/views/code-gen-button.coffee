@@ -17,7 +17,7 @@ require '../messages/code-gen'
 
 module.exports = class CodeGenButton extends CoreView
 
-  parameters: ['query']
+  parameters: ['query', 'tableState']
 
   # Connect this view with its model.
   Model: CodeGenModel
@@ -44,7 +44,8 @@ module.exports = class CodeGenButton extends CoreView
     @$('.im-current-lang').text Messages.getText 'codegen.Lang', {lang}
 
   showDialogue: ->
-    dialogue = new Dialogue {@query, @model}
+    page = @tableState.pick 'start', 'size'
+    dialogue = new Dialogue {@query, @model, page}
     @renderChild 'dialogue', dialogue
     # Returns a promise, but in this case we don't care about it.
     dialogue.show()
