@@ -5,6 +5,7 @@ Options = require 'imtables/options'
 # Code under test:
 Dashboard  = require 'imtables/views/dashboard'
 Formatting = require 'imtables/formatting'
+Toggles = require '../lib/toggles'
 
 # Test helpers.
 renderQueries = require '../lib/render-queries.coffee'
@@ -33,4 +34,16 @@ QUERY =
 
 renderQuery = renderWithCounter create
 
-$ -> renderQueries [QUERY], renderQuery
+optionsΤοggles = new Toggles
+  model: Options
+  toggles: [
+    {
+      attr: 'icons',
+      type: 'enum',
+      opts: ['fontawesome', 'glyphicons']
+    }
+  ]
+
+$ ->
+  document.body.appendChild optionsΤοggles.render().el
+  renderQueries [QUERY], renderQuery
