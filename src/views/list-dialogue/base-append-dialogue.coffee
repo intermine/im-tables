@@ -75,6 +75,7 @@ module.exports = class BaseAppendDialogue extends BaseCreateListDialogue
   initialize: ->
     super
     @listenTo @getPossibleLists(), 'remove reset', @verifyState
+    @listenTo @getPossibleLists(), 'add reset', @setTargetIfOnlyOne
 
   getPossibleLists: ->  @possibleLists ?= new PossibleLists service: @getService()
 
@@ -100,6 +101,11 @@ module.exports = class BaseAppendDialogue extends BaseCreateListDialogue
     @checkThereAreLists()
     @verifyTarget()
     @verifyTargetExistsAndIsSuitable()
+
+  setTargetIfOnlyOne: ->
+    pls = @getPossibleLists()
+    if pls.length is 1
+      @model.set target: pls.at(0).get('name')
 
   verifyTarget: ->
     unless @model.get('target')
