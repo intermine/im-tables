@@ -19,6 +19,8 @@ class Options extends NestedModel
     TableResults:
       CacheFactor: 10
       RequestLimit: 5000 # Dump the cache rather than request more rows than this
+    TableHeader:
+      FullPathPopoverEnabled: true
     TableCell:
       PreviewTrigger: 'hover' # one of: hover, click
       HoverDelay: 200 # ms

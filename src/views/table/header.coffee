@@ -148,7 +148,7 @@ module.exports = class ColumnHeader extends CoreView
   announceExpandedState: -> if @model.get 'expanded'
     @query.trigger 'expand:subtables', @model.get 'path'
 
-  setTitlePopover: ->
+  setTitlePopover: -> if Options.get('TableHeader.FullPathPopoverEnabled')
     # title is html - cannot be implemented in the main template.
     @$('.im-col-title').popover
       content: => @namePopoverTemplate @getData()
