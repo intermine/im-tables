@@ -9,7 +9,9 @@ Types = require './core/type-assertions'
 Dashboard = require './views/dashboard'
 Table = require './views/table'
 Options = require './options'
+Messages = require './messages'
 Formatting = require './formatting'
+simpleFormatter = require './utils/simple-formatter'
 
 # (Query, Obj -> V) -> (Elementable, {start, size}, QueryDef) -> Promise V
 #   where Elementable = Element | String | Indexed<Element>
@@ -51,6 +53,9 @@ asElement = (e) ->
 
 # Exported top-level API
 
+# Allow end users to configure text.
+exports.setMessages = Messages.set.bind(Messages)
+
 # Set global options (see src/options)
 exports.configure = Options.set.bind(Options)
 
@@ -59,6 +64,9 @@ exports.loadTable = load Table.create
 
 # :: (elem, page, query) -> Promise Dashboard
 exports.loadDash = load (query, model) -> new Dashboard {query, model}
+
+# Allow 3rd parties to create new simple formatters
+exports.createFormatter = simpleFormatter
 
 # re-export the public formatting API:
 #   * registerFormatter
