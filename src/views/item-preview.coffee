@@ -215,4 +215,4 @@ module.exports = class Preview extends CoreView
 
     @service.count counter
             .then details
-            .then (d) => @referenceFields.add d
+            .then (d) => @referenceFields.add d if d.get('count')
