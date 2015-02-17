@@ -276,6 +276,29 @@ share the same model.
 
 ## CoreModel
 
+Analogous to the the CoreView there is a CoreModel extension to
+Backbone.Model. This provides some helpful extensions to the `Backbone.Model`
+API, and more importantly it has sensible clean up in `::destroy` that is
+appropriate for non-REST resource backed models.
+
+The extensions are detailed below:
+
+TODO
+
+## Messages
+
+TODO
+
+## Options
+
+TODO
+
+## Formatters
+
+TODO
+
+## Styling
+
 TODO
 
 ## Questions
