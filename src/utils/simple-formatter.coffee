@@ -10,5 +10,6 @@ callable = (f) -> (_, args...) -> f args...
 # and returns a Formatter (ie. a callable which takes a Model and Service and
 # returns a string.
 module.exports = (type, fields, f) ->
+  target: type
   replaces: fields
   call: callable compose escape, f, getData type, fields
