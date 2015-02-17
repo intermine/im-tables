@@ -24,7 +24,7 @@ imjs = require "imjs"
 Options = require 'imtables/options'
 
 Counter = require('../lib/counter.coffee')
-ModelDisplay = require '../lib/model-display.coffee'
+{ModelDisplay} = require '../lib/model-display.coffee'
 Constraints = require 'imtables/views/constraints'
 
 root = "http://localhost:8080/intermine-demo"
@@ -45,8 +45,7 @@ renderQuery = (heading, container, query) ->
   constraints.$el.appendTo container
   constraints.render()
 
-onError = (q, e) ->
-  console.log "Could not render query", q, (e.stack ? e)
+onError = (q, e) -> console.error 'Could not render query', q, e
 
 $ ->
   container = document.querySelector("#demo")
