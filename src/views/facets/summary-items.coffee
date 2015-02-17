@@ -76,16 +76,21 @@ module.exports = class SummaryItems extends CoreView
   addControls: ->
     @renderChildAt '.im-summary-controls', (new SummaryItemsControls {@model})
 
-  addItems: -> if @rendered # Wait until rendered.
-    @model.items.each (item) => @addItem item
+  addItems: (from = 0) -> if @rendered and from < @model.items.length
+    next = from + 100
+    _.defer =>
+      frag = document.createDocumentFragment()
+      @model.items.slice(from, next).forEach (item) => @addItem item, frag
+      @tbody.append frag
+      @addItems next
 
-  addItem: (model) -> if @rendered # Wait until rendered.
-    @renderChild (rowId model), (new FacetRow {model}), @tbody
+  addItem: (model, body) -> if @rendered # Wait until rendered.
+    @renderChild (rowId model), (new FacetRow {model}), (body ? @tbody)
 
   removeItem: (model) -> @removeChild rowId model
 
   # Event definitions and their handlers
- 
+
   events: ->
     'click .im-load-more': 'loadMoreItems'
     'click .im-clear-value-filter': 'clearValueFilter'

@@ -183,6 +183,7 @@ module.exports = class ColumnHeader extends CoreView
     if $sel.hasClass 'open'
       @query.trigger 'hiding:column-summary', path
       $sel.removeClass 'open'
+      @children.summary?.$el.hide() # improves performance with large summaries
       @removeChild 'summary'
       return false
     else
