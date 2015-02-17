@@ -14,6 +14,7 @@ module.exports = class UnselectedColumn extends SelectedColumn
 
   events: -> # Same logic as remove - remove from collection.
     'click .im-restore-view': 'removeView'
+    'click': 'toggleFullPath'
 
   restoreTitle: 'columns.RestoreColumn'
 

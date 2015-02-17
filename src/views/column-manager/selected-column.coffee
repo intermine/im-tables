@@ -6,13 +6,15 @@ Templates = require '../../templates'
 
 PathModel = require '../../models/path'
 
+{ignore} = require '../../utils/events'
+
 decr = (i) -> i - 1
 incr = (i) -> i + 1
 
 TEMPLATE_PARTS = [
+  'column-manager-path-remover',
   'column-manager-position-controls',
-  'column-manager-path-name',
-  'column-manager-path-remover'
+  'column-manager-path-name'
 ]
 
 # (*) Note that when we use the buttons to re-arrange, we do the swapping in
@@ -56,6 +58,9 @@ module.exports = class SelectedColumn extends CoreView
     destroy: @stopListeningTo
     'change:parts': @resetParts
 
+  stateEvents: ->
+    'change:fullPath': @setFullPathClass
+
   onCollectionSorted: -> @reRender()
 
   resetParts: -> @parts.reset({part, id} for part, id in @model.get 'parts')
@@ -68,22 +73,31 @@ module.exports = class SelectedColumn extends CoreView
     'click .im-remove-view': 'removeView'
     'click .im-move-up': 'moveUp'
     'click .im-move-down': 'moveDown'
+    'click': 'toggleFullPath'
     'binned': 'removeView'
 
+  toggleFullPath: -> @state.toggle 'fullPath'
+
   # Move this view element to the right.
-  moveDown: ->
+  moveDown: (e) ->
+    ignore e
     next = @model.collection.at incr @model.get 'index'
     next.swap 'index', decr
     @model.swap 'index', incr
     @$el.insertAfter @$el.next() # this is ugly, but see *
 
   # Move this view element to the left.
-  moveUp: ->
+  moveUp: (e) ->
+    ignore e
     prev = @model.collection.at decr @model.get 'index'
     prev.swap 'index', incr
     @model.swap 'index', decr
     @$el.insertBefore @$el.prev() # this is ugly, but see *
 
-  removeView: ->
+  setFullPathClass: ->
+    @$el.toggleClass 'im-full-path', @state.get('fullPath')
+
+  removeView: (e) ->
+    ignore e
     @model.collection.remove @model
     @model.destroy()

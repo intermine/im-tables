@@ -108,12 +108,25 @@
 
     .im-name-part {
       color: @gray-light;
+      display: none;
+
+      &:nth-last-child(2) {
+        display: inline-block;
+      }
 
       &:last-child {
         color: @gray-dark;
+        display: inline-block;
       }
     }
+
   }
+  .im-full-path {
+    .im-name-part {
+      display: inline-block;
+    }
+  }
+
   .im-removed {
     margin-left: 1em;
     margin-right: 1em;
