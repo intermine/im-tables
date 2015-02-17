@@ -4,11 +4,15 @@ set -e
 
 mkdir -p test/bundles
 
+# Load environment variables, which are inserted into code with envify
+if -e .env; then source .env; fi
+
 for loader in test/indices/*.coffee; do
     name=$(basename $loader | sed 's/\.[^\.]*$//')
     echo bundling $name
     browserify \
         --transform coffeeify \
+        --transform envify \
         --transform brfs \
         --extension ".coffee" \
         --outfile test/bundles/${name}-loader.js \
