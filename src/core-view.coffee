@@ -102,17 +102,22 @@ module.exports = class CoreView extends Backbone.View
 
   ICONS: 'change' # Specialise what icons to listen to here.
 
-  # Restricted arity version of @stopListening - just takes an object, no event names
-  # or whatnot. The purpose of this is to be used in event listeners listening for removal
-  # events, eg:
+  # Restricted arity version of @stopListening - just takes an object,
+  # no event names or whatnot. The purpose of this is to be used in event
+  # listeners listening for removal events, eg:
+  #
   #   destroy: @stopListeningTo
+  #
   # rather than:
+  #
   #   destroy: (m) -> @stopListening m
   stopListeningTo: (obj) -> @stopListening obj
 
-  # Declarative model event binding. Use these hooks rather than binding in initialize.
+  # Declarative model event binding. Use these hooks rather than
+  # binding in initialize.
 
-  # The list of model attributes that must be present to render. If not available yet,
+  # The list of model attributes that must be present to render.
+  # If not available yet,
   # the view will listen until they are.
   renderRequires: []
 
@@ -163,7 +168,7 @@ module.exports = class CoreView extends Backbone.View
   # Safely remove all existing children, apply template if
   # available, and mark as rendered. Most Views will not need
   # to override this method - instead customise getData, template
-  # and/or preRender and postRender
+  # and/or renderChildren, preRender and postRender
   render: ->
     return if @removed
     requiredProps = _.result @, 'renderRequires'
@@ -175,6 +180,7 @@ module.exports = class CoreView extends Backbone.View
     prerenderEvent = new Event @rendered
     @trigger 'rendering', prerenderEvent
     return this if prerenderEvent.cancelled
+
     @removeAllChildren()
 
     if @template?
@@ -198,10 +204,10 @@ module.exports = class CoreView extends Backbone.View
   # A name really ought to be supplied, but one will be generated if needed.
   # If no container is given, the child is appended to the element of this view.
   renderChild: (name, view, container = @el, placement = 'append') ->
-    return this unless view?
     name ?= getKid()
     @removeChild name
     @children[name] = view
+    return this unless view?
     switch placement
       when 'append' then view.$el.appendTo container
       when 'prepend' then view.$el.prependTo container
@@ -212,6 +218,10 @@ module.exports = class CoreView extends Backbone.View
 
   # Render a child and rather than appending it set the given element
   # as the element of the component.
+  #
+  # Can be called as:
+  #   this.renderChildAt '.modal-body', body
+  #
   renderChildAt: (name, view, element) ->
     element ?= @$ name
     @renderChild name, view, element, 'at'
@@ -236,9 +246,10 @@ module.exports = class CoreView extends Backbone.View
     @model.destroy() if @hasOwnModel # Destroy the model if we created it.
     @removeAllChildren()
     @off()
-    super
+    super # actually remove us from the DOM (see Backbone.View)
     this
 
+  # eg: this.make('span', {className: 'foo'}, 'bar')
   make: (elemName, attrs, content) ->
     el = document.createElement(elemName)
     $el = $(el)
@@ -270,7 +281,8 @@ module.exports = class CoreView extends Backbone.View
       v = @[p]
       @assertInvariant v?, "Missing required option: #{ p }"
 
-    # Assert that all our parameters (optional and required) meet their expectations.
+    # Assert that all our parameters (optional and required) meet their
+    # expectations.
     for p in params.concat(optionalParams)
       typeAssertion = paramTypes[p]
       if typeAssertion?
