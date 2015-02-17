@@ -3,7 +3,7 @@ _ = require 'underscore'
 CoreView = require '../../core-view'
 Templates = require '../../templates'
 
-buildSkipped   = require '../../utils/build-skipset'
+buildSkipped = require '../../utils/build-skipset'
 
 require '../../messages/table'
 
@@ -19,6 +19,10 @@ module.exports = class TableBody extends CoreView
     remove: @onRowRemoved
   
   template: ->
+
+  initialize: ->
+    super
+    @_skipSets = {} # cache - one per table.
 
   renderChildren: ->
     if @collection.isEmpty()
@@ -39,21 +43,29 @@ module.exports = class TableBody extends CoreView
 
   addRow: (row, tbody) ->
     tbody ?= @el
-    @renderChild row.id, (new RowView model: row, makeCell: @makeCell), tbody
+    skipped = @skipped row
+    view = new RowView model: row, makeCell: @makeCell, skipped: skipped
+    @renderChild row.id, view, tbody
 
   handleEmptyTable: ->
     @renderChild 'apology', new EmptyApology {@history}
+
+  skipped: (row) -> # one of the uglier parts of the codebase.
+    @_skipSets[row.get('query')] ?= do => # builds and throws away cells
+      temps = row.get('cells').map @makeCell
+      ret = buildSkipped temps
+      temps.forEach (t) -> t.remove()
+      return ret
 
 class RowView extends CoreView
 
   tagName: 'tr'
 
-  parameters: ['makeCell']
+  parameters: ['makeCell', 'skipped']
 
   postRender: ->
     cells = @model.get('cells').map @makeCell
-    skipped = buildSkipped cells # TODO - cache result.
-    for cell, i in cells when not skipped[cell.model.get('column')]
+    for cell, i in cells when not @skipped[cell.model.get('column')]
       @renderChild i, cell
 
 class EmptyApology extends CoreView # pun fully intended ;)

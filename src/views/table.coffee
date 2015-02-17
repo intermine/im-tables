@@ -197,6 +197,7 @@ module.exports = class Table extends CoreView
     models = rows.map (row, i) =>
       id: "#{ @query.toXML() }##{ offset + i }"
       index: (offset + i)
+      query: @query.toXML() # group cache key.
       cells: (createModel c for c in row)
 
     @rows.set models

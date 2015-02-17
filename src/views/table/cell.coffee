@@ -5,6 +5,7 @@ Templates = require '../../templates'
 Options = require '../../options'
 Messages = require '../../messages'
 CellModel = require '../../models/cell'
+Formatting = require '../../formatting'
 
 Messages.setWithPrefix 'table.cell',
   Link: 'link'
@@ -62,8 +63,7 @@ module.exports = class Cell extends CoreView
   # Note that while a property of this class, this function
   # is called in such a way that it never has access to the this
   # reference.
-  formatter: (imobject, service, value) ->
-    if value? then (_.escape value) else Templates.null_value
+  formatter: Formatting.defaultFormatter
 
   # Initialization
 
@@ -351,6 +351,7 @@ module.exports = class Cell extends CoreView
     @setActiveClass()
     @setMinimisedClass()
     @setDisabledCellClass()
+    @setFormatterClasses()
     @initPreview()
 
   setAttrClass: ->
@@ -358,6 +359,12 @@ module.exports = class Cell extends CoreView
     @$el.addClass 'im-type-' + attrType.toLowerCase()
 
   setMinimisedClass: -> @$el.toggleClass 'im-minimised', @state.get('minimised')
+
+  setFormatterClasses: ->
+    cls = @formatter.classes
+    @$el.addClass cls if cls?
+    target = @formatter.target
+    @$el.addClass target if target?
 
   # Code associated with the preview.
 

@@ -9,7 +9,8 @@ callable = (f) -> (_, args...) -> f args...
 # function that produces a raw, unescaped string from the complete object
 # and returns a Formatter (ie. a callable which takes a Model and Service and
 # returns a string.
-module.exports = (type, fields, f) ->
-  target: type
+module.exports = (type, fields, f, classes) ->
+  classes: classes # css classes
+  target: type     # The target type (also added as a css class)
   replaces: fields
   call: callable compose escape, f, getData type, fields

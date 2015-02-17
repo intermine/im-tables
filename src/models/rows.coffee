@@ -8,6 +8,7 @@ class RowModel extends CoreModel
 
   defaults: ->
     index: null
+    query: null # string for caching skipsets
     cells: []
 
   toJSON: -> _.extend super, cells: (c.toJSON() for c in @get 'cells')

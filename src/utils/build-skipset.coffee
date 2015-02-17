@@ -19,8 +19,9 @@ module.exports = (cells, headers) ->
       added = headers.add parent, at: hi
       added.set replaces: c.formatter.replaces.map (r) -> parent.append r
 
-    for rp in (c.formatter.replaces.map (r) -> n + '.' + r) when rp isnt p
-      skipped[rp] = true
-      headers?.remove rp # remove the header for the skipped path.
+    unless skipped[p]
+      for rp in (c.formatter.replaces.map (r) -> n + '.' + r) when rp isnt p
+        skipped[rp] = true
+        headers?.remove rp # remove the header for the skipped path.
 
   return skipped

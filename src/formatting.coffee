@@ -1,3 +1,5 @@
+_ = require 'underscore'
+Templates = require './templates'
 NestedModel = require './core/nested-model'
 
 # This module provides logic for finding formatters registered for specific
@@ -97,6 +99,9 @@ exports.list = (model) ->
 exports.enableFormatter = enableFormatter = (model, type, paths = ['*']) ->
   for p in paths
     formatters.set [model, "#{ type }.#{ p }"], true
+
+exports.defaultFormatter = (imobject, service, value) ->
+  if value? then (_.escape value) else Templates.null_value
 
 # Clear the formatters collection.
 # For use in testing.
