@@ -27,10 +27,13 @@ html = fs.readFileSync __dirname + '/../templates/constraint-editor.html', 'utf8
 TEMPLATE = _.template html, variable: 'data'
 NO_OP = -> # A function that doesn't do anything
 
-operatorsFor = (path) ->
+operatorsFor = (opts) ->
+  {path} = opts
   throw new Error('No path or wrong type') unless path?.isReference
-  if path.isReference() or path.isRoot()
+  if path.isRoot()
     REFERENCE_OPS.concat Query.RANGE_OPS
+  if path.isReference()
+    REFERENCE_OPS.concat(Query.RANGE_OPS).concat(if opts.new then ['ISA'] else [])
   else if path.getType() in BOOLEAN_TYPES
     ["=", "!="].concat(NULL_OPS)
   else
@@ -42,10 +45,14 @@ module.exports = class ConstraintEditor extends CoreView
 
   className: 'form'
 
+  parameters: ['query', 'model']
+
   # The buttonDelegate can be provided to trigger the button actions
   # instead of our own.
   # (TODO - find a better way to do that).
-  initialize: ({@query, @buttonDelegate}) ->
+  optionalParameters: ['buttonDelegate']
+
+  initialize: ->
     super
     @path = @model.get 'path'
 
@@ -89,6 +96,9 @@ module.exports = class ConstraintEditor extends CoreView
     if con.op in ATTRIBUTE_VALUE_OPS.concat(NULL_OPS)
       delete con.values
 
+    if con.op is 'ISA'
+      delete con.op
+
     return con
 
   # The main dispatch mechanism, delegates to sub-views that know 
@@ -121,7 +131,8 @@ module.exports = class ConstraintEditor extends CoreView
   isLoopConstraint: -> @path.isClass() and (@model.get('op') in ['=', '!='])
 
   # type constraints cannot be on the root, so isReference is perfect.
-  isTypeConstraint: -> @path.isReference() and (not @model.get 'op') and @model.has('type')
+  isTypeConstraint: ->
+    @path.isReference() and (not @model.get('op') or 'ISA' is @model.get 'op')
 
   isBooleanConstraint: -> (@path.getType() in BOOLEAN_TYPES) and not (@model.get('op') in NULL_OPS)
 
@@ -133,7 +144,7 @@ module.exports = class ConstraintEditor extends CoreView
 
   isRangeConstraint: -> @path.isReference() and (@model.get('op') in Query.RANGE_OPS)
 
-  getOtherOperators: -> _.without operatorsFor(@model.get 'path'), @model.get 'op'
+  getOtherOperators: -> _.without operatorsFor(@model.pick 'new', 'path'), @model.get 'op'
 
   buttons: ->
     return [] if @buttonDelegate? # We will not need our own buttons in this case.

@@ -22,8 +22,11 @@ asOption = ({path, name}) -> value: path, text: name
 
 module.exports = class TypeValueControls extends View
 
-  initialize: ({@query}) ->
+  parameters: ['query', 'model']
+
+  initialize: ->
     super
+    @model.swap 'type', (t) => t ? @model.get('path').getType().name
     @listenTo Messages, 'change', @reRender
     @listenTo @state, 'change:subclasses', @reRender
     @setSubclasses()

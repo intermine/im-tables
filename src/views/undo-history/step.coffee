@@ -35,8 +35,10 @@ class SortOrder extends Collection
 # Return a factory that will lift .path and .type to Path from strings.
 liftPathAndType = (query) -> (obj) ->
   obj = if (_.isString obj) then {path: obj} else obj
+  # Path must be interpreted with the relevant type constraint information.
   attrs = path: query.makePath obj.path
-  attrs.type = query.makePath obj.type if obj.type 
+  # Type must be interpreted directly from the model - it is just a type name.
+  attrs.type = query.model.makePath obj.type if obj.type 
   _.extend attrs, (_.omit obj, 'path', 'type')
 
 module.exports = class UndoStep extends CoreView
@@ -88,6 +90,7 @@ module.exports = class UndoStep extends CoreView
     for e, i in currQuery[prop] when test e, prevQuery
       coll.at(i).set added: true
     # Find removed elements, add them and mark them as such
+    # TODO: handle errors from bad paths - which should not happen.
     lifter = liftPathAndType prevQuery
     for e, i in prevQuery[prop] when test e, currQuery
       coll.add(lifter(e), at: i).set removed: true

@@ -61,7 +61,11 @@ module.exports = class ActiveConstraint extends View
 
   className: "im-constraint row-fluid"
 
-  initialize: ({@query, @constraint, @buttonDelegate}) ->
+  parameters: ['query', 'constraint']
+
+  optionalParameters: ['buttonDelegate']
+
+  initialize: ->
     super
     # Model is the state of the constraint, with the path promoted to a full object.
     @model.set @constraint
@@ -74,7 +78,6 @@ module.exports = class ActiveConstraint extends View
 
     # Declare rendering dependency on messages and icons.
     @listenTo Messages, 'change', @reRender
-    @listenTo Icons, 'change', @reRender
 
     @listenTo @model, 'cancel', @cancelEditing
     @listenTo @model, 'apply', @applyChanges
