@@ -64,15 +64,10 @@ module.exports = class SubTable extends CoreView
   onChangeExpandedSubtables: ->
     @state.set open: @expandedSubtables.contains @getPath()
 
-  events: ->
-    'click .im-subtable-summary': @toggleTable
-
-  toggleTable: -> @state.toggle 'open'
-
   template: Templates.template 'table-subtable'
 
   renderChildren: ->
-    @renderChildAt '.im-subtable-summary', (new SubtableSummary {@model})
+    @renderChildAt '.im-subtable-summary', (new SubtableSummary {@model, @state})
     @onChangeOpen()
 
   tableRendered: false

@@ -12,11 +12,17 @@ module.exports = class SubtableSummary extends CoreView
   tagName: 'span'
   template: Templates.template 'table-subtable-summary'
 
-  parameters: ['model']
+  parameters: ['model', 'state']
 
   modelEvents: -> 'change:contentName': @reRender
 
-  events: -> click: -> @$el.tooltip 'hide'
+  events: ->
+    click: @onClick
+    
+  onClick: (e) ->
+    e?.stopPropagation()
+    @$el.tooltip 'hide'
+    @state.toggle 'open'
 
   postRender: -> @$el.tooltip
     title: (if @model.get('rows').length then Messages.getText('subtables.OpenHint'))
