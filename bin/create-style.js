@@ -14,6 +14,7 @@ if (!file || file === '-h' || file === '--help') {
 var config = {
   paths: [
     process.cwd(),
+    path.join(__dirname, '..'),
     path.join(__dirname, '..', 'node_modules')
   ]
 };
