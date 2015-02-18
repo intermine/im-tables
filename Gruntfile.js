@@ -41,6 +41,12 @@ grunt.initConfig({
       ],
       options: NO_SPAWN
     },
+    test_styles: {
+      files: ['test/less/*'],
+      tasks: [
+        'run:build_custom_style'
+      ]
+    },
     indices: {
       files: ['test/indices/*', 'test/lib/*'],
       tasks: [
@@ -51,7 +57,7 @@ grunt.initConfig({
     },
     less: {
       files: ['less/**'],
-      tasks: ['run:lessc'],
+      tasks: ['style'],
       options: NO_SPAWN
     }
   },
@@ -101,9 +107,6 @@ grunt.initConfig({
     test: {
       exec: "mocha --compilers coffee:coffee-script/register test/unit/*"
     },
-    lessc: {
-      exec: "lessc --include-path=less:node_modules less/main.less > dist/main.css"
-    },
     bundle_test_indices: {
       cmd: './bin/bundle-test-indices'
     },
@@ -121,6 +124,15 @@ grunt.initConfig({
     },
     inline_templates: {
       cmd: './bin/inline-templates'
+    },
+    lessc: {
+      cmd: "./bin/compile-style"
+    },
+    inline_fonts: {
+      cmd: './bin/inline-fonts'
+    },
+    build_custom_style: {
+      cmd: './bin/build-custom-style'
     }
   },
   notify: {
@@ -163,6 +175,10 @@ grunt.registerTask('test', ['compile', 'run:test']);
 // Copy src files to the build dir, and inline the templates.
 grunt.registerTask('-inline_templates', ['copy:js', 'run:inline_templates']);
 
+grunt.registerTask('style', [
+  'run:lessc'
+]);
+
 grunt.registerTask('build', [
   'build:dist',
   'build:test',
@@ -172,12 +188,13 @@ grunt.registerTask('build', [
 grunt.registerTask('build:dist', [
   'clean',
   'compile',
-  'run:lessc',
+  'style',
   'run:bundle_artifacts',
   'uglify:dist'
 ]);
 
 grunt.registerTask('build:test', [
+  'run:build_custom_style',
   'run:compile_umd_consumers',
   'run:bundle_test_indices',
 ]);

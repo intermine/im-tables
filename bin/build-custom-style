@@ -1,0 +1,8 @@
+#!/bin/bash
+
+set -e
+
+mkdir -p test/css
+
+./bin/create-style.js test/less/custom-overrides.less > test/css/custom.css
+

@@ -1,0 +1,34 @@
+@border-radius-base: 5px;
+@border-radius-large: 10px;
+
+@brand-primary: rgb(37, 111, 92);
+@brand-secondary: rgb(88, 42, 114);
+@brand-info: rgb(170, 170, 57);
+@state-info-bg: rgb(212, 212, 106);
+@state-info-text: rgb(85, 85, 0);
+
+@inactive-cell-link-color: @text-color;
+@inactive-cell-link-hover-color: @text-color;
+
+@column-header-bg: @brand-primary;
+@column-header-fg: @brand-primary-contrast;
+@column-header-icon-color: @brand-primary-contrast;
+
+.modal-header {
+    background-color: @brand-primary;
+    color: @brand-primary-contrast;
+}
+
+.btn {
+    box-shadow: inset 0 1px rgba(255, 255, 255, 0.4), 0 1px 2px rgba(0, 0, 0, 0.2);
+
+    &.btn-primary {
+        text-shadow: 0 1px #0d4d09;
+        background-color: #1ca913;
+        background-image: linear-gradient(to top, #126d0c, #20c016);
+        &:hover {
+            background: #159b0d;
+        }
+    }
+}
+

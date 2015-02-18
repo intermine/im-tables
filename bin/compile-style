@@ -1,0 +1,5 @@
+#!/bin/bash
+
+set -e
+
+lessc --include-path=less:node_modules less/main.less > dist/main.css

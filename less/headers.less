@@ -1,4 +1,6 @@
 .im-column-th {
+    background-color: @column-header-bg;
+    color: @column-header-fg;
 
     .im-minimised-th {
         width: @minimised-column-width;
@@ -20,7 +22,7 @@
     }
 
     .im-th-button i {
-        color: @brand-primary;
+        color: @column-header-icon-color;
     }
 
     .open {
@@ -28,6 +30,11 @@
             background-color: @brand-primary;
             color: @brand-primary-contrast;
         }
+
+        .dropdown-menu {
+            color: @text-color;
+        }
+
     }
 
     .im-has-constraint {
