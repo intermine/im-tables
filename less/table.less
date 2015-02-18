@@ -68,6 +68,13 @@
             }
         }
         td.im-result-field {
+            a.im-cell-value {
+                color: @inactive-cell-link-color;
+                &:hover {
+                    color: @inactive-cell-link-hover-color;
+                    text-decoration: @inactive-cell-link-decoration;
+                }
+            }
             &.monospace-text {
                 font-family: @font-family-monospace;
             }
