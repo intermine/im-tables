@@ -331,7 +331,43 @@ TODO
 
 ## Styling
 
-TODO
+The style for the tables is also modular, and is written in less to enable
+this. The main entry point is `less/main.less` which defines which modules are
+loaded. Εach module is expected to be named in such a way as to reflect the
+component it styles. Where possible values such as colours, widths, etc should
+be abstracted as variables to be kept in `less/variables.less` so that they can
+be re-used and configured.
+
+The style for imtables is based on Bootstrap 3.2.x, with a number of
+customisations (although it is still recognisably bootstrappy). This was chosen
+as it is a very mature and well supported UI style system, and many sites use
+it. If you use Bootstrap on your site it is easy to configure imtables to
+integrate perfectly into your visual identity.
+
+There are two strategies for developing a custom style sheet to make the tables
+integrate better into your site:
+
+1. Produce a custom imtables style sheet:
+
+   We provide a script which is installed with imtables
+   (`create-imtables-style`). This script takes as its argument the path
+   (absolute or relative) of an extension file and writes a new style-sheet with
+   these extensions and overrides. An extension file is just a regular less
+   style-sheet; normally all you will need to do is change variable values
+   (colours, border radii, etc), but it can be as complex as you like.
+
+2. Consume imtables as a component within your style sheet.
+
+   If you are using Bootstrap then you should be using less to produce your
+   style sheets (you should be using less anyway, frankly), and if you do that
+   then you can consume imtables as a module just as you would any other system.
+   Just add `node_modules` to your less search path and then load imtables
+   styles - eg:
+
+```less
+@import "imtables/main.less"; // Import everything
+@import "./my-imtables-overrides.less"; // Your customisations
+```
 
 ## Questions
 
