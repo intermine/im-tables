@@ -21,6 +21,7 @@ withQuery = (h2, div, query) ->
   div.appendChild dash.render().el
 
 QUERY =
+  name: 'Bio Query'
   select: [
     'primaryIdentifier',
     'chromosomeLocation.start',

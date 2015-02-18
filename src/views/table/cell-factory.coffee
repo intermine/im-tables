@@ -18,13 +18,16 @@ Cell = require './cell'
 # CellView = Cell | SubTable
 module.exports = (service, opts) ->
   base = service.root.replace /\/service\/?$/, ""
+  getFormatter = (cell) ->
+    f = opts.getFormatter cell.get('node'), cell.get('column')
+    if (f? and opts.canUseFormatter(f)) then f else null
+
   cellify = (cell) ->
     if cell instanceof NestedTableModel
       return new SubTable
         query: opts.query
         model: cell
         cellify: cellify
-        canUseFormatter: opts.canUseFormatter
         expandedSubtables: opts.expandedSubtables
     else
       return new Cell
@@ -33,5 +36,5 @@ module.exports = (service, opts) ->
         popovers: opts.popoverFactory
         selectedObjects: opts.selectedObjects
         tableState: opts.tableState
-        formatter: (opts.getFormatter cell.get('node'), cell.get('column'))
+        formatter: (getFormatter cell)
 
