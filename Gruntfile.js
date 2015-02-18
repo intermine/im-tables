@@ -22,9 +22,7 @@ grunt.initConfig({
       tasks: [
         'compile',
         'run:test',
-        'build:dist',
-        'build:test',
-        'notify:build'
+        'build'
       ],
       options: NO_SPAWN
     },
