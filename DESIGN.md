@@ -278,12 +278,20 @@ share the same model.
 
 Analogous to the the CoreView there is a CoreModel extension to
 Backbone.Model. This provides some helpful extensions to the `Backbone.Model`
-API, and more importantly it has sensible clean up in `::destroy` that is
+API, and more importantly it has sensible clean up in `#destroy` that is
 appropriate for non-REST resource backed models.
 
 The extensions are detailed below:
 
-TODO
+* `CoreModel#swap(name, transformation)` - Replace an attribute with the
+  result of invoking a transformation on its current value. eg:
+  
+```coffee
+increment = (x) -> x + 1
+model.swap 'clicks', increment
+```
+
+* `CoreModel#toggle(name)` - a specialisation of swap; toggle a boolean value.
 
 ## Messages
 
@@ -303,7 +311,7 @@ TODO
 
 ## Questions
 
-### Why not just use DataTables
+### Why not just use DataTables?
 
 I tried. Hard. The first version of this code was built on DataTables, but I had
 to tear it down and start again. DataTables has a number of limitations
