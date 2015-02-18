@@ -295,7 +295,31 @@ model.swap 'clicks', increment
 
 ## Messages
 
-TODO
+An internationalisation and customisation interface which abstracts all human
+language text strings behind a set of getters. A single instance of the text
+string store is made available via a call to `require('imtables/messages')` and
+it is injected into the templates by default (see `CoreView#getBaseData` for
+details), where it is available bound to the name `Messages`.
+
+This mechanism uses the text-replacement-as-function system where text strings
+are specified as function or template strings which are expected to return
+*unescaped* text. Some messages take parameters - they should be obvious by
+inspecting the default messages provided.
+
+Messages are logically divided into bundles, prefixed with some name-spacing
+identifier which should indicate the component they belong to. E.g. the columns
+manager loads the bundle from `src/messages/columns` which loads messages
+prefixed with `columns.` into the message store. This is designed to make it
+clear where to look to edit messages, without having to have one enormous
+message file. Views that need a message bundle are expected to load it via a
+`require` call. Related families of views that all use the same bundle (the
+column manager, the list dialogue, etc etc) should ideally all load their bundle
+individually - this has two advantages: (a) it makes testing easier if we need to
+isolate components in unit tests and (b) it re-inforces the nature of the view
+as the declaration of dependencies - looking at the source file will tell the
+developer where the relevant resources are.
+
+The ability to set messages is exported as part of the public API of imtables.
 
 ## Options
 
