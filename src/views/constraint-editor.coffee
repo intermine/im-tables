@@ -105,6 +105,8 @@ module.exports = class ConstraintEditor extends CoreView
   # how to handle different constraint types.
   # dispatches to one of 8 constraint sub-types.
   getValueControls: ->
+    if (not @path?) # this constraint is in error.
+      return null
     if @isNullConstraint()
       return null # Null child components are ignored.
     if @isTypeConstraint()

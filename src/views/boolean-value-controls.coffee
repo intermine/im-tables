@@ -13,8 +13,7 @@ module.exports = class BooleanValueControls extends View
 
   className: 'im-value-options btn-group'
 
-  initialize: ->
-    @listenTo @model, 'change', @reRender
+  modelEvents: -> change: @reRender
 
   getData: -> _.extend {value: null}, super
 
