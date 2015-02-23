@@ -81,6 +81,7 @@
     "grunt-contrib-watch": "^0.6.1",
     "grunt-notify": "^0.4.1",
     "grunt-run": "^0.3.0",
+    "grunt-sandbox-css": "alexkalderimis/prefix-css-node",
     "mocha": "^2.0.1",
     "prefix-css-node": "~0.4.0",
     "selenium-webdriver": "^2.44.0",

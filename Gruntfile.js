@@ -8,6 +8,7 @@ grunt.loadNpmTasks('grunt-contrib-copy');
 grunt.loadNpmTasks('grunt-contrib-uglify');
 grunt.loadNpmTasks('grunt-notify');
 grunt.loadNpmTasks('grunt-run');
+grunt.loadNpmTasks('grunt-sandbox-css');
 
 var env = process.env;
 
@@ -160,6 +161,16 @@ grunt.initConfig({
         'dist/imtables.min.js': ['dist/imtables.js']
       }
     }
+  },
+  sandbox_css: {
+    main: {
+      files: {
+        'dist/main.sandboxed.css': 'dist/main.css'
+      },
+      options: {
+        prefix: '.imtables'
+      }
+    }
   }
 });
 
@@ -176,7 +187,8 @@ grunt.registerTask('test', ['compile', 'run:test']);
 grunt.registerTask('-inline_templates', ['copy:js', 'run:inline_templates']);
 
 grunt.registerTask('style', [
-  'run:lessc'
+  'run:lessc',
+  'sandbox_css'
 ]);
 
 grunt.registerTask('build', [

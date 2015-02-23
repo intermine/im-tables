@@ -27,7 +27,7 @@ class Options extends NestedModel
       IndicateOffHostLinks: true
       ExternalLinkIcons:
         "http://some.host.somewhere": "http://some.host.somewhere/logo.png"
-    StylePrefix: 'intermine'
+    StylePrefix: 'imtables'
     SuggestionDepth: 4 # When suggestion paths, follow up to this many references.
     Events:
       ActivateTab: 'mouseenter' # or click
