@@ -30,8 +30,7 @@ exports.getBaseName = -> @model.get 'filename'
 exports.getFileExtension = -> @model.get('format').ext
 
 exports.getExportParameters = (overrides = {}) ->
-  data = @model.pick 'start', 'size', 'format'
-  data.filename = @getFileName()
+  data = @model.pick 'start', 'size', 'format', 'filename'
   data.format = data.format.id
   data.query = @getExportQuery().toXML()
   if @model.get 'compress'
