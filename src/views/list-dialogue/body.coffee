@@ -69,13 +69,18 @@ module.exports = class ListDialogueBody extends CoreView
   renderApology: ->
     @renderChildAt '.im-apology', (new TagsApology collection: @model.tags)
 
-  renderListNameInput: -> @renderChildAt '.im-list-name', new InputWithLabel
-    model: @model
-    attr: 'name'
-    label: 'lists.params.Name'
-    helpMessage: 'lists.params.help.Name'
-    placeholder: 'lists.params.NamePlaceholder'
-    getProblem: (name) => @validateName name
+  renderListNameInput: ->
+    nameInput = new InputWithLabel
+      model: @model
+      attr: 'name'
+      label: 'lists.params.Name'
+      helpMessage: 'lists.params.help.Name'
+      placeholder: 'lists.params.NamePlaceholder'
+      getProblem: (name) => @validateName name
+    @listenTo nameInput.state, 'change:problem', ->
+      err = nameInput.state.get('problem')
+      @state.set disabled: !!err
+    @renderChildAt '.im-list-name', nameInput
     
   validateName: (name) ->
     trimmed = name?.replace /(^\s+|\s+$)/g, '' # Trim name
