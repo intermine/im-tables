@@ -8,6 +8,7 @@ UndoHistory          = require './undo-history'
 ListDialogueButton   = require './list-dialogue/button'
 CodeGenButton        = require './code-gen-button'
 ExportDialogueButton = require './export-dialogue/button'
+{Bus}                = require '../utils/events'
 
 SUBSECTIONS = ['im-query-management', 'im-history', 'im-query-consumers']
 
@@ -18,6 +19,10 @@ module.exports = class QueryTools extends CoreView
   className: 'im-query-tools'
 
   parameters: ['tableState', 'history', 'selectedObjects']
+
+  optionalParameters: ['bus'] # An event bus
+
+  bus: (new Bus)
 
   template: ->
     subs = (SUBSECTIONS.map subsection).join ''
@@ -49,8 +54,14 @@ module.exports = class QueryTools extends CoreView
     query = @history.getCurrentQuery()
     selected = @selectedObjects
     $consumers.empty()
+    listDialogue = new ListDialogueButton {query, @tableState, selected}
+    @listenTo listDialogue, 'all', (evt, args...) =>
+      @bus.trigger "list-action:#{evt}", args...
+      @bus.trigger "list-action", evt, args...
+
     @renderChild 'save', (new ExportDialogueButton {query, @tableState}), $consumers
     @renderChild 'code', (new CodeGenButton {query, @tableState}), $consumers
-    @renderChild 'lists', (new ListDialogueButton {query, @tableState, selected}), $consumers
+    @renderChild 'lists', listDialogue, $consumers
+
     $consumers.append Templates.clear
 

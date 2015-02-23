@@ -109,9 +109,11 @@ module.exports = class ListDialogueButton extends CoreView
   showDialogue: (Dialogue, args) ->
     dialogue = new Dialogue args
     @renderChild 'dialogue', dialogue
-    success = (list) => @trigger "list:#{ action }", list
-    failure = (e) => @trigger "failure:#{ action }", e
-    dialogue.show().then success, failure
+    action = @state.get 'action'
+    handler = (outcome) => (result) =>
+      @trigger "#{ outcome }:#{ action }", result
+      @trigger outcome, action, result
+    dialogue.show().then (handler 'success'), (handler 'failure')
 
   showPathDialogue: (args) ->
     action = @state.get 'action'

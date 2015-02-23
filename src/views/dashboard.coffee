@@ -3,6 +3,7 @@ CoreView = require '../core-view'
 History         = require '../models/history'
 TableModel      = require '../models/table'
 SelectedObjects = require '../models/selected-objects'
+{Bus}           = require '../utils/events'
 
 Table      = require './table'
 QueryTools = require './query-tools'
@@ -21,6 +22,7 @@ module.exports = class Dashboard extends CoreView
     throw new Error(ERR) unless query?
     super
     @history = new History
+    @bus = new Bus
     @history.setInitialState query
     @selectedObjects = new SelectedObjects query.service
 
@@ -33,7 +35,10 @@ module.exports = class Dashboard extends CoreView
     @renderChild 'table', table
 
   renderQueryTools: ->
-    tools = new QueryTools {tableState: @model, @history, @selectedObjects}
+    tools = new QueryTools {tableState: @model, @history, @selectedObjects, @bus}
     @renderChild 'tools', tools
 
-
+  remove: ->
+    @bus.destroy()
+    @history.close()
+    super

@@ -19,7 +19,12 @@ Options.set 'TableCell.IndicateOffHostLinks', false
 
 create = (query) ->
   query.service = authenticatedConnection # not pretty, but easy.
-  new Dashboard {query, model: {size: 15}}
+  dash = new Dashboard {query, model: {size: 15}}
+  dash.bus.on 'list-action:success', (action, list) ->
+    console.log "Successful list #{ action }", list
+  dash.bus.on 'list-action:failure', (action, err) ->
+    console.error "Failed list #{ action }", err
+  return dash
 
 QUERY =
   name: 'Dashboard Query'
