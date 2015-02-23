@@ -54,6 +54,7 @@ module.exports = class BaseCreateListDialogue extends Modal
   stateEvents: ->
     'change:typeName change:count': 'setTitle'
     'change:typeName': 'setListName'
+    'change:error': -> console.log @state.get('error')
   
   setTitle: -> @$('.modal-title').text @title()
 
@@ -61,10 +62,15 @@ module.exports = class BaseCreateListDialogue extends Modal
     @model.set name: Messages.getText 'lists.DefaultName', @state.toJSON()
 
   initState: ->
-    @state.set minimised: _.result @, 'initiallyMinimised'
+    @state.set existingLists: {}, minimised: _.result @, 'initiallyMinimised'
     @setTypeName()
     @setCount()
     @checkAuth()
+    # you cannot overwrite your own lists. You can shadow everyone elses.
+    @getService().fetchLists()
+                 .then (ls) -> _.where ls, authorized: true
+                 .then (ls) -> _.groupBy ls, 'name'
+                 .then (existingLists) => @state.set {existingLists}
 
   setCount: ->
     @fetchCount().then (count) => @state.set count: count

@@ -24,7 +24,8 @@ module.exports = class ListDialogueBody extends CoreView
 
   modelEvents: -> 'add:tag': 'addTag'
 
-  stateEvents: -> 'change:minimised': 'toggleOptionalAttributes'
+  stateEvents: ->
+    'change:minimised': 'toggleOptionalAttributes'
 
   events: -> 'click .im-more-options': => @state.toggle 'minimised'
 
@@ -74,7 +75,11 @@ module.exports = class ListDialogueBody extends CoreView
     label: 'lists.params.Name'
     helpMessage: 'lists.params.help.Name'
     placeholder: 'lists.params.NamePlaceholder'
-    getProblem: (name) -> not name?.length
+    getProblem: (name) => @validateName name
+    
+  validateName: (name) ->
+    trimmed = name?.replace /(^\s+|\s+$)/g, '' # Trim name
+    (not trimmed) or (@state.get('existingLists')[trimmed])
 
   renderListDescInput: -> @renderChildAt '.im-list-desc', new InputWithLabel
     model: @model
