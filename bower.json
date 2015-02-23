@@ -3,7 +3,7 @@
   "version": "2.0.0-beta",
   "description": "ui widgets for displaying query results in interactive tables",
   "main": [
-    "dist/imtables.js",
+    "dist/imtables.min.js",
     "dist/main.css"
   ],
   "dependencies": {
@@ -14,6 +14,7 @@
   },
   "ignore": [
     "test/",
+    "templates/",
     "build/",
     "src/",
     "js/",
@@ -29,6 +30,9 @@
     "tasks/",
     "grunt.js",
     "BUILD_ORDER",
+    "EVENTS.md",
+    "DESIGN.md",
+    "DEVELOPING.md",
     "CHANGES",
     "TODO"
   ]
