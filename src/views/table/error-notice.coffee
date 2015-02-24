@@ -63,9 +63,13 @@ module.exports = class ErrorNotice extends CoreView
 
   postRender: ->
     query = indentXML @query.toXML()
-    pre = @$ 'pre'
+    pre = @$ '.query-xml'
     withPrettyPrintOne (ppo) -> pre.html ppo _.escape query
 
-  events: -> 'click button': ->
-    @$('.query-xml').slideToggle()
-    @$('button').toggleClass 'active'
+  events: ->
+    'click .im-show-query': ->
+      @$('.query-xml').slideToggle()
+      @$('.im-show-query').toggleClass 'active'
+    'click .im-show-error': ->
+      @$('.error-message').slideToggle()
+      @$('.im-show-error').toggleClass 'active'

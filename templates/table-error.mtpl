@@ -13,11 +13,21 @@
     <%- Messages.getText('error.EmailHelp') %>
   </a>
 
-  <button class="btn btn-default">
+  <button class="btn btn-default im-show-query">
     <%= Icons.icon('xml') %>
     <%- Messages.getText('error.ShowQuery') %>
   </button>
+  <% if (error.message) { %>
+    <button class="btn btn-default im-show-error">
+      <%= Icons.icon('Bug') %>
+      <%- Messages.getText('error.ShowError') %>
+    </button>
+  <% } %>
 
   <pre class="query-xml well im-latent"><%- indent(query) %></pre>
+
+  <% if (error.message) { %>
+    <pre class="error-message well im-latent"><%- error.message %></pre>
+  <% } %>
 
 </div>
