@@ -104,9 +104,11 @@ ICONS.glyphicons =
   xml: 'glyphicon-xml'
   json: 'glyphicon-json'
   fake: 'glyphicon-bug'
+  Bug: 'glyphicon-bug'
   Rubbish: 'glyphicon-trash'
   RubbishFull: 'glyphicon-trash'
   Joins: 'glyphicon-link'
+  Mail: 'glyphicon-envelope'
 
 ICONS.fontawesome =
   Base: 'fa'
@@ -188,6 +190,8 @@ ICONS.fontawesome =
   xml: 'fa-code'
   json: 'fa-json'
   fake: 'fa-bug'
+  Bug: 'fa-bug'
+  Mail: 'fa-envelope'
 
 module.exports = new Icons
 module.exports.Icons = Icons # Export constructor on default instance.
