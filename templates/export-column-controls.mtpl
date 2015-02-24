@@ -1,4 +1,4 @@
-<h3><%- Messages.getText('export.heading.Columns') %></h3>
+<h4><%- Messages.getText('export.heading.Columns') %></h4>
 
 <ul class="list-group">
 </ul>

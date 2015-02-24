@@ -1,4 +1,4 @@
-<h3></h3>
+<h4 class="im-title"></h4>
 
 <% _.each(formats, function (formatDef) { %>
     <div class="radio">
