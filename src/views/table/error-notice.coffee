@@ -1,14 +1,24 @@
-{param} = require 'jquery'
 _ = require 'underscore'
 imjs = require 'imjs'
 
 Options = require '../../options'
 CoreView = require '../../core-view'
 Templates = require '../../templates'
+Messages = require '../../messages'
 indentXML = require '../../utils/indent-xml'
+mailto = require '../../utils/mailto'
+withResource = require '../../utils/with-cdn-resource'
 VERSION = require '../../version'
 
 require '../../messages/error'
+
+withPrettyPrintOne = _.partial withResource, 'prettify', 'prettyPrintOne'
+
+getDomain = (err) ->
+  if /(Type|Reference)Error/.test String err
+    'client' # clearly our fault.
+  else
+    'server'
 
 module.exports = class ErrorNotice extends CoreView
 
@@ -23,34 +33,39 @@ module.exports = class ErrorNotice extends CoreView
   getData: ->
     err = @model.get('error')
     time = new Date()
-    console.error(err, err?.stack)
+    subject = Messages.getText('error.mail.Subject')
+    address = @query.service.help
+    domain = getDomain err
 
-    domain = if /(Type|Reference)Error/.test(String(err))
-      'client' # clearly our fault.
-    else
-      'server'
+    # Make sure this error is logged.
+    console.error err
 
-    mailto = query.service.help + "?" + param {
-      subject: "Error running embedded table query"
-      body: """
-        We encountered an error running a query from an
-        embedded result table.
-        
-        page:       #{ window.location }
-        service:    #{ query.service.root }
-        error:      #{ err }
-        date-stamp: #{ time }
+    href = mailto.href address, subject, """
+      We encountered an error running a query from an
+      embedded result table.
+      
+      page:       #{ global.location }
+      service:    #{ @query.service.root }
+      error:      #{ err }
+      date-stamp: #{ time }
 
-        -------------------------------
-        IMJS:       #{ imjs.VERSION }
-        -------------------------------
-        IMTABLES:   #{ VERSION }
-        -------------------------------
-        QUERY:      #{ query.toXML() }
-        -------------------------------
-        STACK:      #{ err?.stack }
-      """
-    }, true
-    _.extend super, {domain, mailto, query: @query.toXML()}
+      -------------------------------
+      IMJS:       #{ imjs.VERSION }
+      -------------------------------
+      IMTABLES:   #{ VERSION }
+      -------------------------------
+      QUERY:      #{ @query.toXML() }
+      -------------------------------
+      STACK:      #{ err?.stack }
+    """
 
-  events: -> 'click button': -> @$('.query-xml').slideToggle()
+    _.extend super, {domain, mailto: href, query: @query.toXML()}
+
+  postRender: ->
+    query = indentXML @query.toXML()
+    pre = @$ 'pre'
+    withPrettyPrintOne (ppo) -> pre.html ppo _.escape query
+
+  events: -> 'click button': ->
+    @$('.query-xml').slideToggle()
+    @$('button').toggleClass 'active'

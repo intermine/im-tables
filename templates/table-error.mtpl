@@ -1,6 +1,6 @@
-<div class="alert alert-error">
+<div class="alert alert-error alert-warning">
 
-  <h2><%- Messages.getText('error.Oops') %></h2>
+  <h2><%= Icons.icon('Bug') %><%- Messages.getText('error.Oops') %></h2>
 
   <p>
     <i><%- Messages.getText(error.key || 'error.' + domain + '.Heading') %></i>
@@ -8,16 +8,16 @@
 
   <p><%- Messages.getText('error.' + domain + '.Body') %></p>
 
-  <a class="btn btn-primary pull-right" href="mailto://<%- mailto %>">
+  <a class="btn btn-primary pull-right" href="mailto:<%= mailto %>">
+    <%= Icons.icon('Mail') %>
     <%- Messages.getText('error.EmailHelp') %>
   </a>
 
-  <button class="btn btn-error">
+  <button class="btn btn-default">
+    <%= Icons.icon('xml') %>
     <%- Messages.getText('error.ShowQuery') %>
   </button>
 
-  <p class="query-xml" style="display:none" class="well">
-    <textarea><%- indent(query) %></textarea>
-  <p>
+  <pre class="query-xml well im-latent"><%- indent(query) %></pre>
 
 </div>
