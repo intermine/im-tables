@@ -1,13 +1,13 @@
 <% /* requires: selectList :: [], canUndo :: bool */ %>
 <td colspan="<%- selectList.length %>">
-  <div class="alert alert-info">
-    <strong><%- Messages.getText('table.Empty') %></strong>
-    <p><%- Messages.getText('table.EmptyWhy') %></p>
+  <div class="alert alert-warning">
     <% if (canUndo) { %>
-      <button class="btn btn-large btn-undo">
+      <button class="pull-right btn btn-large btn-default btn-undo">
         <%= Icons.icon('Undo') %>
         <%- Messages.getText('Undo') %>
       </button>
     <% } %>
+    <strong><%- Messages.getText('table.Empty') %></strong>
+    <p><%- Messages.getText('table.EmptyWhy') %></p>
   </div>
 </td>
