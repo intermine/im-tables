@@ -18,7 +18,7 @@ describe 'Options::get (simple)', ->
   after -> options.destroy()
 
   it 'should be able to read simple string values', ->
-    options.get('StylePrefix').should.eql 'intermine'
+    options.get('StylePrefix').should.eql 'imtables'
 
   it 'should be able to read object values', ->
     options.get('Destinations').should.eql ['download', 'Galaxy', 'GenomeSpace', 'Drive', 'Dropbox']
