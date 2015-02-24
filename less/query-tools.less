@@ -1,55 +1,50 @@
-.imtables-dashboard {
-    .container-fluid();
+.im-query-tools {
+    & > div {
+        display: inline-block;
+    }
+    .im-query-management {
+        width: 42%;
+        @media (max-width: @screen-sm-min) {
+            width: 30%;
+        }
+        @media (max-width: @screen-xxs-max) {
+            width: 35%;
+        }
 
-    .im-query-tools {
         & > div {
+            margin-right: 0.5em;
             display: inline-block;
-        }
-        .im-query-management {
-            width: 42%;
-            @media (max-width: @screen-sm-min) {
-                width: 30%;
-            }
-            @media (max-width: @screen-xxs-max) {
-                width: 35%;
-            }
-
-            & > div {
-                margin-right: 0.5em;
-                display: inline-block;
-                float: left;
-                margin-bottom: 0.2em;
-            }
-        }
-
-        .im-history {
-            width: 10%;
-            @media (max-width: @screen-sm-min) {
-                width: 15%;
-            }
-            @media (max-width: @screen-xxs-max) {
-                width: 20%;
-            }
-            & > div {
-                float: left;
-            }
-        }
-
-        .im-query-consumers {
-            width: 48%;
-            @media (max-width: @screen-sm-min) {
-                width: 55%;
-            }
-            @media (max-width: @screen-xxs-max) {
-                width: 45%;
-            }
-            & > div {
-                margin-left: 0.5em;
-                margin-bottom: 0.2em;
-                display: inline-block;
-                float: right;
-            }
+            float: left;
+            margin-bottom: 0.2em;
         }
     }
 
+    .im-history {
+        width: 10%;
+        @media (max-width: @screen-sm-min) {
+            width: 15%;
+        }
+        @media (max-width: @screen-xxs-max) {
+            width: 20%;
+        }
+        & > div {
+            float: left;
+        }
+    }
+
+    .im-query-consumers {
+        width: 48%;
+        @media (max-width: @screen-sm-min) {
+            width: 55%;
+        }
+        @media (max-width: @screen-xxs-max) {
+            width: 45%;
+        }
+        & > div {
+            margin-left: 0.5em;
+            margin-bottom: 0.2em;
+            display: inline-block;
+            float: right;
+        }
+    }
 }
