@@ -23,7 +23,8 @@ module.exports = class ObjectStore
     return model
 
   _newObject: (obj) ->
-    new IMObject @base, (@schema.makePath obj['class']), obj.id
+    classes = (@schema.makePath c for c in (obj['class']?.split(',') ? []))
+    new IMObject @base, classes, obj.id
 
   destroy: ->
     for id, model of @_objects

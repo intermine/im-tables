@@ -10,6 +10,8 @@ Formatting = require '../../formatting'
 Messages.setWithPrefix 'table.cell',
   Link: 'link'
   NullEntity: 'No <%= type %>'
+  PreviewTitle: ({types}) ->
+    types.join Options.get('DynamicObjects.NameDelimiter')
 
 SelectedObjects = require '../../models/selected-objects'
 types = require '../../core/type-assertions'
@@ -397,6 +399,7 @@ module.exports = class Cell extends CoreView
     content = @popovers.get @model.get 'entity'
     trigger = Options.get 'TableCell.PreviewTrigger'
     @popoverTarget = if trigger is 'hover' then @$('.im-cell-link') else @$el
+    getTitle = Messages.getText.bind(Messages, 'table.cell.PreviewTitle')
 
     @listenToOnce content, 'rendered', =>
       container = @getPreviewContainer()
@@ -406,7 +409,7 @@ module.exports = class Cell extends CoreView
         placement: 'auto left'
         container: container
         html: true # well, technically we are using Elements.
-        title: => @model.get 'typeName' # see CellModel
+        title: => getTitle types: @model.get 'typeNames' # see CellModel
         content: content.el
 
     # This is how we actually trigger the popover, hence it

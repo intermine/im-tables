@@ -14,7 +14,7 @@ module.exports = class Dashboard extends CoreView
 
   tagName: 'div'
 
-  className: 'imtables-dashboard'
+  className: 'imtables-dashboard container-fluid'
 
   Model: TableModel
 

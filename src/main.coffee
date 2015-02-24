@@ -38,7 +38,7 @@ createView = (create, elem, query, page) -> (resolve) ->
 
   # Set the view up correctly, making sure it has the right CSS classes.
   view.setElement element
-  element.classList.add _.result view, 'className'
+  (element.classList.add c for c in (_.result view, 'className').split(' '))
   element.classList.add Options.get 'StylePrefix'
   view.render()
 

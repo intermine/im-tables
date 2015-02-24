@@ -1,5 +1,9 @@
 _ = require 'underscore'
+{Promise} = require 'es6-promise'
+Options = require '../options'
 CoreModel = require '../core-model'
+
+DELIM = 'DynamicObjects.NameDelimiter'
 
 # Forms a pair with ./nested-table
 module.exports = class CellModel extends CoreModel
@@ -7,6 +11,7 @@ module.exports = class CellModel extends CoreModel
   defaults: ->
     columnName: null
     typeName: null
+    typeNames: []
     entity: null # :: IMObject
     column: null # :: PathInfo
     node: null # :: PathInfo
@@ -15,11 +20,13 @@ module.exports = class CellModel extends CoreModel
 
   initialize: ->
     super
-    type = (@get('entity').get('class') ? @get('node'))
-    column = @get('column')
+    types = (@get('entity').get('classes') ? [@get('node')])
+    {model} = column = @get('column')
     column.getDisplayName().then (columnName) => @set {columnName}
-    column.model.makePath(type).getDisplayName().then (typeName) => @set {typeName}
-  
+    nameRequests = (model.makePath(t).getDisplayName() for t in types)
+    Promise.all(nameRequests).then (names) =>
+      @set typeNames: names, typeName: names.join(Options.get DELIM)
+
   getPath: -> @get('column')
 
   toJSON: -> _.extend super,

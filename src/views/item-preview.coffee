@@ -14,7 +14,8 @@ ItemDetails = require './item-preview/details'
 ReferenceCounts = require './item-preview/reference-counts'
 CountsTitle = require './item-preview/counts-title'
 
-# {NUM_SEPARATOR, NUM_CHUNK_SIZE, CellCutoff} = intermine.options
+cantFindField = (fld, types) ->
+  "Could not determine origin of #{ fld } from [#{ types.join(', ') }]"
 
 class DetailsModel extends PathModel
 
@@ -47,7 +48,7 @@ class SortedByName extends Collection
 class PreviewModel extends CoreModel
 
   defaults: ->
-    type: null
+    types: []
     id: null
     error: null
     phase: 'FETCHING' # one of FETCHING, SUCCESS, ERROR
@@ -113,7 +114,7 @@ module.exports = class Preview extends CoreView
       m.set phase: 'ERROR', error: e
 
   postRender: -> if 'SUCCESS' is @model.get('phase')
-    for t in @model.get('type').split(',')
+    for t in @model.get('types')
       @$el.addClass t
 
   renderChildren: ->
@@ -132,16 +133,12 @@ module.exports = class Preview extends CoreView
   # schema here for reasons of sanity (namely collision with the
   # Backbone model located at @model)
   fetchData: -> @service.fetchModel().then (@schema) =>
-    type = @model.get 'type'
-    types = type.split ',' # could be a dynamic object.
-
-    gettingDetails = @getAllDetails types
-    gettingCounts = @getRelationCounts types
+    gettingDetails = @getAllDetails()
+    gettingCounts = @getRelationCounts()
 
     Promise.all gettingDetails.concat gettingCounts
 
-  getAllDetails: (types) ->
-    (@getDetails t for t in types)
+  getAllDetails: -> (@getDetails t for t in @model.get 'types')
 
   getDetails: (type) ->
     id = @model.get('id')
@@ -154,25 +151,31 @@ module.exports = class Preview extends CoreView
     coll = @fieldDetails
     testAttr = acceptAttr coll
     testRef = acceptRef coll
+    clds = (@schema.classes[t] for t in @model.get 'types')
 
     for field, value of item when (testAttr field, value)
-      @handleAttribute item, field, value
+      @handleAttribute item, clds, field, value
       
     for field, value of item when (testRef field, value)
-      @handleSubObj item, field, value
+      @handleSubObj item, clds, field, value
 
     return null
 
+  getPathForField: (clds, field) ->
+    cld = _.find clds, (c) -> c.fields[field]?
+    throw new Error(cantFindField field, _.pick clds, 'name') unless cld?
+    path = @schema.makePath "#{ cld.name }.#{ field }"
+
   # Turns references returned from into name: values pairs
-  handleSubObj: (item, field, value) ->
+  handleSubObj: (item, clds, field, value) ->
+    path = @getPathForField(clds, field)
     values = getLeaves value, HIDDEN_FIELDS
-    path = @schema.makePath "#{ item['class'] }.#{ field }"
     details = {path, field, values}
 
     @fieldDetails.add new RefDetailsModel details
 
-  handleAttribute: (item, field, rawValue) ->
-    path = @schema.makePath "#{ item['class'] }.#{ field }"
+  handleAttribute: (item, clds, field, rawValue) ->
+    path = @getPathForField(clds, field)
     details = {path, field, value: rawValue}
 
     if rawValue? and (path.getType() is 'String') or (/Clob/.test path.getType())
@@ -188,7 +191,8 @@ module.exports = class Preview extends CoreView
 
     @fieldDetails.add new AttrDetailsModel details
 
-  getRelationCounts: (types) ->
+  getRelationCounts: ->
+    types = @model.get 'types'
     root = @service.root
     opts = (Options.get ['Preview', 'Count', root]) ? {}
 

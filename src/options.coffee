@@ -9,6 +9,8 @@ class Options extends NestedModel
     MAX_PIE_SLICES: 15
     DropdownMax: 20
     DefaultPageSize: 25
+    DynamicObjects:
+      NameDelimiter: ' / '
     CodeGen:
       Default: 'py'
       Langs: ['py', 'pl', 'java', 'rb', 'js', 'xml']

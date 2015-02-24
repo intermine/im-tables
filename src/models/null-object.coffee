@@ -7,7 +7,7 @@ module.exports = class NullObject extends CoreModel
     @set
       'id': null
       'isNULL': true
-      'class': type
+      'classes': [type]
       'service:base': ''
       'service:url': ''
       'report:uri': null

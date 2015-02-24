@@ -9,7 +9,7 @@ module.exports = class FPObject extends CoreModel
     super()
     @set
       'id': null
-      'class': obj.class
+      'classes': [obj.class]
       'service:base': ''
       'service:url': ''
       'report:uri': null

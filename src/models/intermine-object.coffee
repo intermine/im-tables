@@ -6,12 +6,12 @@ CoreModel = require '../core-model'
 module.exports = class IMObject extends CoreModel
 
   # @param base [String] the base URL
-  # @param type [PathInfo] The type of this entity.
+  # @param types [Array<PathInfo>] The type of this entity.
   # @param id [any] the (opaque) id of this entity.
-  constructor: (base, type, id) ->
-    super class: String(type), id: id # set identifying values.
+  constructor: (base, types, id) ->
+    super classes: types?.map(String), id: id # set identifying values.
     @set 'service:base': base
-    @freeze 'service:base', 'id', 'class' # Do not allow these properties to change.
+    @freeze 'service:base', 'id', 'classes' # Do not allow these properties to change.
 
   toJSON: ->
     url = @get 'service:url'

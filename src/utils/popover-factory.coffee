@@ -40,11 +40,10 @@ module.exports = class PopoverFactory
   # IMObject -> jQuery
   get: (obj) ->
     {Preview, service} = @
-    type = obj.get 'class' # best to avoid using 'class' as a key.
+    types = obj.get 'classes' # It would be nice to align these - TODO!
     id = obj.get 'id'
-    model = {type, id}
 
-    new Preview {service, model}
+    new Preview {service, model: {types, id}}
   
   # Remove all popovers.
   destroy: ->
