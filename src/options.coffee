@@ -24,6 +24,7 @@ class Options extends NestedModel
     TableHeader:
       FullPathPopoverEnabled: true
     TableCell:
+      AddDataClasses: true
       PreviewTrigger: 'hover' # one of: hover, click
       HoverDelay: 200 # ms
       IndicateOffHostLinks: true

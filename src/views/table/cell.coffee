@@ -103,10 +103,10 @@ module.exports = class Cell extends CoreView
 
   # Return the Path representing the query node of this column.
   # :: -> PathInfo
-  getType: ->
+  getTypes: ->
     node = @model.get 'node'
-    entityType = @model.get('entity').get('class')
-    if entityType? then node.model.makePath(entityType) else node
+    classes = @model.get('entity').get('classes')
+    if classes? then (node.model.makePath c for c in classes) else [node]
 
   # Event wiring:
 
@@ -206,13 +206,40 @@ module.exports = class Cell extends CoreView
     currentOwner = @tableState.get 'previewOwner'
     @tableState.set previewOwner: null if myId is currentOwner
 
+  # This method is complicated because each object can have multiple
+  # identities if it is a dynamic object. An Employee/Bibliophile can
+  # only be added to the selection as an Employee or as a Bibliophile,
+  # and this method must decide which of these personalities is used.
   toggleSelection: ->
     ent = @model.get 'entity'
+    id = ent.get 'id'
     return unless ent?
-    if found = @selectedObjects.get ent
-      @selectedObjects.remove found
+
+    if found = @selectedObjects.get id
+      @selectedObjects.remove found # We were there - remove us.
     else
-      @selectedObjects.add ent
+      toAdd = @getMostSuitableIdentity()
+
+      unless toAdd?
+        throw new Error("None of our identities is a compatible")
+
+      @selectedObjects.add toAdd
+
+  getMostSuitableIdentity: ->
+    node = @model.get('node')
+    columnTypes = node.model.getSubclassesOf(node.getType())
+    id = @model.get('entity').get('id')
+    identities = ({'class': String(t), id} for t in @getTypes())
+
+    # If we can add anything, add the identity of ours which matches the node.
+    if @selectedObjects.isEmpty()
+      _.find identities, (x) -> x['class'] in columnTypes
+    else
+      ct = node.model.makePath @selectedObjects.state.get('commonType')
+      suitable = _.all identities, (x) -> compatible ct, x['class']
+      ranked = _.sortBy identities, (x) -> # Most specific last
+        node.model.getAncestorsOf(x['class']).length
+      _.last ranked
 
   setSelected: -> @state.set 'selected': @selectedObjects.get(@model.get('entity'))?
 
@@ -220,8 +247,11 @@ module.exports = class Cell extends CoreView
     commonType = @selectedObjects.state.get('commonType')
     size = @selectedObjects.size()
     # Selectable when nothing is selected or it is of the right type.
-    selectable = (size is 0) or (compatible @getType(), commonType)
+    selectable = (size is 0) or (@isCompatibleWith commonType)
     @state.set {selectable}
+
+  isCompatibleWith: (commonType) ->
+    @getTypes().some (t) -> compatible t, commonType
 
   setHighlit: ->
     myNode = @model.get('node')
@@ -356,9 +386,12 @@ module.exports = class Cell extends CoreView
     @setFormatterClasses()
     @initPreview()
 
-  setAttrClass: ->
+  setAttrClass: -> if Options.get('TableCell.AddDataClasses')
     attrType = @model.get('column').getType()
     @$el.addClass 'im-type-' + attrType.toLowerCase()
+    for entType in @getTypes()
+      @$el.addClass String(entType)
+    @$el.addClass @model.get('column').end.name
 
   setMinimisedClass: -> @$el.toggleClass 'im-minimised', @state.get('minimised')
 
