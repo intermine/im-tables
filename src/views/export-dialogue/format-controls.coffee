@@ -27,5 +27,5 @@ module.exports = class FormatControls extends View
     @model.set format: @$('input:radio:checked').val()
 
   postRender: ->
-    @renderChild 'heading', (new HeadingView {@model}), @$ 'h3'
+    @renderChild 'heading', (new HeadingView {@model}), @$ '.im-title'
 

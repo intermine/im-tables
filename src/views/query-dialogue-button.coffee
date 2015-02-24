@@ -35,7 +35,11 @@ module.exports = class QueryDialogueButton extends CoreView
 
   dialogueOptions: -> {@query}
 
-  # Show the dialogue, if the click was on this very element.
+  stateEvents: ->
+    'change:disabled': ->
+      @$('.btn.im-open-dialogue').toggleClass 'disabled', @state.get('disabled')
+
+  # Show the dialogue, unless disabled or already being shown.
   onClick: (e) -> unless (@state.get 'disabled')
     dialogue = @createDialogue()
     @renderChild 'dialogue', dialogue

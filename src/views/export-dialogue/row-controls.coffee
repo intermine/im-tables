@@ -70,7 +70,7 @@ module.exports = class RowControls extends View
     @model.set start: parseInt(@$('input[name=start]').val(), 10)
 
   postRender: ->
-    @renderChild 'heading', (new HeadingLabel model: @state), @$ 'h3'
+    @renderChild 'heading', (new HeadingLabel model: @state), @$ '.im-title'
     @renderChild 'size', (new SizeLabel {@model}), @$ '.size-label'
     @renderChild 'start', (new OffsetLabel {@model}), @$ '.start-label'
     @renderChild 'reset', (new ResetButton {@model}), @$ '.im-reset'

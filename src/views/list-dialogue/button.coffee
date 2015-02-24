@@ -6,6 +6,7 @@ Collection = require '../../core/collection'
 Templates = require '../../templates'
 
 ClassSet = require '../../utils/css-class-set'
+Counter = require '../../utils/count-executor'
 PathModel = require '../../models/path'
 
 # The four dialogues of the apocalypse
@@ -64,11 +65,12 @@ module.exports = class ListDialogueButton extends CoreView
   tableState: new CoreModel
 
   initState: ->
-    @state.set action: 'create', authenticated: false
+    @state.set action: 'create', authenticated: false, disabled: false
 
   stateEvents: ->
     'change:action': @setActionButtonState
     'change:authenticated': @setVisible
+    'change:disabled': @onChangeDisabled
 
   events: ->
     'click .im-create-action': @setActionIsCreate
@@ -82,17 +84,23 @@ module.exports = class ListDialogueButton extends CoreView
     # Reversed, because we prepend them in order to the menu.
     @query.getQueryNodes().reverse().forEach (n) => @paths.add new PathModel n
     @query.service.whoami().then (u) => @state.set authenticated: (!!u)
+    Counter.count @query # Disable export if no results or in error.
+           .then (count) => @state.set disabled: count is 0
+           .then null, (err) => @state.set disabled: true, error: err
 
   getData: -> _.extend super, @classSets, paths: @paths.toJSON()
 
   postRender: ->
     @setVisible()
+    @onChangeDisabled()
     menu = @$ '.dropdown-menu'
     highLight = (p) => @tableState.set highlitNode: p
     showDialogue = (args) => @showPathDialogue args
     @paths.each (model, i) =>
       node = new SelectableNode {@query, model, showDialogue, highLight}
       @renderChild "path-#{ i }", node, menu, 'prepend'
+
+  onChangeDisabled: -> @$('.btn').toggleClass 'disabled', @state.get 'disabled'
 
   setVisible: -> @$el.toggleClass 'im-hidden', (not @state.get 'authenticated')
 
