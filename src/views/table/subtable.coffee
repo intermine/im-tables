@@ -16,6 +16,8 @@ class PathCollection extends Collection
 
   model: PathModel
 
+INITIAL_STATE = 'Subtables.Initially.expanded'
+
 # A cell containing a subtable of other rows.
 # The table itself can be expanded or collapsed.
 # When collapsed it is represented by a summary line.
@@ -48,7 +50,8 @@ module.exports = class SubTable extends CoreView
   getPath: -> @model.get 'column'
 
   initState: ->
-    @state.set open: Options.get('Subtables.Initially.expanded')
+    open = (Options.get INITIAL_STATE) or (@expandedSubtables.contains @getPath())
+    @state.set open: open
 
   stateEvents: ->
     'change:open': @onChangeOpen
