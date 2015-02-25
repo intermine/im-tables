@@ -4,6 +4,22 @@
         overflow-y: auto;
     }
 }
+
+.im-filter-summary {
+    .label-path {
+        .im-name-part {
+            display: none;
+            &:last-child {
+                display: inline;
+            }
+        }
+        &.im-show-full-path {
+            .im-name-part {
+                display: inline;
+            }
+        }
+    }
+}
 .im-constraint-editor {
 
     padding: 1em;
@@ -56,6 +72,12 @@
 
     .im-remove-constraint, .im-edit {
         cursor: pointer;
+    }
+
+    .breadcrumb {
+        .label {
+            font-size: 1.25em;
+        }
     }
 
 }

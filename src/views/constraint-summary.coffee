@@ -1,9 +1,8 @@
 _ = require 'underscore'
-fs = require 'fs'
 
 Messages = require '../messages'
-Icons = require '../icons'
-View = require '../core-view'
+Templates = require '../templates'
+CoreView = require '../core-view'
 {IS_BLANK} = require '../patterns'
 
 {Query, Model} = require 'imjs'
@@ -12,24 +11,36 @@ Messages.set
   'consummary.IsA': 'is a'
   'consummary.NoValue': 'no value'
 
-TEMPLATE = fs.readFileSync __dirname + '/../templates/constraint-summary.html', 'utf8'
-
-module.exports = class ConstraintSummary extends View
+module.exports = class ConstraintSummary extends CoreView
 
   tagName: 'ol'
 
-  className: 'summary breadcrumb'
+  className: 'constraint-summary breadcrumb'
 
   initialize: ->
-    @listenTo @model, 'change', @reRender
+    super
     @listenTo Messages, 'change', @reRender
-    @listenTo Icons, 'change', @reRender
 
-  getData: -> icons: Icons, messages: Messages, labels: @getSummary()
+  getData: -> _.extend super, labels: @getSummary()
 
-  template: _.template TEMPLATE
+  template: Templates.template 'constraint-summary'
 
   getTitleOp: -> @model.get('op') or Messages.getText('consummary.IsA')
+
+  modelEvents: ->
+    change: @reRender
+
+  events: ->
+    'click .label-path': -> @state.toggle 'showFullPath'
+
+  stateEvents: ->
+    'change:showFullPath': @toggleFullPath
+
+  toggleFullPath: ->
+    @$('.label-path').toggleClass 'im-show-full-path', !!@state.get('showFullPath')
+
+  postRender: ->
+    @toggleFullPath()
 
   getTitleVal: () ->
     if @model.has('values') and @model.get('op') in Query.MULTIVALUE_OPS.concat Query.RANGE_OPS
@@ -52,7 +63,7 @@ module.exports = class ConstraintSummary extends View
 
   getPathLabel: ->
     {title, displayName, path} = @model.toJSON()
-    {content: (title ? displayName ? path), type: 'path'}
+    {content: String(title ? displayName ? path), type: 'path'}
 
   getSummary: ->
     labels = []
