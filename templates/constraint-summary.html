@@ -2,14 +2,14 @@
   <li>        
     <span class="label label-<%- label.type %>">
       <% if (_.include(['error', 'warning'], label.type)) { %>
-        <%= icons.icon('Error') %>
-        <%- messages.getText('consummary.' + label.content) %>
+        <%= Icons.icon('Error') %>
+        <%- Messages.getText('consummary.' + label.content) %>
       <% } else if (label.type === 'path') { %>
         <% _.each(label.content.split(' > '), function (part) { %>
           <span class="im-name-part"><%- part %></span>
         <% }); %>
       <% } else { %>
-        <% if (label.icon) { %><%= icons.icon(label.icon) %><% } %>
+        <% if (label.icon) { %><%= Icons.icon(label.icon) %><% } %>
         <%- label.content %>
       <% } %>
     </span>

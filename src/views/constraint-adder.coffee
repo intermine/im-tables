@@ -31,6 +31,8 @@ class ConstraintAdderModel extends CoreModel
     canSelectReferences: true # Can we select references?
     multiSelect: false        # Can we select multiple paths?
 
+OPTIONS_SEL = '.im-constraint-adder-options'
+
 module.exports = class ConstraintAdder extends View
 
   tagName: 'div'
@@ -76,6 +78,7 @@ module.exports = class ConstraintAdder extends View
     constraint = @model.get 'constraint'
     editor = new NewConstraint {@buttonDelegate, @query, constraint}
     @renderChild 'con', editor, @$ '.im-new-constraint'
+    @listenTo editor, 'remove', -> @model.set showTree: true
 
   onChangeConstraint: -> if @rendered
     if @model.get 'constraint'
@@ -104,7 +107,7 @@ module.exports = class ConstraintAdder extends View
 
   renderOptions: ->
     opts = {@model, @openNodes, @chosenPaths, @query}
-    @renderChild 'opts', (new ConstraintAdderOptions opts), @$ '.im-constraint-adder-options'
+    @renderChild 'opts', (new ConstraintAdderOptions opts), @$ OPTIONS_SEL
 
   postRender: ->
     @renderOptions()

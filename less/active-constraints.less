@@ -22,7 +22,12 @@
 }
 .im-constraint-editor {
 
+    &:empty {
+        display: none;
+    }
+
     padding: 1em;
+
     .path-label {
         text-align: right;
     }
@@ -75,6 +80,11 @@
     }
 
     .breadcrumb {
+
+        li {
+            &:before { content: ''; }
+            margin-right: 0.2em;
+        }
         .label {
             font-size: 1.25em;
         }

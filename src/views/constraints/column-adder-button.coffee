@@ -1,10 +1,13 @@
 _ = require 'underscore'
 CoreView = require '../../core-view'
 Messages = require '../../messages'
+PathModel = require '../../models/path'
 
 require '../../messages/constraints'
 
 module.exports = class AdderButton extends CoreView
+
+  Model: PathModel
   
   tagName: 'button'
 

@@ -6,14 +6,19 @@ ComposedColumnConstraintAdder = require './composed-column-adder'
 module.exports = class SingleColumnConstraints extends Constraints
 
   getConAdder: -> if @shouldShowAdder()
-    if @model.get('isComposed')
-      new ComposedColumnConstraintAdder {@query, paths: @model.get('replaces')}
+    {replaces, isComposed, outerJoined} = @model.attributes
+    path = @model.pathInfo()
+    if isComposed and replaces.length > 1
+      new ComposedColumnConstraintAdder {@query, paths: replaces}
+    else if outerJoined
+      new ComposedColumnConstraintAdder {@query, paths: [path].concat(replaces)}
     else
-      new SingleColumnConstraintAdder {@query, path: @model.get 'path'}
+      new SingleColumnConstraintAdder {@query, path: path}
 
   # Numeric paths can handle multiple constraints - others should just have one.
   shouldShowAdder: ->
-    @model.get('numeric') or @model.get('isComposed') or (not @getConstraints().length)
+    {numeric, isComposed, outerJoined} = @model.attributes
+    numeric or isComposed or outerJoined or (not @getConstraints().length)
 
   getConstraints: ->
     view = @model.get 'path'

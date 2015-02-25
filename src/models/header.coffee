@@ -47,7 +47,7 @@ module.exports = class HeaderModel extends PathModel
 
   getView: ->
     {replaces, isFormatted, path} = @pick 'replaces', 'isFormatted', 'path'
-    String if isFormatted and replaces.length is 1 then replaces[0] else path
+    String if (isFormatted and replaces.length is 1) then replaces[0] else path
 
   validate: (attrs, opts) ->
     if 'replaces' of attrs
