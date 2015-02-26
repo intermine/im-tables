@@ -57,6 +57,7 @@ module.exports = class QueryTools extends CoreView
       @consumerContainer.classList.add Options.get('StylePrefix')
       @consumerContainer.classList.add 'im-query-consumers'
       @$('.im-query-management').addClass 'im-has-more-space'
+      @$('.im-history').addClass 'im-has-more-space'
       return @consumerContainer
     else
       cons = @$('.im-query-consumers').empty()

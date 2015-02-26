@@ -1,6 +1,6 @@
 module.exports =
-  'export.Export': 'Download'
-  'export.ExportQuery': 'Download Results'
+  'export.Export': 'Export'
+  'export.ExportQuery': 'Export'
   'export.DialogueTitle': 'Export'
   'export.category.Format': "<%= format.EXT %> Format",
   'export.category.Columns': "<%= columns %> Columns",

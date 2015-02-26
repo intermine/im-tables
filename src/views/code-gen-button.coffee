@@ -15,6 +15,13 @@ Dialogue = require './code-gen-dialogue'
 # This class uses the code-gen message bundle.
 require '../messages/code-gen'
 
+class MainButton extends CoreView
+
+  modelEvents: ->
+    'change:lang': @reRender
+
+  template: Templates.template 'code-gen-button-main'
+
 module.exports = class CodeGenButton extends CoreView
 
   parameters: ['query', 'tableState']
@@ -28,8 +35,8 @@ module.exports = class CodeGenButton extends CoreView
   # The data that the template renders.
   getData: -> _.extend super, options: Options.get('CodeGen')
 
-  modelEvents: ->
-    'change:lang': @onChangeLang
+  renderChildren: ->
+    @renderChildAt '.im-show-code-gen-dialogue', new MainButton {@model}
 
   events: ->
     'click .dropdown-menu.im-code-gen-langs li': 'chooseLang'
@@ -38,10 +45,6 @@ module.exports = class CodeGenButton extends CoreView
   chooseLang: (e) ->
     lang = @$(e.target).closest('li').data 'lang'
     @model.set lang: lang
-
-  onChangeLang: ->
-    lang = @model.get 'lang'
-    @$('.im-current-lang').text Messages.getText 'codegen.Lang', {lang}
 
   showDialogue: ->
     page = @tableState.pick 'start', 'size'

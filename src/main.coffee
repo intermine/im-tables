@@ -18,23 +18,24 @@ simpleFormatter = require './utils/simple-formatter'
 #         QueryDef = Query | {service :: Servicelike, query :: Querylike}
 #         Servicelike = Service | {root :: String, token :: String?}
 #         Querylike = Query | QueryJson
-load = (create) -> loadView = (elem, page, queryDef) ->
+load = (create) -> loadView = (elem, opts, queryDef) ->
   if Types.Query.test queryDef
-    new Promise createView create, elem, queryDef, page
+    new Promise createView create, elem, queryDef, opts
   else # we have to lift the query def to a query.
     {service, query} = queryDef
     conn = if Types.Service.test(service) then service else connect(service)
-    conn.query(query).then _.partial loadView, elem, page
+    conn.query(query).then _.partial loadView, elem, opts
 
 # Given a factory function and some arguments, create and render a view.
 # (factry, Elementable, Query, Page) -> Promiser
-createView = (create, elem, query, page) -> (resolve) ->
+createView = (create, elem, query, opts = {}) -> (resolve) ->
   # Find the element referred to - throw an error otherwise.
   element = asElement elem
   # Pick white-listed properties off the page.
-  model = if page? then (_.pick page, 'start', 'size') else null
+  model = if page? then (_.pick opts, 'start', 'size') else null
+  opts = _.extend (_.omit opts, 'start', 'size'), model: model, query: query
   # Create the view
-  view = create query, model
+  view = create opts
 
   # Set the view up correctly, making sure it has the right CSS classes.
   view.setElement element
@@ -63,7 +64,7 @@ exports.configure = Options.set.bind(Options)
 exports.loadTable = load Table.create
 
 # :: (elem, page, query) -> Promise Dashboard
-exports.loadDash = load (query, model) -> new Dashboard {query, model}
+exports.loadDash = load (opts) -> new Dashboard opts
 
 # Allow 3rd parties to create new simple formatters
 exports.createFormatter = simpleFormatter

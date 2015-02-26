@@ -25,6 +25,9 @@ module.exports = class ExportDialogueButton extends QueryDialogueButton
            .then (count) => @state.set disabled: count is 0
            .then null, (err) => @state.set disabled: true, error: err
 
+  initState: ->
+    @state.set name: @query.name
+
   dialogueOptions: ->
     page = @tableState?.pick('start', 'size')
     {@query, model: {tablePage: page}}

@@ -13,7 +13,8 @@ Messages.setWithPrefix 'codegen',
   ChooseLang: 'Choose Language'
   ShowBoilerPlate: 'Show comments'
   HighlightSyntax: 'Highlight Syntax'
-  GenerateCodeIn: 'Generate code in'
+  GenerateCodeIn: ({lang}) ->
+    "Generate #{ Messages.getText 'codegen.Lang', {lang} } code"
   Lang: ({lang}) -> switch lang
     when 'py' then 'Python'
     when 'pl' then 'Perl'

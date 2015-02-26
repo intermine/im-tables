@@ -1,9 +1,9 @@
 <button class="btn btn-default im-open-dialogue">
   <%= Icons.icon(labels.ICON) %>
   <span class="im-hidden-sm hidden-sm hidden-xs">
-    <%- Messages.getText(labels.LONG) %>
+    <%- Messages.getText(labels.LONG, state) %>
   </span>
   <span class="im-visible-sm-inline visible-sm-inline">
-    <%- Messages.getText(labels.SHORT) %>
+    <%- Messages.getText(labels.SHORT, state) %>
   <span>
 </button>

@@ -35,7 +35,7 @@ UNKNOWN_ERROR =
 module.exports = class Table extends CoreView
 
   # Convenience for creating tables from the outside.
-  @create: (query, model) ->
+  @create: ({query, model}) ->
     Types.assertMatch Types.Query, query
     model ?= new TableModel
     history = new History

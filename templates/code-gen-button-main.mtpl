@@ -1,0 +1,8 @@
+<%= Icons.icon('CodeFile') %>
+<span class="hidden-sm hidden-xs">
+  <%- Messages.getText('codegen.GenerateCodeIn', {lang: lang}) %>
+</span>
+<span class="visible-sm-inline im-current-lang">
+    <%- Messages.getText('codegen.Lang', {lang: lang}) %>
+</span>
+
