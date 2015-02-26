@@ -1,4 +1,6 @@
 _ = require 'underscore'
+$ = require 'jquery'
+
 CoreView = require '../core-view'
 Templates = require '../templates'
 Options = require '../options'
@@ -24,7 +26,8 @@ module.exports = class QueryTools extends CoreView
 
   optionalParameters: [
     'bus', # An event bus
-    'consumerContainer'
+    'consumerContainer',
+    'consumerBtnClass'
   ]
 
   bus: (new Bus)
@@ -40,6 +43,10 @@ module.exports = class QueryTools extends CoreView
     @renderManagementTools()
     @renderUndo()
     @renderQueryConsumers()
+
+  postRender: ->
+    if @consumerContainer and (cls = @consumerBtnClass)
+      $('.btn', @consumerContainer).addClass(cls)
 
   renderManagementTools: ->
     $management = @$ '.im-query-management'

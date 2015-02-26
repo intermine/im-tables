@@ -18,9 +18,10 @@ Options.set 'TableCell.IndicateOffHostLinks', false
 
 create = (query) ->
   # Displace the consumers to a separate element outside the dashboard.
-  consumers = document.createElement 'div'
-  document.body.appendChild consumers 
-  new Dashboard {query, consumerContainer: consumers, model: {size: 5}}
+  consumerContainer = document.createElement 'div'
+  document.body.appendChild consumerContainer
+  consumerBtnClass = 'btn-primary'
+  new Dashboard {query, consumerBtnClass, consumerContainer, model: {size: 5}}
 renderQuery = renderWithCounter create
 main = -> renderQueries [QUERY], renderQuery
 

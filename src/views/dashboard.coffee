@@ -23,7 +23,7 @@ module.exports = class Dashboard extends CoreView
   Model: TableModel
 
   # :: Element or jQuery-ish or String
-  optionalParameters: ['consumerContainer']
+  optionalParameters: ['consumerContainer', 'consumerBtnClass']
 
   initialize: ({query}) ->
     unless Types.Query.test query
