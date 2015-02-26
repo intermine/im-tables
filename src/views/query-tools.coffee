@@ -1,3 +1,4 @@
+_ = require 'underscore'
 CoreView = require '../core-view'
 Templates = require '../templates'
 
@@ -20,7 +21,10 @@ module.exports = class QueryTools extends CoreView
 
   parameters: ['tableState', 'history', 'selectedObjects']
 
-  optionalParameters: ['bus'] # An event bus
+  optionalParameters: [
+    'bus', # An event bus
+    'consumerContainer'
+  ]
 
   bus: (new Bus)
 
@@ -49,19 +53,30 @@ module.exports = class QueryTools extends CoreView
     $undo = @$ '.im-history'
     @renderChild 'undo', (new UndoHistory {collection: @history}), $undo
 
+  getConsumerContainer: ->
+    @consumerContainer ? @$('.im-query-consumers').empty()
+
   renderQueryConsumers: ->
-    $consumers = @$ '.im-query-consumers'
+    container = @getConsumerContainer()
+    return unless container.length # No point instantiating children that won't appear.
     query = @history.getCurrentQuery()
     selected = @selectedObjects
-    $consumers.empty()
     listDialogue = new ListDialogueButton {query, @tableState, selected}
     @listenTo listDialogue, 'all', (evt, args...) =>
       @bus.trigger "list-action:#{evt}", args...
       @bus.trigger "list-action", evt, args...
 
-    @renderChild 'save', (new ExportDialogueButton {query, @tableState}), $consumers
-    @renderChild 'code', (new CodeGenButton {query, @tableState}), $consumers
-    @renderChild 'lists', listDialogue, $consumers
+    @renderChild 'save', (new ExportDialogueButton {query, @tableState}), container
+    @renderChild 'code', (new CodeGenButton {query, @tableState}), container
+    @renderChild 'lists', listDialogue, container
 
-    $consumers.append Templates.clear
+    safeAppend container, (stringToElements Templates.clear)[0]
+
+safeAppend = (elementy, content) ->
+  if elementy.appendChild then elementy.appendChild(content) else elementy.append content
+
+stringToElements = (s) ->
+  d = document.createElement 'div'
+  d.innerHTML = s
+  _.toArray d.childNodes
 

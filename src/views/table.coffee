@@ -53,6 +53,8 @@ module.exports = class Table extends CoreView
     'selectedObjects' # currently selected entities
   ]
 
+  optionalParameters: ['model'] # This is just by way of documentation - you can inject the model.
+
   parameterTypes:
     history: (Types.InstanceOf History, 'History')
     selectedObjects: (Types.InstanceOf SelectedObjects, 'SelectedObjects')
