@@ -53,13 +53,15 @@ module.exports = class Table extends CoreView
     'selectedObjects' # currently selected entities
   ]
 
-  optionalParameters: ['model'] # This is just by way of documentation - you can inject the model.
+  optionalParameters: [
+    'model' # This is just by way of documentation - you can inject the model.
+    'columnHeaders', # The column headers
+    'blacklistedFormatters' # The formatters you do not like
+  ]
 
   parameterTypes:
     history: (Types.InstanceOf History, 'History')
     selectedObjects: (Types.InstanceOf SelectedObjects, 'SelectedObjects')
-
-  optionalParameters: ['columnHeaders', 'blacklistedFormatters']
 
   cellModelFactory: null # initialised in Table::onChangeQuery
 
