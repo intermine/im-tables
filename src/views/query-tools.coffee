@@ -14,7 +14,7 @@ ExportDialogueButton = require './export-dialogue/button'
 
 SUBSECTIONS = ['im-query-management', 'im-history', 'im-query-consumers']
 
-subsection = (s) -> """<div class="#{ s }"></div>"""
+subsection = (s) -> """<div class="#{ s } clearfix"></div>"""
 
 module.exports = class QueryTools extends CoreView
 
@@ -29,9 +29,7 @@ module.exports = class QueryTools extends CoreView
 
   bus: (new Bus)
 
-  template: ->
-    subs = (SUBSECTIONS.map subsection).join ''
-    subs + Templates.clear
+  template: -> (SUBSECTIONS.map subsection).join ''
 
   initialize: ->
     super
@@ -57,6 +55,8 @@ module.exports = class QueryTools extends CoreView
   getConsumerContainer: ->
     if @consumerContainer?
       @consumerContainer.classList.add Options.get('StylePrefix')
+      @consumerContainer.classList.add 'im-query-consumers'
+      @$('.im-query-management').addClass 'im-has-more-space'
       return @consumerContainer
     else
       cons = @$('.im-query-consumers').empty()
@@ -75,14 +75,3 @@ module.exports = class QueryTools extends CoreView
     @renderChild 'save', (new ExportDialogueButton {query, @tableState}), container
     @renderChild 'code', (new CodeGenButton {query, @tableState}), container
     @renderChild 'lists', listDialogue, container
-
-    safeAppend container, (stringToElements Templates.clear)[0]
-
-safeAppend = (elementy, content) ->
-  if elementy.appendChild then elementy.appendChild(content) else elementy.append content
-
-stringToElements = (s) ->
-  d = document.createElement 'div'
-  d.innerHTML = s
-  _.toArray d.childNodes
-

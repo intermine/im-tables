@@ -1,4 +1,6 @@
 .im-query-tools {
+    .clearfix();
+
     & > div {
         display: inline-block;
     }
@@ -9,6 +11,9 @@
         }
         @media (max-width: @screen-xxs-max) {
             width: 35%;
+        }
+        &.im-has-more-space {
+            width: 82%;
         }
 
         & > div {
@@ -39,6 +44,9 @@
         }
         @media (max-width: @screen-xxs-max) {
             width: 45%;
+        }
+        &:empty {
+            width: 0px;
         }
         & > div {
             margin-left: 0.5em;
