@@ -13,7 +13,7 @@
             width: 35%;
         }
         &.im-has-more-space {
-            width: 82%;
+            width: 80%;
         }
 
         & > div {
@@ -31,6 +31,15 @@
         }
         @media (max-width: @screen-xxs-max) {
             width: 20%;
+        }
+        &.im-has-more-space {
+            width: 20%;
+            & > div {
+                float: right;
+                & .dropdown-menu {
+                    .dropdown-menu-right();
+                }
+            }
         }
         & > div {
             float: left;
