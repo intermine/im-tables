@@ -1,6 +1,7 @@
 _ = require 'underscore'
 CoreView = require '../core-view'
 Templates = require '../templates'
+Options = require '../options'
 
 ColumnMangerButton   = require './column-manager/button'
 FilterDialogueButton = require './filter-dialogue/button'
@@ -54,11 +55,16 @@ module.exports = class QueryTools extends CoreView
     @renderChild 'undo', (new UndoHistory {collection: @history}), $undo
 
   getConsumerContainer: ->
-    @consumerContainer ? @$('.im-query-consumers').empty()
+    if @consumerContainer?
+      @consumerContainer.classList.add Options.get('StylePrefix')
+      return @consumerContainer
+    else
+      cons = @$('.im-query-consumers').empty()
+      return cons if cons.length
 
   renderQueryConsumers: ->
     container = @getConsumerContainer()
-    return unless container.length # No point instantiating children that won't appear.
+    return unless container # No point instantiating children that won't appear.
     query = @history.getCurrentQuery()
     selected = @selectedObjects
     listDialogue = new ListDialogueButton {query, @tableState, selected}
