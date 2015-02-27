@@ -71,7 +71,7 @@ module.exports = class PageSizer extends CoreView
 
   getData: ->
     count = @model.get 'count'
-    sizes = (s for s in @sizes when ((not count?) or (s[0] <= count)))
+    sizes = (s for s in @sizes when ((not count?) or (s[0] < count)))
     _.extend super, {sizes}
 
   pageSizeFeasibilityThreshold: 250

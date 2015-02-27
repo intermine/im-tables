@@ -24,6 +24,9 @@ module.exports = class Pagination extends View
   RERENDER_EVENT: 'change:start change:count change:size'
 
   template: _.template html
+
+  modelEvents: ->
+    'change:count': @setVisible
   
   getData: ->
     {start, size, count} = @model.toJSON()
@@ -42,7 +45,13 @@ module.exports = class Pagination extends View
       selected: (i) -> start is i * size
       useSelect: (max <= SELECT_LIMIT)
 
-  postRender: -> @$('li').tooltip placement: 'top'
+  postRender: ->
+    @$('li').tooltip placement: 'top'
+    @setVisible()
+
+  setVisible: ->
+    max = @getMaxPage()
+    @$el.toggleClass 'im-hidden', max < 2
 
   events: ->
     'submit .im-page-form': 'pageFormSubmit'
@@ -50,13 +59,11 @@ module.exports = class Pagination extends View
     'change .im-page-form select': 'goToChosenPage'
     'blur .im-page-form input': 'pageFormSubmit'
     'click .im-goto-start': => @goTo 0
-    'click .im-goto-end': =>
-      console.debug 'off to the end'
-      @goTo (@getMaxPage() - 1) * @model.get('size')
     'click .im-go-back-5': => @goBack 5
     'click .im-go-back-1': => @goBack 1
     'click .im-go-fwd-5': => @goForward 5
     'click .im-go-fwd-1': => @goForward 1
+    'click .im-goto-end': => @goTo (@getMaxPage() - 1) * @model.get('size')
 
   goToChosenPage: (e) ->
     start = ensureNumber @$(e.target).val()
