@@ -157,6 +157,11 @@ module.exports = class CodeGenDialogue extends Modal
     super
     @addCheckboxes()
     @highlightCode()
+    @setMaxHeight()
+
+  setMaxHeight: ->
+    maxHeight = Math.max 250, (@$el.closest('.modal').height() - 200)
+    @$('.im-generated-code').css 'max-height': maxHeight
 
   addCheckboxes: ->
     @renderChildAt '.im-show-boilerplate', new Checkbox
