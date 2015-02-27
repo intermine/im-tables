@@ -71,7 +71,10 @@ module.exports = class PageSizer extends CoreView
 
   getData: ->
     count = @model.get 'count'
+    size = @model.get 'size'
     sizes = (s for s in @sizes when ((not count?) or (s[0] < count)))
+    if sizes.length and (size not in sizes)
+      sizes.push [size] # It is confusing to show the wrong size.
     _.extend super, {sizes}
 
   pageSizeFeasibilityThreshold: 250
