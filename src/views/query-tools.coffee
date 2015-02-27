@@ -44,10 +44,6 @@ module.exports = class QueryTools extends CoreView
     @renderUndo()
     @renderQueryConsumers()
 
-  postRender: ->
-    if @consumerContainer and (cls = @consumerBtnClass)
-      $('.btn', @consumerContainer).addClass(cls)
-
   renderManagementTools: ->
     $management = @$ '.im-query-management'
     query = @history.getCurrentQuery()
@@ -83,3 +79,15 @@ module.exports = class QueryTools extends CoreView
     @renderChild 'save', (new ExportDialogueButton {query, @tableState}), container
     @renderChild 'code', (new CodeGenButton {query, @tableState}), container
     @renderChild 'lists', listDialogue, container
+
+    if @consumerContainer and @consumerBtnClass
+      for kid in ['save', 'code', 'lists']
+        console.log 'listening to', @children[kid]
+        @listenTo @children[kid], 'rendered', @setButtonStyle
+
+    @setButtonStyle()
+
+  setButtonStyle: ->
+    if (con = @consumerContainer) and (cls = @consumerBtnClass)
+      $('.btn', con).addClass(cls)
+
