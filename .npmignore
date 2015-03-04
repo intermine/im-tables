@@ -3,7 +3,9 @@ oldsrc
 test
 bower.json
 js
-templates
+templates/
+!build
+!build/templates
 node_modules
 components
 *.tgz
