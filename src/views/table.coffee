@@ -39,7 +39,7 @@ module.exports = class Table extends CoreView
     Types.assertMatch Types.Query, query
     model ?= new TableModel
     history = new History
-    selectedObjects = new SelectedObjects
+    selectedObjects = new SelectedObjects query.service
     history.setInitialState query
     new Table {history, model, selectedObjects}
 
