@@ -1,6 +1,6 @@
 {
   "name": "imtables",
-  "version": "2.0.0-beta-7",
+  "version": "2.0.0-beta-8",
   "description": "UI widgets for displaying query results in interactive tables",
   "config": {
     "port": "9000"
@@ -65,6 +65,7 @@
     "brfs": "^1.2.0",
     "browserify": "^7.0.0",
     "browserify-shim": "~3.8.1",
+    "brfs-htmlmin": "^1.0.0",
     "codo": "~0.3.0",
     "coffee-script": "~1.8.0",
     "coffeeify": "^1.0.0",
@@ -93,7 +94,6 @@
   "dependencies": {
     "backbone": "^1.1.2",
     "bootstrap": "^3.3.2",
-    "brfs-htmlmin": "^1.0.0",
     "d3-browserify": "^3.4.12",
     "es6-promise": "^2.0.1",
     "font-awesome": "^4.3.0",
