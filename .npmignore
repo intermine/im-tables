@@ -6,6 +6,8 @@ js
 templates/
 !build
 !build/templates
+build/templates/*.mtpl
+build/templates/*.html
 node_modules
 components
 *.tgz
