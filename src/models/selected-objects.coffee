@@ -30,10 +30,13 @@ module.exports = class SelectedObjects extends Collection
   constructor: (service) ->
     super()
     types.assertMatch types.Service, service, 'service'
-    @state = new CoreModel commonType: null, typeName: null
+    @state = new CoreModel node: null, commonType: null, typeName: null
     @listenTo @state, 'change:commonType', @onChangeType
+    @listenTo @state, 'change:node', @onChangeNode
     @listenTo @, 'add remove reset', @setType
     service.fetchModel().then (@schema) => @setType()
+
+  onChangeNode: -> @trigger 'change:node change', @state.get('node')
 
   onChangeType: ->
     return unless @schema? # wait until we have the data model.

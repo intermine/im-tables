@@ -60,6 +60,17 @@ $ ->
   optionsΤοggles = new Toggles
     model: Options
     toggles: [{attr: 'TableCell.PreviewTrigger', type: 'enum', opts: ['hover', 'click']}]
+  selectableNodeToggle = new Toggles
+    model: selectedObjects.state
+    toggles: [{
+      attr: 'node',
+      type: 'enum',
+      opts: [
+        'Department',
+        'Department.company',
+        'Department.employees'
+      ]
+    }]
 
   commonTypeLabel = new Label
     model: selectedObjects
@@ -69,5 +80,6 @@ $ ->
   toggles.render().$el.appendTo 'body'
   optionsΤοggles.render().$el.appendTo 'body'
   commonTypeLabel.render().$el.appendTo 'body'
+  selectableNodeToggle.render().$el.appendTo 'body'
 
   renderQueries [QUERY], renderQuery

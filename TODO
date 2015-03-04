@@ -1,4 +1,6 @@
 Tests pointed at genomic mines
-Tests loading glyphicons
 Tests of all 3 UMD strategies
 Create a bower release procedure
+
+deal with the webapp.css declaration of a .tag style (affects prettified code)
+Test long summary fields (.im-too-long) - use Composition.text.text

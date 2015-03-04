@@ -132,7 +132,7 @@ module.exports = class Cell extends CoreView
   listenToSelectedObjects: ->
     objs = @selectedObjects
     @listenTo objs, 'add remove reset',                   @setSelected
-    @listenTo objs, 'add remove reset change:commonType', @setSelectable
+    @listenTo objs, 'add remove reset change:commonType change:node', @setSelectable
 
   modelEvents: -> # The model for a cell is pretty static.
     'change:entity': @onChangeEntity # make sure we unbind if it changes.
@@ -245,9 +245,11 @@ module.exports = class Cell extends CoreView
 
   setSelectable: ->
     commonType = @selectedObjects.state.get('commonType')
+    node = @selectedObjects.state.get('node')
     size = @selectedObjects.size()
     # Selectable when nothing is selected or it is of the right type.
-    selectable = (size is 0) or (@isCompatibleWith commonType)
+    selectable = ((not node?) or (node is String @model.get 'node')) and \
+                 ((size is 0) or (@isCompatibleWith commonType))
     @state.set {selectable}
 
   isCompatibleWith: (commonType) ->
