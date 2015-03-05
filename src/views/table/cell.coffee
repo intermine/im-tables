@@ -1,4 +1,5 @@
 _ = require 'underscore'
+$ = require 'jquery'
 
 CoreView = require '../../core-view'
 Templates = require '../../templates'
@@ -182,8 +183,11 @@ module.exports = class Cell extends CoreView
 
     # Allow the table to handle this event, if it so chooses
     # attach the entity for handlers to inspect.
-    e.object = @model.get('entity').toJSON()
-    @$el.trigger 'view.im.object', e
+    viewEvent = $.Event 'view.im.object'
+    viewEvent.object = @model.get('entity').toJSON()
+    @$el.trigger viewEvent
+    if viewEvent.isDefaultPrevented()
+      e.preventDefault()
 
   # Close our preview if another cell has opened theirs
   closeOwnPreview: ->
