@@ -5,9 +5,7 @@ CoreView = require '../core-view'
 Templates = require '../templates'
 Options = require '../options'
 
-ColumnMangerButton   = require './column-manager/button'
-FilterDialogueButton = require './filter-dialogue/button'
-JoinManagerButton    = require './join-manager/button'
+QueryManagement      = require './query-management-tools'
 UndoHistory          = require './undo-history'
 ListDialogueButton   = require './list-dialogue/button'
 CodeGenButton        = require './code-gen-button'
@@ -36,7 +34,6 @@ module.exports = class QueryTools extends CoreView
 
   initialize: ->
     super
-    @listenTo @history, 'changed:current', @renderManagementTools
     @listenTo @history, 'changed:current', @renderQueryConsumers
 
   renderChildren: ->
@@ -45,11 +42,7 @@ module.exports = class QueryTools extends CoreView
     @renderQueryConsumers()
 
   renderManagementTools: ->
-    $management = @$ '.im-query-management'
-    query = @history.getCurrentQuery()
-    @renderChild 'cols', (new ColumnMangerButton {query}), $management
-    @renderChild 'cons', (new FilterDialogueButton {query}), $management
-    @renderChild 'joins', (new JoinManagerButton {query}), $management
+    @renderChildAt '.im-query-management', new QueryManagement {@history}
 
   renderUndo: ->
     $undo = @$ '.im-history'

@@ -65,7 +65,7 @@ acceptAttr = -> (f, v) -> v? and (not v.objectId) and (f not in HIDDEN_FIELDS)
 acceptRef = -> (f, v) -> v?.objectId
 
 # Define the bits of the service we need.
-ServiceType = new types.StructuralTypeAssertion 'ServiceType',
+ServiceType = new types.Structure 'ServiceType',
   root: types.String
   count: types.Function
   findById: types.Function

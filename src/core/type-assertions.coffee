@@ -45,7 +45,7 @@ class StructuralTypeAssertion
 
 exports.InstanceOf = InstanceOfAssertion
 
-exports.StructuralTypeAssertion = StructuralTypeAssertion
+exports.Structure = StructuralTypeAssertion
 
 # Check that something is a model.
 exports.Model = new InstanceOfAssertion Backbone.Model, 'Backbone.Model'
@@ -103,6 +103,11 @@ exports.HasProperty = (prop) ->
   test: (v) -> v? and prop of v
   message: (p) -> "#{ p }.#{ prop } not found"
 
+exports.UnionOf = (types...) ->
+  name: -> "Union of #{ types.map((t) -> t.name).join ', ' }"
+  test: (v) -> _.all types, (t) => @_t = t; t.test v
+  message: (p) -> @_t?.message p
+
 # If this module gets published, the stuff below should stay with
 # this repo.
 
@@ -116,6 +121,10 @@ exports.HasProperty = (prop) ->
 # API of these classes, but they should be more than enough to
 # positively identify instances of them with a very low chance
 # of false positives, and zero false negatives.
+
+exports.Listenable = new StructuralTypeAssertion 'Listenable',
+  on: exports.Function
+  off: exports.Function
 
 exports.Service = InterMineService = new StructuralTypeAssertion 'Service',
   root: StringType

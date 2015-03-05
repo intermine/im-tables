@@ -2,14 +2,14 @@ should = require 'should'
 
 TypeAssertions = require 'imtables/core/type-assertions'
 
-describe 'StructuralTypeAssertion', ->
+describe 'Structure', ->
 
-  fooStructure = new TypeAssertions.StructuralTypeAssertion 'FooType',
+  fooStructure = new TypeAssertions.Structure 'FooType',
     foo: TypeAssertions.Number
     bar: TypeAssertions.String
     baz: TypeAssertions.Function
 
-  quuxStructure = new TypeAssertions.StructuralTypeAssertion 'QuuxType',
+  quuxStructure = new TypeAssertions.Structure 'QuuxType',
     name: TypeAssertions.String
     foo: fooStructure
 

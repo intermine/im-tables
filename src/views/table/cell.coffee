@@ -85,7 +85,7 @@ module.exports = class Cell extends CoreView
     formatter: types.Callable
     tableState: types.Model
     service: types.Service
-    popovers: (new types.StructuralTypeAssertion 'HasGet', get: types.Function)
+    popovers: (new types.Structure 'HasGet', get: types.Function)
 
   initialize: ->
     super
