@@ -15,12 +15,10 @@
 <td class="im-count-col">
   <% if (max > 1) { %>
     <div class="im-facet-bar"
-        style="width:<%- percent %>%;background:<%- Messages.getText('summary.FacetBar', {opacity: opacity}) %>">
-        <span class="im-count"><%- numToString(count) %></span>
+         style="width:<%- percent %>%;background:<%- Messages.getText('summary.FacetBar', {opacity: opacity}) %>">
     </div>
-  <% } else { %>
-    <span class="im-count"><%- numToString(count) %></span>
   <% } %>
+  <span class="im-count"><%- numToString(count) %></span>
 </td>
 
 <% if (share != null) { %>
