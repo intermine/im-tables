@@ -30,6 +30,9 @@ class Options extends NestedModel
       IndicateOffHostLinks: true
       ExternalLinkIcons:
         "http://some.host.somewhere": "http://some.host.somewhere/logo.png"
+    ItemDetails:
+      Fields: {}
+      Count: {}
     StylePrefix: 'imtables'
     SuggestionDepth: 4 # When suggestion paths, follow up to this many references.
     Events:
@@ -86,8 +89,6 @@ class Options extends NestedModel
         name: "FlyMine-Preview"
       "http://www_mousemine_org/mousemine/service/":
         name: "MouseMine (MGI)"
-    preview:
-      count: {}
     Formatters: # TODO - install formatters here.
       testmodel: {}
       genomic: {}

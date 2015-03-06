@@ -22,7 +22,8 @@ opts =
   Department: ['employees']
   Employee: [{label: 'Colleagues', query: colleaguesQuery}]
 
-Options.set ['Preview', 'Count', connection.root], opts
+Options.set ['ItemDetails', 'Count', connection.root], opts
+Options.set ['ItemDetails', 'Fields', 'testmodel', 'Employee'], ['name', 'age']
 
 classyPopover = Templates.template 'classy-popover'
 
@@ -49,7 +50,9 @@ class Button extends CoreView
   togglePopover: ->
     show = @state.get 'showPopover'
     if show
-      @popover?.then (v) -> v.render()
+      err = console.error.bind console
+      done = -> console.log 'RENDERED'
+      @popover?.then((v) -> v.render()).then done, err
     else
       @$el.popover 'hide'
 
@@ -82,7 +85,7 @@ class Button extends CoreView
 main = ->
   renderButton 'Company', 'Wernham-Hogg'
   renderButton 'Employee', 'David Brent'
-  renderButton 'Employee', 'David Brent' # yes, twice.
+  renderButton 'Employee', 'David Brent' # yes, twice - testing interference.
   renderButton 'Department', 'Verwaltung'
   renderButton 'Secretary', 'Pam'
 

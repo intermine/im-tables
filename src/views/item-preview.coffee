@@ -142,8 +142,8 @@ module.exports = class Preview extends CoreView
 
   getDetails: (type) ->
     id = @model.get('id')
-
-    @service.findById(type, id).then @handleItem
+    fields = Options.get ['ItemDetails', 'Fields', @schema.name, type]
+    @service.findById(type, id, fields).then @handleItem
 
   # Reads values from the returned items and adds details objects to the 
   # fieldDetails and referenceFields collections, avoiding duplicates.
@@ -194,7 +194,7 @@ module.exports = class Preview extends CoreView
   getRelationCounts: ->
     types = @model.get 'types'
     root = @service.root
-    opts = (Options.get ['Preview', 'Count', root]) ? {}
+    opts = (Options.get ['ItemDetails', 'Count', root]) ? {}
 
     countSets = for type in types
       cld = @schema.classes[type]
@@ -210,7 +210,7 @@ module.exports = class Preview extends CoreView
     if _.isObject settings
       {query, label} = settings
       counter = query id # query is a function from id -> query
-      details = (c) -> parts: [label], id: label, displayName: label, count: c
+      details = (c) -> new CoreModel parts: [label], id: label, displayName: label, count: c
     else
       path = @schema.makePath "#{ type }.#{ settings }"
       return Promise.resolve(true) unless path.getType()?.attributes.id # Skip if no id.

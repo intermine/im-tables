@@ -14,8 +14,8 @@ class PreviewCachingService
 
   fetchModel: -> @wrapped.fetchModel()
 
-  findById: (type, id) ->
-    @_foundById["#{ type }:#{ id }"] ?= @wrapped.findById(type, id)
+  findById: (type, id, flds) ->
+    @_foundById["#{ type }:#{ id }:#{ flds }"] ?= @wrapped.findById(type, id, flds)
 
   count: (query) ->
     @_counts[JSON.stringify query] ?= @wrapped.count(query)

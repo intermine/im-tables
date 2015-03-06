@@ -97,7 +97,7 @@
     "d3-browserify": "^3.4.12",
     "es6-promise": "^2.0.1",
     "font-awesome": "^4.3.0",
-    "imjs": "^3.12.0",
+    "imjs": "^3.13.0",
     "jquery": "^2.1.1",
     "jquery-ui": "^1.10.5",
     "less": "^2.1.1",

@@ -7,6 +7,7 @@ CoreModel = require './core-model'
 Messages = require './messages'
 Templates = require './templates'
 Icons = require './icons'
+Event = require './event'
 
 helpers = require './templates/helpers'
 onChange = require './utils/on-change'
