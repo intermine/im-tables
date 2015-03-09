@@ -1,5 +1,5 @@
 #!/bin/bash
 
-if test -z MUST_BUILD; then
+if test -z $DYNO; then
     grunt build
 fi
