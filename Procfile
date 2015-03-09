@@ -1,1 +1,1 @@
-web: npm run grunt -- run:server
+web: npm start
