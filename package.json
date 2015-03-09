@@ -16,7 +16,8 @@
     "build": "grunt build",
     "create-style": "bin/create-style.js",
     "grunt": "grunt",
-    "prepublish": "grunt build:dist"
+    "prepublish": "grunt build:dist",
+    "postinstall": "bin/postinstall.sh"
   },
   "keywords": [
     "javascript",
