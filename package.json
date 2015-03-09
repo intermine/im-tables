@@ -63,9 +63,9 @@
   "devDependencies": {
     "bower": "latest",
     "brfs": "^1.2.0",
+    "brfs-htmlmin": "^1.0.0",
     "browserify": "^7.0.0",
     "browserify-shim": "~3.8.1",
-    "brfs-htmlmin": "^1.0.0",
     "codo": "~0.3.0",
     "coffee-script": "~1.8.0",
     "coffeeify": "^1.0.0",
