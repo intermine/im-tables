@@ -76,7 +76,7 @@ class Options extends NestedModel
         index: 2
     CellCutoff: 100
     ShowHistory: true
-    icons: 'fontawesome'
+    icons: 'fontawesome' # or glyphicons
     D3:
       Transition:
         Easing: 'exp' # one of linear, quad, cubic, sin, exp, circle, elastic, back, bounce
@@ -89,7 +89,7 @@ class Options extends NestedModel
         name: "FlyMine-Preview"
       "http://www_mousemine_org/mousemine/service/":
         name: "MouseMine (MGI)"
-    Formatters: # TODO - install formatters here.
+    Formatters:
       testmodel: {}
       genomic: {}
     ColumnManager:
