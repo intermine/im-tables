@@ -34,7 +34,7 @@ class Options extends NestedModel
       Fields: {}
       Count: {}
     StylePrefix: 'imtables'
-    SuggestionDepth: 4 # When suggestion paths, follow up to this many references.
+    SuggestionDepth: 2 # When suggestion paths, follow up to this many references.
     Events:
       ActivateTab: 'mouseenter' # or click
     Subtables:
