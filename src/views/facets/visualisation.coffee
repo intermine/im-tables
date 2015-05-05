@@ -1,14 +1,10 @@
 Options = require '../../options'
 CoreView = require '../../core-view'
 
-# FIXME - these need fixing/writing
 NumericDistribution = require './numeric'
-BooleanPie = require './boolean' # TODO check
-PieChart = require './pie' # TODO check
+PieChart = require './pie'
 Histogram = require './histogram'
 SummaryItems = require './summary-items'
-
-{Model: {BOOLEAN_TYPES}} = require 'imjs'
 
 # This child view is essentially a big if statement and dispatcher around
 # column summary data.
@@ -31,7 +27,6 @@ module.exports = class FacetVisualisation extends CoreView
       when numeric then new NumericDistribution {@model, @range}
       when uniqueValues is 1 then null # nothing to show
       when canHaveMultipleValues then new Histogram {@model}
-      when type in BOOLEAN_TYPES then new BooleanPie {@model}
       when 0 < uniqueValues <= (Options.get 'MAX_PIE_SLICES') then new PieChart {@model}
       when got then new Histogram {@model}
       else null # no chart to show.
