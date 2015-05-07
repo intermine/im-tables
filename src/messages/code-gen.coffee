@@ -1,6 +1,7 @@
 Messages = require '../messages'
 
 Messages.setWithPrefix 'codegen',
+  AsHTML: """As HTML page"""
   DialogueTitle: """
     Generated <%= Messages.getText("codegen.Lang", {lang: lang}) %>
     Code for <%= query.name || "Query" %>
