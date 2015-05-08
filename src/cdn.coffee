@@ -6,6 +6,7 @@ Options = require './options'
 
 CDN =
   server: 'http://cdn.intermine.org'
+  imtables: '/js/intermine/im-tables/2.0.0-beta/' # Ourself, probably.
   tests:
     fontawesome: /font-awesome/
     glyphicons: /bootstrap-icons/

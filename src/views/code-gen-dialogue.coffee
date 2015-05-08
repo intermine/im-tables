@@ -27,7 +27,13 @@ withResource = require '../utils/with-cdn-resource'
 OCTOTHORPE_COMMENTS = /\s*#.*$/gm
 C_STYLE_COMMENTS = /\/\*(\*(?!\/)|[^*])*\*\//gm # just strip blocks.
 XML_MIMETYPE = 'application/xml;charset=utf8'
+JS_MIMETYPE = 'text/javascript;charset=utf8'
+HTML_MIMETYPE = 'text/html;charset=utf8'
 CANNOT_SAVE = {level: 'Info', key: 'codegen.CannotExportXML'}
+MIMETYPES =
+  js: JS_MIMETYPE
+  xml: XML_MIMETYPE
+  html: HTML_MIMETYPE
 
 withPrettyPrintOne = _.partial withResource, 'prettify', 'prettyPrintOne'
 
@@ -84,7 +90,7 @@ module.exports = class CodeGenDialogue extends Modal
 
   # Recalulate the code if the lang changes, otherwise just re-present it.
   modelEvents: ->
-    'change:lang': @onChangeLang
+    'change': @onChangeLang
     'change:showBoilerPlate': @reRenderBody
     'change:highlightSyntax': @reRenderBody
 
@@ -104,8 +110,10 @@ module.exports = class CodeGenDialogue extends Modal
       else null
 
   act: -> # only called for XML data, and only in supported browsers.
-    blob = new Blob [@state.get('generatedCode')], type: XML_MIMETYPE
-    saveAs blob, "#{ @query.name ? 'name' }.xml"
+    lang = @model.get('lang')
+    lang = 'html' if lang is 'js' and @model.get('extrajs')
+    blob = new Blob [@state.get('generatedCode')], type: MIMETYPES[lang]
+    saveAs blob, "#{ @query.name ? 'name' }.#{ lang }"
 
   onChangeLang: ->
     lang = @model.get 'lang'
@@ -132,16 +140,21 @@ module.exports = class CodeGenDialogue extends Modal
   generateJS: ->
     t = Templates.template 'code-gen-js'
     query = stripEmptyValues @query.toJSON()
+    cdnBase = Options.get('CDN.server') + Options.get(['CDN', 'imtables'])
     data =
       service: @query.service
       query: query
       page: @page
+      asHTML: @model.get('extrajs')
+      imtablesJS: cdnBase + 'imtables.js'
+      imtablesCSS: cdnBase + 'main.sandboxed.css'
     t data
 
+  # If the exportLink is null, then CodeGenDialogue#act will be called.
   setExportLink: ->
     lang = @model.get 'lang'
     switch lang
-      when 'xml' then @state.set exportLink: null
+      when 'xml', 'js' then @state.set exportLink: null
       else @state.set exportLink: @query.getCodeURI lang
 
   # This could potentially go into Modal, but it would need more stuff
@@ -172,6 +185,11 @@ module.exports = class CodeGenDialogue extends Modal
       model: @model
       attr: 'highlightSyntax'
       label: 'codegen.HighlightSyntax'
+    if (opt = Options.get(['CodeGen', 'Extra', @model.get('lang')]))
+      @renderChildAt '.im-extra-options', new Checkbox
+        model: @model
+        attr: ('extra' + @model.get('lang'))
+        label: opt
 
   highlightCode: -> if @model.get 'highlightSyntax'
     lang = @model.get 'lang'
@@ -180,7 +198,9 @@ module.exports = class CodeGenDialogue extends Modal
     return unless code?
     withPrettyPrintOne (prettyPrintOne) -> pre.html prettyPrintOne _.escape code
 
-  getData: -> _.extend super, options: Options.get('CodeGen'), generatedCode: @getCode()
+  getData: -> _.extend super,
+    options: Options.get('CodeGen')
+    generatedCode: @getCode()
 
   getCode: ->
     code = @state.get 'generatedCode'
