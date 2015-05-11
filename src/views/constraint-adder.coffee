@@ -95,12 +95,14 @@ module.exports = class ConstraintAdder extends View
 
   hideTree: ->
     @trigger 'resetting:tree'
+    @$('.im-path-finder').removeClass('open')
     @removeChild 'tree'
 
   showTree: (e) =>
     @trigger 'showing:tree'
     @removeChild 'con' # Either show the tree or the constraint editor, not both.
     pathFinder = new PathChooser {@model, @query, @chosenPaths, @openNodes, @view, trail: []}
+    @$('.im-path-finder').addClass('open')
     @renderChild 'tree', pathFinder, @$ '.im-path-finder'
 
   template: Templates.template 'constraint_adder'

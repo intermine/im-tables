@@ -6,6 +6,8 @@ Messages = require '../messages'
 Templates = require '../templates'
 CoreView = require '../core-view'
 Options = require '../options'
+NestedModel = require '../core/nested-model'
+getBranding = require '../utils/branding'
 {IS_BLANK} = require '../patterns'
 HasTypeaheads = require '../mixins/has-typeaheads'
 
@@ -35,23 +37,31 @@ module.exports = class AttributeValueControls extends CoreView
 
   template: Templates.template 'attribute_value_controls'
 
-  getData: -> messages: Messages, con: @model.toJSON()
+  getData: -> _.extend @getBaseData(), messages: Messages, con: @model.toJSON()
 
   # @Override
   initialize: ({@query}) ->
     super
     @sliders = []
+    @branding = new NestedModel
     @cast = if @model.get('path').getType() in NUMERIC_TYPES then numify else trim
     # Declare rendering dependency on messages
     @listenTo Messages, 'change', @reRender
+    @state.set valuePlaceholder: Messages.getText('conbuilder.ValuePlaceholder')
+    @listenTo @branding, 'change:defaults.value', ->
+      @state.set valuePlaceholder: @branding.get('defaults.value')
     if @query?
       @listenTo @query, 'change:constraints', @clearCachedData
       @listenTo @query, 'change:constraints', @reRender
+      getBranding(@query.service).then (branding) => @branding.set(branding)
 
   modelEvents: ->
     destroy: -> @stopListening() # If the model is gone, then shut up and wait to be removed.
     'change:value': @onChangeValue
     'change:op': @onChangeOp
+
+  stateEvents: ->
+    'change:valuePlaceholder': @reRender
 
   # Help translate between multi-value and =
   onChangeOp: ->
@@ -188,3 +198,7 @@ module.exports = class AttributeValueControls extends CoreView
     input.change (e) -> $slider.slider 'value', caster input.val()
     @removeSliders()
     @sliders.push $slider
+
+  remove: ->
+    super
+    @removeTypeAheads()

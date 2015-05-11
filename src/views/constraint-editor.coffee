@@ -112,17 +112,17 @@ module.exports = class ConstraintEditor extends CoreView
     if @isTypeConstraint()
       return new TypeValueControls {@model, @query}
     if @isMultiValueConstraint()
-      return new MultiValueControls {@model}
+      return new MultiValueControls {@model, @query}
     if @isListConstraint()
       return new ListValueControls {@model, @query}
     if @isBooleanConstraint()
-      return new BooleanValueControls {@model}
+      return new BooleanValueControls {@model, @query}
     if @isLoopConstraint()
       return new LoopValueControls {@model, @query}
     if @isLookupConstraint()
-      return new LookupValueControls {@model}
+      return new LookupValueControls {@model, @query}
     if @isRangeConstraint()
-      return new MultiValueControls {@model}
+      return new MultiValueControls {@model, @query}
     if @path.isAttribute()
       return new AttributeValueControls {@model, @query}
     @model.set error: new Error('cannot handle this constaint type')
