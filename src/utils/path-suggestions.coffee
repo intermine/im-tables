@@ -13,4 +13,4 @@ module.exports = getPathSuggestions = (query, depth) ->
   paths = (query.makePath p for p in query.getPossiblePaths depth)
   paths = paths.filter (p) -> not (p.end?.name is 'id')
   namings = (p.getDisplayName() for p in paths)
-  CACHE[key] ?= Promise.all(namings).then matchPathsToNames(path)
+  CACHE[key] ?= Promise.all(namings).then matchPathsToNames(paths)
