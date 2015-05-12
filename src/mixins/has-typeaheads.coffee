@@ -10,7 +10,6 @@ exports.removeTypeAheads = ->
     ta.off('typeahead:autocompleted')
     ta.off('typeahead:close')
     ta.typeahead('destroy')
-    ta.remove()
 
 exports.lastTypeahead = -> _.last(@_typeaheads ? [])
 

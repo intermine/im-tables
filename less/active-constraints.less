@@ -8,6 +8,21 @@
     }
 }
 
+.im-new-constraint {
+    .im-con-overview {
+        .im-name-part {
+            display: none;
+        }
+        .im-name-part:first-child:after {
+            content: '...';
+        }
+        .im-name-part:first-child,
+        .im-name-part:nth-last-child(-n+3) {
+            display: inline-block;
+        }
+    }
+}
+
 .im-filter-summary {
     .label-path {
         .im-name-part {
@@ -46,7 +61,6 @@
         position: relative;
 
         .im-slider-marker {
-            position: absolute;
             font-family: @font-family-monospace;
             top: 1em;
 
