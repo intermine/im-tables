@@ -8,6 +8,7 @@ HasTypeaheads = require '../mixins/has-typeaheads'
 {IS_BLANK} = require '../patterns'
 
 pathSuggester = require '../utils/path-suggester'
+getPathSuggestions = require '../utils/path-suggestions'
 
 shortenLongName = (name) ->
   parts = name.split ' > '
@@ -49,12 +50,8 @@ module.exports = class ConstraintAdderOptions extends View
 
   generatePathSuggestions: ->
     depth = Options.get 'SuggestionDepth'
-    paths = (@query.makePath p for p in @query.getPossiblePaths depth)
-    paths = paths.filter (p) => @pathAcceptable p
-    namings = (p.getDisplayName() for p in paths)
-    Promise.all namings
-           .then (names) -> ({path, name} for [path, name] in _.zip paths, names)
-           .then (suggestions) => @state.set {suggestions}
+    getPathSuggestions(@query, depth).then (suggestions) =>
+      @state.set suggestions: suggestions.filter (s) => @pathAcceptable(s.path)
 
   getData: ->
     anyNodesOpen = @openNodes.size()
