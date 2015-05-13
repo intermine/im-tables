@@ -6,17 +6,14 @@ getOJCBelow = (query, p, below) ->
   oj = query.getOuterJoin p
   return null if (not oj) or (oj is below) # not outerjoined, or joined at the target level.
   path = query.makePath(oj)
+  # outer loop variables.
   highest = if path.isCollection() then oj else null
   path = path.getParent()
 
-  while path and (not path.isRoot())
-    next = query.getOuterJoin path
+  while path and (not path.isRoot()) then do (next = query.getOuterJoin path) ->
     nextPath = query.makePath(next) if next?
     highest = next if nextPath?.isCollection() and (next isnt below)
-    if nextPath
-      path = nextPath.getParent()
-    else
-      path = null
+    path = nextPath?.getParent()
 
   return highest
 
