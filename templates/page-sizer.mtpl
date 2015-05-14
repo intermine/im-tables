@@ -1,3 +1,4 @@
+<% /* Expects size, sizes */ %>
 <% if (sizes.length) { %>
     <label>
         <span class="hidden-tablet">Rows per page:</span>
