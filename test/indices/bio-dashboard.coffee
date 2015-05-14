@@ -27,6 +27,7 @@ QUERY =
     'chromosomeLocation.start',
     'chromosomeLocation.end',
     'chromosomeLocation.locatedOn.primaryIdentifier',
+    'proteins.primaryAccession'
   ]
   from: 'Gene'
 

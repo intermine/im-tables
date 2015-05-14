@@ -85,12 +85,32 @@ module.exports = class ExportDialogue extends Modal
     @listenTo @state, 'change:tab', @renderMain
     @listenTo @model, 'change', @updateState
     @listenTo @model, 'change:columns', @setMax
+    @listenTo @model, 'change:format', @onChangeFormat
     @categoriseQuery()
     @model.set columns: @query.views
     @model.set filename: @query.name.replace(/\s+/g, '_') if @query.name?
     @updateState()
     @setMax()
     @readUserPreferences()
+
+  onChangeFormat: -> _.defer =>
+    format = @model.get 'format'
+    activeCols = @model.get 'columns'
+    if format.needs?.length
+      oldColumns = activeCols.slice()
+      newColumns = []
+      for v in @query.views
+        p = @query.makePath(v).getParent()
+        if (_.any format.needs, (needed) -> p.isa(needed))
+          newColumns.push p.append('id').toString()
+      nodecolumns = _.uniq(newColumns)
+      @model.set nodecolumns: nodecolumns
+      maxCols = format.maxColumns
+      cs = if maxCols then _.first(nodecolumns, maxCols) else nodecolumns.slice()
+      @model.set columns: cs
+      @model.once 'change:format', =>
+        @model.set columns: oldColumns
+        @model.unset 'nodecolumns'
 
   # Read any relevant preferences into state/Options.
   readUserPreferences: -> @query.service.whoami().then (user) =>

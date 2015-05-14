@@ -22,11 +22,18 @@ module.exports = class Preview extends CoreView
     @listenTo @state, 'change:preview', @reRender
     @listenTo @model, 'change:format', @setPreview
 
-  setPreview: -> @runQuery(PROPS).then (resp) =>
-    if _.isString(resp)
-      @state.set preview: resp
+  setPreview: ->
+    format = @model.get('format')
+    if format.group is 'bio'
+      # bio formats to not support paging, and so we can kill the
+      # browser by requesting too much data.
+      @state.set preview: 'Previews are not supported for bio-informatics formats'
     else
-      @state.set preview: (JSON.stringify resp, null, 2)
+      @runQuery(PROPS).then (resp) =>
+        if _.isString(resp)
+          @state.set preview: resp
+        else
+          @state.set preview: (JSON.stringify resp, null, 2)
 
   template: Templates.template 'export_preview'
 
