@@ -66,7 +66,7 @@ module.exports = class AttributeValueControls extends CoreView
   # Help translate between multi-value and =
   onChangeOp: ->
     newOp = @model.get 'op'
-    if newOp in Query.MULTIVALUE_OPS
+    if @model.get('value')? and newOp in Query.MULTIVALUE_OPS
       @model.set value: null, values: [@model.get('value')]
     @reRender()
 
