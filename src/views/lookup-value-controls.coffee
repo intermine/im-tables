@@ -33,12 +33,6 @@ module.exports = class LoopValueControls extends AttributeValueControls
     'change .im-con-value-attr': 'setValue'
     'change .im-extra-value': 'setExtraValue'
 
-  setValue: ->
-    input = @$('input.im-con-value-attr.tt-input')
-    input = @$('input.im-con-value-attr') unless input.length
-    value = input.val()
-    @model.set value: value
-
   setExtraValue: ->
     input = @$('input.im-extra-value.tt-input')
     input = @$('input.im-extra-value') unless input.length

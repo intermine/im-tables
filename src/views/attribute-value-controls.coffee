@@ -70,7 +70,7 @@ module.exports = class AttributeValueControls extends CoreView
       @model.set value: null, values: [@model.get('value')]
     @reRender()
 
-  onChangeValue: -> @updateInput()
+  onChangeValue: -> @reRender()
 
   removeAllChildren: ->
     @removeTypeAheads()
@@ -163,9 +163,10 @@ module.exports = class AttributeValueControls extends CoreView
         footer: source.tooMany
 
     @removeTypeAheads()
-    @activateTypeahead input, opts, dataset, items[0].item, (e, suggestion) =>
+    handleSuggestion = (evt, suggestion) =>
       @model.set value: suggestion.item
-
+    @activateTypeahead input, opts, dataset, items[0].item, handleSuggestion, =>
+      @setAttributeValue()
   clearer: '<div class="" style="clear:both;">'
   
   getMarkers: (min, max, isInt) ->

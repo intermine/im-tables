@@ -42,21 +42,26 @@ module.exports = class History extends Collection
     @listenTo q, "change:views", @onChangeViews
     @listenTo q, "change:joins", @onChangeJoins
     @listenTo q, "change:sortorder", @onChangeSortOrder
+    @listenTo q, "change:logic", @onChangeLogic
     @listenTo q, "undo", @popState
 
   # TODO - get rid of labels - they are pointless. Use the query prop instead
 
   onChangeConstraints: ->
-    @onChange 'constraints', 'filter', JSON.stringify
+    @onChange 'constraints', 'filter', (cons) -> _.map cons, JSON.stringify
 
   onChangeViews: ->
     @onChange 'views', 'column'
 
   onChangeJoins: ->
-    @onChange 'joins', 'join', (style, path) -> "#{ path }:#{ style }"
+    @onChange 'joins', 'join', (joins) -> _.map joins, (style, path) -> "#{ path }:#{ style }"
 
   onChangeSortOrder: ->
-    @onChange 'sortOrder', 'sort order element', JSON.stringify
+    @onChange 'sortOrder', 'sort order element', (so) -> _.map so, JSON.stringify
+
+  onChangeLogic: ->
+    @onChange 'constraintLogic', 'constraint logic element', (expr) ->
+      expr?.match(/([A-Z]+)/) ? []
 
   # Inform clients that the current query is different
   triggerChangedCurrent: ->
@@ -67,8 +72,8 @@ module.exports = class History extends Collection
   onChange: ( prop, label, f = (x) -> x ) ->
     query = @currentQuery
     prev = @last().get 'query'
-    xs = _.map prev[prop], f
-    ys = _.map query[prop], f
+    xs = f prev[prop]
+    ys = f query[prop]
     was = xs.length
     now = ys.length
     n = Math.abs was - now
