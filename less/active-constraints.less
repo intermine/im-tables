@@ -16,10 +16,17 @@
         .im-name-part:first-child:after {
             content: '...';
         }
-        .im-name-part:first-child,
-        .im-name-part:nth-last-child(-n+3) {
-            display: inline-block;
+       .im-name-part:nth-last-child(-n+4):after {
+            content: "\00bb";
+            margin-left: 0.5em;
         }
+       .im-name-part:last-child:after {
+           content: '';
+       }
+       .im-name-part:first-child,
+       .im-name-part:nth-last-child(-n+3) {
+           display: inline-block;
+       }
     }
 }
 
