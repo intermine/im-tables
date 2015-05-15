@@ -16,6 +16,7 @@ class Tab
 TABS = [
   new Tab('dest', 'Destination'),
   new Tab('opts-json', 'JsonFormat', ['json']),
+  new Tab('opts-fasta', 'FastaFormat', ['fasta']),
   new Tab('columns', 'Columns'),
   new Tab('rows', 'Rows', [], {flat: true, machine: true}),
   new Tab('compression', 'Compression'),

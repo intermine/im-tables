@@ -1,0 +1,9 @@
+<h3><%- Messages.getText('export.category.Options') %></h3>
+
+<div class="form-group">
+    <label><%- Messages.getText('FastaExtension') %></label>
+    <input type="text"
+           value="<%- fastaExtension %>"
+           placeholder="5kbp"
+           class="form-control im-fasta-ext">
+</div>

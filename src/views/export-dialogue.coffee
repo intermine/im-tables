@@ -17,6 +17,7 @@ ColumnControls = require './export-dialogue/column-controls'
 CompressionControls = require './export-dialogue/compression-controls'
 FlatFileOptions = require './export-dialogue/flat-file-options'
 JSONOptions = require './export-dialogue/json-options'
+FastaOptions = require './export-dialogue/fasta-options'
 DestinationOptions = require './export-dialogue/destination-options'
 Preview = require './export-dialogue/preview'
 
@@ -60,6 +61,7 @@ class ExportModel extends Model
     compression: 'gzip'
     headers: false
     jsonFormat: 'rows'
+    fastaExtension: null
     headerType: 'friendly'
 
 isa = (target) -> (path) -> path.isa target
@@ -162,7 +164,7 @@ module.exports = class ExportDialogue extends Modal
     else
       null
 
-    @state.set @model.pick 'headers', 'headerType', 'jsonFormat'
+    @state.set @model.pick 'headers', 'headerType', 'jsonFormat', 'fastaExtension'
     @state.set
       error: error
       format: format
@@ -186,6 +188,7 @@ module.exports = class ExportDialogue extends Modal
       when 'compression' then CompressionControls
       when 'column-headers' then FlatFileOptions
       when 'opts-json' then JSONOptions
+      when 'opts-fasta' then FastaOptions
       when 'dest' then DestinationOptions
       when 'rows' then RowControls
       when 'preview' then Preview

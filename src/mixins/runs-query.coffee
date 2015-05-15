@@ -44,4 +44,6 @@ exports.getExportParameters = (overrides = {}) ->
   # TODO - this is hacky - the model should reflect the request
   if (data.format is 'json') and ('rows' isnt @model.get 'jsonFormat')
     data.format += @model.get 'jsonFormat'
+  if (data.format is 'fasta') and (@model.get('fastaExtension'))
+    data.extension = @model.get('fastaExtension')
   _.extend data, overrides
