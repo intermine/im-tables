@@ -45,6 +45,7 @@ module.exports = class BaseCreateListDialogue extends Modal
 
   processQuery: (query) -> query.saveAsList @model.toJSON()
 
+
   modelEvents: ->
     'change:type': 'onChangeType' # The type can change when selecting items
 

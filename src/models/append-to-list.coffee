@@ -7,3 +7,4 @@ module.exports = class AppendToListModel extends CoreModel
   defaults: ->
     target: null
     type: null
+    size: null

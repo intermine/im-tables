@@ -79,7 +79,21 @@ module.exports = class BaseAppendDialogue extends BaseCreateListDialogue
 
   getPossibleLists: ->  @possibleLists ?= new PossibleLists service: @getService()
 
-  processQuery: (query) -> query.appendToList @model.get 'target'
+  act: ->
+    @getQuery().then (query) => @fetchOldList query
+               .then (oldWithQuery) => @processQuery oldWithQuery
+               .then @resolve, (e) => @state.set error: e
+
+  fetchOldList: (query) ->
+    query.service.fetchList @model.get 'target'
+      .then (oldlist) ->
+        return [oldlist, query]
+
+  processQuery: (values) ->
+    [oldlist, ..., query] = values
+    appendPromise = query.appendToList @model.get 'target'
+      .then (result) ->
+        [oldlist, result]
   
   modelEvents: -> _.extend super,
     'change:target': 'onChangeTarget'
