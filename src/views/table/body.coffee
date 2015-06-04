@@ -1,4 +1,5 @@
 _ = require 'underscore'
+$ = require 'jquery'
 
 CoreView = require '../../core-view'
 Templates = require '../../templates'
@@ -64,6 +65,11 @@ class RowView extends CoreView
   parameters: ['makeCell', 'skipped']
 
   postRender: ->
+    # TODO remove the following hack that mitigates the modal's
+    # backdrop sticking to the screen.
+    # See https://github.com/twbs/bootstrap/issues/12990
+    $('.modal-backdrop')?.remove()
+
     cells = @model.get('cells').map @makeCell
     for cell, i in cells when not @skipped[cell.model.get('column')]
       @renderChild i, cell
