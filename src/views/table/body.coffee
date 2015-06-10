@@ -1,5 +1,4 @@
 _ = require 'underscore'
-$ = require 'jquery'
 
 CoreView = require '../../core-view'
 Templates = require '../../templates'
