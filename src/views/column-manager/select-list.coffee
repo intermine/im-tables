@@ -2,6 +2,7 @@ _ = require 'underscore'
 
 CoreView = require '../../core-view'
 Templates = require '../../templates'
+Collection = require '../../core/collection'
 
 HandlesDOMReSort = require '../../mixins/handles-dom-resort'
 
@@ -143,6 +144,12 @@ module.exports = class SelectListEditor extends CoreView
     cutoff = 900
     modalWidth = @$el.closest('.modal').width()
     wide = (modalWidth >= cutoff)
+
+    # By now backbone should have attached a collection attribute
+    # to the models, but it either hasn't or its been stripped upstream.
+    # TODO: figure out why and remove the following loop
+    @collection.each (model) => model.collection = @collection
+    @rubbishBin.each (model) => model.collection = @rubbishBin
 
     @collection.each (model) =>
       @renderChild (childId model), (new SelectedColumn {model}), columns
