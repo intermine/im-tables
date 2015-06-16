@@ -31,6 +31,12 @@ class IndexedCollection extends Collection
     model.set {index}
     return model
 
+  add: ->
+    console.log "indexed collection called"
+    preparedModel = super
+    preparedModel?.collection = @
+    @
+
 class SelectList extends IndexedCollection
 
   modelFactory: PathModel
