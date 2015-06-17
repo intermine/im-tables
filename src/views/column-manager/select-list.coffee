@@ -2,6 +2,7 @@ _ = require 'underscore'
 
 CoreView = require '../../core-view'
 Templates = require '../../templates'
+Collection = require '../../core/collection'
 
 HandlesDOMReSort = require '../../mixins/handles-dom-resort'
 
@@ -144,8 +145,10 @@ module.exports = class SelectListEditor extends CoreView
     modalWidth = @$el.closest('.modal').width()
     wide = (modalWidth >= cutoff)
 
+
     # @collection.each (model) => model.collection = @collection
     # @rubbishBin.each (model) => model.collection = @rubbishBin
+
 
     @collection.each (model) =>
       @renderChild (childId model), (new SelectedColumn {model}), columns
