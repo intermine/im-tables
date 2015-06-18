@@ -6,10 +6,6 @@ module.exports = class CoreCollection extends Backbone.Collection
 
   model: CoreModel
 
-  add: ->
-    console.log "Collection calling base add"
-    super
-
   close: ->
     @trigger 'close', @
     @off() # prevent trigger loops.

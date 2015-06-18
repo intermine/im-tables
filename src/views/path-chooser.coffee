@@ -20,7 +20,6 @@ module.exports = class PathChooser extends CoreView
   className: 'im-path-chooser'
 
   initialize: ->
-    console.log "pathchooser initied"
     super
     @path  = (_.last(@trail) or @model.get('root') or @query.makePath(@query.root))
     @cd    = @path.getEndClass()
@@ -33,6 +32,7 @@ module.exports = class PathChooser extends CoreView
     @listenTo @model, 'change:allowRevRefs', @render
     @listenTo @openNodes, 'reset', @render
 
+
   getDepth: -> @trail.length
 
   showRoot: -> @getDepth() is 0 and @model.get('canSelectReferences')
@@ -41,7 +41,6 @@ module.exports = class PathChooser extends CoreView
   events: -> scroll: @onScroll
 
   onScroll: -> unless @state.get('ignoreScroll')
-    console.log "onScroll"
     st = @el.scrollTop
     diff = if @state.has('scroll') then Math.abs(@state.get('scroll') - st) else 0
     if (st isnt 0) or (diff < 50) # Within the range of manual scrolling, allow it.
@@ -50,7 +49,6 @@ module.exports = class PathChooser extends CoreView
       _.defer => @el.scrollTop = @state.get 'scroll'
 
   startIgnoringScroll: ->
-    console.log "start ignoring scroll"
     @state.set ignoreScroll: true # Ignore during the main render, since it will wipe scroll top.
 
   startListeningForScroll: ->
@@ -61,7 +59,6 @@ module.exports = class PathChooser extends CoreView
   preRender: -> @startIgnoringScroll()
 
   postRender: ->
-    console.log "postRender"
     showId = Options.get 'ShowId'
 
     if @showRoot() # then show the root class
@@ -97,7 +94,6 @@ module.exports = class PathChooser extends CoreView
     new PathChooser _.extend {@model, @query, @chosenPaths, @view, @openNodes}, args
 
   isLoop: (path) ->
-    console.log "isloop()"
     if path.end.reverseReference? and @path.isReference()
       if @path.getParent().isa path.end.referencedType
         if @path.end.name is path.end.reverseReference

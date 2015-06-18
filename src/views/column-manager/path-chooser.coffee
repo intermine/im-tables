@@ -21,15 +21,12 @@ class Buttons extends CoreView
     'click .im-rearrange-columns': 'cancel'
 
   cancel: ->
-    console.log "Buttons::cancel called"
     @trigger 'done'
   
   addColumn: ->
-    console.log "addColumn called"
     selectList = @selectList
     paths = @collection.paths()
     @cancel()
-    debugger;
     selectList.add paths
 
 
@@ -52,7 +49,6 @@ module.exports = class ColumnChooser extends CoreView
     'change:rootName': 'reRender'
 
   postRender: ->
-    console.log "ColumnChooser postrender"
     @renderButtons()
     @openPathChooser()
 
@@ -62,21 +58,17 @@ module.exports = class ColumnChooser extends CoreView
     @renderChildAt '.btn-group', btns
 
   openPathChooser: ->
-    console.log "openPathChooser"
     model =
       dontSelectView: true
       multiSelect: (Options.get 'ColumnManager.SelectColumn.Multi')
     pathChooser = new PathChooser {model, @query, @chosenPaths, @openNodes, @view, trail: []}
-    console.log "about to renderChild"
     @renderChild 'pathChooser', pathChooser
-    console.log "about to set path height"
     @setPathChooserHeight()
 
   setPathChooserHeight: -> # Don't let it get too big.
     @$('.im-path-chooser').css 'max-height': (@$el.closest('.modal').height() - 350)
 
   remove: ->
-    console.log "ColumnChooser remove"
     @chosenPaths.close()
     @view.close()
     @openNodes.close()

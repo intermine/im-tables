@@ -9,18 +9,6 @@ module.exports = class CoreModel extends Backbone.Model
 
   destroyed: false
 
-  initialize: ->
-    console.log "CoreModel initialized called."
-    console.log "arguments", arguments
-    debugger
-    super
-
-  constructor: ->
-    console.log "CoreModel constructor called"
-    console.log "arguments", arguments
-    debugger;
-    super;
-
   # Helper to toggle the state of boolean value (using not)
   toggle: (key) -> @swap key, invert
 
@@ -44,15 +32,13 @@ module.exports = class CoreModel extends Backbone.Model
   _frozen: []
 
   _validate: (attrs, opts) ->
-    # debugger;
-    # console.log "validate is called"
-    # for p in @_frozen when (p of attrs) and (attrs[p] isnt @get p)
-    #   msg = "#{ p } is frozen (trying to set it to #{ attrs[p] } - is #{ @get p })"
-    #   if opts.merge # Expected when calling set. Rethink this if this causes bugs.
-    #     # console.debug 'ignoring merge'
-    #     attrs[p] = @get p # otherwise it will be overwritten.
-    #   else
-    #     throw new Error msg
+    for p in @_frozen when (p of attrs) and (attrs[p] isnt @get p)
+      msg = "#{ p } is frozen (trying to set it to #{ attrs[p] } - is #{ @get p })"
+      if opts.merge # Expected when calling set. Rethink this if this causes bugs.
+        # console.debug 'ignoring merge'
+        attrs[p] = @get p # otherwise it will be overwritten.
+      else
+        throw new Error msg
     super
 
   # Calls to set(prop) after freeze(prop) will throw.

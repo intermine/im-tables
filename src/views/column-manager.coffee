@@ -26,7 +26,6 @@ class IndexedCollection extends Collection
   modelFactory: Collection::model # by default, make a model.
 
   model: (args) =>
-    debugger;
     index = @size()
     model = new @modelFactory args
     model.collection = @
@@ -34,35 +33,11 @@ class IndexedCollection extends Collection
     return model
 
 
-
-
-
-
 class SelectList extends IndexedCollection
-
-  add: ->
-    console.log "SELECT LIST ADDED TO...", arguments
-
-    preparedModel = super
-
-    console.log "preparedModel is", preparedModel
-
-
-    # if preparedModel? and !preparedModel.collection?
-    #     preparedModel.collection = @
-
-    debugger;
-    preparedModel
 
   modelFactory: PathModel
 
 class OrderByList extends IndexedCollection
-
-  add: ->
-    preparedModel = super
-    # if preparedModel? and !preparedModel.collection?
-    #     preparedModel.collection = @
-    # @
 
   modelFactory: OrderByModel
 
