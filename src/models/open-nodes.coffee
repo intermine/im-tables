@@ -23,6 +23,8 @@ module.exports = class OpenNodes extends UniqItems
 
   # Also removes sub-nodes.
   remove: (path) ->
+    console.log "removing subnodes", path
+    if !path? then return false
     if path instanceof Backbone.Model
       super path
 

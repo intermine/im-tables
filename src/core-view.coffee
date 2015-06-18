@@ -151,6 +151,8 @@ module.exports = class CoreView extends Backbone.View
 
   # Like render, but only happens if already rendered at least once.
   reRender: ->
+    console.log "calling re render on ", @
+    debugger;
     @render() if (@rendered and not @removed)
     this
 

@@ -16,7 +16,8 @@ module.exports = class PathModel extends CoreModel
     isAttribute: true
 
   constructor: (path) ->
-    super()
+    debugger;
+    super
     @set @pathAttributes path
     @setDisplayName path
     @setTypeName path
