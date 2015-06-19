@@ -408,3 +408,48 @@ describe 'utils/calculate-row-template', ->
 
         it 'should eql should contain attrs of dep and manager, and a group for emps', ->
           getView.then (view) -> view.should.eql exp
+
+  describe 'when the query has deeply nested outer join groups', ->
+
+    query =
+      name: 'Dashboard Query'
+      select: [
+        'company.name',
+        'name',
+        'company.contractors.name',
+        'company.contractors.seniority',
+        'company.contractors.businessAddress.address',
+        'company.contractors.oldComs.name',
+        'company.contractors.oldComs.address.address'
+      ]
+      from: 'Department'
+      joins: [
+        'Department.company.contractors.oldComs',
+        'Department.company.contractors.oldComs.address',
+      ]
+
+    buildRow = conn.query(query).then calculateRowTemplate
+
+    it 'should return something', -> buildRow.then (row) ->
+      should.exist row
+
+    it 'should return 3 somethings', -> buildRow.then (row) ->
+      row.length.should.equal 6
+
+    it 'each element should have a column attribute', -> buildRow.then (row) ->
+      row.forEach (col) -> col.should.have.property 'column'
+
+    describe 'the columns', ->
+
+      getColumns = buildRow.then (row) -> (c.column for c in row)
+      exp = [
+        'Department.company.name',
+        'Department.name',
+        'Department.company.contractors.name',
+        'Department.company.contractors.seniority',
+        'Department.company.contractors.businessAddress.address',
+        'Department.company.contractors.oldComs'
+      ]
+
+      it 'should have the correct column paths', -> getColumns.then (cs) ->
+        cs.should.eql exp

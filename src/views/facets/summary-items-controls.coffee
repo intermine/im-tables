@@ -133,11 +133,13 @@ module.exports = class SummaryItemsControls extends CoreView
     if unselected.length is 0
       return @model.set error: (new Error 'All items are selected')
 
+    anyIsNull = _.any vals, (v) -> not v?
+
     # If we know all the possible values, and there are more selected than
     # un-selected values (above a certain cut-off), then make the smaller
     # constraint. This means if a user selects 95 of 100 values, the resulting
     # constraint will only hold 5 values.
-    if @model.hasAll() and (MIN_VALS_OPTIMISATION > vals.length > unselected.length)
+    if (not anyIsNull) and @model.hasAll() and (MIN_VALS_OPTIMISATION > vals.length > unselected.length)
       return @constrainTo (negateOps ops), (item.get('item') for item in unselected)
     else # add the constraint as is.
       return @constrainTo ops, vals
@@ -146,7 +148,7 @@ module.exports = class SummaryItemsControls extends CoreView
   # or a null constraint. Helper for addConstraint
   constrainTo: (ops, vals) ->
     unless vals?.length
-      return @model.set error: (new Error 'No values are selected') 
+      return @model.set error: (new Error 'No values are selected')
     q = @model.query
     path = @model.view.toString()
     [val] = vals

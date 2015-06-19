@@ -6,7 +6,11 @@ CACHE = {}
 exports.runQuery = (overrides = {}) ->
   params = @getExportParameters overrides
   key = "results:#{ @query.service.root }:#{ JSON.stringify params }"
-  CACHE[key] ?= @query.service.post 'query/results', params
+  endpoint = 'query/results'
+  format = @model.get('format')
+  # Custom formats have custom endpoints.
+  endpoint += "/#{ format.id }" if format.needs?.length
+  CACHE[key] ?= @query.service.post endpoint, params
 
 exports.getEstimatedSize = ->
   q = @getExportQuery()
@@ -40,4 +44,6 @@ exports.getExportParameters = (overrides = {}) ->
   # TODO - this is hacky - the model should reflect the request
   if (data.format is 'json') and ('rows' isnt @model.get 'jsonFormat')
     data.format += @model.get 'jsonFormat'
+  if (data.format is 'fasta') and (@model.get('fastaExtension'))
+    data.extension = @model.get('fastaExtension')
   _.extend data, overrides

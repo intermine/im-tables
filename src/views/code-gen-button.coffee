@@ -44,7 +44,8 @@ module.exports = class CodeGenButton extends CoreView
 
   chooseLang: (e) ->
     lang = @$(e.target).closest('li').data 'lang'
-    @model.set lang: lang
+    @model.set(lang: lang)
+    @showDialogue()
 
   showDialogue: ->
     page = @tableState.pick 'start', 'size'

@@ -17,6 +17,7 @@ ColumnControls = require './export-dialogue/column-controls'
 CompressionControls = require './export-dialogue/compression-controls'
 FlatFileOptions = require './export-dialogue/flat-file-options'
 JSONOptions = require './export-dialogue/json-options'
+FastaOptions = require './export-dialogue/fasta-options'
 DestinationOptions = require './export-dialogue/destination-options'
 Preview = require './export-dialogue/preview'
 
@@ -60,6 +61,7 @@ class ExportModel extends Model
     compression: 'gzip'
     headers: false
     jsonFormat: 'rows'
+    fastaExtension: null
     headerType: 'friendly'
 
 isa = (target) -> (path) -> path.isa target
@@ -85,12 +87,32 @@ module.exports = class ExportDialogue extends Modal
     @listenTo @state, 'change:tab', @renderMain
     @listenTo @model, 'change', @updateState
     @listenTo @model, 'change:columns', @setMax
+    @listenTo @model, 'change:format', @onChangeFormat
     @categoriseQuery()
     @model.set columns: @query.views
     @model.set filename: @query.name.replace(/\s+/g, '_') if @query.name?
     @updateState()
     @setMax()
     @readUserPreferences()
+
+  onChangeFormat: -> _.defer =>
+    format = @model.get 'format'
+    activeCols = @model.get 'columns'
+    if format.needs?.length
+      oldColumns = activeCols.slice()
+      newColumns = []
+      for v in @query.views
+        p = @query.makePath(v).getParent()
+        if (_.any format.needs, (needed) -> p.isa(needed))
+          newColumns.push p.append('id').toString()
+      nodecolumns = _.uniq(newColumns)
+      @model.set nodecolumns: nodecolumns
+      maxCols = format.maxColumns
+      cs = if maxCols then _.first(nodecolumns, maxCols) else nodecolumns.slice()
+      @model.set columns: cs
+      @model.once 'change:format', =>
+        @model.set columns: oldColumns
+        @model.unset 'nodecolumns'
 
   # Read any relevant preferences into state/Options.
   readUserPreferences: -> @query.service.whoami().then (user) =>
@@ -142,7 +164,7 @@ module.exports = class ExportDialogue extends Modal
     else
       null
 
-    @state.set @model.pick 'headers', 'headerType', 'jsonFormat'
+    @state.set @model.pick 'headers', 'headerType', 'jsonFormat', 'fastaExtension'
     @state.set
       error: error
       format: format
@@ -166,6 +188,7 @@ module.exports = class ExportDialogue extends Modal
       when 'compression' then CompressionControls
       when 'column-headers' then FlatFileOptions
       when 'opts-json' then JSONOptions
+      when 'opts-fasta' then FastaOptions
       when 'dest' then DestinationOptions
       when 'rows' then RowControls
       when 'preview' then Preview

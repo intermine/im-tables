@@ -19,6 +19,8 @@ module.exports = class SuggestionSource
       @tooMany = template icons: Icons, messages: Messages, extra: total - maxSuggestions
 
   suggest: (term, cb) =>
+    if not term? or term is ''
+      return cb(s for s in @suggestions.slice(0, 10))
     parts = (term?.toLowerCase()?.split(' ') ? [])
     matches = ({item}) ->
       item ?= ''

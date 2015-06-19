@@ -26,6 +26,7 @@ module.exports =
   'export.category.JsonFormat': """
     As <%= (jsonFormat === 'objects') ? 'Objects' : 'Rows' %>
   """
+  'export.category.FastaFormat': 'FASTA options'
   'export.category.ColumnHeaders': """
     <% if (headers) { %>
       <%= {friendly: 'Formatted', path: 'Raw'}[headerType] %>

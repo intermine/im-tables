@@ -6,6 +6,8 @@ Messages = require '../messages'
 Templates = require '../templates'
 CoreView = require '../core-view'
 Options = require '../options'
+NestedModel = require '../core/nested-model'
+getBranding = require '../utils/branding'
 {IS_BLANK} = require '../patterns'
 HasTypeaheads = require '../mixins/has-typeaheads'
 
@@ -35,31 +37,40 @@ module.exports = class AttributeValueControls extends CoreView
 
   template: Templates.template 'attribute_value_controls'
 
-  getData: -> messages: Messages, con: @model.toJSON()
+  getData: -> _.extend @getBaseData(), messages: Messages, con: @model.toJSON()
 
   # @Override
   initialize: ({@query}) ->
     super
     @sliders = []
+    @branding = new NestedModel
     @cast = if @model.get('path').getType() in NUMERIC_TYPES then numify else trim
     # Declare rendering dependency on messages
     @listenTo Messages, 'change', @reRender
+    @state.set valuePlaceholder: Messages.getText('conbuilder.ValuePlaceholder')
+    @listenTo @branding, 'change:defaults.value', ->
+      @state.set valuePlaceholder: @branding.get('defaults.value')
     if @query?
       @listenTo @query, 'change:constraints', @clearCachedData
       @listenTo @query, 'change:constraints', @reRender
+      getBranding(@query.service).then (branding) => @branding.set(branding)
 
   modelEvents: ->
     destroy: -> @stopListening() # If the model is gone, then shut up and wait to be removed.
     'change:value': @onChangeValue
     'change:op': @onChangeOp
 
+  stateEvents: ->
+    'change:valuePlaceholder': @reRender
+
   # Help translate between multi-value and =
   onChangeOp: ->
     newOp = @model.get 'op'
-    if newOp in Query.MULTIVALUE_OPS
+    if @model.get('value')? and newOp in Query.MULTIVALUE_OPS
       @model.set value: null, values: [@model.get('value')]
+    @reRender()
 
-  onChangeValue: -> @updateInput()
+  onChangeValue: -> @reRender()
 
   removeAllChildren: ->
     @removeTypeAheads()
@@ -122,6 +133,7 @@ module.exports = class AttributeValueControls extends CoreView
     clone.summarise pstr, maxSuggestions
 
   replaceInputWithSelect: (items) ->
+    console.log("Select of #{ items.length } items")
     if @model.has 'value'
       value = @model.get('value')
       if value? and not (_.any items, ({item}) -> item is value)
@@ -134,7 +146,7 @@ module.exports = class AttributeValueControls extends CoreView
   # Here we supply the suggestions using typeahead.js
   # see: https://github.com/twitter/typeahead.js/blob/master/doc/jquery_typeahead.md
   handleSummary: (items, total) ->
-    if @model.get('op') is '=' and items.length < Options.get 'DropdownMax'
+    if @model.get('op') in ['=', '!='] and items.length < Options.get 'DropdownMax'
       return @replaceInputWithSelect items
 
     input = @$ '.im-con-value-attr'
@@ -151,9 +163,10 @@ module.exports = class AttributeValueControls extends CoreView
         footer: source.tooMany
 
     @removeTypeAheads()
-    @activateTypeahead input, opts, dataset, items[0].item, (e, suggestion) =>
+    handleSuggestion = (evt, suggestion) =>
       @model.set value: suggestion.item
-
+    @activateTypeahead input, opts, dataset, items[0].item, handleSuggestion, =>
+      @setAttributeValue()
   clearer: '<div class="" style="clear:both;">'
   
   getMarkers: (min, max, isInt) ->
@@ -176,6 +189,8 @@ module.exports = class AttributeValueControls extends CoreView
     input = @$ 'input'
     container.append @clearer
     markers = @getMarkers min, max, isInt
+    @removeSliders()
+    input.off 'change.slider'
     $slider = $ @makeSlider markers
     $slider.appendTo(container).slider
       min: min
@@ -185,6 +200,9 @@ module.exports = class AttributeValueControls extends CoreView
       slide: (e, ui) -> input.val(ui.value).change()
     input.attr placeholder: caster average
     container.append @clearer
-    input.change (e) -> $slider.slider 'value', caster input.val()
-    @removeSliders()
+    input.on 'change.slider', (e) -> $slider.slider 'value', caster input.val()
     @sliders.push $slider
+
+  remove: ->
+    super
+    @removeTypeAheads()

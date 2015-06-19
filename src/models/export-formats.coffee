@@ -2,7 +2,7 @@ _ = require 'underscore'
 
 class Format
 
-  constructor: ({@id, @group, icon, needs}) ->
+  constructor: ({@id, @group, icon, needs, @maxColumns}) ->
     # Sigh, it's either this or list redundant info.
     ext = if @id is 'tab' then 'tsv' else @id
     EXT = ext.toUpperCase()
@@ -30,7 +30,7 @@ formats = [
   new Format(id: 'csv', group: 'flat'),
   new Format(id: 'xml',  group: 'machine'),
   new Format(id: 'json', group: 'machine'),
-  new Format(id: 'fasta', group: 'bio', icon: 'dna', needs: ['Protein', 'SequenceFeature']),
+  new Format(id: 'fasta', group: 'bio', icon: 'dna', needs: ['Protein', 'SequenceFeature'], maxColumns: 1),
   new Format(id: 'gff3',  group: 'bio', icon: 'dna', needs: ['SequenceFeature']),
   new Format(id: 'bed',   group: 'bio', icon: 'dna', needs: ['SequenceFeature']),
   new Format(id: 'fake',   group: 'fake', icon: 'fake', needs: ['Department'])

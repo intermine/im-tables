@@ -1,3 +1,6 @@
+<% if (code) { %>
+  <li><span class="text-muted"><strong><%- code %>:</strong></span></li>
+<% } %>
 <% _.each(labels, function (label) { %>
   <li>        
     <span class="label label-<%- label.type %>">
@@ -6,7 +9,7 @@
         <%- Messages.getText('consummary.' + label.content) %>
       <% } else if (label.type === 'path') { %>
         <% _.each(label.content.split(' > '), function (part) { %>
-          <span class="im-name-part"><%- part %></span>
+          <span title="<%- label.content %>" class="im-name-part"><%- part %></span>
         <% }); %>
       <% } else { %>
         <% if (label.icon) { %><%= Icons.icon(label.icon) %><% } %>
