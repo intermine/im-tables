@@ -19,6 +19,9 @@ class IndexedCollection extends Collection
 
   comparator: 'index'
 
+  add: ->
+    super
+
   constructor: ->
     super
     @listenTo @, 'change:index', -> _.defer => @sort()
@@ -28,6 +31,7 @@ class IndexedCollection extends Collection
   model: (args) =>
     index = @size()
     model = new @modelFactory args
+    model.collection = @
     model.set {index}
     return model
 
@@ -80,11 +84,15 @@ module.exports = class ColumnManager extends Modal
     @sortOrder = new OrderByList
     @availableColumns = new AvailableColumns
     # Populate the view
+    console.log "Column Manager started with query", @query
     for v in @query.views
       @selectList.add @query.makePath v
     # Populate the sort-order
     for {path, direction} in @query.sortOrder
+      console.log "ADDING SORT sort order", path
       @sortOrder.add {direction, path: @query.makePath(path)}
+
+    console.log "calling @getRelevantPaths returns", @getRelevantPaths()
     # Find the relevant sort paths which are not in the sort order already.
     for path in @getRelevantPaths() when (not @sortOrder.get path.toString())
       @availableColumns.add path, sort: false

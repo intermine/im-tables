@@ -23,10 +23,10 @@ module.exports = class OpenNodes extends UniqItems
 
   # Also removes sub-nodes.
   remove: (path) ->
+    if !path? then return false
     if path instanceof Backbone.Model
       super path
 
     delenda = @filter (node) -> descendsFrom path, node.get('item')
     for delendum in delenda
       super delendum
-
