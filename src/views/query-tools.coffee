@@ -75,7 +75,6 @@ module.exports = class QueryTools extends CoreView
 
     if @consumerContainer and @consumerBtnClass
       for kid in ['save', 'code', 'lists']
-        console.log 'listening to', @children[kid]
         @listenTo @children[kid], 'rendered', @setButtonStyle
 
     @setButtonStyle()

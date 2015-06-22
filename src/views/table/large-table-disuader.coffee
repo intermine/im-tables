@@ -25,7 +25,7 @@ module.exports = class LargeTableDisuader extends Modal
     @resolve "accept"
 
   events: -> _.extend super,
-    'click .btn-primary':         (=> console.log "clicked", Actions; @resolve Actions.ACCEPT)
+    'click .btn-primary':         (=> @resolve Actions.ACCEPT)
     'click .add-filter-dialogue': (=> @resolve Actions.CONSTRAIN)
     'click .page-backwards':      (=> @resolve Actions.BACK)
     'click .page-forwards':       (=> @resolve Actions.FWD)

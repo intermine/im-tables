@@ -133,7 +133,6 @@ module.exports = class AttributeValueControls extends CoreView
     clone.summarise pstr, maxSuggestions
 
   replaceInputWithSelect: (items) ->
-    console.log("Select of #{ items.length } items")
     if @model.has 'value'
       value = @model.get('value')
       if value? and not (_.any items, ({item}) -> item is value)
