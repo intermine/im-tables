@@ -81,7 +81,6 @@ module.exports = class Table extends CoreView
     @listenTo @columnHeaders, 'change:minimised', @onChangeHeaderMinimised
 
     @onChangeQuery()
-    console.debug 'initialised table'
 
   onChangeQuery: ->
     # save a reference, just to make life easier.
@@ -180,7 +179,6 @@ module.exports = class Table extends CoreView
   # our rows collection with the result, and then record how successful
   # we were, finally bumping the fill count.
   fillRows: ->
-    console.debug 'filling rows'
     {start, size} = @model.pick 'start', 'size'
     success = => @model.set phase: 'SUCCESS'
     error   = (e = UNKNOWN_ERROR) => @model.set phase: 'ERROR', error: e

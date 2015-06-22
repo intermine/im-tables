@@ -137,7 +137,7 @@ module.exports = class ActiveConstraint extends View
 
   getValueProblem: (con) ->
     {path, op, value} = con
-    console.debug con
+    # console.debug con
     if not value? or (IS_BLANK.test value)
       return 'NoValue'
 
@@ -184,7 +184,7 @@ module.exports = class ActiveConstraint extends View
       # suppressed change event.
       @query.trigger "change:constraints"
     else
-      console.debug 'Adding constraint'
+      # console.debug 'Adding constraint'
       con.path = con.path.toString()
       @query.addConstraint con
       @constraint = con

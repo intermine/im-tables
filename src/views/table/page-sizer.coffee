@@ -29,7 +29,7 @@ module.exports = class PageSizer extends CoreView
   initialize: ->
     super
     size = @model.get 'size'
-    if size? and not _.include (s for [s] in @sizes), size
+    if size? and size not in (s for [s] in @sizes)
       @sizes = [[size, size]].concat @sizes # assign, don't mutate
 
   events: ->
@@ -40,8 +40,10 @@ module.exports = class PageSizer extends CoreView
     'change:size': (m, v) -> @$('select').val v
     'change:count': @reRender
 
-  # TODO - make sure NewFilterDialogue supports the {@query} constructor and the show method
-  # TODO - make sure ExportDialogue supports the {@query} constructor and the show method
+  # Determine the selected size and then apply it.
+  # If the size is large enough to be potentially problematic, then first check
+  # with the user about what to do, where the options include paging about,
+  # adding constraints, exporting data or aborting completely.
   changePageSize: (evt) ->
     input   = @$ evt.target
     size    = parseInt input.val(), 10
@@ -73,10 +75,19 @@ module.exports = class PageSizer extends CoreView
     count = @model.get 'count'
     size = @model.get 'size'
     sizes = (s for s in @sizes when ((not count?) or (s[0] < count)))
-    if sizes.length and (size not in sizes)
-      sizes.push [size] # It is confusing to show the wrong size.
-    _.extend super, {sizes}
+    # If the total count is less than the highest threshold...
+    if sizes.length and count < @sizes[@sizes.length - 1][0]
+      found = _.find sizes, (next) -> next[0] is count
+      # Is our total count one of the page sizes? If so then mutate its label.
+      if found 
+          found[1]+= found[0] + " (All)"
+      else
+        sizes.push [count, "#{count} (All)"]
+    {size, sizes}
 
+  # An arbitrarily chosen number above which we should be skeptical about the
+  # user's judgement. There isn't a huge amount of sense in showing 250 rows on
+  # one page - and it will just tax their browser.
   pageSizeFeasibilityThreshold: 250
 
   # Check if the given size could be considered problematic
