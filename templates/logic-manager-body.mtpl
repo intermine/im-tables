@@ -1,0 +1,15 @@
+<div class="form-group">
+  <label class="form-label">
+    <%- Messages.getText('logic.LogicLabel') %>
+    <input type="text"
+          class="im-logic form-control"
+          placeholder="<%- state.defaultLogic %>"
+          value="<%- logic %>">
+  </label>
+</div>
+<div class="form-group">
+  <button class="pull-right btn btn-primary <%- (state.disabled) ? 'disabled' : null %>"
+          type="submit">
+    <%- Messages.getText('logic.ApplyLogic') %>
+  </button>
+</div>

@@ -14,12 +14,17 @@ QUERY =
   select: [
     'company.name',
     'name',
-    'employees.name',
-    'employees.age'
+    'company.contractors.name',
+    'company.contractors.seniority',
+    'company.contractors.businessAddress.address',
+    'company.contractors.oldComs.name',
+    'company.contractors.oldComs.address.address'
   ]
   from: 'Department'
-  joins: ['employees']
-  where: [[ 'employees.age', '>', 35 ]]
+  joins: [
+    'Department.company.contractors.businessAddress',
+    'Department.company.contractors.oldComs',
+  ]
 
 main = -> renderQueries [QUERY], renderQuery
 create = (query) -> new Dashboard {query, model: {size: 5}}

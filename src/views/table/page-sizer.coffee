@@ -75,6 +75,7 @@ module.exports = class PageSizer extends CoreView
     count = @model.get 'count'
     size = @model.get 'size'
     sizes = (s for s in @sizes when ((not count?) or (s[0] < count)))
+
     # If the total count is less than the highest threshold...
     if sizes.length and count < @sizes[@sizes.length - 1][0]
       found = _.find sizes, (next) -> next[0] is count

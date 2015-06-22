@@ -86,7 +86,9 @@ class ColumnView extends View
     @model.set(active: true) unless @model.has 'active'
     unless @model.has('name')
       @model.set name: null # make sure it is present.
-      @model.get('item').getDisplayName (error, name) =>
+      path = @model.get('item')
+      path = path.getParent() if (@model.get('item').end?.name is 'id')
+      path.getDisplayName (error, name) =>
         @model.set {error, name}
 
   className: 'list-group-item'
@@ -107,18 +109,32 @@ module.exports = class ColumnControls extends View
     @columns = new PathSet
     # (re)-establish the state of the column selection, including
     # columns from the view that are not currently selected.
+    format = @model.get 'format'
     activeCols = @model.get 'columns'
-    for v in @query.views
-      p = @query.makePath v
-      @columns.add p, active: (_.any activeCols, (ac) -> ac is v)
+    unless format.needs?.length
+      for v in @query.views
+        p = @query.makePath v
+        @columns.add p, active: (_.any activeCols, (ac) -> ac is v)
     for c in activeCols
       @columns.add @query.makePath(c), active: true
+    if (ns = @model.get('nodecolumns'))
+      for n in ns
+        @columns.add @query.makePath(n), active: false
 
     @listenTo @columns, 'add remove reset change:active', @setColumns
     @listenTo @columns, 'add remove reset', @reRender
 
-  setColumns: ->
+  # Make sure the selected columns (model.columns) reflects the selected
+  # state of the column in this component.
+  setColumns: (m) ->
     columns = (c.get('item').toString() for c in @columns.where active: true)
+    if (max = @model.get('format').maxColumns)
+      if m? and columns.length > max
+        newlySelected = m.get('item').toString()
+        others = (c for c in columns when c isnt newlySelected)
+        columns = [newlySelected].concat(_.first(others, max - 1))
+        _.defer => for c in @columns.where(active: true)
+          c.set active: (c.get('item').toString() in columns)
     @model.set columns: columns
 
   tagName: 'form'

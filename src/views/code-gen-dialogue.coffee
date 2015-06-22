@@ -113,7 +113,8 @@ module.exports = class CodeGenDialogue extends Modal
     lang = @model.get('lang')
     lang = 'html' if lang is 'js' and @model.get('extrajs')
     blob = new Blob [@state.get('generatedCode')], type: MIMETYPES[lang]
-    saveAs blob, "#{ @query.name ? 'name' }.#{ lang }"
+    filename = "#{ @query.name ? 'name' }.#{ lang }"
+    withFileSaver (saveAs) => saveAs blob, filename
 
   onChangeLang: ->
     lang = @model.get 'lang'

@@ -1,8 +1,5 @@
 <div class="im-slider">
     <% _.each(markers, function(marker) { %>
-        <span class="im-slider-marker <%- (marker.percent > 50) ? 'high' : 'low' %>"
-              style="left:<%- marker.percent %>%">
-            <%- marker.value %>
-        </span>
+        <span class="im-slider-marker"><%- marker.value %></span>
     <% }); %>
 </div>

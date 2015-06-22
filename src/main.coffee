@@ -5,6 +5,7 @@ require './shim'
 {Service: {connect}} = require 'imjs'
 {Promise} = require 'es6-promise'
 
+version = require './version'
 Types = require './core/type-assertions'
 Dashboard = require './views/dashboard'
 Table = require './views/table'
@@ -53,6 +54,9 @@ asElement = (e) ->
   return ret
 
 # Exported top-level API
+
+# The version of this library, see: bin/inject-version.js
+exports.version = version
 
 # Allow end users to configure text.
 exports.setMessages = Messages.set.bind(Messages)

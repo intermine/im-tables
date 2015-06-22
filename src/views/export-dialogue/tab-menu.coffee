@@ -5,16 +5,20 @@ Templates = require '../../templates'
 
 class Tab
 
-  constructor: (@ident, key, @formats = []) ->
+  constructor: (@ident, key, @formats = [], @groups = null) ->
     @key = "export.category.#{ key }"
 
-  isFor: (format) -> (@formats.length is 0) or (format.ext in @formats)
+  isFor: (format) ->
+    return (format.ext in @formats) if @formats.length
+    return @groups[format.group] if @groups?
+    return true
 
 TABS = [
   new Tab('dest', 'Destination'),
   new Tab('opts-json', 'JsonFormat', ['json']),
+  new Tab('opts-fasta', 'FastaFormat', ['fasta']),
   new Tab('columns', 'Columns'),
-  new Tab('rows', 'Rows'),
+  new Tab('rows', 'Rows', [], {flat: true, machine: true}),
   new Tab('compression', 'Compression'),
   new Tab('column-headers', 'ColumnHeaders', ['tsv', 'csv']),
   new Tab('preview', 'Preview')

@@ -5,6 +5,7 @@ $ = require 'jquery'
 {Query, Model} = require 'imjs'
 
 # Support
+CoreModel = require '../core-model'
 Messages = require '../messages'
 Templates = require '../templates'
 Icons = require '../icons'
@@ -54,8 +55,17 @@ basicEql = (a, b) ->
     same and= (if _.isArray va then aeql va, vb else va is vb)
   return same
 
+class ConstraintModel extends CoreModel
+
+  defaults: ->
+    code: null
+
+  isTypeConstraint: -> not @get('op')?
+
 # Composite view with a summary, and controls for editing the constraint.
 module.exports = class ActiveConstraint extends View
+
+  Model: ConstraintModel
 
   tagName: "div"
 
