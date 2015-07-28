@@ -133,7 +133,26 @@ module.exports = class CodeGenDialogue extends Modal
     switch lang
       when 'xml' then @state.set generatedCode: @generateXML()
       when 'js'  then @state.set generatedCode: @generateJS()
-      else @query.fetchCode(lang).then (code) => @state.set generatedCode: code
+      else
+        # TODO
+        # Safari 8 is caching imjs.fetchCode() even when options
+        # change. So, for example, prior results fetchCode('py') are
+        # smothering results for fetchCode('java'). Use our own cache for now.
+        @getCodeFromCache lang
+
+  getCodeFromCache: (lang) ->
+    if !@cache? then @cache = {}
+    if @cache?[lang]?
+      @state.set generatedCode: @cache[lang]
+    else
+      opts =
+        query: @query.toXML()
+        lang: lang
+        date: Date.now()
+      # Bust the cache
+      @query.service.post('query/code?cachebuster=' + Date.now(), opts).then (res) =>
+        @cache[lang] = res.code
+        @state.set generatedCode: res.code
 
   generateXML: ->
     indentXml @query.toXML()
@@ -219,4 +238,3 @@ module.exports = class CodeGenDialogue extends Modal
     e.stopPropagation()
     lang = @$(e.target).closest('li').data 'lang'
     @model.set lang: lang
-
