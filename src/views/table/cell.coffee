@@ -193,7 +193,13 @@ module.exports = class Cell extends CoreView
   closeOwnPreview: ->
     myId = @el.id
     currentOwner = @tableState.get 'previewOwner'
-    @hidePreview() unless myId is currentOwner
+    if myId isnt currentOwner
+      @hidePreview()
+      # In some cases the preview is getting stuck on the screen.
+      # With the preview present, and the showPreview state set
+      # to false, an event never fires to remove the own popup.
+      # Force it for now.
+      @_hidePreview()
 
   # Listen to the entity that backs this cell, updating the value if it
   # changes. This is important for cell formatters so that they can
@@ -304,11 +310,15 @@ module.exports = class Cell extends CoreView
     else
       show()
 
-  _hidePreview: -> if @children.popover?.rendered
-    @popoverTarget?.popover 'hide'
+  _hidePreview: ->
+    if @children.popover?.rendered
+      @popoverTarget?.popover 'hide'
 
   onChangeShowPreview: ->
-    if @state.get('showPreview') then @_showPreview() else @_hidePreview()
+    if @state.get('showPreview')
+      @_showPreview()
+    else
+      @_hidePreview()
 
   onChangeSelectable: ->
     @setDisabledCellClass()

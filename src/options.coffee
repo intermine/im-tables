@@ -27,18 +27,19 @@ class Options extends NestedModel
       FullPathPopoverEnabled: true
     TableCell:
       AddDataClasses: true
-      PreviewTrigger: 'hover' # one of: hover, click
+      PreviewTrigger: 'hover' # 'hover' # one of: hover, click
       HoverDelay: 200 # ms
       IndicateOffHostLinks: true
       ExternalLinkIcons:
         "http://some.host.somewhere": "http://some.host.somewhere/logo.png"
     ItemDetails:
+      ShowReferenceCounts: false # Shows referenced collections in preview popover
       Fields: {}
       Count: {}
     StylePrefix: 'imtables'
     SuggestionDepth: 2 # When suggestion paths, follow up to this many references.
     Events:
-      ActivateTab: 'mouseenter' # or click
+      ActivateTab: 'mouseenter' # 'mouseenter' # or click
     Subtables:
       Initially:
         expanded: false # Set to true to show all subtables by default.
@@ -105,4 +106,3 @@ module.exports = new Options
 
 # Export the constructor, for testing and such.
 module.exports.Options = Options
-

@@ -133,10 +133,14 @@ module.exports = class Preview extends CoreView
   # schema here for reasons of sanity (namely collision with the
   # Backbone model located at @model)
   fetchData: -> @service.fetchModel().then (@schema) =>
-    gettingDetails = @getAllDetails()
-    gettingCounts = @getRelationCounts()
 
-    Promise.all gettingDetails.concat gettingCounts
+    gettingDetails = @getAllDetails()
+
+    if Options.get 'ItemDetails.ShowReferenceCounts'
+      gettingCounts = @getRelationCounts()
+      Promise.all gettingDetails.concat gettingCounts
+    else
+      Promise.all gettingDetails
 
   getAllDetails: -> (@getDetails t for t in @model.get 'types')
 
@@ -145,7 +149,7 @@ module.exports = class Preview extends CoreView
     fields = Options.get ['ItemDetails', 'Fields', @schema.name, type]
     @service.findById(type, id, fields).then @handleItem
 
-  # Reads values from the returned items and adds details objects to the 
+  # Reads values from the returned items and adds details objects to the
   # fieldDetails and referenceFields collections, avoiding duplicates.
   handleItem: (item) =>
     coll = @fieldDetails
@@ -155,7 +159,7 @@ module.exports = class Preview extends CoreView
 
     for field, value of item when (testAttr field, value)
       @handleAttribute item, clds, field, value
-      
+
     for field, value of item when (testRef field, value)
       @handleSubObj item, clds, field, value
 

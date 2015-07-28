@@ -1,6 +1,6 @@
 # Wrapper that caches the results of findById and count
 # it fulfils the contract of ServiceType from item-preview
-# This is not for general use, as it *only* returns promises, 
+# This is not for general use, as it *only* returns promises,
 # and ignores all callbacks.
 #
 # When Proxies come into general use, this would be an excellent
@@ -44,9 +44,8 @@ module.exports = class PopoverFactory
     id = obj.get 'id'
 
     new Preview {service, model: {types, id}}
-  
+
   # Remove all popovers.
   destroy: ->
     @service.destroy()
     delete @service
-

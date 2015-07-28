@@ -50,4 +50,3 @@ module.exports = class PathModel extends CoreModel
       attrs.isAttribute = false
 
     return attrs
-
