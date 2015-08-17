@@ -10,4 +10,3 @@ module.exports = class CodeGenModel extends CoreModel
     lang: Options.get('CodeGen.Default') # The code-gen lang. See Options.CodeGen.Langs
     showBoilerPlate: false # Should we show language boilerplate.
     highlightSyntax: true  # Should we do syntax highlighting
-
