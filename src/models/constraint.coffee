@@ -1,6 +1,6 @@
 _ = require 'underscore'
 
-{Query: {LIST_OPS, LOOP_OPS, TERNARY_OPS, RANGE_OPS}} = require 'imjs'
+{Query: {LIST_OPS, LOOP_OPS, TERNARY_OPS, RANGE_OPS, NULL_OPS}} = require 'imjs'
 
 PathModel = require './path'
 
@@ -15,7 +15,7 @@ constraintType = (opts) ->
     return 'LOOKUP' if (opts.op in TERNARY_OPS)
     return 'LIST' if (opts.op in LIST_OPS)
     return 'LOOP' if (opts.op in LOOP_OPS)
-
+    return opts.op if (opts.op in NULL_OPS)
   throw new Error("Cannot determine constraint type: #{ opts.path } #{ opts.op }")
 
 # A rather ugly but convenient reutilisation of PathModel
@@ -45,4 +45,3 @@ module.exports = class ConstraintModel extends PathModel
       type.getDisplayName().then (name) => @set typeName: name
 
     @set CONSTRAINT_TYPE: constraintType opts
-
