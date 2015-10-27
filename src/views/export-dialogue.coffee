@@ -26,6 +26,7 @@ sendToDropBox = require '../utils/send-to-dropbox'
 sendToGoogleDrive = require '../utils/send-to-google-drive'
 sendToGalaxy = require '../utils/send-to-galaxy'
 sendToGenomeSpace = require '../utils/send-to-genomespace'
+sendToLocal = require '../utils/send-to-local'
 
 INITIAL_STATE =
   doneness: null # null = not uploading. 0 - 1 = uploading
@@ -117,7 +118,7 @@ module.exports = class ExportDialogue extends Modal
   # Read any relevant preferences into state/Options.
   readUserPreferences: -> @query.service.whoami().then (user) =>
     return unless user.hasPreferences
-    
+
     if (myGalaxy = user.preferences['galaxy-url'])
       Options.set 'Destination.Galaxy.Current', myGalaxy
 
@@ -207,7 +208,7 @@ module.exports = class ExportDialogue extends Modal
     @onUploadProgress 0
     # exporter is a function: (string, string, fn) -> Promise<string>
     exporter = @getExporter()
-    # The @ context of an exporter is {model, state, query}
+    # The @ context of an exporter is {mice odel, state, query}
     {model, state, query} = @
     # But it gets read-only versions of them.
     ctx = {model: model.toJSON(), state: state.toJSON(), query: query.clone()}
@@ -215,7 +216,8 @@ module.exports = class ExportDialogue extends Modal
     uri = @getExportURI()          #:: string
     file = @getFileName()          #:: string
     onProgress = @onUploadProgress #:: (number) ->
-    exporting = exporter.call ctx, uri, file, onProgress
+
+    exporting = exporter.call ctx, uri, file, onProgress, @
     exporting.then @onUploadComplete, @onUploadError
 
     # Exports can have after actions.
@@ -223,13 +225,15 @@ module.exports = class ExportDialogue extends Modal
       postExport = exporter.after.bind ctx
       exporting.then(postExport, postExport).then null, (e) => @state.set error: e
 
-  getExporter: -> switch @state.get 'dest'
-    when 'download' then -> Promise.resolve null # Download handled by use of an <a/>
-    when 'Dropbox' then sendToDropBox
-    when 'Drive' then sendToGoogleDrive
-    when 'Galaxy' then sendToGalaxy
-    when 'GenomeSpace' then sendToGenomeSpace
-    else throw new Error "Cannot export to #{ @state.get 'dest' }"
+  getExporter: ->
+    switch @state.get 'dest'
+    # when 'download' then -> Promise.resolve null # Download handled by use of an <a/>
+      when 'download' then sendToLocal
+      when 'Dropbox' then sendToDropBox
+      when 'Drive' then sendToGoogleDrive
+      when 'Galaxy' then sendToGalaxy
+      when 'GenomeSpace' then sendToGenomeSpace
+      else throw new Error "Cannot export to #{ @state.get 'dest' }"
 
   events: ->
     evts = super
