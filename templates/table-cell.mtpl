@@ -36,10 +36,4 @@
 
   </a>
 
-  <% if (value != null && field === 'url' && rawValue != url) { %>
-    <a class="im-cell-link external" href="<%= rawValue %>">
-      <%= Icons.icon('ExternalLink') %>
-      <%- Messages.getText('table.cell.Link') %>
-    </a>
-  <% } %>
 <% } %>
