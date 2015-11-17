@@ -7702,7 +7702,7 @@ exports.download_popover = "<% /* requires: formats, query, path */ %>\n<ul role
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"../cdn":1,"es6-promise":284}],113:[function(require,module,exports){
-module.exports = '2.0.0-beta-45';
+module.exports = '2.0.0';
 
 },{}],114:[function(require,module,exports){
 (function() {
@@ -13156,7 +13156,8 @@ module.exports = '2.0.0-beta-45';
     DestinationOptions.prototype.events = function() {
       var evts, fmt, types, _i, _len, _ref;
       evts = {
-        '.change .im-param-name input': 'setName'
+        '.change .im-param-name input': 'setName',
+        'keyup input:text': 'onChangeFilename'
       };
       types = this.model.get('has');
       _ref = Formats.getFormats(types);
@@ -13165,6 +13166,12 @@ module.exports = '2.0.0-beta-45';
         evts["click .im-fmt-" + fmt.id] = this.setFormat.bind(this, fmt);
       }
       return evts;
+    };
+
+    DestinationOptions.prototype.onChangeFilename = function() {
+      return this.model.set({
+        filename: this.$('input:text').val()
+      });
     };
 
     DestinationOptions.prototype.setName = function(e) {
@@ -13344,12 +13351,6 @@ module.exports = '2.0.0-beta-45';
       return {
         'change input:radio': 'onChangeFormat'
       };
-    };
-
-    FormatControls.prototype.onChangeFormat = function() {
-      return this.model.set({
-        format: this.$('input:radio:checked').val()
-      });
     };
 
     FormatControls.prototype.postRender = function() {

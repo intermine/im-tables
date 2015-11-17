@@ -23,9 +23,5 @@ module.exports = class FormatControls extends View
   events: ->
     'change input:radio': 'onChangeFormat'
 
-  onChangeFormat: ->
-    @model.set format: @$('input:radio:checked').val()
-
   postRender: ->
     @renderChild 'heading', (new HeadingView {@model}), @$ '.im-title'
-

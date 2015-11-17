@@ -71,13 +71,15 @@ module.exports = class DestinationOptions extends CoreView
   events: ->
     evts =
       '.change .im-param-name input': 'setName'
+      'keyup input:text': 'onChangeFilename'
 
     types = @model.get 'has'
     for fmt in Formats.getFormats types
       evts["click .im-fmt-#{ fmt.id }"] = @setFormat.bind @, fmt
     return evts
 
+  onChangeFilename: -> @model.set filename: @$('input:text').val()
+
   setName: (e) -> @model.set filename: e.target.value
 
   setFormat: (format) -> @model.set {format}
-
