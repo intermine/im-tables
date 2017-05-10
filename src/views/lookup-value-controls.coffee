@@ -42,6 +42,15 @@ module.exports = class LoopValueControls extends AttributeValueControls
     else
       @model.unset 'extraValue'
 
+  setValue: ->
+    input = @$('input.im-con-value.tt-input')
+    input = @$('input.im-con-value') unless input.length
+    value = input.val()
+    if value
+      @model.set value: value
+    else
+      @model.unset 'value'
+
   setBoth: ->
     @setValue()
     @setExtraValue()
@@ -99,4 +108,3 @@ module.exports = class LoopValueControls extends AttributeValueControls
   remove: ->
     super
     @branding.destroy()
-
