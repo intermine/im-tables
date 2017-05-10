@@ -12,7 +12,7 @@ grunt.loadNpmTasks('grunt-sandbox-css');
 
 var env = process.env;
 
-var serverPort = (grunt.option('port') || env.PORT || env.npm_package_config_port);
+var serverPort = (grunt.option('port') || env.PORT || env.npm_package_config_port || 3000);
 
 var NO_SPAWN = {spawn: false};
 
