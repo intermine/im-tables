@@ -1,8 +1,8 @@
 
 @font-face {
   font-family: 'FontAwesome';
-  src: url('//netdna.bootstrapcdn.com/font-awesome/4.3.0/fonts/fontawesome-webfont.eot?v=4.4.0');
-  src: url('//netdna.bootstrapcdn.com/font-awesome/4.3.0/fonts/fontawesome-webfont.eot?#iefix&v=4.4.0') format('embedded-opentype') , url('//netdna.bootstrapcdn.com/font-awesome/4.3.0/fonts/fontawesome-webfont.woff2?v=4.4.0') format('woff2') , url('//netdna.bootstrapcdn.com/font-awesome/4.3.0/fonts/fontawesome-webfont.woff?v=4.4.0') format('woff') , url('//netdna.bootstrapcdn.com/font-awesome/4.3.0/fonts/fontawesome-webfont.ttf?v=4.4.0') format('truetype') , url('//netdna.bootstrapcdn.com/font-awesome/4.3.0/fonts/fontawesome-webfont.svg?v=4.4.0#fontawesomeregular') format('svg');
+  src: url('//netdna.bootstrapcdn.com/font-awesome/4.3.0/fonts/fontawesome-webfont.eot?v=4.7.0');
+  src: url('//netdna.bootstrapcdn.com/font-awesome/4.3.0/fonts/fontawesome-webfont.eot?#iefix&v=4.7.0') format('embedded-opentype') , url('//netdna.bootstrapcdn.com/font-awesome/4.3.0/fonts/fontawesome-webfont.woff2?v=4.7.0') format('woff2') , url('//netdna.bootstrapcdn.com/font-awesome/4.3.0/fonts/fontawesome-webfont.woff?v=4.7.0') format('woff') , url('//netdna.bootstrapcdn.com/font-awesome/4.3.0/fonts/fontawesome-webfont.ttf?v=4.7.0') format('truetype') , url('//netdna.bootstrapcdn.com/font-awesome/4.3.0/fonts/fontawesome-webfont.svg?v=4.7.0#fontawesomeregular') format('svg');
   font-weight: normal;
   font-style: normal;}
 .imtables .fa {
@@ -82,27 +82,27 @@
     -webkit-transform: rotate(359deg);
     transform: rotate(359deg);}}
 .imtables .fa-rotate-90 {
-  filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=1);
+  -ms-filter: "progid:DXImageTransform.Microsoft.BasicImage(rotation=1)";
   -webkit-transform: rotate(90deg);
   -ms-transform: rotate(90deg);
   transform: rotate(90deg);}
 .imtables .fa-rotate-180 {
-  filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=2);
+  -ms-filter: "progid:DXImageTransform.Microsoft.BasicImage(rotation=2)";
   -webkit-transform: rotate(180deg);
   -ms-transform: rotate(180deg);
   transform: rotate(180deg);}
 .imtables .fa-rotate-270 {
-  filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
+  -ms-filter: "progid:DXImageTransform.Microsoft.BasicImage(rotation=3)";
   -webkit-transform: rotate(270deg);
   -ms-transform: rotate(270deg);
   transform: rotate(270deg);}
 .imtables .fa-flip-horizontal {
-  filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=0 mirror=1);
+  -ms-filter: "progid:DXImageTransform.Microsoft.BasicImage(rotation=0, mirror=1)";
   -webkit-transform: scale(-1 , 1);
   -ms-transform: scale(-1 , 1);
   transform: scale(-1 , 1);}
 .imtables .fa-flip-vertical {
-  filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=2 mirror=1);
+  -ms-filter: "progid:DXImageTransform.Microsoft.BasicImage(rotation=2, mirror=1)";
   -webkit-transform: scale(1 , -1);
   -ms-transform: scale(1 , -1);
   transform: scale(1 , -1);}
@@ -951,7 +951,7 @@
   content: "\f1a5";}
 .imtables .fa-digg:before {
   content: "\f1a6";}
-.imtables .fa-pied-piper:before {
+.imtables .fa-pied-piper-pp:before {
   content: "\f1a7";}
 .imtables .fa-pied-piper-alt:before {
   content: "\f1a8";}
@@ -1039,6 +1039,7 @@
 .imtables .fa-circle-o-notch:before {
   content: "\f1ce";}
 .imtables .fa-ra:before,
+.imtables .fa-resistance:before,
 .imtables .fa-rebel:before {
   content: "\f1d0";}
 .imtables .fa-ge:before,
@@ -1258,6 +1259,7 @@
 .imtables .fa-expeditedssl:before {
   content: "\f23e";}
 .imtables .fa-battery-4:before,
+.imtables .fa-battery:before,
 .imtables .fa-battery-full:before {
   content: "\f240";}
 .imtables .fa-battery-3:before,
@@ -1390,6 +1392,231 @@
   content: "\f27e";}
 .imtables .fa-fonticons:before {
   content: "\f280";}
+.imtables .fa-reddit-alien:before {
+  content: "\f281";}
+.imtables .fa-edge:before {
+  content: "\f282";}
+.imtables .fa-credit-card-alt:before {
+  content: "\f283";}
+.imtables .fa-codiepie:before {
+  content: "\f284";}
+.imtables .fa-modx:before {
+  content: "\f285";}
+.imtables .fa-fort-awesome:before {
+  content: "\f286";}
+.imtables .fa-usb:before {
+  content: "\f287";}
+.imtables .fa-product-hunt:before {
+  content: "\f288";}
+.imtables .fa-mixcloud:before {
+  content: "\f289";}
+.imtables .fa-scribd:before {
+  content: "\f28a";}
+.imtables .fa-pause-circle:before {
+  content: "\f28b";}
+.imtables .fa-pause-circle-o:before {
+  content: "\f28c";}
+.imtables .fa-stop-circle:before {
+  content: "\f28d";}
+.imtables .fa-stop-circle-o:before {
+  content: "\f28e";}
+.imtables .fa-shopping-bag:before {
+  content: "\f290";}
+.imtables .fa-shopping-basket:before {
+  content: "\f291";}
+.imtables .fa-hashtag:before {
+  content: "\f292";}
+.imtables .fa-bluetooth:before {
+  content: "\f293";}
+.imtables .fa-bluetooth-b:before {
+  content: "\f294";}
+.imtables .fa-percent:before {
+  content: "\f295";}
+.imtables .fa-gitlab:before {
+  content: "\f296";}
+.imtables .fa-wpbeginner:before {
+  content: "\f297";}
+.imtables .fa-wpforms:before {
+  content: "\f298";}
+.imtables .fa-envira:before {
+  content: "\f299";}
+.imtables .fa-universal-access:before {
+  content: "\f29a";}
+.imtables .fa-wheelchair-alt:before {
+  content: "\f29b";}
+.imtables .fa-question-circle-o:before {
+  content: "\f29c";}
+.imtables .fa-blind:before {
+  content: "\f29d";}
+.imtables .fa-audio-description:before {
+  content: "\f29e";}
+.imtables .fa-volume-control-phone:before {
+  content: "\f2a0";}
+.imtables .fa-braille:before {
+  content: "\f2a1";}
+.imtables .fa-assistive-listening-systems:before {
+  content: "\f2a2";}
+.imtables .fa-asl-interpreting:before,
+.imtables .fa-american-sign-language-interpreting:before {
+  content: "\f2a3";}
+.imtables .fa-deafness:before,
+.imtables .fa-hard-of-hearing:before,
+.imtables .fa-deaf:before {
+  content: "\f2a4";}
+.imtables .fa-glide:before {
+  content: "\f2a5";}
+.imtables .fa-glide-g:before {
+  content: "\f2a6";}
+.imtables .fa-signing:before,
+.imtables .fa-sign-language:before {
+  content: "\f2a7";}
+.imtables .fa-low-vision:before {
+  content: "\f2a8";}
+.imtables .fa-viadeo:before {
+  content: "\f2a9";}
+.imtables .fa-viadeo-square:before {
+  content: "\f2aa";}
+.imtables .fa-snapchat:before {
+  content: "\f2ab";}
+.imtables .fa-snapchat-ghost:before {
+  content: "\f2ac";}
+.imtables .fa-snapchat-square:before {
+  content: "\f2ad";}
+.imtables .fa-pied-piper:before {
+  content: "\f2ae";}
+.imtables .fa-first-order:before {
+  content: "\f2b0";}
+.imtables .fa-yoast:before {
+  content: "\f2b1";}
+.imtables .fa-themeisle:before {
+  content: "\f2b2";}
+.imtables .fa-google-plus-circle:before,
+.imtables .fa-google-plus-official:before {
+  content: "\f2b3";}
+.imtables .fa-fa:before,
+.imtables .fa-font-awesome:before {
+  content: "\f2b4";}
+.imtables .fa-handshake-o:before {
+  content: "\f2b5";}
+.imtables .fa-envelope-open:before {
+  content: "\f2b6";}
+.imtables .fa-envelope-open-o:before {
+  content: "\f2b7";}
+.imtables .fa-linode:before {
+  content: "\f2b8";}
+.imtables .fa-address-book:before {
+  content: "\f2b9";}
+.imtables .fa-address-book-o:before {
+  content: "\f2ba";}
+.imtables .fa-vcard:before,
+.imtables .fa-address-card:before {
+  content: "\f2bb";}
+.imtables .fa-vcard-o:before,
+.imtables .fa-address-card-o:before {
+  content: "\f2bc";}
+.imtables .fa-user-circle:before {
+  content: "\f2bd";}
+.imtables .fa-user-circle-o:before {
+  content: "\f2be";}
+.imtables .fa-user-o:before {
+  content: "\f2c0";}
+.imtables .fa-id-badge:before {
+  content: "\f2c1";}
+.imtables .fa-drivers-license:before,
+.imtables .fa-id-card:before {
+  content: "\f2c2";}
+.imtables .fa-drivers-license-o:before,
+.imtables .fa-id-card-o:before {
+  content: "\f2c3";}
+.imtables .fa-quora:before {
+  content: "\f2c4";}
+.imtables .fa-free-code-camp:before {
+  content: "\f2c5";}
+.imtables .fa-telegram:before {
+  content: "\f2c6";}
+.imtables .fa-thermometer-4:before,
+.imtables .fa-thermometer:before,
+.imtables .fa-thermometer-full:before {
+  content: "\f2c7";}
+.imtables .fa-thermometer-3:before,
+.imtables .fa-thermometer-three-quarters:before {
+  content: "\f2c8";}
+.imtables .fa-thermometer-2:before,
+.imtables .fa-thermometer-half:before {
+  content: "\f2c9";}
+.imtables .fa-thermometer-1:before,
+.imtables .fa-thermometer-quarter:before {
+  content: "\f2ca";}
+.imtables .fa-thermometer-0:before,
+.imtables .fa-thermometer-empty:before {
+  content: "\f2cb";}
+.imtables .fa-shower:before {
+  content: "\f2cc";}
+.imtables .fa-bathtub:before,
+.imtables .fa-s15:before,
+.imtables .fa-bath:before {
+  content: "\f2cd";}
+.imtables .fa-podcast:before {
+  content: "\f2ce";}
+.imtables .fa-window-maximize:before {
+  content: "\f2d0";}
+.imtables .fa-window-minimize:before {
+  content: "\f2d1";}
+.imtables .fa-window-restore:before {
+  content: "\f2d2";}
+.imtables .fa-times-rectangle:before,
+.imtables .fa-window-close:before {
+  content: "\f2d3";}
+.imtables .fa-times-rectangle-o:before,
+.imtables .fa-window-close-o:before {
+  content: "\f2d4";}
+.imtables .fa-bandcamp:before {
+  content: "\f2d5";}
+.imtables .fa-grav:before {
+  content: "\f2d6";}
+.imtables .fa-etsy:before {
+  content: "\f2d7";}
+.imtables .fa-imdb:before {
+  content: "\f2d8";}
+.imtables .fa-ravelry:before {
+  content: "\f2d9";}
+.imtables .fa-eercast:before {
+  content: "\f2da";}
+.imtables .fa-microchip:before {
+  content: "\f2db";}
+.imtables .fa-snowflake-o:before {
+  content: "\f2dc";}
+.imtables .fa-superpowers:before {
+  content: "\f2dd";}
+.imtables .fa-wpexplorer:before {
+  content: "\f2de";}
+.imtables .fa-meetup:before {
+  content: "\f2e0";}
+.imtables .sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 , 0 , 0 , 0);
+  border: 0;}
+.imtables .sr-only-focusable:active,
+.imtables .sr-only-focusable:focus {
+  position: static;
+  width: auto;
+  height: auto;
+  margin: 0;
+  overflow: visible;
+  clip: auto;}
+.imtables .sr-only-focusable:active,
+.imtables .sr-only-focusable:focus {
+  position: static;
+  width: auto;
+  height: auto;
+  margin: 0;
+  overflow: visible;
+  clip: auto;}
 .imtables {
   font-family: sans-serif;
   -ms-text-size-adjust: 100%;
@@ -1594,9 +1821,9 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;}
 .imtables .glyphicon-asterisk:before {
-  content: "\2a";}
+  content: "\002a";}
 .imtables .glyphicon-plus:before {
-  content: "\2b";}
+  content: "\002b";}
 .imtables .glyphicon-euro:before,
 .imtables .glyphicon-eur:before {
   content: "\20ac";}
@@ -2151,7 +2378,6 @@
   color: #213554;
   text-decoration: underline;}
 .imtables a:focus {
-  outline: thin dotted;
   outline: 5px auto -webkit-focus-ring-color;
   outline-offset: -2px;}
 .imtables figure {
@@ -3227,7 +3453,6 @@
 .imtables input[type="file"]:focus,
 .imtables input[type="radio"]:focus,
 .imtables input[type="checkbox"]:focus {
-  outline: thin dotted;
   outline: 5px auto -webkit-focus-ring-color;
   outline-offset: -2px;}
 .imtables output {
@@ -3265,6 +3490,9 @@
   color: #999;}
 .imtables .form-control::-webkit-input-placeholder {
   color: #999;}
+.imtables .form-control::-ms-expand {
+  border: 0;
+  background-color: transparent;}
 .imtables .form-control[disabled],
 .imtables .form-control[readonly],
 .imtables fieldset[disabled] .form-control {
@@ -3596,7 +3824,7 @@
   right: 15px;}
 @media (min-width:768px) {
 .imtables .form-horizontal .form-group-lg .control-label {
-    padding-top: 14.333333px;
+    padding-top: 11px;
     font-size: 18px;}}
 @media (min-width:768px) {
 .imtables .form-horizontal .form-group-sm .control-label {
@@ -3627,7 +3855,6 @@
 .imtables .btn.focus,
 .imtables .btn:active.focus,
 .imtables .btn.active.focus {
-  outline: thin dotted;
   outline: 5px auto -webkit-focus-ring-color;
   outline-offset: -2px;}
 .imtables .btn:hover,
@@ -3687,9 +3914,6 @@
 .imtables .btn-default.active,
 .imtables .open > .dropdown-toggle.btn-default {
   background-image: none;}
-.imtables .btn-default.disabled,
-.imtables .btn-default[disabled],
-.imtables fieldset[disabled] .btn-default,
 .imtables .btn-default.disabled:hover,
 .imtables .btn-default[disabled]:hover,
 .imtables fieldset[disabled] .btn-default:hover,
@@ -3698,13 +3922,7 @@
 .imtables fieldset[disabled] .btn-default:focus,
 .imtables .btn-default.disabled.focus,
 .imtables .btn-default[disabled].focus,
-.imtables fieldset[disabled] .btn-default.focus,
-.imtables .btn-default.disabled:active,
-.imtables .btn-default[disabled]:active,
-.imtables fieldset[disabled] .btn-default:active,
-.imtables .btn-default.disabled.active,
-.imtables .btn-default[disabled].active,
-.imtables fieldset[disabled] .btn-default.active {
+.imtables fieldset[disabled] .btn-default.focus {
   background-color: #fff;
   border-color: #ccc;}
 .imtables .btn-default .badge {
@@ -3745,9 +3963,6 @@
 .imtables .btn-primary.active,
 .imtables .open > .dropdown-toggle.btn-primary {
   background-image: none;}
-.imtables .btn-primary.disabled,
-.imtables .btn-primary[disabled],
-.imtables fieldset[disabled] .btn-primary,
 .imtables .btn-primary.disabled:hover,
 .imtables .btn-primary[disabled]:hover,
 .imtables fieldset[disabled] .btn-primary:hover,
@@ -3756,13 +3971,7 @@
 .imtables fieldset[disabled] .btn-primary:focus,
 .imtables .btn-primary.disabled.focus,
 .imtables .btn-primary[disabled].focus,
-.imtables fieldset[disabled] .btn-primary.focus,
-.imtables .btn-primary.disabled:active,
-.imtables .btn-primary[disabled]:active,
-.imtables fieldset[disabled] .btn-primary:active,
-.imtables .btn-primary.disabled.active,
-.imtables .btn-primary[disabled].active,
-.imtables fieldset[disabled] .btn-primary.active {
+.imtables fieldset[disabled] .btn-primary.focus {
   background-color: #37578b;
   border-color: #304c79;}
 .imtables .btn-primary .badge {
@@ -3803,9 +4012,6 @@
 .imtables .btn-success.active,
 .imtables .open > .dropdown-toggle.btn-success {
   background-image: none;}
-.imtables .btn-success.disabled,
-.imtables .btn-success[disabled],
-.imtables fieldset[disabled] .btn-success,
 .imtables .btn-success.disabled:hover,
 .imtables .btn-success[disabled]:hover,
 .imtables fieldset[disabled] .btn-success:hover,
@@ -3814,13 +4020,7 @@
 .imtables fieldset[disabled] .btn-success:focus,
 .imtables .btn-success.disabled.focus,
 .imtables .btn-success[disabled].focus,
-.imtables fieldset[disabled] .btn-success.focus,
-.imtables .btn-success.disabled:active,
-.imtables .btn-success[disabled]:active,
-.imtables fieldset[disabled] .btn-success:active,
-.imtables .btn-success.disabled.active,
-.imtables .btn-success[disabled].active,
-.imtables fieldset[disabled] .btn-success.active {
+.imtables fieldset[disabled] .btn-success.focus {
   background-color: #78bc3f;
   border-color: #6ca939;}
 .imtables .btn-success .badge {
@@ -3861,9 +4061,6 @@
 .imtables .btn-info.active,
 .imtables .open > .dropdown-toggle.btn-info {
   background-image: none;}
-.imtables .btn-info.disabled,
-.imtables .btn-info[disabled],
-.imtables fieldset[disabled] .btn-info,
 .imtables .btn-info.disabled:hover,
 .imtables .btn-info[disabled]:hover,
 .imtables fieldset[disabled] .btn-info:hover,
@@ -3872,13 +4069,7 @@
 .imtables fieldset[disabled] .btn-info:focus,
 .imtables .btn-info.disabled.focus,
 .imtables .btn-info[disabled].focus,
-.imtables fieldset[disabled] .btn-info.focus,
-.imtables .btn-info.disabled:active,
-.imtables .btn-info[disabled]:active,
-.imtables fieldset[disabled] .btn-info:active,
-.imtables .btn-info.disabled.active,
-.imtables .btn-info[disabled].active,
-.imtables fieldset[disabled] .btn-info.active {
+.imtables fieldset[disabled] .btn-info.focus {
   background-color: #5472a2;
   border-color: #4b6691;}
 .imtables .btn-info .badge {
@@ -3919,9 +4110,6 @@
 .imtables .btn-warning.active,
 .imtables .open > .dropdown-toggle.btn-warning {
   background-image: none;}
-.imtables .btn-warning.disabled,
-.imtables .btn-warning[disabled],
-.imtables fieldset[disabled] .btn-warning,
 .imtables .btn-warning.disabled:hover,
 .imtables .btn-warning[disabled]:hover,
 .imtables fieldset[disabled] .btn-warning:hover,
@@ -3930,13 +4118,7 @@
 .imtables fieldset[disabled] .btn-warning:focus,
 .imtables .btn-warning.disabled.focus,
 .imtables .btn-warning[disabled].focus,
-.imtables fieldset[disabled] .btn-warning.focus,
-.imtables .btn-warning.disabled:active,
-.imtables .btn-warning[disabled]:active,
-.imtables fieldset[disabled] .btn-warning:active,
-.imtables .btn-warning.disabled.active,
-.imtables .btn-warning[disabled].active,
-.imtables fieldset[disabled] .btn-warning.active {
+.imtables fieldset[disabled] .btn-warning.focus {
   background-color: #d3a047;
   border-color: #ce9532;}
 .imtables .btn-warning .badge {
@@ -3977,9 +4159,6 @@
 .imtables .btn-danger.active,
 .imtables .open > .dropdown-toggle.btn-danger {
   background-image: none;}
-.imtables .btn-danger.disabled,
-.imtables .btn-danger[disabled],
-.imtables fieldset[disabled] .btn-danger,
 .imtables .btn-danger.disabled:hover,
 .imtables .btn-danger[disabled]:hover,
 .imtables fieldset[disabled] .btn-danger:hover,
@@ -3988,13 +4167,7 @@
 .imtables fieldset[disabled] .btn-danger:focus,
 .imtables .btn-danger.disabled.focus,
 .imtables .btn-danger[disabled].focus,
-.imtables fieldset[disabled] .btn-danger.focus,
-.imtables .btn-danger.disabled:active,
-.imtables .btn-danger[disabled]:active,
-.imtables fieldset[disabled] .btn-danger:active,
-.imtables .btn-danger.disabled.active,
-.imtables .btn-danger[disabled].active,
-.imtables fieldset[disabled] .btn-danger.active {
+.imtables fieldset[disabled] .btn-danger.focus {
   background-color: #a22249;
   border-color: #8d1e40;}
 .imtables .btn-danger .badge {
@@ -4295,12 +4468,14 @@
   border-radius: 0;}
 .imtables .btn-group-vertical > .btn:first-child:not(:last-child) {
   border-top-right-radius: 2px;
+  border-top-left-radius: 2px;
   border-bottom-right-radius: 0;
   border-bottom-left-radius: 0;}
 .imtables .btn-group-vertical > .btn:last-child:not(:first-child) {
-  border-bottom-left-radius: 2px;
   border-top-right-radius: 0;
-  border-top-left-radius: 0;}
+  border-top-left-radius: 0;
+  border-bottom-right-radius: 2px;
+  border-bottom-left-radius: 2px;}
 .imtables .btn-group-vertical > .btn-group:not(:first-child):not(:last-child) > .btn {
   border-radius: 0;}
 .imtables .btn-group-vertical > .btn-group:first-child:not(:last-child) > .btn:last-child,
@@ -4345,6 +4520,8 @@
   float: left;
   width: 100%;
   margin-bottom: 0;}
+.imtables .input-group .form-control:focus {
+  z-index: 3;}
 .imtables .input-group-lg > .form-control,
 .imtables .input-group-lg > .input-group-addon,
 .imtables .input-group-lg > .input-group-btn > .btn {
@@ -5049,7 +5226,7 @@
 .imtables .pagination > li > span:hover,
 .imtables .pagination > li > a:focus,
 .imtables .pagination > li > span:focus {
-  z-index: 3;
+  z-index: 2;
   color: #213554;
   background-color: #eeeeee;
   border-color: #ddd;}
@@ -5059,7 +5236,7 @@
 .imtables .pagination > .active > span:hover,
 .imtables .pagination > .active > a:focus,
 .imtables .pagination > .active > span:focus {
-  z-index: 2;
+  z-index: 3;
   color: #fff;
   background-color: #37578b;
   border-color: #37578b;
@@ -5236,7 +5413,9 @@
   border-top-color: #d5d5d5;}
 .imtables .container .jumbotron,
 .imtables .container-fluid .jumbotron {
-  border-radius: 3px;}
+  border-radius: 3px;
+  padding-left: 15px;
+  padding-right: 15px;}
 .imtables .jumbotron .container {
   max-width: 100%;}
 @media screen and (min-width:768px) {
@@ -5996,8 +6175,7 @@
   filter: alpha(opacity=50);}
 .imtables .modal-header {
   padding: 15px;
-  border-bottom: 1px solid #e5e5e5;
-  min-height: 16.42857143px;}
+  border-bottom: 1px solid #e5e5e5;}
 .imtables .modal-header .close {
   margin-top: -2px;}
 .imtables .modal-title {
@@ -6322,7 +6500,8 @@
   font-size: 20px;
   color: #fff;
   text-align: center;
-  text-shadow: 0 1px 2px rgba(0 , 0 , 0 , 0.6);}
+  text-shadow: 0 1px 2px rgba(0 , 0 , 0 , 0.6);
+  background-color: rgba(0 , 0 , 0 , 0);}
 .imtables .carousel-control.left {
   background-image: -webkit-linear-gradient(left , rgba(0 , 0 , 0 , 0.5) 0% , rgba(0 , 0 , 0 , 0.0001) 100%);
   background-image: -o-linear-gradient(left , rgba(0 , 0 , 0 , 0.5) 0% , rgba(0 , 0 , 0 , 0.0001) 100%);
@@ -6417,14 +6596,14 @@
 .imtables .carousel-control .icon-next {
     width: 30px;
     height: 30px;
-    margin-top: -15px;
+    margin-top: -10px;
     font-size: 30px;}
 .imtables .carousel-control .glyphicon-chevron-left,
 .imtables .carousel-control .icon-prev {
-    margin-left: -15px;}
+    margin-left: -10px;}
 .imtables .carousel-control .glyphicon-chevron-right,
 .imtables .carousel-control .icon-next {
-    margin-right: -15px;}
+    margin-right: -10px;}
 .imtables .carousel-caption {
     left: 20%;
     right: 20%;
@@ -6459,6 +6638,8 @@
 .imtables .pager:after,
 .imtables .panel-body:before,
 .imtables .panel-body:after,
+.imtables .modal-header:before,
+.imtables .modal-header:after,
 .imtables .modal-footer:before,
 .imtables .modal-footer:after {
   content: " ";
@@ -6477,6 +6658,7 @@
 .imtables .navbar-collapse:after,
 .imtables .pager:after,
 .imtables .panel-body:after,
+.imtables .modal-header:after,
 .imtables .modal-footer:after {
   clear: both;}
 .imtables .center-block {
@@ -6931,9 +7113,6 @@
 .imtables .modal .btn-cancel.active,
 .imtables .open > .dropdown-toggle.modal .btn-cancel {
   background-image: none;}
-.imtables .modal .btn-cancel.disabled,
-.imtables .modal .btn-cancel[disabled],
-.imtables fieldset[disabled] .modal .btn-cancel,
 .imtables .modal .btn-cancel.disabled:hover,
 .imtables .modal .btn-cancel[disabled]:hover,
 .imtables fieldset[disabled] .modal .btn-cancel:hover,
@@ -6942,13 +7121,7 @@
 .imtables fieldset[disabled] .modal .btn-cancel:focus,
 .imtables .modal .btn-cancel.disabled.focus,
 .imtables .modal .btn-cancel[disabled].focus,
-.imtables fieldset[disabled] .modal .btn-cancel.focus,
-.imtables .modal .btn-cancel.disabled:active,
-.imtables .modal .btn-cancel[disabled]:active,
-.imtables fieldset[disabled] .modal .btn-cancel:active,
-.imtables .modal .btn-cancel.disabled.active,
-.imtables .modal .btn-cancel[disabled].active,
-.imtables fieldset[disabled] .modal .btn-cancel.active {
+.imtables fieldset[disabled] .modal .btn-cancel.focus {
   background-color: #fff;
   border-color: #ccc;}
 .imtables .modal .btn-cancel .badge {
@@ -7131,9 +7304,6 @@
 .imtables .btn-cancel.active,
 .imtables .open > .dropdown-toggle.btn-cancel {
   background-image: none;}
-.imtables .btn-cancel.disabled,
-.imtables .btn-cancel[disabled],
-.imtables fieldset[disabled] .btn-cancel,
 .imtables .btn-cancel.disabled:hover,
 .imtables .btn-cancel[disabled]:hover,
 .imtables fieldset[disabled] .btn-cancel:hover,
@@ -7142,13 +7312,7 @@
 .imtables fieldset[disabled] .btn-cancel:focus,
 .imtables .btn-cancel.disabled.focus,
 .imtables .btn-cancel[disabled].focus,
-.imtables fieldset[disabled] .btn-cancel.focus,
-.imtables .btn-cancel.disabled:active,
-.imtables .btn-cancel[disabled]:active,
-.imtables fieldset[disabled] .btn-cancel:active,
-.imtables .btn-cancel.disabled.active,
-.imtables .btn-cancel[disabled].active,
-.imtables fieldset[disabled] .btn-cancel.active {
+.imtables fieldset[disabled] .btn-cancel.focus {
   background-color: #fff;
   border-color: #ccc;}
 .imtables .btn-cancel .badge {
