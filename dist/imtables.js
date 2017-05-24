@@ -10015,6 +10015,9 @@ function extend() {
     if ((data.format === 'fasta') && (this.model.get('fastaExtension'))) {
       data.extension = this.model.get('fastaExtension');
     }
+    if ((data.format === 'fasta') || (data.format === 'gff3')) {
+      data.view = this.model.get('columns');
+    }
     return _.extend(data, overrides);
   };
 
