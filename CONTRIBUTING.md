@@ -21,36 +21,45 @@ the InterMine project.
 Some of these resources can be bundled into the built version of the
 library itself, so that it can be served as a single file. Other parts,
 such as the d3 SVG manipulation library, are fetched on demand, with
-acceptable fallbacks available for their absence. 
+acceptable fallbacks available for their absence.
 
 Getting Started
 ------------------
 
-Before you start, you will need node.js installed. Git is highly
-recommended.
+A guide to those thinking of developing the tables application and components.
+This includes instructions on setting up a development environment, running the
+tests, best practices and release procedure.
 
-A fresh clone of the repository needs a few commands run before you can
-get started with development:
+### Development Environment
 
-  # Fetch the dependencies required for building the library.
-  npm install
+The application is a standard JS client side application developed in a node.js
+dev environment. So the first step is to install node and npm (preferably using
+a node environment manager such as nvm). We currently use nvm running node
+0.10.x. Dependencies are managed with npm, obviously.
 
-  # Fetch the dependencies required for serving the demo. These files are
-  # also used when bundling dependencies.
-  bower install
+Install dependencies (and run an initial build):
 
-Once all dependencies are supplied, you can build the library itself with the
-following command:
+```sh
+npm install
+```
 
-  make js
+Start a development server, which builds (and rebuilds the test indices) and
+serves them to the world (and runs the tests):
 
-Coding Style
---------------
+```sh
+npm start
+```
+
+To use the test indices you will need a data server running the intermine-demo
+application at port 8080 on your machine - you can get this by running the
+`testmodel/setup.sh` script in the `intermine/intermine` repo.
+
+### Coding Style
 
 Code contributed to this library is expected to be coffee-script files, following
 the standard style conventions of the coffee-script community (two-space indentation,
 one-line functions where possible, minimisation of brackets and line noise). See
-the coffeelint file for a specification of the style conventions that are 
+the coffeelint file for a specification of the style conventions that are
 enforced.
 
 All new classes are expected to use the `define/using` dependency management
@@ -64,16 +73,15 @@ framework (see below), and keep to the following guidelines:
    and text should live in the `intermine.messages` or `intermine.icons`
    namespaces.
 
-Code Framework
-----------------
+### Code Framework
 
 An important requirement of this library is to be embeddable in as many different
 contexts as possible, which means working in circumstances where we do not
-have full control over the environment in terms of dependencies, available 
-libraries, or even versions of the libraries we do have. This means that 
+have full control over the environment in terms of dependencies, available
+libraries, or even versions of the libraries we do have. This means that
 where dependencies are used, they are bundled where applicable, and in
-general, dependencies are minimised where practical. The project is still 
-reasonably complex, and tools such as Backbone, Bootstrap and jQuery are employed 
+general, dependencies are minimised where practical. The project is still
+reasonably complex, and tools such as Backbone, Bootstrap and jQuery are employed
 to deal with this complexity; but inclusion of other dependencies is strongly
 discouraged.
 
@@ -84,11 +92,10 @@ this library itself: `define` and `using`. Please see `DEPENDENCY_MANAGEMENT` fo
 an introduction to this system and how it should be used.
 
 Backbone is used for managing the complexities of state and presentation. New code is
-expected to follow standard MVC design principles where an object models the 
-domain state, and the presentation layer reflects that state in the DOM. 
+expected to follow standard MVC design principles where an object models the
+domain state, and the presentation layer reflects that state in the DOM.
 
-Best Practices
------------------
+### Best Practices
 
 This library tries to adhere to the following principles:
 
@@ -132,6 +139,3 @@ This library tries to adhere to the following principles:
 
 The present author is well aware that he is guilty of gross infractions of all
 of these above principles.
-
-
-
