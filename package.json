@@ -87,8 +87,8 @@
     "grunt-sandbox-css": "alexkalderimis/prefix-css-node",
     "mocha": "^2.0.1",
     "prefix-css-node": "~0.4.0",
-    "selenium-webdriver": "^2.44.0",
-    "serve": "^1.4.0",
+    "selenium-webdriver": "^4.0.0-alpha.1",
+    "serve": "^11.0.0",
     "should": "^13.2.3",
     "uglify-js": "^3.5.14",
     "watch": "^1.0.2"
