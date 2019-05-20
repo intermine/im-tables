@@ -62892,16 +62892,6 @@ module.exports = Parser;
   var irregularSingles = {};
 
   /**
-   * Title case a string.
-   *
-   * @param  {string} str
-   * @return {string}
-   */
-  function toTitleCase (str) {
-    return str.charAt(0).toUpperCase() + str.substr(1).toLowerCase();
-  }
-
-  /**
    * Sanitize a pluralization rule to a usable regular expression.
    *
    * @param  {(RegExp|string)} rule
@@ -62924,14 +62914,15 @@ module.exports = Parser;
    * @return {Function}
    */
   function restoreCase (word, token) {
+    // Tokens are an exact match.
+    if (word === token) return token;
+
     // Upper cased words. E.g. "HELLO".
-    if (word === word.toUpperCase()) {
-      return token.toUpperCase();
-    }
+    if (word === word.toUpperCase()) return token.toUpperCase();
 
     // Title cased words. E.g. "Title".
     if (word[0] === word[0].toUpperCase()) {
-      return toTitleCase(token);
+      return token.charAt(0).toUpperCase() + token.substr(1).toLowerCase();
     }
 
     // Lower cased words. E.g. "test".
@@ -62952,37 +62943,45 @@ module.exports = Parser;
   }
 
   /**
+   * Replace a word using a rule.
+   *
+   * @param  {string} word
+   * @param  {Array}  rule
+   * @return {string}
+   */
+  function replace (word, rule) {
+    return word.replace(rule[0], function (match, index) {
+      var result = interpolate(rule[1], arguments);
+
+      if (match === '') {
+        return restoreCase(word[index - 1], result);
+      }
+
+      return restoreCase(match, result);
+    });
+  }
+
+  /**
    * Sanitize a word by passing in the word and sanitization rules.
    *
-   * @param  {String}   token
-   * @param  {String}   word
-   * @param  {Array}    collection
-   * @return {String}
+   * @param  {string}   token
+   * @param  {string}   word
+   * @param  {Array}    rules
+   * @return {string}
    */
-  function sanitizeWord (token, word, collection) {
+  function sanitizeWord (token, word, rules) {
     // Empty string or doesn't need fixing.
     if (!token.length || uncountables.hasOwnProperty(token)) {
       return word;
     }
 
-    var len = collection.length;
+    var len = rules.length;
 
     // Iterate over the sanitization rules and use the first one to match.
     while (len--) {
-      var rule = collection[len];
+      var rule = rules[len];
 
-      // If the rule passes, return the replacement.
-      if (rule[0].test(word)) {
-        return word.replace(rule[0], function (match, index, word) {
-          var result = interpolate(rule[1], arguments);
-
-          if (match === '') {
-            return restoreCase(word[index - 1], result);
-          }
-
-          return restoreCase(match, result);
-        });
-      }
+      if (rule[0].test(word)) return replace(word, rule);
     }
 
     return word;
@@ -63017,12 +63016,26 @@ module.exports = Parser;
   }
 
   /**
+   * Check if a word is part of the map.
+   */
+  function checkWord (replaceMap, keepMap, rules, bool) {
+    return function (word) {
+      var token = word.toLowerCase();
+
+      if (keepMap.hasOwnProperty(token)) return true;
+      if (replaceMap.hasOwnProperty(token)) return false;
+
+      return sanitizeWord(token, token, rules) === token;
+    };
+  }
+
+  /**
    * Pluralize or singularize a word based on the passed in count.
    *
-   * @param  {String}  word
-   * @param  {Number}  count
-   * @param  {Boolean} inclusive
-   * @return {String}
+   * @param  {string}  word
+   * @param  {number}  count
+   * @param  {boolean} inclusive
+   * @return {string}
    */
   function pluralize (word, count, inclusive) {
     var pluralized = count === 1
@@ -63041,11 +63054,29 @@ module.exports = Parser;
   );
 
   /**
+   * Check if a word is plural.
+   *
+   * @type {Function}
+   */
+  pluralize.isPlural = checkWord(
+    irregularSingles, irregularPlurals, pluralRules
+  );
+
+  /**
    * Singularize a word.
    *
    * @type {Function}
    */
   pluralize.singular = replaceWord(
+    irregularPlurals, irregularSingles, singularRules
+  );
+
+  /**
+   * Check if a word is singular.
+   *
+   * @type {Function}
+   */
+  pluralize.isSingular = checkWord(
     irregularPlurals, irregularSingles, singularRules
   );
 
@@ -63088,8 +63119,8 @@ module.exports = Parser;
   /**
    * Add an irregular word definition.
    *
-   * @param {String} single
-   * @param {String} plural
+   * @param {string} single
+   * @param {string} plural
    */
   pluralize.addIrregularRule = function (single, plural) {
     plural = plural.toLowerCase();
@@ -63116,6 +63147,8 @@ module.exports = Parser;
     ['himself', 'themselves'],
     ['themself', 'themselves'],
     ['is', 'are'],
+    ['was', 'were'],
+    ['has', 'have'],
     ['this', 'these'],
     ['that', 'those'],
     // Words ending in with a consonant and `o`.
@@ -63148,8 +63181,8 @@ module.exports = Parser;
     ['proof', 'proofs'],
     ['carve', 'carves'],
     ['valve', 'valves'],
+    ['looey', 'looies'],
     ['thief', 'thieves'],
-    ['genie', 'genies'],
     ['groove', 'grooves'],
     ['pickaxe', 'pickaxes'],
     ['whiskey', 'whiskies']
@@ -63162,6 +63195,7 @@ module.exports = Parser;
    */
   [
     [/s?$/i, 's'],
+    [/[^\u0000-\u007F]$/i, '$0'],
     [/([^aeiou]ese)$/i, '$1'],
     [/(ax|test)is$/i, '$1es'],
     [/(alias|[^aou]us|tlas|gas|ris)$/i, '$1es'],
@@ -63195,19 +63229,17 @@ module.exports = Parser;
   [
     [/s$/i, ''],
     [/(ss)$/i, '$1'],
-    [/((a)naly|(b)a|(d)iagno|(p)arenthe|(p)rogno|(s)ynop|(t)he)(?:sis|ses)$/i, '$1sis'],
-    [/(^analy)(?:sis|ses)$/i, '$1sis'],
     [/(wi|kni|(?:after|half|high|low|mid|non|night|[^\w]|^)li)ves$/i, '$1fe'],
     [/(ar|(?:wo|[ae])l|[eo][ao])ves$/i, '$1f'],
-    [/([^aeiouy]|qu)ies$/i, '$1y'],
-    [/(^[pl]|zomb|^(?:neck)?t|[aeo][lt]|cut)ies$/i, '$1ie'],
-    [/(\b(?:mon|smil))ies$/i, '$1ey'],
+    [/ies$/i, 'y'],
+    [/\b([pl]|zomb|(?:neck|cross)?t|coll|faer|food|gen|goon|group|lass|talk|goal|cut)ies$/i, '$1ie'],
+    [/\b(mon|smil)ies$/i, '$1ey'],
     [/(m|l)ice$/i, '$1ouse'],
     [/(seraph|cherub)im$/i, '$1'],
     [/(x|ch|ss|sh|zz|tto|go|cho|alias|[^aou]us|tlas|gas|(?:her|at|gr)o|ris)(?:es)?$/i, '$1'],
-    [/(e[mn]u)s?$/i, '$1'],
-    [/(movie|twelve)s$/i, '$1'],
-    [/(cris|test|diagnos)(?:is|es)$/i, '$1is'],
+    [/(analy|ba|diagno|parenthe|progno|synop|the|empha|cri)(?:sis|ses)$/i, '$1sis'],
+    [/(movie|twelve|abuse|e[mn]u)s$/i, '$1'],
+    [/(test)(?:is|es)$/i, '$1is'],
     [/(alumn|syllab|octop|vir|radi|nucle|fung|cact|stimul|termin|bacill|foc|uter|loc|strat)(?:us|i)$/i, '$1us'],
     [/(agend|addend|millenni|dat|extrem|bacteri|desiderat|strat|candelabr|errat|ov|symposi|curricul|quor)a$/i, '$1um'],
     [/(apheli|hyperbat|periheli|asyndet|noumen|phenomen|criteri|organ|prolegomen|hedr|automat)a$/i, '$1on'],
@@ -63227,25 +63259,39 @@ module.exports = Parser;
    */
   [
     // Singular words with no plurals.
+    'adulthood',
     'advice',
     'agenda',
+    'aid',
+    'alcohol',
+    'ammo',
+    'anime',
+    'athletics',
+    'audio',
     'bison',
+    'blood',
     'bream',
     'buffalo',
+    'butter',
     'carp',
+    'cash',
     'chassis',
+    'chess',
+    'clothing',
     'cod',
+    'commerce',
     'cooperation',
     'corps',
-    'digestion',
     'debris',
     'diabetes',
+    'digestion',
+    'elk',
     'energy',
     'equipment',
-    'elk',
     'excretion',
     'expertise',
     'flounder',
+    'fun',
     'gallows',
     'garbage',
     'graffiti',
@@ -63254,16 +63300,21 @@ module.exports = Parser;
     'herpes',
     'highjinks',
     'homework',
+    'housework',
     'information',
     'jeans',
     'justice',
     'kudos',
     'labour',
+    'literature',
     'machinery',
     'mackerel',
+    'mail',
     'media',
     'mews',
     'moose',
+    'music',
+    'manga',
     'news',
     'pike',
     'plankton',
@@ -63271,6 +63322,7 @@ module.exports = Parser;
     'pollution',
     'premises',
     'rain',
+    'research',
     'rice',
     'salmon',
     'scissors',
@@ -63281,20 +63333,25 @@ module.exports = Parser;
     'species',
     'staff',
     'swine',
+    'tennis',
+    'traffic',
+    'transporation',
     'trout',
     'tuna',
+    'wealth',
+    'welfare',
     'whiting',
     'wildebeest',
     'wildlife',
     'you',
     // Regexes.
-    /pox$/i, // "chickpox", "smallpox"
-    /ois$/i,
+    /[^aeiou]ese$/i, // "chinese", "japanese"
     /deer$/i, // "deer", "reindeer"
     /fish$/i, // "fish", "blowfish", "angelfish"
-    /sheep$/i,
     /measles$/i,
-    /[^aeiou]ese$/i // "chinese", "japanese"
+    /o[iu]s$/i, // "carnivorous"
+    /pox$/i, // "chickpox", "smallpox"
+    /sheep$/i
   ].forEach(pluralize.addUncountableRule);
 
   return pluralize;
