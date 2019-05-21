@@ -66,7 +66,7 @@
     "bower": "latest",
     "brfs": "^2.0.2",
     "brfs-htmlmin": "^2.0.0",
-    "browserify": "^7.0.0",
+    "browserify": "^16.2.3",
     "browserify-shim": "~3.8.1",
     "codo": "~0.3.0",
     "coffee-script": "~1.8.0",
