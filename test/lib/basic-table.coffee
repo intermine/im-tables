@@ -47,7 +47,7 @@ module.exports = class BasicTable extends CoreView
   optionalParameters: ['formatters']
 
   initialize: ->
-    super
+    super()
     @views = new ColumnHeaders()
     @rows = new RowsCollection
     getFormatter = (n, c) => # A very simple formatter assignment
@@ -105,10 +105,10 @@ class TableHeader extends CoreView
     'add remove change:displayName': @reRender
 
   initialize: ->
-    super
+    super()
     @listenTo @minimisedColumns, 'add remove', @reRender
 
-  getData: -> _.extend super, cssClass: pathToCssClass, minimised: @getMinimisedState()
+  getData: -> _.extend super(), cssClass: pathToCssClass, minimised: @getMinimisedState()
 
   getMinimisedState: ->
     _.object @minimisedColumns.map (p) -> [p.get('item').toString(), true]

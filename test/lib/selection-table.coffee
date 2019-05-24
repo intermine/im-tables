@@ -14,7 +14,7 @@ allCells = new TableCells
 class TableRow extends Backbone.Model
 
   constructor: (cells, id) ->
-    super
+    super()
     @set id: id
     @cells = new TableCells
     for cell in cells # one model per cell value.
@@ -22,7 +22,7 @@ class TableRow extends Backbone.Model
       allCells.add c
       @cells.add allCells.get c._cellId
 
-  toJSON: -> _.extend super, cells: @cells.toJSON()
+  toJSON: -> _.extend super(), cells: @cells.toJSON()
 
 class HeaderModel extends Backbone.Model
 
@@ -120,7 +120,7 @@ module.exports = class SelectionTable extends Backbone.View
 
   remove: ->
     @removeAllRows()
-    super
+    super()
 
 class Row extends Backbone.View
 
@@ -139,7 +139,7 @@ class Row extends Backbone.View
   remove: ->
     while c = @cells.pop()
       c.remove()
-    super
+    super()
 
 NULL = """<code>null</null>"""
 
