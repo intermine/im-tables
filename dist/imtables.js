@@ -78038,7 +78038,10 @@ module.exports = Parser;
     // Tokens are an exact match.
     if (word === token) return token;
 
-    // Upper cased words. E.g. "HELLO".
+    // Lower cased words. E.g. "hello".
+    if (word === word.toLowerCase()) return token.toLowerCase();
+
+    // Upper cased words. E.g. "WHISKY".
     if (word === word.toUpperCase()) return token.toUpperCase();
 
     // Title cased words. E.g. "Title".
@@ -78153,9 +78156,9 @@ module.exports = Parser;
   /**
    * Pluralize or singularize a word based on the passed in count.
    *
-   * @param  {string}  word
-   * @param  {number}  count
-   * @param  {boolean} inclusive
+   * @param  {string}  word      The word to pluralize
+   * @param  {number}  count     How many of the word exist
+   * @param  {boolean} inclusive Whether to prefix with the number (e.g. 3 ducks)
    * @return {string}
    */
   function pluralize (word, count, inclusive) {
@@ -78306,7 +78309,7 @@ module.exports = Parser;
     ['thief', 'thieves'],
     ['groove', 'grooves'],
     ['pickaxe', 'pickaxes'],
-    ['whiskey', 'whiskies']
+    ['passerby', 'passersby']
   ].forEach(function (rule) {
     return pluralize.addIrregularRule(rule[0], rule[1]);
   });
@@ -78319,10 +78322,10 @@ module.exports = Parser;
     [/[^\u0000-\u007F]$/i, '$0'],
     [/([^aeiou]ese)$/i, '$1'],
     [/(ax|test)is$/i, '$1es'],
-    [/(alias|[^aou]us|tlas|gas|ris)$/i, '$1es'],
+    [/(alias|[^aou]us|t[lm]as|gas|ris)$/i, '$1es'],
     [/(e[mn]u)s?$/i, '$1s'],
-    [/([^l]ias|[aeiou]las|[emjzr]as|[iu]am)$/i, '$1'],
-    [/(alumn|syllab|octop|vir|radi|nucle|fung|cact|stimul|termin|bacill|foc|uter|loc|strat)(?:us|i)$/i, '$1i'],
+    [/([^l]ias|[aeiou]las|[ejzr]as|[iu]am)$/i, '$1'],
+    [/(alumn|syllab|vir|radi|nucle|fung|cact|stimul|termin|bacill|foc|uter|loc|strat)(?:us|i)$/i, '$1i'],
     [/(alumn|alg|vertebr)(?:a|ae)$/i, '$1ae'],
     [/(seraph|cherub)(?:im)?$/i, '$1im'],
     [/(her|at|gr)o$/i, '$1oes'],
@@ -78334,7 +78337,7 @@ module.exports = Parser;
     [/([^ch][ieo][ln])ey$/i, '$1ies'],
     [/(x|ch|ss|sh|zz)$/i, '$1es'],
     [/(matr|cod|mur|sil|vert|ind|append)(?:ix|ex)$/i, '$1ices'],
-    [/(m|l)(?:ice|ouse)$/i, '$1ice'],
+    [/\b((?:tit)?m|l)(?:ice|ouse)$/i, '$1ice'],
     [/(pe)(?:rson|ople)$/i, '$1ople'],
     [/(child)(?:ren)?$/i, '$1ren'],
     [/eaux$/i, '$0'],
@@ -78355,13 +78358,13 @@ module.exports = Parser;
     [/ies$/i, 'y'],
     [/\b([pl]|zomb|(?:neck|cross)?t|coll|faer|food|gen|goon|group|lass|talk|goal|cut)ies$/i, '$1ie'],
     [/\b(mon|smil)ies$/i, '$1ey'],
-    [/(m|l)ice$/i, '$1ouse'],
+    [/\b((?:tit)?m|l)ice$/i, '$1ouse'],
     [/(seraph|cherub)im$/i, '$1'],
-    [/(x|ch|ss|sh|zz|tto|go|cho|alias|[^aou]us|tlas|gas|(?:her|at|gr)o|ris)(?:es)?$/i, '$1'],
-    [/(analy|ba|diagno|parenthe|progno|synop|the|empha|cri)(?:sis|ses)$/i, '$1sis'],
+    [/(x|ch|ss|sh|zz|tto|go|cho|alias|[^aou]us|t[lm]as|gas|(?:her|at|gr)o|[aeiou]ris)(?:es)?$/i, '$1'],
+    [/(analy|diagno|parenthe|progno|synop|the|empha|cri|ne)(?:sis|ses)$/i, '$1sis'],
     [/(movie|twelve|abuse|e[mn]u)s$/i, '$1'],
     [/(test)(?:is|es)$/i, '$1is'],
-    [/(alumn|syllab|octop|vir|radi|nucle|fung|cact|stimul|termin|bacill|foc|uter|loc|strat)(?:us|i)$/i, '$1us'],
+    [/(alumn|syllab|vir|radi|nucle|fung|cact|stimul|termin|bacill|foc|uter|loc|strat)(?:us|i)$/i, '$1us'],
     [/(agend|addend|millenni|dat|extrem|bacteri|desiderat|strat|candelabr|errat|ov|symposi|curricul|quor)a$/i, '$1um'],
     [/(apheli|hyperbat|periheli|asyndet|noumen|phenomen|criteri|organ|prolegomen|hedr|automat)a$/i, '$1on'],
     [/(alumn|alg|vertebr)ae$/i, '$1a'],
@@ -78384,8 +78387,10 @@ module.exports = Parser;
     'advice',
     'agenda',
     'aid',
+    'aircraft',
     'alcohol',
     'ammo',
+    'analytics',
     'anime',
     'athletics',
     'audio',
@@ -78411,11 +78416,13 @@ module.exports = Parser;
     'equipment',
     'excretion',
     'expertise',
+    'firmware',
     'flounder',
     'fun',
     'gallows',
     'garbage',
     'graffiti',
+    'hardware',
     'headquarters',
     'health',
     'herpes',
@@ -78435,11 +78442,15 @@ module.exports = Parser;
     'mews',
     'moose',
     'music',
+    'mud',
     'manga',
     'news',
+    'only',
+    'personnel',
     'pike',
     'plankton',
     'pliers',
+    'police',
     'pollution',
     'premises',
     'rain',
@@ -78451,12 +78462,13 @@ module.exports = Parser;
     'sewage',
     'shambles',
     'shrimp',
+    'software',
     'species',
     'staff',
     'swine',
     'tennis',
     'traffic',
-    'transporation',
+    'transportation',
     'trout',
     'tuna',
     'wealth',
@@ -78465,6 +78477,7 @@ module.exports = Parser;
     'wildebeest',
     'wildlife',
     'you',
+    /pok[eé]mon$/i,
     // Regexes.
     /[^aeiou]ese$/i, // "chinese", "japanese"
     /deer$/i, // "deer", "reindeer"
