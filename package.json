@@ -63,6 +63,7 @@
     "tests": "test"
   },
   "devDependencies": {
+    "acorn": "^6.1.1",
     "bower": "latest",
     "brfs": "^2.0.2",
     "brfs-htmlmin": "^2.0.0",
