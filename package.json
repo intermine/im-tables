@@ -1,6 +1,6 @@
 {
   "name": "imtables",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "UI widgets for displaying query results in interactive tables",
   "config": {
     "port": "9000"

@@ -46,4 +46,6 @@ exports.getExportParameters = (overrides = {}) ->
     data.format += @model.get 'jsonFormat'
   if (data.format is 'fasta') and (@model.get('fastaExtension'))
     data.extension = @model.get('fastaExtension')
+  if (data.format is 'fasta') or (data.format is 'gff3')
+    data.view = @model.get 'columns'
   _.extend data, overrides
