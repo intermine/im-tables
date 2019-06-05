@@ -1,6 +1,6 @@
-(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.imtables = f()}})(function(){var define,module,exports;return (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
+(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.imtables = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 (function() {
-  var $, CDN, Options, Promise, hasStyle, loader, _;
+  var $, CDN, Options, Promise, _, hasStyle, loader;
 
   Promise = require('es6-promise').Promise;
 
@@ -77,13 +77,13 @@
       return Promise.reject("No resource is configured for " + ident);
     } else if (_.isArray(conf)) {
       return Promise.all((function() {
-        var _i, _len, _results;
-        _results = [];
-        for (_i = 0, _len = conf.length; _i < _len; _i++) {
-          c = conf[_i];
-          _results.push(load(c));
+        var i, len, results;
+        results = [];
+        for (i = 0, len = conf.length; i < len; i++) {
+          c = conf[i];
+          results.push(load(c));
         }
-        return _results;
+        return results;
       })());
     } else {
       return load(conf, test);
@@ -92,12 +92,12 @@
 
 }).call(this);
 
-},{"./options":63,"es6-promise":244,"jquery":267,"underscore":301}],2:[function(require,module,exports){
+},{"./options":63,"es6-promise":238,"jquery":256,"underscore":262}],2:[function(require,module,exports){
 (function() {
   var Backbone, CoreModel, invert,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    __slice = [].slice;
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty,
+    slice = [].slice;
 
   Backbone = require('backbone');
 
@@ -105,8 +105,8 @@
     return !x;
   };
 
-  module.exports = CoreModel = (function(_super) {
-    __extends(CoreModel, _super);
+  module.exports = CoreModel = (function(superClass) {
+    extend(CoreModel, superClass);
 
     function CoreModel() {
       return CoreModel.__super__.constructor.apply(this, arguments);
@@ -144,14 +144,14 @@
     CoreModel.prototype._frozen = [];
 
     CoreModel.prototype._validate = function(attrs, opts) {
-      var msg, p, _i, _len, _ref;
-      _ref = this._frozen;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        p = _ref[_i];
+      var i, len, msg, p, ref;
+      ref = this._frozen;
+      for (i = 0, len = ref.length; i < len; i++) {
+        p = ref[i];
         if (!((p in attrs) && (attrs[p] !== this.get(p)))) {
           continue;
         }
-        msg = "" + p + " is frozen (trying to set it to " + attrs[p] + " - is " + (this.get(p)) + ")";
+        msg = p + " is frozen (trying to set it to " + attrs[p] + " - is " + (this.get(p)) + ")";
         if (opts.merge) {
           attrs[p] = this.get(p);
         } else {
@@ -163,7 +163,7 @@
 
     CoreModel.prototype.freeze = function() {
       var properties;
-      properties = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+      properties = 1 <= arguments.length ? slice.call(arguments, 0) : [];
       this._frozen = this._frozen.concat(properties);
       return this;
     };
@@ -176,10 +176,10 @@
 
 },{"backbone":235}],3:[function(require,module,exports){
 (function() {
-  var $, Backbone, CoreModel, CoreView, Event, Icons, IndeterminateProgressBar, Messages, Templates, getKid, helpers, kid, listenToCollection, listenToModel, listenToState, listenToThing, onChange, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    __slice = [].slice;
+  var $, Backbone, CoreModel, CoreView, Event, Icons, IndeterminateProgressBar, Messages, Templates, _, getKid, helpers, kid, listenToCollection, listenToModel, listenToState, listenToThing, onChange,
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty,
+    slice = [].slice;
 
   require('./shim');
 
@@ -226,30 +226,30 @@
   };
 
   listenToThing = function(thing) {
-    var definitions, event, handler, _results;
-    definitions = _.result(this, "" + thing + "Events");
+    var definitions, event, handler, results;
+    definitions = _.result(this, thing + "Events");
     if (!_.size(definitions)) {
       return;
     }
     if (this[thing] == null) {
       throw new Error("Cannot listen to " + thing + " - it is null.");
     }
-    _results = [];
+    results = [];
     for (event in definitions) {
       handler = definitions[event];
       handler = _.isFunction(handler) ? handler : this[handler];
       if (handler == null) {
         throw new Error("No handler for " + thing + ":" + event);
       }
-      _results.push(this.listenTo(this[thing], event, handler));
+      results.push(this.listenTo(this[thing], event, handler));
     }
-    return _results;
+    return results;
   };
 
-  module.exports = CoreView = (function(_super) {
+  module.exports = CoreView = (function(superClass) {
     var hasAll;
 
-    __extends(CoreView, _super);
+    extend(CoreView, superClass);
 
     function CoreView() {
       return CoreView.__super__.constructor.apply(this, arguments);
@@ -270,23 +270,23 @@
     CoreView.prototype.initState = function() {};
 
     CoreView.prototype.initialize = function(opts) {
-      var Model, optParams, p, params, _i, _len, _ref, _ref1, _ref2;
+      var Model, i, len, optParams, p, params, ref, ref1, ref2;
       if (opts == null) {
         opts = {};
       }
       this.state = opts.state;
-      params = (_ref = _.result(this, 'parameters')) != null ? _ref : [];
-      optParams = (_ref1 = _.result(this, 'optionalParameters')) != null ? _ref1 : [];
-      _.extend(this, _.pick.apply(_, [opts].concat(__slice.call(params))));
-      for (_i = 0, _len = optParams.length; _i < _len; _i++) {
-        p = optParams[_i];
+      params = (ref = _.result(this, 'parameters')) != null ? ref : [];
+      optParams = (ref1 = _.result(this, 'optionalParameters')) != null ? ref1 : [];
+      _.extend(this, _.pick.apply(_, [opts].concat(slice.call(params))));
+      for (i = 0, len = optParams.length; i < len; i++) {
+        p = optParams[i];
         if (opts[p] != null) {
           this[p] = opts[p];
         }
       }
       this.children = {};
       Model = this.Model || CoreModel;
-      if ((((_ref2 = this.model) != null ? _ref2.toJSON : void 0) != null)) {
+      if ((((ref2 = this.model) != null ? ref2.toJSON : void 0) != null)) {
         this.hasOwnModel = false;
       }
       if (this.model == null) {
@@ -337,7 +337,7 @@
 
     CoreView.prototype.listenForChange = function() {
       var emitter, handler, props;
-      emitter = arguments[0], handler = arguments[1], props = 3 <= arguments.length ? __slice.call(arguments, 2) : [];
+      emitter = arguments[0], handler = arguments[1], props = 3 <= arguments.length ? slice.call(arguments, 2) : [];
       if (!(props != null ? props.length : void 0)) {
         throw new Error('No properties listed');
       }
@@ -367,9 +367,9 @@
     };
 
     CoreView.prototype.getData = function() {
-      var _ref, _ref1;
+      var ref, ref1;
       return _.extend(this.getBaseData(), this.model.toJSON(), {
-        collection: (_ref = (_ref1 = this.collection) != null ? _ref1.toJSON() : void 0) != null ? _ref : []
+        collection: (ref = (ref1 = this.collection) != null ? ref1.toJSON() : void 0) != null ? ref : []
       });
     };
 
@@ -398,7 +398,7 @@
     };
 
     CoreView.prototype.render = function() {
-      var e, evt, prerenderEvent, requiredProps;
+      var e, error, evt, prerenderEvent, requiredProps;
       if (this.removed) {
         return;
       }
@@ -417,8 +417,8 @@
       if (this.template != null) {
         try {
           this.$el.html(this.template(this.getData()));
-        } catch (_error) {
-          e = _error;
+        } catch (error) {
+          e = error;
           this.onRenderError(e);
         }
       }
@@ -469,23 +469,23 @@
     };
 
     CoreView.prototype.removeChild = function(name) {
-      var _ref;
-      if ((_ref = this.children[name]) != null) {
-        _ref.remove();
+      var ref;
+      if ((ref = this.children[name]) != null) {
+        ref.remove();
       }
       return delete this.children[name];
     };
 
     CoreView.prototype.removeAllChildren = function() {
-      var child, _i, _len, _ref, _results;
+      var child, i, len, ref, results;
       if (this.children != null) {
-        _ref = _.keys(this.children);
-        _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          child = _ref[_i];
-          _results.push(this.removeChild(child));
+        ref = _.keys(this.children);
+        results = [];
+        for (i = 0, len = ref.length; i < len; i++) {
+          child = ref[i];
+          results.push(this.removeChild(child));
         }
-        return _results;
+        return results;
       }
     };
 
@@ -508,7 +508,7 @@
     };
 
     CoreView.prototype.make = function(elemName, attrs, content) {
-      var $el, el, name, value, x, _i, _len;
+      var $el, el, i, len, name, value, x;
       el = document.createElement(elemName);
       $el = $(el);
       if (attrs != null) {
@@ -523,8 +523,8 @@
       }
       if (content != null) {
         if (_.isArray(content)) {
-          for (_i = 0, _len = content.length; _i < _len; _i++) {
-            x = content[_i];
+          for (i = 0, len = content.length; i < len; i++) {
+            x = content[i];
             $el.append(x);
           }
         } else {
@@ -545,18 +545,18 @@
     };
 
     CoreView.prototype.assertInvariants = function() {
-      var assertion, condition, message, optionalParams, p, paramTypes, params, typeAssertion, v, _i, _j, _len, _len1, _ref, _ref1, _ref2, _ref3, _ref4, _results;
-      params = (_ref = _.result(this, 'parameters')) != null ? _ref : [];
-      optionalParams = (_ref1 = _.result(this, 'optionalParameters')) != null ? _ref1 : [];
-      paramTypes = (_ref2 = _.result(this, 'parameterTypes')) != null ? _ref2 : {};
-      for (_i = 0, _len = params.length; _i < _len; _i++) {
-        p = params[_i];
+      var assertion, condition, i, j, len, len1, message, optionalParams, p, paramTypes, params, ref, ref1, ref2, ref3, ref4, results, typeAssertion, v;
+      params = (ref = _.result(this, 'parameters')) != null ? ref : [];
+      optionalParams = (ref1 = _.result(this, 'optionalParameters')) != null ? ref1 : [];
+      paramTypes = (ref2 = _.result(this, 'parameterTypes')) != null ? ref2 : {};
+      for (i = 0, len = params.length; i < len; i++) {
+        p = params[i];
         v = this[p];
         this.assertInvariant(v != null, "Missing required option: " + p);
       }
-      _ref3 = params.concat(optionalParams);
-      for (_j = 0, _len1 = _ref3.length; _j < _len1; _j++) {
-        p = _ref3[_j];
+      ref3 = params.concat(optionalParams);
+      for (j = 0, len1 = ref3.length; j < len1; j++) {
+        p = ref3[j];
         typeAssertion = paramTypes[p];
         if (typeAssertion != null) {
           v = this[p];
@@ -565,13 +565,13 @@
           this.assertInvariant(assertion, message);
         }
       }
-      _ref4 = this.invariants();
-      _results = [];
-      for (condition in _ref4) {
-        message = _ref4[condition];
-        _results.push(this.assertInvariant(_.result(this, condition), message));
+      ref4 = this.invariants();
+      results = [];
+      for (condition in ref4) {
+        message = ref4[condition];
+        results.push(this.assertInvariant(_.result(this, condition), message));
       }
-      return _results;
+      return results;
     };
 
     return CoreView;
@@ -580,11 +580,11 @@
 
 }).call(this);
 
-},{"./core-model":2,"./event":11,"./icons":14,"./messages":16,"./shim":66,"./templates":67,"./templates/helpers":68,"./utils/on-change":93,"backbone":235,"jquery":267,"underscore":301}],4:[function(require,module,exports){
+},{"./core-model":2,"./event":11,"./icons":14,"./messages":16,"./shim":66,"./templates":67,"./templates/helpers":68,"./utils/on-change":93,"backbone":235,"jquery":256,"underscore":262}],4:[function(require,module,exports){
 (function() {
   var Checkbox, CoreView, Messages, Templates,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   CoreView = require('../core-view');
 
@@ -592,8 +592,8 @@
 
   Messages = require('../messages');
 
-  module.exports = Checkbox = (function(_super) {
-    __extends(Checkbox, _super);
+  module.exports = Checkbox = (function(superClass) {
+    extend(Checkbox, superClass);
 
     function Checkbox() {
       return Checkbox.__super__.constructor.apply(this, arguments);
@@ -610,8 +610,8 @@
       };
     };
 
-    Checkbox.prototype.initialize = function(_arg) {
-      this.attr = _arg.attr, this.label = _arg.label;
+    Checkbox.prototype.initialize = function(arg) {
+      this.attr = arg.attr, this.label = arg.label;
       return Checkbox.__super__.initialize.apply(this, arguments);
     };
 
@@ -655,15 +655,15 @@
 },{"../core-view":3,"../messages":16,"../templates":67}],5:[function(require,module,exports){
 (function() {
   var Backbone, CoreCollection, CoreModel,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   Backbone = require('backbone');
 
   CoreModel = require('../core-model');
 
-  module.exports = CoreCollection = (function(_super) {
-    __extends(CoreCollection, _super);
+  module.exports = CoreCollection = (function(superClass) {
+    extend(CoreCollection, superClass);
 
     function CoreCollection() {
       return CoreCollection.__super__.constructor.apply(this, arguments);
@@ -694,8 +694,8 @@
 },{"../core-model":2,"backbone":235}],6:[function(require,module,exports){
 (function() {
   var CoreView, InputWithButton, Templates, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -703,8 +703,8 @@
 
   Templates = require('../templates');
 
-  module.exports = InputWithButton = (function(_super) {
-    __extends(InputWithButton, _super);
+  module.exports = InputWithButton = (function(superClass) {
+    extend(InputWithButton, superClass);
 
     function InputWithButton() {
       return InputWithButton.__super__.constructor.apply(this, arguments);
@@ -722,8 +722,8 @@
       });
     };
 
-    InputWithButton.prototype.initialize = function(_arg) {
-      this.placeholder = _arg.placeholder, this.button = _arg.button, this.sets = _arg.sets;
+    InputWithButton.prototype.initialize = function(arg) {
+      this.placeholder = arg.placeholder, this.button = arg.button, this.sets = arg.sets;
       InputWithButton.__super__.initialize.apply(this, arguments);
       return this.sets != null ? this.sets : this.sets = 'value';
     };
@@ -770,11 +770,11 @@
 
 }).call(this);
 
-},{"../core-view":3,"../templates":67,"underscore":301}],7:[function(require,module,exports){
+},{"../core-view":3,"../templates":67,"underscore":262}],7:[function(require,module,exports){
 (function() {
   var CoreView, InputWithLabel, Templates, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -782,8 +782,8 @@
 
   Templates = require('../templates');
 
-  module.exports = InputWithLabel = (function(_super) {
-    __extends(InputWithLabel, _super);
+  module.exports = InputWithLabel = (function(superClass) {
+    extend(InputWithLabel, superClass);
 
     function InputWithLabel() {
       return InputWithLabel.__super__.constructor.apply(this, arguments);
@@ -894,12 +894,12 @@
 
 }).call(this);
 
-},{"../core-view":3,"../templates":67,"underscore":301}],8:[function(require,module,exports){
+},{"../core-view":3,"../templates":67,"underscore":262}],8:[function(require,module,exports){
 (function() {
-  var Model, NestedModel, isPlainObject, mergeOldAndNew, setSection, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    __slice = [].slice;
+  var Model, NestedModel, _, isPlainObject, mergeOldAndNew, setSection,
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty,
+    slice = [].slice;
 
   _ = require('underscore');
 
@@ -923,32 +923,32 @@
     return (_.isObject(value)) && (!_.isFunction(value)) && (!_.isArray(value));
   };
 
-  module.exports = NestedModel = (function(_super) {
-    __extends(NestedModel, _super);
+  module.exports = NestedModel = (function(superClass) {
+    extend(NestedModel, superClass);
 
     function NestedModel() {
       return NestedModel.__super__.constructor.apply(this, arguments);
     }
 
     NestedModel.prototype._triggerChangeRecursively = function(ns, obj) {
-      var k, thisKey, v, _results;
-      _results = [];
+      var k, results, thisKey, v;
+      results = [];
       for (k in obj) {
         v = obj[k];
-        thisKey = "" + ns + "." + k;
+        thisKey = ns + "." + k;
         if (_.isObject(v)) {
-          _results.push(this._triggerChangeRecursively(thisKey, v));
+          results.push(this._triggerChangeRecursively(thisKey, v));
         } else {
-          _results.push(this.trigger("change:" + thisKey, this, this.get(thisKey)));
+          results.push(this.trigger("change:" + thisKey, this, this.get(thisKey)));
         }
       }
-      return _results;
+      return results;
     };
 
     NestedModel.prototype.get = function(key) {
       var head, tail;
       if (_.isArray(key)) {
-        head = key[0], tail = 2 <= key.length ? __slice.call(key, 1) : [];
+        head = key[0], tail = 2 <= key.length ? slice.call(key, 1) : [];
         return tail.reduce((function(m, k) {
           return m && m[k];
         }), NestedModel.__super__.get.call(this, head));
@@ -961,7 +961,7 @@
 
     NestedModel.prototype.pick = function() {
       var attrs;
-      attrs = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+      attrs = 1 <= arguments.length ? slice.call(arguments, 0) : [];
       return _.object(_.flatten(attrs).map((function(_this) {
         return function(a) {
           return [a, _this.get(a)];
@@ -970,34 +970,34 @@
     };
 
     NestedModel.prototype._triggerPathChange = function(key, value) {
-      var path, section, _i, _len, _results;
+      var i, len, path, results, section;
       path = [];
       this.trigger("change", this, key.join('.'), value);
-      _results = [];
-      for (_i = 0, _len = key.length; _i < _len; _i++) {
-        section = key[_i];
+      results = [];
+      for (i = 0, len = key.length; i < len; i++) {
+        section = key[i];
         path.push(section);
-        _results.push(this.trigger("change:" + (path.join('.')), this, this.get(path)));
+        results.push(this.trigger("change:" + (path.join('.')), this, this.get(path)));
       }
-      return _results;
+      return results;
     };
 
     NestedModel.prototype._triggerUnsetPath = function(path, prev) {
-      var k, v, _results;
+      var k, results, v;
       if (_.isObject(prev)) {
-        _results = [];
+        results = [];
         for (k in prev) {
           v = prev[k];
-          _results.push(this._triggerUnsetPath(path.concat([k]), v));
+          results.push(this._triggerUnsetPath(path.concat([k]), v));
         }
-        return _results;
+        return results;
       } else {
         return this.trigger("change:" + (path.join('.')));
       }
     };
 
     NestedModel.prototype.set = function(key, value) {
-      var currentValue, end, head, headVal, k, mid, prev, root, v, _i, _results;
+      var currentValue, end, head, headVal, i, k, mid, prev, results, root, v;
       if (key == null) {
         throw new Error("No key");
       }
@@ -1009,7 +1009,7 @@
           }
           return;
         }
-        head = key[0], mid = 3 <= key.length ? __slice.call(key, 1, _i = key.length - 1) : (_i = 1, []), end = key[_i++];
+        head = key[0], mid = 3 <= key.length ? slice.call(key, 1, i = key.length - 1) : (i = 1, []), end = key[i++];
         headVal = this.get(head);
         if (headVal && (_.isFunction(headVal) || (!_.isObject(headVal)))) {
           this.unset(head);
@@ -1032,12 +1032,12 @@
           return NestedModel.__super__.set.apply(this, arguments);
         }
       } else {
-        _results = [];
+        results = [];
         for (k in key) {
           v = key[k];
-          _results.push(this.set(k, v));
+          results.push(this.set(k, v));
         }
-        return _results;
+        return results;
       }
     };
 
@@ -1047,11 +1047,11 @@
 
 }).call(this);
 
-},{"../core-model":2,"underscore":301}],9:[function(require,module,exports){
+},{"../core-model":2,"underscore":262}],9:[function(require,module,exports){
 (function() {
   var InputWithLabel, SelectWithLabel, Templates, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -1059,8 +1059,8 @@
 
   InputWithLabel = require('./input-with-label');
 
-  module.exports = SelectWithLabel = (function(_super) {
-    __extends(SelectWithLabel, _super);
+  module.exports = SelectWithLabel = (function(superClass) {
+    extend(SelectWithLabel, superClass);
 
     function SelectWithLabel() {
       return SelectWithLabel.__super__.constructor.apply(this, arguments);
@@ -1113,10 +1113,10 @@
 
 }).call(this);
 
-},{"../templates":67,"./input-with-label":7,"underscore":301}],10:[function(require,module,exports){
+},{"../templates":67,"./input-with-label":7,"underscore":262}],10:[function(require,module,exports){
 (function() {
   var ArrayOf, Backbone, Callable, CoreCollection, CoreModel, DataModel, InstanceOfAssertion, InterMineService, IsArray, StringType, StructuralTypeAssertion, _,
-    __slice = [].slice;
+    slice = [].slice;
 
   _ = require('underscore');
 
@@ -1151,7 +1151,7 @@
     };
 
     InstanceOfAssertion.prototype.message = function(p) {
-      return "" + p + " is not an instance of " + this.name;
+      return p + " is not an instance of " + this.name;
     };
 
     return InstanceOfAssertion;
@@ -1171,7 +1171,7 @@
     };
 
     StructuralTypeAssertion.prototype.test = function(v) {
-      var prop, propIsOk, propName, subtest, _ref;
+      var prop, propIsOk, propName, ref, subtest;
       this._msg = null;
       if (v == null) {
         return this.failValidation('it is null');
@@ -1179,9 +1179,9 @@
       if (v == null) {
         return false;
       }
-      _ref = this.structure;
-      for (propName in _ref) {
-        subtest = _ref[propName];
+      ref = this.structure;
+      for (propName in ref) {
+        subtest = ref[propName];
         prop = v[propName];
         propIsOk = subtest.test(prop);
         if (!propIsOk) {
@@ -1192,7 +1192,7 @@
     };
 
     StructuralTypeAssertion.prototype.message = function(p) {
-      return "" + p + " failed " + this.name + " validation, because " + this._msg;
+      return p + " failed " + this.name + " validation, because " + this._msg;
     };
 
     return StructuralTypeAssertion;
@@ -1213,7 +1213,7 @@
     name: 'array',
     test: _.isArray,
     message: function(p) {
-      return "" + p + " is not an array";
+      return p + " is not an array";
     }
   };
 
@@ -1224,8 +1224,8 @@
         return this.passed = (IsArray.test(v)) && (_.all(v, elem.test));
       },
       message: function(p) {
-        var _ref;
-        return "" + p + " is not an array of " + ((_ref = elem.name) != null ? _ref : 'the correct type');
+        var ref;
+        return p + " is not an array of " + ((ref = elem.name) != null ? ref : 'the correct type');
       }
     };
   };
@@ -1234,7 +1234,7 @@
     name: 'function',
     test: _.isFunction,
     message: function(p) {
-      return "" + p + " is not a function";
+      return p + " is not a function";
     }
   };
 
@@ -1242,7 +1242,7 @@
     name: 'number',
     test: _.isNumber,
     message: function(p) {
-      return "" + p + " is not a number";
+      return p + " is not a number";
     }
   };
 
@@ -1250,7 +1250,7 @@
     name: 'string',
     test: _.isString,
     message: function(p) {
-      return "" + p + " is not a string";
+      return p + " is not a string";
     }
   };
 
@@ -1272,7 +1272,7 @@
       return (v != null) && _.isFunction(v.call);
     },
     message: function(p) {
-      return "" + p + " is not callable";
+      return p + " is not callable";
     }
   };
 
@@ -1283,14 +1283,14 @@
         return (v != null) && prop in v;
       },
       message: function(p) {
-        return "" + p + "." + prop + " not found";
+        return p + "." + prop + " not found";
       }
     };
   };
 
   exports.UnionOf = function() {
     var types;
-    types = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+    types = 1 <= arguments.length ? slice.call(arguments, 0) : [];
     return {
       name: function() {
         return "Union of " + (types.map(function(t) {
@@ -1306,8 +1306,8 @@
         })(this));
       },
       message: function(p) {
-        var _ref;
-        return (_ref = this._t) != null ? _ref.message(p) : void 0;
+        var ref;
+        return (ref = this._t) != null ? ref.message(p) : void 0;
       }
     };
   };
@@ -1344,7 +1344,7 @@
 
 }).call(this);
 
-},{"../core-model":2,"./collection":5,"backbone":235,"underscore":301}],11:[function(require,module,exports){
+},{"../core-model":2,"./collection":5,"backbone":235,"underscore":262}],11:[function(require,module,exports){
 (function() {
   var Event;
 
@@ -1383,7 +1383,7 @@
 
 },{}],13:[function(require,module,exports){
 (function() {
-  var NestedModel, Templates, bool, enableFormatter, formatters, getAncestors, getFormatter, lastCd, _;
+  var NestedModel, Templates, _, bool, enableFormatter, formatters, getAncestors, getFormatter, lastCd;
 
   _ = require('underscore');
 
@@ -1412,17 +1412,17 @@
   formatters = new NestedModel;
 
   exports.getFormatter = getFormatter = function(path) {
-    var a, ancestors, fieldName, formatter, formattersFor, model, _i, _len, _ref;
+    var a, ancestors, fieldName, formatter, formattersFor, i, len, model, ref;
     if ((path == null) || path.isRoot()) {
       throw new Error('No path or path is root');
     }
     model = path.model;
-    formattersFor = (_ref = formatters.get([model.name])) != null ? _ref : {};
+    formattersFor = (ref = formatters.get([model.name])) != null ? ref : {};
     ancestors = getAncestors(path);
     fieldName = path.end.name;
-    for (_i = 0, _len = ancestors.length; _i < _len; _i++) {
-      a = ancestors[_i];
-      formatter = formattersFor["" + a + "." + fieldName] || formattersFor["" + a + ".*"];
+    for (i = 0, len = ancestors.length; i < len; i++) {
+      a = ancestors[i];
+      formatter = formattersFor[a + "." + fieldName] || formattersFor[a + ".*"];
       if (formatter === true) {
         formatter = formattersFor[a];
       }
@@ -1451,7 +1451,7 @@
       throw new Error('formatter is not a function');
     }
     if (paths.length === 1 && paths[0] !== '*') {
-      return formatters.set([model, "" + type + "." + paths[0]], formatter);
+      return formatters.set([model, type + "." + paths[0]], formatter);
     } else {
       formatters.set([model, type], formatter);
       return enableFormatter(model, type, paths);
@@ -1459,42 +1459,42 @@
   };
 
   exports.disableFormatter = function(model, type, paths) {
-    var p, _i, _len, _results;
+    var i, len, p, results;
     if (paths == null) {
       paths = ['*'];
     }
-    _results = [];
-    for (_i = 0, _len = paths.length; _i < _len; _i++) {
-      p = paths[_i];
-      _results.push(formatters.set([model, "" + type + "." + p], false));
+    results = [];
+    for (i = 0, len = paths.length; i < len; i++) {
+      p = paths[i];
+      results.push(formatters.set([model, type + "." + p], false));
     }
-    return _results;
+    return results;
   };
 
   exports.list = function(model) {
-    var key, value, _ref, _results;
-    _ref = formatters.get([model]);
-    _results = [];
-    for (key in _ref) {
-      value = _ref[key];
+    var key, ref, results, value;
+    ref = formatters.get([model]);
+    results = [];
+    for (key in ref) {
+      value = ref[key];
       if (value) {
-        _results.push(key);
+        results.push(key);
       }
     }
-    return _results;
+    return results;
   };
 
   exports.enableFormatter = enableFormatter = function(model, type, paths) {
-    var p, _i, _len, _results;
+    var i, len, p, results;
     if (paths == null) {
       paths = ['*'];
     }
-    _results = [];
-    for (_i = 0, _len = paths.length; _i < _len; _i++) {
-      p = paths[_i];
-      _results.push(formatters.set([model, "" + type + "." + p], true));
+    results = [];
+    for (i = 0, len = paths.length; i < len; i++) {
+      p = paths[i];
+      results.push(formatters.set([model, type + "." + p], true));
     }
-    return _results;
+    return results;
   };
 
   exports.defaultFormatter = function(imobject, service, value) {
@@ -1512,11 +1512,11 @@
 
 }).call(this);
 
-},{"./core/nested-model":8,"./templates":67,"underscore":301}],14:[function(require,module,exports){
+},{"./core/nested-model":8,"./templates":67,"underscore":262}],14:[function(require,module,exports){
 (function() {
-  var ICONS, Icons, Model, Options, registerIconSet, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+  var ICONS, Icons, Model, Options, _, registerIconSet,
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -1530,8 +1530,8 @@
     return ICONS[name] = _.extend({}, icons);
   };
 
-  Icons = (function(_super) {
-    __extends(Icons, _super);
+  Icons = (function(superClass) {
+    extend(Icons, superClass);
 
     function Icons() {
       return Icons.__super__.constructor.apply(this, arguments);
@@ -1544,15 +1544,15 @@
       }
       classes = [];
       ps = (function() {
-        var _results;
-        _results = [];
+        var results;
+        results = [];
         for (prop in props) {
           propVal = props[prop];
           if (prop !== 'className') {
-            _results.push("" + prop + "=\"" + (_.escape(propVal)) + "\"");
+            results.push(prop + "=\"" + (_.escape(propVal)) + "\"");
           }
         }
-        return _results;
+        return results;
       })();
       if ('className' in props) {
         classes.push(_.escape(props.className));
@@ -1569,12 +1569,12 @@
     };
 
     Icons.prototype.getSize = function(size) {
-      var _ref;
-      return (_ref = this.get("size" + (size.toUpperCase()))) != null ? _ref : '';
+      var ref;
+      return (ref = this.get("size" + (size.toUpperCase()))) != null ? ref : '';
     };
 
     Icons.prototype.iconClasses = function(key) {
-      return "" + (this.get('Base')) + " " + (this.get(key));
+      return (this.get('Base')) + " " + (this.get(key));
     };
 
     Icons.prototype._loadIconSet = function() {
@@ -1769,22 +1769,22 @@
   module.exports.names = function() {
     var listsOfNames, n, s;
     listsOfNames = (function() {
-      var _results;
-      _results = [];
+      var results;
+      results = [];
       for (n in ICONS) {
         s = ICONS[n];
-        _results.push(_.keys(s));
+        results.push(_.keys(s));
       }
-      return _results;
+      return results;
     })();
     return _.union.apply(null, listsOfNames);
   };
 
 }).call(this);
 
-},{"./core-model":2,"./options":63,"underscore":301}],15:[function(require,module,exports){
+},{"./core-model":2,"./options":63,"underscore":262}],15:[function(require,module,exports){
 (function() {
-  var Dashboard, Formatting, Messages, Options, Promise, Table, Types, asElement, connect, createView, load, simpleFormatter, version, _;
+  var Dashboard, Formatting, Messages, Options, Promise, Table, Types, _, asElement, connect, createView, load, simpleFormatter, version;
 
   _ = require('underscore');
 
@@ -1829,7 +1829,7 @@
       opts = {};
     }
     return function(resolve) {
-      var c, element, model, view, _i, _len, _ref;
+      var c, element, i, len, model, ref, view;
       element = asElement(elem);
       model = typeof page !== "undefined" && page !== null ? _.pick(opts, 'start', 'size') : null;
       opts = _.extend(_.omit(opts, 'start', 'size'), {
@@ -1838,9 +1838,9 @@
       });
       view = create(opts);
       view.setElement(element);
-      _ref = (_.result(view, 'className')).split(' ');
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        c = _ref[_i];
+      ref = (_.result(view, 'className')).split(' ');
+      for (i = 0, len = ref.length; i < len; i++) {
+        c = ref[i];
         element.classList.add(c);
       }
       element.classList.add(Options.get('StylePrefix'));
@@ -1850,11 +1850,11 @@
   };
 
   asElement = function(e) {
-    var ret, _ref;
+    var ref, ret;
     if (e == null) {
       throw new Error('No target element provided');
     }
-    ret = _.isString(e) ? document.querySelector(e) : (_ref = e[0]) != null ? _ref : e;
+    ret = _.isString(e) ? document.querySelector(e) : (ref = e[0]) != null ? ref : e;
     if (ret == null) {
       throw new Error("Target(" + e + ") not found on page");
     }
@@ -1879,12 +1879,12 @@
 
 }).call(this);
 
-},{"./core/type-assertions":10,"./formatting":13,"./messages":16,"./options":63,"./shim":66,"./utils/simple-formatter":104,"./version":111,"./views/dashboard":136,"./views/table":209,"es6-promise":244,"imjs":255,"underscore":301}],16:[function(require,module,exports){
+},{"./core/type-assertions":10,"./formatting":13,"./messages":16,"./options":63,"./shim":66,"./utils/simple-formatter":104,"./version":111,"./views/dashboard":136,"./views/table":209,"es6-promise":238,"imjs":247,"underscore":262}],16:[function(require,module,exports){
 (function() {
-  var Backbone, DEFAULTS, HELPERS, Messages, actionMessages, common, numToString, pluralise, _, _ref,
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+  var Backbone, DEFAULTS, HELPERS, Messages, _, actionMessages, common, numToString, pluralise, ref,
+    bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   Backbone = require('backbone');
 
@@ -1894,7 +1894,7 @@
 
   common = require('./messages/common');
 
-  _ref = require('./templates/helpers'), numToString = _ref.numToString, pluralise = _ref.pluralise;
+  ref = require('./templates/helpers'), numToString = ref.numToString, pluralise = ref.pluralise;
 
   DEFAULTS = [common, actionMessages];
 
@@ -1903,11 +1903,11 @@
     pluralise: pluralise
   };
 
-  Messages = (function(_super) {
-    __extends(Messages, _super);
+  Messages = (function(superClass) {
+    extend(Messages, superClass);
 
     function Messages() {
-      this.getText = __bind(this.getText, this);
+      this.getText = bind(this.getText, this);
       return Messages.__super__.constructor.apply(this, arguments);
     }
 
@@ -1921,18 +1921,18 @@
     };
 
     Messages.prototype.destroy = function() {
-      var prop, _results;
+      var prop, results;
       this.off();
-      _results = [];
+      results = [];
       for (prop in this) {
-        _results.push(delete this[prop]);
+        results.push(delete this[prop]);
       }
-      return _results;
+      return results;
     };
 
     Messages.prototype.getTemplate = function(key) {
-      var templ, _ref1;
-      templ = (_ref1 = this.cache[key]) != null ? _ref1 : this.get(key);
+      var ref1, templ;
+      templ = (ref1 = this.cache[key]) != null ? ref1 : this.get(key);
       if ((templ != null) && (templ.call == null)) {
         templ = _.template(templ);
       }
@@ -1940,24 +1940,24 @@
     };
 
     Messages.prototype.getText = function(key, args) {
-      var templ, _ref1;
+      var ref1, templ;
       if (args == null) {
         args = {};
       }
       templ = this.getTemplate(key);
-      return (_ref1 = typeof templ === "function" ? templ(_.extend({
+      return (ref1 = typeof templ === "function" ? templ(_.extend({
         Messages: this
-      }, HELPERS, args)) : void 0) != null ? _ref1 : "!!!No message for " + key + "!!!";
+      }, HELPERS, args)) : void 0) != null ? ref1 : "!!!No message for " + key + "!!!";
     };
 
     Messages.prototype.setWithPrefix = function(prefix, messages) {
-      var key, val, _results;
-      _results = [];
+      var key, results, val;
+      results = [];
       for (key in messages) {
         val = messages[key];
-        _results.push(this.set("" + prefix + "." + key, val));
+        results.push(this.set(prefix + "." + key, val));
       }
-      return _results;
+      return results;
     };
 
     Messages.prototype.defaults = function() {
@@ -1974,7 +1974,7 @@
 
 }).call(this);
 
-},{"./messages/actions":17,"./messages/common":20,"./templates/helpers":68,"backbone":235,"underscore":301}],17:[function(require,module,exports){
+},{"./messages/actions":17,"./messages/common":20,"./templates/helpers":68,"backbone":235,"underscore":262}],17:[function(require,module,exports){
 (function() {
   module.exports = {
     'export.Export': 'Export',
@@ -2127,16 +2127,16 @@
     ChooseLang: 'Choose Language',
     ShowBoilerPlate: 'Show comments',
     HighlightSyntax: 'Highlight Syntax',
-    GenerateCodeIn: function(_arg) {
+    GenerateCodeIn: function(arg) {
       var lang;
-      lang = _arg.lang;
+      lang = arg.lang;
       return "Generate " + (Messages.getText('codegen.Lang', {
         lang: lang
       })) + "\n" + (lang !== 'xml' ? 'code' : '');
     },
-    Lang: function(_arg) {
+    Lang: function(arg) {
       var lang;
-      lang = _arg.lang;
+      lang = arg.lang;
       switch (lang) {
         case 'py':
           return 'Python';
@@ -2223,9 +2223,9 @@
     'modal.OK': 'OK',
     'modal.ApplyChanges': 'Apply Changes',
     'core.NoOptions': 'There are no options to select from.',
-    ErrorTitle: function(_arg) {
+    ErrorTitle: function(arg) {
       var level;
-      level = _arg.level;
+      level = arg.level;
       switch (level) {
         case 'Error':
           return 'Error';
@@ -2559,14 +2559,14 @@
 
 }).call(this);
 
-},{"jquery":267}],31:[function(require,module,exports){
+},{"jquery":256}],31:[function(require,module,exports){
 (function() {
   var _;
 
   _ = require('underscore');
 
   exports.setChildIndices = function(idFn, pos, collName) {
-    var coll, i, kids, sorted, v, views, _i, _len, _results;
+    var coll, i, j, kids, len, results, sorted, v, views;
     if (pos == null) {
       pos = 'top';
     }
@@ -2581,19 +2581,19 @@
     sorted = _.sortBy(views, function(v) {
       return v.el.getBoundingClientRect()[pos];
     });
-    _results = [];
-    for (i = _i = 0, _len = sorted.length; _i < _len; i = ++_i) {
+    results = [];
+    for (i = j = 0, len = sorted.length; j < len; i = ++j) {
       v = sorted[i];
-      _results.push(v.model.set({
+      results.push(v.model.set({
         index: i
       }));
     }
-    return _results;
+    return results;
   };
 
 }).call(this);
 
-},{"underscore":301}],32:[function(require,module,exports){
+},{"underscore":262}],32:[function(require,module,exports){
 (function() {
   var _;
 
@@ -2604,24 +2604,24 @@
   };
 
   exports.removeTypeAheads = function() {
-    var ta, _results;
+    var results, ta;
     if (this._typeaheads == null) {
       return;
     }
-    _results = [];
+    results = [];
     while ((ta = this._typeaheads.shift())) {
       ta.off('typeahead:select');
       ta.off('typeahead:selected');
       ta.off('typeahead:autocompleted');
       ta.off('typeahead:close');
-      _results.push(ta.typeahead('destroy'));
+      results.push(ta.typeahead('destroy'));
     }
-    return _results;
+    return results;
   };
 
   exports.lastTypeahead = function() {
-    var _ref;
-    return _.last((_ref = this._typeaheads) != null ? _ref : []);
+    var ref;
+    return _.last((ref = this._typeaheads) != null ? ref : []);
   };
 
   exports.activateTypeahead = function(input, opts, data, placeholder, cb, onChange) {
@@ -2641,7 +2641,7 @@
 
 }).call(this);
 
-},{"underscore":301}],33:[function(require,module,exports){
+},{"underscore":262}],33:[function(require,module,exports){
 (function() {
   var CACHE, _;
 
@@ -2650,7 +2650,7 @@
   CACHE = {};
 
   exports.runQuery = function(overrides) {
-    var endpoint, format, key, params, _ref;
+    var endpoint, format, key, params, ref;
     if (overrides == null) {
       overrides = {};
     }
@@ -2658,7 +2658,7 @@
     key = "results:" + this.query.service.root + ":" + (JSON.stringify(params));
     endpoint = 'query/results';
     format = this.model.get('format');
-    if ((_ref = format.needs) != null ? _ref.length : void 0) {
+    if ((ref = format.needs) != null ? ref.length : void 0) {
       endpoint += "/" + format.id;
     }
     return CACHE[key] != null ? CACHE[key] : CACHE[key] = this.query.service.post(endpoint, params);
@@ -2686,7 +2686,7 @@
   };
 
   exports.getFileName = function() {
-    return "" + (this.getBaseName()) + "." + (this.getFileExtension());
+    return (this.getBaseName()) + "." + (this.getFileExtension());
   };
 
   exports.getBaseName = function() {
@@ -2725,12 +2725,12 @@
 
 }).call(this);
 
-},{"underscore":301}],34:[function(require,module,exports){
+},{"underscore":262}],34:[function(require,module,exports){
 (function() {
   exports.setPathNames = function() {
-    var end, q, s, service, set, setError, type, v, _ref, _ref1;
-    q = (_ref = this.query) != null ? _ref : this.model.query;
-    v = (_ref1 = this.view) != null ? _ref1 : this.model.view;
+    var end, q, ref, ref1, s, service, set, setError, type, v;
+    q = (ref = this.query) != null ? ref : this.model.query;
+    v = (ref1 = this.view) != null ? ref1 : this.model.view;
     service = q.service;
     type = v.getParent().getType();
     end = v.end;
@@ -2743,9 +2743,9 @@
     setError = set('error');
     v.getDisplayName().then(set('pathName'), setError);
     type.getDisplayName().then(set('typeName'), setError);
-    return service.get("model/" + type.name + "/" + end.name).then(function(_arg) {
+    return service.get("model/" + type.name + "/" + end.name).then(function(arg) {
       var name;
-      name = _arg.name;
+      name = arg.name;
       return name;
     }).then(set('endName'), setError);
   };
@@ -2755,15 +2755,15 @@
 },{}],35:[function(require,module,exports){
 (function() {
   var AppendToListModel, CoreModel, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
   CoreModel = require('../core-model');
 
-  module.exports = AppendToListModel = (function(_super) {
-    __extends(AppendToListModel, _super);
+  module.exports = AppendToListModel = (function(superClass) {
+    extend(AppendToListModel, superClass);
 
     function AppendToListModel() {
       return AppendToListModel.__super__.constructor.apply(this, arguments);
@@ -2782,28 +2782,28 @@
 
 }).call(this);
 
-},{"../core-model":2,"underscore":301}],36:[function(require,module,exports){
+},{"../core-model":2,"underscore":262}],36:[function(require,module,exports){
 (function() {
   var AvailableColumns, Collection, PathModel, cmp, displayName, partsLen,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   Collection = require('../core/collection');
 
   PathModel = require('./path');
 
   cmp = function(f, a, b) {
-    var fa, fb, x, _ref;
-    _ref = (function() {
-      var _i, _len, _ref, _results;
-      _ref = [a, b];
-      _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        x = _ref[_i];
-        _results.push(f(x));
+    var fa, fb, ref, x;
+    ref = (function() {
+      var i, len, ref, results;
+      ref = [a, b];
+      results = [];
+      for (i = 0, len = ref.length; i < len; i++) {
+        x = ref[i];
+        results.push(f(x));
       }
-      return _results;
-    })(), fa = _ref[0], fb = _ref[1];
+      return results;
+    })(), fa = ref[0], fb = ref[1];
     if (fa < fb) {
       return -1;
     } else if (fa > fb) {
@@ -2821,8 +2821,8 @@
     return m.get('displayName');
   };
 
-  module.exports = AvailableColumns = (function(_super) {
-    __extends(AvailableColumns, _super);
+  module.exports = AvailableColumns = (function(superClass) {
+    extend(AvailableColumns, superClass);
 
     function AvailableColumns() {
       return AvailableColumns.__super__.constructor.apply(this, arguments);
@@ -2860,8 +2860,8 @@
 },{"../core/collection":5,"./path":56}],37:[function(require,module,exports){
 (function() {
   var CellModel, CoreModel, DELIM, Options, Promise, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -2873,8 +2873,8 @@
 
   DELIM = 'DynamicObjects.NameDelimiter';
 
-  module.exports = CellModel = (function(_super) {
-    __extends(CellModel, _super);
+  module.exports = CellModel = (function(superClass) {
+    extend(CellModel, superClass);
 
     function CellModel() {
       return CellModel.__super__.constructor.apply(this, arguments);
@@ -2894,9 +2894,9 @@
     };
 
     CellModel.prototype.initialize = function() {
-      var column, model, nameRequests, t, types, _ref;
+      var column, model, nameRequests, ref, t, types;
       CellModel.__super__.initialize.apply(this, arguments);
-      types = (_ref = this.get('entity').get('classes')) != null ? _ref : [this.get('node')];
+      types = (ref = this.get('entity').get('classes')) != null ? ref : [this.get('node')];
       model = (column = this.get('column')).model;
       column.getDisplayName().then((function(_this) {
         return function(columnName) {
@@ -2906,13 +2906,13 @@
         };
       })(this));
       nameRequests = (function() {
-        var _i, _len, _results;
-        _results = [];
-        for (_i = 0, _len = types.length; _i < _len; _i++) {
-          t = types[_i];
-          _results.push(model.makePath(t).getDisplayName());
+        var i, len, results;
+        results = [];
+        for (i = 0, len = types.length; i < len; i++) {
+          t = types[i];
+          results.push(model.makePath(t).getDisplayName());
         }
-        return _results;
+        return results;
       })();
       return Promise.all(nameRequests).then((function(_this) {
         return function(names) {
@@ -2942,18 +2942,18 @@
 
 }).call(this);
 
-},{"../core-model":2,"../options":63,"es6-promise":244,"underscore":301}],38:[function(require,module,exports){
+},{"../core-model":2,"../options":63,"es6-promise":238,"underscore":262}],38:[function(require,module,exports){
 (function() {
   var CodeGenModel, CoreModel, Options,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   Options = require('../options');
 
   CoreModel = require('../core-model');
 
-  module.exports = CodeGenModel = (function(_super) {
-    __extends(CodeGenModel, _super);
+  module.exports = CodeGenModel = (function(superClass) {
+    extend(CodeGenModel, superClass);
 
     function CodeGenModel() {
       return CodeGenModel.__super__.constructor.apply(this, arguments);
@@ -2976,8 +2976,8 @@
 },{"../core-model":2,"../options":63}],39:[function(require,module,exports){
 (function() {
   var Collection, ColumnHeaders, HeaderModel, buildHeaders,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   Collection = require('../core/collection');
 
@@ -2985,8 +2985,8 @@
 
   buildHeaders = require('../utils/build-headers');
 
-  module.exports = ColumnHeaders = (function(_super) {
-    __extends(ColumnHeaders, _super);
+  module.exports = ColumnHeaders = (function(superClass) {
+    extend(ColumnHeaders, superClass);
 
     function ColumnHeaders() {
       return ColumnHeaders.__super__.constructor.apply(this, arguments);
@@ -3008,13 +3008,13 @@
         return function(hs) {
           var h;
           return _this.set((function() {
-            var _i, _len, _results;
-            _results = [];
-            for (_i = 0, _len = hs.length; _i < _len; _i++) {
-              h = hs[_i];
-              _results.push(new HeaderModel(h, query));
+            var i, len, results;
+            results = [];
+            for (i = 0, len = hs.length; i < len; i++) {
+              h = hs[i];
+              results.push(new HeaderModel(h, query));
             }
-            return _results;
+            return results;
           })());
         };
       })(this));
@@ -3028,19 +3028,19 @@
 
 },{"../core/collection":5,"../utils/build-headers":71,"./header":44}],40:[function(require,module,exports){
 (function() {
-  var ConstraintModel, LIST_OPS, LOOP_OPS, NULL_OPS, PathModel, RANGE_OPS, TERNARY_OPS, constraintType, _, _ref,
-    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+  var ConstraintModel, LIST_OPS, LOOP_OPS, NULL_OPS, PathModel, RANGE_OPS, TERNARY_OPS, _, constraintType, ref,
+    indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
-  _ref = require('imjs').Query, LIST_OPS = _ref.LIST_OPS, LOOP_OPS = _ref.LOOP_OPS, TERNARY_OPS = _ref.TERNARY_OPS, RANGE_OPS = _ref.RANGE_OPS, NULL_OPS = _ref.NULL_OPS;
+  ref = require('imjs').Query, LIST_OPS = ref.LIST_OPS, LOOP_OPS = ref.LOOP_OPS, TERNARY_OPS = ref.TERNARY_OPS, RANGE_OPS = ref.RANGE_OPS, NULL_OPS = ref.NULL_OPS;
 
   PathModel = require('./path');
 
   constraintType = function(opts) {
-    var _ref1, _ref2, _ref3, _ref4, _ref5;
+    var ref1, ref2, ref3, ref4, ref5;
     if (opts.path.isAttribute()) {
       if (opts.values) {
         return 'MULTI_VALUE';
@@ -3053,27 +3053,27 @@
       if (opts.ids) {
         return 'IDS';
       }
-      if (opts.values && (_ref1 = opts.op, __indexOf.call(RANGE_OPS, _ref1) >= 0)) {
+      if (opts.values && (ref1 = opts.op, indexOf.call(RANGE_OPS, ref1) >= 0)) {
         return 'RANGE';
       }
-      if ((_ref2 = opts.op, __indexOf.call(TERNARY_OPS, _ref2) >= 0)) {
+      if ((ref2 = opts.op, indexOf.call(TERNARY_OPS, ref2) >= 0)) {
         return 'LOOKUP';
       }
-      if ((_ref3 = opts.op, __indexOf.call(LIST_OPS, _ref3) >= 0)) {
+      if ((ref3 = opts.op, indexOf.call(LIST_OPS, ref3) >= 0)) {
         return 'LIST';
       }
-      if ((_ref4 = opts.op, __indexOf.call(LOOP_OPS, _ref4) >= 0)) {
+      if ((ref4 = opts.op, indexOf.call(LOOP_OPS, ref4) >= 0)) {
         return 'LOOP';
       }
-      if ((_ref5 = opts.op, __indexOf.call(NULL_OPS, _ref5) >= 0)) {
+      if ((ref5 = opts.op, indexOf.call(NULL_OPS, ref5) >= 0)) {
         return opts.op;
       }
     }
     throw new Error("Cannot determine constraint type: " + opts.path + " " + opts.op);
   };
 
-  module.exports = ConstraintModel = (function(_super) {
-    __extends(ConstraintModel, _super);
+  module.exports = ConstraintModel = (function(superClass) {
+    extend(ConstraintModel, superClass);
 
     ConstraintModel.prototype.defaults = function() {
       return _.extend(ConstraintModel.__super__.defaults.apply(this, arguments), {
@@ -3116,11 +3116,11 @@
 
 }).call(this);
 
-},{"./path":56,"imjs":255,"underscore":301}],41:[function(require,module,exports){
+},{"./path":56,"imjs":247,"underscore":262}],41:[function(require,module,exports){
 (function() {
-  var CoreCollection, CoreModel, CreateListModel, ON_COMMA, trim, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+  var CoreCollection, CoreModel, CreateListModel, ON_COMMA, _, trim,
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -3134,8 +3134,8 @@
     return s.replace(/(^\s+|\s+$)/g, '');
   };
 
-  module.exports = CreateListModel = (function(_super) {
-    __extends(CreateListModel, _super);
+  module.exports = CreateListModel = (function(superClass) {
+    extend(CreateListModel, superClass);
 
     function CreateListModel() {
       return CreateListModel.__super__.constructor.apply(this, arguments);
@@ -3153,16 +3153,16 @@
       this.tags = new CoreCollection;
       if (this.has('tags')) {
         this.tags.reset((function() {
-          var _i, _len, _ref, _results;
-          _ref = this.get('tags');
-          _results = [];
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            tag = _ref[_i];
-            _results.push({
+          var i, len, ref, results;
+          ref = this.get('tags');
+          results = [];
+          for (i = 0, len = ref.length; i < len; i++) {
+            tag = ref[i];
+            results.push({
               id: tag
             });
           }
-          return _results;
+          return results;
         }).call(this));
       }
       this.listenTo(this.tags, 'remove', (function(_this) {
@@ -3188,27 +3188,27 @@
     };
 
     CreateListModel.prototype.addTag = function() {
-      var tag, tags, _i, _len, _ref, _results;
+      var i, len, ref, results, tag, tags;
       tags = this.get('nextTag');
       if (tags == null) {
         throw new Error('No tag to add');
       }
       this.unset('nextTag');
-      _ref = trim(tags).split(ON_COMMA);
-      _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        tag = _ref[_i];
-        _results.push(this.tags.add({
+      ref = trim(tags).split(ON_COMMA);
+      results = [];
+      for (i = 0, len = ref.length; i < len; i++) {
+        tag = ref[i];
+        results.push(this.tags.add({
           id: tag
         }));
       }
-      return _results;
+      return results;
     };
 
     CreateListModel.prototype.destroy = function() {
-      var _ref;
-      if ((_ref = this.tags) != null) {
-        _ref.close();
+      var ref;
+      if ((ref = this.tags) != null) {
+        ref.close();
       }
       return CreateListModel.__super__.destroy.apply(this, arguments);
     };
@@ -3219,16 +3219,16 @@
 
 }).call(this);
 
-},{"../core-model":2,"../core/collection":5,"underscore":301}],42:[function(require,module,exports){
+},{"../core-model":2,"../core/collection":5,"underscore":262}],42:[function(require,module,exports){
 (function() {
-  var Format, formats, _;
+  var Format, _, formats;
 
   _ = require('underscore');
 
   Format = (function() {
-    function Format(_arg) {
+    function Format(arg) {
       var EXT, desc, ext, icon, name, needs;
-      this.id = _arg.id, this.group = _arg.group, icon = _arg.icon, needs = _arg.needs, this.maxColumns = _arg.maxColumns;
+      this.id = arg.id, this.group = arg.group, icon = arg.icon, needs = arg.needs, this.maxColumns = arg.maxColumns;
       ext = this.id === 'tab' ? 'tsv' : this.id;
       EXT = ext.toUpperCase();
       if (icon == null) {
@@ -3325,35 +3325,35 @@
   };
 
   exports.getFormats = function(availableTypes) {
-    var f, _i, _len, _results;
-    _results = [];
-    for (_i = 0, _len = formats.length; _i < _len; _i++) {
-      f = formats[_i];
+    var f, i, len, results;
+    results = [];
+    for (i = 0, len = formats.length; i < len; i++) {
+      f = formats[i];
       if (f.isSuitable(availableTypes)) {
-        _results.push(f);
+        results.push(f);
       }
     }
-    return _results;
+    return results;
   };
 
-  exports.registerFormat = function(_arg) {
+  exports.registerFormat = function(arg) {
     var icons, id, needs;
-    id = _arg.id, icons = _arg.icons, needs = _arg.needs;
+    id = arg.id, icons = arg.icons, needs = arg.needs;
     return formats.push(new Format(id, icons, needs));
   };
 
 }).call(this);
 
-},{"underscore":301}],43:[function(require,module,exports){
+},{"underscore":262}],43:[function(require,module,exports){
 (function() {
   var CoreModel, FPObject,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   CoreModel = require('../core-model');
 
-  module.exports = FPObject = (function(_super) {
-    __extends(FPObject, _super);
+  module.exports = FPObject = (function(superClass) {
+    extend(FPObject, superClass);
 
     function FPObject(obj, field) {
       FPObject.__super__.constructor.call(this);
@@ -3375,9 +3375,9 @@
 
 },{"../core-model":2}],44:[function(require,module,exports){
 (function() {
-  var HeaderModel, Options, PathModel, firstResult, looksLikePath, uc, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+  var HeaderModel, Options, PathModel, _, firstResult, looksLikePath, uc,
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -3395,8 +3395,8 @@
     return (r != null) && (r.isReference != null) && (r.isAttribute != null);
   };
 
-  module.exports = HeaderModel = (function(_super) {
-    __extends(HeaderModel, _super);
+  module.exports = HeaderModel = (function(superClass) {
+    extend(HeaderModel, superClass);
 
     HeaderModel.prototype.defaults = function() {
       return _.extend(HeaderModel.__super__.defaults.apply(this, arguments), {
@@ -3413,9 +3413,9 @@
     };
 
     function HeaderModel(opts, query) {
-      var _ref;
+      var ref;
       this.query = query;
-      if (!((_ref = this.query) != null ? _ref.on : void 0)) {
+      if (!((ref = this.query) != null ? ref.on : void 0)) {
         throw new Error('no query');
       }
       if (opts == null) {
@@ -3424,7 +3424,7 @@
       HeaderModel.__super__.constructor.call(this, opts.path);
       this.set(_.omit(opts, 'path'));
       this.set({
-        id: "" + (this.query.toXML()) + "-" + (this.get('path'))
+        id: (this.query.toXML()) + "-" + (this.get('path'))
       });
       this.listenTo(this.query, 'change:joins', this.setOuterJoined);
       this.listenTo(this.query, 'change:sortorder', this.setSortDirection);
@@ -3445,8 +3445,8 @@
     };
 
     HeaderModel.prototype.getView = function() {
-      var isFormatted, path, replaces, _ref;
-      _ref = this.pick('replaces', 'isFormatted', 'path'), replaces = _ref.replaces, isFormatted = _ref.isFormatted, path = _ref.path;
+      var isFormatted, path, ref, replaces;
+      ref = this.pick('replaces', 'isFormatted', 'path'), replaces = ref.replaces, isFormatted = ref.isFormatted, path = ref.path;
       return String(isFormatted && replaces.length === 1 ? replaces[0] : path);
     };
 
@@ -3496,16 +3496,16 @@
       var c, numOfCons, view;
       view = this.getView();
       numOfCons = _.size((function() {
-        var _i, _len, _ref, _results;
-        _ref = this.query.constraints;
-        _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          c = _ref[_i];
+        var i, len, ref, results;
+        ref = this.query.constraints;
+        results = [];
+        for (i = 0, len = ref.length; i < len; i++) {
+          c = ref[i];
           if (c.path.match(view)) {
-            _results.push(c);
+            results.push(c);
           }
         }
-        return _results;
+        return results;
       }).call(this));
       return this.set({
         numOfCons: numOfCons
@@ -3518,11 +3518,11 @@
 
 }).call(this);
 
-},{"../options":63,"./path":56,"underscore":301}],45:[function(require,module,exports){
+},{"../options":63,"./path":56,"underscore":262}],45:[function(require,module,exports){
 (function() {
   var Collection, History, StepModel, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -3530,8 +3530,8 @@
 
   StepModel = require('./step');
 
-  module.exports = History = (function(_super) {
-    __extends(History, _super);
+  module.exports = History = (function(superClass) {
+    extend(History, superClass);
 
     function History() {
       return History.__super__.constructor.apply(this, arguments);
@@ -3560,8 +3560,8 @@
     };
 
     History.prototype.unwatch = function(model) {
-      var q, _ref;
-      q = (_ref = model != null ? model.get('query') : void 0) != null ? _ref : this.getCurrentQuery();
+      var q, ref;
+      q = (ref = model != null ? model.get('query') : void 0) != null ? ref : this.getCurrentQuery();
       if (q == null) {
         return;
       }
@@ -3596,7 +3596,7 @@
     History.prototype.onChangeJoins = function() {
       return this.onChange('joins', 'join', function(joins) {
         return _.map(joins, function(style, path) {
-          return "" + path + ":" + style;
+          return path + ":" + style;
         });
       });
     };
@@ -3609,8 +3609,8 @@
 
     History.prototype.onChangeLogic = function() {
       return this.onChange('constraintLogic', 'constraint logic element', function(expr) {
-        var _ref;
-        return (_ref = expr != null ? expr.match(/([A-Z]+)/) : void 0) != null ? _ref : [];
+        var ref;
+        return (ref = expr != null ? expr.match(/([A-Z]+)/) : void 0) != null ? ref : [];
       });
     };
 
@@ -3710,18 +3710,18 @@
 
 }).call(this);
 
-},{"../core/collection":5,"./step":59,"underscore":301}],46:[function(require,module,exports){
+},{"../core/collection":5,"./step":59,"underscore":262}],46:[function(require,module,exports){
 (function() {
   var CoreModel, IMObject, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
   CoreModel = require('../core-model');
 
-  module.exports = IMObject = (function(_super) {
-    __extends(IMObject, _super);
+  module.exports = IMObject = (function(superClass) {
+    extend(IMObject, superClass);
 
     function IMObject(base, types, id) {
       IMObject.__super__.constructor.call(this, {
@@ -3756,11 +3756,11 @@
 
 }).call(this);
 
-},{"../core-model":2,"underscore":301}],47:[function(require,module,exports){
+},{"../core-model":2,"underscore":262}],47:[function(require,module,exports){
 (function() {
   var Collection, Join, Joins, PathModel, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -3768,8 +3768,8 @@
 
   PathModel = require('./path');
 
-  Join = (function(_super) {
-    __extends(Join, _super);
+  Join = (function(superClass) {
+    extend(Join, superClass);
 
     Join.prototype.defaults = function() {
       return _.extend(Join.__super__.defaults.apply(this, arguments), {
@@ -3777,9 +3777,9 @@
       });
     };
 
-    function Join(_arg) {
+    function Join(arg) {
       var path, style;
-      path = _arg.path, style = _arg.style;
+      path = arg.path, style = arg.style;
       Join.__super__.constructor.call(this, path);
       if (style != null) {
         this.set({
@@ -3792,8 +3792,8 @@
 
   })(PathModel);
 
-  module.exports = Joins = (function(_super) {
-    __extends(Joins, _super);
+  module.exports = Joins = (function(superClass) {
+    extend(Joins, superClass);
 
     function Joins() {
       return Joins.__super__.constructor.apply(this, arguments);
@@ -3821,20 +3821,20 @@
   })(Collection);
 
   Joins.fromQuery = function(query) {
-    var joins, n, p, path, style, _i, _len, _ref, _ref1;
+    var i, joins, len, n, p, path, ref, ref1, style;
     joins = new Joins;
-    _ref = query.joins;
-    for (p in _ref) {
-      style = _ref[p];
+    ref = query.joins;
+    for (p in ref) {
+      style = ref[p];
       path = query.makePath(p);
       joins.add(new Join({
         style: style,
         path: path
       }));
     }
-    _ref1 = query.getQueryNodes();
-    for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-      n = _ref1[_i];
+    ref1 = query.getQueryNodes();
+    for (i = 0, len = ref1.length; i < len; i++) {
+      n = ref1[i];
       while (!n.isRoot()) {
         joins.add(new Join({
           path: n
@@ -3847,18 +3847,18 @@
 
 }).call(this);
 
-},{"../core/collection":5,"./path":56,"underscore":301}],48:[function(require,module,exports){
+},{"../core/collection":5,"./path":56,"underscore":262}],48:[function(require,module,exports){
 (function() {
   var CoreModel, NestedTableModel, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
   CoreModel = require('../core-model');
 
-  module.exports = NestedTableModel = (function(_super) {
-    __extends(NestedTableModel, _super);
+  module.exports = NestedTableModel = (function(superClass) {
+    extend(NestedTableModel, superClass);
 
     function NestedTableModel() {
       return NestedTableModel.__super__.constructor.apply(this, arguments);
@@ -3939,16 +3939,16 @@
 
 }).call(this);
 
-},{"../core-model":2,"underscore":301}],49:[function(require,module,exports){
+},{"../core-model":2,"underscore":262}],49:[function(require,module,exports){
 (function() {
   var CoreModel, NullObject,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   CoreModel = require('../core-model');
 
-  module.exports = NullObject = (function(_super) {
-    __extends(NullObject, _super);
+  module.exports = NullObject = (function(superClass) {
+    extend(NullObject, superClass);
 
     function NullObject(type, field) {
       NullObject.__super__.constructor.call(this);
@@ -3974,15 +3974,15 @@
 },{"../core-model":2}],50:[function(require,module,exports){
 (function() {
   var Backbone, NumericRange, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
   Backbone = require('backbone');
 
-  module.exports = NumericRange = (function(_super) {
-    __extends(NumericRange, _super);
+  module.exports = NumericRange = (function(superClass) {
+    extend(NumericRange, superClass);
 
     function NumericRange() {
       return NumericRange.__super__.constructor.apply(this, arguments);
@@ -4011,17 +4011,17 @@
     };
 
     NumericRange.prototype.nullify = function() {
-      var evt, _i, _len, _ref, _results;
+      var evt, i, len, ref, results;
       this.unset('min');
       this.unset('max');
       this.nulled = true;
-      _ref = ['change:min', 'change:max', 'change'];
-      _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        evt = _ref[_i];
-        _results.push(this.trigger(evt, this));
+      ref = ['change:min', 'change:max', 'change'];
+      results = [];
+      for (i = 0, len = ref.length; i < len; i++) {
+        evt = ref[i];
+        results.push(this.trigger(evt, this));
       }
-      return _results;
+      return results;
     };
 
     NumericRange.prototype.reset = function() {
@@ -4045,11 +4045,11 @@
     };
 
     NumericRange.prototype.isNotAll = function() {
-      var max, min, _ref;
+      var max, min, ref;
       if (this.nulled) {
         return false;
       }
-      _ref = this.toJSON(), min = _ref.min, max = _ref.max;
+      ref = this.toJSON(), min = ref.min, max = ref.max;
       return ((min != null) && min !== this._defaults.min) || ((max != null) && max !== this._defaults.max);
     };
 
@@ -4059,7 +4059,7 @@
 
 }).call(this);
 
-},{"backbone":235,"underscore":301}],51:[function(require,module,exports){
+},{"backbone":235,"underscore":262}],51:[function(require,module,exports){
 (function() {
   var IMObject, ObjectStore, _;
 
@@ -4081,8 +4081,8 @@
     }
 
     ObjectStore.prototype.get = function(obj, field) {
-      var model, _base, _name;
-      model = ((_base = this._objects)[_name = obj.id] != null ? _base[_name] : _base[_name] = this._newObject(obj));
+      var base, model, name;
+      model = ((base = this._objects)[name = obj.id] != null ? base[name] : base[name] = this._newObject(obj));
       model.merge(obj, field);
       return model;
     };
@@ -4090,23 +4090,23 @@
     ObjectStore.prototype._newObject = function(obj) {
       var c, classes;
       classes = (function() {
-        var _i, _len, _ref, _ref1, _ref2, _results;
-        _ref2 = (_ref = (_ref1 = obj['class']) != null ? _ref1.split(',') : void 0) != null ? _ref : [];
-        _results = [];
-        for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
-          c = _ref2[_i];
-          _results.push(this.schema.makePath(c));
+        var i, len, ref, ref1, ref2, results;
+        ref2 = (ref = (ref1 = obj['class']) != null ? ref1.split(',') : void 0) != null ? ref : [];
+        results = [];
+        for (i = 0, len = ref2.length; i < len; i++) {
+          c = ref2[i];
+          results.push(this.schema.makePath(c));
         }
-        return _results;
+        return results;
       }).call(this);
       return new IMObject(this.base, classes, obj.id);
     };
 
     ObjectStore.prototype.destroy = function() {
-      var id, model, _ref;
-      _ref = this._objects;
-      for (id in _ref) {
-        model = _ref[id];
+      var id, model, ref;
+      ref = this._objects;
+      for (id in ref) {
+        model = ref[id];
         model.destroy();
       }
       delete this.selectedObjects;
@@ -4119,11 +4119,11 @@
 
 }).call(this);
 
-},{"./intermine-object":46,"underscore":301}],52:[function(require,module,exports){
+},{"./intermine-object":46,"underscore":262}],52:[function(require,module,exports){
 (function() {
   var Backbone, OpenNodes, UniqItems, descendsFrom,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   Backbone = require('backbone');
 
@@ -4142,8 +4142,8 @@
     return true;
   };
 
-  module.exports = OpenNodes = (function(_super) {
-    __extends(OpenNodes, _super);
+  module.exports = OpenNodes = (function(superClass) {
+    extend(OpenNodes, superClass);
 
     function OpenNodes() {
       return OpenNodes.__super__.constructor.apply(this, arguments);
@@ -4160,7 +4160,7 @@
     };
 
     OpenNodes.prototype.remove = function(path) {
-      var delenda, delendum, _i, _len, _results;
+      var delenda, delendum, i, len, results;
       if (path == null) {
         return false;
       }
@@ -4170,12 +4170,12 @@
       delenda = this.filter(function(node) {
         return descendsFrom(path, node.get('item'));
       });
-      _results = [];
-      for (_i = 0, _len = delenda.length; _i < _len; _i++) {
-        delendum = delenda[_i];
-        _results.push(OpenNodes.__super__.remove.call(this, delendum));
+      results = [];
+      for (i = 0, len = delenda.length; i < len; i++) {
+        delendum = delenda[i];
+        results.push(OpenNodes.__super__.remove.call(this, delendum));
       }
-      return _results;
+      return results;
     };
 
     return OpenNodes;
@@ -4187,17 +4187,17 @@
 },{"./uniq-items":62,"backbone":235}],53:[function(require,module,exports){
 (function() {
   var OrderElementModel, PathModel,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   PathModel = require('./path');
 
-  module.exports = OrderElementModel = (function(_super) {
-    __extends(OrderElementModel, _super);
+  module.exports = OrderElementModel = (function(superClass) {
+    extend(OrderElementModel, superClass);
 
-    function OrderElementModel(_arg) {
+    function OrderElementModel(arg) {
       var direction, path;
-      path = _arg.path, direction = _arg.direction;
+      path = arg.path, direction = arg.direction;
       OrderElementModel.__super__.constructor.call(this, path);
       if (direction == null) {
         direction = 'ASC';
@@ -4212,7 +4212,7 @@
     };
 
     OrderElementModel.prototype.toOrderString = function() {
-      return "" + (this.get('path')) + " " + (this.get('direction'));
+      return (this.get('path')) + " " + (this.get('direction'));
     };
 
     return OrderElementModel;
@@ -4294,15 +4294,15 @@
 },{}],55:[function(require,module,exports){
 (function() {
   var Backbone, PathSet, UniqItems,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   UniqItems = require('./uniq-items');
 
   Backbone = require('backbone');
 
-  module.exports = PathSet = (function(_super) {
-    __extends(PathSet, _super);
+  module.exports = PathSet = (function(superClass) {
+    extend(PathSet, superClass);
 
     function PathSet() {
       return PathSet.__super__.constructor.apply(this, arguments);
@@ -4349,17 +4349,17 @@
 
 },{"./uniq-items":62,"backbone":235}],56:[function(require,module,exports){
 (function() {
-  var BOOLEAN_TYPES, CoreModel, NUMERIC_TYPES, PathModel, _ref,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+  var BOOLEAN_TYPES, CoreModel, NUMERIC_TYPES, PathModel, ref,
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty,
+    indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   CoreModel = require('../core-model');
 
-  _ref = require('imjs').Model, NUMERIC_TYPES = _ref.NUMERIC_TYPES, BOOLEAN_TYPES = _ref.BOOLEAN_TYPES;
+  ref = require('imjs').Model, NUMERIC_TYPES = ref.NUMERIC_TYPES, BOOLEAN_TYPES = ref.BOOLEAN_TYPES;
 
-  module.exports = PathModel = (function(_super) {
-    __extends(PathModel, _super);
+  module.exports = PathModel = (function(superClass) {
+    extend(PathModel, superClass);
 
     PathModel.prototype.defaults = function() {
       return {
@@ -4411,18 +4411,18 @@
     };
 
     PathModel.prototype.pathAttributes = function(path) {
-      var attrs, isAttr, str, type, _ref1;
+      var attrs, isAttr, ref1, str, type;
       str = String(path);
       isAttr = path.isAttribute();
       type = path.getType();
       attrs = {
-        id: (isAttr ? str : "" + str + ".id"),
+        id: (isAttr ? str : str + ".id"),
         path: str,
-        type: (_ref1 = type.name) != null ? _ref1 : type
+        type: (ref1 = type.name) != null ? ref1 : type
       };
       if (isAttr) {
-        attrs.isNumeric = (__indexOf.call(NUMERIC_TYPES, type) >= 0);
-        attrs.isBoolean = (__indexOf.call(BOOLEAN_TYPES, type) >= 0);
+        attrs.isNumeric = (indexOf.call(NUMERIC_TYPES, type) >= 0);
+        attrs.isBoolean = (indexOf.call(BOOLEAN_TYPES, type) >= 0);
       } else {
         attrs.isReference = true;
         attrs.isAttribute = false;
@@ -4436,11 +4436,11 @@
 
 }).call(this);
 
-},{"../core-model":2,"imjs":255}],57:[function(require,module,exports){
+},{"../core-model":2,"imjs":247}],57:[function(require,module,exports){
 (function() {
   var Collection, CoreModel, RowModel, RowsCollection, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -4448,8 +4448,8 @@
 
   Collection = require('../core/collection');
 
-  RowModel = (function(_super) {
-    __extends(RowModel, _super);
+  RowModel = (function(superClass) {
+    extend(RowModel, superClass);
 
     function RowModel() {
       return RowModel.__super__.constructor.apply(this, arguments);
@@ -4467,14 +4467,14 @@
       var c;
       return _.extend(RowModel.__super__.toJSON.apply(this, arguments), {
         cells: (function() {
-          var _i, _len, _ref, _results;
-          _ref = this.get('cells');
-          _results = [];
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            c = _ref[_i];
-            _results.push(c.toJSON());
+          var i, len, ref, results;
+          ref = this.get('cells');
+          results = [];
+          for (i = 0, len = ref.length; i < len; i++) {
+            c = ref[i];
+            results.push(c.toJSON());
           }
-          return _results;
+          return results;
         }).call(this)
       });
     };
@@ -4483,8 +4483,8 @@
 
   })(CoreModel);
 
-  module.exports = RowsCollection = (function(_super) {
-    __extends(RowsCollection, _super);
+  module.exports = RowsCollection = (function(superClass) {
+    extend(RowsCollection, superClass);
 
     function RowsCollection() {
       return RowsCollection.__super__.constructor.apply(this, arguments);
@@ -4500,11 +4500,11 @@
 
 }).call(this);
 
-},{"../core-model":2,"../core/collection":5,"underscore":301}],58:[function(require,module,exports){
+},{"../core-model":2,"../core/collection":5,"underscore":262}],58:[function(require,module,exports){
 (function() {
   var Collection, CoreModel, SelectedObjects, SelectionModel, types,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   CoreModel = require('../core-model');
 
@@ -4512,8 +4512,8 @@
 
   types = require('../core/type-assertions');
 
-  SelectionModel = (function(_super) {
-    __extends(SelectionModel, _super);
+  SelectionModel = (function(superClass) {
+    extend(SelectionModel, superClass);
 
     function SelectionModel() {
       return SelectionModel.__super__.constructor.apply(this, arguments);
@@ -4544,8 +4544,8 @@
 
   })(CoreModel);
 
-  module.exports = SelectedObjects = (function(_super) {
-    __extends(SelectedObjects, _super);
+  module.exports = SelectedObjects = (function(superClass) {
+    extend(SelectedObjects, superClass);
 
     SelectedObjects.prototype.model = SelectionModel;
 
@@ -4624,8 +4624,8 @@
 },{"../core-model":2,"../core/collection":5,"../core/type-assertions":10}],59:[function(require,module,exports){
 (function() {
   var CoreModel, Executor, StepModel, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -4633,8 +4633,8 @@
 
   Executor = require('../utils/count-executor');
 
-  module.exports = StepModel = (function(_super) {
-    __extends(StepModel, _super);
+  module.exports = StepModel = (function(superClass) {
+    extend(StepModel, superClass);
 
     function StepModel() {
       return StepModel.__super__.constructor.apply(this, arguments);
@@ -4685,11 +4685,11 @@
 
 }).call(this);
 
-},{"../core-model":2,"../utils/count-executor":77,"underscore":301}],60:[function(require,module,exports){
+},{"../core-model":2,"../utils/count-executor":77,"underscore":262}],60:[function(require,module,exports){
 (function() {
-  var Collection, CoreModel, Options, SummaryHistogram, SummaryItemModel, SummaryItems, SummaryModel, getColumnSummary, inty, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+  var Collection, CoreModel, Options, SummaryHistogram, SummaryItemModel, SummaryItems, SummaryModel, _, getColumnSummary, inty,
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -4705,8 +4705,8 @@
     return type === 'int' || type === 'Integer' || type === 'long' || type === 'Long' || type === 'short' || type === 'Short';
   };
 
-  module.exports = SummaryModel = (function(_super) {
-    __extends(SummaryModel, _super);
+  module.exports = SummaryModel = (function(superClass) {
+    extend(SummaryModel, superClass);
 
     SummaryModel.prototype.defaults = function() {
       return {
@@ -4720,9 +4720,9 @@
       };
     };
 
-    function SummaryModel(_arg) {
+    function SummaryModel(arg) {
       var integral, type;
-      this.query = _arg.query, this.view = _arg.view;
+      this.query = arg.query, this.view = arg.view;
       SummaryModel.__super__.constructor.call(this);
       if (this.query == null) {
         throw new Error('No query in call to new SummaryModel');
@@ -4851,21 +4851,21 @@
     };
 
     SummaryModel.prototype.getHistogram = function() {
-      var i, n, _i, _ref, _ref1, _results;
+      var i, j, n, ref, ref1, ref2, results1;
       n = this.get('buckets');
       if (!n) {
         return [];
       }
-      _results = [];
-      for (i = _i = 1; 1 <= n ? _i <= n : _i >= n; i = 1 <= n ? ++_i : --_i) {
-        _results.push((_ref = (_ref1 = this.histogram.get(i)) != null ? _ref1.get('count') : void 0) != null ? _ref : 0);
+      results1 = [];
+      for (i = j = 1, ref = n; 1 <= ref ? j <= ref : j >= ref; i = 1 <= ref ? ++j : --j) {
+        results1.push((ref1 = (ref2 = this.histogram.get(i)) != null ? ref2.get('count') : void 0) != null ? ref1 : 0);
       }
-      return _results;
+      return results1;
     };
 
-    SummaryModel.prototype.handleSummary = function(time, _arg) {
-      var average, bucket, buckets, count, id, item, max, min, newStats, numeric, results, stats, stdev, _ref;
-      stats = _arg.stats, results = _arg.results;
+    SummaryModel.prototype.handleSummary = function(time, arg) {
+      var average, bucket, buckets, count, id, item, max, min, newStats, numeric, ref, results, stats, stdev;
+      stats = arg.stats, results = arg.results;
       if (time !== this.lastSummaryHandlerCreatedAt) {
         return;
       }
@@ -4873,7 +4873,7 @@
       newStats = {
         filteredCount: stats.filteredCount,
         uniqueValues: stats.uniqueValues,
-        available: (_ref = stats.filteredCount) != null ? _ref : stats.uniqueValues,
+        available: (ref = stats.filteredCount) != null ? ref : stats.uniqueValues,
         got: results.length,
         numeric: numeric,
         initialized: true,
@@ -4892,17 +4892,17 @@
           this.items.reset();
         }
         this.histogram.set((function() {
-          var _i, _len, _ref1, _results;
-          _results = [];
-          for (_i = 0, _len = results.length; _i < _len; _i++) {
-            _ref1 = results[_i], bucket = _ref1.bucket, count = _ref1.count;
-            _results.push({
+          var j, len, ref1, results1;
+          results1 = [];
+          for (j = 0, len = results.length; j < len; j++) {
+            ref1 = results[j], bucket = ref1.bucket, count = ref1.count;
+            results1.push({
               item: bucket,
               count: count,
               id: bucket
             });
           }
-          return _results;
+          return results1;
         })());
         newStats.maxCount = this.histogram.getMaxCount();
       } else {
@@ -4910,17 +4910,17 @@
           this.histogram.reset();
         }
         this.items.set((function() {
-          var _i, _len, _ref1, _results;
-          _results = [];
-          for (id = _i = 0, _len = results.length; _i < _len; id = ++_i) {
-            _ref1 = results[id], item = _ref1.item, count = _ref1.count;
-            _results.push({
+          var j, len, ref1, results1;
+          results1 = [];
+          for (id = j = 0, len = results.length; j < len; id = ++j) {
+            ref1 = results[id], item = ref1.item, count = ref1.count;
+            results1.push({
               item: item,
               count: count,
               id: id
             });
           }
-          return _results;
+          return results1;
         })());
         newStats.maxCount = this.items.getMaxCount();
       }
@@ -4931,8 +4931,8 @@
 
   })(CoreModel);
 
-  SummaryItemModel = (function(_super) {
-    __extends(SummaryItemModel, _super);
+  SummaryItemModel = (function(superClass) {
+    extend(SummaryItemModel, superClass);
 
     function SummaryItemModel() {
       return SummaryItemModel.__super__.constructor.apply(this, arguments);
@@ -4993,8 +4993,8 @@
 
   })(CoreModel);
 
-  SummaryItems = (function(_super) {
-    __extends(SummaryItems, _super);
+  SummaryItems = (function(superClass) {
+    extend(SummaryItems, superClass);
 
     function SummaryItems() {
       return SummaryItems.__super__.constructor.apply(this, arguments);
@@ -5003,16 +5003,16 @@
     SummaryItems.prototype.model = SummaryItemModel;
 
     SummaryItems.prototype.getMaxCount = function() {
-      var _ref;
-      return (_ref = this.first()) != null ? _ref.get('count') : void 0;
+      var ref;
+      return (ref = this.first()) != null ? ref.get('count') : void 0;
     };
 
     return SummaryItems;
 
   })(Collection);
 
-  SummaryHistogram = (function(_super) {
-    __extends(SummaryHistogram, _super);
+  SummaryHistogram = (function(superClass) {
+    extend(SummaryHistogram, superClass);
 
     function SummaryHistogram() {
       return SummaryHistogram.__super__.constructor.apply(this, arguments);
@@ -5023,14 +5023,14 @@
     SummaryHistogram.prototype.getMaxCount = function() {
       var b;
       return _.max((function() {
-        var _i, _len, _ref, _results;
-        _ref = this.models;
-        _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          b = _ref[_i];
-          _results.push(b.get('count'));
+        var j, len, ref, results1;
+        ref = this.models;
+        results1 = [];
+        for (j = 0, len = ref.length; j < len; j++) {
+          b = ref[j];
+          results1.push(b.get('count'));
         }
-        return _results;
+        return results1;
       }).call(this));
     };
 
@@ -5040,12 +5040,12 @@
 
 }).call(this);
 
-},{"../core-model":2,"../core/collection":5,"../options":63,"../services/column-summary":65,"underscore":301}],61:[function(require,module,exports){
+},{"../core-model":2,"../core/collection":5,"../options":63,"../services/column-summary":65,"underscore":262}],61:[function(require,module,exports){
 (function() {
   var CoreModel, Options, PathSet, TableModel,
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   Options = require('../options');
 
@@ -5053,11 +5053,11 @@
 
   PathSet = require('./path-set');
 
-  module.exports = TableModel = (function(_super) {
-    __extends(TableModel, _super);
+  module.exports = TableModel = (function(superClass) {
+    extend(TableModel, superClass);
 
     function TableModel() {
-      this.filled = __bind(this.filled, this);
+      this.filled = bind(this.filled, this);
       return TableModel.__super__.constructor.apply(this, arguments);
     }
 
@@ -5112,8 +5112,8 @@
 },{"../core-model":2,"../options":63,"./path-set":55}],62:[function(require,module,exports){
 (function() {
   var Backbone, Collection, CoreModel, Item, UniqItems, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   Backbone = require('backbone');
 
@@ -5123,8 +5123,8 @@
 
   Collection = require('../core/collection');
 
-  Item = (function(_super) {
-    __extends(Item, _super);
+  Item = (function(superClass) {
+    extend(Item, superClass);
 
     function Item() {
       return Item.__super__.constructor.apply(this, arguments);
@@ -5144,8 +5144,8 @@
 
   })(CoreModel);
 
-  module.exports = UniqItems = (function(_super) {
-    __extends(UniqItems, _super);
+  module.exports = UniqItems = (function(superClass) {
+    extend(UniqItems, superClass);
 
     function UniqItems() {
       return UniqItems.__super__.constructor.apply(this, arguments);
@@ -5154,14 +5154,14 @@
     UniqItems.prototype.model = Item;
 
     UniqItems.prototype.toJSON = function() {
-      var m, _i, _len, _ref, _results;
-      _ref = this.models;
-      _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        m = _ref[_i];
-        _results.push(m.get('item'));
+      var i, len, m, ref, results;
+      ref = this.models;
+      results = [];
+      for (i = 0, len = ref.length; i < len; i++) {
+        m = ref[i];
+        results.push(m.get('item'));
       }
-      return _results;
+      return results;
     };
 
     UniqItems.prototype.togglePresence = function(item) {
@@ -5187,37 +5187,37 @@
     };
 
     UniqItems.prototype.add = function(items, props) {
-      var item, _i, _len, _results;
+      var i, item, len, results;
       items = _(items).isArray() ? items : [items];
-      _results = [];
-      for (_i = 0, _len = items.length; _i < _len; _i++) {
-        item = items[_i];
+      results = [];
+      for (i = 0, len = items.length; i < len; i++) {
+        item = items[i];
         if ((item != null) && "" !== item) {
           if (!this.contains(item)) {
-            _results.push(UniqItems.__super__.add.call(this, new Item(item, props)));
+            results.push(UniqItems.__super__.add.call(this, new Item(item, props)));
           } else {
-            _results.push(void 0);
+            results.push(void 0);
           }
         }
       }
-      return _results;
+      return results;
     };
 
     UniqItems.prototype.remove = function(items, opts) {
-      var item, _i, _len, _results;
+      var i, item, len, results;
       items = _(items).isArray() ? items : [items];
-      _results = [];
-      for (_i = 0, _len = items.length; _i < _len; _i++) {
-        item = items[_i];
+      results = [];
+      for (i = 0, len = items.length; i < len; i++) {
+        item = items[i];
         if (item instanceof Item) {
-          _results.push(UniqItems.__super__.remove.call(this, item, opts));
+          results.push(UniqItems.__super__.remove.call(this, item, opts));
         } else {
-          _results.push(UniqItems.__super__.remove.call(this, this.findWhere({
+          results.push(UniqItems.__super__.remove.call(this, this.findWhere({
             item: item
           }), opts));
         }
       }
-      return _results;
+      return results;
     };
 
     return UniqItems;
@@ -5226,16 +5226,16 @@
 
 }).call(this);
 
-},{"../core-model":2,"../core/collection":5,"backbone":235,"underscore":301}],63:[function(require,module,exports){
+},{"../core-model":2,"../core/collection":5,"backbone":235,"underscore":262}],63:[function(require,module,exports){
 (function() {
   var NestedModel, Options,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   NestedModel = require('./core/nested-model');
 
-  Options = (function(_super) {
-    __extends(Options, _super);
+  Options = (function(superClass) {
+    extend(Options, superClass);
 
     function Options() {
       return Options.__super__.constructor.apply(this, arguments);
@@ -5399,12 +5399,12 @@
   CACHE = {};
 
   getKey = function(query, path) {
-    return "" + query.service.root + ":" + query.service.token + ":" + (query.toXML()) + ":" + path;
+    return query.service.root + ":" + query.service.token + ":" + (query.toXML()) + ":" + path;
   };
 
   exports.getColumnSummary = function(query, path, term, limit) {
-    var _name;
-    return CACHE[_name = getKey(query, path, term, limit)] != null ? CACHE[_name] : CACHE[_name] = (function() {
+    var name;
+    return CACHE[name = getKey(query, path, term, limit)] != null ? CACHE[name] : CACHE[name] = (function() {
       return query.filterSummary(path, term, limit);
     })();
   };
@@ -5441,7 +5441,7 @@
 }).call(this);
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"backbone":235,"bootstrap":237,"jquery":267,"jquery-ui-bundle":266,"typeahead.js":300}],67:[function(require,module,exports){
+},{"backbone":235,"bootstrap":236,"jquery":256,"jquery-ui-bundle":255,"typeahead.js":261}],67:[function(require,module,exports){
 var _ = require('underscore');
 
 var TEMPLATES = exports;
@@ -5575,9 +5575,9 @@ exports.cell_preview_attribute = "<tr>\n  <td class=\"im-field-name\"><%- _.last
 exports.pagination = "<ul class=\"pagination\">\n    <li class=\"hidden-xs <%= gotoStart || 'im-goto-start' %>\" title=\"Go to start\">\n        <a class=\"im-pagination-button\">&#x21e4;</a>\n    </li>\n    <li class=\"hidden-xs hidden-sm <%= goFiveBack || 'im-go-back-5' %>\"\n        title=\"Go back five pages\"\n        class=\"visible-desktop\">\n        <a class=\"im-pagination-button\">&#x219e;</a>\n    </li>\n    <li class=\"<%= goOneBack || 'im-go-back-1' %>\"\n        title=\"Go to previous page\">\n        <a class=\"im-pagination-button\">&larr;</a>\n    </li>\n    <li class=\"im-current-page\">\n        <% if (useSelect) { %>\n          <form class=\"im-page-form form form-inline\">\n            <select class=\"form-control\">\n              <% for (i = 0; i < max; i++) { %>\n                <option\n                  <%= selected(i) ? 'selected' : void 0 %>\n                  value=\"<%= i * size %>\">\n                  page <%= i + 1 %>\n                </option>\n              <% } %>\n            </select>\n          </form>\n        <% } else { %>\n          <a href=\"#\">&hellip;</a>\n          <form class=\"im-page-form form form-inline\"\n                style=\"display:none;\">\n            <div class=\"control-group\">\n                <input type=\"number\"\n                       value=\"<%= currentPage %>\"\n                       max=\"<%= max %>\"\n                       min=\"<%= min %>\"\n                       class=\"form-control im-page-number\">\n            </div>\n          </form>\n        <% } %>\n    </li>\n    <li class=\"<%= goOneForward || 'im-go-fwd-1' %>\"\n        title=\"Go to next page\">\n        <a class=\"im-pagination-button\">&rarr;</a>\n    </li>\n    <li class=\"hidden-xs hidden-sm <%= goFiveForward || 'im-go-fwd-5' %>\"\n        title=\"Go forward five pages\"\n        class=\"visible-desktop\">\n        <a class=\"im-pagination-button\">&#x21a0;</a>\n    </li>\n    <li class=\"hidden-xs <%= gotoEnd || 'im-goto-end' %>\"\n        title=\"Go to last page\">\n        <a class=\"im-pagination-button\">&#x21e5;</a>\n    </li>\n</ul>\n";
 exports.column_manager_restore_path = "<% /* requires: restoreTitle */ %>\n<span class=\"pull-right im-restore-view\"\n    title=\"<%- Messages.getText(restoreTitle) %>\">\n    <%= Icons.icon('Add') %>\n</span>\n\n";
 
-},{"underscore":301}],68:[function(require,module,exports){
+},{"underscore":262}],68:[function(require,module,exports){
 (function() {
-  var Options, fs, pluralize, select_html, select_templ, _;
+  var Options, _, fs, pluralize, select_html, select_templ;
 
   
 
@@ -5628,7 +5628,7 @@ exports.column_manager_restore_path = "<% /* requires: restoreTitle */ %>\n<span
   };
 
   exports.numToString = function(number) {
-    var chars, every, frac, groups, i, len, rets, sep, whole, _ref;
+    var chars, every, frac, groups, i, len, ref, rets, sep, whole;
     if (!(number != null ? number.toFixed : void 0)) {
       return number;
     }
@@ -5639,7 +5639,7 @@ exports.column_manager_restore_path = "<% /* requires: restoreTitle */ %>\n<span
     if ((-1 < number && number < 1)) {
       return String(number);
     }
-    _ref = number.toFixed(3).split('.'), whole = _ref[0], frac = _ref[1];
+    ref = number.toFixed(3).split('.'), whole = ref[0], frac = ref[1];
     chars = whole.split("");
     len = chars.length;
     groups = _(chars).groupBy(function(c, i) {
@@ -5652,9 +5652,9 @@ exports.column_manager_restore_path = "<% /* requires: restoreTitle */ %>\n<span
     return rets.join(sep) + (frac === '000' ? '' : "." + frac);
   };
 
-  exports.errorAlert = function(_arg) {
+  exports.errorAlert = function(arg) {
     var level;
-    level = _arg.level;
+    level = arg.level;
     switch (level) {
       case 'Error':
         return 'alert-danger';
@@ -5669,15 +5669,15 @@ exports.column_manager_restore_path = "<% /* requires: restoreTitle */ %>\n<span
     }
   };
 
-  exports.errorIcon = function(_arg) {
+  exports.errorIcon = function(arg) {
     var level;
-    level = _arg.level;
+    level = arg.level;
     return level != null ? level : 'Error';
   };
 
 }).call(this);
 
-},{"../options":63,"pluralize":269,"underscore":301}],69:[function(require,module,exports){
+},{"../options":63,"pluralize":258,"underscore":262}],69:[function(require,module,exports){
 (function() {
   module.exports = {
     interpolate: /\{\{\{ (.+?) \}\}\}/g,
@@ -5698,8 +5698,8 @@ exports.column_manager_restore_path = "<% /* requires: restoreTitle */ %>\n<span
   instances = {};
 
   getInstance = function(service) {
-    var _name;
-    return instances[_name = service.root] != null ? instances[_name] : instances[_name] = new Branding(service);
+    var name;
+    return instances[name = service.root] != null ? instances[name] : instances[name] = new Branding(service);
   };
 
   module.exports = function(service) {
@@ -5734,10 +5734,10 @@ exports.column_manager_restore_path = "<% /* requires: restoreTitle */ %>\n<span
 
 }).call(this);
 
-},{"../options":63,"es6-promise":244}],71:[function(require,module,exports){
+},{"../options":63,"es6-promise":238}],71:[function(require,module,exports){
 (function() {
   var Formatting, createColumns, getReplacedTest, index, isKeyField, notBanned, returnIfOK,
-    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+    indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   createColumns = require('./create-columns');
 
@@ -5768,71 +5768,71 @@ exports.column_manager_restore_path = "<% /* requires: restoreTitle */ %>\n<span
   };
 
   index = function(xs) {
-    var i, x, _i, _len, _results;
-    _results = [];
-    for (i = _i = 0, _len = xs.length; _i < _len; i = ++_i) {
+    var i, j, len, results, x;
+    results = [];
+    for (i = j = 0, len = xs.length; j < len; i = ++j) {
       x = xs[i];
-      _results.push(x.index = i);
+      results.push(x.index = i);
     }
-    return _results;
+    return results;
   };
 
   module.exports = function(query, banList) {
     return query.service.fetchClassKeys().then(function(classKeys) {
-      var col, cols, explicitReplacements, fmtr, getFormatter, isReplaced, keyField, newHeaders, parent, replaced, replacedBy, subPath, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref, _ref1, _ref2;
+      var col, cols, explicitReplacements, fmtr, getFormatter, isReplaced, j, k, keyField, l, len, len1, len2, len3, m, newHeaders, parent, ref, ref1, ref2, replaced, replacedBy, subPath;
       keyField = isKeyField(classKeys);
       replacedBy = {};
       explicitReplacements = {};
       getFormatter = returnIfOK(Formatting.getFormatter, notBanned(banList));
       cols = createColumns(query);
-      for (_i = 0, _len = cols.length; _i < _len; _i++) {
-        col = cols[_i];
+      for (j = 0, len = cols.length; j < len; j++) {
+        col = cols[j];
         if (!(col.path.isAttribute() && (fmtr = getFormatter(col.path)))) {
           continue;
         }
         col.isFormatted = true;
         col.formatter = fmtr;
         parent = col.path.getParent();
-        _ref1 = (_ref = fmtr.replaces) != null ? _ref : [];
-        for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-          replaced = _ref1[_j];
-          subPath = "" + parent + "." + replaced;
+        ref1 = (ref = fmtr.replaces) != null ? ref : [];
+        for (k = 0, len1 = ref1.length; k < len1; k++) {
+          replaced = ref1[k];
+          subPath = parent + "." + replaced;
           if (replacedBy[subPath] == null) {
             replacedBy[subPath] = col;
           }
-          if (__indexOf.call(query.views, subPath) >= 0) {
+          if (indexOf.call(query.views, subPath) >= 0) {
             col.replaces.push(query.makePath(subPath));
           }
         }
       }
-      for (_k = 0, _len2 = cols.length; _k < _len2; _k++) {
-        col = cols[_k];
-        _ref2 = col.replaces;
-        for (_l = 0, _len3 = _ref2.length; _l < _len3; _l++) {
-          replaced = _ref2[_l];
+      for (l = 0, len2 = cols.length; l < len2; l++) {
+        col = cols[l];
+        ref2 = col.replaces;
+        for (m = 0, len3 = ref2.length; m < len3; m++) {
+          replaced = ref2[m];
           explicitReplacements[replaced] = col;
         }
       }
       isReplaced = getReplacedTest(replacedBy, explicitReplacements);
       newHeaders = (function() {
-        var _len4, _m, _ref3, _results;
-        _results = [];
-        for (_m = 0, _len4 = cols.length; _m < _len4; _m++) {
-          col = cols[_m];
+        var len4, n, ref3, results;
+        results = [];
+        for (n = 0, len4 = cols.length; n < len4; n++) {
+          col = cols[n];
           if (!(!isReplaced(col))) {
             continue;
           }
           if (col.isFormatted) {
-            if (_ref3 = col.path, __indexOf.call(col.replaces, _ref3) < 0) {
+            if (ref3 = col.path, indexOf.call(col.replaces, ref3) < 0) {
               col.replaces.push(col.path);
             }
             if ((keyField(col.path)) || (col.replaces.length > 1)) {
               col.path = col.path.getParent();
             }
           }
-          _results.push(col);
+          results.push(col);
         }
-        return _results;
+        return results;
       })();
       index(newHeaders);
       return newHeaders;
@@ -5844,11 +5844,11 @@ exports.column_manager_restore_path = "<% /* requires: restoreTitle */ %>\n<span
 },{"../formatting":13,"./create-columns":78,"./get-replaced-test":85,"./is-key-field":89}],72:[function(require,module,exports){
 (function() {
   module.exports = function(cells, headers) {
-    var added, c, col, hi, n, p, parent, rp, skipped, _i, _j, _len, _len1, _ref, _ref1;
+    var added, c, col, hi, i, j, len, len1, n, p, parent, ref, ref1, rp, skipped;
     skipped = {};
-    for (_i = 0, _len = cells.length; _i < _len; _i++) {
-      c = cells[_i];
-      if (!(((_ref = c.formatter) != null ? _ref.replaces : void 0) != null)) {
+    for (i = 0, len = cells.length; i < len; i++) {
+      c = cells[i];
+      if (!(((ref = c.formatter) != null ? ref.replaces : void 0) != null)) {
         continue;
       }
       n = c.model.get('node').toString();
@@ -5868,11 +5868,11 @@ exports.column_manager_restore_path = "<% /* requires: restoreTitle */ %>\n<span
         });
       }
       if (!skipped[p]) {
-        _ref1 = c.formatter.replaces.map(function(r) {
+        ref1 = c.formatter.replaces.map(function(r) {
           return n + '.' + r;
         });
-        for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-          rp = _ref1[_j];
+        for (j = 0, len1 = ref1.length; j < len1; j++) {
+          rp = ref1[j];
           if (!(rp !== p)) {
             continue;
           }
@@ -5891,7 +5891,7 @@ exports.column_manager_restore_path = "<% /* requires: restoreTitle */ %>\n<span
 },{}],73:[function(require,module,exports){
 (function() {
   var calculateRowTemplate, getOJCBelow, getTopLevelOJC,
-    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+    indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   getOJCBelow = function(query, p, below) {
     var highest, oj, path;
@@ -5922,12 +5922,12 @@ exports.column_manager_restore_path = "<% /* requires: restoreTitle */ %>\n<span
   };
 
   module.exports = calculateRowTemplate = function(query) {
-    var coevals, cv, group, handled, lower, oj, row, v, _i, _j, _len, _len1, _ref;
+    var coevals, cv, group, handled, i, j, len, len1, lower, oj, ref, row, v;
     row = [];
     handled = {};
-    _ref = query.views;
-    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-      v = _ref[_i];
+    ref = query.views;
+    for (i = 0, len = ref.length; i < len; i++) {
+      v = ref[i];
       if (!(!handled[v])) {
         continue;
       }
@@ -5940,12 +5940,12 @@ exports.column_manager_restore_path = "<% /* requires: restoreTitle */ %>\n<span
           column: oj,
           view: []
         };
-        for (_j = 0, _len1 = coevals.length; _j < _len1; _j++) {
-          cv = coevals[_j];
+        for (j = 0, len1 = coevals.length; j < len1; j++) {
+          cv = coevals[j];
           lower = getOJCBelow(query, cv, oj);
           handled[cv] = group;
           if (lower) {
-            if (!(__indexOf.call(group.view, lower) >= 0)) {
+            if (!(indexOf.call(group.view, lower) >= 0)) {
               group.view.push(lower);
             }
           } else {
@@ -6017,16 +6017,16 @@ exports.column_manager_restore_path = "<% /* requires: restoreTitle */ %>\n<span
         node: column,
         column: column,
         rows: (function() {
-          var _i, _len, _ref, _results;
-          _ref = nestedTable.rows;
-          _results = [];
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            r = _ref[_i];
-            _results.push(r.map(function(subcell) {
+          var i, len, ref, results;
+          ref = nestedTable.rows;
+          results = [];
+          for (i = 0, len = ref.length; i < len; i++) {
+            r = ref[i];
+            results.push(r.map(function(subcell) {
               return createModel(subcell);
             }));
           }
-          return _results;
+          return results;
         })()
       }));
     };
@@ -6046,9 +6046,9 @@ exports.column_manager_restore_path = "<% /* requires: restoreTitle */ %>\n<span
     };
 
     CellModelFactory.prototype.destroy = function() {
-      var _ref;
-      if ((_ref = this.itemModels) != null) {
-        _ref.destroy();
+      var ref;
+      if ((ref = this.itemModels) != null) {
+        ref.destroy();
       }
       delete this.itemModels;
       return this;
@@ -6060,37 +6060,37 @@ exports.column_manager_restore_path = "<% /* requires: restoreTitle */ %>\n<span
 
 }).call(this);
 
-},{"../models/cell":37,"../models/fast-path-object":43,"../models/nested-table":48,"../models/null-object":49,"../models/object-store":51,"underscore":301}],76:[function(require,module,exports){
+},{"../models/cell":37,"../models/fast-path-object":43,"../models/nested-table":48,"../models/null-object":49,"../models/object-store":51,"underscore":262}],76:[function(require,module,exports){
 (function() {
   var _;
 
   _ = require('underscore');
 
   exports.createChild = function(parent, Child, args) {
-    var params, props, _ref;
+    var params, props, ref;
     if (args == null) {
       args = {};
     }
-    params = ((_ref = Child.prototype.parameters) != null ? _ref : []).concat(Child.prototype.optionalParameters);
+    params = ((ref = Child.prototype.parameters) != null ? ref : []).concat(Child.prototype.optionalParameters);
     props = _.extend(_.pick(parent, params), args);
     return new Child(props);
   };
 
 }).call(this);
 
-},{"underscore":301}],77:[function(require,module,exports){
+},{"underscore":262}],77:[function(require,module,exports){
 (function() {
   var CACHE, key;
 
   CACHE = {};
 
   key = function(q) {
-    return "" + q.service.root + ":" + q.service.token + ":" + (q.toXML());
+    return q.service.root + ":" + q.service.token + ":" + (q.toXML());
   };
 
   exports.count = function(q) {
-    var _name;
-    return CACHE[_name = key(q)] != null ? CACHE[_name] : CACHE[_name] = q.count();
+    var name;
+    return CACHE[name = key(q)] != null ? CACHE[name] : CACHE[name] = q.count();
   };
 
   exports.clearCache = function() {
@@ -6114,26 +6114,26 @@ exports.column_manager_restore_path = "<% /* requires: restoreTitle */ %>\n<span
         commonPrefix = longestCommonPrefix(cell.view);
         path = query.makePath(commonPrefix);
         subview = (function() {
-          var _i, _len, _ref, _results;
-          _ref = cell.view;
-          _results = [];
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            v = _ref[_i];
-            _results.push(query.makePath(v));
+          var i, len, ref, results;
+          ref = cell.view;
+          results = [];
+          for (i = 0, len = ref.length; i < len; i++) {
+            v = ref[i];
+            results.push(query.makePath(v));
           }
-          return _results;
+          return results;
         })();
         replaces = (function() {
-          var _i, _len, _ref, _results;
-          _ref = query.views;
-          _results = [];
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            v = _ref[_i];
+          var i, len, ref, results;
+          ref = query.views;
+          results = [];
+          for (i = 0, len = ref.length; i < len; i++) {
+            v = ref[i];
             if (0 === v.indexOf(commonPrefix)) {
-              _results.push(query.makePath(v));
+              results.push(query.makePath(v));
             }
           }
-          return _results;
+          return results;
         })();
       } else {
         path = query.makePath(cell.column);
@@ -6162,14 +6162,14 @@ exports.column_manager_restore_path = "<% /* requires: restoreTitle */ %>\n<span
     }
 
     ClassSet.prototype.activeClasses = function() {
-      var cssClass, _results;
-      _results = [];
+      var cssClass, results;
+      results = [];
       for (cssClass in this.definitions) {
         if (_.result(this.definitions, cssClass)) {
-          _results.push(cssClass);
+          results.push(cssClass);
         }
       }
-      return _results;
+      return results;
     };
 
     ClassSet.prototype.toString = function() {
@@ -6182,7 +6182,7 @@ exports.column_manager_restore_path = "<% /* requires: restoreTitle */ %>\n<span
 
 }).call(this);
 
-},{"underscore":301}],80:[function(require,module,exports){
+},{"underscore":262}],80:[function(require,module,exports){
 (function() {
   var getMissingData, hasData, thenSet;
 
@@ -6244,9 +6244,9 @@ exports.column_manager_restore_path = "<% /* requires: restoreTitle */ %>\n<span
 
 }).call(this);
 
-},{"backbone":235,"underscore":301}],82:[function(require,module,exports){
+},{"backbone":235,"underscore":262}],82:[function(require,module,exports){
 (function() {
-  var buildProps, refs, refsIn, _;
+  var _, buildProps, refs, refsIn;
 
   _ = require('underscore');
 
@@ -6263,26 +6263,26 @@ exports.column_manager_restore_path = "<% /* requires: restoreTitle */ %>\n<span
   refs = function(fs) {
     var f;
     return _.flatten((function() {
-      var _i, _len, _results;
-      _results = [];
-      for (_i = 0, _len = fs.length; _i < _len; _i++) {
-        f = fs[_i];
+      var j, len, results;
+      results = [];
+      for (j = 0, len = fs.length; j < len; j++) {
+        f = fs[j];
         if (~f.indexOf('.')) {
-          _results.push(refsIn(f));
+          results.push(refsIn(f));
         }
       }
-      return _results;
+      return results;
     })());
   };
 
   refsIn = function(f) {
-    var i, parts, _i, _ref, _results;
+    var i, j, parts, ref, results;
     parts = f.split('.');
-    _results = [];
-    for (i = _i = 1, _ref = parts.length; 1 <= _ref ? _i < _ref : _i > _ref; i = 1 <= _ref ? ++_i : --_i) {
-      _results.push(parts.slice(0, i).join('.'));
+    results = [];
+    for (i = j = 1, ref = parts.length; 1 <= ref ? j < ref : j > ref; i = 1 <= ref ? ++j : --j) {
+      results.push(parts.slice(0, i).join('.'));
     }
-    return _results;
+    return results;
   };
 
   module.exports = function(type, fields, cache) {
@@ -6307,45 +6307,45 @@ exports.column_manager_restore_path = "<% /* requires: restoreTitle */ %>\n<span
 
 }).call(this);
 
-},{"underscore":301}],83:[function(require,module,exports){
+},{"underscore":262}],83:[function(require,module,exports){
 (function() {
   var getLeaves,
-    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+    indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   module.exports = getLeaves = function(o, exceptList) {
     var attrs, leaf, name, refs, v, values;
     values = (function() {
-      var _results;
-      _results = [];
+      var results;
+      results = [];
       for (name in o) {
         leaf = o[name];
-        if ((leaf != null) && __indexOf.call(exceptList, name) < 0) {
-          _results.push(leaf);
+        if ((leaf != null) && indexOf.call(exceptList, name) < 0) {
+          results.push(leaf);
         }
       }
-      return _results;
+      return results;
     })();
     attrs = (function() {
-      var _i, _len, _results;
-      _results = [];
-      for (_i = 0, _len = values.length; _i < _len; _i++) {
-        v = values[_i];
+      var i, len, results;
+      results = [];
+      for (i = 0, len = values.length; i < len; i++) {
+        v = values[i];
         if (v.objectId == null) {
-          _results.push(v);
+          results.push(v);
         }
       }
-      return _results;
+      return results;
     })();
     refs = (function() {
-      var _i, _len, _results;
-      _results = [];
-      for (_i = 0, _len = values.length; _i < _len; _i++) {
-        v = values[_i];
+      var i, len, results;
+      results = [];
+      for (i = 0, len = values.length; i < len; i++) {
+        v = values[i];
         if (v.objectId != null) {
-          _results.push(v);
+          results.push(v);
         }
       }
-      return _results;
+      return results;
     })();
     return refs.reduce((function(ls, ref) {
       return ls.concat(getLeaves(ref, exceptList));
@@ -6356,8 +6356,8 @@ exports.column_manager_restore_path = "<% /* requires: restoreTitle */ %>\n<span
 
 },{}],84:[function(require,module,exports){
 (function() {
-  var EQL, Promise, getOrganisms, hasAnOrganism, nameOrShortName, organisable, uniquelyFlat, wild, _,
-    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+  var EQL, Promise, _, getOrganisms, hasAnOrganism, nameOrShortName, organisable, uniquelyFlat, wild,
+    indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   _ = require('underscore');
 
@@ -6366,8 +6366,8 @@ exports.column_manager_restore_path = "<% /* requires: restoreTitle */ %>\n<span
   uniquelyFlat = _.compose(_.uniq, _.flatten);
 
   hasAnOrganism = function(path) {
-    var _ref;
-    return ((_ref = path.getType().fields) != null ? _ref.organism : void 0) != null;
+    var ref;
+    return ((ref = path.getType().fields) != null ? ref.organism : void 0) != null;
   };
 
   organisable = function(path) {
@@ -6375,8 +6375,8 @@ exports.column_manager_restore_path = "<% /* requires: restoreTitle */ %>\n<span
   };
 
   nameOrShortName = function(path) {
-    var _ref;
-    return (path.getEndClass().name === 'Organism') && ((_ref = path.end.name) === 'name' || _ref === 'shortName');
+    var ref;
+    return (path.getEndClass().name === 'Organism') && ((ref = path.end.name) === 'name' || ref === 'shortName');
   };
 
   wild = function(value) {
@@ -6393,46 +6393,46 @@ exports.column_manager_restore_path = "<% /* requires: restoreTitle */ %>\n<span
         return resolve([]);
       };
       directly = (function() {
-        var _i, _len, _ref, _ref1, _results;
-        _ref = query.constraints;
-        _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          c = _ref[_i];
-          if ((_ref1 = c.op, __indexOf.call(EQL, _ref1) >= 0) && (!wild(c.value)) && (nameOrShortName(query.makePath(c.path)))) {
-            _results.push(c.value || c.values);
+        var i, len, ref, ref1, results;
+        ref = query.constraints;
+        results = [];
+        for (i = 0, len = ref.length; i < len; i++) {
+          c = ref[i];
+          if ((ref1 = c.op, indexOf.call(EQL, ref1) >= 0) && (!wild(c.value)) && (nameOrShortName(query.makePath(c.path)))) {
+            results.push(c.value || c.values);
           }
         }
-        return _results;
+        return results;
       })();
       onLookups = (function() {
-        var _i, _len, _ref, _results;
-        _ref = query.constraints;
-        _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          c = _ref[_i];
+        var i, len, ref, results;
+        ref = query.constraints;
+        results = [];
+        for (i = 0, len = ref.length; i < len; i++) {
+          c = ref[i];
           if ((c.op === 'LOOKUP') && (c.extraValue != null) && (hasAnOrganism(query.makePath(c.path)))) {
-            _results.push(c.extraValue);
+            results.push(c.extraValue);
           }
         }
-        return _results;
+        return results;
       })();
       mustBe = _.union(directly, onLookups);
       if (mustBe.length) {
         return done(mustBe);
       } else {
         newView = (function() {
-          var _i, _len, _ref, _results;
-          _ref = query.getViewNodes();
-          _results = [];
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            n = _ref[_i];
+          var i, len, ref, results;
+          ref = query.getViewNodes();
+          results = [];
+          for (i = 0, len = ref.length; i < len; i++) {
+            n = ref[i];
             if (!(organisable(n))) {
               continue;
             }
             opath = n.getType().name === 'Organism' ? n : n.append('organism');
-            _results.push(opath.append('shortName'));
+            results.push(opath.append('shortName'));
           }
-          return _results;
+          return results;
         })();
         if (newView.length) {
           return query.clone().select(_.uniq(newView, String)).orderBy([]).rows().then(done, nothing);
@@ -6445,7 +6445,7 @@ exports.column_manager_restore_path = "<% /* requires: restoreTitle */ %>\n<span
 
 }).call(this);
 
-},{"es6-promise":244,"underscore":301}],85:[function(require,module,exports){
+},{"es6-promise":238,"underscore":262}],85:[function(require,module,exports){
 (function() {
   var getReplacedTest, isIDPath, shouldFormat;
 
@@ -6485,24 +6485,24 @@ exports.column_manager_restore_path = "<% /* requires: restoreTitle */ %>\n<span
 
   module.exports = getResultClass = function(query) {
     return new Promise(function(resolve, reject) {
-      var commonType, model, node, viewNodes, _ref;
+      var commonType, model, node, ref, viewNodes;
       viewNodes = query.getViewNodes();
       model = query.model;
       return resolve((commonType = model.findCommonType((function() {
-        var _i, _len, _results;
-        _results = [];
-        for (_i = 0, _len = viewNodes.length; _i < _len; _i++) {
-          node = viewNodes[_i];
-          _results.push(node.getType());
+        var i, len, results;
+        results = [];
+        for (i = 0, len = viewNodes.length; i < len; i++) {
+          node = viewNodes[i];
+          results.push(node.getType());
         }
-        return _results;
-      })())) ? model.getPathInfo(commonType).getDisplayName() : (_ref = model.name) != null ? _ref : '');
+        return results;
+      })())) ? model.getPathInfo(commonType).getDisplayName() : (ref = model.name) != null ? ref : '');
     });
   };
 
 }).call(this);
 
-},{"es6-promise":244}],87:[function(require,module,exports){
+},{"es6-promise":238}],87:[function(require,module,exports){
 (function() {
   module.exports = function(fields) {
     if (fields == null) {
@@ -6522,12 +6522,12 @@ exports.column_manager_restore_path = "<% /* requires: restoreTitle */ %>\n<span
   var indent;
 
   module.exports = indent = function(xml) {
-    var buffer, indentLevel, isClosing, isOneLiner, isOpening, line, lines, _i, _len;
+    var buffer, i, indentLevel, isClosing, isOneLiner, isOpening, len, line, lines;
     lines = xml.split(/></);
     indentLevel = 1;
     buffer = [];
-    for (_i = 0, _len = lines.length; _i < _len; _i++) {
-      line = lines[_i];
+    for (i = 0, len = lines.length; i < len; i++) {
+      line = lines[i];
       if (!/>$/.test(line)) {
         line = line + '>';
       }
@@ -6553,18 +6553,18 @@ exports.column_manager_restore_path = "<% /* requires: restoreTitle */ %>\n<span
 },{}],89:[function(require,module,exports){
 (function() {
   var isKeyField,
-    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+    indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   module.exports = isKeyField = function(classKeys) {
     return function(path) {
-      var fieldName, keys, type, _ref, _ref1;
+      var fieldName, keys, ref, ref1, type;
       if (!path.isAttribute()) {
         return false;
       }
       type = path.getParent().getType().name;
       fieldName = path.end.name;
-      keys = (_ref = classKeys != null ? classKeys[type] : void 0) != null ? _ref : [];
-      return _ref1 = "" + type + "." + fieldName, __indexOf.call(keys, _ref1) >= 0;
+      keys = (ref = classKeys != null ? classKeys[type] : void 0) != null ? ref : [];
+      return ref1 = type + "." + fieldName, indexOf.call(keys, ref1) >= 0;
     };
   };
 
@@ -6598,10 +6598,10 @@ exports.column_manager_restore_path = "<% /* requires: restoreTitle */ %>\n<span
 }).call(this);
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../options":63,"es6-promise":244,"jquery":267}],91:[function(require,module,exports){
+},{"../options":63,"es6-promise":238,"jquery":256}],91:[function(require,module,exports){
 (function() {
-  var longestCommonPrefix, prefixesAll, _,
-    __slice = [].slice;
+  var _, longestCommonPrefix, prefixesAll,
+    slice = [].slice;
 
   _ = require('underscore');
 
@@ -6613,9 +6613,9 @@ exports.column_manager_restore_path = "<% /* requires: restoreTitle */ %>\n<span
     };
   };
 
-  module.exports = longestCommonPrefix = function(_arg) {
-    var head, nextPrefix, part, parts, prefix, tail, test, _i, _len;
-    head = _arg[0], tail = 2 <= _arg.length ? __slice.call(_arg, 1) : [];
+  module.exports = longestCommonPrefix = function(arg) {
+    var head, i, len, nextPrefix, part, parts, prefix, tail, test;
+    head = arg[0], tail = 2 <= arg.length ? slice.call(arg, 1) : [];
     if (head == null) {
       throw new Error('Empty list');
     }
@@ -6625,9 +6625,9 @@ exports.column_manager_restore_path = "<% /* requires: restoreTitle */ %>\n<span
     parts = head.split(/\./);
     test = prefixesAll(tail);
     prefix = parts[0];
-    for (_i = 0, _len = parts.length; _i < _len; _i++) {
-      part = parts[_i];
-      if (test(nextPrefix = "" + prefix + "." + part)) {
+    for (i = 0, len = parts.length; i < len; i++) {
+      part = parts[i];
+      if (test(nextPrefix = prefix + "." + part)) {
         prefix = nextPrefix;
       }
     }
@@ -6636,15 +6636,15 @@ exports.column_manager_restore_path = "<% /* requires: restoreTitle */ %>\n<span
 
 }).call(this);
 
-},{"underscore":301}],92:[function(require,module,exports){
+},{"underscore":262}],92:[function(require,module,exports){
 (function() {
   exports.href = function(address, subject, body) {
     var pairs, params;
     pairs = [['subject', subject], ['body', body]];
-    params = pairs.map(function(_arg) {
+    params = pairs.map(function(arg) {
       var k, v;
-      k = _arg[0], v = _arg[1];
-      return "" + k + "=" + (encodeURIComponent(v));
+      k = arg[0], v = arg[1];
+      return k + "=" + (encodeURIComponent(v));
     }).join('&');
     return address + '?' + params;
   };
@@ -6693,26 +6693,26 @@ exports.column_manager_restore_path = "<% /* requires: restoreTitle */ %>\n<span
 
 },{}],95:[function(require,module,exports){
 (function() {
-  var pairsToParams, _;
+  var _, pairsToParams;
 
   _ = require('underscore');
 
   pairsToParams = function(pairs) {
     var p;
     return _.object((function() {
-      var _i, _len, _results;
-      _results = [];
-      for (_i = 0, _len = pairs.length; _i < _len; _i++) {
-        p = pairs[_i];
-        _results.push(p.split('=').map(decodeURIComponent));
+      var i, len, results;
+      results = [];
+      for (i = 0, len = pairs.length; i < len; i++) {
+        p = pairs[i];
+        results.push(p.split('=').map(decodeURIComponent));
       }
-      return _results;
+      return results;
     })());
   };
 
   module.exports = function(url) {
-    var URL, pairs, params, qs, _ref;
-    _ref = url.split('?'), URL = _ref[0], qs = _ref[1];
+    var URL, pairs, params, qs, ref;
+    ref = url.split('?'), URL = ref[0], qs = ref[1];
     pairs = qs.split('&');
     params = pairsToParams(pairs);
     return {
@@ -6723,9 +6723,9 @@ exports.column_manager_restore_path = "<% /* requires: restoreTitle */ %>\n<span
 
 }).call(this);
 
-},{"underscore":301}],96:[function(require,module,exports){
+},{"underscore":262}],96:[function(require,module,exports){
 (function() {
-  var contains_i, _;
+  var _, contains_i;
 
   _ = require('underscore');
 
@@ -6735,11 +6735,11 @@ exports.column_manager_restore_path = "<% /* requires: restoreTitle */ %>\n<span
 
   module.exports = function(suggestions) {
     return function(term, cb) {
-      var matches, parts, s, _ref, _ref1;
-      parts = (_ref = term != null ? (_ref1 = term.toLowerCase()) != null ? _ref1.split(' ') : void 0 : void 0) != null ? _ref : [];
-      matches = function(_arg) {
+      var matches, parts, ref, ref1, s;
+      parts = (ref = term != null ? (ref1 = term.toLowerCase()) != null ? ref1.split(' ') : void 0 : void 0) != null ? ref : [];
+      matches = function(arg) {
         var item, name, path;
-        path = _arg.path, item = _arg.item, name = _arg.name;
+        path = arg.path, item = arg.item, name = arg.name;
         return _.all(parts, function(p) {
           if (path == null) {
             path = item;
@@ -6753,15 +6753,15 @@ exports.column_manager_restore_path = "<% /* requires: restoreTitle */ %>\n<span
         }).filter(matches));
       } else {
         return cb((function() {
-          var _i, _len, _results;
-          _results = [];
-          for (_i = 0, _len = suggestions.length; _i < _len; _i++) {
-            s = suggestions[_i];
+          var i, len, results;
+          results = [];
+          for (i = 0, len = suggestions.length; i < len; i++) {
+            s = suggestions[i];
             if (matches(s)) {
-              _results.push(s);
+              results.push(s);
             }
           }
-          return _results;
+          return results;
         })());
       }
     };
@@ -6769,9 +6769,9 @@ exports.column_manager_restore_path = "<% /* requires: restoreTitle */ %>\n<span
 
 }).call(this);
 
-},{"underscore":301}],97:[function(require,module,exports){
+},{"underscore":262}],97:[function(require,module,exports){
 (function() {
-  var CACHE, Promise, getPathSuggestions, matchPathsToNames, _;
+  var CACHE, Promise, _, getPathSuggestions, matchPathsToNames;
 
   _ = require('underscore');
 
@@ -6781,55 +6781,55 @@ exports.column_manager_restore_path = "<% /* requires: restoreTitle */ %>\n<span
 
   matchPathsToNames = function(paths) {
     return function(names) {
-      var name, path, _i, _len, _ref, _ref1, _results;
-      _ref = _.zip(paths, names);
-      _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        _ref1 = _ref[_i], path = _ref1[0], name = _ref1[1];
-        _results.push({
+      var i, len, name, path, ref, ref1, results;
+      ref = _.zip(paths, names);
+      results = [];
+      for (i = 0, len = ref.length; i < len; i++) {
+        ref1 = ref[i], path = ref1[0], name = ref1[1];
+        results.push({
           path: path,
           name: name
         });
       }
-      return _results;
+      return results;
     };
   };
 
   module.exports = getPathSuggestions = function(query, depth) {
     var key, namings, p, paths;
-    key = "" + query.service.root + ":" + query.root + ":" + depth;
+    key = query.service.root + ":" + query.root + ":" + depth;
     if (key in CACHE) {
       return CACHE[key];
     }
     paths = (function() {
-      var _i, _len, _ref, _results;
-      _ref = query.getPossiblePaths(depth);
-      _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        p = _ref[_i];
-        _results.push(query.makePath(p));
+      var i, len, ref, results;
+      ref = query.getPossiblePaths(depth);
+      results = [];
+      for (i = 0, len = ref.length; i < len; i++) {
+        p = ref[i];
+        results.push(query.makePath(p));
       }
-      return _results;
+      return results;
     })();
     paths = paths.filter(function(p) {
-      var _ref;
-      return !(((_ref = p.end) != null ? _ref.name : void 0) === 'id');
+      var ref;
+      return !(((ref = p.end) != null ? ref.name : void 0) === 'id');
     });
     namings = (function() {
-      var _i, _len, _results;
-      _results = [];
-      for (_i = 0, _len = paths.length; _i < _len; _i++) {
-        p = paths[_i];
-        _results.push(p.getDisplayName());
+      var i, len, results;
+      results = [];
+      for (i = 0, len = paths.length; i < len; i++) {
+        p = paths[i];
+        results.push(p.getDisplayName());
       }
-      return _results;
+      return results;
     })();
     return CACHE[key] != null ? CACHE[key] : CACHE[key] = Promise.all(namings).then(matchPathsToNames(paths));
   };
 
 }).call(this);
 
-},{"es6-promise":244,"underscore":301}],98:[function(require,module,exports){
+},{"es6-promise":238,"underscore":262}],98:[function(require,module,exports){
 (function() {
   var PopoverFactory, PreviewCachingService;
 
@@ -6846,13 +6846,13 @@ exports.column_manager_restore_path = "<% /* requires: restoreTitle */ %>\n<span
     };
 
     PreviewCachingService.prototype.findById = function(type, id, flds) {
-      var _base, _name;
-      return (_base = this._foundById)[_name = "" + type + ":" + id + ":" + flds] != null ? _base[_name] : _base[_name] = this.wrapped.findById(type, id, flds);
+      var base, name;
+      return (base = this._foundById)[name = type + ":" + id + ":" + flds] != null ? base[name] : base[name] = this.wrapped.findById(type, id, flds);
     };
 
     PreviewCachingService.prototype.count = function(query) {
-      var _base, _name;
-      return (_base = this._counts)[_name = JSON.stringify(query)] != null ? _base[_name] : _base[_name] = this.wrapped.count(query);
+      var base, name;
+      return (base = this._counts)[name = JSON.stringify(query)] != null ? base[name] : base[name] = this.wrapped.count(query);
     };
 
     PreviewCachingService.prototype.destroy = function() {
@@ -6866,8 +6866,8 @@ exports.column_manager_restore_path = "<% /* requires: restoreTitle */ %>\n<span
   })();
 
   module.exports = PopoverFactory = (function() {
-    function PopoverFactory(service, Preview) {
-      this.Preview = Preview;
+    function PopoverFactory(service, Preview1) {
+      this.Preview = Preview1;
       this.service = new PreviewCachingService(service);
     }
 
@@ -6901,13 +6901,13 @@ exports.column_manager_restore_path = "<% /* requires: restoreTitle */ %>\n<span
   exports.fromPairs = function(pairs) {
     var p;
     return ((function() {
-      var _i, _len, _results;
-      _results = [];
-      for (_i = 0, _len = pairs.length; _i < _len; _i++) {
-        p = pairs[_i];
-        _results.push(p.map(encodeURIComponent).join('='));
+      var i, len, results;
+      results = [];
+      for (i = 0, len = pairs.length; i < len; i++) {
+        p = pairs[i];
+        results.push(p.map(encodeURIComponent).join('='));
       }
-      return _results;
+      return results;
     })()).join('&');
   };
 
@@ -6951,9 +6951,9 @@ exports.column_manager_restore_path = "<% /* requires: restoreTitle */ %>\n<span
 
 }).call(this);
 
-},{"../options":63,"./load-resource":90,"es6-promise":244,"jquery":267}],101:[function(require,module,exports){
+},{"../options":63,"./load-resource":90,"es6-promise":238,"jquery":256}],101:[function(require,module,exports){
 (function() {
-  var Messages, Options, Promise, getBranding, getOrganisms, getParameters, getResultClass, openWindowWithPost, parseUrl, send, _;
+  var Messages, Options, Promise, _, getBranding, getOrganisms, getParameters, getResultClass, openWindowWithPost, parseUrl, send;
 
   _ = require('underscore');
 
@@ -6974,9 +6974,9 @@ exports.column_manager_restore_path = "<% /* requires: restoreTitle */ %>\n<span
   parseUrl = require('./parse-url');
 
   module.exports = send = function(url, filename, onProgress) {
-    var Galaxy, gettingBranding, gettingOrganisms, gettingResultClass, uri, _ref;
+    var Galaxy, gettingBranding, gettingOrganisms, gettingResultClass, ref, uri;
     Galaxy = Options.get('Destination.Galaxy');
-    uri = (_ref = Galaxy.Current) != null ? _ref : Galaxy.Main;
+    uri = (ref = Galaxy.Current) != null ? ref : Galaxy.Main;
     if (!/tool_runner$/.test(uri)) {
       uri += '/tool_runner';
     }
@@ -6987,21 +6987,21 @@ exports.column_manager_restore_path = "<% /* requires: restoreTitle */ %>\n<span
   };
 
   getParameters = function(url, query, ext) {
-    return function(_arg) {
-      var URL, branding, c, cls, currentLocation, data_type, info, lists, name, organism, orgs, params, tool_id, _ref;
-      cls = _arg[0], orgs = _arg[1], branding = _arg[2];
-      _ref = parseUrl(url), URL = _ref.URL, params = _ref.params;
+    return function(arg) {
+      var URL, branding, c, cls, currentLocation, data_type, info, lists, name, organism, orgs, params, ref, tool_id;
+      cls = arg[0], orgs = arg[1], branding = arg[2];
+      ref = parseUrl(url), URL = ref.URL, params = ref.params;
       lists = (function() {
-        var _i, _len, _ref1, _results;
-        _ref1 = query.constraints;
-        _results = [];
-        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-          c = _ref1[_i];
+        var i, len, ref1, results;
+        ref1 = query.constraints;
+        results = [];
+        for (i = 0, len = ref1.length; i < len; i++) {
+          c = ref1[i];
           if (c.op === 'IN') {
-            _results.push(c.value);
+            results.push(c.value);
           }
         }
-        return _results;
+        return results;
       })();
       data_type = ext === 'tsv' ? 'tabular' : ext;
       currentLocation = window.location.toString().replace(/\?.*$/, '');
@@ -7048,9 +7048,9 @@ exports.column_manager_restore_path = "<% /* requires: restoreTitle */ %>\n<span
 
 }).call(this);
 
-},{"../messages":16,"../options":63,"./branding":70,"./get-organisms":84,"./get-result-class":86,"./open-window-with-post":94,"./parse-url":95,"es6-promise":244,"underscore":301}],102:[function(require,module,exports){
+},{"../messages":16,"../options":63,"./branding":70,"./get-organisms":84,"./get-result-class":86,"./open-window-with-post":94,"./parse-url":95,"es6-promise":238,"underscore":262}],102:[function(require,module,exports){
 (function() {
-  var Options, Promise, fromPairs, getGenomeSpaceUrl, save, _;
+  var Options, Promise, _, fromPairs, getGenomeSpaceUrl, save;
 
   _ = require('underscore');
 
@@ -7065,7 +7065,7 @@ exports.column_manager_restore_path = "<% /* requires: restoreTitle */ %>\n<span
     GenomeSpace = Options.get('Destination.GenomeSpace');
     pairs = [['uploadUrl', uri], ['fileName', fileName]];
     qs = fromPairs(pairs);
-    return "" + GenomeSpace.Upload + "?" + qs;
+    return GenomeSpace.Upload + "?" + qs;
   };
 
   save = function(uri, fileName) {
@@ -7090,9 +7090,9 @@ exports.column_manager_restore_path = "<% /* requires: restoreTitle */ %>\n<span
 
 }).call(this);
 
-},{"../options":63,"./query-string":99,"es6-promise":244,"underscore":301}],103:[function(require,module,exports){
+},{"../options":63,"./query-string":99,"es6-promise":238,"underscore":262}],103:[function(require,module,exports){
 (function() {
-  var $, BOUNDARY, CLOSE_DELIM, DELIMITER, DRIVE_METHOD, DRIVE_PATH, ERR, FILE_CT, GoogleExporter, LIB, METADATA_CT, MetaData, Options, Promise, REQ_CT, REQ_PARAMS, SCOPE, VERSION, loadResource, sendToGoogleDrive, withExporter, _, __GOOGLE;
+  var $, BOUNDARY, CLOSE_DELIM, DELIMITER, DRIVE_METHOD, DRIVE_PATH, ERR, FILE_CT, GoogleExporter, LIB, METADATA_CT, MetaData, Options, Promise, REQ_CT, REQ_PARAMS, SCOPE, VERSION, _, __GOOGLE, loadResource, sendToGoogleDrive, withExporter;
 
   $ = require('jquery');
 
@@ -7173,8 +7173,8 @@ exports.column_manager_restore_path = "<% /* requires: restoreTitle */ %>\n<span
   })();
 
   GoogleExporter = (function() {
-    function GoogleExporter(gapi) {
-      this.gapi = gapi;
+    function GoogleExporter(gapi1) {
+      this.gapi = gapi1;
       if (!this.gapi) {
         throw new Error('No api');
       }
@@ -7211,9 +7211,9 @@ exports.column_manager_restore_path = "<% /* requires: restoreTitle */ %>\n<span
             return reject(new Error('timed out'));
           };
           checkOrWait = function() {
-            var _ref;
+            var ref;
             clearTimeout(timeout);
-            if ((_ref = gapi.auth) != null ? _ref.authorize : void 0) {
+            if ((ref = gapi.auth) != null ? ref.authorize : void 0) {
               return nextStep();
             } else {
               return timeout = setTimeout(checkOrWait, 50);
@@ -7269,19 +7269,19 @@ exports.column_manager_restore_path = "<% /* requires: restoreTitle */ %>\n<span
 
 }).call(this);
 
-},{"../options":63,"./load-resource":90,"es6-promise":244,"jquery":267,"underscore":301}],104:[function(require,module,exports){
+},{"../options":63,"./load-resource":90,"es6-promise":238,"jquery":256,"underscore":262}],104:[function(require,module,exports){
 (function() {
-  var callable, compose, escape, getData, _ref,
-    __slice = [].slice;
+  var callable, compose, escape, getData, ref,
+    slice = [].slice;
 
-  _ref = require('underscore'), compose = _ref.compose, escape = _ref.escape;
+  ref = require('underscore'), compose = ref.compose, escape = ref.escape;
 
   getData = require('./ensure-required-data');
 
   callable = function(f) {
     return function() {
-      var args, _;
-      _ = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
+      var _, args;
+      _ = arguments[0], args = 2 <= arguments.length ? slice.call(arguments, 1) : [];
       return f.apply(null, args);
     };
   };
@@ -7297,7 +7297,7 @@ exports.column_manager_restore_path = "<% /* requires: restoreTitle */ %>\n<span
 
 }).call(this);
 
-},{"./ensure-required-data":80,"underscore":301}],105:[function(require,module,exports){
+},{"./ensure-required-data":80,"underscore":262}],105:[function(require,module,exports){
 (function() {
   var NEXT_DIRECTION_OF, sortQueryByPath;
 
@@ -7308,8 +7308,8 @@ exports.column_manager_restore_path = "<% /* requires: restoreTitle */ %>\n<span
   };
 
   module.exports = sortQueryByPath = function(query, path) {
-    var currentDirection, nextDirection, _ref;
-    currentDirection = (_ref = query.getSortDirection(path)) != null ? _ref : 'NONE';
+    var currentDirection, nextDirection, ref;
+    currentDirection = (ref = query.getSortDirection(path)) != null ? ref : 'NONE';
     nextDirection = NEXT_DIRECTION_OF[currentDirection];
     return query.orderBy([
       {
@@ -7337,8 +7337,8 @@ exports.column_manager_restore_path = "<% /* requires: restoreTitle */ %>\n<span
 
 },{}],107:[function(require,module,exports){
 (function() {
-  var Icons, Messages, Options, SuggestionSource, fs, html, mustacheSettings, template, _,
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+  var Icons, Messages, Options, SuggestionSource, _, fs, html, mustacheSettings, template,
+    bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
   
 
@@ -7359,11 +7359,11 @@ exports.column_manager_restore_path = "<% /* requires: restoreTitle */ %>\n<span
   module.exports = SuggestionSource = (function() {
     SuggestionSource.prototype.tooMany = '<span></span>';
 
-    function SuggestionSource(suggestions, total) {
+    function SuggestionSource(suggestions, total1) {
       var maxSuggestions;
       this.suggestions = suggestions;
-      this.total = total;
-      this.suggest = __bind(this.suggest, this);
+      this.total = total1;
+      this.suggest = bind(this.suggest, this);
       maxSuggestions = Options.get('MaxSuggestions');
       if (this.total > maxSuggestions) {
         this.tooMany = template({
@@ -7375,23 +7375,23 @@ exports.column_manager_restore_path = "<% /* requires: restoreTitle */ %>\n<span
     }
 
     SuggestionSource.prototype.suggest = function(term, cb) {
-      var matches, parts, s, _ref, _ref1;
+      var matches, parts, ref, ref1, s;
       if ((term == null) || term === '') {
         return cb((function() {
-          var _i, _len, _ref, _results;
-          _ref = this.suggestions.slice(0, 10);
-          _results = [];
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            s = _ref[_i];
-            _results.push(s);
+          var i, len, ref, results;
+          ref = this.suggestions.slice(0, 10);
+          results = [];
+          for (i = 0, len = ref.length; i < len; i++) {
+            s = ref[i];
+            results.push(s);
           }
-          return _results;
+          return results;
         }).call(this));
       }
-      parts = (_ref = term != null ? (_ref1 = term.toLowerCase()) != null ? _ref1.split(' ') : void 0 : void 0) != null ? _ref : [];
-      matches = function(_arg) {
+      parts = (ref = term != null ? (ref1 = term.toLowerCase()) != null ? ref1.split(' ') : void 0 : void 0) != null ? ref : [];
+      matches = function(arg) {
         var item;
-        item = _arg.item;
+        item = arg.item;
         if (item == null) {
           item = '';
         }
@@ -7400,16 +7400,16 @@ exports.column_manager_restore_path = "<% /* requires: restoreTitle */ %>\n<span
         });
       };
       return cb((function() {
-        var _i, _len, _ref2, _results;
-        _ref2 = this.suggestions;
-        _results = [];
-        for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
-          s = _ref2[_i];
+        var i, len, ref2, results;
+        ref2 = this.suggestions;
+        results = [];
+        for (i = 0, len = ref2.length; i < len; i++) {
+          s = ref2[i];
           if (matches(s)) {
-            _results.push(s);
+            results.push(s);
           }
         }
-        return _results;
+        return results;
       }).call(this));
     };
 
@@ -7419,10 +7419,10 @@ exports.column_manager_restore_path = "<% /* requires: restoreTitle */ %>\n<span
 
 }).call(this);
 
-},{"../icons":14,"../messages":16,"../options":63,"../templates/mustache-settings":69,"underscore":301}],108:[function(require,module,exports){
+},{"../icons":14,"../messages":16,"../options":63,"../templates/mustache-settings":69,"underscore":262}],108:[function(require,module,exports){
 (function() {
   var ALREADY_DONE, CACHES, Options, Page, Promise, ResultCache,
-    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+    indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   Promise = require('es6-promise').Promise;
 
@@ -7435,17 +7435,17 @@ exports.column_manager_restore_path = "<% /* requires: restoreTitle */ %>\n<span
   ALREADY_DONE = Promise.resolve(true);
 
   exports.getCache = function(query) {
-    var root, xml, _name;
+    var name1, root, xml;
     xml = query.toXML();
     root = query.service.root;
-    return CACHES[_name = root + ':' + xml] != null ? CACHES[_name] : CACHES[_name] = new ResultCache(query);
+    return CACHES[name1 = root + ':' + xml] != null ? CACHES[name1] : CACHES[name1] = new ResultCache(query);
   };
 
   exports.onListChange = function(listName) {
     var cache, name;
     for (name in CACHES) {
       cache = CACHES[name];
-      if (__indexOf.call(listNamesFor(cache.query), listName) >= 0) {
+      if (indexOf.call(listNamesFor(cache.query), listName) >= 0) {
         cache.dropRows();
       }
     }
@@ -7462,8 +7462,8 @@ exports.column_manager_restore_path = "<% /* requires: restoreTitle */ %>\n<span
     }
 
     ResultCache.prototype.toString = function() {
-      var _ref;
-      if ((_ref = this.rows) != null ? _ref.length : void 0) {
+      var ref;
+      if ((ref = this.rows) != null ? ref.length : void 0) {
         return "ResultCache(" + this.offset + " .. " + (this.offset + this.rows.length) + ")";
       } else {
         return "ResultCache(EMPTY)";
@@ -7581,9 +7581,9 @@ exports.column_manager_restore_path = "<% /* requires: restoreTitle */ %>\n<span
       })(this);
     };
 
-    ResultCache.prototype.getRows = function(_arg) {
+    ResultCache.prototype.getRows = function(arg) {
       var rows, size, start;
-      start = _arg.start, size = _arg.size;
+      start = arg.start, size = arg.size;
       if (this.rows == null) {
         throw new Error('Cache has not been updated');
       }
@@ -7603,7 +7603,7 @@ exports.column_manager_restore_path = "<% /* requires: restoreTitle */ %>\n<span
 
 }).call(this);
 
-},{"../models/page":54,"../options":63,"es6-promise":244}],109:[function(require,module,exports){
+},{"../models/page":54,"../options":63,"es6-promise":238}],109:[function(require,module,exports){
 (function() {
   var toNamedPath;
 
@@ -7622,7 +7622,7 @@ exports.column_manager_restore_path = "<% /* requires: restoreTitle */ %>\n<span
 (function (global){
 (function() {
   var CDN, PROMISES, Promise, promiseResource, withResource,
-    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+    indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   Promise = require('es6-promise').Promise;
 
@@ -7631,7 +7631,7 @@ exports.column_manager_restore_path = "<% /* requires: restoreTitle */ %>\n<span
   PROMISES = {};
 
   promiseResource = function(ident, globalVar) {
-    if (__indexOf.call(global, globalVar) >= 0) {
+    if (indexOf.call(global, globalVar) >= 0) {
       return Promise.resolve(global[globalVar]);
     } else {
       return CDN.load(ident).then((function() {
@@ -7647,15 +7647,15 @@ exports.column_manager_restore_path = "<% /* requires: restoreTitle */ %>\n<span
 }).call(this);
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../cdn":1,"es6-promise":244}],111:[function(require,module,exports){
-module.exports = '2.0.2';
+},{"../cdn":1,"es6-promise":238}],111:[function(require,module,exports){
+module.exports = '';
 
 },{}],112:[function(require,module,exports){
 (function() {
-  var $, ActiveConstraint, ConstraintEditor, ConstraintModel, ConstraintSummary, CoreModel, Icons, Messages, Model, Options, Promise, Query, Templates, View, aeql, basicEql, _, _ref,
-    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+  var $, ActiveConstraint, ConstraintEditor, ConstraintModel, ConstraintSummary, CoreModel, Icons, Messages, Model, Options, Promise, Query, Templates, View, _, aeql, basicEql, ref,
+    indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -7663,7 +7663,7 @@ module.exports = '2.0.2';
 
   Promise = require('es6-promise').Promise;
 
-  _ref = require('imjs'), Query = _ref.Query, Model = _ref.Model;
+  ref = require('imjs'), Query = ref.Query, Model = ref.Model;
 
   CoreModel = require('../core-model');
 
@@ -7703,47 +7703,47 @@ module.exports = '2.0.2';
   });
 
   aeql = function(xs, ys) {
-    var longer, shorter, _ref1;
+    var longer, ref1, shorter;
     if (!xs && !ys) {
       return true;
     }
     if (!xs || !ys) {
       return false;
     }
-    _ref1 = _.sortBy([xs, ys], function(a) {
+    ref1 = _.sortBy([xs, ys], function(a) {
       return a.length;
-    }), shorter = _ref1[0], longer = _ref1[1];
+    }), shorter = ref1[0], longer = ref1[1];
     return _.all(longer, function(x) {
-      return __indexOf.call(shorter, x) >= 0;
+      return indexOf.call(shorter, x) >= 0;
     });
   };
 
   basicEql = function(a, b) {
-    var k, keys, same, va, vb, x, _i, _len, _ref1;
+    var i, k, keys, len, ref1, same, va, vb, x;
     if (!(a && b)) {
       return a === b;
     }
     keys = _.union.apply(_, [a, b].map(_.keys));
     same = true;
-    for (_i = 0, _len = keys.length; _i < _len; _i++) {
-      k = keys[_i];
-      _ref1 = (function() {
-        var _j, _len1, _ref1, _results;
-        _ref1 = [a, b];
-        _results = [];
-        for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-          x = _ref1[_j];
-          _results.push(x[k]);
+    for (i = 0, len = keys.length; i < len; i++) {
+      k = keys[i];
+      ref1 = (function() {
+        var j, len1, ref1, results;
+        ref1 = [a, b];
+        results = [];
+        for (j = 0, len1 = ref1.length; j < len1; j++) {
+          x = ref1[j];
+          results.push(x[k]);
         }
-        return _results;
-      })(), va = _ref1[0], vb = _ref1[1];
+        return results;
+      })(), va = ref1[0], vb = ref1[1];
       same && (same = (_.isArray(va) ? aeql(va, vb) : va === vb));
     }
     return same;
   };
 
-  ConstraintModel = (function(_super) {
-    __extends(ConstraintModel, _super);
+  ConstraintModel = (function(superClass) {
+    extend(ConstraintModel, superClass);
 
     function ConstraintModel() {
       return ConstraintModel.__super__.constructor.apply(this, arguments);
@@ -7763,10 +7763,10 @@ module.exports = '2.0.2';
 
   })(CoreModel);
 
-  module.exports = ActiveConstraint = (function(_super) {
+  module.exports = ActiveConstraint = (function(superClass) {
     var IS_BLANK;
 
-    __extends(ActiveConstraint, _super);
+    extend(ActiveConstraint, superClass);
 
     function ActiveConstraint() {
       return ActiveConstraint.__super__.constructor.apply(this, arguments);
@@ -7783,7 +7783,7 @@ module.exports = '2.0.2';
     ActiveConstraint.prototype.optionalParameters = ['buttonDelegate'];
 
     ActiveConstraint.prototype.initialize = function() {
-      var e;
+      var e, error1;
       ActiveConstraint.__super__.initialize.apply(this, arguments);
       this.model.set(this.constraint);
       this.state.set({
@@ -7799,8 +7799,8 @@ module.exports = '2.0.2';
         this.model.set({
           path: this.query.makePath(this.constraint.path)
         });
-      } catch (_error) {
-        e = _error;
+      } catch (error1) {
+        e = error1;
         this.model.set({
           error: e
         });
@@ -7851,7 +7851,7 @@ module.exports = '2.0.2';
     };
 
     ActiveConstraint.prototype.setTypeName = function() {
-      var e, type;
+      var e, error1, type;
       type = this.model.get('type');
       if (type == null) {
         return this.model.unset('typeName');
@@ -7865,8 +7865,8 @@ module.exports = '2.0.2';
               });
             };
           })(this));
-        } catch (_error) {
-          e = _error;
+        } catch (error1) {
+          e = error1;
           return this.model.set({
             error: e,
             typeName: type
@@ -7887,11 +7887,12 @@ module.exports = '2.0.2';
     ActiveConstraint.prototype.getLoopProblem = function(con) {
       var e, problem;
       problem = (function() {
+        var error1;
         try {
           this.query.getPathInfo(con.value);
           return null;
-        } catch (_error) {
-          e = _error;
+        } catch (error1) {
+          e = error1;
           return 'BadLoop';
         }
       }).call(this);
@@ -7899,29 +7900,29 @@ module.exports = '2.0.2';
     };
 
     ActiveConstraint.prototype.getValueProblem = function(con) {
-      var op, path, value, _ref1;
+      var op, path, ref1, value;
       path = con.path, op = con.op, value = con.value;
       if ((value == null) || (IS_BLANK.test(value))) {
         return 'NoValue';
       }
-      if ((_ref1 = path.getType(), __indexOf.call(Model.NUMERIC_TYPES, _ref1) >= 0) && (_.isNaN(1 * value))) {
+      if ((ref1 = path.getType(), indexOf.call(Model.NUMERIC_TYPES, ref1) >= 0) && (_.isNaN(1 * value))) {
         return 'NaN';
       }
       return null;
     };
 
     ActiveConstraint.prototype.getProblem = function(con) {
-      var _ref1, _ref2;
+      var ref1, ref2;
       if (con.type != null) {
         return null;
       }
       if (!con.op || IS_BLANK.test(con.op)) {
         return 'NoOperator';
       }
-      if (con.path.isReference() && ((_ref1 = con.op) === '=' || _ref1 === '!=')) {
+      if (con.path.isReference() && ((ref1 = con.op) === '=' || ref1 === '!=')) {
         return this.getLoopProblem(con);
       }
-      if (_ref2 = con.op, __indexOf.call(Query.ATTRIBUTE_VALUE_OPS.concat(Query.REFERENCE_OPS), _ref2) >= 0) {
+      if (ref2 = con.op, indexOf.call(Query.ATTRIBUTE_VALUE_OPS.concat(Query.REFERENCE_OPS), ref2) >= 0) {
         return this.getValueProblem(con);
       }
       if (this.isDuplicate(con)) {
@@ -8030,12 +8031,12 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../core-model":2,"../core-view":3,"../icons":14,"../messages":16,"../options":63,"../templates":67,"./constraint-editor":129,"./constraint-summary":130,"es6-promise":244,"imjs":255,"jquery":267,"underscore":301}],113:[function(require,module,exports){
+},{"../core-model":2,"../core-view":3,"../icons":14,"../messages":16,"../options":63,"../templates":67,"./constraint-editor":129,"./constraint-summary":130,"es6-promise":238,"imjs":247,"jquery":256,"underscore":262}],113:[function(require,module,exports){
 (function() {
-  var $, AttributeValueControls, CoreView, HasTypeaheads, INTEGRAL_TYPES, IS_BLANK, Messages, NUMERIC_TYPES, NestedModel, Options, Promise, Query, SuggestionSource, Templates, getBranding, numToString, numify, selectTemplate, trim, _, _ref, _ref1,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+  var $, AttributeValueControls, CoreView, HasTypeaheads, INTEGRAL_TYPES, IS_BLANK, Messages, NUMERIC_TYPES, NestedModel, Options, Promise, Query, SuggestionSource, Templates, _, getBranding, numToString, numify, ref, ref1, selectTemplate, trim,
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty,
+    indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   $ = require('jquery');
 
@@ -8061,7 +8062,7 @@ module.exports = '2.0.2';
 
   SuggestionSource = require('../utils/suggestion-source');
 
-  _ref = require('imjs'), (_ref1 = _ref.Model, INTEGRAL_TYPES = _ref1.INTEGRAL_TYPES, NUMERIC_TYPES = _ref1.NUMERIC_TYPES), Query = _ref.Query;
+  ref = require('imjs'), (ref1 = ref.Model, INTEGRAL_TYPES = ref1.INTEGRAL_TYPES, NUMERIC_TYPES = ref1.NUMERIC_TYPES), Query = ref.Query;
 
   selectTemplate = Templates.template('attribute_value_select');
 
@@ -8080,8 +8081,8 @@ module.exports = '2.0.2';
     'constraintvalue.OneValue': "There is only one possible value: <%- value %>. You might want to remove this constraint"
   });
 
-  module.exports = AttributeValueControls = (function(_super) {
-    __extends(AttributeValueControls, _super);
+  module.exports = AttributeValueControls = (function(superClass) {
+    extend(AttributeValueControls, superClass);
 
     function AttributeValueControls() {
       return AttributeValueControls.__super__.constructor.apply(this, arguments);
@@ -8100,13 +8101,13 @@ module.exports = '2.0.2';
       });
     };
 
-    AttributeValueControls.prototype.initialize = function(_arg) {
-      var _ref2;
-      this.query = _arg.query;
+    AttributeValueControls.prototype.initialize = function(arg) {
+      var ref2;
+      this.query = arg.query;
       AttributeValueControls.__super__.initialize.apply(this, arguments);
       this.sliders = [];
       this.branding = new NestedModel;
-      this.cast = (_ref2 = this.model.get('path').getType(), __indexOf.call(NUMERIC_TYPES, _ref2) >= 0) ? numify : trim;
+      this.cast = (ref2 = this.model.get('path').getType(), indexOf.call(NUMERIC_TYPES, ref2) >= 0) ? numify : trim;
       this.listenTo(Messages, 'change', this.reRender);
       this.state.set({
         valuePlaceholder: Messages.getText('conbuilder.ValuePlaceholder')
@@ -8146,7 +8147,7 @@ module.exports = '2.0.2';
     AttributeValueControls.prototype.onChangeOp = function() {
       var newOp;
       newOp = this.model.get('op');
-      if ((this.model.get('value') != null) && __indexOf.call(Query.MULTIVALUE_OPS, newOp) >= 0) {
+      if ((this.model.get('value') != null) && indexOf.call(Query.MULTIVALUE_OPS, newOp) >= 0) {
         this.model.set({
           value: null,
           values: [this.model.get('value')]
@@ -8166,15 +8167,15 @@ module.exports = '2.0.2';
     };
 
     AttributeValueControls.prototype.removeSliders = function() {
-      var sl, _results;
-      _results = [];
+      var results1, sl;
+      results1 = [];
       while (sl = this.sliders.pop()) {
         try {
           sl.slider('destroy');
-          _results.push(sl.remove());
-        } catch (_error) {}
+          results1.push(sl.remove());
+        } catch (undefined) {}
       }
-      return _results;
+      return results1;
     };
 
     AttributeValueControls.prototype.events = function() {
@@ -8184,24 +8185,24 @@ module.exports = '2.0.2';
     };
 
     AttributeValueControls.prototype.updateInput = function() {
-      var input, _ref2;
-      input = (_ref2 = this.lastTypeahead()) != null ? _ref2 : this.$('.im-con-value-attr');
+      var input, ref2;
+      input = (ref2 = this.lastTypeahead()) != null ? ref2 : this.$('.im-con-value-attr');
       return input.val(this.model.get('value'));
     };
 
     AttributeValueControls.prototype.readAttrValue = function() {
-      var e, raw, _ref2;
-      raw = ((_ref2 = this.lastTypeahead()) != null ? _ref2 : this.$('.im-con-value-attr')).val();
+      var e, error1, raw, ref2;
+      raw = ((ref2 = this.lastTypeahead()) != null ? ref2 : this.$('.im-con-value-attr')).val();
       try {
         if ((raw != null) && !IS_BLANK.test(raw)) {
           return this.cast(raw);
         } else {
           return null;
         }
-      } catch (_error) {
-        e = _error;
+      } catch (error1) {
+        e = error1;
         this.model.set({
-          error: new Error("" + raw + " might not be a legal value for " + this.path)
+          error: new Error(raw + " might not be a legal value for " + this.path)
         });
         return raw;
       }
@@ -8226,9 +8227,9 @@ module.exports = '2.0.2';
 
     AttributeValueControls.prototype.provideSuggestions = function() {
       return this.getSuggestions().then((function(_this) {
-        return function(_arg) {
+        return function(arg) {
           var msg, results, stats;
-          stats = _arg.stats, results = _arg.results;
+          stats = arg.stats, results = arg.results;
           if (stats.uniqueValues === 0) {
             msg = Messages.getText('constraintvalue.NoValues');
             return _this.model.set({
@@ -8273,16 +8274,16 @@ module.exports = '2.0.2';
           pstr = String(_this.model.get('path'));
           maxSuggestions = Options.get('MaxSuggestions');
           clone.constraints = (function() {
-            var _i, _len, _ref2, _results;
-            _ref2 = clone.constraints;
-            _results = [];
-            for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
-              c = _ref2[_i];
+            var i, len, ref2, results1;
+            ref2 = clone.constraints;
+            results1 = [];
+            for (i = 0, len = ref2.length; i < len; i++) {
+              c = ref2[i];
               if (!(c.path === pstr && c.value === value)) {
-                _results.push(c);
+                results1.push(c);
               }
             }
-            return _results;
+            return results1;
           })();
           return clone.summarise(pstr, maxSuggestions);
         };
@@ -8293,9 +8294,9 @@ module.exports = '2.0.2';
       var value;
       if (this.model.has('value')) {
         value = this.model.get('value');
-        if ((value != null) && !(_.any(items, function(_arg) {
+        if ((value != null) && !(_.any(items, function(arg) {
           var item;
-          item = _arg.item;
+          item = arg.item;
           return item === value;
         }))) {
           items.push({
@@ -8315,8 +8316,8 @@ module.exports = '2.0.2';
     };
 
     AttributeValueControls.prototype.handleSummary = function(items, total) {
-      var dataset, handleSuggestion, input, opts, source, _ref2;
-      if (((_ref2 = this.model.get('op')) === '=' || _ref2 === '!=') && items.length < Options.get('DropdownMax')) {
+      var dataset, handleSuggestion, input, opts, ref2, source;
+      if (((ref2 = this.model.get('op')) === '=' || ref2 === '!=') && items.length < Options.get('DropdownMax')) {
         return this.replaceInputWithSelect(items);
       }
       input = this.$('.im-con-value-attr');
@@ -8351,7 +8352,7 @@ module.exports = '2.0.2';
     AttributeValueControls.prototype.clearer = '<div class="" style="clear:both;">';
 
     AttributeValueControls.prototype.getMarkers = function(min, max, isInt) {
-      var f, getPercent, getValue, span, _i, _len, _ref2, _results;
+      var f, getPercent, getValue, i, len, ref2, results1, span;
       span = max - min;
       getValue = function(frac) {
         var val;
@@ -8365,27 +8366,27 @@ module.exports = '2.0.2';
       getPercent = function(frac) {
         return Math.round(100 * frac);
       };
-      _ref2 = [0, 0.5, 1];
-      _results = [];
-      for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
-        f = _ref2[_i];
-        _results.push({
+      ref2 = [0, 0.5, 1];
+      results1 = [];
+      for (i = 0, len = ref2.length; i < len; i++) {
+        f = ref2[i];
+        results1.push({
           percent: getPercent(f),
           value: numToString(getValue(f))
         });
       }
-      return _results;
+      return results1;
     };
 
     AttributeValueControls.prototype.makeSlider = Templates.template('slider', {
       variable: 'markers'
     });
 
-    AttributeValueControls.prototype.handleNumericSummary = function(_arg) {
-      var $slider, average, caster, container, input, isInt, markers, max, min, path, step, _ref2;
-      min = _arg.min, max = _arg.max, average = _arg.average;
+    AttributeValueControls.prototype.handleNumericSummary = function(arg) {
+      var $slider, average, caster, container, input, isInt, markers, max, min, path, ref2, step;
+      min = arg.min, max = arg.max, average = arg.average;
       path = this.model.get('path');
-      isInt = (_ref2 = path.getType(), __indexOf.call(INTEGRAL_TYPES, _ref2) >= 0);
+      isInt = (ref2 = path.getType(), indexOf.call(INTEGRAL_TYPES, ref2) >= 0);
       step = isInt ? 1 : max - min / 100;
       caster = isInt ? (function(x) {
         return parseInt(x, 10);
@@ -8427,11 +8428,11 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../core-view":3,"../core/nested-model":8,"../messages":16,"../mixins/has-typeaheads":32,"../options":63,"../patterns":64,"../templates":67,"../templates/helpers":68,"../utils/branding":70,"../utils/suggestion-source":107,"es6-promise":244,"imjs":255,"jquery":267,"underscore":301}],114:[function(require,module,exports){
+},{"../core-view":3,"../core/nested-model":8,"../messages":16,"../mixins/has-typeaheads":32,"../options":63,"../patterns":64,"../templates":67,"../templates/helpers":68,"../utils/branding":70,"../utils/suggestion-source":107,"es6-promise":238,"imjs":247,"jquery":256,"underscore":262}],114:[function(require,module,exports){
 (function() {
-  var BooleanValueControls, Messages, Options, View, fs, html, mustacheSettings, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+  var BooleanValueControls, Messages, Options, View, _, fs, html, mustacheSettings,
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -8447,8 +8448,8 @@ module.exports = '2.0.2';
 
   html = "<button class=\"btn btn-default im-true {{ (value === true) ? ' active' : void 0 }}\">\n  True\n</button>\n<button class=\"btn btn-default im-false {{ (value === false) ? ' active' : void 0 }}\">\n  False\n</button>\n";
 
-  module.exports = BooleanValueControls = (function(_super) {
-    __extends(BooleanValueControls, _super);
+  module.exports = BooleanValueControls = (function(superClass) {
+    extend(BooleanValueControls, superClass);
 
     function BooleanValueControls() {
       return BooleanValueControls.__super__.constructor.apply(this, arguments);
@@ -8495,11 +8496,11 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../core-view":3,"../messages":16,"../options":63,"../templates/mustache-settings":69,"underscore":301}],115:[function(require,module,exports){
+},{"../core-view":3,"../messages":16,"../options":63,"../templates/mustache-settings":69,"underscore":262}],115:[function(require,module,exports){
 (function() {
   var CodeGenButton, CodeGenModel, CoreView, Dialogue, MainButton, Messages, Options, Templates, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -8517,8 +8518,8 @@ module.exports = '2.0.2';
 
   require('../messages/code-gen');
 
-  MainButton = (function(_super) {
-    __extends(MainButton, _super);
+  MainButton = (function(superClass) {
+    extend(MainButton, superClass);
 
     function MainButton() {
       return MainButton.__super__.constructor.apply(this, arguments);
@@ -8536,8 +8537,8 @@ module.exports = '2.0.2';
 
   })(CoreView);
 
-  module.exports = CodeGenButton = (function(_super) {
-    __extends(CodeGenButton, _super);
+  module.exports = CodeGenButton = (function(superClass) {
+    extend(CodeGenButton, superClass);
 
     function CodeGenButton() {
       return CodeGenButton.__super__.constructor.apply(this, arguments);
@@ -8595,13 +8596,13 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../core-view":3,"../messages":16,"../messages/code-gen":18,"../models/code-gen":38,"../options":63,"../templates":67,"./code-gen-dialogue":116,"underscore":301}],116:[function(require,module,exports){
+},{"../core-view":3,"../messages":16,"../messages/code-gen":18,"../models/code-gen":38,"../options":63,"../templates":67,"./code-gen-dialogue":116,"underscore":262}],116:[function(require,module,exports){
 (function (global){
 (function() {
-  var CANNOT_SAVE, C_STYLE_COMMENTS, Checkbox, CodeGenDialogue, CodeGenModel, HTML_MIMETYPE, JS_MIMETYPE, MIMETYPES, Messages, Modal, OCTOTHORPE_COMMENTS, Options, Promise, Templates, XML_MIMETYPE, alreadyRejected, canSaveFromMemory, indentXml, stripEmptyValues, stripExtraneousWhiteSpace, withFileSaver, withPrettyPrintOne, withResource, _,
-    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+  var CANNOT_SAVE, C_STYLE_COMMENTS, Checkbox, CodeGenDialogue, CodeGenModel, HTML_MIMETYPE, JS_MIMETYPE, MIMETYPES, Messages, Modal, OCTOTHORPE_COMMENTS, Options, Promise, Templates, XML_MIMETYPE, _, alreadyRejected, canSaveFromMemory, indentXml, stripEmptyValues, stripExtraneousWhiteSpace, withFileSaver, withPrettyPrintOne, withResource,
+    indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -8657,29 +8658,29 @@ module.exports = '2.0.2';
   stripEmptyValues = function(q) {
     var k, v;
     return _.object((function() {
-      var _results;
-      _results = [];
+      var results;
+      results = [];
       for (k in q) {
         v = q[k];
         if (v && v.length !== 0) {
-          _results.push([k, v]);
+          results.push([k, v]);
         }
       }
-      return _results;
+      return results;
     })());
   };
 
   canSaveFromMemory = function() {
-    var _ref;
-    if (_ref = !'Blob', __indexOf.call(global, _ref) >= 0) {
+    var ref;
+    if (ref = !'Blob', indexOf.call(global, ref) >= 0) {
       return alreadyRejected;
     } else {
       return withFileSaver(_.identity);
     }
   };
 
-  module.exports = CodeGenDialogue = (function(_super) {
-    __extends(CodeGenDialogue, _super);
+  module.exports = CodeGenDialogue = (function(superClass) {
+    extend(CodeGenDialogue, superClass);
 
     function CodeGenDialogue() {
       return CodeGenDialogue.__super__.constructor.apply(this, arguments);
@@ -8771,7 +8772,7 @@ module.exports = '2.0.2';
     };
 
     CodeGenDialogue.prototype.act = function() {
-      var blob, filename, lang, _ref;
+      var blob, filename, lang, ref;
       lang = this.model.get('lang');
       if (lang === 'js' && this.model.get('extrajs')) {
         lang = 'html';
@@ -8779,7 +8780,7 @@ module.exports = '2.0.2';
       blob = new Blob([this.state.get('generatedCode')], {
         type: MIMETYPES[lang]
       });
-      filename = "" + ((_ref = this.query.name) != null ? _ref : 'name') + "." + lang;
+      filename = ((ref = this.query.name) != null ? ref : 'name') + "." + lang;
       return withFileSaver((function(_this) {
         return function(saveAs) {
           return saveAs(blob, filename);
@@ -8831,11 +8832,11 @@ module.exports = '2.0.2';
     };
 
     CodeGenDialogue.prototype.getCodeFromCache = function(lang) {
-      var opts, _ref;
+      var opts, ref;
       if (this.cache == null) {
         this.cache = {};
       }
-      if (((_ref = this.cache) != null ? _ref[lang] : void 0) != null) {
+      if (((ref = this.cache) != null ? ref[lang] : void 0) != null) {
         return this.state.set({
           generatedCode: this.cache[lang]
         });
@@ -8991,12 +8992,12 @@ module.exports = '2.0.2';
 }).call(this);
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../core/checkbox":4,"../messages":16,"../messages/code-gen":18,"../models/code-gen":38,"../options":63,"../templates":67,"../utils/indent-xml":88,"../utils/strip-extra-whitespace":106,"../utils/with-cdn-resource":110,"./modal":197,"es6-promise":244,"underscore":301}],117:[function(require,module,exports){
+},{"../core/checkbox":4,"../messages":16,"../messages/code-gen":18,"../models/code-gen":38,"../options":63,"../templates":67,"../utils/indent-xml":88,"../utils/strip-extra-whitespace":106,"../utils/with-cdn-resource":110,"./modal":197,"es6-promise":238,"underscore":262}],117:[function(require,module,exports){
 (function() {
   var AvailableColumns, Collection, ColumnManager, ColumnManagerTabs, IndexedCollection, Messages, Modal, OrderByList, OrderByModel, PathModel, SelectList, SelectListEditor, SortOrderEditor, Templates, _,
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -9022,8 +9023,8 @@ module.exports = '2.0.2';
 
   require('../messages/columns');
 
-  IndexedCollection = (function(_super) {
-    __extends(IndexedCollection, _super);
+  IndexedCollection = (function(superClass) {
+    extend(IndexedCollection, superClass);
 
     IndexedCollection.prototype.comparator = 'index';
 
@@ -9032,7 +9033,7 @@ module.exports = '2.0.2';
     };
 
     function IndexedCollection() {
-      this.model = __bind(this.model, this);
+      this.model = bind(this.model, this);
       IndexedCollection.__super__.constructor.apply(this, arguments);
       this.listenTo(this, 'change:index', function() {
         return _.defer((function(_this) {
@@ -9060,8 +9061,8 @@ module.exports = '2.0.2';
 
   })(Collection);
 
-  SelectList = (function(_super) {
-    __extends(SelectList, _super);
+  SelectList = (function(superClass) {
+    extend(SelectList, superClass);
 
     function SelectList() {
       return SelectList.__super__.constructor.apply(this, arguments);
@@ -9073,8 +9074,8 @@ module.exports = '2.0.2';
 
   })(IndexedCollection);
 
-  OrderByList = (function(_super) {
-    __extends(OrderByList, _super);
+  OrderByList = (function(superClass) {
+    extend(OrderByList, superClass);
 
     function OrderByList() {
       return OrderByList.__super__.constructor.apply(this, arguments);
@@ -9086,8 +9087,8 @@ module.exports = '2.0.2';
 
   })(IndexedCollection);
 
-  module.exports = ColumnManager = (function(_super) {
-    __extends(ColumnManager, _super);
+  module.exports = ColumnManager = (function(superClass) {
+    extend(ColumnManager, superClass);
 
     function ColumnManager() {
       return ColumnManager.__super__.constructor.apply(this, arguments);
@@ -9116,9 +9117,9 @@ module.exports = '2.0.2';
     };
 
     ColumnManager.prototype.act = function() {
-      var opts, orderChanged, viewChanged, _ref;
+      var opts, orderChanged, ref, viewChanged;
       if (!this.state.get('disabled')) {
-        _ref = this.state.pick('viewChanged', 'orderChanged'), viewChanged = _ref.viewChanged, orderChanged = _ref.orderChanged;
+        ref = this.state.pick('viewChanged', 'orderChanged'), viewChanged = ref.viewChanged, orderChanged = ref.orderChanged;
         if (viewChanged && (!orderChanged)) {
           this.query.select(this.getCurrentView());
         } else if (orderChanged && (!viewChanged)) {
@@ -9144,28 +9145,28 @@ module.exports = '2.0.2';
     };
 
     ColumnManager.prototype.initialize = function() {
-      var direction, path, v, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2, _ref3;
+      var direction, i, j, k, len, len1, len2, path, ref, ref1, ref2, ref3, v;
       ColumnManager.__super__.initialize.apply(this, arguments);
       this.selectList = new SelectList;
       this.rubbishBin = new SelectList;
       this.sortOrder = new OrderByList;
       this.availableColumns = new AvailableColumns;
-      _ref = this.query.views;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        v = _ref[_i];
+      ref = this.query.views;
+      for (i = 0, len = ref.length; i < len; i++) {
+        v = ref[i];
         this.selectList.add(this.query.makePath(v));
       }
-      _ref1 = this.query.sortOrder;
-      for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-        _ref2 = _ref1[_j], path = _ref2.path, direction = _ref2.direction;
+      ref1 = this.query.sortOrder;
+      for (j = 0, len1 = ref1.length; j < len1; j++) {
+        ref2 = ref1[j], path = ref2.path, direction = ref2.direction;
         this.sortOrder.add({
           direction: direction,
           path: this.query.makePath(path)
         });
       }
-      _ref3 = this.getRelevantPaths();
-      for (_k = 0, _len2 = _ref3.length; _k < _len2; _k++) {
-        path = _ref3[_k];
+      ref3 = this.getRelevantPaths();
+      for (k = 0, len2 = ref3.length; k < len2; k++) {
+        path = ref3[k];
         if (!this.sortOrder.get(path.toString())) {
           this.availableColumns.add(path, {
             sort: false
@@ -9183,16 +9184,16 @@ module.exports = '2.0.2';
           return !_this.query.isOuterJoined(n);
         };
       })(this)).map(function(n) {
-        var cn, _i, _len, _ref, _results;
-        _ref = n.getChildNodes();
-        _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          cn = _ref[_i];
+        var cn, i, len, ref, results;
+        ref = n.getChildNodes();
+        results = [];
+        for (i = 0, len = ref.length; i < len; i++) {
+          cn = ref[i];
           if (cn.isAttribute() && (cn.end.name !== 'id')) {
-            _results.push(cn);
+            results.push(cn);
           }
         }
-        return _results;
+        return results;
       }).flatten().value();
     };
 
@@ -9288,11 +9289,11 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../core/collection":5,"../messages":16,"../messages/columns":19,"../models/available-columns":36,"../models/order-element":53,"../models/path":56,"../templates":67,"./column-manager/select-list":122,"./column-manager/sort-order":124,"./column-manager/tabs":125,"./modal":197,"underscore":301}],118:[function(require,module,exports){
+},{"../core/collection":5,"../messages":16,"../messages/columns":19,"../models/available-columns":36,"../models/order-element":53,"../models/path":56,"../templates":67,"./column-manager/select-list":122,"./column-manager/sort-order":124,"./column-manager/tabs":125,"./modal":197,"underscore":262}],118:[function(require,module,exports){
 (function() {
   var AvailablePath, CUTOFF, UnselectedColumn, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -9300,8 +9301,8 @@ module.exports = '2.0.2';
 
   CUTOFF = 900;
 
-  module.exports = AvailablePath = (function(_super) {
-    __extends(AvailablePath, _super);
+  module.exports = AvailablePath = (function(superClass) {
+    extend(AvailablePath, superClass);
 
     function AvailablePath() {
       return AvailablePath.__super__.constructor.apply(this, arguments);
@@ -9368,11 +9369,11 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"./unselected-column":126,"underscore":301}],119:[function(require,module,exports){
+},{"./unselected-column":126,"underscore":262}],119:[function(require,module,exports){
 (function() {
   var ColumnManger, ColumnMangerButton, QueryDialogueButton,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   QueryDialogueButton = require('../query-dialogue-button');
 
@@ -9380,8 +9381,8 @@ module.exports = '2.0.2';
 
   require('../../messages/columns');
 
-  module.exports = ColumnMangerButton = (function(_super) {
-    __extends(ColumnMangerButton, _super);
+  module.exports = ColumnMangerButton = (function(superClass) {
+    extend(ColumnMangerButton, superClass);
 
     function ColumnMangerButton() {
       return ColumnMangerButton.__super__.constructor.apply(this, arguments);
@@ -9405,9 +9406,9 @@ module.exports = '2.0.2';
 
 },{"../../messages/columns":19,"../column-manager":117,"../query-dialogue-button":206}],120:[function(require,module,exports){
 (function() {
-  var OrderElement, SelectedColumn, TEMPLATE_PARTS, Templates, nextDirection, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+  var OrderElement, SelectedColumn, TEMPLATE_PARTS, Templates, _, nextDirection,
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -9425,8 +9426,8 @@ module.exports = '2.0.2';
     }
   };
 
-  module.exports = OrderElement = (function(_super) {
-    __extends(OrderElement, _super);
+  module.exports = OrderElement = (function(superClass) {
+    extend(OrderElement, superClass);
 
     function OrderElement() {
       return OrderElement.__super__.constructor.apply(this, arguments);
@@ -9458,11 +9459,11 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../../templates":67,"./selected-column":123,"underscore":301}],121:[function(require,module,exports){
+},{"../../templates":67,"./selected-column":123,"underscore":262}],121:[function(require,module,exports){
 (function() {
   var Buttons, ColumnChooser, CoreView, OpenNodes, Options, PathChooser, PathSet, Templates,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   CoreView = require('../../core-view');
 
@@ -9476,8 +9477,8 @@ module.exports = '2.0.2';
 
   PathChooser = require('../path-chooser');
 
-  Buttons = (function(_super) {
-    __extends(Buttons, _super);
+  Buttons = (function(superClass) {
+    extend(Buttons, superClass);
 
     function Buttons() {
       return Buttons.__super__.constructor.apply(this, arguments);
@@ -9516,8 +9517,8 @@ module.exports = '2.0.2';
 
   })(CoreView);
 
-  module.exports = ColumnChooser = (function(_super) {
-    __extends(ColumnChooser, _super);
+  module.exports = ColumnChooser = (function(superClass) {
+    extend(ColumnChooser, superClass);
 
     function ColumnChooser() {
       return ColumnChooser.__super__.constructor.apply(this, arguments);
@@ -9532,14 +9533,14 @@ module.exports = '2.0.2';
       ColumnChooser.__super__.initialize.apply(this, arguments);
       this.chosenPaths = new PathSet;
       this.view = new PathSet((function() {
-        var _i, _len, _ref, _results;
-        _ref = this.collection.pluck('path');
-        _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          p = _ref[_i];
-          _results.push(this.query.makePath(p));
+        var i, len, ref, results;
+        ref = this.collection.pluck('path');
+        results = [];
+        for (i = 0, len = ref.length; i < len; i++) {
+          p = ref[i];
+          results.push(this.query.makePath(p));
         }
-        return _results;
+        return results;
       }).call(this));
       return this.openNodes = new OpenNodes(this.query.getViewNodes());
     };
@@ -9619,9 +9620,9 @@ module.exports = '2.0.2';
 
 },{"../../core-view":3,"../../models/open-nodes":52,"../../models/path-set":55,"../../options":63,"../../templates":67,"../path-chooser":201}],122:[function(require,module,exports){
 (function() {
-  var Collection, ColumnChooser, CoreView, HandlesDOMReSort, SelectListEditor, SelectedColumn, Templates, UnselectedColumn, binnedId, childId, incr, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+  var Collection, ColumnChooser, CoreView, HandlesDOMReSort, SelectListEditor, SelectedColumn, Templates, UnselectedColumn, _, binnedId, childId, incr,
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -9651,8 +9652,8 @@ module.exports = '2.0.2';
     return x + 1;
   };
 
-  module.exports = SelectListEditor = (function(_super) {
-    __extends(SelectListEditor, _super);
+  module.exports = SelectListEditor = (function(superClass) {
+    extend(SelectListEditor, superClass);
 
     function SelectListEditor() {
       return SelectListEditor.__super__.constructor.apply(this, arguments);
@@ -9720,14 +9721,14 @@ module.exports = '2.0.2';
     };
 
     SelectListEditor.prototype.reIndexFrom = function(idx) {
-      var i, _i, _ref, _ref1, _results;
-      _results = [];
-      for (i = _i = idx, _ref = this.collection.size(); idx <= _ref ? _i <= _ref : _i >= _ref; i = idx <= _ref ? ++_i : --_i) {
-        _results.push((_ref1 = this.collection.at(i)) != null ? _ref1.set({
+      var i, j, ref, ref1, ref2, results;
+      results = [];
+      for (i = j = ref = idx, ref1 = this.collection.size(); ref <= ref1 ? j <= ref1 : j >= ref1; i = ref <= ref1 ? ++j : --j) {
+        results.push((ref2 = this.collection.at(i)) != null ? ref2.set({
           index: i
         }) : void 0);
       }
-      return _results;
+      return results;
     };
 
     SelectListEditor.prototype.restoreView = function(model) {
@@ -9799,7 +9800,7 @@ module.exports = '2.0.2';
     };
 
     SelectListEditor.prototype.restoreFromBin = function($el) {
-      var added, addedAt, i, kids, m, preAddSize, toBump, toRestore, _i, _len;
+      var added, addedAt, i, j, kids, len, m, preAddSize, toBump, toRestore;
       kids = this.children;
       preAddSize = this.collection.size();
       addedAt = this.getInsertPoint($el);
@@ -9814,16 +9815,16 @@ module.exports = '2.0.2';
         return;
       }
       toBump = (function() {
-        var _i, _results;
-        _results = [];
-        for (i = _i = addedAt; addedAt <= preAddSize ? _i < preAddSize : _i > preAddSize; i = addedAt <= preAddSize ? ++_i : --_i) {
-          _results.push(this.collection.at(i));
+        var j, ref, ref1, results;
+        results = [];
+        for (i = j = ref = addedAt, ref1 = preAddSize; ref <= ref1 ? j < ref1 : j > ref1; i = ref <= ref1 ? ++j : --j) {
+          results.push(this.collection.at(i));
         }
-        return _results;
+        return results;
       }).call(this);
       added = this.collection.last();
-      for (_i = 0, _len = toBump.length; _i < _len; _i++) {
-        m = toBump[_i];
+      for (j = 0, len = toBump.length; j < len; j++) {
+        m = toBump[j];
         m.swap('index', incr);
       }
       added.set({
@@ -9905,11 +9906,11 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../../core-view":3,"../../core/collection":5,"../../mixins/handles-dom-resort":31,"../../templates":67,"./path-chooser":121,"./selected-column":123,"./unselected-column":126,"underscore":301}],123:[function(require,module,exports){
+},{"../../core-view":3,"../../core/collection":5,"../../mixins/handles-dom-resort":31,"../../templates":67,"./path-chooser":121,"./selected-column":123,"./unselected-column":126,"underscore":262}],123:[function(require,module,exports){
 (function() {
-  var Collection, CoreView, PathModel, SelectedColumn, TEMPLATE_PARTS, Templates, decr, ignore, incr, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+  var Collection, CoreView, PathModel, SelectedColumn, TEMPLATE_PARTS, Templates, _, decr, ignore, incr,
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -9933,8 +9934,8 @@ module.exports = '2.0.2';
 
   TEMPLATE_PARTS = ['column-manager-path-remover', 'column-manager-position-controls', 'column-manager-path-name'];
 
-  module.exports = SelectedColumn = (function(_super) {
-    __extends(SelectedColumn, _super);
+  module.exports = SelectedColumn = (function(superClass) {
+    extend(SelectedColumn, superClass);
 
     function SelectedColumn() {
       return SelectedColumn.__super__.constructor.apply(this, arguments);
@@ -9988,17 +9989,17 @@ module.exports = '2.0.2';
     SelectedColumn.prototype.resetParts = function() {
       var id, part;
       return this.parts.reset((function() {
-        var _i, _len, _ref, _results;
-        _ref = this.model.get('parts');
-        _results = [];
-        for (id = _i = 0, _len = _ref.length; _i < _len; id = ++_i) {
-          part = _ref[id];
-          _results.push({
+        var j, len, ref, results;
+        ref = this.model.get('parts');
+        results = [];
+        for (id = j = 0, len = ref.length; j < len; id = ++j) {
+          part = ref[id];
+          results.push({
             part: part,
             id: id
           });
         }
-        return _results;
+        return results;
       }).call(this));
     };
 
@@ -10056,12 +10057,12 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../../core-view":3,"../../core/collection":5,"../../models/path":56,"../../templates":67,"../../utils/events":81,"underscore":301}],124:[function(require,module,exports){
+},{"../../core-view":3,"../../core/collection":5,"../../models/path":56,"../../templates":67,"../../utils/events":81,"underscore":262}],124:[function(require,module,exports){
 (function (global){
 (function() {
-  var AvailablePath, CoreModel, CoreView, HandlesDOMReSort, OrderElement, SortOrderEditor, Templates, activeId, inactiveId, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+  var AvailablePath, CoreModel, CoreView, HandlesDOMReSort, OrderElement, SortOrderEditor, Templates, _, activeId, inactiveId,
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -10085,8 +10086,8 @@ module.exports = '2.0.2';
     return "inactive_" + (model.get('id'));
   };
 
-  module.exports = SortOrderEditor = (function(_super) {
-    __extends(SortOrderEditor, _super);
+  module.exports = SortOrderEditor = (function(superClass) {
+    extend(SortOrderEditor, superClass);
 
     function SortOrderEditor() {
       return SortOrderEditor.__super__.constructor.apply(this, arguments);
@@ -10123,7 +10124,7 @@ module.exports = '2.0.2';
 
     SortOrderEditor.prototype.currentSortOrder = function() {
       return this.collection.map(function(m) {
-        return "" + (m.get('path')) + " " + (m.get('direction'));
+        return (m.get('path')) + " " + (m.get('direction'));
       }).join(' ');
     };
 
@@ -10158,12 +10159,12 @@ module.exports = '2.0.2';
     };
 
     SortOrderEditor.prototype.removeAllChildren = function() {
-      var _ref, _ref1;
-      if ((_ref = this.$actives) != null) {
-        _ref.sortable('destroy');
+      var ref, ref1;
+      if ((ref = this.$actives) != null) {
+        ref.sortable('destroy');
       }
-      if ((_ref1 = this.$droppable) != null) {
-        _ref1.droppable('destroy');
+      if ((ref1 = this.$droppable) != null) {
+        ref1.droppable('destroy');
       }
       this.$droppable = null;
       this.$actives = null;
@@ -10198,8 +10199,8 @@ module.exports = '2.0.2';
     SortOrderEditor.prototype.findAvailable = function(el) {
       return this.availableColumns.find((function(_this) {
         return function(m) {
-          var _ref;
-          return ((_ref = _this.children[inactiveId(m)]) != null ? _ref.el : void 0) === el;
+          var ref;
+          return ((ref = _this.children[inactiveId(m)]) != null ? ref.el : void 0) === el;
         };
       })(this));
     };
@@ -10212,7 +10213,7 @@ module.exports = '2.0.2';
     };
 
     SortOrderEditor.prototype.addToSortOrder = function(availableColumnModel, atIndex) {
-      var added, b, oe, path, sizeBeforeAdd, toBump, _i, _len;
+      var added, b, i, len, oe, path, sizeBeforeAdd, toBump;
       path = this.query.makePath(availableColumnModel.get('path'));
       oe = {
         id: String(path),
@@ -10226,8 +10227,8 @@ module.exports = '2.0.2';
           return m.get('index') >= atIndex;
         });
         added = this.collection.last();
-        for (_i = 0, _len = toBump.length; _i < _len; _i++) {
-          b = toBump[_i];
+        for (i = 0, len = toBump.length; i < len; i++) {
+          b = toBump[i];
           b.swap('index', function(idx) {
             return idx + 1;
           });
@@ -10300,11 +10301,11 @@ module.exports = '2.0.2';
 }).call(this);
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../../core-model":2,"../../core-view":3,"../../mixins/handles-dom-resort":31,"../../templates":67,"./available-path":118,"./order-element":120,"underscore":301}],125:[function(require,module,exports){
+},{"../../core-model":2,"../../core-view":3,"../../mixins/handles-dom-resort":31,"../../templates":67,"./available-path":118,"./order-element":120,"underscore":262}],125:[function(require,module,exports){
 (function() {
-  var ClassSet, ColumnManagerTabs, CoreView, Templates, tabClassSet, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+  var ClassSet, ColumnManagerTabs, CoreView, Templates, _, tabClassSet,
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -10325,8 +10326,8 @@ module.exports = '2.0.2';
     return new ClassSet(defs);
   };
 
-  module.exports = ColumnManagerTabs = (function(_super) {
-    __extends(ColumnManagerTabs, _super);
+  module.exports = ColumnManagerTabs = (function(superClass) {
+    extend(ColumnManagerTabs, superClass);
 
     function ColumnManagerTabs() {
       return ColumnManagerTabs.__super__.constructor.apply(this, arguments);
@@ -10381,19 +10382,19 @@ module.exports = '2.0.2';
     };
 
     ColumnManagerTabs.prototype.initClassSets = function() {
-      var tab, _i, _len, _ref, _results;
+      var i, len, ref, results, tab;
       this.classSets = {};
-      _ref = ['view', 'sortorder'];
-      _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        tab = _ref[_i];
-        _results.push((function(_this) {
+      ref = ['view', 'sortorder'];
+      results = [];
+      for (i = 0, len = ref.length; i < len; i++) {
+        tab = ref[i];
+        results.push((function(_this) {
           return function(tab) {
             return _this.classSets[tab] = tabClassSet(tab, _this.state);
           };
         })(this)(tab));
       }
-      return _results;
+      return results;
     };
 
     return ColumnManagerTabs;
@@ -10402,11 +10403,11 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../../core-view":3,"../../templates":67,"../../utils/css-class-set":79,"underscore":301}],126:[function(require,module,exports){
+},{"../../core-view":3,"../../templates":67,"../../utils/css-class-set":79,"underscore":262}],126:[function(require,module,exports){
 (function() {
   var SelectedColumn, TEMPLATE_PARTS, Templates, UnselectedColumn, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -10416,8 +10417,8 @@ module.exports = '2.0.2';
 
   TEMPLATE_PARTS = ['column-manager-path-name', 'column-manager-restore-path'];
 
-  module.exports = UnselectedColumn = (function(_super) {
-    __extends(UnselectedColumn, _super);
+  module.exports = UnselectedColumn = (function(superClass) {
+    extend(UnselectedColumn, superClass);
 
     function UnselectedColumn() {
       return UnselectedColumn.__super__.constructor.apply(this, arguments);
@@ -10446,12 +10447,12 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../../templates":67,"./selected-column":123,"underscore":301}],127:[function(require,module,exports){
+},{"../../templates":67,"./selected-column":123,"underscore":262}],127:[function(require,module,exports){
 (function() {
-  var ConstraintAdderOptions, HasTypeaheads, IS_BLANK, Options, Promise, Templates, View, getPathSuggestions, pathSuggester, shortenLongName, _,
-    __slice = [].slice,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+  var ConstraintAdderOptions, HasTypeaheads, IS_BLANK, Options, Promise, Templates, View, _, getPathSuggestions, pathSuggester, shortenLongName,
+    slice = [].slice,
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -10472,18 +10473,18 @@ module.exports = '2.0.2';
   getPathSuggestions = require('../utils/path-suggestions');
 
   shortenLongName = function(name) {
-    var parts, rest, x, y, z, _i;
+    var i, parts, rest, x, y, z;
     parts = name.split(' > ');
     if (parts.length > 3) {
-      rest = 4 <= parts.length ? __slice.call(parts, 0, _i = parts.length - 3) : (_i = 0, []), x = parts[_i++], y = parts[_i++], z = parts[_i++];
+      rest = 4 <= parts.length ? slice.call(parts, 0, i = parts.length - 3) : (i = 0, []), x = parts[i++], y = parts[i++], z = parts[i++];
       return "..." + x + " > " + y + " > " + z;
     } else {
       return name;
     }
   };
 
-  module.exports = ConstraintAdderOptions = (function(_super) {
-    __extends(ConstraintAdderOptions, _super);
+  module.exports = ConstraintAdderOptions = (function(superClass) {
+    extend(ConstraintAdderOptions, superClass);
 
     function ConstraintAdderOptions() {
       return ConstraintAdderOptions.__super__.constructor.apply(this, arguments);
@@ -10493,8 +10494,8 @@ module.exports = '2.0.2';
 
     ConstraintAdderOptions.prototype.className = 'row';
 
-    ConstraintAdderOptions.prototype.initialize = function(_arg) {
-      this.query = _arg.query, this.openNodes = _arg.openNodes, this.chosenPaths = _arg.chosenPaths;
+    ConstraintAdderOptions.prototype.initialize = function(arg) {
+      this.query = arg.query, this.openNodes = arg.openNodes, this.chosenPaths = arg.chosenPaths;
       ConstraintAdderOptions.__super__.initialize.apply(this, arguments);
       this.state.set({
         chosen: []
@@ -10520,8 +10521,8 @@ module.exports = '2.0.2';
     };
 
     ConstraintAdderOptions.prototype.pathAcceptable = function(path) {
-      var _ref;
-      if (((_ref = path.end) != null ? _ref.name : void 0) === 'id') {
+      var ref;
+      if (((ref = path.end) != null ? ref.name : void 0) === 'id') {
         return false;
       }
       if (!this.model.get('canSelectReferences')) {
@@ -10648,22 +10649,22 @@ module.exports = '2.0.2';
       var naming, p, paths;
       paths = this.chosenPaths.toJSON();
       naming = Promise.all((function() {
-        var _i, _len, _results;
-        _results = [];
-        for (_i = 0, _len = paths.length; _i < _len; _i++) {
-          p = paths[_i];
-          _results.push(p.getDisplayName());
+        var i, len, results;
+        results = [];
+        for (i = 0, len = paths.length; i < len; i++) {
+          p = paths[i];
+          results.push(p.getDisplayName());
         }
-        return _results;
+        return results;
       })());
       return naming.then(function(names) {
-        var n, _i, _len, _results;
-        _results = [];
-        for (_i = 0, _len = names.length; _i < _len; _i++) {
-          n = names[_i];
-          _results.push(shortenLongName(n));
+        var i, len, n, results;
+        results = [];
+        for (i = 0, len = names.length; i < len; i++) {
+          n = names[i];
+          results.push(shortenLongName(n));
         }
-        return _results;
+        return results;
       }).then(((function(_this) {
         return function(names) {
           return _this.state.set({
@@ -10681,12 +10682,12 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../core-view":3,"../mixins/has-typeaheads":32,"../options":63,"../patterns":64,"../templates":67,"../utils/path-suggester":96,"../utils/path-suggestions":97,"es6-promise":244,"underscore":301}],128:[function(require,module,exports){
+},{"../core-view":3,"../mixins/has-typeaheads":32,"../options":63,"../patterns":64,"../templates":67,"../utils/path-suggester":96,"../utils/path-suggestions":97,"es6-promise":238,"underscore":262}],128:[function(require,module,exports){
 (function() {
   var ConstraintAdder, ConstraintAdderModel, ConstraintAdderOptions, CoreModel, Messages, NewConstraint, OPTIONS_SEL, OpenNodes, PathChooser, PathSet, Templates, View, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty,
+    bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
   _ = require('underscore');
 
@@ -10717,8 +10718,8 @@ module.exports = '2.0.2';
     'columns.AllowRevRef': 'Allow reverse references'
   });
 
-  ConstraintAdderModel = (function(_super) {
-    __extends(ConstraintAdderModel, _super);
+  ConstraintAdderModel = (function(superClass) {
+    extend(ConstraintAdderModel, superClass);
 
     function ConstraintAdderModel() {
       return ConstraintAdderModel.__super__.constructor.apply(this, arguments);
@@ -10740,11 +10741,11 @@ module.exports = '2.0.2';
 
   OPTIONS_SEL = '.im-constraint-adder-options';
 
-  module.exports = ConstraintAdder = (function(_super) {
-    __extends(ConstraintAdder, _super);
+  module.exports = ConstraintAdder = (function(superClass) {
+    extend(ConstraintAdder, superClass);
 
     function ConstraintAdder() {
-      this.showTree = __bind(this.showTree, this);
+      this.showTree = bind(this.showTree, this);
       return ConstraintAdder.__super__.constructor.apply(this, arguments);
     }
 
@@ -10754,23 +10755,23 @@ module.exports = '2.0.2';
 
     ConstraintAdder.prototype.Model = ConstraintAdderModel;
 
-    ConstraintAdder.prototype.initialize = function(_arg) {
+    ConstraintAdder.prototype.initialize = function(arg) {
       var p;
-      this.query = _arg.query, this.buttonDelegate = _arg.buttonDelegate;
+      this.query = arg.query, this.buttonDelegate = arg.buttonDelegate;
       ConstraintAdder.__super__.initialize.apply(this, arguments);
       this.model.set({
         root: this.query.getPathInfo(this.query.root)
       });
       this.chosenPaths = new PathSet;
       this.view = new PathSet((function() {
-        var _i, _len, _ref, _results;
-        _ref = this.query.views;
-        _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          p = _ref[_i];
-          _results.push(this.query.makePath(p));
+        var i, len, ref, results;
+        ref = this.query.views;
+        results = [];
+        for (i = 0, len = ref.length; i < len; i++) {
+          p = ref[i];
+          results.push(this.query.makePath(p));
         }
-        return _results;
+        return results;
       }).call(this));
       this.openNodes = new OpenNodes(this.query.getViewNodes());
       return this.listenTo(this.query, 'change:constraints', this.remove);
@@ -10894,12 +10895,12 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../core-model":2,"../core-view":3,"../messages":16,"../models/open-nodes":52,"../models/path-set":55,"../templates":67,"./constraint-adder-options":127,"./new-constraint":199,"./path-chooser":201,"underscore":301}],129:[function(require,module,exports){
+},{"../core-model":2,"../core-view":3,"../messages":16,"../models/open-nodes":52,"../models/path-set":55,"../templates":67,"./constraint-adder-options":127,"./new-constraint":199,"./path-chooser":201,"underscore":262}],129:[function(require,module,exports){
 (function() {
-  var ATTRIBUTE_OPS, ATTRIBUTE_VALUE_OPS, AttributeValueControls, BASIC_OPS, BOOLEAN_TYPES, BooleanValueControls, ConstraintEditor, CoreView, ErrorMessage, Icons, LIST_OPS, ListValueControls, LookupValueControls, LoopValueControls, MULTIVALUE_OPS, Messages, Model, MultiValueControls, NO_OP, NULL_OPS, NUMERIC_TYPES, Query, REFERENCE_OPS, TEMPLATE, TypeValueControls, fs, html, operatorsFor, _, _ref,
-    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+  var ATTRIBUTE_OPS, ATTRIBUTE_VALUE_OPS, AttributeValueControls, BASIC_OPS, BOOLEAN_TYPES, BooleanValueControls, ConstraintEditor, CoreView, ErrorMessage, Icons, LIST_OPS, ListValueControls, LookupValueControls, LoopValueControls, MULTIVALUE_OPS, Messages, Model, MultiValueControls, NO_OP, NULL_OPS, NUMERIC_TYPES, Query, REFERENCE_OPS, TEMPLATE, TypeValueControls, _, fs, html, operatorsFor, ref,
+    indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -10927,7 +10928,7 @@ module.exports = '2.0.2';
 
   ErrorMessage = require('./error-message');
 
-  _ref = require('imjs'), Query = _ref.Query, Model = _ref.Model;
+  ref = require('imjs'), Query = ref.Query, Model = ref.Model;
 
   REFERENCE_OPS = Query.REFERENCE_OPS, LIST_OPS = Query.LIST_OPS, MULTIVALUE_OPS = Query.MULTIVALUE_OPS, NULL_OPS = Query.NULL_OPS, ATTRIBUTE_OPS = Query.ATTRIBUTE_OPS, ATTRIBUTE_VALUE_OPS = Query.ATTRIBUTE_VALUE_OPS;
 
@@ -10944,7 +10945,7 @@ module.exports = '2.0.2';
   NO_OP = function() {};
 
   operatorsFor = function(opts) {
-    var path, _ref1;
+    var path, ref1;
     path = opts.path;
     if (!(path != null ? path.isReference : void 0)) {
       throw new Error('No path or wrong type');
@@ -10954,15 +10955,15 @@ module.exports = '2.0.2';
     }
     if (path.isReference()) {
       return REFERENCE_OPS.concat(Query.RANGE_OPS).concat(opts["new"] ? ['ISA'] : []);
-    } else if (_ref1 = path.getType(), __indexOf.call(BOOLEAN_TYPES, _ref1) >= 0) {
+    } else if (ref1 = path.getType(), indexOf.call(BOOLEAN_TYPES, ref1) >= 0) {
       return ["=", "!="].concat(NULL_OPS);
     } else {
       return ATTRIBUTE_OPS;
     }
   };
 
-  module.exports = ConstraintEditor = (function(_super) {
-    __extends(ConstraintEditor, _super);
+  module.exports = ConstraintEditor = (function(superClass) {
+    extend(ConstraintEditor, superClass);
 
     function ConstraintEditor() {
       return ConstraintEditor.__super__.constructor.apply(this, arguments);
@@ -11049,12 +11050,12 @@ module.exports = '2.0.2';
     };
 
     ConstraintEditor.prototype.getConstraint = function() {
-      var con, _ref1, _ref2;
+      var con, ref1, ref2;
       con = this.model.pick(['path', 'op', 'value', 'values', 'code', 'type']);
-      if (_ref1 = con.op, __indexOf.call(MULTIVALUE_OPS.concat(NULL_OPS), _ref1) >= 0) {
+      if (ref1 = con.op, indexOf.call(MULTIVALUE_OPS.concat(NULL_OPS), ref1) >= 0) {
         delete con.value;
       }
-      if (_ref2 = con.op, __indexOf.call(ATTRIBUTE_VALUE_OPS.concat(NULL_OPS), _ref2) >= 0) {
+      if (ref2 = con.op, indexOf.call(ATTRIBUTE_VALUE_OPS.concat(NULL_OPS), ref2) >= 0) {
         delete con.values;
       }
       if (con.op === 'ISA') {
@@ -11125,13 +11126,13 @@ module.exports = '2.0.2';
     };
 
     ConstraintEditor.prototype.isNullConstraint = function() {
-      var _ref1;
-      return _ref1 = this.model.get('op'), __indexOf.call(NULL_OPS, _ref1) >= 0;
+      var ref1;
+      return ref1 = this.model.get('op'), indexOf.call(NULL_OPS, ref1) >= 0;
     };
 
     ConstraintEditor.prototype.isLoopConstraint = function() {
-      var _ref1;
-      return this.path.isClass() && ((_ref1 = this.model.get('op')) === '=' || _ref1 === '!=');
+      var ref1;
+      return this.path.isClass() && ((ref1 = this.model.get('op')) === '=' || ref1 === '!=');
     };
 
     ConstraintEditor.prototype.isTypeConstraint = function() {
@@ -11139,28 +11140,28 @@ module.exports = '2.0.2';
     };
 
     ConstraintEditor.prototype.isBooleanConstraint = function() {
-      var _ref1, _ref2;
-      return (_ref1 = this.path.getType(), __indexOf.call(BOOLEAN_TYPES, _ref1) >= 0) && !(_ref2 = this.model.get('op'), __indexOf.call(NULL_OPS, _ref2) >= 0);
+      var ref1, ref2;
+      return (ref1 = this.path.getType(), indexOf.call(BOOLEAN_TYPES, ref1) >= 0) && !(ref2 = this.model.get('op'), indexOf.call(NULL_OPS, ref2) >= 0);
     };
 
     ConstraintEditor.prototype.isMultiValueConstraint = function() {
-      var _ref1;
-      return this.path.isAttribute() && (_ref1 = this.model.get('op'), __indexOf.call(MULTIVALUE_OPS, _ref1) >= 0);
+      var ref1;
+      return this.path.isAttribute() && (ref1 = this.model.get('op'), indexOf.call(MULTIVALUE_OPS, ref1) >= 0);
     };
 
     ConstraintEditor.prototype.isListConstraint = function() {
-      var _ref1;
-      return this.path.isClass() && (_ref1 = this.model.get('op'), __indexOf.call(LIST_OPS, _ref1) >= 0);
+      var ref1;
+      return this.path.isClass() && (ref1 = this.model.get('op'), indexOf.call(LIST_OPS, ref1) >= 0);
     };
 
     ConstraintEditor.prototype.isLookupConstraint = function() {
-      var _ref1;
-      return this.path.isClass() && (_ref1 = this.model.get('op'), __indexOf.call(Query.TERNARY_OPS, _ref1) >= 0);
+      var ref1;
+      return this.path.isClass() && (ref1 = this.model.get('op'), indexOf.call(Query.TERNARY_OPS, ref1) >= 0);
     };
 
     ConstraintEditor.prototype.isRangeConstraint = function() {
-      var _ref1;
-      return this.path.isReference() && (_ref1 = this.model.get('op'), __indexOf.call(Query.RANGE_OPS, _ref1) >= 0);
+      var ref1;
+      return this.path.isReference() && (ref1 = this.model.get('op'), indexOf.call(Query.RANGE_OPS, ref1) >= 0);
     };
 
     ConstraintEditor.prototype.getOtherOperators = function() {
@@ -11225,9 +11226,9 @@ module.exports = '2.0.2';
     };
 
     ConstraintEditor.prototype.remove = function() {
-      var _ref1;
-      if ((_ref1 = this.buttonDelegate) != null) {
-        _ref1.off('click.constraint-editor');
+      var ref1;
+      if ((ref1 = this.buttonDelegate) != null) {
+        ref1.off('click.constraint-editor');
       }
       return this.$el.slideUp({
         always: (function(_this) {
@@ -11244,13 +11245,13 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../core-view":3,"../icons":14,"../messages":16,"./attribute-value-controls":113,"./boolean-value-controls":114,"./error-message":137,"./list-value-controls":193,"./lookup-value-controls":194,"./loop-value-controls":195,"./multi-value-controls":198,"./type-value-controls":228,"imjs":255,"underscore":301}],130:[function(require,module,exports){
+},{"../core-view":3,"../icons":14,"../messages":16,"./attribute-value-controls":113,"./boolean-value-controls":114,"./error-message":137,"./list-value-controls":193,"./lookup-value-controls":194,"./loop-value-controls":195,"./multi-value-controls":198,"./type-value-controls":228,"imjs":247,"underscore":262}],130:[function(require,module,exports){
 (function() {
-  var ConstraintSummary, CoreView, IS_BLANK, Messages, Model, Query, Templates, _, _ref,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
-    __slice = [].slice;
+  var ConstraintSummary, CoreView, IS_BLANK, Messages, Model, Query, Templates, _, ref,
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty,
+    indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
+    slice = [].slice;
 
   _ = require('underscore');
 
@@ -11262,15 +11263,15 @@ module.exports = '2.0.2';
 
   IS_BLANK = require('../patterns').IS_BLANK;
 
-  _ref = require('imjs'), Query = _ref.Query, Model = _ref.Model;
+  ref = require('imjs'), Query = ref.Query, Model = ref.Model;
 
   Messages.set({
     'consummary.IsA': 'is a',
     'consummary.NoValue': 'no value'
   });
 
-  module.exports = ConstraintSummary = (function(_super) {
-    __extends(ConstraintSummary, _super);
+  module.exports = ConstraintSummary = (function(superClass) {
+    extend(ConstraintSummary, superClass);
 
     function ConstraintSummary() {
       return ConstraintSummary.__super__.constructor.apply(this, arguments);
@@ -11326,8 +11327,8 @@ module.exports = '2.0.2';
     };
 
     ConstraintSummary.prototype.getTitleVal = function() {
-      var first, last, vals, _i, _ref1, _ref2;
-      if (this.model.has('values') && (_ref1 = this.model.get('op'), __indexOf.call(Query.MULTIVALUE_OPS.concat(Query.RANGE_OPS), _ref1) >= 0)) {
+      var first, i, last, ref1, ref2, vals;
+      if (this.model.has('values') && (ref1 = this.model.get('op'), indexOf.call(Query.MULTIVALUE_OPS.concat(Query.RANGE_OPS), ref1) >= 0)) {
         if (vals = this.model.get('values')) {
           if (vals.length === 1) {
             return vals[0];
@@ -11336,14 +11337,14 @@ module.exports = '2.0.2';
           } else if (vals.length > 5) {
             return vals.length + " values";
           } else {
-            first = 2 <= vals.length ? __slice.call(vals, 0, _i = vals.length - 1) : (_i = 0, []), last = vals[_i++];
-            return "" + (first.join(', ')) + " and " + last;
+            first = 2 <= vals.length ? slice.call(vals, 0, i = vals.length - 1) : (i = 0, []), last = vals[i++];
+            return (first.join(', ')) + " and " + last;
           }
         }
       } else if (this.model.has('value')) {
         return this.model.get('value');
       } else {
-        return (_ref2 = this.model.get('typeName')) != null ? _ref2 : this.model.get('type');
+        return (ref2 = this.model.get('typeName')) != null ? ref2 : this.model.get('type');
       }
     };
 
@@ -11352,16 +11353,16 @@ module.exports = '2.0.2';
     };
 
     ConstraintSummary.prototype.getPathLabel = function() {
-      var displayName, path, title, _ref1, _ref2;
-      _ref1 = this.model.toJSON(), title = _ref1.title, displayName = _ref1.displayName, path = _ref1.path;
+      var displayName, path, ref1, ref2, title;
+      ref1 = this.model.toJSON(), title = ref1.title, displayName = ref1.displayName, path = ref1.path;
       return {
-        content: String((_ref2 = title != null ? title : displayName) != null ? _ref2 : path),
+        content: String((ref2 = title != null ? title : displayName) != null ? ref2 : path),
         type: 'path'
       };
     };
 
     ConstraintSummary.prototype.getSummary = function() {
-      var labels, level, op, val, _ref1;
+      var labels, level, op, ref1, val;
       labels = [];
       labels.push(this.getPathLabel());
       if ((op = this.getTitleOp())) {
@@ -11370,7 +11371,7 @@ module.exports = '2.0.2';
           type: 'op'
         });
       }
-      if (_ref1 = this.model.get('op'), __indexOf.call(Query.NULL_OPS, _ref1) < 0) {
+      if (ref1 = this.model.get('op'), indexOf.call(Query.NULL_OPS, ref1) < 0) {
         val = this.getTitleVal();
         if ((val == null) || IS_BLANK.test(val)) {
           level = this.model.get('new') ? 'warning' : 'error';
@@ -11401,11 +11402,11 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../core-view":3,"../messages":16,"../patterns":64,"../templates":67,"imjs":255,"underscore":301}],131:[function(require,module,exports){
+},{"../core-view":3,"../messages":16,"../patterns":64,"../templates":67,"imjs":247,"underscore":262}],131:[function(require,module,exports){
 (function() {
   var ActiveConstraint, ConstraintAdder, Constraints, CoreView, Templates, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -11419,8 +11420,8 @@ module.exports = '2.0.2';
 
   require('../messages/constraints');
 
-  module.exports = Constraints = (function(_super) {
-    __extends(Constraints, _super);
+  module.exports = Constraints = (function(superClass) {
+    extend(Constraints, superClass);
 
     function Constraints() {
       return Constraints.__super__.constructor.apply(this, arguments);
@@ -11428,8 +11429,8 @@ module.exports = '2.0.2';
 
     Constraints.prototype.className = "im-constraints";
 
-    Constraints.prototype.initialize = function(_arg) {
-      this.query = _arg.query;
+    Constraints.prototype.initialize = function(arg) {
+      this.query = arg.query;
       Constraints.__super__.initialize.apply(this, arguments);
       return this.listenTo(this.query, "change:constraints", this.reRender);
     };
@@ -11451,11 +11452,11 @@ module.exports = '2.0.2';
     Constraints.prototype.template = Templates.templateFromParts(['constraints-heading', 'active-constraints']);
 
     Constraints.prototype.postRender = function() {
-      var constraint, container, i, _i, _len, _ref;
+      var constraint, container, i, j, len, ref;
       container = this.$('.im-active-constraints');
-      _ref = this.getConstraints();
-      for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
-        constraint = _ref[i];
+      ref = this.getConstraints();
+      for (i = j = 0, len = ref.length; j < len; i = ++j) {
+        constraint = ref[i];
         this.renderChild("con_" + i, new ActiveConstraint({
           query: this.query,
           constraint: constraint
@@ -11480,11 +11481,11 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../core-view":3,"../messages/constraints":21,"../templates":67,"./active-constraint":112,"./constraint-adder":128,"underscore":301}],132:[function(require,module,exports){
+},{"../core-view":3,"../messages/constraints":21,"../templates":67,"./active-constraint":112,"./constraint-adder":128,"underscore":262}],132:[function(require,module,exports){
 (function() {
   var AdderButton, CoreView, Messages, PathModel, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -11496,8 +11497,8 @@ module.exports = '2.0.2';
 
   require('../../messages/constraints');
 
-  module.exports = AdderButton = (function(_super) {
-    __extends(AdderButton, _super);
+  module.exports = AdderButton = (function(superClass) {
+    extend(AdderButton, superClass);
 
     function AdderButton() {
       return AdderButton.__super__.constructor.apply(this, arguments);
@@ -11543,12 +11544,12 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../../core-view":3,"../../messages":16,"../../messages/constraints":21,"../../models/path":56,"underscore":301}],133:[function(require,module,exports){
+},{"../../core-view":3,"../../messages":16,"../../messages/constraints":21,"../../models/path":56,"underscore":262}],133:[function(require,module,exports){
 (function() {
   var AdderButton, ComposedColumnConstraintAdder, ConstraintAdder, CoreView, DropdownButtonGrp, Messages, OPTS_SEL, Option, PathModel, Templates, Toggle, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    __slice = [].slice;
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty,
+    slice = [].slice;
 
   _ = require('underscore');
 
@@ -11568,8 +11569,8 @@ module.exports = '2.0.2';
 
   OPTS_SEL = '.im-constraint-adder-options';
 
-  DropdownButtonGrp = (function(_super) {
-    __extends(DropdownButtonGrp, _super);
+  DropdownButtonGrp = (function(superClass) {
+    extend(DropdownButtonGrp, superClass);
 
     function DropdownButtonGrp() {
       return DropdownButtonGrp.__super__.constructor.apply(this, arguments);
@@ -11598,7 +11599,7 @@ module.exports = '2.0.2';
     DropdownButtonGrp.prototype.ICONS = 'NONE';
 
     DropdownButtonGrp.prototype.postRender = function() {
-      var i, kid, ul, _i, _len, _ref;
+      var i, j, kid, len, ref, ul;
       this.toggleOpen();
       this.renderChild('main', this.main);
       this.renderChild('toggle', new Toggle({
@@ -11606,9 +11607,9 @@ module.exports = '2.0.2';
       }));
       ul = document.createElement('ul');
       ul.className = 'dropdown-menu';
-      _ref = this.options;
-      for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
-        kid = _ref[i];
+      ref = this.options;
+      for (i = j = 0, len = ref.length; j < len; i = ++j) {
+        kid = ref[i];
         this.renderChild(i, kid, ul);
       }
       return this.$el.append(ul);
@@ -11618,8 +11619,8 @@ module.exports = '2.0.2';
 
   })(CoreView);
 
-  Toggle = (function(_super) {
-    __extends(Toggle, _super);
+  Toggle = (function(superClass) {
+    extend(Toggle, superClass);
 
     function Toggle() {
       return Toggle.__super__.constructor.apply(this, arguments);
@@ -11645,8 +11646,8 @@ module.exports = '2.0.2';
 
   })(CoreView);
 
-  Option = (function(_super) {
-    __extends(Option, _super);
+  Option = (function(superClass) {
+    extend(Option, superClass);
 
     function Option() {
       return Option.__super__.constructor.apply(this, arguments);
@@ -11657,15 +11658,15 @@ module.exports = '2.0.2';
     Option.prototype.className = '';
 
     Option.prototype.template = function() {
-      return "<a>" + Option.__super__.template.apply(this, arguments) + "</a>";
+      return "<a>" + (Option.__super__.template.apply(this, arguments)) + "</a>";
     };
 
     return Option;
 
   })(AdderButton);
 
-  module.exports = ComposedColumnConstraintAdder = (function(_super) {
-    __extends(ComposedColumnConstraintAdder, _super);
+  module.exports = ComposedColumnConstraintAdder = (function(superClass) {
+    extend(ComposedColumnConstraintAdder, superClass);
 
     function ComposedColumnConstraintAdder() {
       return ComposedColumnConstraintAdder.__super__.constructor.apply(this, arguments);
@@ -11684,31 +11685,31 @@ module.exports = '2.0.2';
     ComposedColumnConstraintAdder.prototype.renderOptions = function() {};
 
     ComposedColumnConstraintAdder.prototype.showTree = function() {
-      var b, grp, mainButton, opts, p, p_, ps, _i, _len, _ref, _ref1;
-      _ref = this.paths, p = _ref[0], ps = 2 <= _ref.length ? __slice.call(_ref, 1) : [];
+      var b, grp, j, len, mainButton, opts, p, p_, ps, ref, ref1;
+      ref = this.paths, p = ref[0], ps = 2 <= ref.length ? slice.call(ref, 1) : [];
       mainButton = new AdderButton({
         hideType: true,
         model: new PathModel(p)
       });
       opts = (function() {
-        var _i, _len, _results;
-        _results = [];
-        for (_i = 0, _len = ps.length; _i < _len; _i++) {
-          p_ = ps[_i];
-          _results.push(new Option({
+        var j, len, results;
+        results = [];
+        for (j = 0, len = ps.length; j < len; j++) {
+          p_ = ps[j];
+          results.push(new Option({
             hideType: true,
             model: new PathModel(p_)
           }));
         }
-        return _results;
+        return results;
       })();
       grp = new DropdownButtonGrp({
         main: mainButton,
         options: opts
       });
-      _ref1 = [mainButton].concat(__slice.call(opts));
-      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-        b = _ref1[_i];
+      ref1 = [mainButton].concat(slice.call(opts));
+      for (j = 0, len = ref1.length; j < len; j++) {
+        b = ref1[j];
         this.listenTo(b, 'chosen', this.onChosen);
       }
       return this.renderChild('tree', grp, this.$(OPTS_SEL));
@@ -11720,11 +11721,11 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../../core-view":3,"../../messages":16,"../../messages/constraints":21,"../../models/path":56,"../../templates":67,"../constraint-adder":128,"./column-adder-button":132,"underscore":301}],134:[function(require,module,exports){
+},{"../../core-view":3,"../../messages":16,"../../messages/constraints":21,"../../models/path":56,"../../templates":67,"../constraint-adder":128,"./column-adder-button":132,"underscore":262}],134:[function(require,module,exports){
 (function() {
   var AdderButton, ConstraintAdder, CoreView, Messages, OPTS_SEL, PathModel, SingleColumnConstraintAdder, Templates, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -11744,8 +11745,8 @@ module.exports = '2.0.2';
 
   OPTS_SEL = '.im-constraint-adder-options';
 
-  module.exports = SingleColumnConstraintAdder = (function(_super) {
-    __extends(SingleColumnConstraintAdder, _super);
+  module.exports = SingleColumnConstraintAdder = (function(superClass) {
+    extend(SingleColumnConstraintAdder, superClass);
 
     function SingleColumnConstraintAdder() {
       return SingleColumnConstraintAdder.__super__.constructor.apply(this, arguments);
@@ -11794,11 +11795,11 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../../core-view":3,"../../messages":16,"../../messages/constraints":21,"../../models/path":56,"../../templates":67,"../constraint-adder":128,"./column-adder-button":132,"underscore":301}],135:[function(require,module,exports){
+},{"../../core-view":3,"../../messages":16,"../../messages/constraints":21,"../../models/path":56,"../../templates":67,"../constraint-adder":128,"./column-adder-button":132,"underscore":262}],135:[function(require,module,exports){
 (function() {
   var ComposedColumnConstraintAdder, Constraints, SingleColumnConstraintAdder, SingleColumnConstraints,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   Constraints = require('../constraints');
 
@@ -11806,17 +11807,17 @@ module.exports = '2.0.2';
 
   ComposedColumnConstraintAdder = require('./composed-column-adder');
 
-  module.exports = SingleColumnConstraints = (function(_super) {
-    __extends(SingleColumnConstraints, _super);
+  module.exports = SingleColumnConstraints = (function(superClass) {
+    extend(SingleColumnConstraints, superClass);
 
     function SingleColumnConstraints() {
       return SingleColumnConstraints.__super__.constructor.apply(this, arguments);
     }
 
     SingleColumnConstraints.prototype.getConAdder = function() {
-      var isComposed, outerJoined, path, replaces, _ref;
+      var isComposed, outerJoined, path, ref, replaces;
       if (this.shouldShowAdder()) {
-        _ref = this.model.attributes, replaces = _ref.replaces, isComposed = _ref.isComposed, outerJoined = _ref.outerJoined;
+        ref = this.model.attributes, replaces = ref.replaces, isComposed = ref.isComposed, outerJoined = ref.outerJoined;
         path = this.model.pathInfo();
         if (isComposed && replaces.length > 1) {
           return new ComposedColumnConstraintAdder({
@@ -11838,23 +11839,23 @@ module.exports = '2.0.2';
     };
 
     SingleColumnConstraints.prototype.shouldShowAdder = function() {
-      var isComposed, numeric, outerJoined, _ref;
-      _ref = this.model.attributes, numeric = _ref.numeric, isComposed = _ref.isComposed, outerJoined = _ref.outerJoined;
+      var isComposed, numeric, outerJoined, ref;
+      ref = this.model.attributes, numeric = ref.numeric, isComposed = ref.isComposed, outerJoined = ref.outerJoined;
       return numeric || isComposed || outerJoined || (!this.getConstraints().length);
     };
 
     SingleColumnConstraints.prototype.getConstraints = function() {
-      var c, view, _i, _len, _ref, _results;
+      var c, i, len, ref, results, view;
       view = this.model.get('path');
-      _ref = this.query.constraints;
-      _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        c = _ref[_i];
+      ref = this.query.constraints;
+      results = [];
+      for (i = 0, len = ref.length; i < len; i++) {
+        c = ref[i];
         if (c.path.match(view)) {
-          _results.push(c);
+          results.push(c);
         }
       }
-      return _results;
+      return results;
     };
 
     return SingleColumnConstraints;
@@ -11866,8 +11867,8 @@ module.exports = '2.0.2';
 },{"../constraints":131,"./composed-column-adder":133,"./single-column-adder":134}],136:[function(require,module,exports){
 (function() {
   var Bus, CC_NOT_FOUND, Children, CoreView, Dashboard, ERR, History, QueryTools, SelectedObjects, Table, TableModel, Types, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -11893,8 +11894,8 @@ module.exports = '2.0.2';
 
   CC_NOT_FOUND = 'consumerContainer provided as selector - but no matching element was found';
 
-  module.exports = Dashboard = (function(_super) {
-    __extends(Dashboard, _super);
+  module.exports = Dashboard = (function(superClass) {
+    extend(Dashboard, superClass);
 
     function Dashboard() {
       return Dashboard.__super__.constructor.apply(this, arguments);
@@ -11908,9 +11909,9 @@ module.exports = '2.0.2';
 
     Dashboard.prototype.optionalParameters = ['consumerContainer', 'consumerBtnClass'];
 
-    Dashboard.prototype.initialize = function(_arg) {
+    Dashboard.prototype.initialize = function(arg) {
       var query;
-      query = _arg.query;
+      query = arg.query;
       if (!Types.Query.test(query)) {
         if (query == null) {
           throw new Error(ERR);
@@ -11960,11 +11961,11 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../core-view":3,"../core/type-assertions":10,"../models/history":45,"../models/selected-objects":58,"../models/table":61,"../utils/children":76,"../utils/events":81,"./query-tools":208,"./table":209,"underscore":301}],137:[function(require,module,exports){
+},{"../core-view":3,"../core/type-assertions":10,"../models/history":45,"../models/selected-objects":58,"../models/table":61,"../utils/children":76,"../utils/events":81,"./query-tools":208,"./table":209,"underscore":262}],137:[function(require,module,exports){
 (function() {
-  var CoreView, ErrorMessage, Icons, Templates, fs, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+  var CoreView, ErrorMessage, Icons, Templates, _, fs,
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -11976,8 +11977,8 @@ module.exports = '2.0.2';
 
   Templates = require('../templates');
 
-  module.exports = ErrorMessage = (function(_super) {
-    __extends(ErrorMessage, _super);
+  module.exports = ErrorMessage = (function(superClass) {
+    extend(ErrorMessage, superClass);
 
     function ErrorMessage() {
       return ErrorMessage.__super__.constructor.apply(this, arguments);
@@ -12013,12 +12014,12 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../core-view":3,"../icons":14,"../templates":67,"fs":239,"underscore":301}],138:[function(require,module,exports){
+},{"../core-view":3,"../icons":14,"../templates":67,"fs":263,"underscore":262}],138:[function(require,module,exports){
 (function() {
-  var $, ColumnControls, CompressionControls, ConstraintAdder, DestinationOptions, ExportDialogue, ExportModel, FOOTER, FastaOptions, FlatFileOptions, FormatControls, Formats, INITIAL_STATE, JSONOptions, Menu, Messages, Modal, Model, Options, Preview, RowControls, RunsQuery, Templates, UndismissableError, isa, openWindowWithPost, sendToDropBox, sendToGalaxy, sendToGenomeSpace, sendToGoogleDrive, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+  var $, ColumnControls, CompressionControls, ConstraintAdder, DestinationOptions, ExportDialogue, ExportModel, FOOTER, FastaOptions, FlatFileOptions, FormatControls, Formats, INITIAL_STATE, JSONOptions, Menu, Messages, Modal, Model, Options, Preview, RowControls, RunsQuery, Templates, UndismissableError, _, isa, openWindowWithPost, sendToDropBox, sendToGalaxy, sendToGenomeSpace, sendToGoogleDrive,
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty,
+    bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
   _ = require('underscore');
 
@@ -12091,8 +12092,8 @@ module.exports = '2.0.2';
 
   })();
 
-  ExportModel = (function(_super) {
-    __extends(ExportModel, _super);
+  ExportModel = (function(superClass) {
+    extend(ExportModel, superClass);
 
     function ExportModel() {
       return ExportModel.__super__.constructor.apply(this, arguments);
@@ -12126,13 +12127,13 @@ module.exports = '2.0.2';
     };
   };
 
-  module.exports = ExportDialogue = (function(_super) {
-    __extends(ExportDialogue, _super);
+  module.exports = ExportDialogue = (function(superClass) {
+    extend(ExportDialogue, superClass);
 
     function ExportDialogue() {
-      this.onUploadError = __bind(this.onUploadError, this);
-      this.onUploadProgress = __bind(this.onUploadProgress, this);
-      this.onUploadComplete = __bind(this.onUploadComplete, this);
+      this.onUploadError = bind(this.onUploadError, this);
+      this.onUploadProgress = bind(this.onUploadProgress, this);
+      this.onUploadComplete = bind(this.onUploadComplete, this);
       return ExportDialogue.__super__.constructor.apply(this, arguments);
     }
 
@@ -12175,15 +12176,15 @@ module.exports = '2.0.2';
     ExportDialogue.prototype.onChangeFormat = function() {
       return _.defer((function(_this) {
         return function() {
-          var activeCols, cs, format, maxCols, newColumns, nodecolumns, oldColumns, p, v, _i, _len, _ref, _ref1;
+          var activeCols, cs, format, i, len, maxCols, newColumns, nodecolumns, oldColumns, p, ref, ref1, v;
           format = _this.model.get('format');
           activeCols = _this.model.get('columns');
-          if ((_ref = format.needs) != null ? _ref.length : void 0) {
+          if ((ref = format.needs) != null ? ref.length : void 0) {
             oldColumns = activeCols.slice();
             newColumns = [];
-            _ref1 = _this.query.views;
-            for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-              v = _ref1[_i];
+            ref1 = _this.query.views;
+            for (i = 0, len = ref1.length; i < len; i++) {
+              v = ref1[i];
               p = _this.query.makePath(v).getParent();
               if (_.any(format.needs, function(needed) {
                 return p.isa(needed);
@@ -12236,12 +12237,12 @@ module.exports = '2.0.2';
     };
 
     ExportDialogue.prototype.categoriseQuery = function() {
-      var has, table, type, viewNodes, _ref;
+      var has, ref, table, type, viewNodes;
       viewNodes = this.query.getViewNodes();
       has = {};
-      _ref = this.query.model.classes;
-      for (type in _ref) {
-        table = _ref[type];
+      ref = this.query.model.classes;
+      for (type in ref) {
+        table = ref[type];
         has[type] = _.any(viewNodes, isa(type));
       }
       return this.model.set({
@@ -12270,8 +12271,8 @@ module.exports = '2.0.2';
     ExportDialogue.prototype.footer = Templates.templateFromParts(FOOTER);
 
     ExportDialogue.prototype.updateState = function() {
-      var columnDesc, columns, compress, compression, error, format, max, rowCount, size, start, _ref;
-      _ref = this.model.toJSON(), compress = _ref.compress, compression = _ref.compression, start = _ref.start, size = _ref.size, max = _ref.max, format = _ref.format, columns = _ref.columns;
+      var columnDesc, columns, compress, compression, error, format, max, ref, rowCount, size, start;
+      ref = this.model.toJSON(), compress = ref.compress, compression = ref.compression, start = ref.start, size = ref.size, max = ref.max, format = ref.format, columns = ref.columns;
       columnDesc = _.isEqual(columns, this.query.views) ? Messages.get('All') : columns.length;
       rowCount = this.getRowCount();
       error = columns.length === 0 ? new UndismissableError('NoColumnsSelected') : start >= max ? new UndismissableError('OffsetOutOfBounds') : null;
@@ -12288,8 +12289,8 @@ module.exports = '2.0.2';
     };
 
     ExportDialogue.prototype.getRowCount = function() {
-      var max, size, start, _ref;
-      _ref = this.model.pick('start', 'size', 'max'), start = _ref.start, size = _ref.size, max = _ref.max;
+      var max, ref, size, start;
+      ref = this.model.pick('start', 'size', 'max'), start = ref.start, size = ref.size, max = ref.max;
       if (start == null) {
         start = 0;
       }
@@ -12398,15 +12399,15 @@ module.exports = '2.0.2';
     };
 
     ExportDialogue.prototype.handleKeyup = function(e) {
-      var _ref, _ref1;
+      var ref, ref1;
       if (this.$(e.target).is('input')) {
         return;
       }
       switch (e.which) {
         case 40:
-          return (_ref = this.children.menu) != null ? _ref.next() : void 0;
+          return (ref = this.children.menu) != null ? ref.next() : void 0;
         case 38:
-          return (_ref1 = this.children.menu) != null ? _ref1.prev() : void 0;
+          return (ref1 = this.children.menu) != null ? ref1.prev() : void 0;
       }
     };
 
@@ -12435,11 +12436,11 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../core-model":2,"../messages":16,"../mixins/runs-query":33,"../models/export-formats":42,"../options":63,"../templates":67,"../utils/open-window-with-post":94,"../utils/send-to-dropbox":100,"../utils/send-to-galaxy":101,"../utils/send-to-genomespace":102,"../utils/send-to-google-drive":103,"./constraint-adder":128,"./export-dialogue/column-controls":140,"./export-dialogue/compression-controls":141,"./export-dialogue/destination-options":142,"./export-dialogue/fasta-options":143,"./export-dialogue/flat-file-options":144,"./export-dialogue/format-controls":145,"./export-dialogue/json-options":146,"./export-dialogue/preview":148,"./export-dialogue/row-controls":149,"./export-dialogue/tab-menu":150,"./modal":197,"jquery":267,"underscore":301}],139:[function(require,module,exports){
+},{"../core-model":2,"../messages":16,"../mixins/runs-query":33,"../models/export-formats":42,"../options":63,"../templates":67,"../utils/open-window-with-post":94,"../utils/send-to-dropbox":100,"../utils/send-to-galaxy":101,"../utils/send-to-genomespace":102,"../utils/send-to-google-drive":103,"./constraint-adder":128,"./export-dialogue/column-controls":140,"./export-dialogue/compression-controls":141,"./export-dialogue/destination-options":142,"./export-dialogue/fasta-options":143,"./export-dialogue/flat-file-options":144,"./export-dialogue/format-controls":145,"./export-dialogue/json-options":146,"./export-dialogue/preview":148,"./export-dialogue/row-controls":149,"./export-dialogue/tab-menu":150,"./modal":197,"jquery":256,"underscore":262}],139:[function(require,module,exports){
 (function() {
   var Counter, ExportDialogue, ExportDialogueButton, QueryDialogueButton, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -12449,8 +12450,8 @@ module.exports = '2.0.2';
 
   Counter = require('../../utils/count-executor');
 
-  module.exports = ExportDialogueButton = (function(_super) {
-    __extends(ExportDialogueButton, _super);
+  module.exports = ExportDialogueButton = (function(superClass) {
+    extend(ExportDialogueButton, superClass);
 
     function ExportDialogueButton() {
       return ExportDialogueButton.__super__.constructor.apply(this, arguments);
@@ -12491,8 +12492,8 @@ module.exports = '2.0.2';
     };
 
     ExportDialogueButton.prototype.dialogueOptions = function() {
-      var page, _ref;
-      page = (_ref = this.tableState) != null ? _ref.pick('start', 'size') : void 0;
+      var page, ref;
+      page = (ref = this.tableState) != null ? ref.pick('start', 'size') : void 0;
       return {
         query: this.query,
         model: {
@@ -12509,12 +12510,12 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../../utils/count-executor":77,"../export-dialogue":138,"../query-dialogue-button":206,"underscore":301}],140:[function(require,module,exports){
+},{"../../utils/count-executor":77,"../export-dialogue":138,"../query-dialogue-button":206,"underscore":262}],140:[function(require,module,exports){
 (function() {
-  var AddColumnControl, ColumnControls, ColumnView, HasTypeaheads, HeadingLabel, LabelView, Messages, PathSet, ResetButton, Templates, View, pathSuggester, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+  var AddColumnControl, ColumnControls, ColumnView, HasTypeaheads, HeadingLabel, LabelView, Messages, PathSet, ResetButton, Templates, View, _, pathSuggester,
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty,
+    indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   _ = require('underscore');
 
@@ -12532,8 +12533,8 @@ module.exports = '2.0.2';
 
   pathSuggester = require('../../utils/path-suggester');
 
-  HeadingLabel = (function(_super) {
-    __extends(HeadingLabel, _super);
+  HeadingLabel = (function(superClass) {
+    extend(HeadingLabel, superClass);
 
     function HeadingLabel() {
       return HeadingLabel.__super__.constructor.apply(this, arguments);
@@ -12545,8 +12546,8 @@ module.exports = '2.0.2';
 
   })(LabelView);
 
-  AddColumnControl = (function(_super) {
-    __extends(AddColumnControl, _super);
+  AddColumnControl = (function(superClass) {
+    extend(AddColumnControl, superClass);
 
     function AddColumnControl() {
       return AddColumnControl.__super__.constructor.apply(this, arguments);
@@ -12554,8 +12555,8 @@ module.exports = '2.0.2';
 
     AddColumnControl.include(HasTypeaheads);
 
-    AddColumnControl.prototype.initialize = function(_arg) {
-      this.columns = _arg.columns, this.query = _arg.query;
+    AddColumnControl.prototype.initialize = function(arg) {
+      this.columns = arg.columns, this.query = arg.query;
       AddColumnControl.__super__.initialize.apply(this, arguments);
       return this.initSuggestions();
     };
@@ -12575,30 +12576,30 @@ module.exports = '2.0.2';
     };
 
     AddColumnControl.prototype.initSuggestions = function() {
-      var cn, node, nodes, _i, _len, _results;
+      var cn, j, len, node, nodes, results;
       this.suggestions = new PathSet;
       nodes = this.query.getQueryNodes();
-      _results = [];
-      for (_i = 0, _len = nodes.length; _i < _len; _i++) {
-        node = nodes[_i];
-        _results.push((function() {
-          var _j, _len1, _ref, _results1;
-          _ref = node.getChildNodes();
-          _results1 = [];
-          for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
-            cn = _ref[_j];
+      results = [];
+      for (j = 0, len = nodes.length; j < len; j++) {
+        node = nodes[j];
+        results.push((function() {
+          var k, len1, ref, results1;
+          ref = node.getChildNodes();
+          results1 = [];
+          for (k = 0, len1 = ref.length; k < len1; k++) {
+            cn = ref[k];
             if (cn.isAttribute()) {
               if (!this.columns.contains(cn)) {
-                _results1.push(this.addSuggestion(cn));
+                results1.push(this.addSuggestion(cn));
               } else {
-                _results1.push(void 0);
+                results1.push(void 0);
               }
             }
           }
-          return _results1;
+          return results1;
         }).call(this));
       }
-      return _results;
+      return results;
     };
 
     AddColumnControl.prototype.postRender = function() {
@@ -12633,8 +12634,8 @@ module.exports = '2.0.2';
 
   })(View);
 
-  ResetButton = (function(_super) {
-    __extends(ResetButton, _super);
+  ResetButton = (function(superClass) {
+    extend(ResetButton, superClass);
 
     function ResetButton() {
       return ResetButton.__super__.constructor.apply(this, arguments);
@@ -12644,8 +12645,8 @@ module.exports = '2.0.2';
 
     ResetButton.prototype.RERENDER_EVENT = 'change:isAll';
 
-    ResetButton.prototype.initialize = function(_arg) {
-      this.query = _arg.query, this.columns = _arg.columns;
+    ResetButton.prototype.initialize = function(arg) {
+      this.query = arg.query, this.columns = arg.columns;
       ResetButton.__super__.initialize.apply(this, arguments);
       this.setIsAll();
       return this.listenTo(this.columns, 'change:active', this.setIsAll);
@@ -12655,16 +12656,16 @@ module.exports = '2.0.2';
       var c, cols, view;
       view = this.query.views;
       cols = (function() {
-        var _i, _len, _ref, _results;
-        _ref = this.columns.where({
+        var j, len, ref, results;
+        ref = this.columns.where({
           active: true
         });
-        _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          c = _ref[_i];
-          _results.push(c.get('item').toString());
+        results = [];
+        for (j = 0, len = ref.length; j < len; j++) {
+          c = ref[j];
+          results.push(c.get('item').toString());
         }
-        return _results;
+        return results;
       }).call(this);
       return this.model.set({
         isAll: _.isEqual(view, cols)
@@ -12697,8 +12698,8 @@ module.exports = '2.0.2';
 
   })(View);
 
-  ColumnView = (function(_super) {
-    __extends(ColumnView, _super);
+  ColumnView = (function(superClass) {
+    extend(ColumnView, superClass);
 
     function ColumnView() {
       return ColumnView.__super__.constructor.apply(this, arguments);
@@ -12707,7 +12708,7 @@ module.exports = '2.0.2';
     ColumnView.prototype.RERENDER_EVENT = 'change';
 
     ColumnView.prototype.initialize = function() {
-      var path, _ref;
+      var path, ref;
       ColumnView.__super__.initialize.apply(this, arguments);
       if (!this.model.has('active')) {
         this.model.set({
@@ -12719,7 +12720,7 @@ module.exports = '2.0.2';
           name: null
         });
         path = this.model.get('item');
-        if (((_ref = this.model.get('item').end) != null ? _ref.name : void 0) === 'id') {
+        if (((ref = this.model.get('item').end) != null ? ref.name : void 0) === 'id') {
           path = path.getParent();
         }
         return path.getDisplayName((function(_this) {
@@ -12753,8 +12754,8 @@ module.exports = '2.0.2';
 
   })(View);
 
-  module.exports = ColumnControls = (function(_super) {
-    __extends(ColumnControls, _super);
+  module.exports = ColumnControls = (function(superClass) {
+    extend(ColumnControls, superClass);
 
     function ColumnControls() {
       return ColumnControls.__super__.constructor.apply(this, arguments);
@@ -12762,17 +12763,17 @@ module.exports = '2.0.2';
 
     ColumnControls.prototype.className = 'container-fluid';
 
-    ColumnControls.prototype.initialize = function(_arg) {
-      var activeCols, c, format, n, ns, p, v, _i, _j, _k, _len, _len1, _len2, _ref, _ref1;
-      this.query = _arg.query;
+    ColumnControls.prototype.initialize = function(arg) {
+      var activeCols, c, format, j, k, l, len, len1, len2, n, ns, p, ref, ref1, v;
+      this.query = arg.query;
       ColumnControls.__super__.initialize.apply(this, arguments);
       this.columns = new PathSet;
       format = this.model.get('format');
       activeCols = this.model.get('columns');
-      if (!((_ref = format.needs) != null ? _ref.length : void 0)) {
-        _ref1 = this.query.views;
-        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-          v = _ref1[_i];
+      if (!((ref = format.needs) != null ? ref.length : void 0)) {
+        ref1 = this.query.views;
+        for (j = 0, len = ref1.length; j < len; j++) {
+          v = ref1[j];
           p = this.query.makePath(v);
           this.columns.add(p, {
             active: _.any(activeCols, function(ac) {
@@ -12781,15 +12782,15 @@ module.exports = '2.0.2';
           });
         }
       }
-      for (_j = 0, _len1 = activeCols.length; _j < _len1; _j++) {
-        c = activeCols[_j];
+      for (k = 0, len1 = activeCols.length; k < len1; k++) {
+        c = activeCols[k];
         this.columns.add(this.query.makePath(c), {
           active: true
         });
       }
       if ((ns = this.model.get('nodecolumns'))) {
-        for (_k = 0, _len2 = ns.length; _k < _len2; _k++) {
-          n = ns[_k];
+        for (l = 0, len2 = ns.length; l < len2; l++) {
+          n = ns[l];
           this.columns.add(this.query.makePath(n), {
             active: false
           });
@@ -12802,46 +12803,46 @@ module.exports = '2.0.2';
     ColumnControls.prototype.setColumns = function(m) {
       var c, columns, max, newlySelected, others;
       columns = (function() {
-        var _i, _len, _ref, _results;
-        _ref = this.columns.where({
+        var j, len, ref, results;
+        ref = this.columns.where({
           active: true
         });
-        _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          c = _ref[_i];
-          _results.push(c.get('item').toString());
+        results = [];
+        for (j = 0, len = ref.length; j < len; j++) {
+          c = ref[j];
+          results.push(c.get('item').toString());
         }
-        return _results;
+        return results;
       }).call(this);
       if ((max = this.model.get('format').maxColumns)) {
         if ((m != null) && columns.length > max) {
           newlySelected = m.get('item').toString();
           others = (function() {
-            var _i, _len, _results;
-            _results = [];
-            for (_i = 0, _len = columns.length; _i < _len; _i++) {
-              c = columns[_i];
+            var j, len, results;
+            results = [];
+            for (j = 0, len = columns.length; j < len; j++) {
+              c = columns[j];
               if (c !== newlySelected) {
-                _results.push(c);
+                results.push(c);
               }
             }
-            return _results;
+            return results;
           })();
           columns = [newlySelected].concat(_.first(others, max - 1));
           _.defer((function(_this) {
             return function() {
-              var _i, _len, _ref, _ref1, _results;
-              _ref = _this.columns.where({
+              var j, len, ref, ref1, results;
+              ref = _this.columns.where({
                 active: true
               });
-              _results = [];
-              for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-                c = _ref[_i];
-                _results.push(c.set({
-                  active: (_ref1 = c.get('item').toString(), __indexOf.call(columns, _ref1) >= 0)
+              results = [];
+              for (j = 0, len = ref.length; j < len; j++) {
+                c = ref[j];
+                results.push(c.set({
+                  active: (ref1 = c.get('item').toString(), indexOf.call(columns, ref1) >= 0)
                 }));
               }
-              return _results;
+              return results;
             };
           })(this));
         }
@@ -12882,11 +12883,11 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../../core-view":3,"../../messages":16,"../../mixins/has-typeaheads":32,"../../models/path-set":55,"../../templates":67,"../../utils/path-suggester":96,"../label-view":179,"underscore":301}],141:[function(require,module,exports){
+},{"../../core-view":3,"../../messages":16,"../../mixins/has-typeaheads":32,"../../models/path-set":55,"../../templates":67,"../../utils/path-suggester":96,"../label-view":179,"underscore":262}],141:[function(require,module,exports){
 (function() {
   var CompressionControls, ModalBody, Templates, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -12894,8 +12895,8 @@ module.exports = '2.0.2';
 
   Templates = require('../../templates');
 
-  module.exports = CompressionControls = (function(_super) {
-    __extends(CompressionControls, _super);
+  module.exports = CompressionControls = (function(superClass) {
+    extend(CompressionControls, superClass);
 
     function CompressionControls() {
       return CompressionControls.__super__.constructor.apply(this, arguments);
@@ -12935,11 +12936,11 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../../templates":67,"./main":147,"underscore":301}],142:[function(require,module,exports){
+},{"../../templates":67,"./main":147,"underscore":262}],142:[function(require,module,exports){
 (function() {
   var CoreView, DestinationOptions, DestinationSubOptions, Formats, Options, RadioButtons, Templates, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -12951,8 +12952,8 @@ module.exports = '2.0.2';
 
   Formats = require('../../models/export-formats');
 
-  DestinationSubOptions = (function(_super) {
-    __extends(DestinationSubOptions, _super);
+  DestinationSubOptions = (function(superClass) {
+    extend(DestinationSubOptions, superClass);
 
     function DestinationSubOptions() {
       return DestinationSubOptions.__super__.constructor.apply(this, arguments);
@@ -12995,9 +12996,9 @@ module.exports = '2.0.2';
       };
     };
 
-    DestinationSubOptions.prototype.setGalaxyUri = function(_arg) {
+    DestinationSubOptions.prototype.setGalaxyUri = function(arg) {
       var target;
-      target = _arg.target;
+      target = arg.target;
       return Options.set('Destination.Galaxy.Current', target.value);
     };
 
@@ -13012,8 +13013,8 @@ module.exports = '2.0.2';
 
   })(CoreView);
 
-  RadioButtons = (function(_super) {
-    __extends(RadioButtons, _super);
+  RadioButtons = (function(superClass) {
+    extend(RadioButtons, superClass);
 
     function RadioButtons() {
       return RadioButtons.__super__.constructor.apply(this, arguments);
@@ -13022,16 +13023,16 @@ module.exports = '2.0.2';
     RadioButtons.prototype.RERENDER_EVENT = 'change:dest';
 
     RadioButtons.prototype.destinations = function() {
-      var d, _i, _len, _ref, _results;
-      _ref = Options.get('Destinations');
-      _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        d = _ref[_i];
+      var d, i, len, ref, results;
+      ref = Options.get('Destinations');
+      results = [];
+      for (i = 0, len = ref.length; i < len; i++) {
+        d = ref[i];
         if (Options.get(['Destination', d, 'Enabled'])) {
-          _results.push(d);
+          results.push(d);
         }
       }
-      return _results;
+      return results;
     };
 
     RadioButtons.prototype.getData = function() {
@@ -13055,14 +13056,14 @@ module.exports = '2.0.2';
     RadioButtons.prototype.events = function() {
       var d;
       return _.object((function() {
-        var _i, _len, _ref, _results;
-        _ref = this.destinations();
-        _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          d = _ref[_i];
-          _results.push(["click .im-dest-" + d, this.setDest(d)]);
+        var i, len, ref, results;
+        ref = this.destinations();
+        results = [];
+        for (i = 0, len = ref.length; i < len; i++) {
+          d = ref[i];
+          results.push(["click .im-dest-" + d, this.setDest(d)]);
         }
-        return _results;
+        return results;
       }).call(this));
     };
 
@@ -13070,8 +13071,8 @@ module.exports = '2.0.2';
 
   })(CoreView);
 
-  module.exports = DestinationOptions = (function(_super) {
-    __extends(DestinationOptions, _super);
+  module.exports = DestinationOptions = (function(superClass) {
+    extend(DestinationOptions, superClass);
 
     function DestinationOptions() {
       return DestinationOptions.__super__.constructor.apply(this, arguments);
@@ -13100,14 +13101,14 @@ module.exports = '2.0.2';
     };
 
     DestinationOptions.prototype.events = function() {
-      var evts, fmt, types, _i, _len, _ref;
+      var evts, fmt, i, len, ref, types;
       evts = {
         '.change .im-param-name input': 'setName'
       };
       types = this.model.get('has');
-      _ref = Formats.getFormats(types);
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        fmt = _ref[_i];
+      ref = Formats.getFormats(types);
+      for (i = 0, len = ref.length; i < len; i++) {
+        fmt = ref[i];
         evts["click .im-fmt-" + fmt.id] = this.setFormat.bind(this, fmt);
       }
       return evts;
@@ -13131,11 +13132,11 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../../core-view":3,"../../models/export-formats":42,"../../options":63,"../../templates":67,"underscore":301}],143:[function(require,module,exports){
+},{"../../core-view":3,"../../models/export-formats":42,"../../options":63,"../../templates":67,"underscore":262}],143:[function(require,module,exports){
 (function() {
   var FastaOptions, LabelView, Messages, Templates, View, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -13147,8 +13148,8 @@ module.exports = '2.0.2';
 
   Templates = require('../../templates');
 
-  module.exports = FastaOptions = (function(_super) {
-    __extends(FastaOptions, _super);
+  module.exports = FastaOptions = (function(superClass) {
+    extend(FastaOptions, superClass);
 
     function FastaOptions() {
       return FastaOptions.__super__.constructor.apply(this, arguments);
@@ -13182,11 +13183,11 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../../core-view":3,"../../messages":16,"../../templates":67,"../label-view":179,"underscore":301}],144:[function(require,module,exports){
+},{"../../core-view":3,"../../messages":16,"../../templates":67,"../label-view":179,"underscore":262}],144:[function(require,module,exports){
 (function() {
   var FlatFileOptions, Templates, View, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -13194,8 +13195,8 @@ module.exports = '2.0.2';
 
   Templates = require('../../templates');
 
-  module.exports = FlatFileOptions = (function(_super) {
-    __extends(FlatFileOptions, _super);
+  module.exports = FlatFileOptions = (function(superClass) {
+    extend(FlatFileOptions, superClass);
 
     function FlatFileOptions() {
       return FlatFileOptions.__super__.constructor.apply(this, arguments);
@@ -13235,11 +13236,11 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../../core-view":3,"../../templates":67,"underscore":301}],145:[function(require,module,exports){
+},{"../../core-view":3,"../../templates":67,"underscore":262}],145:[function(require,module,exports){
 (function() {
   var FormatControls, Formats, HeadingView, LabelView, Messages, Templates, View, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -13253,8 +13254,8 @@ module.exports = '2.0.2';
 
   Formats = require('../../models/export-formats');
 
-  HeadingView = (function(_super) {
-    __extends(HeadingView, _super);
+  HeadingView = (function(superClass) {
+    extend(HeadingView, superClass);
 
     function HeadingView() {
       return HeadingView.__super__.constructor.apply(this, arguments);
@@ -13266,8 +13267,8 @@ module.exports = '2.0.2';
 
   })(LabelView);
 
-  module.exports = FormatControls = (function(_super) {
-    __extends(FormatControls, _super);
+  module.exports = FormatControls = (function(superClass) {
+    extend(FormatControls, superClass);
 
     function FormatControls() {
       return FormatControls.__super__.constructor.apply(this, arguments);
@@ -13310,11 +13311,11 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../../core-view":3,"../../messages":16,"../../models/export-formats":42,"../../templates":67,"../label-view":179,"underscore":301}],146:[function(require,module,exports){
+},{"../../core-view":3,"../../messages":16,"../../models/export-formats":42,"../../templates":67,"../label-view":179,"underscore":262}],146:[function(require,module,exports){
 (function() {
   var JSONOptions, LabelView, Messages, Templates, View, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -13326,8 +13327,8 @@ module.exports = '2.0.2';
 
   Templates = require('../../templates');
 
-  module.exports = JSONOptions = (function(_super) {
-    __extends(JSONOptions, _super);
+  module.exports = JSONOptions = (function(superClass) {
+    extend(JSONOptions, superClass);
 
     function JSONOptions() {
       return JSONOptions.__super__.constructor.apply(this, arguments);
@@ -13362,23 +13363,23 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../../core-view":3,"../../messages":16,"../../templates":67,"../label-view":179,"underscore":301}],147:[function(require,module,exports){
+},{"../../core-view":3,"../../messages":16,"../../templates":67,"../label-view":179,"underscore":262}],147:[function(require,module,exports){
 (function() {
   var ModalBody, View,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   View = require('../../core-view');
 
-  module.exports = ModalBody = (function(_super) {
-    __extends(ModalBody, _super);
+  module.exports = ModalBody = (function(superClass) {
+    extend(ModalBody, superClass);
 
     function ModalBody() {
       return ModalBody.__super__.constructor.apply(this, arguments);
     }
 
-    ModalBody.prototype.initialize = function(_arg) {
-      this.query = _arg.query;
+    ModalBody.prototype.initialize = function(arg) {
+      this.query = arg.query;
       return ModalBody.__super__.initialize.apply(this, arguments);
     };
 
@@ -13391,8 +13392,8 @@ module.exports = '2.0.2';
 },{"../../core-view":3}],148:[function(require,module,exports){
 (function() {
   var CoreView, Formats, Messages, PROPS, Preview, RunsQuery, Templates, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -13411,8 +13412,8 @@ module.exports = '2.0.2';
     size: 3
   };
 
-  module.exports = Preview = (function(_super) {
-    __extends(Preview, _super);
+  module.exports = Preview = (function(superClass) {
+    extend(Preview, superClass);
 
     function Preview() {
       return Preview.__super__.constructor.apply(this, arguments);
@@ -13420,8 +13421,8 @@ module.exports = '2.0.2';
 
     Preview.include(RunsQuery);
 
-    Preview.prototype.initialize = function(_arg) {
-      this.query = _arg.query;
+    Preview.prototype.initialize = function(arg) {
+      this.query = arg.query;
       Preview.__super__.initialize.apply(this, arguments);
       this.state.set({
         preview: ''
@@ -13484,11 +13485,11 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../../core-view":3,"../../messages":16,"../../mixins/runs-query":33,"../../models/export-formats":42,"../../templates":67,"underscore":301}],149:[function(require,module,exports){
+},{"../../core-view":3,"../../messages":16,"../../mixins/runs-query":33,"../../models/export-formats":42,"../../templates":67,"underscore":262}],149:[function(require,module,exports){
 (function() {
   var HeadingLabel, LabelView, Messages, OffsetLabel, ResetButton, RowControls, SizeLabel, Templates, View, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -13500,8 +13501,8 @@ module.exports = '2.0.2';
 
   Templates = require('../../templates');
 
-  SizeLabel = (function(_super) {
-    __extends(SizeLabel, _super);
+  SizeLabel = (function(superClass) {
+    extend(SizeLabel, superClass);
 
     function SizeLabel() {
       return SizeLabel.__super__.constructor.apply(this, arguments);
@@ -13519,8 +13520,8 @@ module.exports = '2.0.2';
 
   })(LabelView);
 
-  OffsetLabel = (function(_super) {
-    __extends(OffsetLabel, _super);
+  OffsetLabel = (function(superClass) {
+    extend(OffsetLabel, superClass);
 
     function OffsetLabel() {
       return OffsetLabel.__super__.constructor.apply(this, arguments);
@@ -13532,8 +13533,8 @@ module.exports = '2.0.2';
 
   })(LabelView);
 
-  HeadingLabel = (function(_super) {
-    __extends(HeadingLabel, _super);
+  HeadingLabel = (function(superClass) {
+    extend(HeadingLabel, superClass);
 
     function HeadingLabel() {
       return HeadingLabel.__super__.constructor.apply(this, arguments);
@@ -13545,8 +13546,8 @@ module.exports = '2.0.2';
 
   })(LabelView);
 
-  ResetButton = (function(_super) {
-    __extends(ResetButton, _super);
+  ResetButton = (function(superClass) {
+    extend(ResetButton, superClass);
 
     function ResetButton() {
       return ResetButton.__super__.constructor.apply(this, arguments);
@@ -13584,8 +13585,8 @@ module.exports = '2.0.2';
 
   })(View);
 
-  module.exports = RowControls = (function(_super) {
-    __extends(RowControls, _super);
+  module.exports = RowControls = (function(superClass) {
+    extend(RowControls, superClass);
 
     function RowControls() {
       return RowControls.__super__.constructor.apply(this, arguments);
@@ -13616,8 +13617,8 @@ module.exports = '2.0.2';
     };
 
     RowControls.prototype.updateInputs = function() {
-      var max, size, start, _ref;
-      _ref = this.model.toJSON(), start = _ref.start, size = _ref.size, max = _ref.max;
+      var max, ref, size, start;
+      ref = this.model.toJSON(), start = ref.start, size = ref.size, max = ref.max;
       this.$("input[name=size]").val(size || max);
       return this.$("input[name=start]").val(start);
     };
@@ -13663,12 +13664,12 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../../core-view":3,"../../messages":16,"../../templates":67,"../label-view":179,"underscore":301}],150:[function(require,module,exports){
+},{"../../core-view":3,"../../messages":16,"../../templates":67,"../label-view":179,"underscore":262}],150:[function(require,module,exports){
 (function() {
   var Options, TABS, Tab, TabMenu, Templates, View, _,
-    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -13679,17 +13680,17 @@ module.exports = '2.0.2';
   Templates = require('../../templates');
 
   Tab = (function() {
-    function Tab(ident, key, formats, groups) {
-      this.ident = ident;
+    function Tab(ident1, key, formats, groups) {
+      this.ident = ident1;
       this.formats = formats != null ? formats : [];
       this.groups = groups != null ? groups : null;
       this.key = "export.category." + key;
     }
 
     Tab.prototype.isFor = function(format) {
-      var _ref;
+      var ref;
       if (this.formats.length) {
-        return (_ref = format.ext, __indexOf.call(this.formats, _ref) >= 0);
+        return (ref = format.ext, indexOf.call(this.formats, ref) >= 0);
       }
       if (this.groups != null) {
         return this.groups[format.group];
@@ -13708,8 +13709,8 @@ module.exports = '2.0.2';
     }), new Tab('compression', 'Compression'), new Tab('column-headers', 'ColumnHeaders', ['tsv', 'csv']), new Tab('preview', 'Preview')
   ];
 
-  module.exports = TabMenu = (function(_super) {
-    __extends(TabMenu, _super);
+  module.exports = TabMenu = (function(superClass) {
+    extend(TabMenu, superClass);
 
     function TabMenu() {
       return TabMenu.__super__.constructor.apply(this, arguments);
@@ -13726,15 +13727,15 @@ module.exports = '2.0.2';
     });
 
     TabMenu.prototype.getTabs = function() {
-      var tab, _i, _len, _results;
-      _results = [];
-      for (_i = 0, _len = TABS.length; _i < _len; _i++) {
-        tab = TABS[_i];
+      var i, len, results, tab;
+      results = [];
+      for (i = 0, len = TABS.length; i < len; i++) {
+        tab = TABS[i];
         if (tab.isFor(this.model.get('format'))) {
-          _results.push(tab);
+          results.push(tab);
         }
       }
-      return _results;
+      return results;
     };
 
     TabMenu.prototype.getData = function() {
@@ -13779,14 +13780,14 @@ module.exports = '2.0.2';
     TabMenu.prototype.next = function() {
       var current, next, t, tabs;
       tabs = (function() {
-        var _i, _len, _ref, _results;
-        _ref = this.getTabs();
-        _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          t = _ref[_i];
-          _results.push(t.ident);
+        var i, len, ref, results;
+        ref = this.getTabs();
+        results = [];
+        for (i = 0, len = ref.length; i < len; i++) {
+          t = ref[i];
+          results.push(t.ident);
         }
-        return _results;
+        return results;
       }).call(this);
       current = _.indexOf(tabs, this.model.get('tab'));
       next = current + 1;
@@ -13801,14 +13802,14 @@ module.exports = '2.0.2';
     TabMenu.prototype.prev = function() {
       var current, prev, t, tabs;
       tabs = (function() {
-        var _i, _len, _ref, _results;
-        _ref = this.getTabs();
-        _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          t = _ref[_i];
-          _results.push(t.ident);
+        var i, len, ref, results;
+        ref = this.getTabs();
+        results = [];
+        for (i = 0, len = ref.length; i < len; i++) {
+          t = ref[i];
+          results.push(t.ident);
         }
-        return _results;
+        return results;
       }).call(this);
       current = _.indexOf(tabs, this.model.get('tab'));
       prev = current === 0 ? tabs.length - 1 : current - 1;
@@ -13821,23 +13822,23 @@ module.exports = '2.0.2';
       var events, evt, ident;
       evt = Options.get('Events.ActivateTab');
       events = _.object((function() {
-        var _i, _len, _results;
-        _results = [];
-        for (_i = 0, _len = TABS.length; _i < _len; _i++) {
-          ident = TABS[_i].ident;
-          _results.push(["" + evt + " .im-tab-" + ident, this.setTab(ident)]);
+        var i, len, results;
+        results = [];
+        for (i = 0, len = TABS.length; i < len; i++) {
+          ident = TABS[i].ident;
+          results.push([evt + " .im-tab-" + ident, this.setTab(ident)]);
         }
-        return _results;
+        return results;
       }).call(this));
       if (evt === 'mouseenter') {
         _.extend(events, _.object((function() {
-          var _i, _len, _results;
-          _results = [];
-          for (_i = 0, _len = TABS.length; _i < _len; _i++) {
-            ident = TABS[_i].ident;
-            _results.push(["click .im-tab-" + ident, this.setPinned(ident)]);
+          var i, len, results;
+          results = [];
+          for (i = 0, len = TABS.length; i < len; i++) {
+            ident = TABS[i].ident;
+            results.push(["click .im-tab-" + ident, this.setPinned(ident)]);
           }
-          return _results;
+          return results;
         }).call(this)));
       }
       return events;
@@ -13849,12 +13850,12 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../../core-view":3,"../../options":63,"../../templates":67,"underscore":301}],151:[function(require,module,exports){
+},{"../../core-view":3,"../../options":63,"../../templates":67,"underscore":262}],151:[function(require,module,exports){
 (function() {
   var CoreView, Event, FacetItems, FacetView, FacetVisualisation, NumericRange, Options, SelectedCount, SetsPathNames, SummaryHeading, SummaryItems,
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   Event = require('../../event');
 
@@ -13876,11 +13877,11 @@ module.exports = '2.0.2';
 
   FacetVisualisation = require('./visualisation');
 
-  module.exports = FacetView = (function(_super) {
-    __extends(FacetView, _super);
+  module.exports = FacetView = (function(superClass) {
+    extend(FacetView, superClass);
 
     function FacetView() {
-      this.Model = __bind(this.Model, this);
+      this.Model = bind(this.Model, this);
       return FacetView.__super__.constructor.apply(this, arguments);
     }
 
@@ -13951,8 +13952,8 @@ module.exports = '2.0.2';
     };
 
     FacetView.prototype.hasAttrView = function() {
-      var _ref;
-      return (_ref = this.view) != null ? typeof _ref.isAttribute === "function" ? _ref.isAttribute() : void 0 : void 0;
+      var ref;
+      return (ref = this.view) != null ? typeof ref.isAttribute === "function" ? ref.isAttribute() : void 0 : void 0;
     };
 
     FacetView.prototype.postRender = function() {
@@ -14042,9 +14043,9 @@ module.exports = '2.0.2';
 
 },{"../../core-view":3,"../../event":11,"../../mixins/sets-path-names":34,"../../models/numeric-range":50,"../../models/summary-items":60,"../../options":63,"./items":153,"./selected-count":160,"./summary-heading":161,"./visualisation":166}],152:[function(require,module,exports){
 (function() {
-  var HistoFacet, Messages, Options, VisualisationBase, bool, d3, scale, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+  var HistoFacet, Messages, Options, VisualisationBase, _, bool, d3, scale,
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   d3 = require('d3-browserify');
 
@@ -14064,8 +14065,8 @@ module.exports = '2.0.2';
     return d3.scale.linear().domain(input).range(output);
   };
 
-  module.exports = HistoFacet = (function(_super) {
-    __extends(HistoFacet, _super);
+  module.exports = HistoFacet = (function(superClass) {
+    extend(HistoFacet, superClass);
 
     function HistoFacet() {
       return HistoFacet.__super__.constructor.apply(this, arguments);
@@ -14103,8 +14104,8 @@ module.exports = '2.0.2';
     };
 
     HistoFacet.prototype.hasItems = function() {
-      var _ref, _ref1;
-      return ((_ref = this.model) != null ? (_ref1 = _ref.items) != null ? _ref1.models : void 0 : void 0) != null;
+      var ref, ref1;
+      return ((ref = this.model) != null ? (ref1 = ref.items) != null ? ref1.models : void 0 : void 0) != null;
     };
 
     HistoFacet.prototype.initChart = function() {
@@ -14151,8 +14152,8 @@ module.exports = '2.0.2';
     };
 
     HistoFacet.prototype.update = function(selection, scales) {
-      var Duration, Easing, h, height, _ref;
-      _ref = Options.get('D3.Transition'), Duration = _ref.Duration, Easing = _ref.Easing;
+      var Duration, Easing, h, height, ref;
+      ref = Options.get('D3.Transition'), Duration = ref.Duration, Easing = ref.Easing;
       h = this.chartHeight - this.bottomMargin;
       height = function(model) {
         return scales.y(model.get('count'));
@@ -14177,11 +14178,11 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../../messages":16,"../../messages/summary":27,"../../options":63,"../../utils/casts":74,"./visualisation-base":165,"d3-browserify":243,"underscore":301}],153:[function(require,module,exports){
+},{"../../messages":16,"../../messages/summary":27,"../../options":63,"../../utils/casts":74,"./visualisation-base":165,"d3-browserify":237,"underscore":262}],153:[function(require,module,exports){
 (function() {
   var CoreView, FacetItems, NoResults, OnlyOneItem, REQ_ATTRS, SummaryItems, SummaryStats, Templates, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -14199,8 +14200,8 @@ module.exports = '2.0.2';
 
   REQ_ATTRS = ['error', 'initialized'];
 
-  module.exports = FacetItems = (function(_super) {
-    __extends(FacetItems, _super);
+  module.exports = FacetItems = (function(superClass) {
+    extend(FacetItems, superClass);
 
     function FacetItems() {
       return FacetItems.__super__.constructor.apply(this, arguments);
@@ -14208,8 +14209,8 @@ module.exports = '2.0.2';
 
     FacetItems.prototype.className = 'im-facet-items';
 
-    FacetItems.prototype.initialize = function(_arg) {
-      this.range = _arg.range;
+    FacetItems.prototype.initialize = function(arg) {
+      this.range = arg.range;
       return FacetItems.__super__.initialize.apply(this, arguments);
     };
 
@@ -14268,11 +14269,11 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../../core-view":3,"../../templates":67,"./no-results":154,"./only-one-item":156,"./summary-items":163,"./summary-stats":164,"underscore":301}],154:[function(require,module,exports){
+},{"../../core-view":3,"../../templates":67,"./no-results":154,"./only-one-item":156,"./summary-items":163,"./summary-stats":164,"underscore":262}],154:[function(require,module,exports){
 (function() {
   var CoreView, NoResults, Templates,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   CoreView = require('../../core-view');
 
@@ -14280,8 +14281,8 @@ module.exports = '2.0.2';
 
   require('../../messages/summary');
 
-  module.exports = NoResults = (function(_super) {
-    __extends(NoResults, _super);
+  module.exports = NoResults = (function(superClass) {
+    extend(NoResults, superClass);
 
     function NoResults() {
       return NoResults.__super__.constructor.apply(this, arguments);
@@ -14307,9 +14308,9 @@ module.exports = '2.0.2';
 
 },{"../../core-view":3,"../../messages/summary":27,"../../templates":67}],155:[function(require,module,exports){
 (function() {
-  var $, Messages, NULL_SELECTION_WIDTH, NumericDistribution, Options, VisualisationBase, bucketRange, d3, limited, scale, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+  var $, Messages, NULL_SELECTION_WIDTH, NumericDistribution, Options, VisualisationBase, _, bucketRange, d3, limited, scale,
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   d3 = require('d3-browserify');
 
@@ -14332,17 +14333,17 @@ module.exports = '2.0.2';
   };
 
   bucketRange = function(bucketVal, bucket) {
-    var delta, max, min, _ref;
-    _ref = (function() {
-      var _i, _len, _ref, _results;
-      _ref = [0, 1];
-      _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        delta = _ref[_i];
-        _results.push(bucketVal(bucket + delta));
+    var delta, max, min, ref;
+    ref = (function() {
+      var j, len, ref, results;
+      ref = [0, 1];
+      results = [];
+      for (j = 0, len = ref.length; j < len; j++) {
+        delta = ref[j];
+        results.push(bucketVal(bucket + delta));
       }
-      return _results;
-    })(), min = _ref[0], max = _ref[1];
+      return results;
+    })(), min = ref[0], max = ref[1];
     return {
       min: min,
       max: max
@@ -14361,8 +14362,8 @@ module.exports = '2.0.2';
     };
   };
 
-  module.exports = NumericDistribution = (function(_super) {
-    __extends(NumericDistribution, _super);
+  module.exports = NumericDistribution = (function(superClass) {
+    extend(NumericDistribution, superClass);
 
     function NumericDistribution() {
       return NumericDistribution.__super__.constructor.apply(this, arguments);
@@ -14382,8 +14383,8 @@ module.exports = '2.0.2';
 
     NumericDistribution.prototype.selection = null;
 
-    NumericDistribution.prototype.initialize = function(_arg) {
-      this.range = _arg.range;
+    NumericDistribution.prototype.initialize = function(arg) {
+      this.range = arg.range;
       NumericDistribution.__super__.initialize.apply(this, arguments);
       return this.listenTo(this.range, 'change reset', this.onChangeRange);
     };
@@ -14400,8 +14401,8 @@ module.exports = '2.0.2';
     };
 
     NumericDistribution.prototype.hasHistogramModel = function() {
-      var _ref;
-      return ((_ref = this.model) != null ? _ref.getHistogram : void 0) != null;
+      var ref;
+      return ((ref = this.model) != null ? ref.getHistogram : void 0) != null;
     };
 
     NumericDistribution.prototype.selectNodes = function(chart) {
@@ -14409,21 +14410,21 @@ module.exports = '2.0.2';
     };
 
     NumericDistribution.prototype.getChartData = function(scales) {
-      var c, i, _i, _len, _ref, _results;
+      var c, i, j, len, ref, results;
       if (scales == null) {
         scales = this.getScales();
       }
-      _ref = this.model.getHistogram();
-      _results = [];
-      for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
-        c = _ref[i];
-        _results.push({
+      ref = this.model.getHistogram();
+      results = [];
+      for (i = j = 0, len = ref.length; j < len; i = ++j) {
+        c = ref[i];
+        results.push({
           count: c,
           bucket: i + 1,
           range: bucketRange(scales.bucketToVal, i + 1)
         });
       }
-      return _results;
+      return results;
     };
 
     NumericDistribution.prototype.initChart = function() {
@@ -14433,8 +14434,8 @@ module.exports = '2.0.2';
     };
 
     NumericDistribution.prototype.getScales = function() {
-      var buckets, counts, histogram, max, min, most, n, scales, toVal, values, xPositions, yPositions, _ref;
-      _ref = this.model.pick('min', 'max'), min = _ref.min, max = _ref.max;
+      var buckets, counts, histogram, max, min, most, n, ref, scales, toVal, values, xPositions, yPositions;
+      ref = this.model.pick('min', 'max'), min = ref.min, max = ref.max;
       n = this.model.get('buckets');
       histogram = this.model.getHistogram();
       most = d3.max(histogram);
@@ -14456,8 +14457,8 @@ module.exports = '2.0.2';
     };
 
     NumericDistribution.prototype.isIntish = function() {
-      var _ref;
-      return (_ref = this.model.get('type')) === 'int' || _ref === 'Integer' || _ref === 'long' || _ref === 'Long' || _ref === 'short' || _ref === 'Short';
+      var ref;
+      return (ref = this.model.get('type')) === 'int' || ref === 'Integer' || ref === 'long' || ref === 'Long' || ref === 'short' || ref === 'Short';
     };
 
     NumericDistribution.prototype.getRounder = function() {
@@ -14485,9 +14486,9 @@ module.exports = '2.0.2';
           }
         };
       })(this);
-      getTitle = function(_arg) {
-        var count, max, min, _ref;
-        (_ref = _arg.range, min = _ref.min, max = _ref.max), count = _arg.count;
+      getTitle = function(arg) {
+        var count, max, min, ref;
+        (ref = arg.range, min = ref.min, max = ref.max), count = arg.count;
         return Messages.getText('summary.Bucket', {
           count: count,
           range: {
@@ -14511,13 +14512,13 @@ module.exports = '2.0.2';
     };
 
     NumericDistribution.prototype.update = function(selection, scales) {
-      var Duration, Easing, bm, h, height, _ref;
+      var Duration, Easing, bm, h, height, ref;
       if (scales == null) {
         scales = this.getScales();
       }
       h = this.chartHeight;
       bm = this.bottomMargin;
-      _ref = Options.get('D3.Transition'), Duration = _ref.Duration, Easing = _ref.Easing;
+      ref = Options.get('D3.Transition'), Duration = ref.Duration, Easing = ref.Easing;
       height = function(d) {
         return scales.y(d.count);
       };
@@ -14571,10 +14572,10 @@ module.exports = '2.0.2';
     };
 
     NumericDistribution.prototype.onChangeRange = function() {
-      var max, min, scales, start, width, _ref;
+      var max, min, ref, scales, start, width;
       if (this.shouldDrawBox()) {
         scales = this.getScales();
-        _ref = this.range.toJSON(), min = _ref.min, max = _ref.max;
+        ref = this.range.toJSON(), min = ref.min, max = ref.max;
         start = scales.valToX(min);
         width = (scales.valToX(max)) - start;
         return this.drawSelection(start, width);
@@ -14584,9 +14585,9 @@ module.exports = '2.0.2';
     };
 
     NumericDistribution.prototype.removeSelection = function() {
-      var _ref;
-      if ((_ref = this.selection) != null) {
-        _ref.remove();
+      var ref;
+      if ((ref = this.selection) != null) {
+        ref.remove();
       }
       return this.selection = null;
     };
@@ -14596,10 +14597,10 @@ module.exports = '2.0.2';
     };
 
     NumericDistribution.prototype.remove = function() {
-      var _ref;
+      var ref;
       this.removeSelection();
-      if ((_ref = this.paper) != null) {
-        _ref.remove();
+      if ((ref = this.paper) != null) {
+        ref.remove();
       }
       return NumericDistribution.__super__.remove.apply(this, arguments);
     };
@@ -14610,18 +14611,18 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../../messages":16,"../../messages/summary":27,"../../options":63,"./visualisation-base":165,"d3-browserify":243,"jquery":267,"underscore":301}],156:[function(require,module,exports){
+},{"../../messages":16,"../../messages/summary":27,"../../options":63,"./visualisation-base":165,"d3-browserify":237,"jquery":256,"underscore":262}],156:[function(require,module,exports){
 (function() {
   var CoreView, OnlyOneItem, Templates,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   CoreView = require('../../core-view');
 
   Templates = require('../../templates');
 
-  module.exports = OnlyOneItem = (function(_super) {
-    __extends(OnlyOneItem, _super);
+  module.exports = OnlyOneItem = (function(superClass) {
+    extend(OnlyOneItem, superClass);
 
     function OnlyOneItem() {
       return OnlyOneItem.__super__.constructor.apply(this, arguments);
@@ -14651,9 +14652,9 @@ module.exports = '2.0.2';
 
 },{"../../core-view":3,"../../templates":67}],157:[function(require,module,exports){
 (function() {
-  var $, DONUT, KEY, Options, PieChart, TWEEN_START, VisualisationBase, d3, getArc, getArcTween, getChartPalette, getEndPosition, getStartPosition, isPastSixOClock, opacity, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+  var $, DONUT, KEY, Options, PieChart, TWEEN_START, VisualisationBase, _, d3, getArc, getArcTween, getChartPalette, getEndPosition, getStartPosition, isPastSixOClock, opacity,
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -14688,8 +14689,8 @@ module.exports = '2.0.2';
   };
 
   getStartPosition = function(model) {
-    var _ref;
-    return (_ref = model.get('currentPieCoords')) != null ? _ref : TWEEN_START;
+    var ref;
+    return (ref = model.get('currentPieCoords')) != null ? ref : TWEEN_START;
   };
 
   opacity = function(d) {
@@ -14709,9 +14710,9 @@ module.exports = '2.0.2';
   };
 
   getArcTween = function(arc) {
-    return function(_arg) {
+    return function(arg) {
       var data, end, endAngle, getDatumAtTime, model, start, startAngle;
-      startAngle = _arg.startAngle, endAngle = _arg.endAngle, data = _arg.data;
+      startAngle = arg.startAngle, endAngle = arg.endAngle, data = arg.data;
       model = data;
       start = getStartPosition(model);
       end = getEndPosition(startAngle, endAngle, model);
@@ -14741,8 +14742,8 @@ module.exports = '2.0.2';
     });
   };
 
-  module.exports = PieChart = (function(_super) {
-    __extends(PieChart, _super);
+  module.exports = PieChart = (function(superClass) {
+    extend(PieChart, superClass);
 
     function PieChart() {
       return PieChart.__super__.constructor.apply(this, arguments);
@@ -14794,7 +14795,7 @@ module.exports = '2.0.2';
       activateTooltip = function(d) {
         var $el, placement, title;
         $el = $(this);
-        title = "" + (d.data.get('item')) + ": " + (percent(d)) + "%";
+        title = (d.data.get('item')) + ": " + (percent(d)) + "%";
         placement = isPastSixOClock(d) ? 'left' : 'right';
         return $el.tooltip({
           title: title,
@@ -14820,14 +14821,14 @@ module.exports = '2.0.2';
     };
 
     PieChart.prototype.update = function() {
-      var DurationShort, Easing, paths, _ref;
+      var DurationShort, Easing, paths, ref;
       if (this.arc_group == null) {
         return;
       }
       paths = this.arc_group.selectAll('path').data(DONUT(this.getChartData()), KEY);
       this.exit(paths.exit());
       this.enter(paths.enter());
-      _ref = Options.get('D3.Transition'), DurationShort = _ref.DurationShort, Easing = _ref.Easing;
+      ref = Options.get('D3.Transition'), DurationShort = ref.DurationShort, Easing = ref.Easing;
       paths.attr('fill', this.colour);
       return paths.transition().duration(DurationShort).ease(Easing).style('opacity', opacity).attrTween('d', getArcTween(this.arc));
     };
@@ -14838,11 +14839,11 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../../options":63,"./visualisation-base":165,"d3-browserify":243,"jquery":267,"underscore":301}],158:[function(require,module,exports){
+},{"../../options":63,"./visualisation-base":165,"d3-browserify":237,"jquery":256,"underscore":262}],158:[function(require,module,exports){
 (function() {
   var CoreView, RowSurrogate, Templates, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -14850,8 +14851,8 @@ module.exports = '2.0.2';
 
   Templates = require('../../templates');
 
-  module.exports = RowSurrogate = (function(_super) {
-    __extends(RowSurrogate, _super);
+  module.exports = RowSurrogate = (function(superClass) {
+    extend(RowSurrogate, superClass);
 
     function RowSurrogate() {
       return RowSurrogate.__super__.constructor.apply(this, arguments);
@@ -14859,8 +14860,8 @@ module.exports = '2.0.2';
 
     RowSurrogate.prototype.className = 'im-facet-surrogate';
 
-    RowSurrogate.prototype.initialize = function(_arg) {
-      this.above = _arg.above;
+    RowSurrogate.prototype.initialize = function(arg) {
+      this.above = arg.above;
       return RowSurrogate.__super__.initialize.apply(this, arguments);
     };
 
@@ -14890,11 +14891,11 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../../core-view":3,"../../templates":67,"underscore":301}],159:[function(require,module,exports){
+},{"../../core-view":3,"../../templates":67,"underscore":262}],159:[function(require,module,exports){
 (function() {
-  var Checkbox, CoreView, FacetRow, RowSurrogate, Templates, bool, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+  var Checkbox, CoreView, FacetRow, RowSurrogate, Templates, _, bool,
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -14912,8 +14913,8 @@ module.exports = '2.0.2';
     return !!x;
   };
 
-  module.exports = FacetRow = (function(_super) {
-    __extends(FacetRow, _super);
+  module.exports = FacetRow = (function(superClass) {
+    extend(FacetRow, superClass);
 
     function FacetRow() {
       return FacetRow.__super__.constructor.apply(this, arguments);
@@ -14940,8 +14941,8 @@ module.exports = '2.0.2';
     };
 
     FacetRow.prototype.modelHasCollection = function() {
-      var _ref;
-      return ((_ref = this.model) != null ? _ref.collection : void 0) != null;
+      var ref;
+      return ((ref = this.model) != null ? ref.collection : void 0) != null;
     };
 
     FacetRow.prototype.template = Templates.template('facet_row');
@@ -15057,11 +15058,11 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../../core-view":3,"../../core/checkbox":4,"../../messages/summary":27,"../../templates":67,"./row-surrogate":158,"underscore":301}],160:[function(require,module,exports){
+},{"../../core-view":3,"../../core/checkbox":4,"../../messages/summary":27,"../../templates":67,"./row-surrogate":158,"underscore":262}],160:[function(require,module,exports){
 (function() {
-  var CoreView, SelectedCount, Templates, fracWithinRange, fullyContained, getPartialCount, partiallyOverlapping, sum, sumCounts, sumPartials, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+  var CoreView, SelectedCount, Templates, _, fracWithinRange, fullyContained, getPartialCount, partiallyOverlapping, sum, sumCounts, sumPartials,
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -15114,8 +15115,8 @@ module.exports = '2.0.2';
     return b.count * fracWithinRange(b, min, max);
   };
 
-  module.exports = SelectedCount = (function(_super) {
-    __extends(SelectedCount, _super);
+  module.exports = SelectedCount = (function(superClass) {
+    extend(SelectedCount, superClass);
 
     function SelectedCount() {
       return SelectedCount.__super__.constructor.apply(this, arguments);
@@ -15131,8 +15132,8 @@ module.exports = '2.0.2';
       };
     };
 
-    SelectedCount.prototype.initialize = function(_arg) {
-      this.range = _arg.range;
+    SelectedCount.prototype.initialize = function(arg) {
+      this.range = arg.range;
       SelectedCount.__super__.initialize.apply(this, arguments);
       this.listenTo(this.model.items, 'change:selected', this.estimateSelectionSize);
       return this.listenTo(this.range, 'change', this.estimateSelectionSize);
@@ -15179,11 +15180,11 @@ module.exports = '2.0.2';
     };
 
     SelectedCount.prototype.estimateSelectedInRange = function() {
-      var count, fullBuckets, histogram, max, min, partials, _ref;
+      var count, fullBuckets, histogram, max, min, partials, ref;
       if (this.range.isAll()) {
         return this.state.unset('selectedCount');
       }
-      _ref = this.range.toJSON(), min = _ref.min, max = _ref.max;
+      ref = this.range.toJSON(), min = ref.min, max = ref.max;
       histogram = this.getHistogram();
       fullBuckets = histogram.filter(fullyContained(min, max));
       partials = histogram.filter(partiallyOverlapping(min, max));
@@ -15195,21 +15196,21 @@ module.exports = '2.0.2';
     };
 
     SelectedCount.prototype.getHistogram = function() {
-      var buckets, c, i, maxVal, minVal, step, _i, _len, _results;
+      var buckets, c, i, j, len, maxVal, minVal, results, step;
       buckets = this.model.getHistogram();
       maxVal = this.model.get('max');
       minVal = this.model.get('min');
       step = (maxVal - minVal) / buckets.length;
-      _results = [];
-      for (i = _i = 0, _len = buckets.length; _i < _len; i = ++_i) {
+      results = [];
+      for (i = j = 0, len = buckets.length; j < len; i = ++j) {
         c = buckets[i];
-        _results.push({
+        results.push({
           count: c,
           min: minVal + (i * step),
           max: minVal + step + (i * step)
         });
       }
-      return _results;
+      return results;
     };
 
     return SelectedCount;
@@ -15218,11 +15219,11 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../../core-view":3,"../../messages/summary":27,"../../templates":67,"underscore":301}],161:[function(require,module,exports){
+},{"../../core-view":3,"../../messages/summary":27,"../../templates":67,"underscore":262}],161:[function(require,module,exports){
 (function() {
   var CoreView, SummaryHeading, Templates, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -15232,8 +15233,8 @@ module.exports = '2.0.2';
 
   require('../../messages/summary');
 
-  module.exports = SummaryHeading = (function(_super) {
-    __extends(SummaryHeading, _super);
+  module.exports = SummaryHeading = (function(superClass) {
+    extend(SummaryHeading, superClass);
 
     function SummaryHeading() {
       return SummaryHeading.__super__.constructor.apply(this, arguments);
@@ -15270,11 +15271,11 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../../core-view":3,"../../messages/summary":27,"../../templates":67,"underscore":301}],162:[function(require,module,exports){
+},{"../../core-view":3,"../../messages/summary":27,"../../templates":67,"underscore":262}],162:[function(require,module,exports){
 (function() {
-  var BASIC_OPS, CoreView, IGNORE, MIN_VALS_OPTIMISATION, Messages, SUMMARY_FORMATS, SummaryItemsControls, Templates, bool, negateOps, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+  var BASIC_OPS, CoreView, IGNORE, MIN_VALS_OPTIMISATION, Messages, SUMMARY_FORMATS, SummaryItemsControls, Templates, _, bool, negateOps,
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -15321,8 +15322,8 @@ module.exports = '2.0.2';
 
   MIN_VALS_OPTIMISATION = 10;
 
-  module.exports = SummaryItemsControls = (function(_super) {
-    __extends(SummaryItemsControls, _super);
+  module.exports = SummaryItemsControls = (function(superClass) {
+    extend(SummaryItemsControls, superClass);
 
     function SummaryItemsControls() {
       return SummaryItemsControls.__super__.constructor.apply(this, arguments);
@@ -15343,13 +15344,13 @@ module.exports = '2.0.2';
     };
 
     SummaryItemsControls.prototype.viewIsAttribute = function() {
-      var _ref, _ref1;
-      return (_ref = this.model) != null ? (_ref1 = _ref.view) != null ? typeof _ref1.isAttribute === "function" ? _ref1.isAttribute() : void 0 : void 0 : void 0;
+      var ref, ref1;
+      return (ref = this.model) != null ? (ref1 = ref.view) != null ? typeof ref1.isAttribute === "function" ? ref1.isAttribute() : void 0 : void 0 : void 0;
     };
 
     SummaryItemsControls.prototype.hasCollection = function() {
-      var _ref;
-      return ((_ref = this.model) != null ? _ref.items : void 0) != null;
+      var ref;
+      return ((ref = this.model) != null ? ref.items : void 0) != null;
     };
 
     SummaryItemsControls.prototype.template = Templates.template('summary_items_controls');
@@ -15416,8 +15417,8 @@ module.exports = '2.0.2';
     };
 
     SummaryItemsControls.prototype.hideTooltips = function() {
-      var _ref;
-      return (_ref = this.$btns) != null ? _ref.tooltip('hide') : void 0;
+      var ref;
+      return (ref = this.$btns) != null ? ref.tooltip('hide') : void 0;
     };
 
     SummaryItemsControls.prototype.unsetSelection = function(e) {
@@ -15445,19 +15446,19 @@ module.exports = '2.0.2';
     };
 
     SummaryItemsControls.prototype.addConstraint = function(ops, e) {
-      var anyIsNull, item, unselected, vals, _ref;
+      var anyIsNull, item, ref, unselected, vals;
       IGNORE(e);
       vals = (function() {
-        var _i, _len, _ref, _results;
-        _ref = this.model.items.where({
+        var i, len, ref, results;
+        ref = this.model.items.where({
           selected: true
         });
-        _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          item = _ref[_i];
-          _results.push(item.get('item'));
+        results = [];
+        for (i = 0, len = ref.length; i < len; i++) {
+          item = ref[i];
+          results.push(item.get('item'));
         }
-        return _results;
+        return results;
       }).call(this);
       unselected = this.model.items.where({
         selected: false
@@ -15470,15 +15471,15 @@ module.exports = '2.0.2';
       anyIsNull = _.any(vals, function(v) {
         return v == null;
       });
-      if ((!anyIsNull) && this.model.hasAll() && ((MIN_VALS_OPTIMISATION > (_ref = vals.length) && _ref > unselected.length))) {
+      if ((!anyIsNull) && this.model.hasAll() && ((MIN_VALS_OPTIMISATION > (ref = vals.length) && ref > unselected.length))) {
         return this.constrainTo(negateOps(ops), (function() {
-          var _i, _len, _results;
-          _results = [];
-          for (_i = 0, _len = unselected.length; _i < _len; _i++) {
-            item = unselected[_i];
-            _results.push(item.get('item'));
+          var i, len, results;
+          results = [];
+          for (i = 0, len = unselected.length; i < len; i++) {
+            item = unselected[i];
+            results.push(item.get('item'));
           }
-          return _results;
+          return results;
         })());
       } else {
         return this.constrainTo(ops, vals);
@@ -15539,12 +15540,12 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../../core-view":3,"../../messages":16,"../../messages/summary":27,"../../templates":67,"underscore":301}],163:[function(require,module,exports){
+},{"../../core-view":3,"../../messages":16,"../../messages/summary":27,"../../templates":67,"underscore":262}],163:[function(require,module,exports){
 (function() {
-  var Backbone, CoreView, FacetRow, IGNORE, Messages, SetsPathNames, SummaryItems, SummaryItemsControls, Templates, rowId, _,
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+  var Backbone, CoreView, FacetRow, IGNORE, Messages, SetsPathNames, SummaryItems, SummaryItemsControls, Templates, _, rowId,
+    bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -15575,11 +15576,11 @@ module.exports = '2.0.2';
     return "row_" + (model.get('id'));
   };
 
-  module.exports = SummaryItems = (function(_super) {
-    __extends(SummaryItems, _super);
+  module.exports = SummaryItems = (function(superClass) {
+    extend(SummaryItems, superClass);
 
     function SummaryItems() {
-      this.filterItems = __bind(this.filterItems, this);
+      this.filterItems = bind(this.filterItems, this);
       return SummaryItems.__super__.constructor.apply(this, arguments);
     }
 
@@ -15615,13 +15616,13 @@ module.exports = '2.0.2';
     };
 
     SummaryItems.prototype.modelHasItems = function() {
-      var _ref;
-      return ((_ref = this.model) != null ? _ref.items : void 0) instanceof Backbone.Collection;
+      var ref;
+      return ((ref = this.model) != null ? ref.items : void 0) instanceof Backbone.Collection;
     };
 
     SummaryItems.prototype.modelCanHasMore = function() {
-      var _ref;
-      return _.isFunction((_ref = this.model) != null ? _ref.hasMore : void 0);
+      var ref;
+      return _.isFunction((ref = this.model) != null ? ref.hasMore : void 0);
     };
 
     SummaryItems.prototype.template = Templates.template('summary_items');
@@ -15638,7 +15639,7 @@ module.exports = '2.0.2';
 
     SummaryItems.prototype.colHeaders = function() {
       var itemColHeader;
-      itemColHeader = this.state.has('typeName') ? "" + (this.state.get('typeName')) + " " + (this.state.get('endName')) : Messages.getText('summary.Item');
+      itemColHeader = this.state.has('typeName') ? (this.state.get('typeName')) + " " + (this.state.get('endName')) : Messages.getText('summary.Item');
       return [' ', itemColHeader, Messages.getText('summary.Count')];
     };
 
@@ -15729,11 +15730,11 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../../core-view":3,"../../messages":16,"../../messages/summary":27,"../../mixins/sets-path-names":34,"../../templates":67,"./row":159,"./summary-items-controls":162,"backbone":235,"underscore":301}],164:[function(require,module,exports){
+},{"../../core-view":3,"../../messages":16,"../../messages/summary":27,"../../mixins/sets-path-names":34,"../../templates":67,"./row":159,"./summary-items-controls":162,"backbone":235,"underscore":262}],164:[function(require,module,exports){
 (function() {
   var CoreView, DOWN, NULL_STATS, SummaryStats, Templates, UP, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -15752,8 +15753,8 @@ module.exports = '2.0.2';
     stdev: 0
   };
 
-  module.exports = SummaryStats = (function(_super) {
-    __extends(SummaryStats, _super);
+  module.exports = SummaryStats = (function(superClass) {
+    extend(SummaryStats, superClass);
 
     function SummaryStats() {
       return SummaryStats.__super__.constructor.apply(this, arguments);
@@ -15769,8 +15770,8 @@ module.exports = '2.0.2';
       return _.extend({}, NULL_STATS, SummaryStats.__super__.getData.apply(this, arguments));
     };
 
-    SummaryStats.prototype.initialize = function(_arg) {
-      this.range = _arg.range;
+    SummaryStats.prototype.initialize = function(arg) {
+      this.range = arg.range;
       SummaryStats.__super__.initialize.apply(this, arguments);
       this.listenTo(this.range, 'change', this.setSliderValues);
       this.listenTo(this.range, 'change', this.setButtonDisabledness);
@@ -15791,9 +15792,9 @@ module.exports = '2.0.2';
     };
 
     SummaryStats.prototype.setSliderValues = function() {
-      var max, min, _ref, _ref1;
-      _ref = this.range.toJSON(), min = _ref.min, max = _ref.max;
-      return (_ref1 = this.$slider) != null ? _ref1.slider('option', 'values', [min, max]) : void 0;
+      var max, min, ref, ref1;
+      ref = this.range.toJSON(), min = ref.min, max = ref.max;
+      return (ref1 = this.$slider) != null ? ref1.slider('option', 'values', [min, max]) : void 0;
     };
 
     SummaryStats.prototype.onChangeMin = function() {
@@ -15872,7 +15873,7 @@ module.exports = '2.0.2';
     };
 
     SummaryStats.prototype.changeConstraints = function(e) {
-      var c, existingConstraints, newConstraints, path, query, _i, _len;
+      var c, existingConstraints, i, len, newConstraints, path, query;
       e.preventDefault();
       e.stopPropagation();
       path = this.model.view.toString();
@@ -15896,8 +15897,8 @@ module.exports = '2.0.2';
           value: this.range.get('max')
         }
       ];
-      for (_i = 0, _len = existingConstraints.length; _i < _len; _i++) {
-        c = existingConstraints[_i];
+      for (i = 0, len = existingConstraints.length; i < len; i++) {
+        c = existingConstraints[i];
         query.removeConstraint(c, {
           silent: true
         });
@@ -15910,15 +15911,15 @@ module.exports = '2.0.2';
     };
 
     SummaryStats.prototype.parse = function(str) {
-      var e;
+      var e, error;
       try {
         if (this.step === 1) {
           return parseInt(str, 10);
         } else {
           return parseFloat(str);
         }
-      } catch (_error) {
-        e = _error;
+      } catch (error) {
+        e = error;
         this.model.set({
           error: new Error("Could not parse '" + str + "' as a number")
         });
@@ -15927,15 +15928,15 @@ module.exports = '2.0.2';
     };
 
     SummaryStats.prototype.initType = function() {
-      var integral, max, min, _ref;
-      _ref = this.model.toJSON(), integral = _ref.integral, min = _ref.min, max = _ref.max;
+      var integral, max, min, ref;
+      ref = this.model.toJSON(), integral = ref.integral, min = ref.min, max = ref.max;
       this.step = integral ? 1 : Math.abs((max - min) / 100);
       return this.round = integral ? Math.round : _.identity;
     };
 
     SummaryStats.prototype.drawSlider = function() {
-      var max, min, _ref;
-      _ref = this.model.pick('min', 'max'), max = _ref.max, min = _ref.min;
+      var max, min, ref;
+      ref = this.model.pick('min', 'max'), max = ref.max, min = ref.min;
       return this.activateSlider({
         range: true,
         min: min,
@@ -15944,8 +15945,8 @@ module.exports = '2.0.2';
         step: this.step,
         slide: (function(_this) {
           return function(e, ui) {
-            var _ref1;
-            return (_ref1 = _this.range) != null ? _ref1.set({
+            var ref1;
+            return (ref1 = _this.range) != null ? ref1.set({
               min: ui.values[0],
               max: ui.values[1]
             }) : void 0;
@@ -15983,11 +15984,11 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../../core-view":3,"../../templates":67,"underscore":301}],165:[function(require,module,exports){
+},{"../../core-view":3,"../../templates":67,"underscore":262}],165:[function(require,module,exports){
 (function() {
-  var CoreView, VisualisationBase, d3, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+  var CoreView, VisualisationBase, _, d3,
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   d3 = require('d3-browserify');
 
@@ -15995,8 +15996,8 @@ module.exports = '2.0.2';
 
   CoreView = require('../../core-view');
 
-  module.exports = VisualisationBase = (function(_super) {
-    __extends(VisualisationBase, _super);
+  module.exports = VisualisationBase = (function(superClass) {
+    extend(VisualisationBase, superClass);
 
     function VisualisationBase() {
       return VisualisationBase.__super__.constructor.apply(this, arguments);
@@ -16021,11 +16022,11 @@ module.exports = '2.0.2';
     VisualisationBase.prototype.addChart = function() {
       return _.defer((function(_this) {
         return function() {
-          var e;
+          var e, error;
           try {
             return _this._drawD3Chart();
-          } catch (_error) {
-            e = _error;
+          } catch (error) {
+            e = error;
             return _this.model.set({
               error: e
             });
@@ -16107,11 +16108,11 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../../core-view":3,"d3-browserify":243,"underscore":301}],166:[function(require,module,exports){
+},{"../../core-view":3,"d3-browserify":237,"underscore":262}],166:[function(require,module,exports){
 (function() {
   var CoreView, FacetVisualisation, Histogram, NumericDistribution, Options, PieChart, SummaryItems,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   Options = require('../../options');
 
@@ -16125,8 +16126,8 @@ module.exports = '2.0.2';
 
   SummaryItems = require('./summary-items');
 
-  module.exports = FacetVisualisation = (function(_super) {
-    __extends(FacetVisualisation, _super);
+  module.exports = FacetVisualisation = (function(superClass) {
+    extend(FacetVisualisation, superClass);
 
     function FacetVisualisation() {
       return FacetVisualisation.__super__.constructor.apply(this, arguments);
@@ -16134,8 +16135,8 @@ module.exports = '2.0.2';
 
     FacetVisualisation.prototype.className = 'im-facet-vis';
 
-    FacetVisualisation.prototype.initialize = function(_arg) {
-      this.range = _arg.range;
+    FacetVisualisation.prototype.initialize = function(arg) {
+      this.range = arg.range;
       return FacetVisualisation.__super__.initialize.apply(this, arguments);
     };
 
@@ -16148,8 +16149,8 @@ module.exports = '2.0.2';
     };
 
     FacetVisualisation.prototype.getVisualization = function(args) {
-      var canHaveMultipleValues, got, numeric, type, uniqueValues, _ref;
-      _ref = this.model.toJSON(), uniqueValues = _ref.uniqueValues, numeric = _ref.numeric, canHaveMultipleValues = _ref.canHaveMultipleValues, type = _ref.type, got = _ref.got;
+      var canHaveMultipleValues, got, numeric, ref, type, uniqueValues;
+      ref = this.model.toJSON(), uniqueValues = ref.uniqueValues, numeric = ref.numeric, canHaveMultipleValues = ref.canHaveMultipleValues, type = ref.type, got = ref.got;
       switch (false) {
         case !numeric:
           return new NumericDistribution({
@@ -16184,8 +16185,8 @@ module.exports = '2.0.2';
 },{"../../core-view":3,"../../options":63,"./histogram":152,"./numeric":155,"./pie":157,"./summary-items":163}],167:[function(require,module,exports){
 (function() {
   var Body, Constraints, CoreView, FilterDialogue, LogicManager, Messages, Modal, Templates, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -16203,8 +16204,8 @@ module.exports = '2.0.2';
 
   require('../messages/logic');
 
-  LogicManager = (function(_super) {
-    __extends(LogicManager, _super);
+  LogicManager = (function(superClass) {
+    extend(LogicManager, superClass);
 
     function LogicManager() {
       return LogicManager.__super__.constructor.apply(this, arguments);
@@ -16222,16 +16223,16 @@ module.exports = '2.0.2';
       var c, codes;
       LogicManager.__super__.initialize.apply(this, arguments);
       codes = (function() {
-        var _i, _len, _ref, _results;
-        _ref = this.query.constraints;
-        _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          c = _ref[_i];
+        var i, len, ref, results;
+        ref = this.query.constraints;
+        results = [];
+        for (i = 0, len = ref.length; i < len; i++) {
+          c = ref[i];
           if (c.code) {
-            _results.push(c.code);
+            results.push(c.code);
           }
         }
-        return _results;
+        return results;
       }).call(this);
       this.model.set({
         logic: this.query.constraintLogic
@@ -16295,10 +16296,10 @@ module.exports = '2.0.2';
 
   })(CoreView);
 
-  Body = (function(_super) {
+  Body = (function(superClass) {
     var CODES;
 
-    __extends(Body, _super);
+    extend(Body, superClass);
 
     function Body() {
       return Body.__super__.constructor.apply(this, arguments);
@@ -16320,44 +16321,44 @@ module.exports = '2.0.2';
     CODES = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
     Body.prototype.assignCodes = function() {
-      var c, code, codes, constraints, _i, _len, _results;
+      var c, code, codes, constraints, i, len, results;
       constraints = (function() {
-        var _i, _len, _ref, _results;
-        _ref = this.query.constraints;
-        _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          c = _ref[_i];
+        var i, len, ref, results;
+        ref = this.query.constraints;
+        results = [];
+        for (i = 0, len = ref.length; i < len; i++) {
+          c = ref[i];
           if (c.op != null) {
-            _results.push(c);
+            results.push(c);
           }
         }
-        return _results;
+        return results;
       }).call(this);
       if (constraints.length < 2) {
         return;
       }
       codes = CODES.split('');
-      _results = [];
-      for (_i = 0, _len = constraints.length; _i < _len; _i++) {
-        c = constraints[_i];
+      results = [];
+      for (i = 0, len = constraints.length; i < len; i++) {
+        c = constraints[i];
         if (c.code == null) {
-          _results.push((function() {
-            var _results1;
-            _results1 = [];
+          results.push((function() {
+            var results1;
+            results1 = [];
             while ((c.code == null) && (code = codes.shift())) {
               if (!(_.any(constraints, function(con) {
                 return con.code === code;
               }))) {
-                _results1.push(c.code = code);
+                results1.push(c.code = code);
               } else {
-                _results1.push(void 0);
+                results1.push(void 0);
               }
             }
-            return _results1;
+            return results1;
           })());
         }
       }
-      return _results;
+      return results;
     };
 
     Body.prototype.postRender = function() {
@@ -16383,8 +16384,8 @@ module.exports = '2.0.2';
 
   })(Constraints);
 
-  module.exports = FilterDialogue = (function(_super) {
-    __extends(FilterDialogue, _super);
+  module.exports = FilterDialogue = (function(superClass) {
+    extend(FilterDialogue, superClass);
 
     function FilterDialogue() {
       return FilterDialogue.__super__.constructor.apply(this, arguments);
@@ -16460,11 +16461,11 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../core-view":3,"../messages":16,"../messages/constraints":21,"../messages/logic":25,"../templates":67,"./constraints":131,"./modal":197,"underscore":301}],168:[function(require,module,exports){
+},{"../core-view":3,"../messages":16,"../messages/constraints":21,"../messages/logic":25,"../templates":67,"./constraints":131,"./modal":197,"underscore":262}],168:[function(require,module,exports){
 (function() {
   var FilterDialogue, FilterDialogueButton, QueryDialogueButton,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   QueryDialogueButton = require('../query-dialogue-button');
 
@@ -16472,8 +16473,8 @@ module.exports = '2.0.2';
 
   require('../../messages/constraints');
 
-  module.exports = FilterDialogueButton = (function(_super) {
-    __extends(FilterDialogueButton, _super);
+  module.exports = FilterDialogueButton = (function(superClass) {
+    extend(FilterDialogueButton, superClass);
 
     function FilterDialogueButton() {
       return FilterDialogueButton.__super__.constructor.apply(this, arguments);
@@ -16498,8 +16499,8 @@ module.exports = '2.0.2';
 },{"../../messages/constraints":21,"../filter-dialogue":167,"../query-dialogue-button":206}],169:[function(require,module,exports){
 (function() {
   var CoreView, FormattedSorting, SortedPath, Templates, sortQueryByPath,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   CoreView = require('../core-view');
 
@@ -16509,8 +16510,8 @@ module.exports = '2.0.2';
 
   sortQueryByPath = require('../utils/sort-query-by-path');
 
-  module.exports = FormattedSorting = (function(_super) {
-    __extends(FormattedSorting, _super);
+  module.exports = FormattedSorting = (function(superClass) {
+    extend(FormattedSorting, superClass);
 
     function FormattedSorting() {
       return FormattedSorting.__super__.constructor.apply(this, arguments);
@@ -16520,8 +16521,8 @@ module.exports = '2.0.2';
 
     FormattedSorting.prototype.tagName = 'ul';
 
-    FormattedSorting.prototype.initialize = function(_arg) {
-      this.query = _arg.query;
+    FormattedSorting.prototype.initialize = function(arg) {
+      this.query = arg.query;
       FormattedSorting.__super__.initialize.apply(this, arguments);
       return this.setPathNames();
     };
@@ -16540,12 +16541,12 @@ module.exports = '2.0.2';
     };
 
     FormattedSorting.prototype.setPathNames = function() {
-      var p, _i, _len, _ref, _results;
-      _ref = this.getPaths();
-      _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        p = _ref[_i];
-        _results.push((function(_this) {
+      var j, len, p, ref, results;
+      ref = this.getPaths();
+      results = [];
+      for (j = 0, len = ref.length; j < len; j++) {
+        p = ref[j];
+        results.push((function(_this) {
           return function(p) {
             var key;
             key = p.toString();
@@ -16558,7 +16559,7 @@ module.exports = '2.0.2';
           };
         })(this)(p));
       }
-      return _results;
+      return results;
     };
 
     FormattedSorting.prototype.getPaths = function() {
@@ -16581,19 +16582,19 @@ module.exports = '2.0.2';
     };
 
     FormattedSorting.prototype.postRender = function() {
-      var i, p, _i, _len, _ref, _results;
-      _ref = this.getPaths();
-      _results = [];
-      for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
-        p = _ref[i];
-        _results.push(this.renderChild(i, new SortedPath({
+      var i, j, len, p, ref, results;
+      ref = this.getPaths();
+      results = [];
+      for (i = j = 0, len = ref.length; j < len; i = ++j) {
+        p = ref[i];
+        results.push(this.renderChild(i, new SortedPath({
           model: this.model,
           state: this.state,
           query: this.query,
           path: p
         })));
       }
-      return _results;
+      return results;
     };
 
     return FormattedSorting;
@@ -16605,8 +16606,8 @@ module.exports = '2.0.2';
 },{"../core-view":3,"../templates":67,"../utils/sort-query-by-path":105,"./formatted/sorting-path":170}],170:[function(require,module,exports){
 (function() {
   var CoreView, INITIAL_CARETS, Icons, SortedPath, Templates, sortQueryByPath,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   CoreView = require('../../core-view');
 
@@ -16618,8 +16619,8 @@ module.exports = '2.0.2';
 
   INITIAL_CARETS = /^\s*>\s*/;
 
-  module.exports = SortedPath = (function(_super) {
-    __extends(SortedPath, _super);
+  module.exports = SortedPath = (function(superClass) {
+    extend(SortedPath, superClass);
 
     function SortedPath() {
       return SortedPath.__super__.constructor.apply(this, arguments);
@@ -16638,9 +16639,9 @@ module.exports = '2.0.2';
     };
 
     SortedPath.prototype.getData = function() {
-      var direction, name, names, _ref;
+      var direction, name, names, ref;
       names = this.state.toJSON();
-      name = (_ref = names[this.path]) != null ? _ref.replace(names.group, '').replace(INITIAL_CARETS, '') : void 0;
+      name = (ref = names[this.path]) != null ? ref.replace(names.group, '').replace(INITIAL_CARETS, '') : void 0;
       direction = this.query.getSortDirection(this.path);
       return {
         Icons: Icons,
@@ -16675,19 +16676,19 @@ module.exports = '2.0.2';
   };
 
   exports.getDialogue = function() {
-    var _ref;
-    return (_ref = this.children) != null ? _ref.__dialogue__ : void 0;
+    var ref;
+    return (ref = this.children) != null ? ref.__dialogue__ : void 0;
   };
 
 }).call(this);
 
 },{}],172:[function(require,module,exports){
 (function() {
-  var AttrDetailsModel, Collection, CoreModel, CoreView, CountsTitle, DetailsModel, ERROR, HIDDEN_FIELDS, ItemDetails, Options, PathModel, Preview, PreviewModel, Promise, RefDetailsModel, ReferenceCounts, ServiceType, SortedByName, Templates, acceptAttr, acceptRef, cantFindField, concat, getLeaves, types, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+  var AttrDetailsModel, Collection, CoreModel, CoreView, CountsTitle, DetailsModel, ERROR, HIDDEN_FIELDS, ItemDetails, Options, PathModel, Preview, PreviewModel, Promise, RefDetailsModel, ReferenceCounts, ServiceType, SortedByName, Templates, _, acceptAttr, acceptRef, cantFindField, concat, getLeaves, types,
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty,
+    indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
+    bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
   _ = require('underscore');
 
@@ -16719,8 +16720,8 @@ module.exports = '2.0.2';
     return "Could not determine origin of " + fld + " from [" + (types.join(', ')) + "]";
   };
 
-  DetailsModel = (function(_super) {
-    __extends(DetailsModel, _super);
+  DetailsModel = (function(superClass) {
+    extend(DetailsModel, superClass);
 
     function DetailsModel(opts) {
       DetailsModel.__super__.constructor.call(this, opts.path);
@@ -16731,8 +16732,8 @@ module.exports = '2.0.2';
 
   })(PathModel);
 
-  AttrDetailsModel = (function(_super) {
-    __extends(AttrDetailsModel, _super);
+  AttrDetailsModel = (function(superClass) {
+    extend(AttrDetailsModel, superClass);
 
     function AttrDetailsModel() {
       return AttrDetailsModel.__super__.constructor.apply(this, arguments);
@@ -16751,8 +16752,8 @@ module.exports = '2.0.2';
 
   })(DetailsModel);
 
-  RefDetailsModel = (function(_super) {
-    __extends(RefDetailsModel, _super);
+  RefDetailsModel = (function(superClass) {
+    extend(RefDetailsModel, superClass);
 
     function RefDetailsModel() {
       return RefDetailsModel.__super__.constructor.apply(this, arguments);
@@ -16769,8 +16770,8 @@ module.exports = '2.0.2';
 
   })(DetailsModel);
 
-  SortedByName = (function(_super) {
-    __extends(SortedByName, _super);
+  SortedByName = (function(superClass) {
+    extend(SortedByName, superClass);
 
     function SortedByName() {
       return SortedByName.__super__.constructor.apply(this, arguments);
@@ -16786,8 +16787,8 @@ module.exports = '2.0.2';
 
   })(Collection);
 
-  PreviewModel = (function(_super) {
-    __extends(PreviewModel, _super);
+  PreviewModel = (function(superClass) {
+    extend(PreviewModel, superClass);
 
     function PreviewModel() {
       return PreviewModel.__super__.constructor.apply(this, arguments);
@@ -16816,7 +16817,7 @@ module.exports = '2.0.2';
 
   acceptAttr = function() {
     return function(f, v) {
-      return (v != null) && (!v.objectId) && (__indexOf.call(HIDDEN_FIELDS, f) < 0);
+      return (v != null) && (!v.objectId) && (indexOf.call(HIDDEN_FIELDS, f) < 0);
     };
   };
 
@@ -16833,11 +16834,11 @@ module.exports = '2.0.2';
     fetchModel: types.Function
   });
 
-  module.exports = Preview = (function(_super) {
-    __extends(Preview, _super);
+  module.exports = Preview = (function(superClass) {
+    extend(Preview, superClass);
 
     function Preview() {
-      this.handleItem = __bind(this.handleItem, this);
+      this.handleItem = bind(this.handleItem, this);
       return Preview.__super__.constructor.apply(this, arguments);
     }
 
@@ -16875,9 +16876,9 @@ module.exports = '2.0.2';
 
     Preview.prototype.fetching = null;
 
-    Preview.prototype.template = function(_arg) {
+    Preview.prototype.template = function(arg) {
       var error, phase;
-      phase = _arg.phase, error = _arg.error;
+      phase = arg.phase, error = arg.error;
       switch (phase) {
         case 'FETCHING':
           return this.helpers().IndeterminateProgressBar;
@@ -16908,15 +16909,15 @@ module.exports = '2.0.2';
     };
 
     Preview.prototype.postRender = function() {
-      var t, _i, _len, _ref, _results;
+      var i, len, ref, results, t;
       if ('SUCCESS' === this.model.get('phase')) {
-        _ref = this.model.get('types');
-        _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          t = _ref[_i];
-          _results.push(this.$el.addClass(t));
+        ref = this.model.get('types');
+        results = [];
+        for (i = 0, len = ref.length; i < len; i++) {
+          t = ref[i];
+          results.push(this.$el.addClass(t));
         }
-        return _results;
+        return results;
       }
     };
 
@@ -16954,14 +16955,14 @@ module.exports = '2.0.2';
     };
 
     Preview.prototype.getAllDetails = function() {
-      var t, _i, _len, _ref, _results;
-      _ref = this.model.get('types');
-      _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        t = _ref[_i];
-        _results.push(this.getDetails(t));
+      var i, len, ref, results, t;
+      ref = this.model.get('types');
+      results = [];
+      for (i = 0, len = ref.length; i < len; i++) {
+        t = ref[i];
+        results.push(this.getDetails(t));
       }
-      return _results;
+      return results;
     };
 
     Preview.prototype.getDetails = function(type) {
@@ -16977,14 +16978,14 @@ module.exports = '2.0.2';
       testAttr = acceptAttr(coll);
       testRef = acceptRef(coll);
       clds = (function() {
-        var _i, _len, _ref, _results;
-        _ref = this.model.get('types');
-        _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          t = _ref[_i];
-          _results.push(this.schema.classes[t]);
+        var i, len, ref, results;
+        ref = this.model.get('types');
+        results = [];
+        for (i = 0, len = ref.length; i < len; i++) {
+          t = ref[i];
+          results.push(this.schema.classes[t]);
         }
-        return _results;
+        return results;
       }).call(this);
       for (field in item) {
         value = item[field];
@@ -17009,7 +17010,7 @@ module.exports = '2.0.2';
       if (cld == null) {
         throw new Error(cantFindField(field, _.pick(clds, 'name')));
       }
-      return path = this.schema.makePath("" + cld.name + "." + field);
+      return path = this.schema.makePath(cld.name + "." + field);
     };
 
     Preview.prototype.handleSubObj = function(item, clds, field, value) {
@@ -17050,41 +17051,41 @@ module.exports = '2.0.2';
     };
 
     Preview.prototype.getRelationCounts = function() {
-      var c, cld, countSets, opts, root, settings, type, _ref;
+      var c, cld, countSets, opts, ref, root, settings, type;
       types = this.model.get('types');
       root = this.service.root;
-      opts = (_ref = Options.get(['ItemDetails', 'Count', root])) != null ? _ref : {};
+      opts = (ref = Options.get(['ItemDetails', 'Count', root])) != null ? ref : {};
       countSets = (function() {
-        var _i, _len, _results;
-        _results = [];
-        for (_i = 0, _len = types.length; _i < _len; _i++) {
-          type = types[_i];
+        var i, len, results;
+        results = [];
+        for (i = 0, len = types.length; i < len; i++) {
+          type = types[i];
           cld = this.schema.classes[type];
-          _results.push((function() {
-            var _j, _len1, _ref1, _ref2, _results1;
-            _ref2 = (_ref1 = opts[type]) != null ? _ref1 : (function() {
-              var _results2;
-              _results2 = [];
+          results.push((function() {
+            var j, len1, ref1, ref2, results1;
+            ref2 = (ref1 = opts[type]) != null ? ref1 : (function() {
+              var results2;
+              results2 = [];
               for (c in cld.collections) {
-                _results2.push(c);
+                results2.push(c);
               }
-              return _results2;
+              return results2;
             })();
-            _results1 = [];
-            for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
-              settings = _ref2[_j];
-              _results1.push(this.getRelationCount(settings, type));
+            results1 = [];
+            for (j = 0, len1 = ref2.length; j < len1; j++) {
+              settings = ref2[j];
+              results1.push(this.getRelationCount(settings, type));
             }
-            return _results1;
+            return results1;
           }).call(this));
         }
-        return _results;
+        return results;
       }).call(this);
       return countSets.reduce(concat, []);
     };
 
     Preview.prototype.getRelationCount = function(settings, type) {
-      var counter, details, id, label, path, query, _ref;
+      var counter, details, id, label, path, query, ref;
       id = this.model.get('id');
       if (_.isObject(settings)) {
         query = settings.query, label = settings.label;
@@ -17098,8 +17099,8 @@ module.exports = '2.0.2';
           });
         };
       } else {
-        path = this.schema.makePath("" + type + "." + settings);
-        if (!((_ref = path.getType()) != null ? _ref.attributes.id : void 0)) {
+        path = this.schema.makePath(type + "." + settings);
+        if (!((ref = path.getType()) != null ? ref.attributes.id : void 0)) {
           return Promise.resolve(true);
         }
         counter = {
@@ -17131,11 +17132,11 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../core-model":2,"../core-view":3,"../core/collection":5,"../core/type-assertions":10,"../models/path":56,"../options":63,"../templates":67,"../utils/get-leaves":83,"./item-preview/counts-title":173,"./item-preview/details":174,"./item-preview/reference-counts":175,"es6-promise":244,"underscore":301}],173:[function(require,module,exports){
+},{"../core-model":2,"../core-view":3,"../core/collection":5,"../core/type-assertions":10,"../models/path":56,"../options":63,"../templates":67,"../utils/get-leaves":83,"./item-preview/counts-title":173,"./item-preview/details":174,"./item-preview/reference-counts":175,"es6-promise":238,"underscore":262}],173:[function(require,module,exports){
 (function() {
   var CoreView, CountsTitle, Messages, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -17147,8 +17148,8 @@ module.exports = '2.0.2';
     RelatedItemsHeading: 'Related Items'
   });
 
-  module.exports = CountsTitle = (function(_super) {
-    __extends(CountsTitle, _super);
+  module.exports = CountsTitle = (function(superClass) {
+    extend(CountsTitle, superClass);
 
     function CountsTitle() {
       return CountsTitle.__super__.constructor.apply(this, arguments);
@@ -17180,11 +17181,11 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../../core-view":3,"../../messages":16,"underscore":301}],174:[function(require,module,exports){
+},{"../../core-view":3,"../../messages":16,"underscore":262}],174:[function(require,module,exports){
 (function() {
-  var ATTR, CoreView, ITEMS, ItemDetails, REFERENCE, Templates, ignore, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+  var ATTR, CoreView, ITEMS, ItemDetails, REFERENCE, Templates, _, ignore,
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -17200,8 +17201,8 @@ module.exports = '2.0.2';
 
   ATTR = Templates.template('cell-preview-attribute');
 
-  module.exports = ItemDetails = (function(_super) {
-    __extends(ItemDetails, _super);
+  module.exports = ItemDetails = (function(superClass) {
+    extend(ItemDetails, superClass);
 
     function ItemDetails() {
       return ItemDetails.__super__.constructor.apply(this, arguments);
@@ -17259,18 +17260,18 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../../core-view":3,"../../templates":67,"../../utils/events":81,"underscore":301}],175:[function(require,module,exports){
+},{"../../core-view":3,"../../templates":67,"../../utils/events":81,"underscore":262}],175:[function(require,module,exports){
 (function() {
   var CoreView, ReferenceCounts, Templates,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   Templates = require('../../templates');
 
   CoreView = require('../../core-view');
 
-  module.exports = ReferenceCounts = (function(_super) {
-    __extends(ReferenceCounts, _super);
+  module.exports = ReferenceCounts = (function(superClass) {
+    extend(ReferenceCounts, superClass);
 
     function ReferenceCounts() {
       return ReferenceCounts.__super__.constructor.apply(this, arguments);
@@ -17296,9 +17297,9 @@ module.exports = '2.0.2';
 
 },{"../../core-view":3,"../../templates":67}],176:[function(require,module,exports){
 (function() {
-  var Body, CoreView, FilterDialogue, Joins, Messages, Modal, areEql, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+  var Body, CoreView, FilterDialogue, Joins, Messages, Modal, _, areEql,
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -17320,8 +17321,8 @@ module.exports = '2.0.2';
     }));
   };
 
-  module.exports = FilterDialogue = (function(_super) {
-    __extends(FilterDialogue, _super);
+  module.exports = FilterDialogue = (function(superClass) {
+    extend(FilterDialogue, superClass);
 
     function FilterDialogue() {
       return FilterDialogue.__super__.constructor.apply(this, arguments);
@@ -17371,16 +17372,16 @@ module.exports = '2.0.2';
       var current, initial, p, s;
       current = _.keys(this.joins.getJoins());
       initial = (function() {
-        var _ref, _results;
-        _ref = this.query.joins;
-        _results = [];
-        for (p in _ref) {
-          s = _ref[p];
+        var ref, results;
+        ref = this.query.joins;
+        results = [];
+        for (p in ref) {
+          s = ref[p];
           if (s === 'OUTER') {
-            _results.push(p);
+            results.push(p);
           }
         }
-        return _results;
+        return results;
       }).call(this);
       current.sort();
       initial.sort();
@@ -17404,11 +17405,11 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../core-view":3,"../messages":16,"../messages/joins":23,"../models/joins":47,"./join-manager/body":177,"./modal":197,"underscore":301}],177:[function(require,module,exports){
+},{"../core-view":3,"../messages":16,"../messages/joins":23,"../models/joins":47,"./join-manager/body":177,"./modal":197,"underscore":262}],177:[function(require,module,exports){
 (function() {
-  var BtnClasses, ClassSet, CoreView, Join, JoinManagerBody, LINE_PARTS, Templates, otherStyle, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+  var BtnClasses, ClassSet, CoreView, Join, JoinManagerBody, LINE_PARTS, Templates, _, otherStyle,
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -17422,8 +17423,8 @@ module.exports = '2.0.2';
 
   LINE_PARTS = ['join-style', 'column-manager-path-name', 'clear'];
 
-  BtnClasses = (function(_super) {
-    __extends(BtnClasses, _super);
+  BtnClasses = (function(superClass) {
+    extend(BtnClasses, superClass);
 
     function BtnClasses(model, style) {
       BtnClasses.__super__.constructor.call(this, {
@@ -17449,8 +17450,8 @@ module.exports = '2.0.2';
     }
   };
 
-  Join = (function(_super) {
-    __extends(Join, _super);
+  Join = (function(superClass) {
+    extend(Join, superClass);
 
     function Join() {
       return Join.__super__.constructor.apply(this, arguments);
@@ -17497,8 +17498,8 @@ module.exports = '2.0.2';
 
   })(CoreView);
 
-  module.exports = JoinManagerBody = (function(_super) {
-    __extends(JoinManagerBody, _super);
+  module.exports = JoinManagerBody = (function(superClass) {
+    extend(JoinManagerBody, superClass);
 
     function JoinManagerBody() {
       return JoinManagerBody.__super__.constructor.apply(this, arguments);
@@ -17570,11 +17571,11 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../../core-view":3,"../../messages/joins":23,"../../templates":67,"../../utils/css-class-set":79,"underscore":301}],178:[function(require,module,exports){
+},{"../../core-view":3,"../../messages/joins":23,"../../templates":67,"../../utils/css-class-set":79,"underscore":262}],178:[function(require,module,exports){
 (function() {
   var JoinManager, JoinManagerButton, QueryDialogueButton,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   QueryDialogueButton = require('../query-dialogue-button');
 
@@ -17582,8 +17583,8 @@ module.exports = '2.0.2';
 
   require('../../messages/joins');
 
-  module.exports = JoinManagerButton = (function(_super) {
-    __extends(JoinManagerButton, _super);
+  module.exports = JoinManagerButton = (function(superClass) {
+    extend(JoinManagerButton, superClass);
 
     function JoinManagerButton() {
       return JoinManagerButton.__super__.constructor.apply(this, arguments);
@@ -17608,13 +17609,13 @@ module.exports = '2.0.2';
 },{"../../messages/joins":23,"../join-manager":176,"../query-dialogue-button":206}],179:[function(require,module,exports){
 (function() {
   var LabelView, View,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   View = require('../core-view');
 
-  module.exports = LabelView = (function(_super) {
-    __extends(LabelView, _super);
+  module.exports = LabelView = (function(superClass) {
+    extend(LabelView, superClass);
 
     function LabelView() {
       return LabelView.__super__.constructor.apply(this, arguments);
@@ -17633,8 +17634,8 @@ module.exports = '2.0.2';
 },{"../core-view":3}],180:[function(require,module,exports){
 (function() {
   var AppendFromPath, BaseAppendDialogue, FromPathMixin, Promise,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   Promise = require('es6-promise').Promise;
 
@@ -17642,8 +17643,8 @@ module.exports = '2.0.2';
 
   FromPathMixin = require('./from-path-mixin');
 
-  module.exports = AppendFromPath = (function(_super) {
-    __extends(AppendFromPath, _super);
+  module.exports = AppendFromPath = (function(superClass) {
+    extend(AppendFromPath, superClass);
 
     function AppendFromPath() {
       return AppendFromPath.__super__.constructor.apply(this, arguments);
@@ -17657,11 +17658,11 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"./base-append-dialogue":183,"./from-path-mixin":189,"es6-promise":244}],181:[function(require,module,exports){
+},{"./base-append-dialogue":183,"./from-path-mixin":189,"es6-promise":238}],181:[function(require,module,exports){
 (function() {
   var AppendFromSelection, BaseAppendDialogue, Floating, FromSelectionMixin, Promise,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   Promise = require('es6-promise').Promise;
 
@@ -17671,8 +17672,8 @@ module.exports = '2.0.2';
 
   FromSelectionMixin = require('./from-selection-mixin');
 
-  module.exports = AppendFromSelection = (function(_super) {
-    __extends(AppendFromSelection, _super);
+  module.exports = AppendFromSelection = (function(superClass) {
+    extend(AppendFromSelection, superClass);
 
     function AppendFromSelection() {
       return AppendFromSelection.__super__.constructor.apply(this, arguments);
@@ -17688,11 +17689,11 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../../mixins/floating-dialogue":30,"./base-append-dialogue":183,"./from-selection-mixin":190,"es6-promise":244}],182:[function(require,module,exports){
+},{"../../mixins/floating-dialogue":30,"./base-append-dialogue":183,"./from-selection-mixin":190,"es6-promise":238}],182:[function(require,module,exports){
 (function() {
   var AppendToListBody, CoreView, Messages, SelectWithLabel, Templates, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -17706,8 +17707,8 @@ module.exports = '2.0.2';
 
   require('../../messages/lists');
 
-  module.exports = AppendToListBody = (function(_super) {
-    __extends(AppendToListBody, _super);
+  module.exports = AppendToListBody = (function(superClass) {
+    extend(AppendToListBody, superClass);
 
     function AppendToListBody() {
       return AppendToListBody.__super__.constructor.apply(this, arguments);
@@ -17743,11 +17744,11 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../../core-view":3,"../../core/select-with-label":9,"../../messages":16,"../../messages/lists":24,"../../templates":67,"underscore":301}],183:[function(require,module,exports){
+},{"../../core-view":3,"../../core/select-with-label":9,"../../messages":16,"../../messages/lists":24,"../../templates":67,"underscore":262}],183:[function(require,module,exports){
 (function() {
-  var AppendToListBody, AppendToListModel, BaseAppendDialogue, BaseCreateListDialogue, CoreCollection, CoreModel, LIST_NOT_SUITABLE, Messages, NO_SUITABLE_LISTS, NO_TARGET_SELECTED, PossibleList, PossibleLists, Promise, TARGET_DOES_NOT_EXIST, onlyCurrent, theListIsSuitable, unpackLists, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+  var AppendToListBody, AppendToListModel, BaseAppendDialogue, BaseCreateListDialogue, CoreCollection, CoreModel, LIST_NOT_SUITABLE, Messages, NO_SUITABLE_LISTS, NO_TARGET_SELECTED, PossibleList, PossibleLists, Promise, TARGET_DOES_NOT_EXIST, _, onlyCurrent, theListIsSuitable, unpackLists,
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -17804,22 +17805,22 @@ module.exports = '2.0.2';
   };
 
   unpackLists = function(ls) {
-    var name, size, type, _i, _len, _ref, _results;
-    _results = [];
-    for (_i = 0, _len = ls.length; _i < _len; _i++) {
-      _ref = ls[_i], name = _ref.name, type = _ref.type, size = _ref.size;
-      _results.push({
+    var i, len, name, ref, results, size, type;
+    results = [];
+    for (i = 0, len = ls.length; i < len; i++) {
+      ref = ls[i], name = ref.name, type = ref.type, size = ref.size;
+      results.push({
         name: name,
         type: type,
         size: size,
         id: name
       });
     }
-    return _results;
+    return results;
   };
 
-  PossibleList = (function(_super) {
-    __extends(PossibleList, _super);
+  PossibleList = (function(superClass) {
+    extend(PossibleList, superClass);
 
     function PossibleList() {
       return PossibleList.__super__.constructor.apply(this, arguments);
@@ -17859,13 +17860,13 @@ module.exports = '2.0.2';
 
   })(CoreModel);
 
-  PossibleLists = (function(_super) {
-    __extends(PossibleLists, _super);
+  PossibleLists = (function(superClass) {
+    extend(PossibleLists, superClass);
 
     PossibleLists.prototype.model = PossibleList;
 
-    function PossibleLists(_arg) {
-      this.service = _arg.service;
+    function PossibleLists(arg) {
+      this.service = arg.service;
       PossibleLists.__super__.constructor.call(this);
     }
 
@@ -17873,8 +17874,8 @@ module.exports = '2.0.2';
 
   })(CoreCollection);
 
-  module.exports = BaseAppendDialogue = (function(_super) {
-    __extends(BaseAppendDialogue, _super);
+  module.exports = BaseAppendDialogue = (function(superClass) {
+    extend(BaseAppendDialogue, superClass);
 
     function BaseAppendDialogue() {
       return BaseAppendDialogue.__super__.constructor.apply(this, arguments);
@@ -18021,11 +18022,11 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../../core-model":2,"../../core/collection":5,"../../messages":16,"../../models/append-to-list":35,"./append-to-list-body":182,"./base-dialogue":184,"es6-promise":244,"underscore":301}],184:[function(require,module,exports){
+},{"../../core-model":2,"../../core/collection":5,"../../messages":16,"../../models/append-to-list":35,"./append-to-list-body":182,"./base-dialogue":184,"es6-promise":238,"underscore":262}],184:[function(require,module,exports){
 (function() {
   var ABSTRACT, BaseCreateListDialogue, CreateListModel, ListDialogueBody, Messages, Modal, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -18043,8 +18044,8 @@ module.exports = '2.0.2';
     throw new Error('not implemented');
   };
 
-  module.exports = BaseCreateListDialogue = (function(_super) {
-    __extends(BaseCreateListDialogue, _super);
+  module.exports = BaseCreateListDialogue = (function(superClass) {
+    extend(BaseCreateListDialogue, superClass);
 
     function BaseCreateListDialogue() {
       return BaseCreateListDialogue.__super__.constructor.apply(this, arguments);
@@ -18170,8 +18171,8 @@ module.exports = '2.0.2';
     };
 
     BaseCreateListDialogue.prototype.setTypeName = function() {
-      var _ref;
-      return (_ref = this.getType()) != null ? _ref.getDisplayName().then((function(_this) {
+      var ref;
+      return (ref = this.getType()) != null ? ref.getDisplayName().then((function(_this) {
         return function(typeName) {
           return _this.state.set({
             typeName: typeName
@@ -18217,11 +18218,11 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../../messages":16,"../../messages/lists":24,"../../models/create-list":41,"../modal":197,"./body":185,"underscore":301}],185:[function(require,module,exports){
+},{"../../messages":16,"../../messages/lists":24,"../../models/create-list":41,"../modal":197,"./body":185,"underscore":262}],185:[function(require,module,exports){
 (function() {
   var CoreView, CreateListModel, InputWithButton, InputWithLabel, ListDialogueBody, ListTag, Messages, TagsApology, Templates, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -18243,8 +18244,8 @@ module.exports = '2.0.2';
 
   require('../../messages/lists');
 
-  module.exports = ListDialogueBody = (function(_super) {
-    __extends(ListDialogueBody, _super);
+  module.exports = ListDialogueBody = (function(superClass) {
+    extend(ListDialogueBody, superClass);
 
     function ListDialogueBody() {
       return ListDialogueBody.__super__.constructor.apply(this, arguments);
@@ -18391,11 +18392,11 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../../core-view":3,"../../core/input-with-button":6,"../../core/input-with-label":7,"../../messages":16,"../../messages/lists":24,"../../models/create-list":41,"../../templates":67,"./tag":191,"./tags-apology":192,"underscore":301}],186:[function(require,module,exports){
+},{"../../core-view":3,"../../core/input-with-button":6,"../../core/input-with-label":7,"../../messages":16,"../../messages/lists":24,"../../models/create-list":41,"../../templates":67,"./tag":191,"./tags-apology":192,"underscore":262}],186:[function(require,module,exports){
 (function() {
   var AppendFromPath, AppendPicker, ClassSet, Collection, CoreModel, CoreView, Counter, CreateFromPath, CreatePicker, ListDialogueButton, PathModel, Paths, SelectableNode, Templates, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -18423,8 +18424,8 @@ module.exports = '2.0.2';
 
   require('../../messages/lists');
 
-  Paths = (function(_super) {
-    __extends(Paths, _super);
+  Paths = (function(superClass) {
+    extend(Paths, superClass);
 
     function Paths() {
       return Paths.__super__.constructor.apply(this, arguments);
@@ -18436,8 +18437,8 @@ module.exports = '2.0.2';
 
   })(Collection);
 
-  SelectableNode = (function(_super) {
-    __extends(SelectableNode, _super);
+  SelectableNode = (function(superClass) {
+    extend(SelectableNode, superClass);
 
     function SelectableNode() {
       return SelectableNode.__super__.constructor.apply(this, arguments);
@@ -18482,9 +18483,9 @@ module.exports = '2.0.2';
     SelectableNode.prototype.initialize = function() {
       SelectableNode.__super__.initialize.apply(this, arguments);
       return this.query.summarise(this.model.get('id')).then((function(_this) {
-        return function(_arg) {
+        return function(arg) {
           var stats;
-          stats = _arg.stats;
+          stats = arg.stats;
           return _this.state.set({
             count: stats.uniqueValues
           });
@@ -18505,8 +18506,8 @@ module.exports = '2.0.2';
 
   })(CoreView);
 
-  module.exports = ListDialogueButton = (function(_super) {
-    __extends(ListDialogueButton, _super);
+  module.exports = ListDialogueButton = (function(superClass) {
+    extend(ListDialogueButton, superClass);
 
     function ListDialogueButton() {
       return ListDialogueButton.__super__.constructor.apply(this, arguments);
@@ -18649,7 +18650,7 @@ module.exports = '2.0.2';
       handler = (function(_this) {
         return function(outcome) {
           return function(result) {
-            _this.trigger("" + outcome + ":" + action, result);
+            _this.trigger(outcome + ":" + action, result);
             return _this.trigger(outcome, action, result);
           };
         };
@@ -18739,11 +18740,11 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../../core-model":2,"../../core-view":3,"../../core/collection":5,"../../messages/lists":24,"../../models/path":56,"../../templates":67,"../../utils/count-executor":77,"../../utils/css-class-set":79,"./append-from-path":180,"./append-from-selection":181,"./create-from-path":187,"./create-from-selection":188,"underscore":301}],187:[function(require,module,exports){
+},{"../../core-model":2,"../../core-view":3,"../../core/collection":5,"../../messages/lists":24,"../../models/path":56,"../../templates":67,"../../utils/count-executor":77,"../../utils/css-class-set":79,"./append-from-path":180,"./append-from-selection":181,"./create-from-path":187,"./create-from-selection":188,"underscore":262}],187:[function(require,module,exports){
 (function() {
   var BaseCreateListDialogue, CreateFromPath, FromPathMixin, Promise,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   Promise = require('es6-promise').Promise;
 
@@ -18751,8 +18752,8 @@ module.exports = '2.0.2';
 
   FromPathMixin = require('./from-path-mixin');
 
-  module.exports = CreateFromPath = (function(_super) {
-    __extends(CreateFromPath, _super);
+  module.exports = CreateFromPath = (function(superClass) {
+    extend(CreateFromPath, superClass);
 
     function CreateFromPath() {
       return CreateFromPath.__super__.constructor.apply(this, arguments);
@@ -18766,11 +18767,11 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"./base-dialogue":184,"./from-path-mixin":189,"es6-promise":244}],188:[function(require,module,exports){
+},{"./base-dialogue":184,"./from-path-mixin":189,"es6-promise":238}],188:[function(require,module,exports){
 (function() {
   var BaseCreateListDialogue, CreateFromSelection, Floating, FromSelectionMixin, Promise, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -18782,8 +18783,8 @@ module.exports = '2.0.2';
 
   FromSelectionMixin = require('./from-selection-mixin');
 
-  module.exports = CreateFromSelection = (function(_super) {
-    __extends(CreateFromSelection, _super);
+  module.exports = CreateFromSelection = (function(superClass) {
+    extend(CreateFromSelection, superClass);
 
     function CreateFromSelection() {
       return CreateFromSelection.__super__.constructor.apply(this, arguments);
@@ -18799,7 +18800,7 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../../mixins/floating-dialogue":30,"./base-dialogue":184,"./from-selection-mixin":190,"es6-promise":244,"underscore":301}],189:[function(require,module,exports){
+},{"../../mixins/floating-dialogue":30,"./base-dialogue":184,"./from-selection-mixin":190,"es6-promise":238,"underscore":262}],189:[function(require,module,exports){
 (function() {
   var Promise;
 
@@ -18815,9 +18816,9 @@ module.exports = '2.0.2';
         return Promise.resolve(this.query.selectPreservingImpliedConstraints([this.path]));
       },
       fetchCount: function() {
-        return this.query.summarise(this.path).then(function(_arg) {
+        return this.query.summarise(this.path).then(function(arg) {
           var uniqueValues;
-          uniqueValues = _arg.stats.uniqueValues;
+          uniqueValues = arg.stats.uniqueValues;
           return uniqueValues;
         });
       },
@@ -18832,7 +18833,7 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"es6-promise":244}],190:[function(require,module,exports){
+},{"es6-promise":238}],190:[function(require,module,exports){
 (function() {
   var NO_COMMON_TYPE, NO_OBJECTS_SELECTED, SelectedObjects, TypeAssertions;
 
@@ -18878,9 +18879,9 @@ module.exports = '2.0.2';
         return Promise.resolve(this.collection.size());
       },
       getType: function() {
-        var _ref;
+        var ref;
         if (this.model.get('type')) {
-          return (_ref = this.schema) != null ? _ref.makePath(this.model.get('type')).getType() : void 0;
+          return (ref = this.schema) != null ? ref.makePath(this.model.get('type')).getType() : void 0;
         }
       },
       getService: function() {
@@ -18903,9 +18904,9 @@ module.exports = '2.0.2';
         return this.verifyState();
       },
       verifyState: function() {
-        var _ref;
-        if ((_ref = Base.prototype.verifyState) != null) {
-          _ref.call(this);
+        var ref;
+        if ((ref = Base.prototype.verifyState) != null) {
+          ref.call(this);
         }
         if (!this.collection.size()) {
           return this.state.set({
@@ -18933,15 +18934,15 @@ module.exports = '2.0.2';
 },{"../../core/type-assertions":10,"../../models/selected-objects":58}],191:[function(require,module,exports){
 (function() {
   var CoreView, ListTag, Templates,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   CoreView = require('../../core-view');
 
   Templates = require('../../templates');
 
-  module.exports = ListTag = (function(_super) {
-    __extends(ListTag, _super);
+  module.exports = ListTag = (function(superClass) {
+    extend(ListTag, superClass);
 
     function ListTag() {
       return ListTag.__super__.constructor.apply(this, arguments);
@@ -18984,8 +18985,8 @@ module.exports = '2.0.2';
 },{"../../core-view":3,"../../templates":67}],192:[function(require,module,exports){
 (function() {
   var CoreView, TagsApology, Templates, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -18995,8 +18996,8 @@ module.exports = '2.0.2';
 
   require('../../messages/lists');
 
-  module.exports = TagsApology = (function(_super) {
-    __extends(TagsApology, _super);
+  module.exports = TagsApology = (function(superClass) {
+    extend(TagsApology, superClass);
 
     function TagsApology() {
       return TagsApology.__super__.constructor.apply(this, arguments);
@@ -19022,11 +19023,11 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../../core-view":3,"../../messages/lists":24,"../../templates":67,"underscore":301}],193:[function(require,module,exports){
+},{"../../core-view":3,"../../messages/lists":24,"../../templates":67,"underscore":262}],193:[function(require,module,exports){
 (function() {
-  var ListValueControls, Messages, Promise, View, formatList, fs, getOptionValue, helpers, html, mustacheSettings, template, withDisplayNames, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+  var ListValueControls, Messages, Promise, View, _, formatList, fs, getOptionValue, helpers, html, mustacheSettings, template, withDisplayNames,
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -19058,7 +19059,7 @@ module.exports = '2.0.2';
 
   formatList = function(list) {
     if (list.size) {
-      return "" + list.name + " (" + list.size + " " + list.typeName + "s)";
+      return list.name + " (" + list.size + " " + list.typeName + "s)";
     } else {
       return list.name;
     }
@@ -19076,8 +19077,8 @@ module.exports = '2.0.2';
     };
   };
 
-  module.exports = ListValueControls = (function(_super) {
-    __extends(ListValueControls, _super);
+  module.exports = ListValueControls = (function(superClass) {
+    extend(ListValueControls, superClass);
 
     function ListValueControls() {
       return ListValueControls.__super__.constructor.apply(this, arguments);
@@ -19085,8 +19086,8 @@ module.exports = '2.0.2';
 
     ListValueControls.prototype.className = 'im-list-value-controls';
 
-    ListValueControls.prototype.initialize = function(_arg) {
-      this.query = _arg.query;
+    ListValueControls.prototype.initialize = function(arg) {
+      this.query = arg.query;
       ListValueControls.__super__.initialize.apply(this, arguments);
       this.initialValue = this.model.get('value');
       this.path = this.model.get('path');
@@ -19166,15 +19167,15 @@ module.exports = '2.0.2';
         return function(lists) {
           var l, selectables;
           selectables = (function() {
-            var _i, _len, _results;
-            _results = [];
-            for (_i = 0, _len = lists.length; _i < _len; _i++) {
-              l = lists[_i];
+            var i, len, results;
+            results = [];
+            for (i = 0, len = lists.length; i < len; i++) {
+              l = lists[i];
               if (l.size && this.path.isa(l.type)) {
-                _results.push(l);
+                results.push(l);
               }
             }
-            return _results;
+            return results;
           }).call(_this);
           return Promise.all(selectables.map(withDisplayNames(_this.query.model)));
         };
@@ -19222,11 +19223,11 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../core-view":3,"../messages":16,"../templates/helpers":68,"../templates/mustache-settings":69,"es6-promise":244,"underscore":301}],194:[function(require,module,exports){
+},{"../core-view":3,"../messages":16,"../templates/helpers":68,"../templates/mustache-settings":69,"es6-promise":238,"underscore":262}],194:[function(require,module,exports){
 (function() {
-  var AttributeValueControls, LoopValueControls, Messages, Promise, SuggestionSource, fs, html, template, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+  var AttributeValueControls, LoopValueControls, Messages, Promise, SuggestionSource, _, fs, html, template,
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -19244,8 +19245,8 @@ module.exports = '2.0.2';
 
   template = _.template(html);
 
-  module.exports = LoopValueControls = (function(_super) {
-    __extends(LoopValueControls, _super);
+  module.exports = LoopValueControls = (function(superClass) {
+    extend(LoopValueControls, superClass);
 
     function LoopValueControls() {
       return LoopValueControls.__super__.constructor.apply(this, arguments);
@@ -19325,9 +19326,9 @@ module.exports = '2.0.2';
       var handler, path, suggesting, suggestingExtra, summPath, target;
       path = this.branding.get('defaults.extraValue.path');
       target = this.branding.get('defaults.extraValue.extraFor');
-      return suggestingExtra = (path == null) || !this.model.get('path').isa(target) ? Promise.resolve(true) : (summPath = "" + (this.model.get('path')) + "." + path, suggesting = (this.__extra_suggestions != null ? this.__extra_suggestions : this.__extra_suggestions = this.query.summarise(summPath)), handler = this.handleSuggestionSet.bind(this, this.$('input.im-extra-value'), 'extraValue'), suggesting.then(function(_arg) {
+      return suggestingExtra = (path == null) || !this.model.get('path').isa(target) ? Promise.resolve(true) : (summPath = (this.model.get('path')) + "." + path, suggesting = (this.__extra_suggestions != null ? this.__extra_suggestions : this.__extra_suggestions = this.query.summarise(summPath)), handler = this.handleSuggestionSet.bind(this, this.$('input.im-extra-value'), 'extraValue'), suggesting.then(function(arg) {
         var results;
-        results = _arg.results;
+        results = arg.results;
         return results;
       }).then(handler));
     };
@@ -19348,13 +19349,13 @@ module.exports = '2.0.2';
               return [];
             }
             summaries = (function() {
-              var _i, _len, _results;
-              _results = [];
-              for (_i = 0, _len = keys.length; _i < _len; _i++) {
-                k = keys[_i];
-                _results.push(this.query.summarise(path + k.replace(/^[^\.]+/, '')));
+              var i, len, results1;
+              results1 = [];
+              for (i = 0, len = keys.length; i < len; i++) {
+                k = keys[i];
+                results1.push(this.query.summarise(path + k.replace(/^[^\.]+/, '')));
               }
-              return _results;
+              return results1;
             }).call(_this);
             return Promise.all(summaries).then(function(resultSets) {
               return resultSets.reduce((function(acc, rs) {
@@ -19380,7 +19381,7 @@ module.exports = '2.0.2';
         highlight: true
       };
       dataset = {
-        name: "" + prop + "_suggestions",
+        name: prop + "_suggestions",
         source: source.suggest,
         displayKey: 'item',
         templates: {
@@ -19421,11 +19422,11 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../messages":16,"../utils/suggestion-source":107,"./attribute-value-controls":113,"es6-promise":244,"underscore":301}],195:[function(require,module,exports){
+},{"../messages":16,"../utils/suggestion-source":107,"./attribute-value-controls":113,"es6-promise":238,"underscore":262}],195:[function(require,module,exports){
 (function() {
-  var LoopValueControls, Messages, Promise, View, fs, helpers, html, mustacheSettings, template, toNamedPath, toOption, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+  var LoopValueControls, Messages, Promise, View, _, fs, helpers, html, mustacheSettings, template, toNamedPath, toOption,
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -19447,24 +19448,24 @@ module.exports = '2.0.2';
 
   template = _.template(html);
 
-  toOption = function(_arg) {
+  toOption = function(arg) {
     var name, path;
-    path = _arg.path, name = _arg.name;
+    path = arg.path, name = arg.name;
     return {
       value: path.toString(),
       text: name
     };
   };
 
-  module.exports = LoopValueControls = (function(_super) {
-    __extends(LoopValueControls, _super);
+  module.exports = LoopValueControls = (function(superClass) {
+    extend(LoopValueControls, superClass);
 
     function LoopValueControls() {
       return LoopValueControls.__super__.constructor.apply(this, arguments);
     }
 
-    LoopValueControls.prototype.initialize = function(_arg) {
-      this.query = _arg.query;
+    LoopValueControls.prototype.initialize = function(arg) {
+      this.query = arg.query;
       LoopValueControls.__super__.initialize.apply(this, arguments);
       this.path = this.model.get('path');
       this.type = this.path.getType();
@@ -19505,16 +19506,16 @@ module.exports = '2.0.2';
         return function() {
           var loopCandidates, n;
           loopCandidates = (function() {
-            var _i, _len, _ref, _results;
-            _ref = this.query.getQueryNodes();
-            _results = [];
-            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-              n = _ref[_i];
+            var i, len, ref, results;
+            ref = this.query.getQueryNodes();
+            results = [];
+            for (i = 0, len = ref.length; i < len; i++) {
+              n = ref[i];
               if (this.isSuitable(n)) {
-                _results.push(n);
+                results.push(n);
               }
             }
-            return _results;
+            return results;
           }).call(_this);
           return Promise.all(loopCandidates.map(toNamedPath));
         };
@@ -19531,14 +19532,14 @@ module.exports = '2.0.2';
       var c, candidateLoops, currentValue, isSelected;
       currentValue = this.model.get('value');
       candidateLoops = (function() {
-        var _i, _len, _ref, _results;
-        _ref = this.model.get('candidateLoops') || [];
-        _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          c = _ref[_i];
-          _results.push(toOption(c));
+        var i, len, ref, results;
+        ref = this.model.get('candidateLoops') || [];
+        results = [];
+        for (i = 0, len = ref.length; i < len; i++) {
+          c = ref[i];
+          results.push(toOption(c));
         }
-        return _results;
+        return results;
       }).call(this);
       isSelected = function(opt) {
         return opt.value === currentValue;
@@ -19555,11 +19556,11 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../core-view":3,"../messages":16,"../templates/helpers":68,"../templates/mustache-settings":69,"../utils/to-named-path":109,"es6-promise":244,"underscore":301}],196:[function(require,module,exports){
+},{"../core-view":3,"../messages":16,"../templates/helpers":68,"../templates/mustache-settings":69,"../utils/to-named-path":109,"es6-promise":238,"underscore":262}],196:[function(require,module,exports){
 (function() {
-  var CoreView, ModalFooter, Templates, defaultData, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+  var CoreView, ModalFooter, Templates, _, defaultData,
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -19576,8 +19577,8 @@ module.exports = '2.0.2';
     };
   };
 
-  module.exports = ModalFooter = (function(_super) {
-    __extends(ModalFooter, _super);
+  module.exports = ModalFooter = (function(superClass) {
+    extend(ModalFooter, superClass);
 
     function ModalFooter() {
       return ModalFooter.__super__.constructor.apply(this, arguments);
@@ -19605,11 +19606,11 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../core-view":3,"../templates":67,"underscore":301}],197:[function(require,module,exports){
+},{"../core-view":3,"../templates":67,"underscore":262}],197:[function(require,module,exports){
 (function() {
-  var Messages, Modal, ModalFooter, Promise, Templates, View, modalTemplate, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+  var Messages, Modal, ModalFooter, Promise, Templates, View, _, modalTemplate,
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   Promise = require('es6-promise').Promise;
 
@@ -19625,8 +19626,8 @@ module.exports = '2.0.2';
 
   ModalFooter = require('./modal-footer');
 
-  module.exports = Modal = (function(_super) {
-    __extends(Modal, _super);
+  module.exports = Modal = (function(superClass) {
+    extend(Modal, superClass);
 
     function Modal() {
       return Modal.__super__.constructor.apply(this, arguments);
@@ -19775,7 +19776,7 @@ module.exports = '2.0.2';
     Modal.prototype.shown = false;
 
     Modal.prototype.show = function() {
-      var e, p;
+      var e, error, p;
       p = this.promise();
       p.then(((function(_this) {
         return function() {
@@ -19789,8 +19790,8 @@ module.exports = '2.0.2';
       try {
         this._showModal();
         this.trigger('shown', this.shown = true);
-      } catch (_error) {
-        e = _error;
+      } catch (error) {
+        e = error;
         this.reject(e);
       }
       return p;
@@ -19810,11 +19811,11 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../core-view":3,"../messages":16,"../templates":67,"./modal-footer":196,"es6-promise":244,"underscore":301}],198:[function(require,module,exports){
+},{"../core-view":3,"../messages":16,"../templates":67,"./modal-footer":196,"es6-promise":238,"underscore":262}],198:[function(require,module,exports){
 (function() {
-  var Collection, IS_BLANK, Icons, Messages, Model, MultiValueControls, Options, Templates, ValueControl, ValueModel, Values, View, ignore, mustacheSettings, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+  var Collection, IS_BLANK, Icons, Messages, Model, MultiValueControls, Options, Templates, ValueControl, ValueModel, Values, View, _, ignore, mustacheSettings,
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -19846,8 +19847,8 @@ module.exports = '2.0.2';
 
   mustacheSettings = require('../templates/mustache-settings');
 
-  ValueModel = (function(_super) {
-    __extends(ValueModel, _super);
+  ValueModel = (function(superClass) {
+    extend(ValueModel, superClass);
 
     function ValueModel() {
       return ValueModel.__super__.constructor.apply(this, arguments);
@@ -19867,8 +19868,8 @@ module.exports = '2.0.2';
 
   })(Model);
 
-  Values = (function(_super) {
-    __extends(Values, _super);
+  Values = (function(superClass) {
+    extend(Values, superClass);
 
     function Values() {
       return Values.__super__.constructor.apply(this, arguments);
@@ -19880,8 +19881,8 @@ module.exports = '2.0.2';
 
   })(Collection);
 
-  ValueControl = (function(_super) {
-    __extends(ValueControl, _super);
+  ValueControl = (function(superClass) {
+    extend(ValueControl, superClass);
 
     function ValueControl() {
       return ValueControl.__super__.constructor.apply(this, arguments);
@@ -19959,8 +19960,8 @@ module.exports = '2.0.2';
 
   })(View);
 
-  module.exports = MultiValueControls = (function(_super) {
-    __extends(MultiValueControls, _super);
+  module.exports = MultiValueControls = (function(superClass) {
+    extend(MultiValueControls, superClass);
 
     function MultiValueControls() {
       return MultiValueControls.__super__.constructor.apply(this, arguments);
@@ -19969,12 +19970,12 @@ module.exports = '2.0.2';
     MultiValueControls.prototype.className = 'im-value-options im-multi-value-table';
 
     MultiValueControls.prototype.initialize = function() {
-      var v, _i, _len, _ref;
+      var i, len, ref, v;
       MultiValueControls.__super__.initialize.apply(this, arguments);
       this.values = new Values;
-      _ref = this.model.get('values') || [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        v = _ref[_i];
+      ref = this.model.get('values') || [];
+      for (i = 0, len = ref.length; i < len; i++) {
+        v = ref[i];
         this.values.add({
           value: v
         });
@@ -20004,16 +20005,16 @@ module.exports = '2.0.2';
       }
       current = this.model.get('values');
       return this.values.set((function() {
-        var _i, _len, _ref, _results;
-        _ref = current != null ? current : [];
-        _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          value = _ref[_i];
-          _results.push({
+        var i, len, ref, results;
+        ref = current != null ? current : [];
+        results = [];
+        for (i = 0, len = ref.length; i < len; i++) {
+          value = ref[i];
+          results.push({
             value: value
           });
         }
-        return _results;
+        return results;
       })());
     };
 
@@ -20070,16 +20071,16 @@ module.exports = '2.0.2';
       var m;
       return this.model.set({
         values: (function() {
-          var _i, _len, _ref, _results;
-          _ref = this.values.where({
+          var i, len, ref, results;
+          ref = this.values.where({
             selected: true
           });
-          _results = [];
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            m = _ref[_i];
-            _results.push(m.get('value'));
+          results = [];
+          for (i = 0, len = ref.length; i < len; i++) {
+            m = ref[i];
+            results.push(m.get('value'));
           }
-          return _results;
+          return results;
         }).call(this)
       });
     };
@@ -20126,11 +20127,11 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../core-model":2,"../core-view":3,"../core/collection":5,"../icons":14,"../messages":16,"../options":63,"../patterns":64,"../templates":67,"../templates/mustache-settings":69,"../utils/events":81,"backbone":235,"underscore":301}],199:[function(require,module,exports){
+},{"../core-model":2,"../core-view":3,"../core/collection":5,"../icons":14,"../messages":16,"../options":63,"../patterns":64,"../templates":67,"../templates/mustache-settings":69,"../utils/events":81,"backbone":235,"underscore":262}],199:[function(require,module,exports){
 (function() {
   var ActiveConstraint, Messages, NewConstraint,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   Messages = require('../messages');
 
@@ -20140,8 +20141,8 @@ module.exports = '2.0.2';
     'conbuilder.Apply': 'Apply'
   });
 
-  module.exports = NewConstraint = (function(_super) {
-    __extends(NewConstraint, _super);
+  module.exports = NewConstraint = (function(superClass) {
+    extend(NewConstraint, superClass);
 
     function NewConstraint() {
       return NewConstraint.__super__.constructor.apply(this, arguments);
@@ -20173,8 +20174,8 @@ module.exports = '2.0.2';
 },{"../messages":16,"./active-constraint":112}],200:[function(require,module,exports){
 (function() {
   var ConstraintAdder, Messages, Modal, NewFilterDialogue, Templates, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -20186,8 +20187,8 @@ module.exports = '2.0.2';
 
   Messages = require('../messages');
 
-  module.exports = NewFilterDialogue = (function(_super) {
-    __extends(NewFilterDialogue, _super);
+  module.exports = NewFilterDialogue = (function(superClass) {
+    extend(NewFilterDialogue, superClass);
 
     function NewFilterDialogue() {
       return NewFilterDialogue.__super__.constructor.apply(this, arguments);
@@ -20199,8 +20200,8 @@ module.exports = '2.0.2';
 
     NewFilterDialogue.prototype.modalSize = 'lg';
 
-    NewFilterDialogue.prototype.initialize = function(_arg) {
-      this.query = _arg.query;
+    NewFilterDialogue.prototype.initialize = function(arg) {
+      this.query = arg.query;
       NewFilterDialogue.__super__.initialize.apply(this, arguments);
       this.listenTo(this.query, 'change:constraints', this.resolve);
       return this.listenTo(this.query, 'editing-constraint', (function(_this) {
@@ -20248,12 +20249,12 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../messages":16,"../templates":67,"./constraint-adder":128,"./modal":197,"underscore":301}],201:[function(require,module,exports){
+},{"../messages":16,"../templates":67,"./constraint-adder":128,"./modal":197,"underscore":262}],201:[function(require,module,exports){
 (function() {
-  var Attribute, CoreView, Options, PathChooser, Reference, ReverseReference, RootClass, appendField, _,
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+  var Attribute, CoreView, Options, PathChooser, Reference, ReverseReference, RootClass, _, appendField,
+    bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -20273,11 +20274,11 @@ module.exports = '2.0.2';
     return pth.append(fld);
   };
 
-  module.exports = PathChooser = (function(_super) {
-    __extends(PathChooser, _super);
+  module.exports = PathChooser = (function(superClass) {
+    extend(PathChooser, superClass);
 
     function PathChooser() {
-      this.createSubFinder = __bind(this.createSubFinder, this);
+      this.createSubFinder = bind(this.createSubFinder, this);
       return PathChooser.__super__.constructor.apply(this, arguments);
     }
 
@@ -20288,23 +20289,23 @@ module.exports = '2.0.2';
     PathChooser.prototype.className = 'im-path-chooser';
 
     PathChooser.prototype.initialize = function() {
-      var attr, fieldType, name, toPath, _i, _len, _ref;
+      var attr, fieldType, i, len, name, ref1, toPath;
       PathChooser.__super__.initialize.apply(this, arguments);
       this.path = _.last(this.trail) || this.model.get('root') || this.query.makePath(this.query.root);
       this.cd = this.path.getEndClass();
       toPath = appendField.bind(null, this.path);
-      _ref = ['attributes', 'references', 'collections'];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        fieldType = _ref[_i];
+      ref1 = ['attributes', 'references', 'collections'];
+      for (i = 0, len = ref1.length; i < len; i++) {
+        fieldType = ref1[i];
         this[fieldType] = (function() {
-          var _ref1, _results;
-          _ref1 = this.cd[fieldType];
-          _results = [];
-          for (name in _ref1) {
-            attr = _ref1[name];
-            _results.push(toPath(attr));
+          var ref2, results;
+          ref2 = this.cd[fieldType];
+          results = [];
+          for (name in ref2) {
+            attr = ref2[name];
+            results.push(toPath(attr));
           }
-          return _results;
+          return results;
         }).call(this);
       }
       this.listenTo(this.model, 'change:allowRevRefs', this.render);
@@ -20364,23 +20365,23 @@ module.exports = '2.0.2';
     };
 
     PathChooser.prototype.postRender = function() {
-      var attr, path, ref, root, showId, _i, _j, _len, _len1, _ref, _ref1;
+      var attr, i, j, len, len1, path, ref, ref1, ref2, root, showId;
       showId = Options.get('ShowId');
       if (this.showRoot()) {
         root = this.createRoot();
         this.renderChild('root', root);
       }
-      _ref = this.attributes;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        path = _ref[_i];
+      ref1 = this.attributes;
+      for (i = 0, len = ref1.length; i < len; i++) {
+        path = ref1[i];
         if (showId || (path.end.name !== 'id')) {
           attr = this.createAttribute(path);
           this.renderChild(path.toString(), attr);
         }
       }
-      _ref1 = this.references.concat(this.collections);
-      for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-        path = _ref1[_j];
+      ref2 = this.references.concat(this.collections);
+      for (j = 0, len1 = ref2.length; j < len1; j++) {
+        path = ref2[j];
         ref = this.createReference(path);
         this.renderChild(path.toString(), ref);
       }
@@ -20452,11 +20453,11 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../core-view":3,"../options":63,"./pathtree/attribute":202,"./pathtree/reference":203,"./pathtree/reverse-reference":204,"./pathtree/root":205,"underscore":301}],202:[function(require,module,exports){
+},{"../core-view":3,"../options":63,"./pathtree/attribute":202,"./pathtree/reference":203,"./pathtree/reverse-reference":204,"./pathtree/root":205,"underscore":262}],202:[function(require,module,exports){
 (function() {
-  var Attribute, Icons, Options, View, highlightMatch, notBlank, stripLeadingSegments, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+  var Attribute, Icons, Options, View, _, highlightMatch, notBlank, stripLeadingSegments,
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -20489,8 +20490,8 @@ module.exports = '2.0.2';
     return "<strong>" + match + "</strong>";
   };
 
-  module.exports = Attribute = (function(_super) {
-    __extends(Attribute, _super);
+  module.exports = Attribute = (function(superClass) {
+    extend(Attribute, superClass);
 
     function Attribute() {
       return Attribute.__super__.constructor.apply(this, arguments);
@@ -20504,8 +20505,8 @@ module.exports = '2.0.2';
       };
     };
 
-    Attribute.prototype.initialize = function(_arg) {
-      this.chosenPaths = _arg.chosenPaths, this.view = _arg.view, this.query = _arg.query, this.path = _arg.path, this.trail = _arg.trail;
+    Attribute.prototype.initialize = function(arg) {
+      this.chosenPaths = arg.chosenPaths, this.view = arg.view, this.query = arg.query, this.path = arg.path, this.trail = arg.trail;
       Attribute.__super__.initialize.apply(this, arguments);
       this.depth = this.trail.length + 1;
       this.state.set({
@@ -20532,28 +20533,28 @@ module.exports = '2.0.2';
     };
 
     Attribute.prototype.getFilterPatterns = function() {
-      var filterTerms, t, _i, _len, _ref, _results;
+      var filterTerms, i, len, ref, results, t;
       filterTerms = this.model.get('filter');
       if (notBlank(filterTerms)) {
-        _ref = filterTerms.split(/\s+/);
-        _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          t = _ref[_i];
+        ref = filterTerms.split(/\s+/);
+        results = [];
+        for (i = 0, len = ref.length; i < len; i++) {
+          t = ref[i];
           if (t) {
-            _results.push(new RegExp(t, 'i'));
+            results.push(new RegExp(t, 'i'));
           }
         }
-        return _results;
+        return results;
       } else {
         return [];
       }
     };
 
     Attribute.prototype.handleClick = function(e) {
-      var _ref;
+      var ref;
       e.stopPropagation();
       e.preventDefault();
-      if ((this.model.get('dontSelectView')) && ((_ref = this.view) != null ? _ref.contains(this.path) : void 0)) {
+      if ((this.model.get('dontSelectView')) && ((ref = this.view) != null ? ref.contains(this.path) : void 0)) {
         return;
       }
       if (this.chosenPaths.contains(this.path)) {
@@ -20592,12 +20593,12 @@ module.exports = '2.0.2';
     };
 
     Attribute.prototype.getHighlitName = function(regexps) {
-      var highlit, name, pathName, r, _i, _len, _ref;
+      var highlit, i, len, name, pathName, r, ref;
       name = this.state.get('name');
-      pathName = (_ref = this.path.end) != null ? _ref.name : void 0;
+      pathName = (ref = this.path.end) != null ? ref.name : void 0;
       highlit = name;
-      for (_i = 0, _len = regexps.length; _i < _len; _i++) {
-        r = regexps[_i];
+      for (i = 0, len = regexps.length; i < len; i++) {
+        r = regexps[i];
         highlit = highlit.replace(r, highlightMatch);
       }
       if (/strong/.test(highlit)) {
@@ -20613,7 +20614,7 @@ module.exports = '2.0.2';
 
     Attribute.prototype.getData = function() {
       var icon, name, title;
-      title = Options.get('ShowId') ? "" + this.path + " (" + (this.path.getType()) + ")" : '';
+      title = Options.get('ShowId') ? this.path + " (" + (this.path.getType()) + ")" : '';
       name = this.state.get('highlitName') ? this.state.get('highlitName') : this.state.escape('name');
       icon = Icons.icon('Attribute');
       return {
@@ -20646,11 +20647,11 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../../core-view":3,"../../icons":14,"../../options":63,"underscore":301}],203:[function(require,module,exports){
+},{"../../core-view":3,"../../icons":14,"../../options":63,"underscore":262}],203:[function(require,module,exports){
 (function() {
   var Attribute, Icons, Reference, ignore,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   Icons = require('../../icons');
 
@@ -20658,15 +20659,15 @@ module.exports = '2.0.2';
 
   ignore = require('../../utils/events').ignore;
 
-  module.exports = Reference = (function(_super) {
-    __extends(Reference, _super);
+  module.exports = Reference = (function(superClass) {
+    extend(Reference, superClass);
 
     function Reference() {
       return Reference.__super__.constructor.apply(this, arguments);
     }
 
-    Reference.prototype.initialize = function(_arg) {
-      this.openNodes = _arg.openNodes, this.createSubFinder = _arg.createSubFinder;
+    Reference.prototype.initialize = function(arg) {
+      this.openNodes = arg.openNodes, this.createSubFinder = arg.createSubFinder;
       Reference.__super__.initialize.apply(this, arguments);
       this.state.set({
         collapsed: true
@@ -20677,8 +20678,8 @@ module.exports = '2.0.2';
     };
 
     Reference.prototype.setCollapsed = function() {
-      var _ref;
-      return (_ref = this.state) != null ? _ref.set({
+      var ref;
+      return (ref = this.state) != null ? ref.set({
         collapsed: !this.openNodes.contains(this.path)
       }) : void 0;
     };
@@ -20725,15 +20726,15 @@ module.exports = '2.0.2';
 },{"../../icons":14,"../../utils/events":81,"./attribute":202}],204:[function(require,module,exports){
 (function() {
   var Icons, Reference, ReverseReference,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   Icons = require('../../icons');
 
   Reference = require('./reference');
 
-  module.exports = ReverseReference = (function(_super) {
-    __extends(ReverseReference, _super);
+  module.exports = ReverseReference = (function(superClass) {
+    extend(ReverseReference, superClass);
 
     function ReverseReference() {
       return ReverseReference.__super__.constructor.apply(this, arguments);
@@ -20771,8 +20772,8 @@ module.exports = '2.0.2';
 },{"../../icons":14,"./reference":203}],205:[function(require,module,exports){
 (function() {
   var Attribute, Icons, RootClass, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -20780,8 +20781,8 @@ module.exports = '2.0.2';
 
   Attribute = require('./attribute');
 
-  module.exports = RootClass = (function(_super) {
-    __extends(RootClass, _super);
+  module.exports = RootClass = (function(superClass) {
+    extend(RootClass, superClass);
 
     function RootClass() {
       return RootClass.__super__.constructor.apply(this, arguments);
@@ -20804,7 +20805,7 @@ module.exports = '2.0.2';
     };
 
     RootClass.prototype.handleClick = function(e) {
-      var collections, paths, r, references, _ref;
+      var collections, paths, r, ref, references;
       if (e != null) {
         e.preventDefault();
       }
@@ -20815,16 +20816,16 @@ module.exports = '2.0.2';
         if (this.openNodes.size()) {
           return this.openNodes.reset([]);
         } else {
-          _ref = this.path.getType(), collections = _ref.collections, references = _ref.references;
+          ref = this.path.getType(), collections = ref.collections, references = ref.references;
           paths = (function() {
-            var _i, _len, _ref1, _results;
-            _ref1 = _.values(references).concat(_.values(collections));
-            _results = [];
-            for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-              r = _ref1[_i];
-              _results.push(this.path.append(r.name));
+            var i, len, ref1, results;
+            ref1 = _.values(references).concat(_.values(collections));
+            results = [];
+            for (i = 0, len = ref1.length; i < len; i++) {
+              r = ref1[i];
+              results.push(this.path.append(r.name));
             }
-            return _results;
+            return results;
           }).call(this);
           return this.openNodes.reset(paths);
         }
@@ -20839,11 +20840,11 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../../icons":14,"./attribute":202,"underscore":301}],206:[function(require,module,exports){
+},{"../../icons":14,"./attribute":202,"underscore":262}],206:[function(require,module,exports){
 (function() {
   var CoreView, QueryDialogueButton, Templates, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -20851,8 +20852,8 @@ module.exports = '2.0.2';
 
   Templates = require('../templates');
 
-  module.exports = QueryDialogueButton = (function(_super) {
-    __extends(QueryDialogueButton, _super);
+  module.exports = QueryDialogueButton = (function(superClass) {
+    extend(QueryDialogueButton, superClass);
 
     function QueryDialogueButton() {
       return QueryDialogueButton.__super__.constructor.apply(this, arguments);
@@ -20945,15 +20946,15 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../core-view":3,"../templates":67,"underscore":301}],207:[function(require,module,exports){
+},{"../core-view":3,"../templates":67,"underscore":262}],207:[function(require,module,exports){
 (function() {
-  var ColumnMangerButton, CoreView, FilterDialogueButton, HistoryType, JoinManagerButton, Listenable, QueryManagement, Structure, Types, UnionOf, _ref,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+  var ColumnMangerButton, CoreView, FilterDialogueButton, HistoryType, JoinManagerButton, Listenable, QueryManagement, Structure, Types, UnionOf, ref,
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   CoreView = require('../core-view');
 
-  _ref = Types = require('../core/type-assertions'), UnionOf = _ref.UnionOf, Listenable = _ref.Listenable, Structure = _ref.Structure;
+  ref = Types = require('../core/type-assertions'), UnionOf = ref.UnionOf, Listenable = ref.Listenable, Structure = ref.Structure;
 
   ColumnMangerButton = require('./column-manager/button');
 
@@ -20965,8 +20966,8 @@ module.exports = '2.0.2';
     getCurrentQuery: Types.Function
   }));
 
-  module.exports = QueryManagement = (function(_super) {
-    __extends(QueryManagement, _super);
+  module.exports = QueryManagement = (function(superClass) {
+    extend(QueryManagement, superClass);
 
     function QueryManagement() {
       return QueryManagement.__super__.constructor.apply(this, arguments);
@@ -21007,10 +21008,10 @@ module.exports = '2.0.2';
 
 },{"../core-view":3,"../core/type-assertions":10,"./column-manager/button":119,"./filter-dialogue/button":168,"./join-manager/button":178}],208:[function(require,module,exports){
 (function() {
-  var $, Bus, CodeGenButton, CoreView, ExportDialogueButton, ListDialogueButton, Options, QueryManagement, QueryTools, SUBSECTIONS, Templates, UndoHistory, subsection, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    __slice = [].slice;
+  var $, Bus, CodeGenButton, CoreView, ExportDialogueButton, ListDialogueButton, Options, QueryManagement, QueryTools, SUBSECTIONS, Templates, UndoHistory, _, subsection,
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty,
+    slice = [].slice;
 
   _ = require('underscore');
 
@@ -21040,8 +21041,8 @@ module.exports = '2.0.2';
     return "<div class=\"" + s + " clearfix\"></div>";
   };
 
-  module.exports = QueryTools = (function(_super) {
-    __extends(QueryTools, _super);
+  module.exports = QueryTools = (function(superClass) {
+    extend(QueryTools, superClass);
 
     function QueryTools() {
       return QueryTools.__super__.constructor.apply(this, arguments);
@@ -21101,7 +21102,7 @@ module.exports = '2.0.2';
     };
 
     QueryTools.prototype.renderQueryConsumers = function() {
-      var container, kid, listDialogue, query, selected, _i, _len, _ref;
+      var container, i, kid, len, listDialogue, query, ref, selected;
       container = this.getConsumerContainer();
       if (!container) {
         return;
@@ -21115,10 +21116,10 @@ module.exports = '2.0.2';
       });
       this.listenTo(listDialogue, 'all', (function(_this) {
         return function() {
-          var args, evt, _ref, _ref1;
-          evt = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
-          (_ref = _this.bus).trigger.apply(_ref, ["list-action:" + evt].concat(__slice.call(args)));
-          return (_ref1 = _this.bus).trigger.apply(_ref1, ["list-action", evt].concat(__slice.call(args)));
+          var args, evt, ref, ref1;
+          evt = arguments[0], args = 2 <= arguments.length ? slice.call(arguments, 1) : [];
+          (ref = _this.bus).trigger.apply(ref, ["list-action:" + evt].concat(slice.call(args)));
+          return (ref1 = _this.bus).trigger.apply(ref1, ["list-action", evt].concat(slice.call(args)));
         };
       })(this));
       this.renderChild('save', new ExportDialogueButton({
@@ -21131,9 +21132,9 @@ module.exports = '2.0.2';
       }), container);
       this.renderChild('lists', listDialogue, container);
       if (this.consumerContainer && this.consumerBtnClass) {
-        _ref = ['save', 'code', 'lists'];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          kid = _ref[_i];
+        ref = ['save', 'code', 'lists'];
+        for (i = 0, len = ref.length; i < len; i++) {
+          kid = ref[i];
           this.listenTo(this.children[kid], 'rendered', this.setButtonStyle);
         }
       }
@@ -21153,12 +21154,12 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../core-view":3,"../options":63,"../templates":67,"../utils/events":81,"./code-gen-button":115,"./export-dialogue/button":139,"./list-dialogue/button":186,"./query-management-tools":207,"./undo-history":229,"jquery":267,"underscore":301}],209:[function(require,module,exports){
+},{"../core-view":3,"../options":63,"../templates":67,"../utils/events":81,"./code-gen-button":115,"./export-dialogue/button":139,"./list-dialogue/button":186,"./query-management-tools":207,"./undo-history":229,"jquery":256,"underscore":262}],209:[function(require,module,exports){
 (function() {
   var CellModelFactory, Collection, ColumnHeaders, CoreModel, CoreView, ErrorNotice, History, Messages, Options, PageSizer, Pagination, ResultsTable, RowsCollection, SelectedObjects, Table, TableModel, TableResults, TableSummary, Templates, Types, UNKNOWN_ERROR, UniqItems, _,
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -21209,19 +21210,19 @@ module.exports = '2.0.2';
     key: 'error.Unknown'
   };
 
-  module.exports = Table = (function(_super) {
-    __extends(Table, _super);
+  module.exports = Table = (function(superClass) {
+    extend(Table, superClass);
 
     function Table() {
-      this.canUseFormatter = __bind(this.canUseFormatter, this);
-      this.unsetSelecting = __bind(this.unsetSelecting, this);
-      this.setSelecting = __bind(this.setSelecting, this);
+      this.canUseFormatter = bind(this.canUseFormatter, this);
+      this.unsetSelecting = bind(this.unsetSelecting, this);
+      this.setSelecting = bind(this.setSelecting, this);
       return Table.__super__.constructor.apply(this, arguments);
     }
 
-    Table.create = function(_arg) {
+    Table.create = function(arg) {
       var history, model, query, selectedObjects;
-      query = _arg.query, model = _arg.model;
+      query = arg.query, model = arg.model;
       Types.assertMatch(Types.Query, query);
       if (model == null) {
         model = new TableModel;
@@ -21267,8 +21268,8 @@ module.exports = '2.0.2';
     };
 
     Table.prototype.onChangeQuery = function() {
-      var model, service, _ref;
-      _ref = this.query = this.history.getCurrentQuery(), service = _ref.service, model = _ref.model;
+      var model, ref, service;
+      ref = this.query = this.history.getCurrentQuery(), service = ref.service, model = ref.model;
       if (this.cellModelFactory == null) {
         this.cellModelFactory = new CellModelFactory(service, model);
       }
@@ -21327,8 +21328,8 @@ module.exports = '2.0.2';
     };
 
     Table.prototype.onChangeCount = function() {
-      var count, size, start, _ref;
-      _ref = this.model.pick('start', 'count', 'size'), start = _ref.start, size = _ref.size, count = _ref.count;
+      var count, ref, size, start;
+      ref = this.model.pick('start', 'count', 'size'), start = ref.start, size = ref.size, count = ref.count;
       if (start >= count) {
         return this.model.set({
           start: Math.max(0, count - size)
@@ -21411,8 +21412,8 @@ module.exports = '2.0.2';
     };
 
     Table.prototype.fillRows = function() {
-      var error, size, start, success, _ref;
-      _ref = this.model.pick('start', 'size'), start = _ref.start, size = _ref.size;
+      var error, ref, size, start, success;
+      ref = this.model.pick('start', 'size'), start = ref.start, size = ref.size;
       success = (function(_this) {
         return function() {
           return _this.model.set({
@@ -21446,17 +21447,17 @@ module.exports = '2.0.2';
         return function(row, i) {
           var c;
           return {
-            id: "" + (_this.query.toXML()) + "#" + (offset + i),
+            id: (_this.query.toXML()) + "#" + (offset + i),
             index: offset + i,
             query: _this.query.toXML(),
             cells: (function() {
-              var _i, _len, _results;
-              _results = [];
-              for (_i = 0, _len = row.length; _i < _len; _i++) {
-                c = row[_i];
-                _results.push(createModel(c));
+              var j, len, results;
+              results = [];
+              for (j = 0, len = row.length; j < len; j++) {
+                c = row[j];
+                results.push(createModel(c));
               }
-              return _results;
+              return results;
             })()
           };
         };
@@ -21465,8 +21466,8 @@ module.exports = '2.0.2';
     };
 
     Table.prototype.overlayTable = function() {
-      var elOffset, h1, table, tableOffset, _ref;
-      if (!((_ref = this.children.inner) != null ? _ref.rendered : void 0)) {
+      var elOffset, h1, ref, table, tableOffset;
+      if (!((ref = this.children.inner) != null ? ref.rendered : void 0)) {
         return;
       }
       table = this.children.inner.$el;
@@ -21476,13 +21477,13 @@ module.exports = '2.0.2';
       this.overlay = document.createElement('div');
       this.overlay.className = 'im-table-overlay im-hidden';
       h1 = this.make('h1', {}, Messages.getText('table.OverlayText'));
-      h1.style.top = "" + (table.height() / 2) + "px";
+      h1.style.top = (table.height() / 2) + "px";
       this.overlay.appendChild(h1);
       this.el.appendChild(this.overlay);
       return _.delay(((function(_this) {
         return function() {
-          var _ref1;
-          return (_ref1 = _this.overlay) != null ? _ref1.classList.remove('im-hidden') : void 0;
+          var ref1;
+          return (ref1 = _this.overlay) != null ? ref1.classList.remove('im-hidden') : void 0;
         };
       })(this)), 100);
     };
@@ -21533,13 +21534,13 @@ module.exports = '2.0.2';
     };
 
     Table.prototype.renderWidgets = function(container) {
-      var clear, method, widgetDiv, widgetName, widgets, _i, _len;
+      var clear, j, len, method, widgetDiv, widgetName, widgets;
       if (container == null) {
         container = this.el;
       }
-      widgets = _.chain(Options.get('TableWidgets')).map(function(_arg, name) {
+      widgets = _.chain(Options.get('TableWidgets')).map(function(arg, name) {
         var enabled, index;
-        enabled = _arg.enabled, index = _arg.index;
+        enabled = arg.enabled, index = arg.index;
         return {
           name: name,
           index: index,
@@ -21553,8 +21554,8 @@ module.exports = '2.0.2';
         widgetDiv.className = 'im-table-controls';
         clear = document.createElement('div');
         clear.style.clear = 'both';
-        for (_i = 0, _len = widgets.length; _i < _len; _i++) {
-          widgetName = widgets[_i];
+        for (j = 0, len = widgets.length; j < len; j++) {
+          widgetName = widgets[j];
           if (!(("place" + widgetName) in this)) {
             continue;
           }
@@ -21597,11 +21598,11 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../core-model":2,"../core-view":3,"../core/collection":5,"../core/type-assertions":10,"../messages":16,"../messages/table":28,"../models/column-headers":39,"../models/history":45,"../models/rows":57,"../models/selected-objects":58,"../models/table":61,"../models/uniq-items":62,"../options":63,"../templates":67,"../utils/cell-model-factory":75,"../utils/table-results":108,"./table/error-notice":214,"./table/inner":217,"./table/page-sizer":220,"./table/pagination":221,"./table/summary":227,"underscore":301}],210:[function(require,module,exports){
+},{"../core-model":2,"../core-view":3,"../core/collection":5,"../core/type-assertions":10,"../messages":16,"../messages/table":28,"../models/column-headers":39,"../models/history":45,"../models/rows":57,"../models/selected-objects":58,"../models/table":61,"../models/uniq-items":62,"../options":63,"../templates":67,"../utils/cell-model-factory":75,"../utils/table-results":108,"./table/error-notice":214,"./table/inner":217,"./table/page-sizer":220,"./table/pagination":221,"./table/summary":227,"underscore":262}],210:[function(require,module,exports){
 (function() {
-  var CoreView, EmptyApology, RowView, TableBody, Templates, buildSkipped, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+  var CoreView, EmptyApology, RowView, TableBody, Templates, _, buildSkipped,
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -21613,8 +21614,8 @@ module.exports = '2.0.2';
 
   require('../../messages/table');
 
-  module.exports = TableBody = (function(_super) {
-    __extends(TableBody, _super);
+  module.exports = TableBody = (function(superClass) {
+    extend(TableBody, superClass);
 
     function TableBody() {
       return TableBody.__super__.constructor.apply(this, arguments);
@@ -21687,8 +21688,8 @@ module.exports = '2.0.2';
     };
 
     TableBody.prototype.skipped = function(row) {
-      var _base, _name;
-      return (_base = this._skipSets)[_name = row.get('query')] != null ? _base[_name] : _base[_name] = (function(_this) {
+      var base, name;
+      return (base = this._skipSets)[name = row.get('query')] != null ? base[name] : base[name] = (function(_this) {
         return function() {
           var ret, temps;
           temps = row.get('cells').map(_this.makeCell);
@@ -21705,8 +21706,8 @@ module.exports = '2.0.2';
 
   })(CoreView);
 
-  RowView = (function(_super) {
-    __extends(RowView, _super);
+  RowView = (function(superClass) {
+    extend(RowView, superClass);
 
     function RowView() {
       return RowView.__super__.constructor.apply(this, arguments);
@@ -21717,24 +21718,24 @@ module.exports = '2.0.2';
     RowView.prototype.parameters = ['makeCell', 'skipped'];
 
     RowView.prototype.postRender = function() {
-      var cell, cells, i, _i, _len, _results;
+      var cell, cells, i, j, len, results;
       cells = this.model.get('cells').map(this.makeCell);
-      _results = [];
-      for (i = _i = 0, _len = cells.length; _i < _len; i = ++_i) {
+      results = [];
+      for (i = j = 0, len = cells.length; j < len; i = ++j) {
         cell = cells[i];
         if (!this.skipped[cell.model.get('column')]) {
-          _results.push(this.renderChild(i, cell));
+          results.push(this.renderChild(i, cell));
         }
       }
-      return _results;
+      return results;
     };
 
     return RowView;
 
   })(CoreView);
 
-  EmptyApology = (function(_super) {
-    __extends(EmptyApology, _super);
+  EmptyApology = (function(superClass) {
+    extend(EmptyApology, superClass);
 
     function EmptyApology() {
       return EmptyApology.__super__.constructor.apply(this, arguments);
@@ -21769,7 +21770,7 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../../core-view":3,"../../messages/table":28,"../../templates":67,"../../utils/build-skipset":72,"underscore":301}],211:[function(require,module,exports){
+},{"../../core-view":3,"../../messages/table":28,"../../templates":67,"../../utils/build-skipset":72,"underscore":262}],211:[function(require,module,exports){
 (function() {
   var Cell, NestedTableModel, SubTable;
 
@@ -21817,10 +21818,10 @@ module.exports = '2.0.2';
 },{"../../models/nested-table":48,"./cell":212,"./subtable":226}],212:[function(require,module,exports){
 (function (global){
 (function() {
-  var $, Cell, CellModel, CoreView, Formatting, Messages, Options, SelectedObjects, Templates, compatible, popoverTemplate, types, _, _compatible,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+  var $, Cell, CellModel, CoreView, Formatting, Messages, Options, SelectedObjects, Templates, _, _compatible, compatible, popoverTemplate, types,
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty,
+    indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   _ = require('underscore');
 
@@ -21841,9 +21842,9 @@ module.exports = '2.0.2';
   Messages.setWithPrefix('table.cell', {
     Link: 'link',
     NullEntity: 'No <%= type %>',
-    PreviewTitle: function(_arg) {
+    PreviewTitle: function(arg) {
       var types;
-      types = _arg.types;
+      types = arg.types;
       return types.join(Options.get('DynamicObjects.NameDelimiter'));
     }
   });
@@ -21865,11 +21866,11 @@ module.exports = '2.0.2';
   };
 
   compatible = _.memoize(_compatible, function(p, ct) {
-    return "" + p + "<" + (ct != null ? ct : '!');
+    return p + "<" + (ct != null ? ct : '!');
   });
 
-  module.exports = Cell = (function(_super) {
-    __extends(Cell, _super);
+  module.exports = Cell = (function(superClass) {
+    extend(Cell, superClass);
 
     function Cell() {
       return Cell.__super__.constructor.apply(this, arguments);
@@ -21919,16 +21920,16 @@ module.exports = '2.0.2';
     };
 
     Cell.prototype.getTypes = function() {
-      var c, classes, node, _i, _len, _results;
+      var c, classes, i, len, node, results;
       node = this.model.get('node');
       classes = this.model.get('entity').get('classes');
       if (classes != null) {
-        _results = [];
-        for (_i = 0, _len = classes.length; _i < _len; _i++) {
-          c = classes[_i];
-          _results.push(node.model.makePath(c));
+        results = [];
+        for (i = 0, len = classes.length; i < len; i++) {
+          c = classes[i];
+          results.push(node.model.makePath(c));
         }
-        return _results;
+        return results;
       } else {
         return [node];
       }
@@ -22075,22 +22076,22 @@ module.exports = '2.0.2';
       columnTypes = node.model.getSubclassesOf(node.getType());
       id = this.model.get('entity').get('id');
       identities = (function() {
-        var _i, _len, _ref, _results;
-        _ref = this.getTypes();
-        _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          t = _ref[_i];
-          _results.push({
+        var i, len, ref, results;
+        ref = this.getTypes();
+        results = [];
+        for (i = 0, len = ref.length; i < len; i++) {
+          t = ref[i];
+          results.push({
             'class': String(t),
             id: id
           });
         }
-        return _results;
+        return results;
       }).call(this);
       if (this.selectedObjects.isEmpty()) {
         return _.find(identities, function(x) {
-          var _ref;
-          return _ref = x['class'], __indexOf.call(columnTypes, _ref) >= 0;
+          var ref;
+          return ref = x['class'], indexOf.call(columnTypes, ref) >= 0;
         });
       } else {
         ct = node.model.makePath(this.selectedObjects.state.get('commonType'));
@@ -22196,9 +22197,9 @@ module.exports = '2.0.2';
         opts = Options.get('TableCell');
         show = (function(_this) {
           return function() {
-            var _ref;
+            var ref;
             if (_this.state.get('showPreview')) {
-              return (_ref = _this.children.popover) != null ? _ref.render() : void 0;
+              return (ref = _this.children.popover) != null ? ref.render() : void 0;
             }
           };
         })(this);
@@ -22211,9 +22212,9 @@ module.exports = '2.0.2';
     };
 
     Cell.prototype._hidePreview = function() {
-      var _ref, _ref1;
-      if ((_ref = this.children.popover) != null ? _ref.rendered : void 0) {
-        return (_ref1 = this.popoverTarget) != null ? _ref1.popover('hide') : void 0;
+      var ref, ref1;
+      if ((ref = this.children.popover) != null ? ref.rendered : void 0) {
+        return (ref1 = this.popoverTarget) != null ? ref1.popover('hide') : void 0;
       }
     };
 
@@ -22239,8 +22240,8 @@ module.exports = '2.0.2';
     };
 
     Cell.prototype.setActiveClass = function() {
-      var highlit, selected, _ref;
-      _ref = this.state.pick('highlit', 'selected'), highlit = _ref.highlit, selected = _ref.selected;
+      var highlit, ref, selected;
+      ref = this.state.pick('highlit', 'selected'), highlit = ref.highlit, selected = ref.selected;
       return this.$el.toggleClass('active', highlit || selected);
     };
 
@@ -22269,7 +22270,7 @@ module.exports = '2.0.2';
     Cell.prototype.template = Templates.template('table-cell');
 
     Cell.prototype.getData = function() {
-      var data, domain, host, opts, reportUri, url, _ref;
+      var data, domain, host, opts, ref, reportUri, url;
       opts = Options.get('TableCell');
       host = opts.IndicateOffHostLinks ? global.location.host : /.*/;
       data = this.model.toJSON();
@@ -22280,9 +22281,9 @@ module.exports = '2.0.2';
       data.isForeign = reportUri && !reportUri.match(host);
       data.target = data.isForeign ? '_blank' : '';
       data.NULL_VALUE = Templates.null_value;
-      _ref = opts.ExternalLinkIcons;
-      for (domain in _ref) {
-        url = _ref[domain];
+      ref = opts.ExternalLinkIcons;
+      for (domain in ref) {
+        url = ref[domain];
         if (reportUri != null ? reportUri.match(domain) : void 0) {
           if (data.icon == null) {
             data.icon = url;
@@ -22293,8 +22294,8 @@ module.exports = '2.0.2';
     };
 
     Cell.prototype.getFormattedValue = function() {
-      var entity, value, _ref;
-      _ref = this.model.pick('entity', 'value'), entity = _ref.entity, value = _ref.value;
+      var entity, ref, value;
+      ref = this.model.pick('entity', 'value'), entity = ref.entity, value = ref.value;
       if (value != null) {
         return this.formatter.call(null, entity, this.service, value);
       } else {
@@ -22303,9 +22304,9 @@ module.exports = '2.0.2';
     };
 
     Cell.prototype.getInputState = function() {
-      var checked, disabled, display, selectable, selected, selecting, _ref;
+      var checked, disabled, display, ref, selectable, selected, selecting;
       selecting = this.tableState.get('selecting');
-      _ref = this.state.pick('selected', 'selectable'), selected = _ref.selected, selectable = _ref.selectable;
+      ref = this.state.pick('selected', 'selectable'), selected = ref.selected, selectable = ref.selectable;
       checked = selected;
       disabled = !selectable;
       display = selecting ? 'inline' : 'none';
@@ -22330,13 +22331,13 @@ module.exports = '2.0.2';
     };
 
     Cell.prototype.setAttrClass = function() {
-      var attrType, entType, _i, _len, _ref;
+      var attrType, entType, i, len, ref;
       if (Options.get('TableCell.AddDataClasses')) {
         attrType = this.model.get('column').getType();
         this.$el.addClass('im-type-' + attrType.toLowerCase());
-        _ref = this.getTypes();
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          entType = _ref[_i];
+        ref = this.getTypes();
+        for (i = 0, len = ref.length; i < len; i++) {
+          entType = ref[i];
           this.$el.addClass(String(entType));
         }
         return this.$el.addClass(this.model.get('column').end.name);
@@ -22381,12 +22382,12 @@ module.exports = '2.0.2';
     };
 
     Cell.prototype.destroyPreview = function() {
-      var _ref;
+      var ref;
       if (this.children.popover != null) {
         this.stopListeningTo(this.children.popover);
         if (this.children.popover.rendered) {
-          if ((_ref = this.popoverTarget) != null) {
-            _ref.popover('destroy');
+          if ((ref = this.popoverTarget) != null) {
+            ref.popover('destroy');
           }
         }
         delete this.popoverTarget;
@@ -22439,11 +22440,11 @@ module.exports = '2.0.2';
 }).call(this);
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../../core-view":3,"../../core/type-assertions":10,"../../formatting":13,"../../messages":16,"../../models/cell":37,"../../models/selected-objects":58,"../../options":63,"../../templates":67,"jquery":267,"underscore":301}],213:[function(require,module,exports){
+},{"../../core-view":3,"../../core/type-assertions":10,"../../formatting":13,"../../messages":16,"../../models/cell":37,"../../models/selected-objects":58,"../../options":63,"../../templates":67,"jquery":256,"underscore":262}],213:[function(require,module,exports){
 (function() {
-  var BAD_MODEL, DropDownColumnSummary, FacetView, NO_QUERY, PathModel, ignore, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+  var BAD_MODEL, DropDownColumnSummary, FacetView, NO_QUERY, PathModel, _, ignore,
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -22457,16 +22458,16 @@ module.exports = '2.0.2';
 
   BAD_MODEL = 'No PathModel in call to new DropDownColumnSummary';
 
-  module.exports = DropDownColumnSummary = (function(_super) {
-    __extends(DropDownColumnSummary, _super);
+  module.exports = DropDownColumnSummary = (function(superClass) {
+    extend(DropDownColumnSummary, superClass);
 
     DropDownColumnSummary.prototype.className = function() {
-      return "" + DropDownColumnSummary.__super__.className.apply(this, arguments) + " im-dropdown-summary";
+      return (DropDownColumnSummary.__super__.className.apply(this, arguments)) + " im-dropdown-summary";
     };
 
-    function DropDownColumnSummary(_arg) {
+    function DropDownColumnSummary(arg) {
       var model, query;
-      query = _arg.query, model = _arg.model;
+      query = arg.query, model = arg.model;
       if (!query) {
         throw new Error(NO_QUERY);
       }
@@ -22496,12 +22497,12 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../../models/path":56,"../../utils/events":81,"../facets/facet-view":151,"underscore":301}],214:[function(require,module,exports){
+},{"../../models/path":56,"../../utils/events":81,"../facets/facet-view":151,"underscore":262}],214:[function(require,module,exports){
 (function (global){
 (function() {
-  var CoreView, ErrorNotice, Messages, Options, Templates, VERSION, getDomain, imjs, indentXML, mailto, withPrettyPrintOne, withResource, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+  var CoreView, ErrorNotice, Messages, Options, Templates, VERSION, _, getDomain, imjs, indentXML, mailto, withPrettyPrintOne, withResource,
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -22535,8 +22536,8 @@ module.exports = '2.0.2';
     }
   };
 
-  module.exports = ErrorNotice = (function(_super) {
-    __extends(ErrorNotice, _super);
+  module.exports = ErrorNotice = (function(superClass) {
+    extend(ErrorNotice, superClass);
 
     function ErrorNotice() {
       return ErrorNotice.__super__.constructor.apply(this, arguments);
@@ -22599,11 +22600,11 @@ module.exports = '2.0.2';
 }).call(this);
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../../core-view":3,"../../messages":16,"../../messages/error":22,"../../options":63,"../../templates":67,"../../utils/indent-xml":88,"../../utils/mailto":92,"../../utils/with-cdn-resource":110,"../../version":111,"imjs":255,"underscore":301}],215:[function(require,module,exports){
+},{"../../core-view":3,"../../messages":16,"../../messages/error":22,"../../options":63,"../../templates":67,"../../utils/indent-xml":88,"../../utils/mailto":92,"../../utils/with-cdn-resource":110,"../../version":111,"imjs":247,"underscore":262}],215:[function(require,module,exports){
 (function() {
   var ColumnHeader, CoreView, TableHead, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -22611,8 +22612,8 @@ module.exports = '2.0.2';
 
   ColumnHeader = require('./header');
 
-  module.exports = TableHead = (function(_super) {
-    __extends(TableHead, _super);
+  module.exports = TableHead = (function(superClass) {
+    extend(TableHead, superClass);
 
     function TableHead() {
       return TableHead.__super__.constructor.apply(this, arguments);
@@ -22666,13 +22667,13 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../../core-view":3,"./header":216,"underscore":301}],216:[function(require,module,exports){
+},{"../../core-view":3,"./header":216,"underscore":262}],216:[function(require,module,exports){
 (function() {
-  var ClassSet, Collection, ColumnHeader, CoreView, DropDownColumnSummary, FormattedSorting, HeaderModel, Messages, ModelReader, Options, OuterJoinDropDown, SingleColumnConstraints, Templates, getViewPortHeight, getViewPortWidth, ignore, onChange, sortQueryByPath, _,
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    __slice = [].slice;
+  var ClassSet, Collection, ColumnHeader, CoreView, DropDownColumnSummary, FormattedSorting, HeaderModel, Messages, ModelReader, Options, OuterJoinDropDown, SingleColumnConstraints, Templates, _, getViewPortHeight, getViewPortWidth, ignore, onChange, sortQueryByPath,
+    bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty,
+    slice = [].slice;
 
   _ = require('underscore');
 
@@ -22720,14 +22721,14 @@ module.exports = '2.0.2';
     return Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
   };
 
-  module.exports = ColumnHeader = (function(_super) {
-    __extends(ColumnHeader, _super);
+  module.exports = ColumnHeader = (function(superClass) {
+    extend(ColumnHeader, superClass);
 
     function ColumnHeader() {
-      this.toggleColumnVisibility = __bind(this.toggleColumnVisibility, this);
-      this.showFilterSummary = __bind(this.showFilterSummary, this);
-      this.showColumnSummary = __bind(this.showColumnSummary, this);
-      this.showSummary = __bind(this.showSummary, this);
+      this.toggleColumnVisibility = bind(this.toggleColumnVisibility, this);
+      this.showFilterSummary = bind(this.showFilterSummary, this);
+      this.showColumnSummary = bind(this.showColumnSummary, this);
+      this.showSummary = bind(this.showSummary, this);
       return ColumnHeader.__super__.constructor.apply(this, arguments);
     }
 
@@ -22800,8 +22801,8 @@ module.exports = '2.0.2';
     };
 
     ColumnHeader.prototype.getData = function() {
-      var ancestors, hasAncestors, last, parentType, parts, penult, penultClasses, _i, _ref;
-      _ref = parts = this.model.get('parts'), ancestors = 3 <= _ref.length ? __slice.call(_ref, 0, _i = _ref.length - 2) : (_i = 0, []), penult = _ref[_i++], last = _ref[_i++];
+      var ancestors, hasAncestors, i, last, parentType, parts, penult, penultClasses, ref;
+      ref = parts = this.model.get('parts'), ancestors = 3 <= ref.length ? slice.call(ref, 0, i = ref.length - 2) : (i = 0, []), penult = ref[i++], last = ref[i++];
       hasAncestors = ancestors.length;
       parentType = hasAncestors ? 'non-root' : 'root';
       penultClasses = new ClassSet({
@@ -22853,7 +22854,7 @@ module.exports = '2.0.2';
         delete e.target.style.right;
         ddRect = e.target.getBoundingClientRect();
         if (ddRect.left < 0) {
-          right = "" + ddRect.left + "px";
+          right = ddRect.left + "px";
           return e.target.style.right = right;
         }
       });
@@ -22906,16 +22907,16 @@ module.exports = '2.0.2';
       this.hideTooltips();
       view = this.model.getView();
       return this.query.removeFromSelect((function() {
-        var _i, _len, _ref, _results;
-        _ref = this.query.views;
-        _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          v = _ref[_i];
+        var i, len, ref, results;
+        ref = this.query.views;
+        results = [];
+        for (i = 0, len = ref.length; i < len; i++) {
+          v = ref[i];
           if (v.match(view)) {
-            _results.push(v);
+            results.push(v);
           }
         }
-        return _results;
+        return results;
       }).call(this));
     };
 
@@ -22928,15 +22929,15 @@ module.exports = '2.0.2';
     };
 
     ColumnHeader.prototype.showSummary = function(selector, View, e) {
-      var $menu, $sel, path, summary, _ref;
+      var $menu, $sel, path, ref, summary;
       ignore(e);
       $sel = this.$(selector);
       path = this.path();
       if ($sel.hasClass('open')) {
         this.query.trigger('hiding:column-summary', path);
         $sel.removeClass('open');
-        if ((_ref = this.children.summary) != null) {
-          _ref.$el.hide();
+        if ((ref = this.children.summary) != null) {
+          ref.$el.hide();
         }
         this.removeChild('summary');
         return false;
@@ -22949,7 +22950,7 @@ module.exports = '2.0.2';
         });
         $menu = this.$(selector + ' .dropdown-menu');
         if (!$menu.length) {
-          throw new Error("" + selector + " not found");
+          throw new Error(selector + " not found");
         }
         $menu.empty();
         this.renderChild('summary', summary, $menu);
@@ -23036,12 +23037,12 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../../core-view":3,"../../core/collection":5,"../../messages":16,"../../messages/table":28,"../../models/header":44,"../../options":63,"../../templates":67,"../../utils/css-class-set":79,"../../utils/events":81,"../../utils/on-change":93,"../../utils/sort-query-by-path":105,"../constraints/single-column":135,"../formatted-sorting":169,"./column-summary":213,"./outer-join-summary":219,"underscore":301}],217:[function(require,module,exports){
+},{"../../core-view":3,"../../core/collection":5,"../../messages":16,"../../messages/table":28,"../../models/header":44,"../../options":63,"../../templates":67,"../../utils/css-class-set":79,"../../utils/events":81,"../../utils/on-change":93,"../../utils/sort-query-by-path":105,"../constraints/single-column":135,"../formatted-sorting":169,"./column-summary":213,"./outer-join-summary":219,"underscore":262}],217:[function(require,module,exports){
 (function() {
-  var CellFactory, ColumnHeaders, CoreView, Formatting, History, PathSet, PopoverFactory, Preview, ResultsTable, SelectedObjects, TableBody, TableHead, TableModel, Templates, Types, flip, _,
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+  var CellFactory, ColumnHeaders, CoreView, Formatting, History, PathSet, PopoverFactory, Preview, ResultsTable, SelectedObjects, TableBody, TableHead, TableModel, Templates, Types, _, flip,
+    bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -23079,11 +23080,11 @@ module.exports = '2.0.2';
     };
   };
 
-  module.exports = ResultsTable = (function(_super) {
-    __extends(ResultsTable, _super);
+  module.exports = ResultsTable = (function(superClass) {
+    extend(ResultsTable, superClass);
 
     function ResultsTable() {
-      this.canUseFormatter = __bind(this.canUseFormatter, this);
+      this.canUseFormatter = bind(this.canUseFormatter, this);
       return ResultsTable.__super__.constructor.apply(this, arguments);
     }
 
@@ -23159,11 +23160,11 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../../core-view":3,"../../core/type-assertions":10,"../../formatting":13,"../../models/column-headers":39,"../../models/history":45,"../../models/path-set":55,"../../models/selected-objects":58,"../../models/table":61,"../../templates":67,"../../utils/popover-factory":98,"../item-preview":172,"./body":210,"./cell-factory":211,"./head":215,"underscore":301}],218:[function(require,module,exports){
+},{"../../core-view":3,"../../core/type-assertions":10,"../../formatting":13,"../../models/column-headers":39,"../../models/history":45,"../../models/path-set":55,"../../models/selected-objects":58,"../../models/table":61,"../../templates":67,"../../utils/popover-factory":98,"../item-preview":172,"./body":210,"./cell-factory":211,"./head":215,"underscore":262}],218:[function(require,module,exports){
 (function() {
-  var Actions, LargeTableDisuader, Modal, large_table_disuader, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+  var Actions, LargeTableDisuader, Modal, _, large_table_disuader,
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -23180,8 +23181,8 @@ module.exports = '2.0.2';
     DISMISS: 'dismiss'
   };
 
-  module.exports = LargeTableDisuader = (function(_super) {
-    __extends(LargeTableDisuader, _super);
+  module.exports = LargeTableDisuader = (function(superClass) {
+    extend(LargeTableDisuader, superClass);
 
     function LargeTableDisuader() {
       return LargeTableDisuader.__super__.constructor.apply(this, arguments);
@@ -23233,11 +23234,11 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../../templates":67,"../modal":197,"underscore":301}],219:[function(require,module,exports){
+},{"../../templates":67,"../modal":197,"underscore":262}],219:[function(require,module,exports){
 (function() {
   var Collection, CoreView, DropDownColumnSummary, OuterJoinDropDown, PathModel, SubColumn, SubColumns, Templates, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -23251,8 +23252,8 @@ module.exports = '2.0.2';
 
   DropDownColumnSummary = require('./column-summary');
 
-  SubColumns = (function(_super) {
-    __extends(SubColumns, _super);
+  SubColumns = (function(superClass) {
+    extend(SubColumns, superClass);
 
     function SubColumns() {
       return SubColumns.__super__.constructor.apply(this, arguments);
@@ -23264,8 +23265,8 @@ module.exports = '2.0.2';
 
   })(Collection);
 
-  SubColumn = (function(_super) {
-    __extends(SubColumn, _super);
+  SubColumn = (function(superClass) {
+    extend(SubColumn, superClass);
 
     function SubColumn() {
       return SubColumn.__super__.constructor.apply(this, arguments);
@@ -23301,8 +23302,8 @@ module.exports = '2.0.2';
 
   })(CoreView);
 
-  module.exports = OuterJoinDropDown = (function(_super) {
-    __extends(OuterJoinDropDown, _super);
+  module.exports = OuterJoinDropDown = (function(superClass) {
+    extend(OuterJoinDropDown, superClass);
 
     function OuterJoinDropDown() {
       return OuterJoinDropDown.__super__.constructor.apply(this, arguments);
@@ -23315,12 +23316,12 @@ module.exports = '2.0.2';
     OuterJoinDropDown.prototype.tagName = 'ul';
 
     OuterJoinDropDown.prototype.initialize = function() {
-      var c, _i, _len, _ref;
+      var c, j, len, ref;
       OuterJoinDropDown.__super__.initialize.apply(this, arguments);
       this.subColumns = new SubColumns;
-      _ref = this.model.get('replaces');
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        c = _ref[_i];
+      ref = this.model.get('replaces');
+      for (j = 0, len = ref.length; j < len; j++) {
+        c = ref[j];
         this.subColumns.add(this.query.makePath(c));
       }
       return this.path = new PathModel(this.query.makePath(this.model.get('path')));
@@ -23370,12 +23371,12 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../../core-view":3,"../../core/collection":5,"../../models/path":56,"../../templates":67,"./column-summary":213,"underscore":301}],220:[function(require,module,exports){
+},{"../../core-view":3,"../../core/collection":5,"../../models/path":56,"../../templates":67,"./column-summary":213,"underscore":262}],220:[function(require,module,exports){
 (function() {
   var CoreView, Events, ExportDialogue, HasDialogues, LargeTableDisuader, NewFilterDialogue, PageSizer, Paging, Templates, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty,
+    indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   _ = require('underscore');
 
@@ -23395,8 +23396,8 @@ module.exports = '2.0.2';
 
   LargeTableDisuader = require('./large-table-disuader');
 
-  module.exports = PageSizer = (function(_super) {
-    __extends(PageSizer, _super);
+  module.exports = PageSizer = (function(superClass) {
+    extend(PageSizer, superClass);
 
     function PageSizer() {
       return PageSizer.__super__.constructor.apply(this, arguments);
@@ -23418,15 +23419,15 @@ module.exports = '2.0.2';
       var s, size;
       PageSizer.__super__.initialize.apply(this, arguments);
       size = this.model.get('size');
-      if ((size != null) && __indexOf.call((function() {
-        var _i, _len, _ref, _results;
-        _ref = this.sizes;
-        _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          s = _ref[_i][0];
-          _results.push(s);
+      if ((size != null) && indexOf.call((function() {
+        var i, len, ref, results;
+        ref = this.sizes;
+        results = [];
+        for (i = 0, len = ref.length; i < len; i++) {
+          s = ref[i][0];
+          results.push(s);
         }
-        return _results;
+        return results;
       }).call(this), size) < 0) {
         return this.sizes = [[size, size]].concat(this.sizes);
       }
@@ -23507,16 +23508,16 @@ module.exports = '2.0.2';
       count = this.model.get('count');
       size = this.model.get('size');
       sizes = (function() {
-        var _i, _len, _ref, _results;
-        _ref = this.sizes;
-        _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          s = _ref[_i];
+        var i, len, ref, results;
+        ref = this.sizes;
+        results = [];
+        for (i = 0, len = ref.length; i < len; i++) {
+          s = ref[i];
           if ((count == null) || (s[0] < count)) {
-            _results.push(s);
+            results.push(s);
           }
         }
-        return _results;
+        return results;
       }).call(this);
       if (sizes.length && count < this.sizes[this.sizes.length - 1][0]) {
         found = _.find(sizes, function(next) {
@@ -23525,7 +23526,7 @@ module.exports = '2.0.2';
         if (found) {
           found[1] += found[0] + " (All)";
         } else {
-          sizes.push([count, "" + count + " (All)"]);
+          sizes.push([count, count + " (All)"]);
         }
       }
       return {
@@ -23554,11 +23555,11 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../../core-view":3,"../../events":12,"../../templates":67,"../export-dialogue":138,"../has-dialogues":171,"../new-filter-dialogue":200,"./large-table-disuader":218,"./paging":222,"underscore":301}],221:[function(require,module,exports){
+},{"../../core-view":3,"../../events":12,"../../templates":67,"../export-dialogue":138,"../has-dialogues":171,"../new-filter-dialogue":200,"./large-table-disuader":218,"./paging":222,"underscore":262}],221:[function(require,module,exports){
 (function() {
-  var Pagination, Paging, SELECT_LIMIT, View, ensureNumber, fs, html, strip, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+  var Pagination, Paging, SELECT_LIMIT, View, _, ensureNumber, fs, html, strip,
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   SELECT_LIMIT = 200;
 
@@ -23584,8 +23585,8 @@ module.exports = '2.0.2';
     }
   };
 
-  module.exports = Pagination = (function(_super) {
-    __extends(Pagination, _super);
+  module.exports = Pagination = (function(superClass) {
+    extend(Pagination, superClass);
 
     function Pagination() {
       return Pagination.__super__.constructor.apply(this, arguments);
@@ -23608,8 +23609,8 @@ module.exports = '2.0.2';
     };
 
     Pagination.prototype.getData = function() {
-      var count, data, max, size, start, _ref;
-      _ref = this.model.toJSON(), start = _ref.start, size = _ref.size, count = _ref.count;
+      var count, data, max, ref, size, start;
+      ref = this.model.toJSON(), start = ref.start, size = ref.size, count = ref.count;
       max = this.getMaxPage();
       return data = {
         max: max,
@@ -23728,17 +23729,17 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../../core-view":3,"./paging":222,"underscore":301}],222:[function(require,module,exports){
+},{"../../core-view":3,"./paging":222,"underscore":262}],222:[function(require,module,exports){
 (function() {
   exports.getCurrentPage = function() {
-    var size, start, _ref;
-    _ref = this.model.toJSON(), start = _ref.start, size = _ref.size;
+    var ref, size, start;
+    ref = this.model.toJSON(), start = ref.start, size = ref.size;
     return Math.floor(start / size) + 1;
   };
 
   exports.getMaxPage = function() {
-    var correction, count, size, _ref;
-    _ref = this.model.toJSON(), count = _ref.count, size = _ref.size;
+    var correction, count, ref, size;
+    ref = this.model.toJSON(), count = ref.count, size = ref.size;
     correction = count % size === 0 ? 0 : 1;
     return Math.floor(count / size) + correction;
   };
@@ -23756,14 +23757,14 @@ module.exports = '2.0.2';
   };
 
   exports.goBack = function(pages) {
-    var size, start, _ref;
-    _ref = this.model.toJSON(), start = _ref.start, size = _ref.size;
+    var ref, size, start;
+    ref = this.model.toJSON(), start = ref.start, size = ref.size;
     return this.goTo(Math.max(0, start - (pages * size)));
   };
 
   exports.goForward = function(pages) {
-    var size, start, _ref;
-    _ref = this.model.toJSON(), start = _ref.start, size = _ref.size;
+    var ref, size, start;
+    ref = this.model.toJSON(), start = ref.start, size = ref.size;
     return this.goTo(Math.min(this.getMaxPage() * size, start + (pages * size)));
   };
 
@@ -23772,8 +23773,8 @@ module.exports = '2.0.2';
 },{}],223:[function(require,module,exports){
 (function() {
   var CoreView, SubtableHeader, SubtableHeaders, Templates, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -23783,8 +23784,8 @@ module.exports = '2.0.2';
 
   require('../../messages/subtables');
 
-  SubtableHeader = (function(_super) {
-    __extends(SubtableHeader, _super);
+  SubtableHeader = (function(superClass) {
+    extend(SubtableHeader, superClass);
 
     function SubtableHeader() {
       return SubtableHeader.__super__.constructor.apply(this, arguments);
@@ -23813,8 +23814,8 @@ module.exports = '2.0.2';
     };
 
     SubtableHeader.prototype.removeView = function() {
-      var _ref;
-      return this.query.removeFromSelect((_ref = this.model.get('replaces')) != null ? _ref : this.model.get('path'));
+      var ref;
+      return this.query.removeFromSelect((ref = this.model.get('replaces')) != null ? ref : this.model.get('path'));
     };
 
     SubtableHeader.prototype.postRender = function() {
@@ -23835,8 +23836,8 @@ module.exports = '2.0.2';
 
   })(CoreView);
 
-  module.exports = SubtableHeaders = (function(_super) {
-    __extends(SubtableHeaders, _super);
+  module.exports = SubtableHeaders = (function(superClass) {
+    extend(SubtableHeaders, superClass);
 
     function SubtableHeaders() {
       return SubtableHeaders.__super__.constructor.apply(this, arguments);
@@ -23881,11 +23882,11 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../../core-view":3,"../../messages/subtables":26,"../../templates":67,"underscore":301}],224:[function(require,module,exports){
+},{"../../core-view":3,"../../messages/subtables":26,"../../templates":67,"underscore":262}],224:[function(require,module,exports){
 (function() {
   var CoreView, SubtableHeader, SubtableInner, buildSkipped,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   CoreView = require('../../core-view');
 
@@ -23893,8 +23894,8 @@ module.exports = '2.0.2';
 
   buildSkipped = require('../../utils/build-skipset');
 
-  module.exports = SubtableInner = (function(_super) {
-    __extends(SubtableInner, _super);
+  module.exports = SubtableInner = (function(superClass) {
+    extend(SubtableInner, superClass);
 
     function SubtableInner() {
       return SubtableInner.__super__.constructor.apply(this, arguments);
@@ -23907,7 +23908,7 @@ module.exports = '2.0.2';
     SubtableInner.prototype.parameters = ['query', 'headers', 'model', 'rows', 'cellify'];
 
     SubtableInner.prototype.render = function() {
-      var i, row, tbody, _i, _len, _ref;
+      var i, k, len, ref, row, tbody;
       this.removeAllChildren();
       if (this.rendered) {
         this.el.innerHTML = '';
@@ -23916,9 +23917,9 @@ module.exports = '2.0.2';
         this.renderHead();
       }
       tbody = document.createElement('tbody');
-      _ref = this.rows;
-      for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
-        row = _ref[i];
+      ref = this.rows;
+      for (i = k = 0, len = ref.length; k < len; i = ++k) {
+        row = ref[i];
         this.appendRow(row, i, tbody);
       }
       this.el.appendChild(tbody);
@@ -23941,27 +23942,27 @@ module.exports = '2.0.2';
     };
 
     SubtableInner.prototype.appendRow = function(row, i, tbody) {
-      var c, cell, cells, j, skipped, tr, _i, _len, _results;
+      var c, cell, cells, j, k, len, results, skipped, tr;
       tr = document.createElement('tr');
       tbody.appendChild(tr);
       cells = (function() {
-        var _i, _len, _results;
-        _results = [];
-        for (_i = 0, _len = row.length; _i < _len; _i++) {
-          c = row[_i];
-          _results.push(this.cellify(c));
+        var k, len, results;
+        results = [];
+        for (k = 0, len = row.length; k < len; k++) {
+          c = row[k];
+          results.push(this.cellify(c));
         }
-        return _results;
+        return results;
       }).call(this);
       skipped = this.buildSkipped(cells);
-      _results = [];
-      for (j = _i = 0, _len = cells.length; _i < _len; j = ++_i) {
+      results = [];
+      for (j = k = 0, len = cells.length; k < len; j = ++k) {
         cell = cells[j];
         if (!skipped[cell.model.get('column')]) {
-          _results.push(this.renderChild("cell-" + i + "-" + j, cell, tr));
+          results.push(this.renderChild("cell-" + i + "-" + j, cell, tr));
         }
       }
-      return _results;
+      return results;
     };
 
     return SubtableInner;
@@ -23973,8 +23974,8 @@ module.exports = '2.0.2';
 },{"../../core-view":3,"../../utils/build-skipset":72,"./subtable-header":223}],225:[function(require,module,exports){
 (function() {
   var CoreView, Messages, SubtableSummary, Templates,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   CoreView = require('../../core-view');
 
@@ -23984,8 +23985,8 @@ module.exports = '2.0.2';
 
   require('../../messages/subtables');
 
-  module.exports = SubtableSummary = (function(_super) {
-    __extends(SubtableSummary, _super);
+  module.exports = SubtableSummary = (function(superClass) {
+    extend(SubtableSummary, superClass);
 
     function SubtableSummary() {
       return SubtableSummary.__super__.constructor.apply(this, arguments);
@@ -24034,9 +24035,9 @@ module.exports = '2.0.2';
 
 },{"../../core-view":3,"../../messages":16,"../../messages/subtables":26,"../../templates":67}],226:[function(require,module,exports){
 (function() {
-  var Collection, CoreView, INITIAL_STATE, NestedTableModel, Options, PathCollection, PathModel, SubTable, SubtableInner, SubtableSummary, Templates, TypeAssertions, ignore, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+  var Collection, CoreView, INITIAL_STATE, NestedTableModel, Options, PathCollection, PathModel, SubTable, SubtableInner, SubtableSummary, Templates, TypeAssertions, _, ignore,
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -24060,8 +24061,8 @@ module.exports = '2.0.2';
 
   ignore = require('../../utils/events').ignore;
 
-  PathCollection = (function(_super) {
-    __extends(PathCollection, _super);
+  PathCollection = (function(superClass) {
+    extend(PathCollection, superClass);
 
     function PathCollection() {
       return PathCollection.__super__.constructor.apply(this, arguments);
@@ -24075,8 +24076,8 @@ module.exports = '2.0.2';
 
   INITIAL_STATE = 'Subtables.Initially.expanded';
 
-  module.exports = SubTable = (function(_super) {
-    __extends(SubTable, _super);
+  module.exports = SubTable = (function(superClass) {
+    extend(SubTable, superClass);
 
     function SubTable() {
       return SubTable.__super__.constructor.apply(this, arguments);
@@ -24171,13 +24172,13 @@ module.exports = '2.0.2';
         return;
       }
       return this.headers.set((function() {
-        var _i, _len, _results;
-        _results = [];
-        for (_i = 0, _len = row.length; _i < _len; _i++) {
-          c = row[_i];
-          _results.push(new PathModel(c.get('column')));
+        var i, len, results;
+        results = [];
+        for (i = 0, len = row.length; i < len; i++) {
+          c = row[i];
+          results.push(new PathModel(c.get('column')));
         }
-        return _results;
+        return results;
       })());
     };
 
@@ -24187,11 +24188,11 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../../core-view":3,"../../core/collection":5,"../../core/type-assertions":10,"../../models/nested-table":48,"../../models/path":56,"../../options":63,"../../templates":67,"../../utils/events":81,"./subtable-inner":224,"./subtable-summary":225,"underscore":301}],227:[function(require,module,exports){
+},{"../../core-view":3,"../../core/collection":5,"../../core/type-assertions":10,"../../models/nested-table":48,"../../models/path":56,"../../options":63,"../../templates":67,"../../utils/events":81,"./subtable-inner":224,"./subtable-summary":225,"underscore":262}],227:[function(require,module,exports){
 (function() {
   var CoreView, TableSummary, Templates, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -24201,8 +24202,8 @@ module.exports = '2.0.2';
 
   require('../../messages/table');
 
-  module.exports = TableSummary = (function(_super) {
-    __extends(TableSummary, _super);
+  module.exports = TableSummary = (function(superClass) {
+    extend(TableSummary, superClass);
 
     function TableSummary() {
       return TableSummary.__super__.constructor.apply(this, arguments);
@@ -24213,8 +24214,8 @@ module.exports = '2.0.2';
     TableSummary.prototype.RERENDER_EVENT = 'change:start change:size change:count';
 
     TableSummary.prototype.getData = function() {
-      var count, data, size, start, _ref;
-      _ref = data = TableSummary.__super__.getData.apply(this, arguments), start = _ref.start, size = _ref.size, count = _ref.count;
+      var count, data, ref, size, start;
+      ref = data = TableSummary.__super__.getData.apply(this, arguments), start = ref.start, size = ref.size, count = ref.count;
       return _.extend(data, {
         page: {
           count: count,
@@ -24232,12 +24233,12 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../../core-view":3,"../../messages/table":28,"../../templates":67,"underscore":301}],228:[function(require,module,exports){
+},{"../../core-view":3,"../../messages/table":28,"../../templates":67,"underscore":262}],228:[function(require,module,exports){
 (function() {
-  var Messages, Promise, TypeValueControls, View, asOption, fs, helpers, html, toNamedPath, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+  var Messages, Promise, TypeValueControls, View, _, asOption, fs, helpers, html, toNamedPath,
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty,
+    indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   _ = require('underscore');
 
@@ -24260,17 +24261,17 @@ module.exports = '2.0.2';
 
   html = "<label class=\"span4\">\n    <%- messages.getText('conbuilder.IsA') %>\n</label>\n<% if (subclasses.length == 1) { %>\n  <select disabled class=\"form-control\">\n      <option><%- subclasses[0].text %></option>\n  </select>\n<% } else { %>\n  <%= select(subclasses, isSelected, 'form-control im-value-type') %>\n<% } %>\n  \n";
 
-  asOption = function(_arg) {
+  asOption = function(arg) {
     var name, path;
-    path = _arg.path, name = _arg.name;
+    path = arg.path, name = arg.name;
     return {
       value: path,
       text: name
     };
   };
 
-  module.exports = TypeValueControls = (function(_super) {
-    __extends(TypeValueControls, _super);
+  module.exports = TypeValueControls = (function(superClass) {
+    extend(TypeValueControls, superClass);
 
     function TypeValueControls() {
       return TypeValueControls.__super__.constructor.apply(this, arguments);
@@ -24297,14 +24298,14 @@ module.exports = '2.0.2';
         select: helpers.select,
         messages: Messages,
         subclasses: (function() {
-          var _i, _len, _ref, _ref1, _results;
-          _ref1 = (_ref = this.state.get('subclasses')) != null ? _ref : [];
-          _results = [];
-          for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-            sc = _ref1[_i];
-            _results.push(asOption(sc));
+          var i, len, ref, ref1, results;
+          ref1 = (ref = this.state.get('subclasses')) != null ? ref : [];
+          results = [];
+          for (i = 0, len = ref1.length; i < len; i++) {
+            sc = ref1[i];
+            results.push(asOption(sc));
           }
-          return _results;
+          return results;
         }).call(this),
         isSelected: function(opt) {
           return type === opt.value;
@@ -24349,35 +24350,35 @@ module.exports = '2.0.2';
     };
 
     TypeValueControls.prototype.getPossibleTypes = function() {
-      var baseType, path, paths, promises, schema, subclasses, subtypes, t, type, _ref;
-      _ref = this.model.toJSON(), path = _ref.path, type = _ref.type;
+      var baseType, path, paths, promises, ref, schema, subclasses, subtypes, t, type;
+      ref = this.model.toJSON(), path = ref.path, type = ref.type;
       subclasses = this.query.getSubclasses();
       schema = this.query.model;
       delete subclasses[path];
       baseType = schema.getPathInfo(path.toString(), subclasses).getType();
       subtypes = (function() {
-        var _i, _len, _ref1, _results;
-        _ref1 = schema.getSubclassesOf(baseType);
-        _results = [];
-        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-          t = _ref1[_i];
+        var i, len, ref1, results;
+        ref1 = schema.getSubclassesOf(baseType);
+        results = [];
+        for (i = 0, len = ref1.length; i < len; i++) {
+          t = ref1[i];
           if (t !== baseType.name) {
-            _results.push(t);
+            results.push(t);
           }
         }
-        return _results;
+        return results;
       })();
       paths = (function() {
-        var _i, _len, _results;
-        _results = [];
-        for (_i = 0, _len = subtypes.length; _i < _len; _i++) {
-          t = subtypes[_i];
-          _results.push(schema.makePath(t));
+        var i, len, results;
+        results = [];
+        for (i = 0, len = subtypes.length; i < len; i++) {
+          t = subtypes[i];
+          results.push(schema.makePath(t));
         }
-        return _results;
+        return results;
       })();
       promises = paths.map(toNamedPath);
-      if (__indexOf.call(subtypes, type) < 0) {
+      if (indexOf.call(subtypes, type) < 0) {
         this.model.set({
           error: new Error(Messages.getText('typeconstraints.BadType', this.model.toJSON()))
         });
@@ -24395,11 +24396,11 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../core-view":3,"../messages":16,"../templates/helpers":68,"../utils/to-named-path":109,"es6-promise":244,"underscore":301}],229:[function(require,module,exports){
+},{"../core-view":3,"../messages":16,"../templates/helpers":68,"../utils/to-named-path":109,"es6-promise":238,"underscore":262}],229:[function(require,module,exports){
 (function() {
-  var CoreView, ELLIPSIS, Ellipsis, Messages, Options, Step, Templates, UndoHistory, childId, notTrivial, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+  var CoreView, ELLIPSIS, Ellipsis, Messages, Options, Step, Templates, UndoHistory, _, childId, notTrivial,
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -24421,8 +24422,8 @@ module.exports = '2.0.2';
 
   require('../messages/undo');
 
-  Ellipsis = (function(_super) {
-    __extends(Ellipsis, _super);
+  Ellipsis = (function(superClass) {
+    extend(Ellipsis, superClass);
 
     function Ellipsis() {
       return Ellipsis.__super__.constructor.apply(this, arguments);
@@ -24435,7 +24436,7 @@ module.exports = '2.0.2';
     Ellipsis.prototype.className = 'im-step im-ellipsis';
 
     Ellipsis.prototype.template = function() {
-      return _.escape("" + (Messages.getText('undo.MoreSteps', {
+      return _.escape((Messages.getText('undo.MoreSteps', {
         more: this.more
       })) + " ...");
     };
@@ -24474,8 +24475,8 @@ module.exports = '2.0.2';
     return (i === 0) || (i === ms.length - 1) || (m.get('count') !== prev.get('count'));
   };
 
-  module.exports = UndoHistory = (function(_super) {
-    __extends(UndoHistory, _super);
+  module.exports = UndoHistory = (function(superClass) {
+    extend(UndoHistory, superClass);
 
     function UndoHistory() {
       return UndoHistory.__super__.constructor.apply(this, arguments);
@@ -24543,31 +24544,31 @@ module.exports = '2.0.2';
     };
 
     UndoHistory.prototype.renderStates = function() {
-      var coll, cutoff, hideTrivial, i, models, range, showAll, states, _i, _j, _k, _len, _ref, _ref1, _ref2, _ref3, _results, _results1, _results2;
-      _ref = this.state.toJSON(), showAll = _ref.showAll, hideTrivial = _ref.hideTrivial;
+      var coll, cutoff, hideTrivial, i, j, k, l, len, models, range, ref, ref1, ref2, ref3, results, results1, results2, showAll, states;
+      ref = this.state.toJSON(), showAll = ref.showAll, hideTrivial = ref.hideTrivial;
       coll = this.collection;
       models = hideTrivial ? coll.filter(notTrivial) : coll.models.slice();
       states = models.length;
       cutoff = Options.get('UndoHistory.ShowAllStatesCutOff');
       range = showAll || (states <= cutoff) ? (function() {
-        _results = [];
-        for (var _i = _ref1 = states - 1; _ref1 <= 0 ? _i <= 0 : _i >= 0; _ref1 <= 0 ? _i++ : _i--){ _results.push(_i); }
-        return _results;
+        results = [];
+        for (var j = ref1 = states - 1; ref1 <= 0 ? j <= 0 : j >= 0; ref1 <= 0 ? j++ : j--){ results.push(j); }
+        return results;
       }).apply(this) : (function() {
-        _results1 = [];
-        for (var _j = _ref2 = states - 1, _ref3 = states - (cutoff - 1); _ref2 <= _ref3 ? _j <= _ref3 : _j >= _ref3; _ref2 <= _ref3 ? _j++ : _j--){ _results1.push(_j); }
-        return _results1;
+        results1 = [];
+        for (var k = ref2 = states - 1, ref3 = states - (cutoff - 1); ref2 <= ref3 ? k <= ref3 : k >= ref3; ref2 <= ref3 ? k++ : k--){ results1.push(k); }
+        return results1;
       }).apply(this).concat([ELLIPSIS, 0]);
-      _results2 = [];
-      for (_k = 0, _len = range.length; _k < _len; _k++) {
-        i = range[_k];
+      results2 = [];
+      for (l = 0, len = range.length; l < len; l++) {
+        i = range[l];
         if (i === ELLIPSIS) {
-          _results2.push(this.renderEllipsis(states - cutoff));
+          results2.push(this.renderEllipsis(states - cutoff));
         } else {
-          _results2.push(this.renderState(models[i]));
+          results2.push(this.renderState(models[i]));
         }
       }
-      return _results2;
+      return results2;
     };
 
     UndoHistory.prototype.renderEllipsis = function(more) {
@@ -24593,11 +24594,11 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../core-view":3,"../messages":16,"../messages/undo":29,"../options":63,"../templates":67,"./undo-history/step":231,"underscore":301}],230:[function(require,module,exports){
+},{"../core-view":3,"../messages":16,"../messages/undo":29,"../options":63,"../templates":67,"./undo-history/step":231,"underscore":262}],230:[function(require,module,exports){
 (function() {
   var ClassSet, CoreView, QueryProperty, Templates, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   _ = require('underscore');
 
@@ -24607,8 +24608,8 @@ module.exports = '2.0.2';
 
   ClassSet = require('../../utils/css-class-set');
 
-  module.exports = QueryProperty = (function(_super) {
-    __extends(QueryProperty, _super);
+  module.exports = QueryProperty = (function(superClass) {
+    extend(QueryProperty, superClass);
 
     function QueryProperty() {
       return QueryProperty.__super__.constructor.apply(this, arguments);
@@ -24686,12 +24687,12 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../../core-view":3,"../../templates":67,"../../utils/css-class-set":79,"underscore":301}],231:[function(require,module,exports){
+},{"../../core-view":3,"../../templates":67,"../../utils/css-class-set":79,"underscore":262}],231:[function(require,module,exports){
 (function() {
-  var Collection, ConstraintList, ConstraintModel, ConstraintsView, CoreView, M, ObjConstructorPM, OrderElementModel, PathModel, QueryProperty, SelectListView, SortOrder, SortOrderView, Templates, UndoStep, ViewList, idsLength, liftPathAndType, valuesLength, withAdded, _,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+  var Collection, ConstraintList, ConstraintModel, ConstraintsView, CoreView, M, ObjConstructorPM, OrderElementModel, PathModel, QueryProperty, SelectListView, SortOrder, SortOrderView, Templates, UndoStep, ViewList, _, idsLength, liftPathAndType, valuesLength, withAdded,
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty,
+    indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   _ = require('underscore');
 
@@ -24717,8 +24718,8 @@ module.exports = '2.0.2';
 
   withAdded = function(Base) {
     var WithAddedAndRemoved;
-    return WithAddedAndRemoved = (function(_super) {
-      __extends(WithAddedAndRemoved, _super);
+    return WithAddedAndRemoved = (function(superClass) {
+      extend(WithAddedAndRemoved, superClass);
 
       function WithAddedAndRemoved() {
         return WithAddedAndRemoved.__super__.constructor.apply(this, arguments);
@@ -24736,12 +24737,12 @@ module.exports = '2.0.2';
     })(Base);
   };
 
-  ObjConstructorPM = (function(_super) {
-    __extends(ObjConstructorPM, _super);
+  ObjConstructorPM = (function(superClass) {
+    extend(ObjConstructorPM, superClass);
 
-    function ObjConstructorPM(_arg) {
+    function ObjConstructorPM(arg) {
       var path;
-      path = _arg.path;
+      path = arg.path;
       ObjConstructorPM.__super__.constructor.call(this, path);
     }
 
@@ -24749,8 +24750,8 @@ module.exports = '2.0.2';
 
   })(PathModel);
 
-  ViewList = (function(_super) {
-    __extends(ViewList, _super);
+  ViewList = (function(superClass) {
+    extend(ViewList, superClass);
 
     function ViewList() {
       return ViewList.__super__.constructor.apply(this, arguments);
@@ -24762,8 +24763,8 @@ module.exports = '2.0.2';
 
   })(Collection);
 
-  ConstraintList = (function(_super) {
-    __extends(ConstraintList, _super);
+  ConstraintList = (function(superClass) {
+    extend(ConstraintList, superClass);
 
     function ConstraintList() {
       return ConstraintList.__super__.constructor.apply(this, arguments);
@@ -24775,8 +24776,8 @@ module.exports = '2.0.2';
 
   })(Collection);
 
-  SortOrder = (function(_super) {
-    __extends(SortOrder, _super);
+  SortOrder = (function(superClass) {
+    extend(SortOrder, superClass);
 
     function SortOrder() {
       return SortOrder.__super__.constructor.apply(this, arguments);
@@ -24804,8 +24805,8 @@ module.exports = '2.0.2';
     };
   };
 
-  module.exports = UndoStep = (function(_super) {
-    __extends(UndoStep, _super);
+  module.exports = UndoStep = (function(superClass) {
+    extend(UndoStep, superClass);
 
     function UndoStep() {
       return UndoStep.__super__.constructor.apply(this, arguments);
@@ -24832,7 +24833,7 @@ module.exports = '2.0.2';
     };
 
     UndoStep.prototype.initialize = function() {
-      var lifter, q, title, _ref;
+      var lifter, q, ref, title;
       UndoStep.__super__.initialize.apply(this, arguments);
       q = this.model.get('query');
       this.initPrevCount();
@@ -24842,7 +24843,7 @@ module.exports = '2.0.2';
       this.constraints = new ConstraintList(q.constraints.map(lifter));
       this.sortOrder = new SortOrder(q.sortOrder.map(lifter));
       title = this.model.get('title');
-      if ((_ref = title.verb) === 'Added' || _ref === 'Removed' || _ref === 'Changed') {
+      if ((ref = title.verb) === 'Added' || ref === 'Removed' || ref === 'Changed') {
         switch (title.label) {
           case 'column':
             return this.diffView();
@@ -24884,13 +24885,13 @@ module.exports = '2.0.2';
     };
 
     UndoStep.prototype.diff = function(prop, coll, test) {
-      var currQuery, e, i, lifter, prev, prevQuery, _i, _j, _len, _len1, _ref, _ref1, _results;
+      var currQuery, e, i, j, k, len, len1, lifter, prev, prevQuery, ref, ref1, results;
       prev = this.getPrevModel();
       currQuery = this.model.get('query');
       prevQuery = prev.get('query');
-      _ref = currQuery[prop];
-      for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
-        e = _ref[i];
+      ref = currQuery[prop];
+      for (i = j = 0, len = ref.length; j < len; i = ++j) {
+        e = ref[i];
         if (test(e, prevQuery)) {
           coll.at(i).set({
             added: true
@@ -24898,26 +24899,26 @@ module.exports = '2.0.2';
         }
       }
       lifter = liftPathAndType(prevQuery);
-      _ref1 = prevQuery[prop];
-      _results = [];
-      for (i = _j = 0, _len1 = _ref1.length; _j < _len1; i = ++_j) {
-        e = _ref1[i];
+      ref1 = prevQuery[prop];
+      results = [];
+      for (i = k = 0, len1 = ref1.length; k < len1; i = ++k) {
+        e = ref1[i];
         if (test(e, currQuery)) {
-          _results.push(coll.add(lifter(e), {
+          results.push(coll.add(lifter(e), {
             at: i
           }).set({
             removed: true
           }));
         }
       }
-      return _results;
+      return results;
     };
 
     UndoStep.prototype.diffView = function() {
-      return this.diff('views', this.views, function(v, _arg) {
+      return this.diff('views', this.views, function(v, arg) {
         var views;
-        views = _arg.views;
-        return __indexOf.call(views, v) < 0;
+        views = arg.views;
+        return indexOf.call(views, v) < 0;
       });
     };
 
@@ -24938,8 +24939,8 @@ module.exports = '2.0.2';
     };
 
     UndoStep.prototype.setCurrent = function() {
-      var index, size, _ref;
-      if (!((_ref = this.model) != null ? _ref.collection : void 0)) {
+      var index, ref, size;
+      if (!((ref = this.model) != null ? ref.collection : void 0)) {
         return;
       }
       index = this.model.collection.indexOf(this.model);
@@ -25029,8 +25030,8 @@ module.exports = '2.0.2';
 
   })(CoreView);
 
-  SelectListView = (function(_super) {
-    __extends(SelectListView, _super);
+  SelectListView = (function(superClass) {
+    extend(SelectListView, superClass);
 
     function SelectListView() {
       return SelectListView.__super__.constructor.apply(this, arguments);
@@ -25046,8 +25047,8 @@ module.exports = '2.0.2';
 
   })(QueryProperty);
 
-  SortOrderView = (function(_super) {
-    __extends(SortOrderView, _super);
+  SortOrderView = (function(superClass) {
+    extend(SortOrderView, superClass);
 
     function SortOrderView() {
       return SortOrderView.__super__.constructor.apply(this, arguments);
@@ -25056,7 +25057,7 @@ module.exports = '2.0.2';
     SortOrderView.prototype.summaryLabel = 'undo.OrderElemCount';
 
     SortOrderView.prototype.labelContent = function(oe) {
-      return "" + oe.displayName + " " + oe.direction;
+      return oe.displayName + " " + oe.direction;
     };
 
     return SortOrderView;
@@ -25075,8 +25076,8 @@ module.exports = '2.0.2';
     });
   };
 
-  ConstraintsView = (function(_super) {
-    __extends(ConstraintsView, _super);
+  ConstraintsView = (function(superClass) {
+    extend(ConstraintsView, superClass);
 
     function ConstraintsView() {
       return ConstraintsView.__super__.constructor.apply(this, arguments);
@@ -25109,7 +25110,7 @@ module.exports = '2.0.2';
 
 }).call(this);
 
-},{"../../core-view":3,"../../core/collection":5,"../../messages":16,"../../messages/constraints":21,"../../messages/undo":29,"../../models/constraint":40,"../../models/order-element":53,"../../models/path":56,"../../templates":67,"./query-property-section":230,"underscore":301}],232:[function(require,module,exports){
+},{"../../core-view":3,"../../core/collection":5,"../../messages":16,"../../messages/constraints":21,"../../messages/undo":29,"../../models/constraint":40,"../../models/order-element":53,"../../models/path":56,"../../templates":67,"./query-property-section":230,"underscore":262}],232:[function(require,module,exports){
 (function (process,Buffer){
 
 
@@ -25306,7 +25307,7 @@ if(!module.parent && process.title !== 'browser') {
 }
 
 }).call(this,require('_process'),require("buffer").Buffer)
-},{"_process":272,"buffer":240,"jsonparse":268,"through":297}],233:[function(require,module,exports){
+},{"_process":275,"buffer":266,"jsonparse":257,"through":260}],233:[function(require,module,exports){
 /**
  * Standalone extraction of Backbone.Events, no external dependency required.
  * Degrades nicely when Backone/underscore are already available in the current
@@ -27687,160 +27688,7 @@ module.exports = require('./backbone-events-standalone');
 });
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"jquery":267,"underscore":301}],236:[function(require,module,exports){
-'use strict'
-
-exports.byteLength = byteLength
-exports.toByteArray = toByteArray
-exports.fromByteArray = fromByteArray
-
-var lookup = []
-var revLookup = []
-var Arr = typeof Uint8Array !== 'undefined' ? Uint8Array : Array
-
-var code = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
-for (var i = 0, len = code.length; i < len; ++i) {
-  lookup[i] = code[i]
-  revLookup[code.charCodeAt(i)] = i
-}
-
-// Support decoding URL-safe base64 strings, as Node.js does.
-// See: https://en.wikipedia.org/wiki/Base64#URL_applications
-revLookup['-'.charCodeAt(0)] = 62
-revLookup['_'.charCodeAt(0)] = 63
-
-function getLens (b64) {
-  var len = b64.length
-
-  if (len % 4 > 0) {
-    throw new Error('Invalid string. Length must be a multiple of 4')
-  }
-
-  // Trim off extra bytes after placeholder bytes are found
-  // See: https://github.com/beatgammit/base64-js/issues/42
-  var validLen = b64.indexOf('=')
-  if (validLen === -1) validLen = len
-
-  var placeHoldersLen = validLen === len
-    ? 0
-    : 4 - (validLen % 4)
-
-  return [validLen, placeHoldersLen]
-}
-
-// base64 is 4/3 + up to two characters of the original data
-function byteLength (b64) {
-  var lens = getLens(b64)
-  var validLen = lens[0]
-  var placeHoldersLen = lens[1]
-  return ((validLen + placeHoldersLen) * 3 / 4) - placeHoldersLen
-}
-
-function _byteLength (b64, validLen, placeHoldersLen) {
-  return ((validLen + placeHoldersLen) * 3 / 4) - placeHoldersLen
-}
-
-function toByteArray (b64) {
-  var tmp
-  var lens = getLens(b64)
-  var validLen = lens[0]
-  var placeHoldersLen = lens[1]
-
-  var arr = new Arr(_byteLength(b64, validLen, placeHoldersLen))
-
-  var curByte = 0
-
-  // if there are placeholders, only get up to the last complete 4 chars
-  var len = placeHoldersLen > 0
-    ? validLen - 4
-    : validLen
-
-  for (var i = 0; i < len; i += 4) {
-    tmp =
-      (revLookup[b64.charCodeAt(i)] << 18) |
-      (revLookup[b64.charCodeAt(i + 1)] << 12) |
-      (revLookup[b64.charCodeAt(i + 2)] << 6) |
-      revLookup[b64.charCodeAt(i + 3)]
-    arr[curByte++] = (tmp >> 16) & 0xFF
-    arr[curByte++] = (tmp >> 8) & 0xFF
-    arr[curByte++] = tmp & 0xFF
-  }
-
-  if (placeHoldersLen === 2) {
-    tmp =
-      (revLookup[b64.charCodeAt(i)] << 2) |
-      (revLookup[b64.charCodeAt(i + 1)] >> 4)
-    arr[curByte++] = tmp & 0xFF
-  }
-
-  if (placeHoldersLen === 1) {
-    tmp =
-      (revLookup[b64.charCodeAt(i)] << 10) |
-      (revLookup[b64.charCodeAt(i + 1)] << 4) |
-      (revLookup[b64.charCodeAt(i + 2)] >> 2)
-    arr[curByte++] = (tmp >> 8) & 0xFF
-    arr[curByte++] = tmp & 0xFF
-  }
-
-  return arr
-}
-
-function tripletToBase64 (num) {
-  return lookup[num >> 18 & 0x3F] +
-    lookup[num >> 12 & 0x3F] +
-    lookup[num >> 6 & 0x3F] +
-    lookup[num & 0x3F]
-}
-
-function encodeChunk (uint8, start, end) {
-  var tmp
-  var output = []
-  for (var i = start; i < end; i += 3) {
-    tmp =
-      ((uint8[i] << 16) & 0xFF0000) +
-      ((uint8[i + 1] << 8) & 0xFF00) +
-      (uint8[i + 2] & 0xFF)
-    output.push(tripletToBase64(tmp))
-  }
-  return output.join('')
-}
-
-function fromByteArray (uint8) {
-  var tmp
-  var len = uint8.length
-  var extraBytes = len % 3 // if we have 1 byte left, pad 2 bytes
-  var parts = []
-  var maxChunkLength = 16383 // must be multiple of 3
-
-  // go through the array every three bytes, we'll deal with trailing stuff later
-  for (var i = 0, len2 = len - extraBytes; i < len2; i += maxChunkLength) {
-    parts.push(encodeChunk(
-      uint8, i, (i + maxChunkLength) > len2 ? len2 : (i + maxChunkLength)
-    ))
-  }
-
-  // pad the end with zeros, but make sure to not forget the extra bytes
-  if (extraBytes === 1) {
-    tmp = uint8[len - 1]
-    parts.push(
-      lookup[tmp >> 2] +
-      lookup[(tmp << 4) & 0x3F] +
-      '=='
-    )
-  } else if (extraBytes === 2) {
-    tmp = (uint8[len - 2] << 8) + uint8[len - 1]
-    parts.push(
-      lookup[tmp >> 10] +
-      lookup[(tmp >> 4) & 0x3F] +
-      lookup[(tmp << 2) & 0x3F] +
-      '='
-    )
-  }
-
-  return parts.join('')
-}
-
-},{}],237:[function(require,module,exports){
+},{"jquery":256,"underscore":262}],236:[function(require,module,exports){
 /*!
   * Bootstrap v4.3.1 (https://getbootstrap.com/)
   * Copyright 2011-2019 The Bootstrap Authors (https://github.com/twbs/bootstrap/graphs/contributors)
@@ -32277,1969 +32125,7 @@ function fromByteArray (uint8) {
 }));
 
 
-},{"jquery":267,"popper.js":270}],238:[function(require,module,exports){
-
-},{}],239:[function(require,module,exports){
-arguments[4][238][0].apply(exports,arguments)
-},{"dup":238}],240:[function(require,module,exports){
-(function (Buffer){
-/*!
- * The buffer module from node.js, for the browser.
- *
- * @author   Feross Aboukhadijeh <https://feross.org>
- * @license  MIT
- */
-/* eslint-disable no-proto */
-
-'use strict'
-
-var base64 = require('base64-js')
-var ieee754 = require('ieee754')
-
-exports.Buffer = Buffer
-exports.SlowBuffer = SlowBuffer
-exports.INSPECT_MAX_BYTES = 50
-
-var K_MAX_LENGTH = 0x7fffffff
-exports.kMaxLength = K_MAX_LENGTH
-
-/**
- * If `Buffer.TYPED_ARRAY_SUPPORT`:
- *   === true    Use Uint8Array implementation (fastest)
- *   === false   Print warning and recommend using `buffer` v4.x which has an Object
- *               implementation (most compatible, even IE6)
- *
- * Browsers that support typed arrays are IE 10+, Firefox 4+, Chrome 7+, Safari 5.1+,
- * Opera 11.6+, iOS 4.2+.
- *
- * We report that the browser does not support typed arrays if the are not subclassable
- * using __proto__. Firefox 4-29 lacks support for adding new properties to `Uint8Array`
- * (See: https://bugzilla.mozilla.org/show_bug.cgi?id=695438). IE 10 lacks support
- * for __proto__ and has a buggy typed array implementation.
- */
-Buffer.TYPED_ARRAY_SUPPORT = typedArraySupport()
-
-if (!Buffer.TYPED_ARRAY_SUPPORT && typeof console !== 'undefined' &&
-    typeof console.error === 'function') {
-  console.error(
-    'This browser lacks typed array (Uint8Array) support which is required by ' +
-    '`buffer` v5.x. Use `buffer` v4.x if you require old browser support.'
-  )
-}
-
-function typedArraySupport () {
-  // Can typed array instances can be augmented?
-  try {
-    var arr = new Uint8Array(1)
-    arr.__proto__ = { __proto__: Uint8Array.prototype, foo: function () { return 42 } }
-    return arr.foo() === 42
-  } catch (e) {
-    return false
-  }
-}
-
-Object.defineProperty(Buffer.prototype, 'parent', {
-  enumerable: true,
-  get: function () {
-    if (!Buffer.isBuffer(this)) return undefined
-    return this.buffer
-  }
-})
-
-Object.defineProperty(Buffer.prototype, 'offset', {
-  enumerable: true,
-  get: function () {
-    if (!Buffer.isBuffer(this)) return undefined
-    return this.byteOffset
-  }
-})
-
-function createBuffer (length) {
-  if (length > K_MAX_LENGTH) {
-    throw new RangeError('The value "' + length + '" is invalid for option "size"')
-  }
-  // Return an augmented `Uint8Array` instance
-  var buf = new Uint8Array(length)
-  buf.__proto__ = Buffer.prototype
-  return buf
-}
-
-/**
- * The Buffer constructor returns instances of `Uint8Array` that have their
- * prototype changed to `Buffer.prototype`. Furthermore, `Buffer` is a subclass of
- * `Uint8Array`, so the returned instances will have all the node `Buffer` methods
- * and the `Uint8Array` methods. Square bracket notation works as expected -- it
- * returns a single octet.
- *
- * The `Uint8Array` prototype remains unmodified.
- */
-
-function Buffer (arg, encodingOrOffset, length) {
-  // Common case.
-  if (typeof arg === 'number') {
-    if (typeof encodingOrOffset === 'string') {
-      throw new TypeError(
-        'The "string" argument must be of type string. Received type number'
-      )
-    }
-    return allocUnsafe(arg)
-  }
-  return from(arg, encodingOrOffset, length)
-}
-
-// Fix subarray() in ES2016. See: https://github.com/feross/buffer/pull/97
-if (typeof Symbol !== 'undefined' && Symbol.species != null &&
-    Buffer[Symbol.species] === Buffer) {
-  Object.defineProperty(Buffer, Symbol.species, {
-    value: null,
-    configurable: true,
-    enumerable: false,
-    writable: false
-  })
-}
-
-Buffer.poolSize = 8192 // not used by this implementation
-
-function from (value, encodingOrOffset, length) {
-  if (typeof value === 'string') {
-    return fromString(value, encodingOrOffset)
-  }
-
-  if (ArrayBuffer.isView(value)) {
-    return fromArrayLike(value)
-  }
-
-  if (value == null) {
-    throw TypeError(
-      'The first argument must be one of type string, Buffer, ArrayBuffer, Array, ' +
-      'or Array-like Object. Received type ' + (typeof value)
-    )
-  }
-
-  if (isInstance(value, ArrayBuffer) ||
-      (value && isInstance(value.buffer, ArrayBuffer))) {
-    return fromArrayBuffer(value, encodingOrOffset, length)
-  }
-
-  if (typeof value === 'number') {
-    throw new TypeError(
-      'The "value" argument must not be of type number. Received type number'
-    )
-  }
-
-  var valueOf = value.valueOf && value.valueOf()
-  if (valueOf != null && valueOf !== value) {
-    return Buffer.from(valueOf, encodingOrOffset, length)
-  }
-
-  var b = fromObject(value)
-  if (b) return b
-
-  if (typeof Symbol !== 'undefined' && Symbol.toPrimitive != null &&
-      typeof value[Symbol.toPrimitive] === 'function') {
-    return Buffer.from(
-      value[Symbol.toPrimitive]('string'), encodingOrOffset, length
-    )
-  }
-
-  throw new TypeError(
-    'The first argument must be one of type string, Buffer, ArrayBuffer, Array, ' +
-    'or Array-like Object. Received type ' + (typeof value)
-  )
-}
-
-/**
- * Functionally equivalent to Buffer(arg, encoding) but throws a TypeError
- * if value is a number.
- * Buffer.from(str[, encoding])
- * Buffer.from(array)
- * Buffer.from(buffer)
- * Buffer.from(arrayBuffer[, byteOffset[, length]])
- **/
-Buffer.from = function (value, encodingOrOffset, length) {
-  return from(value, encodingOrOffset, length)
-}
-
-// Note: Change prototype *after* Buffer.from is defined to workaround Chrome bug:
-// https://github.com/feross/buffer/pull/148
-Buffer.prototype.__proto__ = Uint8Array.prototype
-Buffer.__proto__ = Uint8Array
-
-function assertSize (size) {
-  if (typeof size !== 'number') {
-    throw new TypeError('"size" argument must be of type number')
-  } else if (size < 0) {
-    throw new RangeError('The value "' + size + '" is invalid for option "size"')
-  }
-}
-
-function alloc (size, fill, encoding) {
-  assertSize(size)
-  if (size <= 0) {
-    return createBuffer(size)
-  }
-  if (fill !== undefined) {
-    // Only pay attention to encoding if it's a string. This
-    // prevents accidentally sending in a number that would
-    // be interpretted as a start offset.
-    return typeof encoding === 'string'
-      ? createBuffer(size).fill(fill, encoding)
-      : createBuffer(size).fill(fill)
-  }
-  return createBuffer(size)
-}
-
-/**
- * Creates a new filled Buffer instance.
- * alloc(size[, fill[, encoding]])
- **/
-Buffer.alloc = function (size, fill, encoding) {
-  return alloc(size, fill, encoding)
-}
-
-function allocUnsafe (size) {
-  assertSize(size)
-  return createBuffer(size < 0 ? 0 : checked(size) | 0)
-}
-
-/**
- * Equivalent to Buffer(num), by default creates a non-zero-filled Buffer instance.
- * */
-Buffer.allocUnsafe = function (size) {
-  return allocUnsafe(size)
-}
-/**
- * Equivalent to SlowBuffer(num), by default creates a non-zero-filled Buffer instance.
- */
-Buffer.allocUnsafeSlow = function (size) {
-  return allocUnsafe(size)
-}
-
-function fromString (string, encoding) {
-  if (typeof encoding !== 'string' || encoding === '') {
-    encoding = 'utf8'
-  }
-
-  if (!Buffer.isEncoding(encoding)) {
-    throw new TypeError('Unknown encoding: ' + encoding)
-  }
-
-  var length = byteLength(string, encoding) | 0
-  var buf = createBuffer(length)
-
-  var actual = buf.write(string, encoding)
-
-  if (actual !== length) {
-    // Writing a hex string, for example, that contains invalid characters will
-    // cause everything after the first invalid character to be ignored. (e.g.
-    // 'abxxcd' will be treated as 'ab')
-    buf = buf.slice(0, actual)
-  }
-
-  return buf
-}
-
-function fromArrayLike (array) {
-  var length = array.length < 0 ? 0 : checked(array.length) | 0
-  var buf = createBuffer(length)
-  for (var i = 0; i < length; i += 1) {
-    buf[i] = array[i] & 255
-  }
-  return buf
-}
-
-function fromArrayBuffer (array, byteOffset, length) {
-  if (byteOffset < 0 || array.byteLength < byteOffset) {
-    throw new RangeError('"offset" is outside of buffer bounds')
-  }
-
-  if (array.byteLength < byteOffset + (length || 0)) {
-    throw new RangeError('"length" is outside of buffer bounds')
-  }
-
-  var buf
-  if (byteOffset === undefined && length === undefined) {
-    buf = new Uint8Array(array)
-  } else if (length === undefined) {
-    buf = new Uint8Array(array, byteOffset)
-  } else {
-    buf = new Uint8Array(array, byteOffset, length)
-  }
-
-  // Return an augmented `Uint8Array` instance
-  buf.__proto__ = Buffer.prototype
-  return buf
-}
-
-function fromObject (obj) {
-  if (Buffer.isBuffer(obj)) {
-    var len = checked(obj.length) | 0
-    var buf = createBuffer(len)
-
-    if (buf.length === 0) {
-      return buf
-    }
-
-    obj.copy(buf, 0, 0, len)
-    return buf
-  }
-
-  if (obj.length !== undefined) {
-    if (typeof obj.length !== 'number' || numberIsNaN(obj.length)) {
-      return createBuffer(0)
-    }
-    return fromArrayLike(obj)
-  }
-
-  if (obj.type === 'Buffer' && Array.isArray(obj.data)) {
-    return fromArrayLike(obj.data)
-  }
-}
-
-function checked (length) {
-  // Note: cannot use `length < K_MAX_LENGTH` here because that fails when
-  // length is NaN (which is otherwise coerced to zero.)
-  if (length >= K_MAX_LENGTH) {
-    throw new RangeError('Attempt to allocate Buffer larger than maximum ' +
-                         'size: 0x' + K_MAX_LENGTH.toString(16) + ' bytes')
-  }
-  return length | 0
-}
-
-function SlowBuffer (length) {
-  if (+length != length) { // eslint-disable-line eqeqeq
-    length = 0
-  }
-  return Buffer.alloc(+length)
-}
-
-Buffer.isBuffer = function isBuffer (b) {
-  return b != null && b._isBuffer === true &&
-    b !== Buffer.prototype // so Buffer.isBuffer(Buffer.prototype) will be false
-}
-
-Buffer.compare = function compare (a, b) {
-  if (isInstance(a, Uint8Array)) a = Buffer.from(a, a.offset, a.byteLength)
-  if (isInstance(b, Uint8Array)) b = Buffer.from(b, b.offset, b.byteLength)
-  if (!Buffer.isBuffer(a) || !Buffer.isBuffer(b)) {
-    throw new TypeError(
-      'The "buf1", "buf2" arguments must be one of type Buffer or Uint8Array'
-    )
-  }
-
-  if (a === b) return 0
-
-  var x = a.length
-  var y = b.length
-
-  for (var i = 0, len = Math.min(x, y); i < len; ++i) {
-    if (a[i] !== b[i]) {
-      x = a[i]
-      y = b[i]
-      break
-    }
-  }
-
-  if (x < y) return -1
-  if (y < x) return 1
-  return 0
-}
-
-Buffer.isEncoding = function isEncoding (encoding) {
-  switch (String(encoding).toLowerCase()) {
-    case 'hex':
-    case 'utf8':
-    case 'utf-8':
-    case 'ascii':
-    case 'latin1':
-    case 'binary':
-    case 'base64':
-    case 'ucs2':
-    case 'ucs-2':
-    case 'utf16le':
-    case 'utf-16le':
-      return true
-    default:
-      return false
-  }
-}
-
-Buffer.concat = function concat (list, length) {
-  if (!Array.isArray(list)) {
-    throw new TypeError('"list" argument must be an Array of Buffers')
-  }
-
-  if (list.length === 0) {
-    return Buffer.alloc(0)
-  }
-
-  var i
-  if (length === undefined) {
-    length = 0
-    for (i = 0; i < list.length; ++i) {
-      length += list[i].length
-    }
-  }
-
-  var buffer = Buffer.allocUnsafe(length)
-  var pos = 0
-  for (i = 0; i < list.length; ++i) {
-    var buf = list[i]
-    if (isInstance(buf, Uint8Array)) {
-      buf = Buffer.from(buf)
-    }
-    if (!Buffer.isBuffer(buf)) {
-      throw new TypeError('"list" argument must be an Array of Buffers')
-    }
-    buf.copy(buffer, pos)
-    pos += buf.length
-  }
-  return buffer
-}
-
-function byteLength (string, encoding) {
-  if (Buffer.isBuffer(string)) {
-    return string.length
-  }
-  if (ArrayBuffer.isView(string) || isInstance(string, ArrayBuffer)) {
-    return string.byteLength
-  }
-  if (typeof string !== 'string') {
-    throw new TypeError(
-      'The "string" argument must be one of type string, Buffer, or ArrayBuffer. ' +
-      'Received type ' + typeof string
-    )
-  }
-
-  var len = string.length
-  var mustMatch = (arguments.length > 2 && arguments[2] === true)
-  if (!mustMatch && len === 0) return 0
-
-  // Use a for loop to avoid recursion
-  var loweredCase = false
-  for (;;) {
-    switch (encoding) {
-      case 'ascii':
-      case 'latin1':
-      case 'binary':
-        return len
-      case 'utf8':
-      case 'utf-8':
-        return utf8ToBytes(string).length
-      case 'ucs2':
-      case 'ucs-2':
-      case 'utf16le':
-      case 'utf-16le':
-        return len * 2
-      case 'hex':
-        return len >>> 1
-      case 'base64':
-        return base64ToBytes(string).length
-      default:
-        if (loweredCase) {
-          return mustMatch ? -1 : utf8ToBytes(string).length // assume utf8
-        }
-        encoding = ('' + encoding).toLowerCase()
-        loweredCase = true
-    }
-  }
-}
-Buffer.byteLength = byteLength
-
-function slowToString (encoding, start, end) {
-  var loweredCase = false
-
-  // No need to verify that "this.length <= MAX_UINT32" since it's a read-only
-  // property of a typed array.
-
-  // This behaves neither like String nor Uint8Array in that we set start/end
-  // to their upper/lower bounds if the value passed is out of range.
-  // undefined is handled specially as per ECMA-262 6th Edition,
-  // Section 13.3.3.7 Runtime Semantics: KeyedBindingInitialization.
-  if (start === undefined || start < 0) {
-    start = 0
-  }
-  // Return early if start > this.length. Done here to prevent potential uint32
-  // coercion fail below.
-  if (start > this.length) {
-    return ''
-  }
-
-  if (end === undefined || end > this.length) {
-    end = this.length
-  }
-
-  if (end <= 0) {
-    return ''
-  }
-
-  // Force coersion to uint32. This will also coerce falsey/NaN values to 0.
-  end >>>= 0
-  start >>>= 0
-
-  if (end <= start) {
-    return ''
-  }
-
-  if (!encoding) encoding = 'utf8'
-
-  while (true) {
-    switch (encoding) {
-      case 'hex':
-        return hexSlice(this, start, end)
-
-      case 'utf8':
-      case 'utf-8':
-        return utf8Slice(this, start, end)
-
-      case 'ascii':
-        return asciiSlice(this, start, end)
-
-      case 'latin1':
-      case 'binary':
-        return latin1Slice(this, start, end)
-
-      case 'base64':
-        return base64Slice(this, start, end)
-
-      case 'ucs2':
-      case 'ucs-2':
-      case 'utf16le':
-      case 'utf-16le':
-        return utf16leSlice(this, start, end)
-
-      default:
-        if (loweredCase) throw new TypeError('Unknown encoding: ' + encoding)
-        encoding = (encoding + '').toLowerCase()
-        loweredCase = true
-    }
-  }
-}
-
-// This property is used by `Buffer.isBuffer` (and the `is-buffer` npm package)
-// to detect a Buffer instance. It's not possible to use `instanceof Buffer`
-// reliably in a browserify context because there could be multiple different
-// copies of the 'buffer' package in use. This method works even for Buffer
-// instances that were created from another copy of the `buffer` package.
-// See: https://github.com/feross/buffer/issues/154
-Buffer.prototype._isBuffer = true
-
-function swap (b, n, m) {
-  var i = b[n]
-  b[n] = b[m]
-  b[m] = i
-}
-
-Buffer.prototype.swap16 = function swap16 () {
-  var len = this.length
-  if (len % 2 !== 0) {
-    throw new RangeError('Buffer size must be a multiple of 16-bits')
-  }
-  for (var i = 0; i < len; i += 2) {
-    swap(this, i, i + 1)
-  }
-  return this
-}
-
-Buffer.prototype.swap32 = function swap32 () {
-  var len = this.length
-  if (len % 4 !== 0) {
-    throw new RangeError('Buffer size must be a multiple of 32-bits')
-  }
-  for (var i = 0; i < len; i += 4) {
-    swap(this, i, i + 3)
-    swap(this, i + 1, i + 2)
-  }
-  return this
-}
-
-Buffer.prototype.swap64 = function swap64 () {
-  var len = this.length
-  if (len % 8 !== 0) {
-    throw new RangeError('Buffer size must be a multiple of 64-bits')
-  }
-  for (var i = 0; i < len; i += 8) {
-    swap(this, i, i + 7)
-    swap(this, i + 1, i + 6)
-    swap(this, i + 2, i + 5)
-    swap(this, i + 3, i + 4)
-  }
-  return this
-}
-
-Buffer.prototype.toString = function toString () {
-  var length = this.length
-  if (length === 0) return ''
-  if (arguments.length === 0) return utf8Slice(this, 0, length)
-  return slowToString.apply(this, arguments)
-}
-
-Buffer.prototype.toLocaleString = Buffer.prototype.toString
-
-Buffer.prototype.equals = function equals (b) {
-  if (!Buffer.isBuffer(b)) throw new TypeError('Argument must be a Buffer')
-  if (this === b) return true
-  return Buffer.compare(this, b) === 0
-}
-
-Buffer.prototype.inspect = function inspect () {
-  var str = ''
-  var max = exports.INSPECT_MAX_BYTES
-  str = this.toString('hex', 0, max).replace(/(.{2})/g, '$1 ').trim()
-  if (this.length > max) str += ' ... '
-  return '<Buffer ' + str + '>'
-}
-
-Buffer.prototype.compare = function compare (target, start, end, thisStart, thisEnd) {
-  if (isInstance(target, Uint8Array)) {
-    target = Buffer.from(target, target.offset, target.byteLength)
-  }
-  if (!Buffer.isBuffer(target)) {
-    throw new TypeError(
-      'The "target" argument must be one of type Buffer or Uint8Array. ' +
-      'Received type ' + (typeof target)
-    )
-  }
-
-  if (start === undefined) {
-    start = 0
-  }
-  if (end === undefined) {
-    end = target ? target.length : 0
-  }
-  if (thisStart === undefined) {
-    thisStart = 0
-  }
-  if (thisEnd === undefined) {
-    thisEnd = this.length
-  }
-
-  if (start < 0 || end > target.length || thisStart < 0 || thisEnd > this.length) {
-    throw new RangeError('out of range index')
-  }
-
-  if (thisStart >= thisEnd && start >= end) {
-    return 0
-  }
-  if (thisStart >= thisEnd) {
-    return -1
-  }
-  if (start >= end) {
-    return 1
-  }
-
-  start >>>= 0
-  end >>>= 0
-  thisStart >>>= 0
-  thisEnd >>>= 0
-
-  if (this === target) return 0
-
-  var x = thisEnd - thisStart
-  var y = end - start
-  var len = Math.min(x, y)
-
-  var thisCopy = this.slice(thisStart, thisEnd)
-  var targetCopy = target.slice(start, end)
-
-  for (var i = 0; i < len; ++i) {
-    if (thisCopy[i] !== targetCopy[i]) {
-      x = thisCopy[i]
-      y = targetCopy[i]
-      break
-    }
-  }
-
-  if (x < y) return -1
-  if (y < x) return 1
-  return 0
-}
-
-// Finds either the first index of `val` in `buffer` at offset >= `byteOffset`,
-// OR the last index of `val` in `buffer` at offset <= `byteOffset`.
-//
-// Arguments:
-// - buffer - a Buffer to search
-// - val - a string, Buffer, or number
-// - byteOffset - an index into `buffer`; will be clamped to an int32
-// - encoding - an optional encoding, relevant is val is a string
-// - dir - true for indexOf, false for lastIndexOf
-function bidirectionalIndexOf (buffer, val, byteOffset, encoding, dir) {
-  // Empty buffer means no match
-  if (buffer.length === 0) return -1
-
-  // Normalize byteOffset
-  if (typeof byteOffset === 'string') {
-    encoding = byteOffset
-    byteOffset = 0
-  } else if (byteOffset > 0x7fffffff) {
-    byteOffset = 0x7fffffff
-  } else if (byteOffset < -0x80000000) {
-    byteOffset = -0x80000000
-  }
-  byteOffset = +byteOffset // Coerce to Number.
-  if (numberIsNaN(byteOffset)) {
-    // byteOffset: it it's undefined, null, NaN, "foo", etc, search whole buffer
-    byteOffset = dir ? 0 : (buffer.length - 1)
-  }
-
-  // Normalize byteOffset: negative offsets start from the end of the buffer
-  if (byteOffset < 0) byteOffset = buffer.length + byteOffset
-  if (byteOffset >= buffer.length) {
-    if (dir) return -1
-    else byteOffset = buffer.length - 1
-  } else if (byteOffset < 0) {
-    if (dir) byteOffset = 0
-    else return -1
-  }
-
-  // Normalize val
-  if (typeof val === 'string') {
-    val = Buffer.from(val, encoding)
-  }
-
-  // Finally, search either indexOf (if dir is true) or lastIndexOf
-  if (Buffer.isBuffer(val)) {
-    // Special case: looking for empty string/buffer always fails
-    if (val.length === 0) {
-      return -1
-    }
-    return arrayIndexOf(buffer, val, byteOffset, encoding, dir)
-  } else if (typeof val === 'number') {
-    val = val & 0xFF // Search for a byte value [0-255]
-    if (typeof Uint8Array.prototype.indexOf === 'function') {
-      if (dir) {
-        return Uint8Array.prototype.indexOf.call(buffer, val, byteOffset)
-      } else {
-        return Uint8Array.prototype.lastIndexOf.call(buffer, val, byteOffset)
-      }
-    }
-    return arrayIndexOf(buffer, [ val ], byteOffset, encoding, dir)
-  }
-
-  throw new TypeError('val must be string, number or Buffer')
-}
-
-function arrayIndexOf (arr, val, byteOffset, encoding, dir) {
-  var indexSize = 1
-  var arrLength = arr.length
-  var valLength = val.length
-
-  if (encoding !== undefined) {
-    encoding = String(encoding).toLowerCase()
-    if (encoding === 'ucs2' || encoding === 'ucs-2' ||
-        encoding === 'utf16le' || encoding === 'utf-16le') {
-      if (arr.length < 2 || val.length < 2) {
-        return -1
-      }
-      indexSize = 2
-      arrLength /= 2
-      valLength /= 2
-      byteOffset /= 2
-    }
-  }
-
-  function read (buf, i) {
-    if (indexSize === 1) {
-      return buf[i]
-    } else {
-      return buf.readUInt16BE(i * indexSize)
-    }
-  }
-
-  var i
-  if (dir) {
-    var foundIndex = -1
-    for (i = byteOffset; i < arrLength; i++) {
-      if (read(arr, i) === read(val, foundIndex === -1 ? 0 : i - foundIndex)) {
-        if (foundIndex === -1) foundIndex = i
-        if (i - foundIndex + 1 === valLength) return foundIndex * indexSize
-      } else {
-        if (foundIndex !== -1) i -= i - foundIndex
-        foundIndex = -1
-      }
-    }
-  } else {
-    if (byteOffset + valLength > arrLength) byteOffset = arrLength - valLength
-    for (i = byteOffset; i >= 0; i--) {
-      var found = true
-      for (var j = 0; j < valLength; j++) {
-        if (read(arr, i + j) !== read(val, j)) {
-          found = false
-          break
-        }
-      }
-      if (found) return i
-    }
-  }
-
-  return -1
-}
-
-Buffer.prototype.includes = function includes (val, byteOffset, encoding) {
-  return this.indexOf(val, byteOffset, encoding) !== -1
-}
-
-Buffer.prototype.indexOf = function indexOf (val, byteOffset, encoding) {
-  return bidirectionalIndexOf(this, val, byteOffset, encoding, true)
-}
-
-Buffer.prototype.lastIndexOf = function lastIndexOf (val, byteOffset, encoding) {
-  return bidirectionalIndexOf(this, val, byteOffset, encoding, false)
-}
-
-function hexWrite (buf, string, offset, length) {
-  offset = Number(offset) || 0
-  var remaining = buf.length - offset
-  if (!length) {
-    length = remaining
-  } else {
-    length = Number(length)
-    if (length > remaining) {
-      length = remaining
-    }
-  }
-
-  var strLen = string.length
-
-  if (length > strLen / 2) {
-    length = strLen / 2
-  }
-  for (var i = 0; i < length; ++i) {
-    var parsed = parseInt(string.substr(i * 2, 2), 16)
-    if (numberIsNaN(parsed)) return i
-    buf[offset + i] = parsed
-  }
-  return i
-}
-
-function utf8Write (buf, string, offset, length) {
-  return blitBuffer(utf8ToBytes(string, buf.length - offset), buf, offset, length)
-}
-
-function asciiWrite (buf, string, offset, length) {
-  return blitBuffer(asciiToBytes(string), buf, offset, length)
-}
-
-function latin1Write (buf, string, offset, length) {
-  return asciiWrite(buf, string, offset, length)
-}
-
-function base64Write (buf, string, offset, length) {
-  return blitBuffer(base64ToBytes(string), buf, offset, length)
-}
-
-function ucs2Write (buf, string, offset, length) {
-  return blitBuffer(utf16leToBytes(string, buf.length - offset), buf, offset, length)
-}
-
-Buffer.prototype.write = function write (string, offset, length, encoding) {
-  // Buffer#write(string)
-  if (offset === undefined) {
-    encoding = 'utf8'
-    length = this.length
-    offset = 0
-  // Buffer#write(string, encoding)
-  } else if (length === undefined && typeof offset === 'string') {
-    encoding = offset
-    length = this.length
-    offset = 0
-  // Buffer#write(string, offset[, length][, encoding])
-  } else if (isFinite(offset)) {
-    offset = offset >>> 0
-    if (isFinite(length)) {
-      length = length >>> 0
-      if (encoding === undefined) encoding = 'utf8'
-    } else {
-      encoding = length
-      length = undefined
-    }
-  } else {
-    throw new Error(
-      'Buffer.write(string, encoding, offset[, length]) is no longer supported'
-    )
-  }
-
-  var remaining = this.length - offset
-  if (length === undefined || length > remaining) length = remaining
-
-  if ((string.length > 0 && (length < 0 || offset < 0)) || offset > this.length) {
-    throw new RangeError('Attempt to write outside buffer bounds')
-  }
-
-  if (!encoding) encoding = 'utf8'
-
-  var loweredCase = false
-  for (;;) {
-    switch (encoding) {
-      case 'hex':
-        return hexWrite(this, string, offset, length)
-
-      case 'utf8':
-      case 'utf-8':
-        return utf8Write(this, string, offset, length)
-
-      case 'ascii':
-        return asciiWrite(this, string, offset, length)
-
-      case 'latin1':
-      case 'binary':
-        return latin1Write(this, string, offset, length)
-
-      case 'base64':
-        // Warning: maxLength not taken into account in base64Write
-        return base64Write(this, string, offset, length)
-
-      case 'ucs2':
-      case 'ucs-2':
-      case 'utf16le':
-      case 'utf-16le':
-        return ucs2Write(this, string, offset, length)
-
-      default:
-        if (loweredCase) throw new TypeError('Unknown encoding: ' + encoding)
-        encoding = ('' + encoding).toLowerCase()
-        loweredCase = true
-    }
-  }
-}
-
-Buffer.prototype.toJSON = function toJSON () {
-  return {
-    type: 'Buffer',
-    data: Array.prototype.slice.call(this._arr || this, 0)
-  }
-}
-
-function base64Slice (buf, start, end) {
-  if (start === 0 && end === buf.length) {
-    return base64.fromByteArray(buf)
-  } else {
-    return base64.fromByteArray(buf.slice(start, end))
-  }
-}
-
-function utf8Slice (buf, start, end) {
-  end = Math.min(buf.length, end)
-  var res = []
-
-  var i = start
-  while (i < end) {
-    var firstByte = buf[i]
-    var codePoint = null
-    var bytesPerSequence = (firstByte > 0xEF) ? 4
-      : (firstByte > 0xDF) ? 3
-        : (firstByte > 0xBF) ? 2
-          : 1
-
-    if (i + bytesPerSequence <= end) {
-      var secondByte, thirdByte, fourthByte, tempCodePoint
-
-      switch (bytesPerSequence) {
-        case 1:
-          if (firstByte < 0x80) {
-            codePoint = firstByte
-          }
-          break
-        case 2:
-          secondByte = buf[i + 1]
-          if ((secondByte & 0xC0) === 0x80) {
-            tempCodePoint = (firstByte & 0x1F) << 0x6 | (secondByte & 0x3F)
-            if (tempCodePoint > 0x7F) {
-              codePoint = tempCodePoint
-            }
-          }
-          break
-        case 3:
-          secondByte = buf[i + 1]
-          thirdByte = buf[i + 2]
-          if ((secondByte & 0xC0) === 0x80 && (thirdByte & 0xC0) === 0x80) {
-            tempCodePoint = (firstByte & 0xF) << 0xC | (secondByte & 0x3F) << 0x6 | (thirdByte & 0x3F)
-            if (tempCodePoint > 0x7FF && (tempCodePoint < 0xD800 || tempCodePoint > 0xDFFF)) {
-              codePoint = tempCodePoint
-            }
-          }
-          break
-        case 4:
-          secondByte = buf[i + 1]
-          thirdByte = buf[i + 2]
-          fourthByte = buf[i + 3]
-          if ((secondByte & 0xC0) === 0x80 && (thirdByte & 0xC0) === 0x80 && (fourthByte & 0xC0) === 0x80) {
-            tempCodePoint = (firstByte & 0xF) << 0x12 | (secondByte & 0x3F) << 0xC | (thirdByte & 0x3F) << 0x6 | (fourthByte & 0x3F)
-            if (tempCodePoint > 0xFFFF && tempCodePoint < 0x110000) {
-              codePoint = tempCodePoint
-            }
-          }
-      }
-    }
-
-    if (codePoint === null) {
-      // we did not generate a valid codePoint so insert a
-      // replacement char (U+FFFD) and advance only 1 byte
-      codePoint = 0xFFFD
-      bytesPerSequence = 1
-    } else if (codePoint > 0xFFFF) {
-      // encode to utf16 (surrogate pair dance)
-      codePoint -= 0x10000
-      res.push(codePoint >>> 10 & 0x3FF | 0xD800)
-      codePoint = 0xDC00 | codePoint & 0x3FF
-    }
-
-    res.push(codePoint)
-    i += bytesPerSequence
-  }
-
-  return decodeCodePointsArray(res)
-}
-
-// Based on http://stackoverflow.com/a/22747272/680742, the browser with
-// the lowest limit is Chrome, with 0x10000 args.
-// We go 1 magnitude less, for safety
-var MAX_ARGUMENTS_LENGTH = 0x1000
-
-function decodeCodePointsArray (codePoints) {
-  var len = codePoints.length
-  if (len <= MAX_ARGUMENTS_LENGTH) {
-    return String.fromCharCode.apply(String, codePoints) // avoid extra slice()
-  }
-
-  // Decode in chunks to avoid "call stack size exceeded".
-  var res = ''
-  var i = 0
-  while (i < len) {
-    res += String.fromCharCode.apply(
-      String,
-      codePoints.slice(i, i += MAX_ARGUMENTS_LENGTH)
-    )
-  }
-  return res
-}
-
-function asciiSlice (buf, start, end) {
-  var ret = ''
-  end = Math.min(buf.length, end)
-
-  for (var i = start; i < end; ++i) {
-    ret += String.fromCharCode(buf[i] & 0x7F)
-  }
-  return ret
-}
-
-function latin1Slice (buf, start, end) {
-  var ret = ''
-  end = Math.min(buf.length, end)
-
-  for (var i = start; i < end; ++i) {
-    ret += String.fromCharCode(buf[i])
-  }
-  return ret
-}
-
-function hexSlice (buf, start, end) {
-  var len = buf.length
-
-  if (!start || start < 0) start = 0
-  if (!end || end < 0 || end > len) end = len
-
-  var out = ''
-  for (var i = start; i < end; ++i) {
-    out += toHex(buf[i])
-  }
-  return out
-}
-
-function utf16leSlice (buf, start, end) {
-  var bytes = buf.slice(start, end)
-  var res = ''
-  for (var i = 0; i < bytes.length; i += 2) {
-    res += String.fromCharCode(bytes[i] + (bytes[i + 1] * 256))
-  }
-  return res
-}
-
-Buffer.prototype.slice = function slice (start, end) {
-  var len = this.length
-  start = ~~start
-  end = end === undefined ? len : ~~end
-
-  if (start < 0) {
-    start += len
-    if (start < 0) start = 0
-  } else if (start > len) {
-    start = len
-  }
-
-  if (end < 0) {
-    end += len
-    if (end < 0) end = 0
-  } else if (end > len) {
-    end = len
-  }
-
-  if (end < start) end = start
-
-  var newBuf = this.subarray(start, end)
-  // Return an augmented `Uint8Array` instance
-  newBuf.__proto__ = Buffer.prototype
-  return newBuf
-}
-
-/*
- * Need to make sure that buffer isn't trying to write out of bounds.
- */
-function checkOffset (offset, ext, length) {
-  if ((offset % 1) !== 0 || offset < 0) throw new RangeError('offset is not uint')
-  if (offset + ext > length) throw new RangeError('Trying to access beyond buffer length')
-}
-
-Buffer.prototype.readUIntLE = function readUIntLE (offset, byteLength, noAssert) {
-  offset = offset >>> 0
-  byteLength = byteLength >>> 0
-  if (!noAssert) checkOffset(offset, byteLength, this.length)
-
-  var val = this[offset]
-  var mul = 1
-  var i = 0
-  while (++i < byteLength && (mul *= 0x100)) {
-    val += this[offset + i] * mul
-  }
-
-  return val
-}
-
-Buffer.prototype.readUIntBE = function readUIntBE (offset, byteLength, noAssert) {
-  offset = offset >>> 0
-  byteLength = byteLength >>> 0
-  if (!noAssert) {
-    checkOffset(offset, byteLength, this.length)
-  }
-
-  var val = this[offset + --byteLength]
-  var mul = 1
-  while (byteLength > 0 && (mul *= 0x100)) {
-    val += this[offset + --byteLength] * mul
-  }
-
-  return val
-}
-
-Buffer.prototype.readUInt8 = function readUInt8 (offset, noAssert) {
-  offset = offset >>> 0
-  if (!noAssert) checkOffset(offset, 1, this.length)
-  return this[offset]
-}
-
-Buffer.prototype.readUInt16LE = function readUInt16LE (offset, noAssert) {
-  offset = offset >>> 0
-  if (!noAssert) checkOffset(offset, 2, this.length)
-  return this[offset] | (this[offset + 1] << 8)
-}
-
-Buffer.prototype.readUInt16BE = function readUInt16BE (offset, noAssert) {
-  offset = offset >>> 0
-  if (!noAssert) checkOffset(offset, 2, this.length)
-  return (this[offset] << 8) | this[offset + 1]
-}
-
-Buffer.prototype.readUInt32LE = function readUInt32LE (offset, noAssert) {
-  offset = offset >>> 0
-  if (!noAssert) checkOffset(offset, 4, this.length)
-
-  return ((this[offset]) |
-      (this[offset + 1] << 8) |
-      (this[offset + 2] << 16)) +
-      (this[offset + 3] * 0x1000000)
-}
-
-Buffer.prototype.readUInt32BE = function readUInt32BE (offset, noAssert) {
-  offset = offset >>> 0
-  if (!noAssert) checkOffset(offset, 4, this.length)
-
-  return (this[offset] * 0x1000000) +
-    ((this[offset + 1] << 16) |
-    (this[offset + 2] << 8) |
-    this[offset + 3])
-}
-
-Buffer.prototype.readIntLE = function readIntLE (offset, byteLength, noAssert) {
-  offset = offset >>> 0
-  byteLength = byteLength >>> 0
-  if (!noAssert) checkOffset(offset, byteLength, this.length)
-
-  var val = this[offset]
-  var mul = 1
-  var i = 0
-  while (++i < byteLength && (mul *= 0x100)) {
-    val += this[offset + i] * mul
-  }
-  mul *= 0x80
-
-  if (val >= mul) val -= Math.pow(2, 8 * byteLength)
-
-  return val
-}
-
-Buffer.prototype.readIntBE = function readIntBE (offset, byteLength, noAssert) {
-  offset = offset >>> 0
-  byteLength = byteLength >>> 0
-  if (!noAssert) checkOffset(offset, byteLength, this.length)
-
-  var i = byteLength
-  var mul = 1
-  var val = this[offset + --i]
-  while (i > 0 && (mul *= 0x100)) {
-    val += this[offset + --i] * mul
-  }
-  mul *= 0x80
-
-  if (val >= mul) val -= Math.pow(2, 8 * byteLength)
-
-  return val
-}
-
-Buffer.prototype.readInt8 = function readInt8 (offset, noAssert) {
-  offset = offset >>> 0
-  if (!noAssert) checkOffset(offset, 1, this.length)
-  if (!(this[offset] & 0x80)) return (this[offset])
-  return ((0xff - this[offset] + 1) * -1)
-}
-
-Buffer.prototype.readInt16LE = function readInt16LE (offset, noAssert) {
-  offset = offset >>> 0
-  if (!noAssert) checkOffset(offset, 2, this.length)
-  var val = this[offset] | (this[offset + 1] << 8)
-  return (val & 0x8000) ? val | 0xFFFF0000 : val
-}
-
-Buffer.prototype.readInt16BE = function readInt16BE (offset, noAssert) {
-  offset = offset >>> 0
-  if (!noAssert) checkOffset(offset, 2, this.length)
-  var val = this[offset + 1] | (this[offset] << 8)
-  return (val & 0x8000) ? val | 0xFFFF0000 : val
-}
-
-Buffer.prototype.readInt32LE = function readInt32LE (offset, noAssert) {
-  offset = offset >>> 0
-  if (!noAssert) checkOffset(offset, 4, this.length)
-
-  return (this[offset]) |
-    (this[offset + 1] << 8) |
-    (this[offset + 2] << 16) |
-    (this[offset + 3] << 24)
-}
-
-Buffer.prototype.readInt32BE = function readInt32BE (offset, noAssert) {
-  offset = offset >>> 0
-  if (!noAssert) checkOffset(offset, 4, this.length)
-
-  return (this[offset] << 24) |
-    (this[offset + 1] << 16) |
-    (this[offset + 2] << 8) |
-    (this[offset + 3])
-}
-
-Buffer.prototype.readFloatLE = function readFloatLE (offset, noAssert) {
-  offset = offset >>> 0
-  if (!noAssert) checkOffset(offset, 4, this.length)
-  return ieee754.read(this, offset, true, 23, 4)
-}
-
-Buffer.prototype.readFloatBE = function readFloatBE (offset, noAssert) {
-  offset = offset >>> 0
-  if (!noAssert) checkOffset(offset, 4, this.length)
-  return ieee754.read(this, offset, false, 23, 4)
-}
-
-Buffer.prototype.readDoubleLE = function readDoubleLE (offset, noAssert) {
-  offset = offset >>> 0
-  if (!noAssert) checkOffset(offset, 8, this.length)
-  return ieee754.read(this, offset, true, 52, 8)
-}
-
-Buffer.prototype.readDoubleBE = function readDoubleBE (offset, noAssert) {
-  offset = offset >>> 0
-  if (!noAssert) checkOffset(offset, 8, this.length)
-  return ieee754.read(this, offset, false, 52, 8)
-}
-
-function checkInt (buf, value, offset, ext, max, min) {
-  if (!Buffer.isBuffer(buf)) throw new TypeError('"buffer" argument must be a Buffer instance')
-  if (value > max || value < min) throw new RangeError('"value" argument is out of bounds')
-  if (offset + ext > buf.length) throw new RangeError('Index out of range')
-}
-
-Buffer.prototype.writeUIntLE = function writeUIntLE (value, offset, byteLength, noAssert) {
-  value = +value
-  offset = offset >>> 0
-  byteLength = byteLength >>> 0
-  if (!noAssert) {
-    var maxBytes = Math.pow(2, 8 * byteLength) - 1
-    checkInt(this, value, offset, byteLength, maxBytes, 0)
-  }
-
-  var mul = 1
-  var i = 0
-  this[offset] = value & 0xFF
-  while (++i < byteLength && (mul *= 0x100)) {
-    this[offset + i] = (value / mul) & 0xFF
-  }
-
-  return offset + byteLength
-}
-
-Buffer.prototype.writeUIntBE = function writeUIntBE (value, offset, byteLength, noAssert) {
-  value = +value
-  offset = offset >>> 0
-  byteLength = byteLength >>> 0
-  if (!noAssert) {
-    var maxBytes = Math.pow(2, 8 * byteLength) - 1
-    checkInt(this, value, offset, byteLength, maxBytes, 0)
-  }
-
-  var i = byteLength - 1
-  var mul = 1
-  this[offset + i] = value & 0xFF
-  while (--i >= 0 && (mul *= 0x100)) {
-    this[offset + i] = (value / mul) & 0xFF
-  }
-
-  return offset + byteLength
-}
-
-Buffer.prototype.writeUInt8 = function writeUInt8 (value, offset, noAssert) {
-  value = +value
-  offset = offset >>> 0
-  if (!noAssert) checkInt(this, value, offset, 1, 0xff, 0)
-  this[offset] = (value & 0xff)
-  return offset + 1
-}
-
-Buffer.prototype.writeUInt16LE = function writeUInt16LE (value, offset, noAssert) {
-  value = +value
-  offset = offset >>> 0
-  if (!noAssert) checkInt(this, value, offset, 2, 0xffff, 0)
-  this[offset] = (value & 0xff)
-  this[offset + 1] = (value >>> 8)
-  return offset + 2
-}
-
-Buffer.prototype.writeUInt16BE = function writeUInt16BE (value, offset, noAssert) {
-  value = +value
-  offset = offset >>> 0
-  if (!noAssert) checkInt(this, value, offset, 2, 0xffff, 0)
-  this[offset] = (value >>> 8)
-  this[offset + 1] = (value & 0xff)
-  return offset + 2
-}
-
-Buffer.prototype.writeUInt32LE = function writeUInt32LE (value, offset, noAssert) {
-  value = +value
-  offset = offset >>> 0
-  if (!noAssert) checkInt(this, value, offset, 4, 0xffffffff, 0)
-  this[offset + 3] = (value >>> 24)
-  this[offset + 2] = (value >>> 16)
-  this[offset + 1] = (value >>> 8)
-  this[offset] = (value & 0xff)
-  return offset + 4
-}
-
-Buffer.prototype.writeUInt32BE = function writeUInt32BE (value, offset, noAssert) {
-  value = +value
-  offset = offset >>> 0
-  if (!noAssert) checkInt(this, value, offset, 4, 0xffffffff, 0)
-  this[offset] = (value >>> 24)
-  this[offset + 1] = (value >>> 16)
-  this[offset + 2] = (value >>> 8)
-  this[offset + 3] = (value & 0xff)
-  return offset + 4
-}
-
-Buffer.prototype.writeIntLE = function writeIntLE (value, offset, byteLength, noAssert) {
-  value = +value
-  offset = offset >>> 0
-  if (!noAssert) {
-    var limit = Math.pow(2, (8 * byteLength) - 1)
-
-    checkInt(this, value, offset, byteLength, limit - 1, -limit)
-  }
-
-  var i = 0
-  var mul = 1
-  var sub = 0
-  this[offset] = value & 0xFF
-  while (++i < byteLength && (mul *= 0x100)) {
-    if (value < 0 && sub === 0 && this[offset + i - 1] !== 0) {
-      sub = 1
-    }
-    this[offset + i] = ((value / mul) >> 0) - sub & 0xFF
-  }
-
-  return offset + byteLength
-}
-
-Buffer.prototype.writeIntBE = function writeIntBE (value, offset, byteLength, noAssert) {
-  value = +value
-  offset = offset >>> 0
-  if (!noAssert) {
-    var limit = Math.pow(2, (8 * byteLength) - 1)
-
-    checkInt(this, value, offset, byteLength, limit - 1, -limit)
-  }
-
-  var i = byteLength - 1
-  var mul = 1
-  var sub = 0
-  this[offset + i] = value & 0xFF
-  while (--i >= 0 && (mul *= 0x100)) {
-    if (value < 0 && sub === 0 && this[offset + i + 1] !== 0) {
-      sub = 1
-    }
-    this[offset + i] = ((value / mul) >> 0) - sub & 0xFF
-  }
-
-  return offset + byteLength
-}
-
-Buffer.prototype.writeInt8 = function writeInt8 (value, offset, noAssert) {
-  value = +value
-  offset = offset >>> 0
-  if (!noAssert) checkInt(this, value, offset, 1, 0x7f, -0x80)
-  if (value < 0) value = 0xff + value + 1
-  this[offset] = (value & 0xff)
-  return offset + 1
-}
-
-Buffer.prototype.writeInt16LE = function writeInt16LE (value, offset, noAssert) {
-  value = +value
-  offset = offset >>> 0
-  if (!noAssert) checkInt(this, value, offset, 2, 0x7fff, -0x8000)
-  this[offset] = (value & 0xff)
-  this[offset + 1] = (value >>> 8)
-  return offset + 2
-}
-
-Buffer.prototype.writeInt16BE = function writeInt16BE (value, offset, noAssert) {
-  value = +value
-  offset = offset >>> 0
-  if (!noAssert) checkInt(this, value, offset, 2, 0x7fff, -0x8000)
-  this[offset] = (value >>> 8)
-  this[offset + 1] = (value & 0xff)
-  return offset + 2
-}
-
-Buffer.prototype.writeInt32LE = function writeInt32LE (value, offset, noAssert) {
-  value = +value
-  offset = offset >>> 0
-  if (!noAssert) checkInt(this, value, offset, 4, 0x7fffffff, -0x80000000)
-  this[offset] = (value & 0xff)
-  this[offset + 1] = (value >>> 8)
-  this[offset + 2] = (value >>> 16)
-  this[offset + 3] = (value >>> 24)
-  return offset + 4
-}
-
-Buffer.prototype.writeInt32BE = function writeInt32BE (value, offset, noAssert) {
-  value = +value
-  offset = offset >>> 0
-  if (!noAssert) checkInt(this, value, offset, 4, 0x7fffffff, -0x80000000)
-  if (value < 0) value = 0xffffffff + value + 1
-  this[offset] = (value >>> 24)
-  this[offset + 1] = (value >>> 16)
-  this[offset + 2] = (value >>> 8)
-  this[offset + 3] = (value & 0xff)
-  return offset + 4
-}
-
-function checkIEEE754 (buf, value, offset, ext, max, min) {
-  if (offset + ext > buf.length) throw new RangeError('Index out of range')
-  if (offset < 0) throw new RangeError('Index out of range')
-}
-
-function writeFloat (buf, value, offset, littleEndian, noAssert) {
-  value = +value
-  offset = offset >>> 0
-  if (!noAssert) {
-    checkIEEE754(buf, value, offset, 4, 3.4028234663852886e+38, -3.4028234663852886e+38)
-  }
-  ieee754.write(buf, value, offset, littleEndian, 23, 4)
-  return offset + 4
-}
-
-Buffer.prototype.writeFloatLE = function writeFloatLE (value, offset, noAssert) {
-  return writeFloat(this, value, offset, true, noAssert)
-}
-
-Buffer.prototype.writeFloatBE = function writeFloatBE (value, offset, noAssert) {
-  return writeFloat(this, value, offset, false, noAssert)
-}
-
-function writeDouble (buf, value, offset, littleEndian, noAssert) {
-  value = +value
-  offset = offset >>> 0
-  if (!noAssert) {
-    checkIEEE754(buf, value, offset, 8, 1.7976931348623157E+308, -1.7976931348623157E+308)
-  }
-  ieee754.write(buf, value, offset, littleEndian, 52, 8)
-  return offset + 8
-}
-
-Buffer.prototype.writeDoubleLE = function writeDoubleLE (value, offset, noAssert) {
-  return writeDouble(this, value, offset, true, noAssert)
-}
-
-Buffer.prototype.writeDoubleBE = function writeDoubleBE (value, offset, noAssert) {
-  return writeDouble(this, value, offset, false, noAssert)
-}
-
-// copy(targetBuffer, targetStart=0, sourceStart=0, sourceEnd=buffer.length)
-Buffer.prototype.copy = function copy (target, targetStart, start, end) {
-  if (!Buffer.isBuffer(target)) throw new TypeError('argument should be a Buffer')
-  if (!start) start = 0
-  if (!end && end !== 0) end = this.length
-  if (targetStart >= target.length) targetStart = target.length
-  if (!targetStart) targetStart = 0
-  if (end > 0 && end < start) end = start
-
-  // Copy 0 bytes; we're done
-  if (end === start) return 0
-  if (target.length === 0 || this.length === 0) return 0
-
-  // Fatal error conditions
-  if (targetStart < 0) {
-    throw new RangeError('targetStart out of bounds')
-  }
-  if (start < 0 || start >= this.length) throw new RangeError('Index out of range')
-  if (end < 0) throw new RangeError('sourceEnd out of bounds')
-
-  // Are we oob?
-  if (end > this.length) end = this.length
-  if (target.length - targetStart < end - start) {
-    end = target.length - targetStart + start
-  }
-
-  var len = end - start
-
-  if (this === target && typeof Uint8Array.prototype.copyWithin === 'function') {
-    // Use built-in when available, missing from IE11
-    this.copyWithin(targetStart, start, end)
-  } else if (this === target && start < targetStart && targetStart < end) {
-    // descending copy from end
-    for (var i = len - 1; i >= 0; --i) {
-      target[i + targetStart] = this[i + start]
-    }
-  } else {
-    Uint8Array.prototype.set.call(
-      target,
-      this.subarray(start, end),
-      targetStart
-    )
-  }
-
-  return len
-}
-
-// Usage:
-//    buffer.fill(number[, offset[, end]])
-//    buffer.fill(buffer[, offset[, end]])
-//    buffer.fill(string[, offset[, end]][, encoding])
-Buffer.prototype.fill = function fill (val, start, end, encoding) {
-  // Handle string cases:
-  if (typeof val === 'string') {
-    if (typeof start === 'string') {
-      encoding = start
-      start = 0
-      end = this.length
-    } else if (typeof end === 'string') {
-      encoding = end
-      end = this.length
-    }
-    if (encoding !== undefined && typeof encoding !== 'string') {
-      throw new TypeError('encoding must be a string')
-    }
-    if (typeof encoding === 'string' && !Buffer.isEncoding(encoding)) {
-      throw new TypeError('Unknown encoding: ' + encoding)
-    }
-    if (val.length === 1) {
-      var code = val.charCodeAt(0)
-      if ((encoding === 'utf8' && code < 128) ||
-          encoding === 'latin1') {
-        // Fast path: If `val` fits into a single byte, use that numeric value.
-        val = code
-      }
-    }
-  } else if (typeof val === 'number') {
-    val = val & 255
-  }
-
-  // Invalid ranges are not set to a default, so can range check early.
-  if (start < 0 || this.length < start || this.length < end) {
-    throw new RangeError('Out of range index')
-  }
-
-  if (end <= start) {
-    return this
-  }
-
-  start = start >>> 0
-  end = end === undefined ? this.length : end >>> 0
-
-  if (!val) val = 0
-
-  var i
-  if (typeof val === 'number') {
-    for (i = start; i < end; ++i) {
-      this[i] = val
-    }
-  } else {
-    var bytes = Buffer.isBuffer(val)
-      ? val
-      : Buffer.from(val, encoding)
-    var len = bytes.length
-    if (len === 0) {
-      throw new TypeError('The value "' + val +
-        '" is invalid for argument "value"')
-    }
-    for (i = 0; i < end - start; ++i) {
-      this[i + start] = bytes[i % len]
-    }
-  }
-
-  return this
-}
-
-// HELPER FUNCTIONS
-// ================
-
-var INVALID_BASE64_RE = /[^+/0-9A-Za-z-_]/g
-
-function base64clean (str) {
-  // Node takes equal signs as end of the Base64 encoding
-  str = str.split('=')[0]
-  // Node strips out invalid characters like \n and \t from the string, base64-js does not
-  str = str.trim().replace(INVALID_BASE64_RE, '')
-  // Node converts strings with length < 2 to ''
-  if (str.length < 2) return ''
-  // Node allows for non-padded base64 strings (missing trailing ===), base64-js does not
-  while (str.length % 4 !== 0) {
-    str = str + '='
-  }
-  return str
-}
-
-function toHex (n) {
-  if (n < 16) return '0' + n.toString(16)
-  return n.toString(16)
-}
-
-function utf8ToBytes (string, units) {
-  units = units || Infinity
-  var codePoint
-  var length = string.length
-  var leadSurrogate = null
-  var bytes = []
-
-  for (var i = 0; i < length; ++i) {
-    codePoint = string.charCodeAt(i)
-
-    // is surrogate component
-    if (codePoint > 0xD7FF && codePoint < 0xE000) {
-      // last char was a lead
-      if (!leadSurrogate) {
-        // no lead yet
-        if (codePoint > 0xDBFF) {
-          // unexpected trail
-          if ((units -= 3) > -1) bytes.push(0xEF, 0xBF, 0xBD)
-          continue
-        } else if (i + 1 === length) {
-          // unpaired lead
-          if ((units -= 3) > -1) bytes.push(0xEF, 0xBF, 0xBD)
-          continue
-        }
-
-        // valid lead
-        leadSurrogate = codePoint
-
-        continue
-      }
-
-      // 2 leads in a row
-      if (codePoint < 0xDC00) {
-        if ((units -= 3) > -1) bytes.push(0xEF, 0xBF, 0xBD)
-        leadSurrogate = codePoint
-        continue
-      }
-
-      // valid surrogate pair
-      codePoint = (leadSurrogate - 0xD800 << 10 | codePoint - 0xDC00) + 0x10000
-    } else if (leadSurrogate) {
-      // valid bmp char, but last char was a lead
-      if ((units -= 3) > -1) bytes.push(0xEF, 0xBF, 0xBD)
-    }
-
-    leadSurrogate = null
-
-    // encode utf8
-    if (codePoint < 0x80) {
-      if ((units -= 1) < 0) break
-      bytes.push(codePoint)
-    } else if (codePoint < 0x800) {
-      if ((units -= 2) < 0) break
-      bytes.push(
-        codePoint >> 0x6 | 0xC0,
-        codePoint & 0x3F | 0x80
-      )
-    } else if (codePoint < 0x10000) {
-      if ((units -= 3) < 0) break
-      bytes.push(
-        codePoint >> 0xC | 0xE0,
-        codePoint >> 0x6 & 0x3F | 0x80,
-        codePoint & 0x3F | 0x80
-      )
-    } else if (codePoint < 0x110000) {
-      if ((units -= 4) < 0) break
-      bytes.push(
-        codePoint >> 0x12 | 0xF0,
-        codePoint >> 0xC & 0x3F | 0x80,
-        codePoint >> 0x6 & 0x3F | 0x80,
-        codePoint & 0x3F | 0x80
-      )
-    } else {
-      throw new Error('Invalid code point')
-    }
-  }
-
-  return bytes
-}
-
-function asciiToBytes (str) {
-  var byteArray = []
-  for (var i = 0; i < str.length; ++i) {
-    // Node's code seems to be doing this and not & 0x7F..
-    byteArray.push(str.charCodeAt(i) & 0xFF)
-  }
-  return byteArray
-}
-
-function utf16leToBytes (str, units) {
-  var c, hi, lo
-  var byteArray = []
-  for (var i = 0; i < str.length; ++i) {
-    if ((units -= 2) < 0) break
-
-    c = str.charCodeAt(i)
-    hi = c >> 8
-    lo = c % 256
-    byteArray.push(lo)
-    byteArray.push(hi)
-  }
-
-  return byteArray
-}
-
-function base64ToBytes (str) {
-  return base64.toByteArray(base64clean(str))
-}
-
-function blitBuffer (src, dst, offset, length) {
-  for (var i = 0; i < length; ++i) {
-    if ((i + offset >= dst.length) || (i >= src.length)) break
-    dst[i + offset] = src[i]
-  }
-  return i
-}
-
-// ArrayBuffer or Uint8Array objects from other contexts (i.e. iframes) do not pass
-// the `instanceof` check but they should be treated as of that type.
-// See: https://github.com/feross/buffer/issues/166
-function isInstance (obj, type) {
-  return obj instanceof type ||
-    (obj != null && obj.constructor != null && obj.constructor.name != null &&
-      obj.constructor.name === type.name)
-}
-function numberIsNaN (obj) {
-  // For IE11 support
-  return obj !== obj // eslint-disable-line no-self-compare
-}
-
-}).call(this,require("buffer").Buffer)
-},{"base64-js":236,"buffer":240,"ieee754":246}],241:[function(require,module,exports){
-module.exports = {
-  "100": "Continue",
-  "101": "Switching Protocols",
-  "102": "Processing",
-  "200": "OK",
-  "201": "Created",
-  "202": "Accepted",
-  "203": "Non-Authoritative Information",
-  "204": "No Content",
-  "205": "Reset Content",
-  "206": "Partial Content",
-  "207": "Multi-Status",
-  "208": "Already Reported",
-  "226": "IM Used",
-  "300": "Multiple Choices",
-  "301": "Moved Permanently",
-  "302": "Found",
-  "303": "See Other",
-  "304": "Not Modified",
-  "305": "Use Proxy",
-  "307": "Temporary Redirect",
-  "308": "Permanent Redirect",
-  "400": "Bad Request",
-  "401": "Unauthorized",
-  "402": "Payment Required",
-  "403": "Forbidden",
-  "404": "Not Found",
-  "405": "Method Not Allowed",
-  "406": "Not Acceptable",
-  "407": "Proxy Authentication Required",
-  "408": "Request Timeout",
-  "409": "Conflict",
-  "410": "Gone",
-  "411": "Length Required",
-  "412": "Precondition Failed",
-  "413": "Payload Too Large",
-  "414": "URI Too Long",
-  "415": "Unsupported Media Type",
-  "416": "Range Not Satisfiable",
-  "417": "Expectation Failed",
-  "418": "I'm a teapot",
-  "421": "Misdirected Request",
-  "422": "Unprocessable Entity",
-  "423": "Locked",
-  "424": "Failed Dependency",
-  "425": "Unordered Collection",
-  "426": "Upgrade Required",
-  "428": "Precondition Required",
-  "429": "Too Many Requests",
-  "431": "Request Header Fields Too Large",
-  "451": "Unavailable For Legal Reasons",
-  "500": "Internal Server Error",
-  "501": "Not Implemented",
-  "502": "Bad Gateway",
-  "503": "Service Unavailable",
-  "504": "Gateway Timeout",
-  "505": "HTTP Version Not Supported",
-  "506": "Variant Also Negotiates",
-  "507": "Insufficient Storage",
-  "508": "Loop Detected",
-  "509": "Bandwidth Limit Exceeded",
-  "510": "Not Extended",
-  "511": "Network Authentication Required"
-}
-
-},{}],242:[function(require,module,exports){
-(function (Buffer){
-// Copyright Joyent, Inc. and other Node contributors.
-//
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the
-// "Software"), to deal in the Software without restriction, including
-// without limitation the rights to use, copy, modify, merge, publish,
-// distribute, sublicense, and/or sell copies of the Software, and to permit
-// persons to whom the Software is furnished to do so, subject to the
-// following conditions:
-//
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
-// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
-// USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-// NOTE: These type checking functions intentionally don't use `instanceof`
-// because it is fragile and can be easily faked with `Object.create()`.
-
-function isArray(arg) {
-  if (Array.isArray) {
-    return Array.isArray(arg);
-  }
-  return objectToString(arg) === '[object Array]';
-}
-exports.isArray = isArray;
-
-function isBoolean(arg) {
-  return typeof arg === 'boolean';
-}
-exports.isBoolean = isBoolean;
-
-function isNull(arg) {
-  return arg === null;
-}
-exports.isNull = isNull;
-
-function isNullOrUndefined(arg) {
-  return arg == null;
-}
-exports.isNullOrUndefined = isNullOrUndefined;
-
-function isNumber(arg) {
-  return typeof arg === 'number';
-}
-exports.isNumber = isNumber;
-
-function isString(arg) {
-  return typeof arg === 'string';
-}
-exports.isString = isString;
-
-function isSymbol(arg) {
-  return typeof arg === 'symbol';
-}
-exports.isSymbol = isSymbol;
-
-function isUndefined(arg) {
-  return arg === void 0;
-}
-exports.isUndefined = isUndefined;
-
-function isRegExp(re) {
-  return objectToString(re) === '[object RegExp]';
-}
-exports.isRegExp = isRegExp;
-
-function isObject(arg) {
-  return typeof arg === 'object' && arg !== null;
-}
-exports.isObject = isObject;
-
-function isDate(d) {
-  return objectToString(d) === '[object Date]';
-}
-exports.isDate = isDate;
-
-function isError(e) {
-  return (objectToString(e) === '[object Error]' || e instanceof Error);
-}
-exports.isError = isError;
-
-function isFunction(arg) {
-  return typeof arg === 'function';
-}
-exports.isFunction = isFunction;
-
-function isPrimitive(arg) {
-  return arg === null ||
-         typeof arg === 'boolean' ||
-         typeof arg === 'number' ||
-         typeof arg === 'string' ||
-         typeof arg === 'symbol' ||  // ES6 symbol
-         typeof arg === 'undefined';
-}
-exports.isPrimitive = isPrimitive;
-
-exports.isBuffer = Buffer.isBuffer;
-
-function objectToString(o) {
-  return Object.prototype.toString.call(o);
-}
-
-}).call(this,{"isBuffer":require("../../is-buffer/index.js")})
-},{"../../is-buffer/index.js":264}],243:[function(require,module,exports){
+},{"jquery":256,"popper.js":259}],237:[function(require,module,exports){
 module.exports = function() {
   var d3 = {
     version: "3.4.11"
@@ -43473,7 +41359,7 @@ module.exports = function() {
   return d3;
 }();
 
-},{}],244:[function(require,module,exports){
+},{}],238:[function(require,module,exports){
 (function (process,global){
 /*!
  * @overview es6-promise - a tiny implementation of Promises/A+.
@@ -44660,618 +42546,7 @@ return Promise$1;
 
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"_process":272}],245:[function(require,module,exports){
-// Copyright Joyent, Inc. and other Node contributors.
-//
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the
-// "Software"), to deal in the Software without restriction, including
-// without limitation the rights to use, copy, modify, merge, publish,
-// distribute, sublicense, and/or sell copies of the Software, and to permit
-// persons to whom the Software is furnished to do so, subject to the
-// following conditions:
-//
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
-// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
-// USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-var objectCreate = Object.create || objectCreatePolyfill
-var objectKeys = Object.keys || objectKeysPolyfill
-var bind = Function.prototype.bind || functionBindPolyfill
-
-function EventEmitter() {
-  if (!this._events || !Object.prototype.hasOwnProperty.call(this, '_events')) {
-    this._events = objectCreate(null);
-    this._eventsCount = 0;
-  }
-
-  this._maxListeners = this._maxListeners || undefined;
-}
-module.exports = EventEmitter;
-
-// Backwards-compat with node 0.10.x
-EventEmitter.EventEmitter = EventEmitter;
-
-EventEmitter.prototype._events = undefined;
-EventEmitter.prototype._maxListeners = undefined;
-
-// By default EventEmitters will print a warning if more than 10 listeners are
-// added to it. This is a useful default which helps finding memory leaks.
-var defaultMaxListeners = 10;
-
-var hasDefineProperty;
-try {
-  var o = {};
-  if (Object.defineProperty) Object.defineProperty(o, 'x', { value: 0 });
-  hasDefineProperty = o.x === 0;
-} catch (err) { hasDefineProperty = false }
-if (hasDefineProperty) {
-  Object.defineProperty(EventEmitter, 'defaultMaxListeners', {
-    enumerable: true,
-    get: function() {
-      return defaultMaxListeners;
-    },
-    set: function(arg) {
-      // check whether the input is a positive number (whose value is zero or
-      // greater and not a NaN).
-      if (typeof arg !== 'number' || arg < 0 || arg !== arg)
-        throw new TypeError('"defaultMaxListeners" must be a positive number');
-      defaultMaxListeners = arg;
-    }
-  });
-} else {
-  EventEmitter.defaultMaxListeners = defaultMaxListeners;
-}
-
-// Obviously not all Emitters should be limited to 10. This function allows
-// that to be increased. Set to zero for unlimited.
-EventEmitter.prototype.setMaxListeners = function setMaxListeners(n) {
-  if (typeof n !== 'number' || n < 0 || isNaN(n))
-    throw new TypeError('"n" argument must be a positive number');
-  this._maxListeners = n;
-  return this;
-};
-
-function $getMaxListeners(that) {
-  if (that._maxListeners === undefined)
-    return EventEmitter.defaultMaxListeners;
-  return that._maxListeners;
-}
-
-EventEmitter.prototype.getMaxListeners = function getMaxListeners() {
-  return $getMaxListeners(this);
-};
-
-// These standalone emit* functions are used to optimize calling of event
-// handlers for fast cases because emit() itself often has a variable number of
-// arguments and can be deoptimized because of that. These functions always have
-// the same number of arguments and thus do not get deoptimized, so the code
-// inside them can execute faster.
-function emitNone(handler, isFn, self) {
-  if (isFn)
-    handler.call(self);
-  else {
-    var len = handler.length;
-    var listeners = arrayClone(handler, len);
-    for (var i = 0; i < len; ++i)
-      listeners[i].call(self);
-  }
-}
-function emitOne(handler, isFn, self, arg1) {
-  if (isFn)
-    handler.call(self, arg1);
-  else {
-    var len = handler.length;
-    var listeners = arrayClone(handler, len);
-    for (var i = 0; i < len; ++i)
-      listeners[i].call(self, arg1);
-  }
-}
-function emitTwo(handler, isFn, self, arg1, arg2) {
-  if (isFn)
-    handler.call(self, arg1, arg2);
-  else {
-    var len = handler.length;
-    var listeners = arrayClone(handler, len);
-    for (var i = 0; i < len; ++i)
-      listeners[i].call(self, arg1, arg2);
-  }
-}
-function emitThree(handler, isFn, self, arg1, arg2, arg3) {
-  if (isFn)
-    handler.call(self, arg1, arg2, arg3);
-  else {
-    var len = handler.length;
-    var listeners = arrayClone(handler, len);
-    for (var i = 0; i < len; ++i)
-      listeners[i].call(self, arg1, arg2, arg3);
-  }
-}
-
-function emitMany(handler, isFn, self, args) {
-  if (isFn)
-    handler.apply(self, args);
-  else {
-    var len = handler.length;
-    var listeners = arrayClone(handler, len);
-    for (var i = 0; i < len; ++i)
-      listeners[i].apply(self, args);
-  }
-}
-
-EventEmitter.prototype.emit = function emit(type) {
-  var er, handler, len, args, i, events;
-  var doError = (type === 'error');
-
-  events = this._events;
-  if (events)
-    doError = (doError && events.error == null);
-  else if (!doError)
-    return false;
-
-  // If there is no 'error' event listener then throw.
-  if (doError) {
-    if (arguments.length > 1)
-      er = arguments[1];
-    if (er instanceof Error) {
-      throw er; // Unhandled 'error' event
-    } else {
-      // At least give some kind of context to the user
-      var err = new Error('Unhandled "error" event. (' + er + ')');
-      err.context = er;
-      throw err;
-    }
-    return false;
-  }
-
-  handler = events[type];
-
-  if (!handler)
-    return false;
-
-  var isFn = typeof handler === 'function';
-  len = arguments.length;
-  switch (len) {
-      // fast cases
-    case 1:
-      emitNone(handler, isFn, this);
-      break;
-    case 2:
-      emitOne(handler, isFn, this, arguments[1]);
-      break;
-    case 3:
-      emitTwo(handler, isFn, this, arguments[1], arguments[2]);
-      break;
-    case 4:
-      emitThree(handler, isFn, this, arguments[1], arguments[2], arguments[3]);
-      break;
-      // slower
-    default:
-      args = new Array(len - 1);
-      for (i = 1; i < len; i++)
-        args[i - 1] = arguments[i];
-      emitMany(handler, isFn, this, args);
-  }
-
-  return true;
-};
-
-function _addListener(target, type, listener, prepend) {
-  var m;
-  var events;
-  var existing;
-
-  if (typeof listener !== 'function')
-    throw new TypeError('"listener" argument must be a function');
-
-  events = target._events;
-  if (!events) {
-    events = target._events = objectCreate(null);
-    target._eventsCount = 0;
-  } else {
-    // To avoid recursion in the case that type === "newListener"! Before
-    // adding it to the listeners, first emit "newListener".
-    if (events.newListener) {
-      target.emit('newListener', type,
-          listener.listener ? listener.listener : listener);
-
-      // Re-assign `events` because a newListener handler could have caused the
-      // this._events to be assigned to a new object
-      events = target._events;
-    }
-    existing = events[type];
-  }
-
-  if (!existing) {
-    // Optimize the case of one listener. Don't need the extra array object.
-    existing = events[type] = listener;
-    ++target._eventsCount;
-  } else {
-    if (typeof existing === 'function') {
-      // Adding the second element, need to change to array.
-      existing = events[type] =
-          prepend ? [listener, existing] : [existing, listener];
-    } else {
-      // If we've already got an array, just append.
-      if (prepend) {
-        existing.unshift(listener);
-      } else {
-        existing.push(listener);
-      }
-    }
-
-    // Check for listener leak
-    if (!existing.warned) {
-      m = $getMaxListeners(target);
-      if (m && m > 0 && existing.length > m) {
-        existing.warned = true;
-        var w = new Error('Possible EventEmitter memory leak detected. ' +
-            existing.length + ' "' + String(type) + '" listeners ' +
-            'added. Use emitter.setMaxListeners() to ' +
-            'increase limit.');
-        w.name = 'MaxListenersExceededWarning';
-        w.emitter = target;
-        w.type = type;
-        w.count = existing.length;
-        if (typeof console === 'object' && console.warn) {
-          console.warn('%s: %s', w.name, w.message);
-        }
-      }
-    }
-  }
-
-  return target;
-}
-
-EventEmitter.prototype.addListener = function addListener(type, listener) {
-  return _addListener(this, type, listener, false);
-};
-
-EventEmitter.prototype.on = EventEmitter.prototype.addListener;
-
-EventEmitter.prototype.prependListener =
-    function prependListener(type, listener) {
-      return _addListener(this, type, listener, true);
-    };
-
-function onceWrapper() {
-  if (!this.fired) {
-    this.target.removeListener(this.type, this.wrapFn);
-    this.fired = true;
-    switch (arguments.length) {
-      case 0:
-        return this.listener.call(this.target);
-      case 1:
-        return this.listener.call(this.target, arguments[0]);
-      case 2:
-        return this.listener.call(this.target, arguments[0], arguments[1]);
-      case 3:
-        return this.listener.call(this.target, arguments[0], arguments[1],
-            arguments[2]);
-      default:
-        var args = new Array(arguments.length);
-        for (var i = 0; i < args.length; ++i)
-          args[i] = arguments[i];
-        this.listener.apply(this.target, args);
-    }
-  }
-}
-
-function _onceWrap(target, type, listener) {
-  var state = { fired: false, wrapFn: undefined, target: target, type: type, listener: listener };
-  var wrapped = bind.call(onceWrapper, state);
-  wrapped.listener = listener;
-  state.wrapFn = wrapped;
-  return wrapped;
-}
-
-EventEmitter.prototype.once = function once(type, listener) {
-  if (typeof listener !== 'function')
-    throw new TypeError('"listener" argument must be a function');
-  this.on(type, _onceWrap(this, type, listener));
-  return this;
-};
-
-EventEmitter.prototype.prependOnceListener =
-    function prependOnceListener(type, listener) {
-      if (typeof listener !== 'function')
-        throw new TypeError('"listener" argument must be a function');
-      this.prependListener(type, _onceWrap(this, type, listener));
-      return this;
-    };
-
-// Emits a 'removeListener' event if and only if the listener was removed.
-EventEmitter.prototype.removeListener =
-    function removeListener(type, listener) {
-      var list, events, position, i, originalListener;
-
-      if (typeof listener !== 'function')
-        throw new TypeError('"listener" argument must be a function');
-
-      events = this._events;
-      if (!events)
-        return this;
-
-      list = events[type];
-      if (!list)
-        return this;
-
-      if (list === listener || list.listener === listener) {
-        if (--this._eventsCount === 0)
-          this._events = objectCreate(null);
-        else {
-          delete events[type];
-          if (events.removeListener)
-            this.emit('removeListener', type, list.listener || listener);
-        }
-      } else if (typeof list !== 'function') {
-        position = -1;
-
-        for (i = list.length - 1; i >= 0; i--) {
-          if (list[i] === listener || list[i].listener === listener) {
-            originalListener = list[i].listener;
-            position = i;
-            break;
-          }
-        }
-
-        if (position < 0)
-          return this;
-
-        if (position === 0)
-          list.shift();
-        else
-          spliceOne(list, position);
-
-        if (list.length === 1)
-          events[type] = list[0];
-
-        if (events.removeListener)
-          this.emit('removeListener', type, originalListener || listener);
-      }
-
-      return this;
-    };
-
-EventEmitter.prototype.removeAllListeners =
-    function removeAllListeners(type) {
-      var listeners, events, i;
-
-      events = this._events;
-      if (!events)
-        return this;
-
-      // not listening for removeListener, no need to emit
-      if (!events.removeListener) {
-        if (arguments.length === 0) {
-          this._events = objectCreate(null);
-          this._eventsCount = 0;
-        } else if (events[type]) {
-          if (--this._eventsCount === 0)
-            this._events = objectCreate(null);
-          else
-            delete events[type];
-        }
-        return this;
-      }
-
-      // emit removeListener for all listeners on all events
-      if (arguments.length === 0) {
-        var keys = objectKeys(events);
-        var key;
-        for (i = 0; i < keys.length; ++i) {
-          key = keys[i];
-          if (key === 'removeListener') continue;
-          this.removeAllListeners(key);
-        }
-        this.removeAllListeners('removeListener');
-        this._events = objectCreate(null);
-        this._eventsCount = 0;
-        return this;
-      }
-
-      listeners = events[type];
-
-      if (typeof listeners === 'function') {
-        this.removeListener(type, listeners);
-      } else if (listeners) {
-        // LIFO order
-        for (i = listeners.length - 1; i >= 0; i--) {
-          this.removeListener(type, listeners[i]);
-        }
-      }
-
-      return this;
-    };
-
-function _listeners(target, type, unwrap) {
-  var events = target._events;
-
-  if (!events)
-    return [];
-
-  var evlistener = events[type];
-  if (!evlistener)
-    return [];
-
-  if (typeof evlistener === 'function')
-    return unwrap ? [evlistener.listener || evlistener] : [evlistener];
-
-  return unwrap ? unwrapListeners(evlistener) : arrayClone(evlistener, evlistener.length);
-}
-
-EventEmitter.prototype.listeners = function listeners(type) {
-  return _listeners(this, type, true);
-};
-
-EventEmitter.prototype.rawListeners = function rawListeners(type) {
-  return _listeners(this, type, false);
-};
-
-EventEmitter.listenerCount = function(emitter, type) {
-  if (typeof emitter.listenerCount === 'function') {
-    return emitter.listenerCount(type);
-  } else {
-    return listenerCount.call(emitter, type);
-  }
-};
-
-EventEmitter.prototype.listenerCount = listenerCount;
-function listenerCount(type) {
-  var events = this._events;
-
-  if (events) {
-    var evlistener = events[type];
-
-    if (typeof evlistener === 'function') {
-      return 1;
-    } else if (evlistener) {
-      return evlistener.length;
-    }
-  }
-
-  return 0;
-}
-
-EventEmitter.prototype.eventNames = function eventNames() {
-  return this._eventsCount > 0 ? Reflect.ownKeys(this._events) : [];
-};
-
-// About 1.5x faster than the two-arg version of Array#splice().
-function spliceOne(list, index) {
-  for (var i = index, k = i + 1, n = list.length; k < n; i += 1, k += 1)
-    list[i] = list[k];
-  list.pop();
-}
-
-function arrayClone(arr, n) {
-  var copy = new Array(n);
-  for (var i = 0; i < n; ++i)
-    copy[i] = arr[i];
-  return copy;
-}
-
-function unwrapListeners(arr) {
-  var ret = new Array(arr.length);
-  for (var i = 0; i < ret.length; ++i) {
-    ret[i] = arr[i].listener || arr[i];
-  }
-  return ret;
-}
-
-function objectCreatePolyfill(proto) {
-  var F = function() {};
-  F.prototype = proto;
-  return new F;
-}
-function objectKeysPolyfill(obj) {
-  var keys = [];
-  for (var k in obj) if (Object.prototype.hasOwnProperty.call(obj, k)) {
-    keys.push(k);
-  }
-  return k;
-}
-function functionBindPolyfill(context) {
-  var fn = this;
-  return function () {
-    return fn.apply(context, arguments);
-  };
-}
-
-},{}],246:[function(require,module,exports){
-exports.read = function (buffer, offset, isLE, mLen, nBytes) {
-  var e, m
-  var eLen = (nBytes * 8) - mLen - 1
-  var eMax = (1 << eLen) - 1
-  var eBias = eMax >> 1
-  var nBits = -7
-  var i = isLE ? (nBytes - 1) : 0
-  var d = isLE ? -1 : 1
-  var s = buffer[offset + i]
-
-  i += d
-
-  e = s & ((1 << (-nBits)) - 1)
-  s >>= (-nBits)
-  nBits += eLen
-  for (; nBits > 0; e = (e * 256) + buffer[offset + i], i += d, nBits -= 8) {}
-
-  m = e & ((1 << (-nBits)) - 1)
-  e >>= (-nBits)
-  nBits += mLen
-  for (; nBits > 0; m = (m * 256) + buffer[offset + i], i += d, nBits -= 8) {}
-
-  if (e === 0) {
-    e = 1 - eBias
-  } else if (e === eMax) {
-    return m ? NaN : ((s ? -1 : 1) * Infinity)
-  } else {
-    m = m + Math.pow(2, mLen)
-    e = e - eBias
-  }
-  return (s ? -1 : 1) * m * Math.pow(2, e - mLen)
-}
-
-exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
-  var e, m, c
-  var eLen = (nBytes * 8) - mLen - 1
-  var eMax = (1 << eLen) - 1
-  var eBias = eMax >> 1
-  var rt = (mLen === 23 ? Math.pow(2, -24) - Math.pow(2, -77) : 0)
-  var i = isLE ? 0 : (nBytes - 1)
-  var d = isLE ? 1 : -1
-  var s = value < 0 || (value === 0 && 1 / value < 0) ? 1 : 0
-
-  value = Math.abs(value)
-
-  if (isNaN(value) || value === Infinity) {
-    m = isNaN(value) ? 1 : 0
-    e = eMax
-  } else {
-    e = Math.floor(Math.log(value) / Math.LN2)
-    if (value * (c = Math.pow(2, -e)) < 1) {
-      e--
-      c *= 2
-    }
-    if (e + eBias >= 1) {
-      value += rt / c
-    } else {
-      value += rt * Math.pow(2, 1 - eBias)
-    }
-    if (value * c >= 2) {
-      e++
-      c /= 2
-    }
-
-    if (e + eBias >= eMax) {
-      m = 0
-      e = eMax
-    } else if (e + eBias >= 1) {
-      m = ((value * c) - 1) * Math.pow(2, mLen)
-      e = e + eBias
-    } else {
-      m = value * Math.pow(2, eBias - 1) * Math.pow(2, mLen)
-      e = 0
-    }
-  }
-
-  for (; mLen >= 8; buffer[offset + i] = m & 0xff, i += d, m /= 256, mLen -= 8) {}
-
-  e = (e << mLen) | m
-  eLen += mLen
-  for (; eLen > 0; buffer[offset + i] = e & 0xff, i += d, e /= 256, eLen -= 8) {}
-
-  buffer[offset + i - d] |= s * 128
-}
-
-},{}],247:[function(require,module,exports){
+},{"_process":275}],239:[function(require,module,exports){
 (function() {
   exports.ACCEPT_HEADER = {
     'xml': 'application/xml',
@@ -45296,7 +42571,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
 
 }).call(this);
 
-},{}],248:[function(require,module,exports){
+},{}],240:[function(require,module,exports){
 (function() {
   var ACCEPT_HEADER, JSONStream, PESKY_COMMA, URL, URLENC, USER_AGENT, VERSION, blocking, defer, error, getMsg, http, invoke, merge, parseOptions, rejectAfter, streaming, utils, _ref;
 
@@ -45527,7 +42802,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
 
 }).call(this);
 
-},{"./constants":247,"./util":259,"./version":260,"JSONStream":232,"http":292,"url":302}],249:[function(require,module,exports){
+},{"./constants":239,"./util":251,"./version":252,"JSONStream":232,"http":295,"url":301}],241:[function(require,module,exports){
 (function() {
   var CategoryResults, IDResolutionJob, IdResults, ONE_MINUTE, concatMap, defer, difference, fold, funcutils, get, id, intermine, uniqBy, withCB,
     __hasProp = {}.hasOwnProperty,
@@ -45827,7 +43102,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
 
 }).call(this);
 
-},{"./util":259}],250:[function(require,module,exports){
+},{"./util":251}],242:[function(require,module,exports){
 (function() {
   var INVITES, List, REQUIRES_VERSION, SHARES, TAGS_PATH, dejoin, get, getFolderName, intermine, invoke, isFolder, merge, set, utils, withCB,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
@@ -46017,7 +43292,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
 
 }).call(this);
 
-},{"./util":259}],251:[function(require,module,exports){
+},{"./util":251}],243:[function(require,module,exports){
 (function() {
   var JAVA_LANG_OBJ, Model, PathInfo, Table, error, find, flatten, intermine, omap, _ref,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
@@ -46156,7 +43431,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
 
 }).call(this);
 
-},{"./path":252,"./table":257,"./util":259}],252:[function(require,module,exports){
+},{"./path":244,"./table":249,"./util":251}],244:[function(require,module,exports){
 (function() {
   var NAMES, PARSED, PathInfo, any, concatMap, copy, error, get, intermine, makeKey, set, success, utils, withCB,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
@@ -46399,7 +43674,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
 
 }).call(this);
 
-},{"./util":259}],253:[function(require,module,exports){
+},{"./util":251}],245:[function(require,module,exports){
 (function() {
   var Promise;
 
@@ -46409,7 +43684,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
 
 }).call(this);
 
-},{"es6-promise":262}],254:[function(require,module,exports){
+},{"es6-promise":254}],246:[function(require,module,exports){
 (function() {
   var BASIC_ATTRS, CODES, Events, LIST_PIPE, Query, REQUIRES_VERSION, RESULTS_METHODS, SIMPLE_ATTRS, bioUriArgs, conAttrs, conStr, conToJSON, conValStr, concatMap, copyCon, decapitate, didntRemove, f, filter, fold, get, get_canonical_op, headLess, id, idConStr, intermine, interpretConArray, interpretConstraint, invoke, merge, mth, multiConStr, noUndefVals, noValueConStr, partition, removeIrrelevantSortOrders, simpleConStr, stringToSortOrder, stringifySortOrder, toQueryString, typeConStr, union, utils, withCB, _fn, _get_data_fetcher, _i, _j, _len, _len1, _ref,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
@@ -48234,7 +45509,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
 
 }).call(this);
 
-},{"./util":259,"./xml":261,"backbone-events-standalone":234}],255:[function(require,module,exports){
+},{"./util":251,"./xml":253,"backbone-events-standalone":234}],247:[function(require,module,exports){
 (function() {
   var ALWAYS_AUTH, CLASSKEYS, CLASSKEY_PATH, DEFAULT_ERROR_HANDLER, DEFAULT_PROTOCOL, ENRICHMENT_PATH, HAS_PROTOCOL, HAS_SUFFIX, IDResolutionJob, ID_RESOLUTION_PATH, LISTS_PATH, LIST_OPERATION_PATHS, LIST_PIPE, List, MODELS, MODEL_PATH, Model, NEEDS_AUTH, NO_AUTH, PATH_VALUES_PATH, PREF_PATH, Promise, QUERY_RESULTS_PATH, QUICKSEARCH_PATH, Query, RELEASES, RELEASE_PATH, REQUIRES_VERSION, SUBTRACT_PATH, SUFFIX, SUMMARYFIELDS_PATH, SUMMARY_FIELDS, Service, TABLE_ROW_PATH, TEMPLATES_PATH, TO_NAMES, USER_TOKENS, User, VERSIONS, VERSION_PATH, WHOAMI_PATH, WIDGETS, WIDGETS_PATH, WITH_OBJ_PATH, dejoin, error, get, getListFinder, http, invoke, map, merge, p, set, success, to_query_string, utils, version, withCB, _get_or_fetch, _i, _j, _len, _len1, _ref, _ref1,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
@@ -49275,7 +46550,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
 
 }).call(this);
 
-},{"./http":248,"./id-resolution-job":249,"./lists":250,"./model":251,"./promise":253,"./query":254,"./user":258,"./util":259,"./version":260}],256:[function(require,module,exports){
+},{"./http":240,"./id-resolution-job":241,"./lists":242,"./model":243,"./promise":245,"./query":246,"./user":250,"./util":251,"./version":252}],248:[function(require,module,exports){
 (function (global){
 (function() {
   var FakeDomParser;
@@ -49292,7 +46567,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
 }).call(this);
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],257:[function(require,module,exports){
+},{}],249:[function(require,module,exports){
 (function() {
   var Promise, merge, properties,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
@@ -49370,7 +46645,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
 
 }).call(this);
 
-},{"./promise":253}],258:[function(require,module,exports){
+},{"./promise":245}],250:[function(require,module,exports){
 (function() {
   var any, do_pref_req, error, get, isFunction, withCB, _ref,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
@@ -49468,7 +46743,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
 
 }).call(this);
 
-},{"./util":259}],259:[function(require,module,exports){
+},{"./util":251}],251:[function(require,module,exports){
 (function() {
   var Promise, REQUIRES, comp, curry, encode, entities, error, flatten, fold, id, invoke, invokeWith, isArray, merge, pairFold, qsFromList, root, success, thenFold, _ref,
     __slice = [].slice,
@@ -49977,13 +47252,13 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
 
 }).call(this);
 
-},{"./promise":253}],260:[function(require,module,exports){
+},{"./promise":245}],252:[function(require,module,exports){
 (function() {
   exports.VERSION = '3.16.0';
 
 }).call(this);
 
-},{}],261:[function(require,module,exports){
+},{}],253:[function(require,module,exports){
 (function() {
   var DOMParser, sanitize;
 
@@ -50024,8 +47299,8 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
 
 }).call(this);
 
-},{"xmldom":256}],262:[function(require,module,exports){
-(function (process,global,setImmediate){
+},{"xmldom":248}],254:[function(require,module,exports){
+(function (process,global){
 /*!
  * @overview es6-promise - a tiny implementation of Promises/A+.
  * @copyright Copyright (c) 2014 Yehuda Katz, Tom Dale, Stefan Penner and contributors (Conversion to ES6 API by Jake Archibald)
@@ -50999,63 +48274,8 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
 }).call(this);
 
 
-}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("timers").setImmediate)
-},{"_process":272,"timers":298}],263:[function(require,module,exports){
-if (typeof Object.create === 'function') {
-  // implementation from standard node.js 'util' module
-  module.exports = function inherits(ctor, superCtor) {
-    ctor.super_ = superCtor
-    ctor.prototype = Object.create(superCtor.prototype, {
-      constructor: {
-        value: ctor,
-        enumerable: false,
-        writable: true,
-        configurable: true
-      }
-    });
-  };
-} else {
-  // old school shim for old browsers
-  module.exports = function inherits(ctor, superCtor) {
-    ctor.super_ = superCtor
-    var TempCtor = function () {}
-    TempCtor.prototype = superCtor.prototype
-    ctor.prototype = new TempCtor()
-    ctor.prototype.constructor = ctor
-  }
-}
-
-},{}],264:[function(require,module,exports){
-/*!
- * Determine if an object is a Buffer
- *
- * @author   Feross Aboukhadijeh <https://feross.org>
- * @license  MIT
- */
-
-// The _isBuffer check is for Safari 5-7 support, because it's missing
-// Object.prototype.constructor. Remove this eventually
-module.exports = function (obj) {
-  return obj != null && (isBuffer(obj) || isSlowBuffer(obj) || !!obj._isBuffer)
-}
-
-function isBuffer (obj) {
-  return !!obj.constructor && typeof obj.constructor.isBuffer === 'function' && obj.constructor.isBuffer(obj)
-}
-
-// For Node v0.10 support. Remove this eventually.
-function isSlowBuffer (obj) {
-  return typeof obj.readFloatLE === 'function' && typeof obj.slice === 'function' && isBuffer(obj.slice(0, 0))
-}
-
-},{}],265:[function(require,module,exports){
-var toString = {}.toString;
-
-module.exports = Array.isArray || function (arr) {
-  return toString.call(arr) == '[object Array]';
-};
-
-},{}],266:[function(require,module,exports){
+}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"_process":275}],255:[function(require,module,exports){
 /*! jQuery UI - v1.12.1 - 2017-03-19
 * http://jqueryui.com
 * Includes: widget.js, position.js, data.js, disable-selection.js, focusable.js, form-reset-mixin.js, jquery-1-7.js, keycode.js, labels.js, scroll-parent.js, tabbable.js, unique-id.js, widgets/draggable.js, widgets/droppable.js, widgets/resizable.js, widgets/selectable.js, widgets/sortable.js, widgets/accordion.js, widgets/autocomplete.js, widgets/button.js, widgets/checkboxradio.js, widgets/controlgroup.js, widgets/datepicker.js, widgets/dialog.js, widgets/menu.js, widgets/mouse.js, widgets/progressbar.js, widgets/selectmenu.js, widgets/slider.js, widgets/spinner.js, widgets/tabs.js, widgets/tooltip.js, effect.js, effects/effect-blind.js, effects/effect-bounce.js, effects/effect-clip.js, effects/effect-drop.js, effects/effect-explode.js, effects/effect-fade.js, effects/effect-fold.js, effects/effect-highlight.js, effects/effect-puff.js, effects/effect-pulsate.js, effects/effect-scale.js, effects/effect-shake.js, effects/effect-size.js, effects/effect-slide.js, effects/effect-transfer.js
@@ -69762,7 +66982,7 @@ var effectsEffectTransfer = effect;
 
 
 }));
-},{}],267:[function(require,module,exports){
+},{}],256:[function(require,module,exports){
 /*!
  * jQuery JavaScript Library v3.4.1
  * https://jquery.com/
@@ -80362,7 +77582,7 @@ if ( !noGlobal ) {
 return jQuery;
 } );
 
-},{}],268:[function(require,module,exports){
+},{}],257:[function(require,module,exports){
 (function (Buffer){
 /*global Buffer*/
 // Named constants with unique integer values
@@ -80767,7 +77987,7 @@ proto.onToken = function (token, value) {
 module.exports = Parser;
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":240}],269:[function(require,module,exports){
+},{"buffer":266}],258:[function(require,module,exports){
 /* global define */
 
 (function (root, pluralize) {
@@ -81272,7 +78492,7 @@ module.exports = Parser;
   return pluralize;
 });
 
-},{}],270:[function(require,module,exports){
+},{}],259:[function(require,module,exports){
 (function (global){
 /**!
  * @fileOverview Kickass library to create and place poppers near their reference elements.
@@ -83888,4457 +81108,7 @@ return Popper;
 
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],271:[function(require,module,exports){
-(function (process){
-'use strict';
-
-if (!process.version ||
-    process.version.indexOf('v0.') === 0 ||
-    process.version.indexOf('v1.') === 0 && process.version.indexOf('v1.8.') !== 0) {
-  module.exports = { nextTick: nextTick };
-} else {
-  module.exports = process
-}
-
-function nextTick(fn, arg1, arg2, arg3) {
-  if (typeof fn !== 'function') {
-    throw new TypeError('"callback" argument must be a function');
-  }
-  var len = arguments.length;
-  var args, i;
-  switch (len) {
-  case 0:
-  case 1:
-    return process.nextTick(fn);
-  case 2:
-    return process.nextTick(function afterTickOne() {
-      fn.call(null, arg1);
-    });
-  case 3:
-    return process.nextTick(function afterTickTwo() {
-      fn.call(null, arg1, arg2);
-    });
-  case 4:
-    return process.nextTick(function afterTickThree() {
-      fn.call(null, arg1, arg2, arg3);
-    });
-  default:
-    args = new Array(len - 1);
-    i = 0;
-    while (i < args.length) {
-      args[i++] = arguments[i];
-    }
-    return process.nextTick(function afterTick() {
-      fn.apply(null, args);
-    });
-  }
-}
-
-
-}).call(this,require('_process'))
-},{"_process":272}],272:[function(require,module,exports){
-// shim for using process in browser
-var process = module.exports = {};
-
-// cached from whatever global is present so that test runners that stub it
-// don't break things.  But we need to wrap it in a try catch in case it is
-// wrapped in strict mode code which doesn't define any globals.  It's inside a
-// function because try/catches deoptimize in certain engines.
-
-var cachedSetTimeout;
-var cachedClearTimeout;
-
-function defaultSetTimout() {
-    throw new Error('setTimeout has not been defined');
-}
-function defaultClearTimeout () {
-    throw new Error('clearTimeout has not been defined');
-}
-(function () {
-    try {
-        if (typeof setTimeout === 'function') {
-            cachedSetTimeout = setTimeout;
-        } else {
-            cachedSetTimeout = defaultSetTimout;
-        }
-    } catch (e) {
-        cachedSetTimeout = defaultSetTimout;
-    }
-    try {
-        if (typeof clearTimeout === 'function') {
-            cachedClearTimeout = clearTimeout;
-        } else {
-            cachedClearTimeout = defaultClearTimeout;
-        }
-    } catch (e) {
-        cachedClearTimeout = defaultClearTimeout;
-    }
-} ())
-function runTimeout(fun) {
-    if (cachedSetTimeout === setTimeout) {
-        //normal enviroments in sane situations
-        return setTimeout(fun, 0);
-    }
-    // if setTimeout wasn't available but was latter defined
-    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
-        cachedSetTimeout = setTimeout;
-        return setTimeout(fun, 0);
-    }
-    try {
-        // when when somebody has screwed with setTimeout but no I.E. maddness
-        return cachedSetTimeout(fun, 0);
-    } catch(e){
-        try {
-            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
-            return cachedSetTimeout.call(null, fun, 0);
-        } catch(e){
-            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
-            return cachedSetTimeout.call(this, fun, 0);
-        }
-    }
-
-
-}
-function runClearTimeout(marker) {
-    if (cachedClearTimeout === clearTimeout) {
-        //normal enviroments in sane situations
-        return clearTimeout(marker);
-    }
-    // if clearTimeout wasn't available but was latter defined
-    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
-        cachedClearTimeout = clearTimeout;
-        return clearTimeout(marker);
-    }
-    try {
-        // when when somebody has screwed with setTimeout but no I.E. maddness
-        return cachedClearTimeout(marker);
-    } catch (e){
-        try {
-            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
-            return cachedClearTimeout.call(null, marker);
-        } catch (e){
-            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
-            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
-            return cachedClearTimeout.call(this, marker);
-        }
-    }
-
-
-
-}
-var queue = [];
-var draining = false;
-var currentQueue;
-var queueIndex = -1;
-
-function cleanUpNextTick() {
-    if (!draining || !currentQueue) {
-        return;
-    }
-    draining = false;
-    if (currentQueue.length) {
-        queue = currentQueue.concat(queue);
-    } else {
-        queueIndex = -1;
-    }
-    if (queue.length) {
-        drainQueue();
-    }
-}
-
-function drainQueue() {
-    if (draining) {
-        return;
-    }
-    var timeout = runTimeout(cleanUpNextTick);
-    draining = true;
-
-    var len = queue.length;
-    while(len) {
-        currentQueue = queue;
-        queue = [];
-        while (++queueIndex < len) {
-            if (currentQueue) {
-                currentQueue[queueIndex].run();
-            }
-        }
-        queueIndex = -1;
-        len = queue.length;
-    }
-    currentQueue = null;
-    draining = false;
-    runClearTimeout(timeout);
-}
-
-process.nextTick = function (fun) {
-    var args = new Array(arguments.length - 1);
-    if (arguments.length > 1) {
-        for (var i = 1; i < arguments.length; i++) {
-            args[i - 1] = arguments[i];
-        }
-    }
-    queue.push(new Item(fun, args));
-    if (queue.length === 1 && !draining) {
-        runTimeout(drainQueue);
-    }
-};
-
-// v8 likes predictible objects
-function Item(fun, array) {
-    this.fun = fun;
-    this.array = array;
-}
-Item.prototype.run = function () {
-    this.fun.apply(null, this.array);
-};
-process.title = 'browser';
-process.browser = true;
-process.env = {};
-process.argv = [];
-process.version = ''; // empty string to avoid regexp issues
-process.versions = {};
-
-function noop() {}
-
-process.on = noop;
-process.addListener = noop;
-process.once = noop;
-process.off = noop;
-process.removeListener = noop;
-process.removeAllListeners = noop;
-process.emit = noop;
-process.prependListener = noop;
-process.prependOnceListener = noop;
-
-process.listeners = function (name) { return [] }
-
-process.binding = function (name) {
-    throw new Error('process.binding is not supported');
-};
-
-process.cwd = function () { return '/' };
-process.chdir = function (dir) {
-    throw new Error('process.chdir is not supported');
-};
-process.umask = function() { return 0; };
-
-},{}],273:[function(require,module,exports){
-(function (global){
-/*! https://mths.be/punycode v1.4.1 by @mathias */
-;(function(root) {
-
-	/** Detect free variables */
-	var freeExports = typeof exports == 'object' && exports &&
-		!exports.nodeType && exports;
-	var freeModule = typeof module == 'object' && module &&
-		!module.nodeType && module;
-	var freeGlobal = typeof global == 'object' && global;
-	if (
-		freeGlobal.global === freeGlobal ||
-		freeGlobal.window === freeGlobal ||
-		freeGlobal.self === freeGlobal
-	) {
-		root = freeGlobal;
-	}
-
-	/**
-	 * The `punycode` object.
-	 * @name punycode
-	 * @type Object
-	 */
-	var punycode,
-
-	/** Highest positive signed 32-bit float value */
-	maxInt = 2147483647, // aka. 0x7FFFFFFF or 2^31-1
-
-	/** Bootstring parameters */
-	base = 36,
-	tMin = 1,
-	tMax = 26,
-	skew = 38,
-	damp = 700,
-	initialBias = 72,
-	initialN = 128, // 0x80
-	delimiter = '-', // '\x2D'
-
-	/** Regular expressions */
-	regexPunycode = /^xn--/,
-	regexNonASCII = /[^\x20-\x7E]/, // unprintable ASCII chars + non-ASCII chars
-	regexSeparators = /[\x2E\u3002\uFF0E\uFF61]/g, // RFC 3490 separators
-
-	/** Error messages */
-	errors = {
-		'overflow': 'Overflow: input needs wider integers to process',
-		'not-basic': 'Illegal input >= 0x80 (not a basic code point)',
-		'invalid-input': 'Invalid input'
-	},
-
-	/** Convenience shortcuts */
-	baseMinusTMin = base - tMin,
-	floor = Math.floor,
-	stringFromCharCode = String.fromCharCode,
-
-	/** Temporary variable */
-	key;
-
-	/*--------------------------------------------------------------------------*/
-
-	/**
-	 * A generic error utility function.
-	 * @private
-	 * @param {String} type The error type.
-	 * @returns {Error} Throws a `RangeError` with the applicable error message.
-	 */
-	function error(type) {
-		throw new RangeError(errors[type]);
-	}
-
-	/**
-	 * A generic `Array#map` utility function.
-	 * @private
-	 * @param {Array} array The array to iterate over.
-	 * @param {Function} callback The function that gets called for every array
-	 * item.
-	 * @returns {Array} A new array of values returned by the callback function.
-	 */
-	function map(array, fn) {
-		var length = array.length;
-		var result = [];
-		while (length--) {
-			result[length] = fn(array[length]);
-		}
-		return result;
-	}
-
-	/**
-	 * A simple `Array#map`-like wrapper to work with domain name strings or email
-	 * addresses.
-	 * @private
-	 * @param {String} domain The domain name or email address.
-	 * @param {Function} callback The function that gets called for every
-	 * character.
-	 * @returns {Array} A new string of characters returned by the callback
-	 * function.
-	 */
-	function mapDomain(string, fn) {
-		var parts = string.split('@');
-		var result = '';
-		if (parts.length > 1) {
-			// In email addresses, only the domain name should be punycoded. Leave
-			// the local part (i.e. everything up to `@`) intact.
-			result = parts[0] + '@';
-			string = parts[1];
-		}
-		// Avoid `split(regex)` for IE8 compatibility. See #17.
-		string = string.replace(regexSeparators, '\x2E');
-		var labels = string.split('.');
-		var encoded = map(labels, fn).join('.');
-		return result + encoded;
-	}
-
-	/**
-	 * Creates an array containing the numeric code points of each Unicode
-	 * character in the string. While JavaScript uses UCS-2 internally,
-	 * this function will convert a pair of surrogate halves (each of which
-	 * UCS-2 exposes as separate characters) into a single code point,
-	 * matching UTF-16.
-	 * @see `punycode.ucs2.encode`
-	 * @see <https://mathiasbynens.be/notes/javascript-encoding>
-	 * @memberOf punycode.ucs2
-	 * @name decode
-	 * @param {String} string The Unicode input string (UCS-2).
-	 * @returns {Array} The new array of code points.
-	 */
-	function ucs2decode(string) {
-		var output = [],
-		    counter = 0,
-		    length = string.length,
-		    value,
-		    extra;
-		while (counter < length) {
-			value = string.charCodeAt(counter++);
-			if (value >= 0xD800 && value <= 0xDBFF && counter < length) {
-				// high surrogate, and there is a next character
-				extra = string.charCodeAt(counter++);
-				if ((extra & 0xFC00) == 0xDC00) { // low surrogate
-					output.push(((value & 0x3FF) << 10) + (extra & 0x3FF) + 0x10000);
-				} else {
-					// unmatched surrogate; only append this code unit, in case the next
-					// code unit is the high surrogate of a surrogate pair
-					output.push(value);
-					counter--;
-				}
-			} else {
-				output.push(value);
-			}
-		}
-		return output;
-	}
-
-	/**
-	 * Creates a string based on an array of numeric code points.
-	 * @see `punycode.ucs2.decode`
-	 * @memberOf punycode.ucs2
-	 * @name encode
-	 * @param {Array} codePoints The array of numeric code points.
-	 * @returns {String} The new Unicode string (UCS-2).
-	 */
-	function ucs2encode(array) {
-		return map(array, function(value) {
-			var output = '';
-			if (value > 0xFFFF) {
-				value -= 0x10000;
-				output += stringFromCharCode(value >>> 10 & 0x3FF | 0xD800);
-				value = 0xDC00 | value & 0x3FF;
-			}
-			output += stringFromCharCode(value);
-			return output;
-		}).join('');
-	}
-
-	/**
-	 * Converts a basic code point into a digit/integer.
-	 * @see `digitToBasic()`
-	 * @private
-	 * @param {Number} codePoint The basic numeric code point value.
-	 * @returns {Number} The numeric value of a basic code point (for use in
-	 * representing integers) in the range `0` to `base - 1`, or `base` if
-	 * the code point does not represent a value.
-	 */
-	function basicToDigit(codePoint) {
-		if (codePoint - 48 < 10) {
-			return codePoint - 22;
-		}
-		if (codePoint - 65 < 26) {
-			return codePoint - 65;
-		}
-		if (codePoint - 97 < 26) {
-			return codePoint - 97;
-		}
-		return base;
-	}
-
-	/**
-	 * Converts a digit/integer into a basic code point.
-	 * @see `basicToDigit()`
-	 * @private
-	 * @param {Number} digit The numeric value of a basic code point.
-	 * @returns {Number} The basic code point whose value (when used for
-	 * representing integers) is `digit`, which needs to be in the range
-	 * `0` to `base - 1`. If `flag` is non-zero, the uppercase form is
-	 * used; else, the lowercase form is used. The behavior is undefined
-	 * if `flag` is non-zero and `digit` has no uppercase form.
-	 */
-	function digitToBasic(digit, flag) {
-		//  0..25 map to ASCII a..z or A..Z
-		// 26..35 map to ASCII 0..9
-		return digit + 22 + 75 * (digit < 26) - ((flag != 0) << 5);
-	}
-
-	/**
-	 * Bias adaptation function as per section 3.4 of RFC 3492.
-	 * https://tools.ietf.org/html/rfc3492#section-3.4
-	 * @private
-	 */
-	function adapt(delta, numPoints, firstTime) {
-		var k = 0;
-		delta = firstTime ? floor(delta / damp) : delta >> 1;
-		delta += floor(delta / numPoints);
-		for (/* no initialization */; delta > baseMinusTMin * tMax >> 1; k += base) {
-			delta = floor(delta / baseMinusTMin);
-		}
-		return floor(k + (baseMinusTMin + 1) * delta / (delta + skew));
-	}
-
-	/**
-	 * Converts a Punycode string of ASCII-only symbols to a string of Unicode
-	 * symbols.
-	 * @memberOf punycode
-	 * @param {String} input The Punycode string of ASCII-only symbols.
-	 * @returns {String} The resulting string of Unicode symbols.
-	 */
-	function decode(input) {
-		// Don't use UCS-2
-		var output = [],
-		    inputLength = input.length,
-		    out,
-		    i = 0,
-		    n = initialN,
-		    bias = initialBias,
-		    basic,
-		    j,
-		    index,
-		    oldi,
-		    w,
-		    k,
-		    digit,
-		    t,
-		    /** Cached calculation results */
-		    baseMinusT;
-
-		// Handle the basic code points: let `basic` be the number of input code
-		// points before the last delimiter, or `0` if there is none, then copy
-		// the first basic code points to the output.
-
-		basic = input.lastIndexOf(delimiter);
-		if (basic < 0) {
-			basic = 0;
-		}
-
-		for (j = 0; j < basic; ++j) {
-			// if it's not a basic code point
-			if (input.charCodeAt(j) >= 0x80) {
-				error('not-basic');
-			}
-			output.push(input.charCodeAt(j));
-		}
-
-		// Main decoding loop: start just after the last delimiter if any basic code
-		// points were copied; start at the beginning otherwise.
-
-		for (index = basic > 0 ? basic + 1 : 0; index < inputLength; /* no final expression */) {
-
-			// `index` is the index of the next character to be consumed.
-			// Decode a generalized variable-length integer into `delta`,
-			// which gets added to `i`. The overflow checking is easier
-			// if we increase `i` as we go, then subtract off its starting
-			// value at the end to obtain `delta`.
-			for (oldi = i, w = 1, k = base; /* no condition */; k += base) {
-
-				if (index >= inputLength) {
-					error('invalid-input');
-				}
-
-				digit = basicToDigit(input.charCodeAt(index++));
-
-				if (digit >= base || digit > floor((maxInt - i) / w)) {
-					error('overflow');
-				}
-
-				i += digit * w;
-				t = k <= bias ? tMin : (k >= bias + tMax ? tMax : k - bias);
-
-				if (digit < t) {
-					break;
-				}
-
-				baseMinusT = base - t;
-				if (w > floor(maxInt / baseMinusT)) {
-					error('overflow');
-				}
-
-				w *= baseMinusT;
-
-			}
-
-			out = output.length + 1;
-			bias = adapt(i - oldi, out, oldi == 0);
-
-			// `i` was supposed to wrap around from `out` to `0`,
-			// incrementing `n` each time, so we'll fix that now:
-			if (floor(i / out) > maxInt - n) {
-				error('overflow');
-			}
-
-			n += floor(i / out);
-			i %= out;
-
-			// Insert `n` at position `i` of the output
-			output.splice(i++, 0, n);
-
-		}
-
-		return ucs2encode(output);
-	}
-
-	/**
-	 * Converts a string of Unicode symbols (e.g. a domain name label) to a
-	 * Punycode string of ASCII-only symbols.
-	 * @memberOf punycode
-	 * @param {String} input The string of Unicode symbols.
-	 * @returns {String} The resulting Punycode string of ASCII-only symbols.
-	 */
-	function encode(input) {
-		var n,
-		    delta,
-		    handledCPCount,
-		    basicLength,
-		    bias,
-		    j,
-		    m,
-		    q,
-		    k,
-		    t,
-		    currentValue,
-		    output = [],
-		    /** `inputLength` will hold the number of code points in `input`. */
-		    inputLength,
-		    /** Cached calculation results */
-		    handledCPCountPlusOne,
-		    baseMinusT,
-		    qMinusT;
-
-		// Convert the input in UCS-2 to Unicode
-		input = ucs2decode(input);
-
-		// Cache the length
-		inputLength = input.length;
-
-		// Initialize the state
-		n = initialN;
-		delta = 0;
-		bias = initialBias;
-
-		// Handle the basic code points
-		for (j = 0; j < inputLength; ++j) {
-			currentValue = input[j];
-			if (currentValue < 0x80) {
-				output.push(stringFromCharCode(currentValue));
-			}
-		}
-
-		handledCPCount = basicLength = output.length;
-
-		// `handledCPCount` is the number of code points that have been handled;
-		// `basicLength` is the number of basic code points.
-
-		// Finish the basic string - if it is not empty - with a delimiter
-		if (basicLength) {
-			output.push(delimiter);
-		}
-
-		// Main encoding loop:
-		while (handledCPCount < inputLength) {
-
-			// All non-basic code points < n have been handled already. Find the next
-			// larger one:
-			for (m = maxInt, j = 0; j < inputLength; ++j) {
-				currentValue = input[j];
-				if (currentValue >= n && currentValue < m) {
-					m = currentValue;
-				}
-			}
-
-			// Increase `delta` enough to advance the decoder's <n,i> state to <m,0>,
-			// but guard against overflow
-			handledCPCountPlusOne = handledCPCount + 1;
-			if (m - n > floor((maxInt - delta) / handledCPCountPlusOne)) {
-				error('overflow');
-			}
-
-			delta += (m - n) * handledCPCountPlusOne;
-			n = m;
-
-			for (j = 0; j < inputLength; ++j) {
-				currentValue = input[j];
-
-				if (currentValue < n && ++delta > maxInt) {
-					error('overflow');
-				}
-
-				if (currentValue == n) {
-					// Represent delta as a generalized variable-length integer
-					for (q = delta, k = base; /* no condition */; k += base) {
-						t = k <= bias ? tMin : (k >= bias + tMax ? tMax : k - bias);
-						if (q < t) {
-							break;
-						}
-						qMinusT = q - t;
-						baseMinusT = base - t;
-						output.push(
-							stringFromCharCode(digitToBasic(t + qMinusT % baseMinusT, 0))
-						);
-						q = floor(qMinusT / baseMinusT);
-					}
-
-					output.push(stringFromCharCode(digitToBasic(q, 0)));
-					bias = adapt(delta, handledCPCountPlusOne, handledCPCount == basicLength);
-					delta = 0;
-					++handledCPCount;
-				}
-			}
-
-			++delta;
-			++n;
-
-		}
-		return output.join('');
-	}
-
-	/**
-	 * Converts a Punycode string representing a domain name or an email address
-	 * to Unicode. Only the Punycoded parts of the input will be converted, i.e.
-	 * it doesn't matter if you call it on a string that has already been
-	 * converted to Unicode.
-	 * @memberOf punycode
-	 * @param {String} input The Punycoded domain name or email address to
-	 * convert to Unicode.
-	 * @returns {String} The Unicode representation of the given Punycode
-	 * string.
-	 */
-	function toUnicode(input) {
-		return mapDomain(input, function(string) {
-			return regexPunycode.test(string)
-				? decode(string.slice(4).toLowerCase())
-				: string;
-		});
-	}
-
-	/**
-	 * Converts a Unicode string representing a domain name or an email address to
-	 * Punycode. Only the non-ASCII parts of the domain name will be converted,
-	 * i.e. it doesn't matter if you call it with a domain that's already in
-	 * ASCII.
-	 * @memberOf punycode
-	 * @param {String} input The domain name or email address to convert, as a
-	 * Unicode string.
-	 * @returns {String} The Punycode representation of the given domain name or
-	 * email address.
-	 */
-	function toASCII(input) {
-		return mapDomain(input, function(string) {
-			return regexNonASCII.test(string)
-				? 'xn--' + encode(string)
-				: string;
-		});
-	}
-
-	/*--------------------------------------------------------------------------*/
-
-	/** Define the public API */
-	punycode = {
-		/**
-		 * A string representing the current Punycode.js version number.
-		 * @memberOf punycode
-		 * @type String
-		 */
-		'version': '1.4.1',
-		/**
-		 * An object of methods to convert from JavaScript's internal character
-		 * representation (UCS-2) to Unicode code points, and back.
-		 * @see <https://mathiasbynens.be/notes/javascript-encoding>
-		 * @memberOf punycode
-		 * @type Object
-		 */
-		'ucs2': {
-			'decode': ucs2decode,
-			'encode': ucs2encode
-		},
-		'decode': decode,
-		'encode': encode,
-		'toASCII': toASCII,
-		'toUnicode': toUnicode
-	};
-
-	/** Expose `punycode` */
-	// Some AMD build optimizers, like r.js, check for specific condition patterns
-	// like the following:
-	if (
-		typeof define == 'function' &&
-		typeof define.amd == 'object' &&
-		define.amd
-	) {
-		define('punycode', function() {
-			return punycode;
-		});
-	} else if (freeExports && freeModule) {
-		if (module.exports == freeExports) {
-			// in Node.js, io.js, or RingoJS v0.8.0+
-			freeModule.exports = punycode;
-		} else {
-			// in Narwhal or RingoJS v0.7.0-
-			for (key in punycode) {
-				punycode.hasOwnProperty(key) && (freeExports[key] = punycode[key]);
-			}
-		}
-	} else {
-		// in Rhino or a web browser
-		root.punycode = punycode;
-	}
-
-}(this));
-
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],274:[function(require,module,exports){
-// Copyright Joyent, Inc. and other Node contributors.
-//
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the
-// "Software"), to deal in the Software without restriction, including
-// without limitation the rights to use, copy, modify, merge, publish,
-// distribute, sublicense, and/or sell copies of the Software, and to permit
-// persons to whom the Software is furnished to do so, subject to the
-// following conditions:
-//
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
-// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
-// USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-'use strict';
-
-// If obj.hasOwnProperty has been overridden, then calling
-// obj.hasOwnProperty(prop) will break.
-// See: https://github.com/joyent/node/issues/1707
-function hasOwnProperty(obj, prop) {
-  return Object.prototype.hasOwnProperty.call(obj, prop);
-}
-
-module.exports = function(qs, sep, eq, options) {
-  sep = sep || '&';
-  eq = eq || '=';
-  var obj = {};
-
-  if (typeof qs !== 'string' || qs.length === 0) {
-    return obj;
-  }
-
-  var regexp = /\+/g;
-  qs = qs.split(sep);
-
-  var maxKeys = 1000;
-  if (options && typeof options.maxKeys === 'number') {
-    maxKeys = options.maxKeys;
-  }
-
-  var len = qs.length;
-  // maxKeys <= 0 means that we should not limit keys count
-  if (maxKeys > 0 && len > maxKeys) {
-    len = maxKeys;
-  }
-
-  for (var i = 0; i < len; ++i) {
-    var x = qs[i].replace(regexp, '%20'),
-        idx = x.indexOf(eq),
-        kstr, vstr, k, v;
-
-    if (idx >= 0) {
-      kstr = x.substr(0, idx);
-      vstr = x.substr(idx + 1);
-    } else {
-      kstr = x;
-      vstr = '';
-    }
-
-    k = decodeURIComponent(kstr);
-    v = decodeURIComponent(vstr);
-
-    if (!hasOwnProperty(obj, k)) {
-      obj[k] = v;
-    } else if (isArray(obj[k])) {
-      obj[k].push(v);
-    } else {
-      obj[k] = [obj[k], v];
-    }
-  }
-
-  return obj;
-};
-
-var isArray = Array.isArray || function (xs) {
-  return Object.prototype.toString.call(xs) === '[object Array]';
-};
-
-},{}],275:[function(require,module,exports){
-// Copyright Joyent, Inc. and other Node contributors.
-//
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the
-// "Software"), to deal in the Software without restriction, including
-// without limitation the rights to use, copy, modify, merge, publish,
-// distribute, sublicense, and/or sell copies of the Software, and to permit
-// persons to whom the Software is furnished to do so, subject to the
-// following conditions:
-//
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
-// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
-// USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-'use strict';
-
-var stringifyPrimitive = function(v) {
-  switch (typeof v) {
-    case 'string':
-      return v;
-
-    case 'boolean':
-      return v ? 'true' : 'false';
-
-    case 'number':
-      return isFinite(v) ? v : '';
-
-    default:
-      return '';
-  }
-};
-
-module.exports = function(obj, sep, eq, name) {
-  sep = sep || '&';
-  eq = eq || '=';
-  if (obj === null) {
-    obj = undefined;
-  }
-
-  if (typeof obj === 'object') {
-    return map(objectKeys(obj), function(k) {
-      var ks = encodeURIComponent(stringifyPrimitive(k)) + eq;
-      if (isArray(obj[k])) {
-        return map(obj[k], function(v) {
-          return ks + encodeURIComponent(stringifyPrimitive(v));
-        }).join(sep);
-      } else {
-        return ks + encodeURIComponent(stringifyPrimitive(obj[k]));
-      }
-    }).join(sep);
-
-  }
-
-  if (!name) return '';
-  return encodeURIComponent(stringifyPrimitive(name)) + eq +
-         encodeURIComponent(stringifyPrimitive(obj));
-};
-
-var isArray = Array.isArray || function (xs) {
-  return Object.prototype.toString.call(xs) === '[object Array]';
-};
-
-function map (xs, f) {
-  if (xs.map) return xs.map(f);
-  var res = [];
-  for (var i = 0; i < xs.length; i++) {
-    res.push(f(xs[i], i));
-  }
-  return res;
-}
-
-var objectKeys = Object.keys || function (obj) {
-  var res = [];
-  for (var key in obj) {
-    if (Object.prototype.hasOwnProperty.call(obj, key)) res.push(key);
-  }
-  return res;
-};
-
-},{}],276:[function(require,module,exports){
-'use strict';
-
-exports.decode = exports.parse = require('./decode');
-exports.encode = exports.stringify = require('./encode');
-
-},{"./decode":274,"./encode":275}],277:[function(require,module,exports){
-module.exports = require('./lib/_stream_duplex.js');
-
-},{"./lib/_stream_duplex.js":278}],278:[function(require,module,exports){
-// Copyright Joyent, Inc. and other Node contributors.
-//
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the
-// "Software"), to deal in the Software without restriction, including
-// without limitation the rights to use, copy, modify, merge, publish,
-// distribute, sublicense, and/or sell copies of the Software, and to permit
-// persons to whom the Software is furnished to do so, subject to the
-// following conditions:
-//
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
-// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
-// USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-// a duplex stream is just a stream that is both readable and writable.
-// Since JS doesn't have multiple prototypal inheritance, this class
-// prototypally inherits from Readable, and then parasitically from
-// Writable.
-
-'use strict';
-
-/*<replacement>*/
-
-var pna = require('process-nextick-args');
-/*</replacement>*/
-
-/*<replacement>*/
-var objectKeys = Object.keys || function (obj) {
-  var keys = [];
-  for (var key in obj) {
-    keys.push(key);
-  }return keys;
-};
-/*</replacement>*/
-
-module.exports = Duplex;
-
-/*<replacement>*/
-var util = require('core-util-is');
-util.inherits = require('inherits');
-/*</replacement>*/
-
-var Readable = require('./_stream_readable');
-var Writable = require('./_stream_writable');
-
-util.inherits(Duplex, Readable);
-
-{
-  // avoid scope creep, the keys array can then be collected
-  var keys = objectKeys(Writable.prototype);
-  for (var v = 0; v < keys.length; v++) {
-    var method = keys[v];
-    if (!Duplex.prototype[method]) Duplex.prototype[method] = Writable.prototype[method];
-  }
-}
-
-function Duplex(options) {
-  if (!(this instanceof Duplex)) return new Duplex(options);
-
-  Readable.call(this, options);
-  Writable.call(this, options);
-
-  if (options && options.readable === false) this.readable = false;
-
-  if (options && options.writable === false) this.writable = false;
-
-  this.allowHalfOpen = true;
-  if (options && options.allowHalfOpen === false) this.allowHalfOpen = false;
-
-  this.once('end', onend);
-}
-
-Object.defineProperty(Duplex.prototype, 'writableHighWaterMark', {
-  // making it explicit this property is not enumerable
-  // because otherwise some prototype manipulation in
-  // userland will fail
-  enumerable: false,
-  get: function () {
-    return this._writableState.highWaterMark;
-  }
-});
-
-// the no-half-open enforcer
-function onend() {
-  // if we allow half-open state, or if the writable side ended,
-  // then we're ok.
-  if (this.allowHalfOpen || this._writableState.ended) return;
-
-  // no more data can be written.
-  // But allow more writes to happen in this tick.
-  pna.nextTick(onEndNT, this);
-}
-
-function onEndNT(self) {
-  self.end();
-}
-
-Object.defineProperty(Duplex.prototype, 'destroyed', {
-  get: function () {
-    if (this._readableState === undefined || this._writableState === undefined) {
-      return false;
-    }
-    return this._readableState.destroyed && this._writableState.destroyed;
-  },
-  set: function (value) {
-    // we ignore the value if the stream
-    // has not been initialized yet
-    if (this._readableState === undefined || this._writableState === undefined) {
-      return;
-    }
-
-    // backward compatibility, the user is explicitly
-    // managing destroyed
-    this._readableState.destroyed = value;
-    this._writableState.destroyed = value;
-  }
-});
-
-Duplex.prototype._destroy = function (err, cb) {
-  this.push(null);
-  this.end();
-
-  pna.nextTick(cb, err);
-};
-},{"./_stream_readable":280,"./_stream_writable":282,"core-util-is":242,"inherits":263,"process-nextick-args":271}],279:[function(require,module,exports){
-// Copyright Joyent, Inc. and other Node contributors.
-//
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the
-// "Software"), to deal in the Software without restriction, including
-// without limitation the rights to use, copy, modify, merge, publish,
-// distribute, sublicense, and/or sell copies of the Software, and to permit
-// persons to whom the Software is furnished to do so, subject to the
-// following conditions:
-//
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
-// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
-// USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-// a passthrough stream.
-// basically just the most minimal sort of Transform stream.
-// Every written chunk gets output as-is.
-
-'use strict';
-
-module.exports = PassThrough;
-
-var Transform = require('./_stream_transform');
-
-/*<replacement>*/
-var util = require('core-util-is');
-util.inherits = require('inherits');
-/*</replacement>*/
-
-util.inherits(PassThrough, Transform);
-
-function PassThrough(options) {
-  if (!(this instanceof PassThrough)) return new PassThrough(options);
-
-  Transform.call(this, options);
-}
-
-PassThrough.prototype._transform = function (chunk, encoding, cb) {
-  cb(null, chunk);
-};
-},{"./_stream_transform":281,"core-util-is":242,"inherits":263}],280:[function(require,module,exports){
-(function (process,global){
-// Copyright Joyent, Inc. and other Node contributors.
-//
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the
-// "Software"), to deal in the Software without restriction, including
-// without limitation the rights to use, copy, modify, merge, publish,
-// distribute, sublicense, and/or sell copies of the Software, and to permit
-// persons to whom the Software is furnished to do so, subject to the
-// following conditions:
-//
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
-// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
-// USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-'use strict';
-
-/*<replacement>*/
-
-var pna = require('process-nextick-args');
-/*</replacement>*/
-
-module.exports = Readable;
-
-/*<replacement>*/
-var isArray = require('isarray');
-/*</replacement>*/
-
-/*<replacement>*/
-var Duplex;
-/*</replacement>*/
-
-Readable.ReadableState = ReadableState;
-
-/*<replacement>*/
-var EE = require('events').EventEmitter;
-
-var EElistenerCount = function (emitter, type) {
-  return emitter.listeners(type).length;
-};
-/*</replacement>*/
-
-/*<replacement>*/
-var Stream = require('./internal/streams/stream');
-/*</replacement>*/
-
-/*<replacement>*/
-
-var Buffer = require('safe-buffer').Buffer;
-var OurUint8Array = global.Uint8Array || function () {};
-function _uint8ArrayToBuffer(chunk) {
-  return Buffer.from(chunk);
-}
-function _isUint8Array(obj) {
-  return Buffer.isBuffer(obj) || obj instanceof OurUint8Array;
-}
-
-/*</replacement>*/
-
-/*<replacement>*/
-var util = require('core-util-is');
-util.inherits = require('inherits');
-/*</replacement>*/
-
-/*<replacement>*/
-var debugUtil = require('util');
-var debug = void 0;
-if (debugUtil && debugUtil.debuglog) {
-  debug = debugUtil.debuglog('stream');
-} else {
-  debug = function () {};
-}
-/*</replacement>*/
-
-var BufferList = require('./internal/streams/BufferList');
-var destroyImpl = require('./internal/streams/destroy');
-var StringDecoder;
-
-util.inherits(Readable, Stream);
-
-var kProxyEvents = ['error', 'close', 'destroy', 'pause', 'resume'];
-
-function prependListener(emitter, event, fn) {
-  // Sadly this is not cacheable as some libraries bundle their own
-  // event emitter implementation with them.
-  if (typeof emitter.prependListener === 'function') return emitter.prependListener(event, fn);
-
-  // This is a hack to make sure that our error handler is attached before any
-  // userland ones.  NEVER DO THIS. This is here only because this code needs
-  // to continue to work with older versions of Node.js that do not include
-  // the prependListener() method. The goal is to eventually remove this hack.
-  if (!emitter._events || !emitter._events[event]) emitter.on(event, fn);else if (isArray(emitter._events[event])) emitter._events[event].unshift(fn);else emitter._events[event] = [fn, emitter._events[event]];
-}
-
-function ReadableState(options, stream) {
-  Duplex = Duplex || require('./_stream_duplex');
-
-  options = options || {};
-
-  // Duplex streams are both readable and writable, but share
-  // the same options object.
-  // However, some cases require setting options to different
-  // values for the readable and the writable sides of the duplex stream.
-  // These options can be provided separately as readableXXX and writableXXX.
-  var isDuplex = stream instanceof Duplex;
-
-  // object stream flag. Used to make read(n) ignore n and to
-  // make all the buffer merging and length checks go away
-  this.objectMode = !!options.objectMode;
-
-  if (isDuplex) this.objectMode = this.objectMode || !!options.readableObjectMode;
-
-  // the point at which it stops calling _read() to fill the buffer
-  // Note: 0 is a valid value, means "don't call _read preemptively ever"
-  var hwm = options.highWaterMark;
-  var readableHwm = options.readableHighWaterMark;
-  var defaultHwm = this.objectMode ? 16 : 16 * 1024;
-
-  if (hwm || hwm === 0) this.highWaterMark = hwm;else if (isDuplex && (readableHwm || readableHwm === 0)) this.highWaterMark = readableHwm;else this.highWaterMark = defaultHwm;
-
-  // cast to ints.
-  this.highWaterMark = Math.floor(this.highWaterMark);
-
-  // A linked list is used to store data chunks instead of an array because the
-  // linked list can remove elements from the beginning faster than
-  // array.shift()
-  this.buffer = new BufferList();
-  this.length = 0;
-  this.pipes = null;
-  this.pipesCount = 0;
-  this.flowing = null;
-  this.ended = false;
-  this.endEmitted = false;
-  this.reading = false;
-
-  // a flag to be able to tell if the event 'readable'/'data' is emitted
-  // immediately, or on a later tick.  We set this to true at first, because
-  // any actions that shouldn't happen until "later" should generally also
-  // not happen before the first read call.
-  this.sync = true;
-
-  // whenever we return null, then we set a flag to say
-  // that we're awaiting a 'readable' event emission.
-  this.needReadable = false;
-  this.emittedReadable = false;
-  this.readableListening = false;
-  this.resumeScheduled = false;
-
-  // has it been destroyed
-  this.destroyed = false;
-
-  // Crypto is kind of old and crusty.  Historically, its default string
-  // encoding is 'binary' so we have to make this configurable.
-  // Everything else in the universe uses 'utf8', though.
-  this.defaultEncoding = options.defaultEncoding || 'utf8';
-
-  // the number of writers that are awaiting a drain event in .pipe()s
-  this.awaitDrain = 0;
-
-  // if true, a maybeReadMore has been scheduled
-  this.readingMore = false;
-
-  this.decoder = null;
-  this.encoding = null;
-  if (options.encoding) {
-    if (!StringDecoder) StringDecoder = require('string_decoder/').StringDecoder;
-    this.decoder = new StringDecoder(options.encoding);
-    this.encoding = options.encoding;
-  }
-}
-
-function Readable(options) {
-  Duplex = Duplex || require('./_stream_duplex');
-
-  if (!(this instanceof Readable)) return new Readable(options);
-
-  this._readableState = new ReadableState(options, this);
-
-  // legacy
-  this.readable = true;
-
-  if (options) {
-    if (typeof options.read === 'function') this._read = options.read;
-
-    if (typeof options.destroy === 'function') this._destroy = options.destroy;
-  }
-
-  Stream.call(this);
-}
-
-Object.defineProperty(Readable.prototype, 'destroyed', {
-  get: function () {
-    if (this._readableState === undefined) {
-      return false;
-    }
-    return this._readableState.destroyed;
-  },
-  set: function (value) {
-    // we ignore the value if the stream
-    // has not been initialized yet
-    if (!this._readableState) {
-      return;
-    }
-
-    // backward compatibility, the user is explicitly
-    // managing destroyed
-    this._readableState.destroyed = value;
-  }
-});
-
-Readable.prototype.destroy = destroyImpl.destroy;
-Readable.prototype._undestroy = destroyImpl.undestroy;
-Readable.prototype._destroy = function (err, cb) {
-  this.push(null);
-  cb(err);
-};
-
-// Manually shove something into the read() buffer.
-// This returns true if the highWaterMark has not been hit yet,
-// similar to how Writable.write() returns true if you should
-// write() some more.
-Readable.prototype.push = function (chunk, encoding) {
-  var state = this._readableState;
-  var skipChunkCheck;
-
-  if (!state.objectMode) {
-    if (typeof chunk === 'string') {
-      encoding = encoding || state.defaultEncoding;
-      if (encoding !== state.encoding) {
-        chunk = Buffer.from(chunk, encoding);
-        encoding = '';
-      }
-      skipChunkCheck = true;
-    }
-  } else {
-    skipChunkCheck = true;
-  }
-
-  return readableAddChunk(this, chunk, encoding, false, skipChunkCheck);
-};
-
-// Unshift should *always* be something directly out of read()
-Readable.prototype.unshift = function (chunk) {
-  return readableAddChunk(this, chunk, null, true, false);
-};
-
-function readableAddChunk(stream, chunk, encoding, addToFront, skipChunkCheck) {
-  var state = stream._readableState;
-  if (chunk === null) {
-    state.reading = false;
-    onEofChunk(stream, state);
-  } else {
-    var er;
-    if (!skipChunkCheck) er = chunkInvalid(state, chunk);
-    if (er) {
-      stream.emit('error', er);
-    } else if (state.objectMode || chunk && chunk.length > 0) {
-      if (typeof chunk !== 'string' && !state.objectMode && Object.getPrototypeOf(chunk) !== Buffer.prototype) {
-        chunk = _uint8ArrayToBuffer(chunk);
-      }
-
-      if (addToFront) {
-        if (state.endEmitted) stream.emit('error', new Error('stream.unshift() after end event'));else addChunk(stream, state, chunk, true);
-      } else if (state.ended) {
-        stream.emit('error', new Error('stream.push() after EOF'));
-      } else {
-        state.reading = false;
-        if (state.decoder && !encoding) {
-          chunk = state.decoder.write(chunk);
-          if (state.objectMode || chunk.length !== 0) addChunk(stream, state, chunk, false);else maybeReadMore(stream, state);
-        } else {
-          addChunk(stream, state, chunk, false);
-        }
-      }
-    } else if (!addToFront) {
-      state.reading = false;
-    }
-  }
-
-  return needMoreData(state);
-}
-
-function addChunk(stream, state, chunk, addToFront) {
-  if (state.flowing && state.length === 0 && !state.sync) {
-    stream.emit('data', chunk);
-    stream.read(0);
-  } else {
-    // update the buffer info.
-    state.length += state.objectMode ? 1 : chunk.length;
-    if (addToFront) state.buffer.unshift(chunk);else state.buffer.push(chunk);
-
-    if (state.needReadable) emitReadable(stream);
-  }
-  maybeReadMore(stream, state);
-}
-
-function chunkInvalid(state, chunk) {
-  var er;
-  if (!_isUint8Array(chunk) && typeof chunk !== 'string' && chunk !== undefined && !state.objectMode) {
-    er = new TypeError('Invalid non-string/buffer chunk');
-  }
-  return er;
-}
-
-// if it's past the high water mark, we can push in some more.
-// Also, if we have no data yet, we can stand some
-// more bytes.  This is to work around cases where hwm=0,
-// such as the repl.  Also, if the push() triggered a
-// readable event, and the user called read(largeNumber) such that
-// needReadable was set, then we ought to push more, so that another
-// 'readable' event will be triggered.
-function needMoreData(state) {
-  return !state.ended && (state.needReadable || state.length < state.highWaterMark || state.length === 0);
-}
-
-Readable.prototype.isPaused = function () {
-  return this._readableState.flowing === false;
-};
-
-// backwards compatibility.
-Readable.prototype.setEncoding = function (enc) {
-  if (!StringDecoder) StringDecoder = require('string_decoder/').StringDecoder;
-  this._readableState.decoder = new StringDecoder(enc);
-  this._readableState.encoding = enc;
-  return this;
-};
-
-// Don't raise the hwm > 8MB
-var MAX_HWM = 0x800000;
-function computeNewHighWaterMark(n) {
-  if (n >= MAX_HWM) {
-    n = MAX_HWM;
-  } else {
-    // Get the next highest power of 2 to prevent increasing hwm excessively in
-    // tiny amounts
-    n--;
-    n |= n >>> 1;
-    n |= n >>> 2;
-    n |= n >>> 4;
-    n |= n >>> 8;
-    n |= n >>> 16;
-    n++;
-  }
-  return n;
-}
-
-// This function is designed to be inlinable, so please take care when making
-// changes to the function body.
-function howMuchToRead(n, state) {
-  if (n <= 0 || state.length === 0 && state.ended) return 0;
-  if (state.objectMode) return 1;
-  if (n !== n) {
-    // Only flow one buffer at a time
-    if (state.flowing && state.length) return state.buffer.head.data.length;else return state.length;
-  }
-  // If we're asking for more than the current hwm, then raise the hwm.
-  if (n > state.highWaterMark) state.highWaterMark = computeNewHighWaterMark(n);
-  if (n <= state.length) return n;
-  // Don't have enough
-  if (!state.ended) {
-    state.needReadable = true;
-    return 0;
-  }
-  return state.length;
-}
-
-// you can override either this method, or the async _read(n) below.
-Readable.prototype.read = function (n) {
-  debug('read', n);
-  n = parseInt(n, 10);
-  var state = this._readableState;
-  var nOrig = n;
-
-  if (n !== 0) state.emittedReadable = false;
-
-  // if we're doing read(0) to trigger a readable event, but we
-  // already have a bunch of data in the buffer, then just trigger
-  // the 'readable' event and move on.
-  if (n === 0 && state.needReadable && (state.length >= state.highWaterMark || state.ended)) {
-    debug('read: emitReadable', state.length, state.ended);
-    if (state.length === 0 && state.ended) endReadable(this);else emitReadable(this);
-    return null;
-  }
-
-  n = howMuchToRead(n, state);
-
-  // if we've ended, and we're now clear, then finish it up.
-  if (n === 0 && state.ended) {
-    if (state.length === 0) endReadable(this);
-    return null;
-  }
-
-  // All the actual chunk generation logic needs to be
-  // *below* the call to _read.  The reason is that in certain
-  // synthetic stream cases, such as passthrough streams, _read
-  // may be a completely synchronous operation which may change
-  // the state of the read buffer, providing enough data when
-  // before there was *not* enough.
-  //
-  // So, the steps are:
-  // 1. Figure out what the state of things will be after we do
-  // a read from the buffer.
-  //
-  // 2. If that resulting state will trigger a _read, then call _read.
-  // Note that this may be asynchronous, or synchronous.  Yes, it is
-  // deeply ugly to write APIs this way, but that still doesn't mean
-  // that the Readable class should behave improperly, as streams are
-  // designed to be sync/async agnostic.
-  // Take note if the _read call is sync or async (ie, if the read call
-  // has returned yet), so that we know whether or not it's safe to emit
-  // 'readable' etc.
-  //
-  // 3. Actually pull the requested chunks out of the buffer and return.
-
-  // if we need a readable event, then we need to do some reading.
-  var doRead = state.needReadable;
-  debug('need readable', doRead);
-
-  // if we currently have less than the highWaterMark, then also read some
-  if (state.length === 0 || state.length - n < state.highWaterMark) {
-    doRead = true;
-    debug('length less than watermark', doRead);
-  }
-
-  // however, if we've ended, then there's no point, and if we're already
-  // reading, then it's unnecessary.
-  if (state.ended || state.reading) {
-    doRead = false;
-    debug('reading or ended', doRead);
-  } else if (doRead) {
-    debug('do read');
-    state.reading = true;
-    state.sync = true;
-    // if the length is currently zero, then we *need* a readable event.
-    if (state.length === 0) state.needReadable = true;
-    // call internal read method
-    this._read(state.highWaterMark);
-    state.sync = false;
-    // If _read pushed data synchronously, then `reading` will be false,
-    // and we need to re-evaluate how much data we can return to the user.
-    if (!state.reading) n = howMuchToRead(nOrig, state);
-  }
-
-  var ret;
-  if (n > 0) ret = fromList(n, state);else ret = null;
-
-  if (ret === null) {
-    state.needReadable = true;
-    n = 0;
-  } else {
-    state.length -= n;
-  }
-
-  if (state.length === 0) {
-    // If we have nothing in the buffer, then we want to know
-    // as soon as we *do* get something into the buffer.
-    if (!state.ended) state.needReadable = true;
-
-    // If we tried to read() past the EOF, then emit end on the next tick.
-    if (nOrig !== n && state.ended) endReadable(this);
-  }
-
-  if (ret !== null) this.emit('data', ret);
-
-  return ret;
-};
-
-function onEofChunk(stream, state) {
-  if (state.ended) return;
-  if (state.decoder) {
-    var chunk = state.decoder.end();
-    if (chunk && chunk.length) {
-      state.buffer.push(chunk);
-      state.length += state.objectMode ? 1 : chunk.length;
-    }
-  }
-  state.ended = true;
-
-  // emit 'readable' now to make sure it gets picked up.
-  emitReadable(stream);
-}
-
-// Don't emit readable right away in sync mode, because this can trigger
-// another read() call => stack overflow.  This way, it might trigger
-// a nextTick recursion warning, but that's not so bad.
-function emitReadable(stream) {
-  var state = stream._readableState;
-  state.needReadable = false;
-  if (!state.emittedReadable) {
-    debug('emitReadable', state.flowing);
-    state.emittedReadable = true;
-    if (state.sync) pna.nextTick(emitReadable_, stream);else emitReadable_(stream);
-  }
-}
-
-function emitReadable_(stream) {
-  debug('emit readable');
-  stream.emit('readable');
-  flow(stream);
-}
-
-// at this point, the user has presumably seen the 'readable' event,
-// and called read() to consume some data.  that may have triggered
-// in turn another _read(n) call, in which case reading = true if
-// it's in progress.
-// However, if we're not ended, or reading, and the length < hwm,
-// then go ahead and try to read some more preemptively.
-function maybeReadMore(stream, state) {
-  if (!state.readingMore) {
-    state.readingMore = true;
-    pna.nextTick(maybeReadMore_, stream, state);
-  }
-}
-
-function maybeReadMore_(stream, state) {
-  var len = state.length;
-  while (!state.reading && !state.flowing && !state.ended && state.length < state.highWaterMark) {
-    debug('maybeReadMore read 0');
-    stream.read(0);
-    if (len === state.length)
-      // didn't get any data, stop spinning.
-      break;else len = state.length;
-  }
-  state.readingMore = false;
-}
-
-// abstract method.  to be overridden in specific implementation classes.
-// call cb(er, data) where data is <= n in length.
-// for virtual (non-string, non-buffer) streams, "length" is somewhat
-// arbitrary, and perhaps not very meaningful.
-Readable.prototype._read = function (n) {
-  this.emit('error', new Error('_read() is not implemented'));
-};
-
-Readable.prototype.pipe = function (dest, pipeOpts) {
-  var src = this;
-  var state = this._readableState;
-
-  switch (state.pipesCount) {
-    case 0:
-      state.pipes = dest;
-      break;
-    case 1:
-      state.pipes = [state.pipes, dest];
-      break;
-    default:
-      state.pipes.push(dest);
-      break;
-  }
-  state.pipesCount += 1;
-  debug('pipe count=%d opts=%j', state.pipesCount, pipeOpts);
-
-  var doEnd = (!pipeOpts || pipeOpts.end !== false) && dest !== process.stdout && dest !== process.stderr;
-
-  var endFn = doEnd ? onend : unpipe;
-  if (state.endEmitted) pna.nextTick(endFn);else src.once('end', endFn);
-
-  dest.on('unpipe', onunpipe);
-  function onunpipe(readable, unpipeInfo) {
-    debug('onunpipe');
-    if (readable === src) {
-      if (unpipeInfo && unpipeInfo.hasUnpiped === false) {
-        unpipeInfo.hasUnpiped = true;
-        cleanup();
-      }
-    }
-  }
-
-  function onend() {
-    debug('onend');
-    dest.end();
-  }
-
-  // when the dest drains, it reduces the awaitDrain counter
-  // on the source.  This would be more elegant with a .once()
-  // handler in flow(), but adding and removing repeatedly is
-  // too slow.
-  var ondrain = pipeOnDrain(src);
-  dest.on('drain', ondrain);
-
-  var cleanedUp = false;
-  function cleanup() {
-    debug('cleanup');
-    // cleanup event handlers once the pipe is broken
-    dest.removeListener('close', onclose);
-    dest.removeListener('finish', onfinish);
-    dest.removeListener('drain', ondrain);
-    dest.removeListener('error', onerror);
-    dest.removeListener('unpipe', onunpipe);
-    src.removeListener('end', onend);
-    src.removeListener('end', unpipe);
-    src.removeListener('data', ondata);
-
-    cleanedUp = true;
-
-    // if the reader is waiting for a drain event from this
-    // specific writer, then it would cause it to never start
-    // flowing again.
-    // So, if this is awaiting a drain, then we just call it now.
-    // If we don't know, then assume that we are waiting for one.
-    if (state.awaitDrain && (!dest._writableState || dest._writableState.needDrain)) ondrain();
-  }
-
-  // If the user pushes more data while we're writing to dest then we'll end up
-  // in ondata again. However, we only want to increase awaitDrain once because
-  // dest will only emit one 'drain' event for the multiple writes.
-  // => Introduce a guard on increasing awaitDrain.
-  var increasedAwaitDrain = false;
-  src.on('data', ondata);
-  function ondata(chunk) {
-    debug('ondata');
-    increasedAwaitDrain = false;
-    var ret = dest.write(chunk);
-    if (false === ret && !increasedAwaitDrain) {
-      // If the user unpiped during `dest.write()`, it is possible
-      // to get stuck in a permanently paused state if that write
-      // also returned false.
-      // => Check whether `dest` is still a piping destination.
-      if ((state.pipesCount === 1 && state.pipes === dest || state.pipesCount > 1 && indexOf(state.pipes, dest) !== -1) && !cleanedUp) {
-        debug('false write response, pause', src._readableState.awaitDrain);
-        src._readableState.awaitDrain++;
-        increasedAwaitDrain = true;
-      }
-      src.pause();
-    }
-  }
-
-  // if the dest has an error, then stop piping into it.
-  // however, don't suppress the throwing behavior for this.
-  function onerror(er) {
-    debug('onerror', er);
-    unpipe();
-    dest.removeListener('error', onerror);
-    if (EElistenerCount(dest, 'error') === 0) dest.emit('error', er);
-  }
-
-  // Make sure our error handler is attached before userland ones.
-  prependListener(dest, 'error', onerror);
-
-  // Both close and finish should trigger unpipe, but only once.
-  function onclose() {
-    dest.removeListener('finish', onfinish);
-    unpipe();
-  }
-  dest.once('close', onclose);
-  function onfinish() {
-    debug('onfinish');
-    dest.removeListener('close', onclose);
-    unpipe();
-  }
-  dest.once('finish', onfinish);
-
-  function unpipe() {
-    debug('unpipe');
-    src.unpipe(dest);
-  }
-
-  // tell the dest that it's being piped to
-  dest.emit('pipe', src);
-
-  // start the flow if it hasn't been started already.
-  if (!state.flowing) {
-    debug('pipe resume');
-    src.resume();
-  }
-
-  return dest;
-};
-
-function pipeOnDrain(src) {
-  return function () {
-    var state = src._readableState;
-    debug('pipeOnDrain', state.awaitDrain);
-    if (state.awaitDrain) state.awaitDrain--;
-    if (state.awaitDrain === 0 && EElistenerCount(src, 'data')) {
-      state.flowing = true;
-      flow(src);
-    }
-  };
-}
-
-Readable.prototype.unpipe = function (dest) {
-  var state = this._readableState;
-  var unpipeInfo = { hasUnpiped: false };
-
-  // if we're not piping anywhere, then do nothing.
-  if (state.pipesCount === 0) return this;
-
-  // just one destination.  most common case.
-  if (state.pipesCount === 1) {
-    // passed in one, but it's not the right one.
-    if (dest && dest !== state.pipes) return this;
-
-    if (!dest) dest = state.pipes;
-
-    // got a match.
-    state.pipes = null;
-    state.pipesCount = 0;
-    state.flowing = false;
-    if (dest) dest.emit('unpipe', this, unpipeInfo);
-    return this;
-  }
-
-  // slow case. multiple pipe destinations.
-
-  if (!dest) {
-    // remove all.
-    var dests = state.pipes;
-    var len = state.pipesCount;
-    state.pipes = null;
-    state.pipesCount = 0;
-    state.flowing = false;
-
-    for (var i = 0; i < len; i++) {
-      dests[i].emit('unpipe', this, unpipeInfo);
-    }return this;
-  }
-
-  // try to find the right one.
-  var index = indexOf(state.pipes, dest);
-  if (index === -1) return this;
-
-  state.pipes.splice(index, 1);
-  state.pipesCount -= 1;
-  if (state.pipesCount === 1) state.pipes = state.pipes[0];
-
-  dest.emit('unpipe', this, unpipeInfo);
-
-  return this;
-};
-
-// set up data events if they are asked for
-// Ensure readable listeners eventually get something
-Readable.prototype.on = function (ev, fn) {
-  var res = Stream.prototype.on.call(this, ev, fn);
-
-  if (ev === 'data') {
-    // Start flowing on next tick if stream isn't explicitly paused
-    if (this._readableState.flowing !== false) this.resume();
-  } else if (ev === 'readable') {
-    var state = this._readableState;
-    if (!state.endEmitted && !state.readableListening) {
-      state.readableListening = state.needReadable = true;
-      state.emittedReadable = false;
-      if (!state.reading) {
-        pna.nextTick(nReadingNextTick, this);
-      } else if (state.length) {
-        emitReadable(this);
-      }
-    }
-  }
-
-  return res;
-};
-Readable.prototype.addListener = Readable.prototype.on;
-
-function nReadingNextTick(self) {
-  debug('readable nexttick read 0');
-  self.read(0);
-}
-
-// pause() and resume() are remnants of the legacy readable stream API
-// If the user uses them, then switch into old mode.
-Readable.prototype.resume = function () {
-  var state = this._readableState;
-  if (!state.flowing) {
-    debug('resume');
-    state.flowing = true;
-    resume(this, state);
-  }
-  return this;
-};
-
-function resume(stream, state) {
-  if (!state.resumeScheduled) {
-    state.resumeScheduled = true;
-    pna.nextTick(resume_, stream, state);
-  }
-}
-
-function resume_(stream, state) {
-  if (!state.reading) {
-    debug('resume read 0');
-    stream.read(0);
-  }
-
-  state.resumeScheduled = false;
-  state.awaitDrain = 0;
-  stream.emit('resume');
-  flow(stream);
-  if (state.flowing && !state.reading) stream.read(0);
-}
-
-Readable.prototype.pause = function () {
-  debug('call pause flowing=%j', this._readableState.flowing);
-  if (false !== this._readableState.flowing) {
-    debug('pause');
-    this._readableState.flowing = false;
-    this.emit('pause');
-  }
-  return this;
-};
-
-function flow(stream) {
-  var state = stream._readableState;
-  debug('flow', state.flowing);
-  while (state.flowing && stream.read() !== null) {}
-}
-
-// wrap an old-style stream as the async data source.
-// This is *not* part of the readable stream interface.
-// It is an ugly unfortunate mess of history.
-Readable.prototype.wrap = function (stream) {
-  var _this = this;
-
-  var state = this._readableState;
-  var paused = false;
-
-  stream.on('end', function () {
-    debug('wrapped end');
-    if (state.decoder && !state.ended) {
-      var chunk = state.decoder.end();
-      if (chunk && chunk.length) _this.push(chunk);
-    }
-
-    _this.push(null);
-  });
-
-  stream.on('data', function (chunk) {
-    debug('wrapped data');
-    if (state.decoder) chunk = state.decoder.write(chunk);
-
-    // don't skip over falsy values in objectMode
-    if (state.objectMode && (chunk === null || chunk === undefined)) return;else if (!state.objectMode && (!chunk || !chunk.length)) return;
-
-    var ret = _this.push(chunk);
-    if (!ret) {
-      paused = true;
-      stream.pause();
-    }
-  });
-
-  // proxy all the other methods.
-  // important when wrapping filters and duplexes.
-  for (var i in stream) {
-    if (this[i] === undefined && typeof stream[i] === 'function') {
-      this[i] = function (method) {
-        return function () {
-          return stream[method].apply(stream, arguments);
-        };
-      }(i);
-    }
-  }
-
-  // proxy certain important events.
-  for (var n = 0; n < kProxyEvents.length; n++) {
-    stream.on(kProxyEvents[n], this.emit.bind(this, kProxyEvents[n]));
-  }
-
-  // when we try to consume some more bytes, simply unpause the
-  // underlying stream.
-  this._read = function (n) {
-    debug('wrapped _read', n);
-    if (paused) {
-      paused = false;
-      stream.resume();
-    }
-  };
-
-  return this;
-};
-
-Object.defineProperty(Readable.prototype, 'readableHighWaterMark', {
-  // making it explicit this property is not enumerable
-  // because otherwise some prototype manipulation in
-  // userland will fail
-  enumerable: false,
-  get: function () {
-    return this._readableState.highWaterMark;
-  }
-});
-
-// exposed for testing purposes only.
-Readable._fromList = fromList;
-
-// Pluck off n bytes from an array of buffers.
-// Length is the combined lengths of all the buffers in the list.
-// This function is designed to be inlinable, so please take care when making
-// changes to the function body.
-function fromList(n, state) {
-  // nothing buffered
-  if (state.length === 0) return null;
-
-  var ret;
-  if (state.objectMode) ret = state.buffer.shift();else if (!n || n >= state.length) {
-    // read it all, truncate the list
-    if (state.decoder) ret = state.buffer.join('');else if (state.buffer.length === 1) ret = state.buffer.head.data;else ret = state.buffer.concat(state.length);
-    state.buffer.clear();
-  } else {
-    // read part of list
-    ret = fromListPartial(n, state.buffer, state.decoder);
-  }
-
-  return ret;
-}
-
-// Extracts only enough buffered data to satisfy the amount requested.
-// This function is designed to be inlinable, so please take care when making
-// changes to the function body.
-function fromListPartial(n, list, hasStrings) {
-  var ret;
-  if (n < list.head.data.length) {
-    // slice is the same for buffers and strings
-    ret = list.head.data.slice(0, n);
-    list.head.data = list.head.data.slice(n);
-  } else if (n === list.head.data.length) {
-    // first chunk is a perfect match
-    ret = list.shift();
-  } else {
-    // result spans more than one buffer
-    ret = hasStrings ? copyFromBufferString(n, list) : copyFromBuffer(n, list);
-  }
-  return ret;
-}
-
-// Copies a specified amount of characters from the list of buffered data
-// chunks.
-// This function is designed to be inlinable, so please take care when making
-// changes to the function body.
-function copyFromBufferString(n, list) {
-  var p = list.head;
-  var c = 1;
-  var ret = p.data;
-  n -= ret.length;
-  while (p = p.next) {
-    var str = p.data;
-    var nb = n > str.length ? str.length : n;
-    if (nb === str.length) ret += str;else ret += str.slice(0, n);
-    n -= nb;
-    if (n === 0) {
-      if (nb === str.length) {
-        ++c;
-        if (p.next) list.head = p.next;else list.head = list.tail = null;
-      } else {
-        list.head = p;
-        p.data = str.slice(nb);
-      }
-      break;
-    }
-    ++c;
-  }
-  list.length -= c;
-  return ret;
-}
-
-// Copies a specified amount of bytes from the list of buffered data chunks.
-// This function is designed to be inlinable, so please take care when making
-// changes to the function body.
-function copyFromBuffer(n, list) {
-  var ret = Buffer.allocUnsafe(n);
-  var p = list.head;
-  var c = 1;
-  p.data.copy(ret);
-  n -= p.data.length;
-  while (p = p.next) {
-    var buf = p.data;
-    var nb = n > buf.length ? buf.length : n;
-    buf.copy(ret, ret.length - n, 0, nb);
-    n -= nb;
-    if (n === 0) {
-      if (nb === buf.length) {
-        ++c;
-        if (p.next) list.head = p.next;else list.head = list.tail = null;
-      } else {
-        list.head = p;
-        p.data = buf.slice(nb);
-      }
-      break;
-    }
-    ++c;
-  }
-  list.length -= c;
-  return ret;
-}
-
-function endReadable(stream) {
-  var state = stream._readableState;
-
-  // If we get here before consuming all the bytes, then that is a
-  // bug in node.  Should never happen.
-  if (state.length > 0) throw new Error('"endReadable()" called on non-empty stream');
-
-  if (!state.endEmitted) {
-    state.ended = true;
-    pna.nextTick(endReadableNT, state, stream);
-  }
-}
-
-function endReadableNT(state, stream) {
-  // Check that we didn't get one last unshift.
-  if (!state.endEmitted && state.length === 0) {
-    state.endEmitted = true;
-    stream.readable = false;
-    stream.emit('end');
-  }
-}
-
-function indexOf(xs, x) {
-  for (var i = 0, l = xs.length; i < l; i++) {
-    if (xs[i] === x) return i;
-  }
-  return -1;
-}
-}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./_stream_duplex":278,"./internal/streams/BufferList":283,"./internal/streams/destroy":284,"./internal/streams/stream":285,"_process":272,"core-util-is":242,"events":245,"inherits":263,"isarray":265,"process-nextick-args":271,"safe-buffer":290,"string_decoder/":296,"util":238}],281:[function(require,module,exports){
-// Copyright Joyent, Inc. and other Node contributors.
-//
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the
-// "Software"), to deal in the Software without restriction, including
-// without limitation the rights to use, copy, modify, merge, publish,
-// distribute, sublicense, and/or sell copies of the Software, and to permit
-// persons to whom the Software is furnished to do so, subject to the
-// following conditions:
-//
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
-// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
-// USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-// a transform stream is a readable/writable stream where you do
-// something with the data.  Sometimes it's called a "filter",
-// but that's not a great name for it, since that implies a thing where
-// some bits pass through, and others are simply ignored.  (That would
-// be a valid example of a transform, of course.)
-//
-// While the output is causally related to the input, it's not a
-// necessarily symmetric or synchronous transformation.  For example,
-// a zlib stream might take multiple plain-text writes(), and then
-// emit a single compressed chunk some time in the future.
-//
-// Here's how this works:
-//
-// The Transform stream has all the aspects of the readable and writable
-// stream classes.  When you write(chunk), that calls _write(chunk,cb)
-// internally, and returns false if there's a lot of pending writes
-// buffered up.  When you call read(), that calls _read(n) until
-// there's enough pending readable data buffered up.
-//
-// In a transform stream, the written data is placed in a buffer.  When
-// _read(n) is called, it transforms the queued up data, calling the
-// buffered _write cb's as it consumes chunks.  If consuming a single
-// written chunk would result in multiple output chunks, then the first
-// outputted bit calls the readcb, and subsequent chunks just go into
-// the read buffer, and will cause it to emit 'readable' if necessary.
-//
-// This way, back-pressure is actually determined by the reading side,
-// since _read has to be called to start processing a new chunk.  However,
-// a pathological inflate type of transform can cause excessive buffering
-// here.  For example, imagine a stream where every byte of input is
-// interpreted as an integer from 0-255, and then results in that many
-// bytes of output.  Writing the 4 bytes {ff,ff,ff,ff} would result in
-// 1kb of data being output.  In this case, you could write a very small
-// amount of input, and end up with a very large amount of output.  In
-// such a pathological inflating mechanism, there'd be no way to tell
-// the system to stop doing the transform.  A single 4MB write could
-// cause the system to run out of memory.
-//
-// However, even in such a pathological case, only a single written chunk
-// would be consumed, and then the rest would wait (un-transformed) until
-// the results of the previous transformed chunk were consumed.
-
-'use strict';
-
-module.exports = Transform;
-
-var Duplex = require('./_stream_duplex');
-
-/*<replacement>*/
-var util = require('core-util-is');
-util.inherits = require('inherits');
-/*</replacement>*/
-
-util.inherits(Transform, Duplex);
-
-function afterTransform(er, data) {
-  var ts = this._transformState;
-  ts.transforming = false;
-
-  var cb = ts.writecb;
-
-  if (!cb) {
-    return this.emit('error', new Error('write callback called multiple times'));
-  }
-
-  ts.writechunk = null;
-  ts.writecb = null;
-
-  if (data != null) // single equals check for both `null` and `undefined`
-    this.push(data);
-
-  cb(er);
-
-  var rs = this._readableState;
-  rs.reading = false;
-  if (rs.needReadable || rs.length < rs.highWaterMark) {
-    this._read(rs.highWaterMark);
-  }
-}
-
-function Transform(options) {
-  if (!(this instanceof Transform)) return new Transform(options);
-
-  Duplex.call(this, options);
-
-  this._transformState = {
-    afterTransform: afterTransform.bind(this),
-    needTransform: false,
-    transforming: false,
-    writecb: null,
-    writechunk: null,
-    writeencoding: null
-  };
-
-  // start out asking for a readable event once data is transformed.
-  this._readableState.needReadable = true;
-
-  // we have implemented the _read method, and done the other things
-  // that Readable wants before the first _read call, so unset the
-  // sync guard flag.
-  this._readableState.sync = false;
-
-  if (options) {
-    if (typeof options.transform === 'function') this._transform = options.transform;
-
-    if (typeof options.flush === 'function') this._flush = options.flush;
-  }
-
-  // When the writable side finishes, then flush out anything remaining.
-  this.on('prefinish', prefinish);
-}
-
-function prefinish() {
-  var _this = this;
-
-  if (typeof this._flush === 'function') {
-    this._flush(function (er, data) {
-      done(_this, er, data);
-    });
-  } else {
-    done(this, null, null);
-  }
-}
-
-Transform.prototype.push = function (chunk, encoding) {
-  this._transformState.needTransform = false;
-  return Duplex.prototype.push.call(this, chunk, encoding);
-};
-
-// This is the part where you do stuff!
-// override this function in implementation classes.
-// 'chunk' is an input chunk.
-//
-// Call `push(newChunk)` to pass along transformed output
-// to the readable side.  You may call 'push' zero or more times.
-//
-// Call `cb(err)` when you are done with this chunk.  If you pass
-// an error, then that'll put the hurt on the whole operation.  If you
-// never call cb(), then you'll never get another chunk.
-Transform.prototype._transform = function (chunk, encoding, cb) {
-  throw new Error('_transform() is not implemented');
-};
-
-Transform.prototype._write = function (chunk, encoding, cb) {
-  var ts = this._transformState;
-  ts.writecb = cb;
-  ts.writechunk = chunk;
-  ts.writeencoding = encoding;
-  if (!ts.transforming) {
-    var rs = this._readableState;
-    if (ts.needTransform || rs.needReadable || rs.length < rs.highWaterMark) this._read(rs.highWaterMark);
-  }
-};
-
-// Doesn't matter what the args are here.
-// _transform does all the work.
-// That we got here means that the readable side wants more data.
-Transform.prototype._read = function (n) {
-  var ts = this._transformState;
-
-  if (ts.writechunk !== null && ts.writecb && !ts.transforming) {
-    ts.transforming = true;
-    this._transform(ts.writechunk, ts.writeencoding, ts.afterTransform);
-  } else {
-    // mark that we need a transform, so that any data that comes in
-    // will get processed, now that we've asked for it.
-    ts.needTransform = true;
-  }
-};
-
-Transform.prototype._destroy = function (err, cb) {
-  var _this2 = this;
-
-  Duplex.prototype._destroy.call(this, err, function (err2) {
-    cb(err2);
-    _this2.emit('close');
-  });
-};
-
-function done(stream, er, data) {
-  if (er) return stream.emit('error', er);
-
-  if (data != null) // single equals check for both `null` and `undefined`
-    stream.push(data);
-
-  // if there's nothing in the write buffer, then that means
-  // that nothing more will ever be provided
-  if (stream._writableState.length) throw new Error('Calling transform done when ws.length != 0');
-
-  if (stream._transformState.transforming) throw new Error('Calling transform done when still transforming');
-
-  return stream.push(null);
-}
-},{"./_stream_duplex":278,"core-util-is":242,"inherits":263}],282:[function(require,module,exports){
-(function (process,global,setImmediate){
-// Copyright Joyent, Inc. and other Node contributors.
-//
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the
-// "Software"), to deal in the Software without restriction, including
-// without limitation the rights to use, copy, modify, merge, publish,
-// distribute, sublicense, and/or sell copies of the Software, and to permit
-// persons to whom the Software is furnished to do so, subject to the
-// following conditions:
-//
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
-// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
-// USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-// A bit simpler than readable streams.
-// Implement an async ._write(chunk, encoding, cb), and it'll handle all
-// the drain event emission and buffering.
-
-'use strict';
-
-/*<replacement>*/
-
-var pna = require('process-nextick-args');
-/*</replacement>*/
-
-module.exports = Writable;
-
-/* <replacement> */
-function WriteReq(chunk, encoding, cb) {
-  this.chunk = chunk;
-  this.encoding = encoding;
-  this.callback = cb;
-  this.next = null;
-}
-
-// It seems a linked list but it is not
-// there will be only 2 of these for each stream
-function CorkedRequest(state) {
-  var _this = this;
-
-  this.next = null;
-  this.entry = null;
-  this.finish = function () {
-    onCorkedFinish(_this, state);
-  };
-}
-/* </replacement> */
-
-/*<replacement>*/
-var asyncWrite = !process.browser && ['v0.10', 'v0.9.'].indexOf(process.version.slice(0, 5)) > -1 ? setImmediate : pna.nextTick;
-/*</replacement>*/
-
-/*<replacement>*/
-var Duplex;
-/*</replacement>*/
-
-Writable.WritableState = WritableState;
-
-/*<replacement>*/
-var util = require('core-util-is');
-util.inherits = require('inherits');
-/*</replacement>*/
-
-/*<replacement>*/
-var internalUtil = {
-  deprecate: require('util-deprecate')
-};
-/*</replacement>*/
-
-/*<replacement>*/
-var Stream = require('./internal/streams/stream');
-/*</replacement>*/
-
-/*<replacement>*/
-
-var Buffer = require('safe-buffer').Buffer;
-var OurUint8Array = global.Uint8Array || function () {};
-function _uint8ArrayToBuffer(chunk) {
-  return Buffer.from(chunk);
-}
-function _isUint8Array(obj) {
-  return Buffer.isBuffer(obj) || obj instanceof OurUint8Array;
-}
-
-/*</replacement>*/
-
-var destroyImpl = require('./internal/streams/destroy');
-
-util.inherits(Writable, Stream);
-
-function nop() {}
-
-function WritableState(options, stream) {
-  Duplex = Duplex || require('./_stream_duplex');
-
-  options = options || {};
-
-  // Duplex streams are both readable and writable, but share
-  // the same options object.
-  // However, some cases require setting options to different
-  // values for the readable and the writable sides of the duplex stream.
-  // These options can be provided separately as readableXXX and writableXXX.
-  var isDuplex = stream instanceof Duplex;
-
-  // object stream flag to indicate whether or not this stream
-  // contains buffers or objects.
-  this.objectMode = !!options.objectMode;
-
-  if (isDuplex) this.objectMode = this.objectMode || !!options.writableObjectMode;
-
-  // the point at which write() starts returning false
-  // Note: 0 is a valid value, means that we always return false if
-  // the entire buffer is not flushed immediately on write()
-  var hwm = options.highWaterMark;
-  var writableHwm = options.writableHighWaterMark;
-  var defaultHwm = this.objectMode ? 16 : 16 * 1024;
-
-  if (hwm || hwm === 0) this.highWaterMark = hwm;else if (isDuplex && (writableHwm || writableHwm === 0)) this.highWaterMark = writableHwm;else this.highWaterMark = defaultHwm;
-
-  // cast to ints.
-  this.highWaterMark = Math.floor(this.highWaterMark);
-
-  // if _final has been called
-  this.finalCalled = false;
-
-  // drain event flag.
-  this.needDrain = false;
-  // at the start of calling end()
-  this.ending = false;
-  // when end() has been called, and returned
-  this.ended = false;
-  // when 'finish' is emitted
-  this.finished = false;
-
-  // has it been destroyed
-  this.destroyed = false;
-
-  // should we decode strings into buffers before passing to _write?
-  // this is here so that some node-core streams can optimize string
-  // handling at a lower level.
-  var noDecode = options.decodeStrings === false;
-  this.decodeStrings = !noDecode;
-
-  // Crypto is kind of old and crusty.  Historically, its default string
-  // encoding is 'binary' so we have to make this configurable.
-  // Everything else in the universe uses 'utf8', though.
-  this.defaultEncoding = options.defaultEncoding || 'utf8';
-
-  // not an actual buffer we keep track of, but a measurement
-  // of how much we're waiting to get pushed to some underlying
-  // socket or file.
-  this.length = 0;
-
-  // a flag to see when we're in the middle of a write.
-  this.writing = false;
-
-  // when true all writes will be buffered until .uncork() call
-  this.corked = 0;
-
-  // a flag to be able to tell if the onwrite cb is called immediately,
-  // or on a later tick.  We set this to true at first, because any
-  // actions that shouldn't happen until "later" should generally also
-  // not happen before the first write call.
-  this.sync = true;
-
-  // a flag to know if we're processing previously buffered items, which
-  // may call the _write() callback in the same tick, so that we don't
-  // end up in an overlapped onwrite situation.
-  this.bufferProcessing = false;
-
-  // the callback that's passed to _write(chunk,cb)
-  this.onwrite = function (er) {
-    onwrite(stream, er);
-  };
-
-  // the callback that the user supplies to write(chunk,encoding,cb)
-  this.writecb = null;
-
-  // the amount that is being written when _write is called.
-  this.writelen = 0;
-
-  this.bufferedRequest = null;
-  this.lastBufferedRequest = null;
-
-  // number of pending user-supplied write callbacks
-  // this must be 0 before 'finish' can be emitted
-  this.pendingcb = 0;
-
-  // emit prefinish if the only thing we're waiting for is _write cbs
-  // This is relevant for synchronous Transform streams
-  this.prefinished = false;
-
-  // True if the error was already emitted and should not be thrown again
-  this.errorEmitted = false;
-
-  // count buffered requests
-  this.bufferedRequestCount = 0;
-
-  // allocate the first CorkedRequest, there is always
-  // one allocated and free to use, and we maintain at most two
-  this.corkedRequestsFree = new CorkedRequest(this);
-}
-
-WritableState.prototype.getBuffer = function getBuffer() {
-  var current = this.bufferedRequest;
-  var out = [];
-  while (current) {
-    out.push(current);
-    current = current.next;
-  }
-  return out;
-};
-
-(function () {
-  try {
-    Object.defineProperty(WritableState.prototype, 'buffer', {
-      get: internalUtil.deprecate(function () {
-        return this.getBuffer();
-      }, '_writableState.buffer is deprecated. Use _writableState.getBuffer ' + 'instead.', 'DEP0003')
-    });
-  } catch (_) {}
-})();
-
-// Test _writableState for inheritance to account for Duplex streams,
-// whose prototype chain only points to Readable.
-var realHasInstance;
-if (typeof Symbol === 'function' && Symbol.hasInstance && typeof Function.prototype[Symbol.hasInstance] === 'function') {
-  realHasInstance = Function.prototype[Symbol.hasInstance];
-  Object.defineProperty(Writable, Symbol.hasInstance, {
-    value: function (object) {
-      if (realHasInstance.call(this, object)) return true;
-      if (this !== Writable) return false;
-
-      return object && object._writableState instanceof WritableState;
-    }
-  });
-} else {
-  realHasInstance = function (object) {
-    return object instanceof this;
-  };
-}
-
-function Writable(options) {
-  Duplex = Duplex || require('./_stream_duplex');
-
-  // Writable ctor is applied to Duplexes, too.
-  // `realHasInstance` is necessary because using plain `instanceof`
-  // would return false, as no `_writableState` property is attached.
-
-  // Trying to use the custom `instanceof` for Writable here will also break the
-  // Node.js LazyTransform implementation, which has a non-trivial getter for
-  // `_writableState` that would lead to infinite recursion.
-  if (!realHasInstance.call(Writable, this) && !(this instanceof Duplex)) {
-    return new Writable(options);
-  }
-
-  this._writableState = new WritableState(options, this);
-
-  // legacy.
-  this.writable = true;
-
-  if (options) {
-    if (typeof options.write === 'function') this._write = options.write;
-
-    if (typeof options.writev === 'function') this._writev = options.writev;
-
-    if (typeof options.destroy === 'function') this._destroy = options.destroy;
-
-    if (typeof options.final === 'function') this._final = options.final;
-  }
-
-  Stream.call(this);
-}
-
-// Otherwise people can pipe Writable streams, which is just wrong.
-Writable.prototype.pipe = function () {
-  this.emit('error', new Error('Cannot pipe, not readable'));
-};
-
-function writeAfterEnd(stream, cb) {
-  var er = new Error('write after end');
-  // TODO: defer error events consistently everywhere, not just the cb
-  stream.emit('error', er);
-  pna.nextTick(cb, er);
-}
-
-// Checks that a user-supplied chunk is valid, especially for the particular
-// mode the stream is in. Currently this means that `null` is never accepted
-// and undefined/non-string values are only allowed in object mode.
-function validChunk(stream, state, chunk, cb) {
-  var valid = true;
-  var er = false;
-
-  if (chunk === null) {
-    er = new TypeError('May not write null values to stream');
-  } else if (typeof chunk !== 'string' && chunk !== undefined && !state.objectMode) {
-    er = new TypeError('Invalid non-string/buffer chunk');
-  }
-  if (er) {
-    stream.emit('error', er);
-    pna.nextTick(cb, er);
-    valid = false;
-  }
-  return valid;
-}
-
-Writable.prototype.write = function (chunk, encoding, cb) {
-  var state = this._writableState;
-  var ret = false;
-  var isBuf = !state.objectMode && _isUint8Array(chunk);
-
-  if (isBuf && !Buffer.isBuffer(chunk)) {
-    chunk = _uint8ArrayToBuffer(chunk);
-  }
-
-  if (typeof encoding === 'function') {
-    cb = encoding;
-    encoding = null;
-  }
-
-  if (isBuf) encoding = 'buffer';else if (!encoding) encoding = state.defaultEncoding;
-
-  if (typeof cb !== 'function') cb = nop;
-
-  if (state.ended) writeAfterEnd(this, cb);else if (isBuf || validChunk(this, state, chunk, cb)) {
-    state.pendingcb++;
-    ret = writeOrBuffer(this, state, isBuf, chunk, encoding, cb);
-  }
-
-  return ret;
-};
-
-Writable.prototype.cork = function () {
-  var state = this._writableState;
-
-  state.corked++;
-};
-
-Writable.prototype.uncork = function () {
-  var state = this._writableState;
-
-  if (state.corked) {
-    state.corked--;
-
-    if (!state.writing && !state.corked && !state.finished && !state.bufferProcessing && state.bufferedRequest) clearBuffer(this, state);
-  }
-};
-
-Writable.prototype.setDefaultEncoding = function setDefaultEncoding(encoding) {
-  // node::ParseEncoding() requires lower case.
-  if (typeof encoding === 'string') encoding = encoding.toLowerCase();
-  if (!(['hex', 'utf8', 'utf-8', 'ascii', 'binary', 'base64', 'ucs2', 'ucs-2', 'utf16le', 'utf-16le', 'raw'].indexOf((encoding + '').toLowerCase()) > -1)) throw new TypeError('Unknown encoding: ' + encoding);
-  this._writableState.defaultEncoding = encoding;
-  return this;
-};
-
-function decodeChunk(state, chunk, encoding) {
-  if (!state.objectMode && state.decodeStrings !== false && typeof chunk === 'string') {
-    chunk = Buffer.from(chunk, encoding);
-  }
-  return chunk;
-}
-
-Object.defineProperty(Writable.prototype, 'writableHighWaterMark', {
-  // making it explicit this property is not enumerable
-  // because otherwise some prototype manipulation in
-  // userland will fail
-  enumerable: false,
-  get: function () {
-    return this._writableState.highWaterMark;
-  }
-});
-
-// if we're already writing something, then just put this
-// in the queue, and wait our turn.  Otherwise, call _write
-// If we return false, then we need a drain event, so set that flag.
-function writeOrBuffer(stream, state, isBuf, chunk, encoding, cb) {
-  if (!isBuf) {
-    var newChunk = decodeChunk(state, chunk, encoding);
-    if (chunk !== newChunk) {
-      isBuf = true;
-      encoding = 'buffer';
-      chunk = newChunk;
-    }
-  }
-  var len = state.objectMode ? 1 : chunk.length;
-
-  state.length += len;
-
-  var ret = state.length < state.highWaterMark;
-  // we must ensure that previous needDrain will not be reset to false.
-  if (!ret) state.needDrain = true;
-
-  if (state.writing || state.corked) {
-    var last = state.lastBufferedRequest;
-    state.lastBufferedRequest = {
-      chunk: chunk,
-      encoding: encoding,
-      isBuf: isBuf,
-      callback: cb,
-      next: null
-    };
-    if (last) {
-      last.next = state.lastBufferedRequest;
-    } else {
-      state.bufferedRequest = state.lastBufferedRequest;
-    }
-    state.bufferedRequestCount += 1;
-  } else {
-    doWrite(stream, state, false, len, chunk, encoding, cb);
-  }
-
-  return ret;
-}
-
-function doWrite(stream, state, writev, len, chunk, encoding, cb) {
-  state.writelen = len;
-  state.writecb = cb;
-  state.writing = true;
-  state.sync = true;
-  if (writev) stream._writev(chunk, state.onwrite);else stream._write(chunk, encoding, state.onwrite);
-  state.sync = false;
-}
-
-function onwriteError(stream, state, sync, er, cb) {
-  --state.pendingcb;
-
-  if (sync) {
-    // defer the callback if we are being called synchronously
-    // to avoid piling up things on the stack
-    pna.nextTick(cb, er);
-    // this can emit finish, and it will always happen
-    // after error
-    pna.nextTick(finishMaybe, stream, state);
-    stream._writableState.errorEmitted = true;
-    stream.emit('error', er);
-  } else {
-    // the caller expect this to happen before if
-    // it is async
-    cb(er);
-    stream._writableState.errorEmitted = true;
-    stream.emit('error', er);
-    // this can emit finish, but finish must
-    // always follow error
-    finishMaybe(stream, state);
-  }
-}
-
-function onwriteStateUpdate(state) {
-  state.writing = false;
-  state.writecb = null;
-  state.length -= state.writelen;
-  state.writelen = 0;
-}
-
-function onwrite(stream, er) {
-  var state = stream._writableState;
-  var sync = state.sync;
-  var cb = state.writecb;
-
-  onwriteStateUpdate(state);
-
-  if (er) onwriteError(stream, state, sync, er, cb);else {
-    // Check if we're actually ready to finish, but don't emit yet
-    var finished = needFinish(state);
-
-    if (!finished && !state.corked && !state.bufferProcessing && state.bufferedRequest) {
-      clearBuffer(stream, state);
-    }
-
-    if (sync) {
-      /*<replacement>*/
-      asyncWrite(afterWrite, stream, state, finished, cb);
-      /*</replacement>*/
-    } else {
-      afterWrite(stream, state, finished, cb);
-    }
-  }
-}
-
-function afterWrite(stream, state, finished, cb) {
-  if (!finished) onwriteDrain(stream, state);
-  state.pendingcb--;
-  cb();
-  finishMaybe(stream, state);
-}
-
-// Must force callback to be called on nextTick, so that we don't
-// emit 'drain' before the write() consumer gets the 'false' return
-// value, and has a chance to attach a 'drain' listener.
-function onwriteDrain(stream, state) {
-  if (state.length === 0 && state.needDrain) {
-    state.needDrain = false;
-    stream.emit('drain');
-  }
-}
-
-// if there's something in the buffer waiting, then process it
-function clearBuffer(stream, state) {
-  state.bufferProcessing = true;
-  var entry = state.bufferedRequest;
-
-  if (stream._writev && entry && entry.next) {
-    // Fast case, write everything using _writev()
-    var l = state.bufferedRequestCount;
-    var buffer = new Array(l);
-    var holder = state.corkedRequestsFree;
-    holder.entry = entry;
-
-    var count = 0;
-    var allBuffers = true;
-    while (entry) {
-      buffer[count] = entry;
-      if (!entry.isBuf) allBuffers = false;
-      entry = entry.next;
-      count += 1;
-    }
-    buffer.allBuffers = allBuffers;
-
-    doWrite(stream, state, true, state.length, buffer, '', holder.finish);
-
-    // doWrite is almost always async, defer these to save a bit of time
-    // as the hot path ends with doWrite
-    state.pendingcb++;
-    state.lastBufferedRequest = null;
-    if (holder.next) {
-      state.corkedRequestsFree = holder.next;
-      holder.next = null;
-    } else {
-      state.corkedRequestsFree = new CorkedRequest(state);
-    }
-    state.bufferedRequestCount = 0;
-  } else {
-    // Slow case, write chunks one-by-one
-    while (entry) {
-      var chunk = entry.chunk;
-      var encoding = entry.encoding;
-      var cb = entry.callback;
-      var len = state.objectMode ? 1 : chunk.length;
-
-      doWrite(stream, state, false, len, chunk, encoding, cb);
-      entry = entry.next;
-      state.bufferedRequestCount--;
-      // if we didn't call the onwrite immediately, then
-      // it means that we need to wait until it does.
-      // also, that means that the chunk and cb are currently
-      // being processed, so move the buffer counter past them.
-      if (state.writing) {
-        break;
-      }
-    }
-
-    if (entry === null) state.lastBufferedRequest = null;
-  }
-
-  state.bufferedRequest = entry;
-  state.bufferProcessing = false;
-}
-
-Writable.prototype._write = function (chunk, encoding, cb) {
-  cb(new Error('_write() is not implemented'));
-};
-
-Writable.prototype._writev = null;
-
-Writable.prototype.end = function (chunk, encoding, cb) {
-  var state = this._writableState;
-
-  if (typeof chunk === 'function') {
-    cb = chunk;
-    chunk = null;
-    encoding = null;
-  } else if (typeof encoding === 'function') {
-    cb = encoding;
-    encoding = null;
-  }
-
-  if (chunk !== null && chunk !== undefined) this.write(chunk, encoding);
-
-  // .end() fully uncorks
-  if (state.corked) {
-    state.corked = 1;
-    this.uncork();
-  }
-
-  // ignore unnecessary end() calls.
-  if (!state.ending && !state.finished) endWritable(this, state, cb);
-};
-
-function needFinish(state) {
-  return state.ending && state.length === 0 && state.bufferedRequest === null && !state.finished && !state.writing;
-}
-function callFinal(stream, state) {
-  stream._final(function (err) {
-    state.pendingcb--;
-    if (err) {
-      stream.emit('error', err);
-    }
-    state.prefinished = true;
-    stream.emit('prefinish');
-    finishMaybe(stream, state);
-  });
-}
-function prefinish(stream, state) {
-  if (!state.prefinished && !state.finalCalled) {
-    if (typeof stream._final === 'function') {
-      state.pendingcb++;
-      state.finalCalled = true;
-      pna.nextTick(callFinal, stream, state);
-    } else {
-      state.prefinished = true;
-      stream.emit('prefinish');
-    }
-  }
-}
-
-function finishMaybe(stream, state) {
-  var need = needFinish(state);
-  if (need) {
-    prefinish(stream, state);
-    if (state.pendingcb === 0) {
-      state.finished = true;
-      stream.emit('finish');
-    }
-  }
-  return need;
-}
-
-function endWritable(stream, state, cb) {
-  state.ending = true;
-  finishMaybe(stream, state);
-  if (cb) {
-    if (state.finished) pna.nextTick(cb);else stream.once('finish', cb);
-  }
-  state.ended = true;
-  stream.writable = false;
-}
-
-function onCorkedFinish(corkReq, state, err) {
-  var entry = corkReq.entry;
-  corkReq.entry = null;
-  while (entry) {
-    var cb = entry.callback;
-    state.pendingcb--;
-    cb(err);
-    entry = entry.next;
-  }
-  if (state.corkedRequestsFree) {
-    state.corkedRequestsFree.next = corkReq;
-  } else {
-    state.corkedRequestsFree = corkReq;
-  }
-}
-
-Object.defineProperty(Writable.prototype, 'destroyed', {
-  get: function () {
-    if (this._writableState === undefined) {
-      return false;
-    }
-    return this._writableState.destroyed;
-  },
-  set: function (value) {
-    // we ignore the value if the stream
-    // has not been initialized yet
-    if (!this._writableState) {
-      return;
-    }
-
-    // backward compatibility, the user is explicitly
-    // managing destroyed
-    this._writableState.destroyed = value;
-  }
-});
-
-Writable.prototype.destroy = destroyImpl.destroy;
-Writable.prototype._undestroy = destroyImpl.undestroy;
-Writable.prototype._destroy = function (err, cb) {
-  this.end();
-  cb(err);
-};
-}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("timers").setImmediate)
-},{"./_stream_duplex":278,"./internal/streams/destroy":284,"./internal/streams/stream":285,"_process":272,"core-util-is":242,"inherits":263,"process-nextick-args":271,"safe-buffer":290,"timers":298,"util-deprecate":304}],283:[function(require,module,exports){
-'use strict';
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var Buffer = require('safe-buffer').Buffer;
-var util = require('util');
-
-function copyBuffer(src, target, offset) {
-  src.copy(target, offset);
-}
-
-module.exports = function () {
-  function BufferList() {
-    _classCallCheck(this, BufferList);
-
-    this.head = null;
-    this.tail = null;
-    this.length = 0;
-  }
-
-  BufferList.prototype.push = function push(v) {
-    var entry = { data: v, next: null };
-    if (this.length > 0) this.tail.next = entry;else this.head = entry;
-    this.tail = entry;
-    ++this.length;
-  };
-
-  BufferList.prototype.unshift = function unshift(v) {
-    var entry = { data: v, next: this.head };
-    if (this.length === 0) this.tail = entry;
-    this.head = entry;
-    ++this.length;
-  };
-
-  BufferList.prototype.shift = function shift() {
-    if (this.length === 0) return;
-    var ret = this.head.data;
-    if (this.length === 1) this.head = this.tail = null;else this.head = this.head.next;
-    --this.length;
-    return ret;
-  };
-
-  BufferList.prototype.clear = function clear() {
-    this.head = this.tail = null;
-    this.length = 0;
-  };
-
-  BufferList.prototype.join = function join(s) {
-    if (this.length === 0) return '';
-    var p = this.head;
-    var ret = '' + p.data;
-    while (p = p.next) {
-      ret += s + p.data;
-    }return ret;
-  };
-
-  BufferList.prototype.concat = function concat(n) {
-    if (this.length === 0) return Buffer.alloc(0);
-    if (this.length === 1) return this.head.data;
-    var ret = Buffer.allocUnsafe(n >>> 0);
-    var p = this.head;
-    var i = 0;
-    while (p) {
-      copyBuffer(p.data, ret, i);
-      i += p.data.length;
-      p = p.next;
-    }
-    return ret;
-  };
-
-  return BufferList;
-}();
-
-if (util && util.inspect && util.inspect.custom) {
-  module.exports.prototype[util.inspect.custom] = function () {
-    var obj = util.inspect({ length: this.length });
-    return this.constructor.name + ' ' + obj;
-  };
-}
-},{"safe-buffer":290,"util":238}],284:[function(require,module,exports){
-'use strict';
-
-/*<replacement>*/
-
-var pna = require('process-nextick-args');
-/*</replacement>*/
-
-// undocumented cb() API, needed for core, not for public API
-function destroy(err, cb) {
-  var _this = this;
-
-  var readableDestroyed = this._readableState && this._readableState.destroyed;
-  var writableDestroyed = this._writableState && this._writableState.destroyed;
-
-  if (readableDestroyed || writableDestroyed) {
-    if (cb) {
-      cb(err);
-    } else if (err && (!this._writableState || !this._writableState.errorEmitted)) {
-      pna.nextTick(emitErrorNT, this, err);
-    }
-    return this;
-  }
-
-  // we set destroyed to true before firing error callbacks in order
-  // to make it re-entrance safe in case destroy() is called within callbacks
-
-  if (this._readableState) {
-    this._readableState.destroyed = true;
-  }
-
-  // if this is a duplex stream mark the writable part as destroyed as well
-  if (this._writableState) {
-    this._writableState.destroyed = true;
-  }
-
-  this._destroy(err || null, function (err) {
-    if (!cb && err) {
-      pna.nextTick(emitErrorNT, _this, err);
-      if (_this._writableState) {
-        _this._writableState.errorEmitted = true;
-      }
-    } else if (cb) {
-      cb(err);
-    }
-  });
-
-  return this;
-}
-
-function undestroy() {
-  if (this._readableState) {
-    this._readableState.destroyed = false;
-    this._readableState.reading = false;
-    this._readableState.ended = false;
-    this._readableState.endEmitted = false;
-  }
-
-  if (this._writableState) {
-    this._writableState.destroyed = false;
-    this._writableState.ended = false;
-    this._writableState.ending = false;
-    this._writableState.finished = false;
-    this._writableState.errorEmitted = false;
-  }
-}
-
-function emitErrorNT(self, err) {
-  self.emit('error', err);
-}
-
-module.exports = {
-  destroy: destroy,
-  undestroy: undestroy
-};
-},{"process-nextick-args":271}],285:[function(require,module,exports){
-module.exports = require('events').EventEmitter;
-
-},{"events":245}],286:[function(require,module,exports){
-module.exports = require('./readable').PassThrough
-
-},{"./readable":287}],287:[function(require,module,exports){
-exports = module.exports = require('./lib/_stream_readable.js');
-exports.Stream = exports;
-exports.Readable = exports;
-exports.Writable = require('./lib/_stream_writable.js');
-exports.Duplex = require('./lib/_stream_duplex.js');
-exports.Transform = require('./lib/_stream_transform.js');
-exports.PassThrough = require('./lib/_stream_passthrough.js');
-
-},{"./lib/_stream_duplex.js":278,"./lib/_stream_passthrough.js":279,"./lib/_stream_readable.js":280,"./lib/_stream_transform.js":281,"./lib/_stream_writable.js":282}],288:[function(require,module,exports){
-module.exports = require('./readable').Transform
-
-},{"./readable":287}],289:[function(require,module,exports){
-module.exports = require('./lib/_stream_writable.js');
-
-},{"./lib/_stream_writable.js":282}],290:[function(require,module,exports){
-/* eslint-disable node/no-deprecated-api */
-var buffer = require('buffer')
-var Buffer = buffer.Buffer
-
-// alternative to using Object.keys for old browsers
-function copyProps (src, dst) {
-  for (var key in src) {
-    dst[key] = src[key]
-  }
-}
-if (Buffer.from && Buffer.alloc && Buffer.allocUnsafe && Buffer.allocUnsafeSlow) {
-  module.exports = buffer
-} else {
-  // Copy properties from require('buffer')
-  copyProps(buffer, exports)
-  exports.Buffer = SafeBuffer
-}
-
-function SafeBuffer (arg, encodingOrOffset, length) {
-  return Buffer(arg, encodingOrOffset, length)
-}
-
-// Copy static methods from Buffer
-copyProps(Buffer, SafeBuffer)
-
-SafeBuffer.from = function (arg, encodingOrOffset, length) {
-  if (typeof arg === 'number') {
-    throw new TypeError('Argument must not be a number')
-  }
-  return Buffer(arg, encodingOrOffset, length)
-}
-
-SafeBuffer.alloc = function (size, fill, encoding) {
-  if (typeof size !== 'number') {
-    throw new TypeError('Argument must be a number')
-  }
-  var buf = Buffer(size)
-  if (fill !== undefined) {
-    if (typeof encoding === 'string') {
-      buf.fill(fill, encoding)
-    } else {
-      buf.fill(fill)
-    }
-  } else {
-    buf.fill(0)
-  }
-  return buf
-}
-
-SafeBuffer.allocUnsafe = function (size) {
-  if (typeof size !== 'number') {
-    throw new TypeError('Argument must be a number')
-  }
-  return Buffer(size)
-}
-
-SafeBuffer.allocUnsafeSlow = function (size) {
-  if (typeof size !== 'number') {
-    throw new TypeError('Argument must be a number')
-  }
-  return buffer.SlowBuffer(size)
-}
-
-},{"buffer":240}],291:[function(require,module,exports){
-// Copyright Joyent, Inc. and other Node contributors.
-//
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the
-// "Software"), to deal in the Software without restriction, including
-// without limitation the rights to use, copy, modify, merge, publish,
-// distribute, sublicense, and/or sell copies of the Software, and to permit
-// persons to whom the Software is furnished to do so, subject to the
-// following conditions:
-//
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
-// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
-// USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-module.exports = Stream;
-
-var EE = require('events').EventEmitter;
-var inherits = require('inherits');
-
-inherits(Stream, EE);
-Stream.Readable = require('readable-stream/readable.js');
-Stream.Writable = require('readable-stream/writable.js');
-Stream.Duplex = require('readable-stream/duplex.js');
-Stream.Transform = require('readable-stream/transform.js');
-Stream.PassThrough = require('readable-stream/passthrough.js');
-
-// Backwards-compat with node 0.4.x
-Stream.Stream = Stream;
-
-
-
-// old-style streams.  Note that the pipe method (the only relevant
-// part of this class) is overridden in the Readable class.
-
-function Stream() {
-  EE.call(this);
-}
-
-Stream.prototype.pipe = function(dest, options) {
-  var source = this;
-
-  function ondata(chunk) {
-    if (dest.writable) {
-      if (false === dest.write(chunk) && source.pause) {
-        source.pause();
-      }
-    }
-  }
-
-  source.on('data', ondata);
-
-  function ondrain() {
-    if (source.readable && source.resume) {
-      source.resume();
-    }
-  }
-
-  dest.on('drain', ondrain);
-
-  // If the 'end' option is not supplied, dest.end() will be called when
-  // source gets the 'end' or 'close' events.  Only dest.end() once.
-  if (!dest._isStdio && (!options || options.end !== false)) {
-    source.on('end', onend);
-    source.on('close', onclose);
-  }
-
-  var didOnEnd = false;
-  function onend() {
-    if (didOnEnd) return;
-    didOnEnd = true;
-
-    dest.end();
-  }
-
-
-  function onclose() {
-    if (didOnEnd) return;
-    didOnEnd = true;
-
-    if (typeof dest.destroy === 'function') dest.destroy();
-  }
-
-  // don't leave dangling pipes when there are errors.
-  function onerror(er) {
-    cleanup();
-    if (EE.listenerCount(this, 'error') === 0) {
-      throw er; // Unhandled stream error in pipe.
-    }
-  }
-
-  source.on('error', onerror);
-  dest.on('error', onerror);
-
-  // remove all the event listeners that were added.
-  function cleanup() {
-    source.removeListener('data', ondata);
-    dest.removeListener('drain', ondrain);
-
-    source.removeListener('end', onend);
-    source.removeListener('close', onclose);
-
-    source.removeListener('error', onerror);
-    dest.removeListener('error', onerror);
-
-    source.removeListener('end', cleanup);
-    source.removeListener('close', cleanup);
-
-    dest.removeListener('close', cleanup);
-  }
-
-  source.on('end', cleanup);
-  source.on('close', cleanup);
-
-  dest.on('close', cleanup);
-
-  dest.emit('pipe', source);
-
-  // Allow for unix-like usage: A.pipe(B).pipe(C)
-  return dest;
-};
-
-},{"events":245,"inherits":263,"readable-stream/duplex.js":277,"readable-stream/passthrough.js":286,"readable-stream/readable.js":287,"readable-stream/transform.js":288,"readable-stream/writable.js":289}],292:[function(require,module,exports){
-(function (global){
-var ClientRequest = require('./lib/request')
-var response = require('./lib/response')
-var extend = require('xtend')
-var statusCodes = require('builtin-status-codes')
-var url = require('url')
-
-var http = exports
-
-http.request = function (opts, cb) {
-	if (typeof opts === 'string')
-		opts = url.parse(opts)
-	else
-		opts = extend(opts)
-
-	// Normally, the page is loaded from http or https, so not specifying a protocol
-	// will result in a (valid) protocol-relative url. However, this won't work if
-	// the protocol is something else, like 'file:'
-	var defaultProtocol = global.location.protocol.search(/^https?:$/) === -1 ? 'http:' : ''
-
-	var protocol = opts.protocol || defaultProtocol
-	var host = opts.hostname || opts.host
-	var port = opts.port
-	var path = opts.path || '/'
-
-	// Necessary for IPv6 addresses
-	if (host && host.indexOf(':') !== -1)
-		host = '[' + host + ']'
-
-	// This may be a relative url. The browser should always be able to interpret it correctly.
-	opts.url = (host ? (protocol + '//' + host) : '') + (port ? ':' + port : '') + path
-	opts.method = (opts.method || 'GET').toUpperCase()
-	opts.headers = opts.headers || {}
-
-	// Also valid opts.auth, opts.mode
-
-	var req = new ClientRequest(opts)
-	if (cb)
-		req.on('response', cb)
-	return req
-}
-
-http.get = function get (opts, cb) {
-	var req = http.request(opts, cb)
-	req.end()
-	return req
-}
-
-http.ClientRequest = ClientRequest
-http.IncomingMessage = response.IncomingMessage
-
-http.Agent = function () {}
-http.Agent.defaultMaxSockets = 4
-
-http.globalAgent = new http.Agent()
-
-http.STATUS_CODES = statusCodes
-
-http.METHODS = [
-	'CHECKOUT',
-	'CONNECT',
-	'COPY',
-	'DELETE',
-	'GET',
-	'HEAD',
-	'LOCK',
-	'M-SEARCH',
-	'MERGE',
-	'MKACTIVITY',
-	'MKCOL',
-	'MOVE',
-	'NOTIFY',
-	'OPTIONS',
-	'PATCH',
-	'POST',
-	'PROPFIND',
-	'PROPPATCH',
-	'PURGE',
-	'PUT',
-	'REPORT',
-	'SEARCH',
-	'SUBSCRIBE',
-	'TRACE',
-	'UNLOCK',
-	'UNSUBSCRIBE'
-]
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./lib/request":294,"./lib/response":295,"builtin-status-codes":241,"url":302,"xtend":305}],293:[function(require,module,exports){
-(function (global){
-exports.fetch = isFunction(global.fetch) && isFunction(global.ReadableStream)
-
-exports.writableStream = isFunction(global.WritableStream)
-
-exports.abortController = isFunction(global.AbortController)
-
-exports.blobConstructor = false
-try {
-	new Blob([new ArrayBuffer(1)])
-	exports.blobConstructor = true
-} catch (e) {}
-
-// The xhr request to example.com may violate some restrictive CSP configurations,
-// so if we're running in a browser that supports `fetch`, avoid calling getXHR()
-// and assume support for certain features below.
-var xhr
-function getXHR () {
-	// Cache the xhr value
-	if (xhr !== undefined) return xhr
-
-	if (global.XMLHttpRequest) {
-		xhr = new global.XMLHttpRequest()
-		// If XDomainRequest is available (ie only, where xhr might not work
-		// cross domain), use the page location. Otherwise use example.com
-		// Note: this doesn't actually make an http request.
-		try {
-			xhr.open('GET', global.XDomainRequest ? '/' : 'https://example.com')
-		} catch(e) {
-			xhr = null
-		}
-	} else {
-		// Service workers don't have XHR
-		xhr = null
-	}
-	return xhr
-}
-
-function checkTypeSupport (type) {
-	var xhr = getXHR()
-	if (!xhr) return false
-	try {
-		xhr.responseType = type
-		return xhr.responseType === type
-	} catch (e) {}
-	return false
-}
-
-// For some strange reason, Safari 7.0 reports typeof global.ArrayBuffer === 'object'.
-// Safari 7.1 appears to have fixed this bug.
-var haveArrayBuffer = typeof global.ArrayBuffer !== 'undefined'
-var haveSlice = haveArrayBuffer && isFunction(global.ArrayBuffer.prototype.slice)
-
-// If fetch is supported, then arraybuffer will be supported too. Skip calling
-// checkTypeSupport(), since that calls getXHR().
-exports.arraybuffer = exports.fetch || (haveArrayBuffer && checkTypeSupport('arraybuffer'))
-
-// These next two tests unavoidably show warnings in Chrome. Since fetch will always
-// be used if it's available, just return false for these to avoid the warnings.
-exports.msstream = !exports.fetch && haveSlice && checkTypeSupport('ms-stream')
-exports.mozchunkedarraybuffer = !exports.fetch && haveArrayBuffer &&
-	checkTypeSupport('moz-chunked-arraybuffer')
-
-// If fetch is supported, then overrideMimeType will be supported too. Skip calling
-// getXHR().
-exports.overrideMimeType = exports.fetch || (getXHR() ? isFunction(getXHR().overrideMimeType) : false)
-
-exports.vbArray = isFunction(global.VBArray)
-
-function isFunction (value) {
-	return typeof value === 'function'
-}
-
-xhr = null // Help gc
-
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],294:[function(require,module,exports){
-(function (process,global,Buffer){
-var capability = require('./capability')
-var inherits = require('inherits')
-var response = require('./response')
-var stream = require('readable-stream')
-var toArrayBuffer = require('to-arraybuffer')
-
-var IncomingMessage = response.IncomingMessage
-var rStates = response.readyStates
-
-function decideMode (preferBinary, useFetch) {
-	if (capability.fetch && useFetch) {
-		return 'fetch'
-	} else if (capability.mozchunkedarraybuffer) {
-		return 'moz-chunked-arraybuffer'
-	} else if (capability.msstream) {
-		return 'ms-stream'
-	} else if (capability.arraybuffer && preferBinary) {
-		return 'arraybuffer'
-	} else if (capability.vbArray && preferBinary) {
-		return 'text:vbarray'
-	} else {
-		return 'text'
-	}
-}
-
-var ClientRequest = module.exports = function (opts) {
-	var self = this
-	stream.Writable.call(self)
-
-	self._opts = opts
-	self._body = []
-	self._headers = {}
-	if (opts.auth)
-		self.setHeader('Authorization', 'Basic ' + new Buffer(opts.auth).toString('base64'))
-	Object.keys(opts.headers).forEach(function (name) {
-		self.setHeader(name, opts.headers[name])
-	})
-
-	var preferBinary
-	var useFetch = true
-	if (opts.mode === 'disable-fetch' || ('requestTimeout' in opts && !capability.abortController)) {
-		// If the use of XHR should be preferred. Not typically needed.
-		useFetch = false
-		preferBinary = true
-	} else if (opts.mode === 'prefer-streaming') {
-		// If streaming is a high priority but binary compatibility and
-		// the accuracy of the 'content-type' header aren't
-		preferBinary = false
-	} else if (opts.mode === 'allow-wrong-content-type') {
-		// If streaming is more important than preserving the 'content-type' header
-		preferBinary = !capability.overrideMimeType
-	} else if (!opts.mode || opts.mode === 'default' || opts.mode === 'prefer-fast') {
-		// Use binary if text streaming may corrupt data or the content-type header, or for speed
-		preferBinary = true
-	} else {
-		throw new Error('Invalid value for opts.mode')
-	}
-	self._mode = decideMode(preferBinary, useFetch)
-	self._fetchTimer = null
-
-	self.on('finish', function () {
-		self._onFinish()
-	})
-}
-
-inherits(ClientRequest, stream.Writable)
-
-ClientRequest.prototype.setHeader = function (name, value) {
-	var self = this
-	var lowerName = name.toLowerCase()
-	// This check is not necessary, but it prevents warnings from browsers about setting unsafe
-	// headers. To be honest I'm not entirely sure hiding these warnings is a good thing, but
-	// http-browserify did it, so I will too.
-	if (unsafeHeaders.indexOf(lowerName) !== -1)
-		return
-
-	self._headers[lowerName] = {
-		name: name,
-		value: value
-	}
-}
-
-ClientRequest.prototype.getHeader = function (name) {
-	var header = this._headers[name.toLowerCase()]
-	if (header)
-		return header.value
-	return null
-}
-
-ClientRequest.prototype.removeHeader = function (name) {
-	var self = this
-	delete self._headers[name.toLowerCase()]
-}
-
-ClientRequest.prototype._onFinish = function () {
-	var self = this
-
-	if (self._destroyed)
-		return
-	var opts = self._opts
-
-	var headersObj = self._headers
-	var body = null
-	if (opts.method !== 'GET' && opts.method !== 'HEAD') {
-		if (capability.arraybuffer) {
-			body = toArrayBuffer(Buffer.concat(self._body))
-		} else if (capability.blobConstructor) {
-			body = new global.Blob(self._body.map(function (buffer) {
-				return toArrayBuffer(buffer)
-			}), {
-				type: (headersObj['content-type'] || {}).value || ''
-			})
-		} else {
-			// get utf8 string
-			body = Buffer.concat(self._body).toString()
-		}
-	}
-
-	// create flattened list of headers
-	var headersList = []
-	Object.keys(headersObj).forEach(function (keyName) {
-		var name = headersObj[keyName].name
-		var value = headersObj[keyName].value
-		if (Array.isArray(value)) {
-			value.forEach(function (v) {
-				headersList.push([name, v])
-			})
-		} else {
-			headersList.push([name, value])
-		}
-	})
-
-	if (self._mode === 'fetch') {
-		var signal = null
-		var fetchTimer = null
-		if (capability.abortController) {
-			var controller = new AbortController()
-			signal = controller.signal
-			self._fetchAbortController = controller
-
-			if ('requestTimeout' in opts && opts.requestTimeout !== 0) {
-				self._fetchTimer = global.setTimeout(function () {
-					self.emit('requestTimeout')
-					if (self._fetchAbortController)
-						self._fetchAbortController.abort()
-				}, opts.requestTimeout)
-			}
-		}
-
-		global.fetch(self._opts.url, {
-			method: self._opts.method,
-			headers: headersList,
-			body: body || undefined,
-			mode: 'cors',
-			credentials: opts.withCredentials ? 'include' : 'same-origin',
-			signal: signal
-		}).then(function (response) {
-			self._fetchResponse = response
-			self._connect()
-		}, function (reason) {
-			global.clearTimeout(self._fetchTimer)
-			if (!self._destroyed)
-				self.emit('error', reason)
-		})
-	} else {
-		var xhr = self._xhr = new global.XMLHttpRequest()
-		try {
-			xhr.open(self._opts.method, self._opts.url, true)
-		} catch (err) {
-			process.nextTick(function () {
-				self.emit('error', err)
-			})
-			return
-		}
-
-		// Can't set responseType on really old browsers
-		if ('responseType' in xhr)
-			xhr.responseType = self._mode.split(':')[0]
-
-		if ('withCredentials' in xhr)
-			xhr.withCredentials = !!opts.withCredentials
-
-		if (self._mode === 'text' && 'overrideMimeType' in xhr)
-			xhr.overrideMimeType('text/plain; charset=x-user-defined')
-
-		if ('requestTimeout' in opts) {
-			xhr.timeout = opts.requestTimeout
-			xhr.ontimeout = function () {
-				self.emit('requestTimeout')
-			}
-		}
-
-		headersList.forEach(function (header) {
-			xhr.setRequestHeader(header[0], header[1])
-		})
-
-		self._response = null
-		xhr.onreadystatechange = function () {
-			switch (xhr.readyState) {
-				case rStates.LOADING:
-				case rStates.DONE:
-					self._onXHRProgress()
-					break
-			}
-		}
-		// Necessary for streaming in Firefox, since xhr.response is ONLY defined
-		// in onprogress, not in onreadystatechange with xhr.readyState = 3
-		if (self._mode === 'moz-chunked-arraybuffer') {
-			xhr.onprogress = function () {
-				self._onXHRProgress()
-			}
-		}
-
-		xhr.onerror = function () {
-			if (self._destroyed)
-				return
-			self.emit('error', new Error('XHR error'))
-		}
-
-		try {
-			xhr.send(body)
-		} catch (err) {
-			process.nextTick(function () {
-				self.emit('error', err)
-			})
-			return
-		}
-	}
-}
-
-/**
- * Checks if xhr.status is readable and non-zero, indicating no error.
- * Even though the spec says it should be available in readyState 3,
- * accessing it throws an exception in IE8
- */
-function statusValid (xhr) {
-	try {
-		var status = xhr.status
-		return (status !== null && status !== 0)
-	} catch (e) {
-		return false
-	}
-}
-
-ClientRequest.prototype._onXHRProgress = function () {
-	var self = this
-
-	if (!statusValid(self._xhr) || self._destroyed)
-		return
-
-	if (!self._response)
-		self._connect()
-
-	self._response._onXHRProgress()
-}
-
-ClientRequest.prototype._connect = function () {
-	var self = this
-
-	if (self._destroyed)
-		return
-
-	self._response = new IncomingMessage(self._xhr, self._fetchResponse, self._mode, self._fetchTimer)
-	self._response.on('error', function(err) {
-		self.emit('error', err)
-	})
-
-	self.emit('response', self._response)
-}
-
-ClientRequest.prototype._write = function (chunk, encoding, cb) {
-	var self = this
-
-	self._body.push(chunk)
-	cb()
-}
-
-ClientRequest.prototype.abort = ClientRequest.prototype.destroy = function () {
-	var self = this
-	self._destroyed = true
-	global.clearTimeout(self._fetchTimer)
-	if (self._response)
-		self._response._destroyed = true
-	if (self._xhr)
-		self._xhr.abort()
-	else if (self._fetchAbortController)
-		self._fetchAbortController.abort()
-}
-
-ClientRequest.prototype.end = function (data, encoding, cb) {
-	var self = this
-	if (typeof data === 'function') {
-		cb = data
-		data = undefined
-	}
-
-	stream.Writable.prototype.end.call(self, data, encoding, cb)
-}
-
-ClientRequest.prototype.flushHeaders = function () {}
-ClientRequest.prototype.setTimeout = function () {}
-ClientRequest.prototype.setNoDelay = function () {}
-ClientRequest.prototype.setSocketKeepAlive = function () {}
-
-// Taken from http://www.w3.org/TR/XMLHttpRequest/#the-setrequestheader%28%29-method
-var unsafeHeaders = [
-	'accept-charset',
-	'accept-encoding',
-	'access-control-request-headers',
-	'access-control-request-method',
-	'connection',
-	'content-length',
-	'cookie',
-	'cookie2',
-	'date',
-	'dnt',
-	'expect',
-	'host',
-	'keep-alive',
-	'origin',
-	'referer',
-	'te',
-	'trailer',
-	'transfer-encoding',
-	'upgrade',
-	'via'
-]
-
-}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer)
-},{"./capability":293,"./response":295,"_process":272,"buffer":240,"inherits":263,"readable-stream":287,"to-arraybuffer":299}],295:[function(require,module,exports){
-(function (process,global,Buffer){
-var capability = require('./capability')
-var inherits = require('inherits')
-var stream = require('readable-stream')
-
-var rStates = exports.readyStates = {
-	UNSENT: 0,
-	OPENED: 1,
-	HEADERS_RECEIVED: 2,
-	LOADING: 3,
-	DONE: 4
-}
-
-var IncomingMessage = exports.IncomingMessage = function (xhr, response, mode, fetchTimer) {
-	var self = this
-	stream.Readable.call(self)
-
-	self._mode = mode
-	self.headers = {}
-	self.rawHeaders = []
-	self.trailers = {}
-	self.rawTrailers = []
-
-	// Fake the 'close' event, but only once 'end' fires
-	self.on('end', function () {
-		// The nextTick is necessary to prevent the 'request' module from causing an infinite loop
-		process.nextTick(function () {
-			self.emit('close')
-		})
-	})
-
-	if (mode === 'fetch') {
-		self._fetchResponse = response
-
-		self.url = response.url
-		self.statusCode = response.status
-		self.statusMessage = response.statusText
-		
-		response.headers.forEach(function (header, key){
-			self.headers[key.toLowerCase()] = header
-			self.rawHeaders.push(key, header)
-		})
-
-		if (capability.writableStream) {
-			var writable = new WritableStream({
-				write: function (chunk) {
-					return new Promise(function (resolve, reject) {
-						if (self._destroyed) {
-							reject()
-						} else if(self.push(new Buffer(chunk))) {
-							resolve()
-						} else {
-							self._resumeFetch = resolve
-						}
-					})
-				},
-				close: function () {
-					global.clearTimeout(fetchTimer)
-					if (!self._destroyed)
-						self.push(null)
-				},
-				abort: function (err) {
-					if (!self._destroyed)
-						self.emit('error', err)
-				}
-			})
-
-			try {
-				response.body.pipeTo(writable).catch(function (err) {
-					global.clearTimeout(fetchTimer)
-					if (!self._destroyed)
-						self.emit('error', err)
-				})
-				return
-			} catch (e) {} // pipeTo method isn't defined. Can't find a better way to feature test this
-		}
-		// fallback for when writableStream or pipeTo aren't available
-		var reader = response.body.getReader()
-		function read () {
-			reader.read().then(function (result) {
-				if (self._destroyed)
-					return
-				if (result.done) {
-					global.clearTimeout(fetchTimer)
-					self.push(null)
-					return
-				}
-				self.push(new Buffer(result.value))
-				read()
-			}).catch(function (err) {
-				global.clearTimeout(fetchTimer)
-				if (!self._destroyed)
-					self.emit('error', err)
-			})
-		}
-		read()
-	} else {
-		self._xhr = xhr
-		self._pos = 0
-
-		self.url = xhr.responseURL
-		self.statusCode = xhr.status
-		self.statusMessage = xhr.statusText
-		var headers = xhr.getAllResponseHeaders().split(/\r?\n/)
-		headers.forEach(function (header) {
-			var matches = header.match(/^([^:]+):\s*(.*)/)
-			if (matches) {
-				var key = matches[1].toLowerCase()
-				if (key === 'set-cookie') {
-					if (self.headers[key] === undefined) {
-						self.headers[key] = []
-					}
-					self.headers[key].push(matches[2])
-				} else if (self.headers[key] !== undefined) {
-					self.headers[key] += ', ' + matches[2]
-				} else {
-					self.headers[key] = matches[2]
-				}
-				self.rawHeaders.push(matches[1], matches[2])
-			}
-		})
-
-		self._charset = 'x-user-defined'
-		if (!capability.overrideMimeType) {
-			var mimeType = self.rawHeaders['mime-type']
-			if (mimeType) {
-				var charsetMatch = mimeType.match(/;\s*charset=([^;])(;|$)/)
-				if (charsetMatch) {
-					self._charset = charsetMatch[1].toLowerCase()
-				}
-			}
-			if (!self._charset)
-				self._charset = 'utf-8' // best guess
-		}
-	}
-}
-
-inherits(IncomingMessage, stream.Readable)
-
-IncomingMessage.prototype._read = function () {
-	var self = this
-
-	var resolve = self._resumeFetch
-	if (resolve) {
-		self._resumeFetch = null
-		resolve()
-	}
-}
-
-IncomingMessage.prototype._onXHRProgress = function () {
-	var self = this
-
-	var xhr = self._xhr
-
-	var response = null
-	switch (self._mode) {
-		case 'text:vbarray': // For IE9
-			if (xhr.readyState !== rStates.DONE)
-				break
-			try {
-				// This fails in IE8
-				response = new global.VBArray(xhr.responseBody).toArray()
-			} catch (e) {}
-			if (response !== null) {
-				self.push(new Buffer(response))
-				break
-			}
-			// Falls through in IE8	
-		case 'text':
-			try { // This will fail when readyState = 3 in IE9. Switch mode and wait for readyState = 4
-				response = xhr.responseText
-			} catch (e) {
-				self._mode = 'text:vbarray'
-				break
-			}
-			if (response.length > self._pos) {
-				var newData = response.substr(self._pos)
-				if (self._charset === 'x-user-defined') {
-					var buffer = new Buffer(newData.length)
-					for (var i = 0; i < newData.length; i++)
-						buffer[i] = newData.charCodeAt(i) & 0xff
-
-					self.push(buffer)
-				} else {
-					self.push(newData, self._charset)
-				}
-				self._pos = response.length
-			}
-			break
-		case 'arraybuffer':
-			if (xhr.readyState !== rStates.DONE || !xhr.response)
-				break
-			response = xhr.response
-			self.push(new Buffer(new Uint8Array(response)))
-			break
-		case 'moz-chunked-arraybuffer': // take whole
-			response = xhr.response
-			if (xhr.readyState !== rStates.LOADING || !response)
-				break
-			self.push(new Buffer(new Uint8Array(response)))
-			break
-		case 'ms-stream':
-			response = xhr.response
-			if (xhr.readyState !== rStates.LOADING)
-				break
-			var reader = new global.MSStreamReader()
-			reader.onprogress = function () {
-				if (reader.result.byteLength > self._pos) {
-					self.push(new Buffer(new Uint8Array(reader.result.slice(self._pos))))
-					self._pos = reader.result.byteLength
-				}
-			}
-			reader.onload = function () {
-				self.push(null)
-			}
-			// reader.onerror = ??? // TODO: this
-			reader.readAsArrayBuffer(response)
-			break
-	}
-
-	// The ms-stream case handles end separately in reader.onload()
-	if (self._xhr.readyState === rStates.DONE && self._mode !== 'ms-stream') {
-		self.push(null)
-	}
-}
-
-}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer)
-},{"./capability":293,"_process":272,"buffer":240,"inherits":263,"readable-stream":287}],296:[function(require,module,exports){
-// Copyright Joyent, Inc. and other Node contributors.
-//
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the
-// "Software"), to deal in the Software without restriction, including
-// without limitation the rights to use, copy, modify, merge, publish,
-// distribute, sublicense, and/or sell copies of the Software, and to permit
-// persons to whom the Software is furnished to do so, subject to the
-// following conditions:
-//
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
-// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
-// USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-'use strict';
-
-/*<replacement>*/
-
-var Buffer = require('safe-buffer').Buffer;
-/*</replacement>*/
-
-var isEncoding = Buffer.isEncoding || function (encoding) {
-  encoding = '' + encoding;
-  switch (encoding && encoding.toLowerCase()) {
-    case 'hex':case 'utf8':case 'utf-8':case 'ascii':case 'binary':case 'base64':case 'ucs2':case 'ucs-2':case 'utf16le':case 'utf-16le':case 'raw':
-      return true;
-    default:
-      return false;
-  }
-};
-
-function _normalizeEncoding(enc) {
-  if (!enc) return 'utf8';
-  var retried;
-  while (true) {
-    switch (enc) {
-      case 'utf8':
-      case 'utf-8':
-        return 'utf8';
-      case 'ucs2':
-      case 'ucs-2':
-      case 'utf16le':
-      case 'utf-16le':
-        return 'utf16le';
-      case 'latin1':
-      case 'binary':
-        return 'latin1';
-      case 'base64':
-      case 'ascii':
-      case 'hex':
-        return enc;
-      default:
-        if (retried) return; // undefined
-        enc = ('' + enc).toLowerCase();
-        retried = true;
-    }
-  }
-};
-
-// Do not cache `Buffer.isEncoding` when checking encoding names as some
-// modules monkey-patch it to support additional encodings
-function normalizeEncoding(enc) {
-  var nenc = _normalizeEncoding(enc);
-  if (typeof nenc !== 'string' && (Buffer.isEncoding === isEncoding || !isEncoding(enc))) throw new Error('Unknown encoding: ' + enc);
-  return nenc || enc;
-}
-
-// StringDecoder provides an interface for efficiently splitting a series of
-// buffers into a series of JS strings without breaking apart multi-byte
-// characters.
-exports.StringDecoder = StringDecoder;
-function StringDecoder(encoding) {
-  this.encoding = normalizeEncoding(encoding);
-  var nb;
-  switch (this.encoding) {
-    case 'utf16le':
-      this.text = utf16Text;
-      this.end = utf16End;
-      nb = 4;
-      break;
-    case 'utf8':
-      this.fillLast = utf8FillLast;
-      nb = 4;
-      break;
-    case 'base64':
-      this.text = base64Text;
-      this.end = base64End;
-      nb = 3;
-      break;
-    default:
-      this.write = simpleWrite;
-      this.end = simpleEnd;
-      return;
-  }
-  this.lastNeed = 0;
-  this.lastTotal = 0;
-  this.lastChar = Buffer.allocUnsafe(nb);
-}
-
-StringDecoder.prototype.write = function (buf) {
-  if (buf.length === 0) return '';
-  var r;
-  var i;
-  if (this.lastNeed) {
-    r = this.fillLast(buf);
-    if (r === undefined) return '';
-    i = this.lastNeed;
-    this.lastNeed = 0;
-  } else {
-    i = 0;
-  }
-  if (i < buf.length) return r ? r + this.text(buf, i) : this.text(buf, i);
-  return r || '';
-};
-
-StringDecoder.prototype.end = utf8End;
-
-// Returns only complete characters in a Buffer
-StringDecoder.prototype.text = utf8Text;
-
-// Attempts to complete a partial non-UTF-8 character using bytes from a Buffer
-StringDecoder.prototype.fillLast = function (buf) {
-  if (this.lastNeed <= buf.length) {
-    buf.copy(this.lastChar, this.lastTotal - this.lastNeed, 0, this.lastNeed);
-    return this.lastChar.toString(this.encoding, 0, this.lastTotal);
-  }
-  buf.copy(this.lastChar, this.lastTotal - this.lastNeed, 0, buf.length);
-  this.lastNeed -= buf.length;
-};
-
-// Checks the type of a UTF-8 byte, whether it's ASCII, a leading byte, or a
-// continuation byte. If an invalid byte is detected, -2 is returned.
-function utf8CheckByte(byte) {
-  if (byte <= 0x7F) return 0;else if (byte >> 5 === 0x06) return 2;else if (byte >> 4 === 0x0E) return 3;else if (byte >> 3 === 0x1E) return 4;
-  return byte >> 6 === 0x02 ? -1 : -2;
-}
-
-// Checks at most 3 bytes at the end of a Buffer in order to detect an
-// incomplete multi-byte UTF-8 character. The total number of bytes (2, 3, or 4)
-// needed to complete the UTF-8 character (if applicable) are returned.
-function utf8CheckIncomplete(self, buf, i) {
-  var j = buf.length - 1;
-  if (j < i) return 0;
-  var nb = utf8CheckByte(buf[j]);
-  if (nb >= 0) {
-    if (nb > 0) self.lastNeed = nb - 1;
-    return nb;
-  }
-  if (--j < i || nb === -2) return 0;
-  nb = utf8CheckByte(buf[j]);
-  if (nb >= 0) {
-    if (nb > 0) self.lastNeed = nb - 2;
-    return nb;
-  }
-  if (--j < i || nb === -2) return 0;
-  nb = utf8CheckByte(buf[j]);
-  if (nb >= 0) {
-    if (nb > 0) {
-      if (nb === 2) nb = 0;else self.lastNeed = nb - 3;
-    }
-    return nb;
-  }
-  return 0;
-}
-
-// Validates as many continuation bytes for a multi-byte UTF-8 character as
-// needed or are available. If we see a non-continuation byte where we expect
-// one, we "replace" the validated continuation bytes we've seen so far with
-// a single UTF-8 replacement character ('\ufffd'), to match v8's UTF-8 decoding
-// behavior. The continuation byte check is included three times in the case
-// where all of the continuation bytes for a character exist in the same buffer.
-// It is also done this way as a slight performance increase instead of using a
-// loop.
-function utf8CheckExtraBytes(self, buf, p) {
-  if ((buf[0] & 0xC0) !== 0x80) {
-    self.lastNeed = 0;
-    return '\ufffd';
-  }
-  if (self.lastNeed > 1 && buf.length > 1) {
-    if ((buf[1] & 0xC0) !== 0x80) {
-      self.lastNeed = 1;
-      return '\ufffd';
-    }
-    if (self.lastNeed > 2 && buf.length > 2) {
-      if ((buf[2] & 0xC0) !== 0x80) {
-        self.lastNeed = 2;
-        return '\ufffd';
-      }
-    }
-  }
-}
-
-// Attempts to complete a multi-byte UTF-8 character using bytes from a Buffer.
-function utf8FillLast(buf) {
-  var p = this.lastTotal - this.lastNeed;
-  var r = utf8CheckExtraBytes(this, buf, p);
-  if (r !== undefined) return r;
-  if (this.lastNeed <= buf.length) {
-    buf.copy(this.lastChar, p, 0, this.lastNeed);
-    return this.lastChar.toString(this.encoding, 0, this.lastTotal);
-  }
-  buf.copy(this.lastChar, p, 0, buf.length);
-  this.lastNeed -= buf.length;
-}
-
-// Returns all complete UTF-8 characters in a Buffer. If the Buffer ended on a
-// partial character, the character's bytes are buffered until the required
-// number of bytes are available.
-function utf8Text(buf, i) {
-  var total = utf8CheckIncomplete(this, buf, i);
-  if (!this.lastNeed) return buf.toString('utf8', i);
-  this.lastTotal = total;
-  var end = buf.length - (total - this.lastNeed);
-  buf.copy(this.lastChar, 0, end);
-  return buf.toString('utf8', i, end);
-}
-
-// For UTF-8, a replacement character is added when ending on a partial
-// character.
-function utf8End(buf) {
-  var r = buf && buf.length ? this.write(buf) : '';
-  if (this.lastNeed) return r + '\ufffd';
-  return r;
-}
-
-// UTF-16LE typically needs two bytes per character, but even if we have an even
-// number of bytes available, we need to check if we end on a leading/high
-// surrogate. In that case, we need to wait for the next two bytes in order to
-// decode the last character properly.
-function utf16Text(buf, i) {
-  if ((buf.length - i) % 2 === 0) {
-    var r = buf.toString('utf16le', i);
-    if (r) {
-      var c = r.charCodeAt(r.length - 1);
-      if (c >= 0xD800 && c <= 0xDBFF) {
-        this.lastNeed = 2;
-        this.lastTotal = 4;
-        this.lastChar[0] = buf[buf.length - 2];
-        this.lastChar[1] = buf[buf.length - 1];
-        return r.slice(0, -1);
-      }
-    }
-    return r;
-  }
-  this.lastNeed = 1;
-  this.lastTotal = 2;
-  this.lastChar[0] = buf[buf.length - 1];
-  return buf.toString('utf16le', i, buf.length - 1);
-}
-
-// For UTF-16LE we do not explicitly append special replacement characters if we
-// end on a partial character, we simply let v8 handle that.
-function utf16End(buf) {
-  var r = buf && buf.length ? this.write(buf) : '';
-  if (this.lastNeed) {
-    var end = this.lastTotal - this.lastNeed;
-    return r + this.lastChar.toString('utf16le', 0, end);
-  }
-  return r;
-}
-
-function base64Text(buf, i) {
-  var n = (buf.length - i) % 3;
-  if (n === 0) return buf.toString('base64', i);
-  this.lastNeed = 3 - n;
-  this.lastTotal = 3;
-  if (n === 1) {
-    this.lastChar[0] = buf[buf.length - 1];
-  } else {
-    this.lastChar[0] = buf[buf.length - 2];
-    this.lastChar[1] = buf[buf.length - 1];
-  }
-  return buf.toString('base64', i, buf.length - n);
-}
-
-function base64End(buf) {
-  var r = buf && buf.length ? this.write(buf) : '';
-  if (this.lastNeed) return r + this.lastChar.toString('base64', 0, 3 - this.lastNeed);
-  return r;
-}
-
-// Pass bytes on through for single-byte encodings (e.g. ascii, latin1, hex)
-function simpleWrite(buf) {
-  return buf.toString(this.encoding);
-}
-
-function simpleEnd(buf) {
-  return buf && buf.length ? this.write(buf) : '';
-}
-},{"safe-buffer":290}],297:[function(require,module,exports){
+},{}],260:[function(require,module,exports){
 (function (process){
 var Stream = require('stream')
 
@@ -88450,116 +81220,7 @@ function through (write, end, opts) {
 
 
 }).call(this,require('_process'))
-},{"_process":272,"stream":291}],298:[function(require,module,exports){
-(function (setImmediate,clearImmediate){
-var nextTick = require('process/browser.js').nextTick;
-var apply = Function.prototype.apply;
-var slice = Array.prototype.slice;
-var immediateIds = {};
-var nextImmediateId = 0;
-
-// DOM APIs, for completeness
-
-exports.setTimeout = function() {
-  return new Timeout(apply.call(setTimeout, window, arguments), clearTimeout);
-};
-exports.setInterval = function() {
-  return new Timeout(apply.call(setInterval, window, arguments), clearInterval);
-};
-exports.clearTimeout =
-exports.clearInterval = function(timeout) { timeout.close(); };
-
-function Timeout(id, clearFn) {
-  this._id = id;
-  this._clearFn = clearFn;
-}
-Timeout.prototype.unref = Timeout.prototype.ref = function() {};
-Timeout.prototype.close = function() {
-  this._clearFn.call(window, this._id);
-};
-
-// Does not start the time, just sets up the members needed.
-exports.enroll = function(item, msecs) {
-  clearTimeout(item._idleTimeoutId);
-  item._idleTimeout = msecs;
-};
-
-exports.unenroll = function(item) {
-  clearTimeout(item._idleTimeoutId);
-  item._idleTimeout = -1;
-};
-
-exports._unrefActive = exports.active = function(item) {
-  clearTimeout(item._idleTimeoutId);
-
-  var msecs = item._idleTimeout;
-  if (msecs >= 0) {
-    item._idleTimeoutId = setTimeout(function onTimeout() {
-      if (item._onTimeout)
-        item._onTimeout();
-    }, msecs);
-  }
-};
-
-// That's not how node.js implements it but the exposed api is the same.
-exports.setImmediate = typeof setImmediate === "function" ? setImmediate : function(fn) {
-  var id = nextImmediateId++;
-  var args = arguments.length < 2 ? false : slice.call(arguments, 1);
-
-  immediateIds[id] = true;
-
-  nextTick(function onNextTick() {
-    if (immediateIds[id]) {
-      // fn.call() is faster so we optimize for the common use-case
-      // @see http://jsperf.com/call-apply-segu
-      if (args) {
-        fn.apply(null, args);
-      } else {
-        fn.call(null);
-      }
-      // Prevent ids from leaking
-      exports.clearImmediate(id);
-    }
-  });
-
-  return id;
-};
-
-exports.clearImmediate = typeof clearImmediate === "function" ? clearImmediate : function(id) {
-  delete immediateIds[id];
-};
-}).call(this,require("timers").setImmediate,require("timers").clearImmediate)
-},{"process/browser.js":272,"timers":298}],299:[function(require,module,exports){
-var Buffer = require('buffer').Buffer
-
-module.exports = function (buf) {
-	// If the buffer is backed by a Uint8Array, a faster version will work
-	if (buf instanceof Uint8Array) {
-		// If the buffer isn't a subarray, return the underlying ArrayBuffer
-		if (buf.byteOffset === 0 && buf.byteLength === buf.buffer.byteLength) {
-			return buf.buffer
-		} else if (typeof buf.buffer.slice === 'function') {
-			// Otherwise we need to get a proper copy
-			return buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength)
-		}
-	}
-
-	if (Buffer.isBuffer(buf)) {
-		// This is the slow version that will work with any Buffer
-		// implementation (even in old browsers)
-		var arrayCopy = new Uint8Array(buf.length)
-		var len = buf.length
-		for (var i = 0; i < len; i++) {
-			arrayCopy[i] = buf[i]
-		}
-		return arrayCopy.buffer
-	} else {
-		throw new Error('Argument must be a Buffer')
-	}
-}
-
-},{"buffer":240}],300:[function(require,module,exports){
-(function (setImmediate){
+},{"_process":275,"stream":294}],261:[function(require,module,exports){
 /*!
  * typeahead.js 0.11.1
  * https://github.com/twitter/typeahead.js
@@ -91011,8 +83672,7 @@ module.exports = function (buf) {
         }
     })();
 });
-}).call(this,require("timers").setImmediate)
-},{"jquery":267,"timers":298}],301:[function(require,module,exports){
+},{"jquery":256}],262:[function(require,module,exports){
 (function (global){
 //     Underscore.js 1.9.1
 //     http://underscorejs.org
@@ -92708,7 +85368,6797 @@ module.exports = function (buf) {
 }());
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],302:[function(require,module,exports){
+},{}],263:[function(require,module,exports){
+
+},{}],264:[function(require,module,exports){
+'use strict'
+
+exports.byteLength = byteLength
+exports.toByteArray = toByteArray
+exports.fromByteArray = fromByteArray
+
+var lookup = []
+var revLookup = []
+var Arr = typeof Uint8Array !== 'undefined' ? Uint8Array : Array
+
+var code = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+for (var i = 0, len = code.length; i < len; ++i) {
+  lookup[i] = code[i]
+  revLookup[code.charCodeAt(i)] = i
+}
+
+revLookup['-'.charCodeAt(0)] = 62
+revLookup['_'.charCodeAt(0)] = 63
+
+function placeHoldersCount (b64) {
+  var len = b64.length
+  if (len % 4 > 0) {
+    throw new Error('Invalid string. Length must be a multiple of 4')
+  }
+
+  // the number of equal signs (place holders)
+  // if there are two placeholders, than the two characters before it
+  // represent one byte
+  // if there is only one, then the three characters before it represent 2 bytes
+  // this is just a cheap hack to not do indexOf twice
+  return b64[len - 2] === '=' ? 2 : b64[len - 1] === '=' ? 1 : 0
+}
+
+function byteLength (b64) {
+  // base64 is 4/3 + up to two characters of the original data
+  return (b64.length * 3 / 4) - placeHoldersCount(b64)
+}
+
+function toByteArray (b64) {
+  var i, l, tmp, placeHolders, arr
+  var len = b64.length
+  placeHolders = placeHoldersCount(b64)
+
+  arr = new Arr((len * 3 / 4) - placeHolders)
+
+  // if there are placeholders, only get up to the last complete 4 chars
+  l = placeHolders > 0 ? len - 4 : len
+
+  var L = 0
+
+  for (i = 0; i < l; i += 4) {
+    tmp = (revLookup[b64.charCodeAt(i)] << 18) | (revLookup[b64.charCodeAt(i + 1)] << 12) | (revLookup[b64.charCodeAt(i + 2)] << 6) | revLookup[b64.charCodeAt(i + 3)]
+    arr[L++] = (tmp >> 16) & 0xFF
+    arr[L++] = (tmp >> 8) & 0xFF
+    arr[L++] = tmp & 0xFF
+  }
+
+  if (placeHolders === 2) {
+    tmp = (revLookup[b64.charCodeAt(i)] << 2) | (revLookup[b64.charCodeAt(i + 1)] >> 4)
+    arr[L++] = tmp & 0xFF
+  } else if (placeHolders === 1) {
+    tmp = (revLookup[b64.charCodeAt(i)] << 10) | (revLookup[b64.charCodeAt(i + 1)] << 4) | (revLookup[b64.charCodeAt(i + 2)] >> 2)
+    arr[L++] = (tmp >> 8) & 0xFF
+    arr[L++] = tmp & 0xFF
+  }
+
+  return arr
+}
+
+function tripletToBase64 (num) {
+  return lookup[num >> 18 & 0x3F] + lookup[num >> 12 & 0x3F] + lookup[num >> 6 & 0x3F] + lookup[num & 0x3F]
+}
+
+function encodeChunk (uint8, start, end) {
+  var tmp
+  var output = []
+  for (var i = start; i < end; i += 3) {
+    tmp = (uint8[i] << 16) + (uint8[i + 1] << 8) + (uint8[i + 2])
+    output.push(tripletToBase64(tmp))
+  }
+  return output.join('')
+}
+
+function fromByteArray (uint8) {
+  var tmp
+  var len = uint8.length
+  var extraBytes = len % 3 // if we have 1 byte left, pad 2 bytes
+  var output = ''
+  var parts = []
+  var maxChunkLength = 16383 // must be multiple of 3
+
+  // go through the array every three bytes, we'll deal with trailing stuff later
+  for (var i = 0, len2 = len - extraBytes; i < len2; i += maxChunkLength) {
+    parts.push(encodeChunk(uint8, i, (i + maxChunkLength) > len2 ? len2 : (i + maxChunkLength)))
+  }
+
+  // pad the end with zeros, but make sure to not forget the extra bytes
+  if (extraBytes === 1) {
+    tmp = uint8[len - 1]
+    output += lookup[tmp >> 2]
+    output += lookup[(tmp << 4) & 0x3F]
+    output += '=='
+  } else if (extraBytes === 2) {
+    tmp = (uint8[len - 2] << 8) + (uint8[len - 1])
+    output += lookup[tmp >> 10]
+    output += lookup[(tmp >> 4) & 0x3F]
+    output += lookup[(tmp << 2) & 0x3F]
+    output += '='
+  }
+
+  parts.push(output)
+
+  return parts.join('')
+}
+
+},{}],265:[function(require,module,exports){
+arguments[4][263][0].apply(exports,arguments)
+},{"dup":263}],266:[function(require,module,exports){
+/*!
+ * The buffer module from node.js, for the browser.
+ *
+ * @author   Feross Aboukhadijeh <https://feross.org>
+ * @license  MIT
+ */
+/* eslint-disable no-proto */
+
+'use strict'
+
+var base64 = require('base64-js')
+var ieee754 = require('ieee754')
+
+exports.Buffer = Buffer
+exports.SlowBuffer = SlowBuffer
+exports.INSPECT_MAX_BYTES = 50
+
+var K_MAX_LENGTH = 0x7fffffff
+exports.kMaxLength = K_MAX_LENGTH
+
+/**
+ * If `Buffer.TYPED_ARRAY_SUPPORT`:
+ *   === true    Use Uint8Array implementation (fastest)
+ *   === false   Print warning and recommend using `buffer` v4.x which has an Object
+ *               implementation (most compatible, even IE6)
+ *
+ * Browsers that support typed arrays are IE 10+, Firefox 4+, Chrome 7+, Safari 5.1+,
+ * Opera 11.6+, iOS 4.2+.
+ *
+ * We report that the browser does not support typed arrays if the are not subclassable
+ * using __proto__. Firefox 4-29 lacks support for adding new properties to `Uint8Array`
+ * (See: https://bugzilla.mozilla.org/show_bug.cgi?id=695438). IE 10 lacks support
+ * for __proto__ and has a buggy typed array implementation.
+ */
+Buffer.TYPED_ARRAY_SUPPORT = typedArraySupport()
+
+if (!Buffer.TYPED_ARRAY_SUPPORT && typeof console !== 'undefined' &&
+    typeof console.error === 'function') {
+  console.error(
+    'This browser lacks typed array (Uint8Array) support which is required by ' +
+    '`buffer` v5.x. Use `buffer` v4.x if you require old browser support.'
+  )
+}
+
+function typedArraySupport () {
+  // Can typed array instances can be augmented?
+  try {
+    var arr = new Uint8Array(1)
+    arr.__proto__ = {__proto__: Uint8Array.prototype, foo: function () { return 42 }}
+    return arr.foo() === 42
+  } catch (e) {
+    return false
+  }
+}
+
+function createBuffer (length) {
+  if (length > K_MAX_LENGTH) {
+    throw new RangeError('Invalid typed array length')
+  }
+  // Return an augmented `Uint8Array` instance
+  var buf = new Uint8Array(length)
+  buf.__proto__ = Buffer.prototype
+  return buf
+}
+
+/**
+ * The Buffer constructor returns instances of `Uint8Array` that have their
+ * prototype changed to `Buffer.prototype`. Furthermore, `Buffer` is a subclass of
+ * `Uint8Array`, so the returned instances will have all the node `Buffer` methods
+ * and the `Uint8Array` methods. Square bracket notation works as expected -- it
+ * returns a single octet.
+ *
+ * The `Uint8Array` prototype remains unmodified.
+ */
+
+function Buffer (arg, encodingOrOffset, length) {
+  // Common case.
+  if (typeof arg === 'number') {
+    if (typeof encodingOrOffset === 'string') {
+      throw new Error(
+        'If encoding is specified then the first argument must be a string'
+      )
+    }
+    return allocUnsafe(arg)
+  }
+  return from(arg, encodingOrOffset, length)
+}
+
+// Fix subarray() in ES2016. See: https://github.com/feross/buffer/pull/97
+if (typeof Symbol !== 'undefined' && Symbol.species &&
+    Buffer[Symbol.species] === Buffer) {
+  Object.defineProperty(Buffer, Symbol.species, {
+    value: null,
+    configurable: true,
+    enumerable: false,
+    writable: false
+  })
+}
+
+Buffer.poolSize = 8192 // not used by this implementation
+
+function from (value, encodingOrOffset, length) {
+  if (typeof value === 'number') {
+    throw new TypeError('"value" argument must not be a number')
+  }
+
+  if (isArrayBuffer(value)) {
+    return fromArrayBuffer(value, encodingOrOffset, length)
+  }
+
+  if (typeof value === 'string') {
+    return fromString(value, encodingOrOffset)
+  }
+
+  return fromObject(value)
+}
+
+/**
+ * Functionally equivalent to Buffer(arg, encoding) but throws a TypeError
+ * if value is a number.
+ * Buffer.from(str[, encoding])
+ * Buffer.from(array)
+ * Buffer.from(buffer)
+ * Buffer.from(arrayBuffer[, byteOffset[, length]])
+ **/
+Buffer.from = function (value, encodingOrOffset, length) {
+  return from(value, encodingOrOffset, length)
+}
+
+// Note: Change prototype *after* Buffer.from is defined to workaround Chrome bug:
+// https://github.com/feross/buffer/pull/148
+Buffer.prototype.__proto__ = Uint8Array.prototype
+Buffer.__proto__ = Uint8Array
+
+function assertSize (size) {
+  if (typeof size !== 'number') {
+    throw new TypeError('"size" argument must be a number')
+  } else if (size < 0) {
+    throw new RangeError('"size" argument must not be negative')
+  }
+}
+
+function alloc (size, fill, encoding) {
+  assertSize(size)
+  if (size <= 0) {
+    return createBuffer(size)
+  }
+  if (fill !== undefined) {
+    // Only pay attention to encoding if it's a string. This
+    // prevents accidentally sending in a number that would
+    // be interpretted as a start offset.
+    return typeof encoding === 'string'
+      ? createBuffer(size).fill(fill, encoding)
+      : createBuffer(size).fill(fill)
+  }
+  return createBuffer(size)
+}
+
+/**
+ * Creates a new filled Buffer instance.
+ * alloc(size[, fill[, encoding]])
+ **/
+Buffer.alloc = function (size, fill, encoding) {
+  return alloc(size, fill, encoding)
+}
+
+function allocUnsafe (size) {
+  assertSize(size)
+  return createBuffer(size < 0 ? 0 : checked(size) | 0)
+}
+
+/**
+ * Equivalent to Buffer(num), by default creates a non-zero-filled Buffer instance.
+ * */
+Buffer.allocUnsafe = function (size) {
+  return allocUnsafe(size)
+}
+/**
+ * Equivalent to SlowBuffer(num), by default creates a non-zero-filled Buffer instance.
+ */
+Buffer.allocUnsafeSlow = function (size) {
+  return allocUnsafe(size)
+}
+
+function fromString (string, encoding) {
+  if (typeof encoding !== 'string' || encoding === '') {
+    encoding = 'utf8'
+  }
+
+  if (!Buffer.isEncoding(encoding)) {
+    throw new TypeError('"encoding" must be a valid string encoding')
+  }
+
+  var length = byteLength(string, encoding) | 0
+  var buf = createBuffer(length)
+
+  var actual = buf.write(string, encoding)
+
+  if (actual !== length) {
+    // Writing a hex string, for example, that contains invalid characters will
+    // cause everything after the first invalid character to be ignored. (e.g.
+    // 'abxxcd' will be treated as 'ab')
+    buf = buf.slice(0, actual)
+  }
+
+  return buf
+}
+
+function fromArrayLike (array) {
+  var length = array.length < 0 ? 0 : checked(array.length) | 0
+  var buf = createBuffer(length)
+  for (var i = 0; i < length; i += 1) {
+    buf[i] = array[i] & 255
+  }
+  return buf
+}
+
+function fromArrayBuffer (array, byteOffset, length) {
+  if (byteOffset < 0 || array.byteLength < byteOffset) {
+    throw new RangeError('\'offset\' is out of bounds')
+  }
+
+  if (array.byteLength < byteOffset + (length || 0)) {
+    throw new RangeError('\'length\' is out of bounds')
+  }
+
+  var buf
+  if (byteOffset === undefined && length === undefined) {
+    buf = new Uint8Array(array)
+  } else if (length === undefined) {
+    buf = new Uint8Array(array, byteOffset)
+  } else {
+    buf = new Uint8Array(array, byteOffset, length)
+  }
+
+  // Return an augmented `Uint8Array` instance
+  buf.__proto__ = Buffer.prototype
+  return buf
+}
+
+function fromObject (obj) {
+  if (Buffer.isBuffer(obj)) {
+    var len = checked(obj.length) | 0
+    var buf = createBuffer(len)
+
+    if (buf.length === 0) {
+      return buf
+    }
+
+    obj.copy(buf, 0, 0, len)
+    return buf
+  }
+
+  if (obj) {
+    if (isArrayBufferView(obj) || 'length' in obj) {
+      if (typeof obj.length !== 'number' || numberIsNaN(obj.length)) {
+        return createBuffer(0)
+      }
+      return fromArrayLike(obj)
+    }
+
+    if (obj.type === 'Buffer' && Array.isArray(obj.data)) {
+      return fromArrayLike(obj.data)
+    }
+  }
+
+  throw new TypeError('First argument must be a string, Buffer, ArrayBuffer, Array, or array-like object.')
+}
+
+function checked (length) {
+  // Note: cannot use `length < K_MAX_LENGTH` here because that fails when
+  // length is NaN (which is otherwise coerced to zero.)
+  if (length >= K_MAX_LENGTH) {
+    throw new RangeError('Attempt to allocate Buffer larger than maximum ' +
+                         'size: 0x' + K_MAX_LENGTH.toString(16) + ' bytes')
+  }
+  return length | 0
+}
+
+function SlowBuffer (length) {
+  if (+length != length) { // eslint-disable-line eqeqeq
+    length = 0
+  }
+  return Buffer.alloc(+length)
+}
+
+Buffer.isBuffer = function isBuffer (b) {
+  return b != null && b._isBuffer === true
+}
+
+Buffer.compare = function compare (a, b) {
+  if (!Buffer.isBuffer(a) || !Buffer.isBuffer(b)) {
+    throw new TypeError('Arguments must be Buffers')
+  }
+
+  if (a === b) return 0
+
+  var x = a.length
+  var y = b.length
+
+  for (var i = 0, len = Math.min(x, y); i < len; ++i) {
+    if (a[i] !== b[i]) {
+      x = a[i]
+      y = b[i]
+      break
+    }
+  }
+
+  if (x < y) return -1
+  if (y < x) return 1
+  return 0
+}
+
+Buffer.isEncoding = function isEncoding (encoding) {
+  switch (String(encoding).toLowerCase()) {
+    case 'hex':
+    case 'utf8':
+    case 'utf-8':
+    case 'ascii':
+    case 'latin1':
+    case 'binary':
+    case 'base64':
+    case 'ucs2':
+    case 'ucs-2':
+    case 'utf16le':
+    case 'utf-16le':
+      return true
+    default:
+      return false
+  }
+}
+
+Buffer.concat = function concat (list, length) {
+  if (!Array.isArray(list)) {
+    throw new TypeError('"list" argument must be an Array of Buffers')
+  }
+
+  if (list.length === 0) {
+    return Buffer.alloc(0)
+  }
+
+  var i
+  if (length === undefined) {
+    length = 0
+    for (i = 0; i < list.length; ++i) {
+      length += list[i].length
+    }
+  }
+
+  var buffer = Buffer.allocUnsafe(length)
+  var pos = 0
+  for (i = 0; i < list.length; ++i) {
+    var buf = list[i]
+    if (!Buffer.isBuffer(buf)) {
+      throw new TypeError('"list" argument must be an Array of Buffers')
+    }
+    buf.copy(buffer, pos)
+    pos += buf.length
+  }
+  return buffer
+}
+
+function byteLength (string, encoding) {
+  if (Buffer.isBuffer(string)) {
+    return string.length
+  }
+  if (isArrayBufferView(string) || isArrayBuffer(string)) {
+    return string.byteLength
+  }
+  if (typeof string !== 'string') {
+    string = '' + string
+  }
+
+  var len = string.length
+  if (len === 0) return 0
+
+  // Use a for loop to avoid recursion
+  var loweredCase = false
+  for (;;) {
+    switch (encoding) {
+      case 'ascii':
+      case 'latin1':
+      case 'binary':
+        return len
+      case 'utf8':
+      case 'utf-8':
+      case undefined:
+        return utf8ToBytes(string).length
+      case 'ucs2':
+      case 'ucs-2':
+      case 'utf16le':
+      case 'utf-16le':
+        return len * 2
+      case 'hex':
+        return len >>> 1
+      case 'base64':
+        return base64ToBytes(string).length
+      default:
+        if (loweredCase) return utf8ToBytes(string).length // assume utf8
+        encoding = ('' + encoding).toLowerCase()
+        loweredCase = true
+    }
+  }
+}
+Buffer.byteLength = byteLength
+
+function slowToString (encoding, start, end) {
+  var loweredCase = false
+
+  // No need to verify that "this.length <= MAX_UINT32" since it's a read-only
+  // property of a typed array.
+
+  // This behaves neither like String nor Uint8Array in that we set start/end
+  // to their upper/lower bounds if the value passed is out of range.
+  // undefined is handled specially as per ECMA-262 6th Edition,
+  // Section 13.3.3.7 Runtime Semantics: KeyedBindingInitialization.
+  if (start === undefined || start < 0) {
+    start = 0
+  }
+  // Return early if start > this.length. Done here to prevent potential uint32
+  // coercion fail below.
+  if (start > this.length) {
+    return ''
+  }
+
+  if (end === undefined || end > this.length) {
+    end = this.length
+  }
+
+  if (end <= 0) {
+    return ''
+  }
+
+  // Force coersion to uint32. This will also coerce falsey/NaN values to 0.
+  end >>>= 0
+  start >>>= 0
+
+  if (end <= start) {
+    return ''
+  }
+
+  if (!encoding) encoding = 'utf8'
+
+  while (true) {
+    switch (encoding) {
+      case 'hex':
+        return hexSlice(this, start, end)
+
+      case 'utf8':
+      case 'utf-8':
+        return utf8Slice(this, start, end)
+
+      case 'ascii':
+        return asciiSlice(this, start, end)
+
+      case 'latin1':
+      case 'binary':
+        return latin1Slice(this, start, end)
+
+      case 'base64':
+        return base64Slice(this, start, end)
+
+      case 'ucs2':
+      case 'ucs-2':
+      case 'utf16le':
+      case 'utf-16le':
+        return utf16leSlice(this, start, end)
+
+      default:
+        if (loweredCase) throw new TypeError('Unknown encoding: ' + encoding)
+        encoding = (encoding + '').toLowerCase()
+        loweredCase = true
+    }
+  }
+}
+
+// This property is used by `Buffer.isBuffer` (and the `is-buffer` npm package)
+// to detect a Buffer instance. It's not possible to use `instanceof Buffer`
+// reliably in a browserify context because there could be multiple different
+// copies of the 'buffer' package in use. This method works even for Buffer
+// instances that were created from another copy of the `buffer` package.
+// See: https://github.com/feross/buffer/issues/154
+Buffer.prototype._isBuffer = true
+
+function swap (b, n, m) {
+  var i = b[n]
+  b[n] = b[m]
+  b[m] = i
+}
+
+Buffer.prototype.swap16 = function swap16 () {
+  var len = this.length
+  if (len % 2 !== 0) {
+    throw new RangeError('Buffer size must be a multiple of 16-bits')
+  }
+  for (var i = 0; i < len; i += 2) {
+    swap(this, i, i + 1)
+  }
+  return this
+}
+
+Buffer.prototype.swap32 = function swap32 () {
+  var len = this.length
+  if (len % 4 !== 0) {
+    throw new RangeError('Buffer size must be a multiple of 32-bits')
+  }
+  for (var i = 0; i < len; i += 4) {
+    swap(this, i, i + 3)
+    swap(this, i + 1, i + 2)
+  }
+  return this
+}
+
+Buffer.prototype.swap64 = function swap64 () {
+  var len = this.length
+  if (len % 8 !== 0) {
+    throw new RangeError('Buffer size must be a multiple of 64-bits')
+  }
+  for (var i = 0; i < len; i += 8) {
+    swap(this, i, i + 7)
+    swap(this, i + 1, i + 6)
+    swap(this, i + 2, i + 5)
+    swap(this, i + 3, i + 4)
+  }
+  return this
+}
+
+Buffer.prototype.toString = function toString () {
+  var length = this.length
+  if (length === 0) return ''
+  if (arguments.length === 0) return utf8Slice(this, 0, length)
+  return slowToString.apply(this, arguments)
+}
+
+Buffer.prototype.equals = function equals (b) {
+  if (!Buffer.isBuffer(b)) throw new TypeError('Argument must be a Buffer')
+  if (this === b) return true
+  return Buffer.compare(this, b) === 0
+}
+
+Buffer.prototype.inspect = function inspect () {
+  var str = ''
+  var max = exports.INSPECT_MAX_BYTES
+  if (this.length > 0) {
+    str = this.toString('hex', 0, max).match(/.{2}/g).join(' ')
+    if (this.length > max) str += ' ... '
+  }
+  return '<Buffer ' + str + '>'
+}
+
+Buffer.prototype.compare = function compare (target, start, end, thisStart, thisEnd) {
+  if (!Buffer.isBuffer(target)) {
+    throw new TypeError('Argument must be a Buffer')
+  }
+
+  if (start === undefined) {
+    start = 0
+  }
+  if (end === undefined) {
+    end = target ? target.length : 0
+  }
+  if (thisStart === undefined) {
+    thisStart = 0
+  }
+  if (thisEnd === undefined) {
+    thisEnd = this.length
+  }
+
+  if (start < 0 || end > target.length || thisStart < 0 || thisEnd > this.length) {
+    throw new RangeError('out of range index')
+  }
+
+  if (thisStart >= thisEnd && start >= end) {
+    return 0
+  }
+  if (thisStart >= thisEnd) {
+    return -1
+  }
+  if (start >= end) {
+    return 1
+  }
+
+  start >>>= 0
+  end >>>= 0
+  thisStart >>>= 0
+  thisEnd >>>= 0
+
+  if (this === target) return 0
+
+  var x = thisEnd - thisStart
+  var y = end - start
+  var len = Math.min(x, y)
+
+  var thisCopy = this.slice(thisStart, thisEnd)
+  var targetCopy = target.slice(start, end)
+
+  for (var i = 0; i < len; ++i) {
+    if (thisCopy[i] !== targetCopy[i]) {
+      x = thisCopy[i]
+      y = targetCopy[i]
+      break
+    }
+  }
+
+  if (x < y) return -1
+  if (y < x) return 1
+  return 0
+}
+
+// Finds either the first index of `val` in `buffer` at offset >= `byteOffset`,
+// OR the last index of `val` in `buffer` at offset <= `byteOffset`.
+//
+// Arguments:
+// - buffer - a Buffer to search
+// - val - a string, Buffer, or number
+// - byteOffset - an index into `buffer`; will be clamped to an int32
+// - encoding - an optional encoding, relevant is val is a string
+// - dir - true for indexOf, false for lastIndexOf
+function bidirectionalIndexOf (buffer, val, byteOffset, encoding, dir) {
+  // Empty buffer means no match
+  if (buffer.length === 0) return -1
+
+  // Normalize byteOffset
+  if (typeof byteOffset === 'string') {
+    encoding = byteOffset
+    byteOffset = 0
+  } else if (byteOffset > 0x7fffffff) {
+    byteOffset = 0x7fffffff
+  } else if (byteOffset < -0x80000000) {
+    byteOffset = -0x80000000
+  }
+  byteOffset = +byteOffset  // Coerce to Number.
+  if (numberIsNaN(byteOffset)) {
+    // byteOffset: it it's undefined, null, NaN, "foo", etc, search whole buffer
+    byteOffset = dir ? 0 : (buffer.length - 1)
+  }
+
+  // Normalize byteOffset: negative offsets start from the end of the buffer
+  if (byteOffset < 0) byteOffset = buffer.length + byteOffset
+  if (byteOffset >= buffer.length) {
+    if (dir) return -1
+    else byteOffset = buffer.length - 1
+  } else if (byteOffset < 0) {
+    if (dir) byteOffset = 0
+    else return -1
+  }
+
+  // Normalize val
+  if (typeof val === 'string') {
+    val = Buffer.from(val, encoding)
+  }
+
+  // Finally, search either indexOf (if dir is true) or lastIndexOf
+  if (Buffer.isBuffer(val)) {
+    // Special case: looking for empty string/buffer always fails
+    if (val.length === 0) {
+      return -1
+    }
+    return arrayIndexOf(buffer, val, byteOffset, encoding, dir)
+  } else if (typeof val === 'number') {
+    val = val & 0xFF // Search for a byte value [0-255]
+    if (typeof Uint8Array.prototype.indexOf === 'function') {
+      if (dir) {
+        return Uint8Array.prototype.indexOf.call(buffer, val, byteOffset)
+      } else {
+        return Uint8Array.prototype.lastIndexOf.call(buffer, val, byteOffset)
+      }
+    }
+    return arrayIndexOf(buffer, [ val ], byteOffset, encoding, dir)
+  }
+
+  throw new TypeError('val must be string, number or Buffer')
+}
+
+function arrayIndexOf (arr, val, byteOffset, encoding, dir) {
+  var indexSize = 1
+  var arrLength = arr.length
+  var valLength = val.length
+
+  if (encoding !== undefined) {
+    encoding = String(encoding).toLowerCase()
+    if (encoding === 'ucs2' || encoding === 'ucs-2' ||
+        encoding === 'utf16le' || encoding === 'utf-16le') {
+      if (arr.length < 2 || val.length < 2) {
+        return -1
+      }
+      indexSize = 2
+      arrLength /= 2
+      valLength /= 2
+      byteOffset /= 2
+    }
+  }
+
+  function read (buf, i) {
+    if (indexSize === 1) {
+      return buf[i]
+    } else {
+      return buf.readUInt16BE(i * indexSize)
+    }
+  }
+
+  var i
+  if (dir) {
+    var foundIndex = -1
+    for (i = byteOffset; i < arrLength; i++) {
+      if (read(arr, i) === read(val, foundIndex === -1 ? 0 : i - foundIndex)) {
+        if (foundIndex === -1) foundIndex = i
+        if (i - foundIndex + 1 === valLength) return foundIndex * indexSize
+      } else {
+        if (foundIndex !== -1) i -= i - foundIndex
+        foundIndex = -1
+      }
+    }
+  } else {
+    if (byteOffset + valLength > arrLength) byteOffset = arrLength - valLength
+    for (i = byteOffset; i >= 0; i--) {
+      var found = true
+      for (var j = 0; j < valLength; j++) {
+        if (read(arr, i + j) !== read(val, j)) {
+          found = false
+          break
+        }
+      }
+      if (found) return i
+    }
+  }
+
+  return -1
+}
+
+Buffer.prototype.includes = function includes (val, byteOffset, encoding) {
+  return this.indexOf(val, byteOffset, encoding) !== -1
+}
+
+Buffer.prototype.indexOf = function indexOf (val, byteOffset, encoding) {
+  return bidirectionalIndexOf(this, val, byteOffset, encoding, true)
+}
+
+Buffer.prototype.lastIndexOf = function lastIndexOf (val, byteOffset, encoding) {
+  return bidirectionalIndexOf(this, val, byteOffset, encoding, false)
+}
+
+function hexWrite (buf, string, offset, length) {
+  offset = Number(offset) || 0
+  var remaining = buf.length - offset
+  if (!length) {
+    length = remaining
+  } else {
+    length = Number(length)
+    if (length > remaining) {
+      length = remaining
+    }
+  }
+
+  // must be an even number of digits
+  var strLen = string.length
+  if (strLen % 2 !== 0) throw new TypeError('Invalid hex string')
+
+  if (length > strLen / 2) {
+    length = strLen / 2
+  }
+  for (var i = 0; i < length; ++i) {
+    var parsed = parseInt(string.substr(i * 2, 2), 16)
+    if (numberIsNaN(parsed)) return i
+    buf[offset + i] = parsed
+  }
+  return i
+}
+
+function utf8Write (buf, string, offset, length) {
+  return blitBuffer(utf8ToBytes(string, buf.length - offset), buf, offset, length)
+}
+
+function asciiWrite (buf, string, offset, length) {
+  return blitBuffer(asciiToBytes(string), buf, offset, length)
+}
+
+function latin1Write (buf, string, offset, length) {
+  return asciiWrite(buf, string, offset, length)
+}
+
+function base64Write (buf, string, offset, length) {
+  return blitBuffer(base64ToBytes(string), buf, offset, length)
+}
+
+function ucs2Write (buf, string, offset, length) {
+  return blitBuffer(utf16leToBytes(string, buf.length - offset), buf, offset, length)
+}
+
+Buffer.prototype.write = function write (string, offset, length, encoding) {
+  // Buffer#write(string)
+  if (offset === undefined) {
+    encoding = 'utf8'
+    length = this.length
+    offset = 0
+  // Buffer#write(string, encoding)
+  } else if (length === undefined && typeof offset === 'string') {
+    encoding = offset
+    length = this.length
+    offset = 0
+  // Buffer#write(string, offset[, length][, encoding])
+  } else if (isFinite(offset)) {
+    offset = offset >>> 0
+    if (isFinite(length)) {
+      length = length >>> 0
+      if (encoding === undefined) encoding = 'utf8'
+    } else {
+      encoding = length
+      length = undefined
+    }
+  } else {
+    throw new Error(
+      'Buffer.write(string, encoding, offset[, length]) is no longer supported'
+    )
+  }
+
+  var remaining = this.length - offset
+  if (length === undefined || length > remaining) length = remaining
+
+  if ((string.length > 0 && (length < 0 || offset < 0)) || offset > this.length) {
+    throw new RangeError('Attempt to write outside buffer bounds')
+  }
+
+  if (!encoding) encoding = 'utf8'
+
+  var loweredCase = false
+  for (;;) {
+    switch (encoding) {
+      case 'hex':
+        return hexWrite(this, string, offset, length)
+
+      case 'utf8':
+      case 'utf-8':
+        return utf8Write(this, string, offset, length)
+
+      case 'ascii':
+        return asciiWrite(this, string, offset, length)
+
+      case 'latin1':
+      case 'binary':
+        return latin1Write(this, string, offset, length)
+
+      case 'base64':
+        // Warning: maxLength not taken into account in base64Write
+        return base64Write(this, string, offset, length)
+
+      case 'ucs2':
+      case 'ucs-2':
+      case 'utf16le':
+      case 'utf-16le':
+        return ucs2Write(this, string, offset, length)
+
+      default:
+        if (loweredCase) throw new TypeError('Unknown encoding: ' + encoding)
+        encoding = ('' + encoding).toLowerCase()
+        loweredCase = true
+    }
+  }
+}
+
+Buffer.prototype.toJSON = function toJSON () {
+  return {
+    type: 'Buffer',
+    data: Array.prototype.slice.call(this._arr || this, 0)
+  }
+}
+
+function base64Slice (buf, start, end) {
+  if (start === 0 && end === buf.length) {
+    return base64.fromByteArray(buf)
+  } else {
+    return base64.fromByteArray(buf.slice(start, end))
+  }
+}
+
+function utf8Slice (buf, start, end) {
+  end = Math.min(buf.length, end)
+  var res = []
+
+  var i = start
+  while (i < end) {
+    var firstByte = buf[i]
+    var codePoint = null
+    var bytesPerSequence = (firstByte > 0xEF) ? 4
+      : (firstByte > 0xDF) ? 3
+      : (firstByte > 0xBF) ? 2
+      : 1
+
+    if (i + bytesPerSequence <= end) {
+      var secondByte, thirdByte, fourthByte, tempCodePoint
+
+      switch (bytesPerSequence) {
+        case 1:
+          if (firstByte < 0x80) {
+            codePoint = firstByte
+          }
+          break
+        case 2:
+          secondByte = buf[i + 1]
+          if ((secondByte & 0xC0) === 0x80) {
+            tempCodePoint = (firstByte & 0x1F) << 0x6 | (secondByte & 0x3F)
+            if (tempCodePoint > 0x7F) {
+              codePoint = tempCodePoint
+            }
+          }
+          break
+        case 3:
+          secondByte = buf[i + 1]
+          thirdByte = buf[i + 2]
+          if ((secondByte & 0xC0) === 0x80 && (thirdByte & 0xC0) === 0x80) {
+            tempCodePoint = (firstByte & 0xF) << 0xC | (secondByte & 0x3F) << 0x6 | (thirdByte & 0x3F)
+            if (tempCodePoint > 0x7FF && (tempCodePoint < 0xD800 || tempCodePoint > 0xDFFF)) {
+              codePoint = tempCodePoint
+            }
+          }
+          break
+        case 4:
+          secondByte = buf[i + 1]
+          thirdByte = buf[i + 2]
+          fourthByte = buf[i + 3]
+          if ((secondByte & 0xC0) === 0x80 && (thirdByte & 0xC0) === 0x80 && (fourthByte & 0xC0) === 0x80) {
+            tempCodePoint = (firstByte & 0xF) << 0x12 | (secondByte & 0x3F) << 0xC | (thirdByte & 0x3F) << 0x6 | (fourthByte & 0x3F)
+            if (tempCodePoint > 0xFFFF && tempCodePoint < 0x110000) {
+              codePoint = tempCodePoint
+            }
+          }
+      }
+    }
+
+    if (codePoint === null) {
+      // we did not generate a valid codePoint so insert a
+      // replacement char (U+FFFD) and advance only 1 byte
+      codePoint = 0xFFFD
+      bytesPerSequence = 1
+    } else if (codePoint > 0xFFFF) {
+      // encode to utf16 (surrogate pair dance)
+      codePoint -= 0x10000
+      res.push(codePoint >>> 10 & 0x3FF | 0xD800)
+      codePoint = 0xDC00 | codePoint & 0x3FF
+    }
+
+    res.push(codePoint)
+    i += bytesPerSequence
+  }
+
+  return decodeCodePointsArray(res)
+}
+
+// Based on http://stackoverflow.com/a/22747272/680742, the browser with
+// the lowest limit is Chrome, with 0x10000 args.
+// We go 1 magnitude less, for safety
+var MAX_ARGUMENTS_LENGTH = 0x1000
+
+function decodeCodePointsArray (codePoints) {
+  var len = codePoints.length
+  if (len <= MAX_ARGUMENTS_LENGTH) {
+    return String.fromCharCode.apply(String, codePoints) // avoid extra slice()
+  }
+
+  // Decode in chunks to avoid "call stack size exceeded".
+  var res = ''
+  var i = 0
+  while (i < len) {
+    res += String.fromCharCode.apply(
+      String,
+      codePoints.slice(i, i += MAX_ARGUMENTS_LENGTH)
+    )
+  }
+  return res
+}
+
+function asciiSlice (buf, start, end) {
+  var ret = ''
+  end = Math.min(buf.length, end)
+
+  for (var i = start; i < end; ++i) {
+    ret += String.fromCharCode(buf[i] & 0x7F)
+  }
+  return ret
+}
+
+function latin1Slice (buf, start, end) {
+  var ret = ''
+  end = Math.min(buf.length, end)
+
+  for (var i = start; i < end; ++i) {
+    ret += String.fromCharCode(buf[i])
+  }
+  return ret
+}
+
+function hexSlice (buf, start, end) {
+  var len = buf.length
+
+  if (!start || start < 0) start = 0
+  if (!end || end < 0 || end > len) end = len
+
+  var out = ''
+  for (var i = start; i < end; ++i) {
+    out += toHex(buf[i])
+  }
+  return out
+}
+
+function utf16leSlice (buf, start, end) {
+  var bytes = buf.slice(start, end)
+  var res = ''
+  for (var i = 0; i < bytes.length; i += 2) {
+    res += String.fromCharCode(bytes[i] + (bytes[i + 1] * 256))
+  }
+  return res
+}
+
+Buffer.prototype.slice = function slice (start, end) {
+  var len = this.length
+  start = ~~start
+  end = end === undefined ? len : ~~end
+
+  if (start < 0) {
+    start += len
+    if (start < 0) start = 0
+  } else if (start > len) {
+    start = len
+  }
+
+  if (end < 0) {
+    end += len
+    if (end < 0) end = 0
+  } else if (end > len) {
+    end = len
+  }
+
+  if (end < start) end = start
+
+  var newBuf = this.subarray(start, end)
+  // Return an augmented `Uint8Array` instance
+  newBuf.__proto__ = Buffer.prototype
+  return newBuf
+}
+
+/*
+ * Need to make sure that buffer isn't trying to write out of bounds.
+ */
+function checkOffset (offset, ext, length) {
+  if ((offset % 1) !== 0 || offset < 0) throw new RangeError('offset is not uint')
+  if (offset + ext > length) throw new RangeError('Trying to access beyond buffer length')
+}
+
+Buffer.prototype.readUIntLE = function readUIntLE (offset, byteLength, noAssert) {
+  offset = offset >>> 0
+  byteLength = byteLength >>> 0
+  if (!noAssert) checkOffset(offset, byteLength, this.length)
+
+  var val = this[offset]
+  var mul = 1
+  var i = 0
+  while (++i < byteLength && (mul *= 0x100)) {
+    val += this[offset + i] * mul
+  }
+
+  return val
+}
+
+Buffer.prototype.readUIntBE = function readUIntBE (offset, byteLength, noAssert) {
+  offset = offset >>> 0
+  byteLength = byteLength >>> 0
+  if (!noAssert) {
+    checkOffset(offset, byteLength, this.length)
+  }
+
+  var val = this[offset + --byteLength]
+  var mul = 1
+  while (byteLength > 0 && (mul *= 0x100)) {
+    val += this[offset + --byteLength] * mul
+  }
+
+  return val
+}
+
+Buffer.prototype.readUInt8 = function readUInt8 (offset, noAssert) {
+  offset = offset >>> 0
+  if (!noAssert) checkOffset(offset, 1, this.length)
+  return this[offset]
+}
+
+Buffer.prototype.readUInt16LE = function readUInt16LE (offset, noAssert) {
+  offset = offset >>> 0
+  if (!noAssert) checkOffset(offset, 2, this.length)
+  return this[offset] | (this[offset + 1] << 8)
+}
+
+Buffer.prototype.readUInt16BE = function readUInt16BE (offset, noAssert) {
+  offset = offset >>> 0
+  if (!noAssert) checkOffset(offset, 2, this.length)
+  return (this[offset] << 8) | this[offset + 1]
+}
+
+Buffer.prototype.readUInt32LE = function readUInt32LE (offset, noAssert) {
+  offset = offset >>> 0
+  if (!noAssert) checkOffset(offset, 4, this.length)
+
+  return ((this[offset]) |
+      (this[offset + 1] << 8) |
+      (this[offset + 2] << 16)) +
+      (this[offset + 3] * 0x1000000)
+}
+
+Buffer.prototype.readUInt32BE = function readUInt32BE (offset, noAssert) {
+  offset = offset >>> 0
+  if (!noAssert) checkOffset(offset, 4, this.length)
+
+  return (this[offset] * 0x1000000) +
+    ((this[offset + 1] << 16) |
+    (this[offset + 2] << 8) |
+    this[offset + 3])
+}
+
+Buffer.prototype.readIntLE = function readIntLE (offset, byteLength, noAssert) {
+  offset = offset >>> 0
+  byteLength = byteLength >>> 0
+  if (!noAssert) checkOffset(offset, byteLength, this.length)
+
+  var val = this[offset]
+  var mul = 1
+  var i = 0
+  while (++i < byteLength && (mul *= 0x100)) {
+    val += this[offset + i] * mul
+  }
+  mul *= 0x80
+
+  if (val >= mul) val -= Math.pow(2, 8 * byteLength)
+
+  return val
+}
+
+Buffer.prototype.readIntBE = function readIntBE (offset, byteLength, noAssert) {
+  offset = offset >>> 0
+  byteLength = byteLength >>> 0
+  if (!noAssert) checkOffset(offset, byteLength, this.length)
+
+  var i = byteLength
+  var mul = 1
+  var val = this[offset + --i]
+  while (i > 0 && (mul *= 0x100)) {
+    val += this[offset + --i] * mul
+  }
+  mul *= 0x80
+
+  if (val >= mul) val -= Math.pow(2, 8 * byteLength)
+
+  return val
+}
+
+Buffer.prototype.readInt8 = function readInt8 (offset, noAssert) {
+  offset = offset >>> 0
+  if (!noAssert) checkOffset(offset, 1, this.length)
+  if (!(this[offset] & 0x80)) return (this[offset])
+  return ((0xff - this[offset] + 1) * -1)
+}
+
+Buffer.prototype.readInt16LE = function readInt16LE (offset, noAssert) {
+  offset = offset >>> 0
+  if (!noAssert) checkOffset(offset, 2, this.length)
+  var val = this[offset] | (this[offset + 1] << 8)
+  return (val & 0x8000) ? val | 0xFFFF0000 : val
+}
+
+Buffer.prototype.readInt16BE = function readInt16BE (offset, noAssert) {
+  offset = offset >>> 0
+  if (!noAssert) checkOffset(offset, 2, this.length)
+  var val = this[offset + 1] | (this[offset] << 8)
+  return (val & 0x8000) ? val | 0xFFFF0000 : val
+}
+
+Buffer.prototype.readInt32LE = function readInt32LE (offset, noAssert) {
+  offset = offset >>> 0
+  if (!noAssert) checkOffset(offset, 4, this.length)
+
+  return (this[offset]) |
+    (this[offset + 1] << 8) |
+    (this[offset + 2] << 16) |
+    (this[offset + 3] << 24)
+}
+
+Buffer.prototype.readInt32BE = function readInt32BE (offset, noAssert) {
+  offset = offset >>> 0
+  if (!noAssert) checkOffset(offset, 4, this.length)
+
+  return (this[offset] << 24) |
+    (this[offset + 1] << 16) |
+    (this[offset + 2] << 8) |
+    (this[offset + 3])
+}
+
+Buffer.prototype.readFloatLE = function readFloatLE (offset, noAssert) {
+  offset = offset >>> 0
+  if (!noAssert) checkOffset(offset, 4, this.length)
+  return ieee754.read(this, offset, true, 23, 4)
+}
+
+Buffer.prototype.readFloatBE = function readFloatBE (offset, noAssert) {
+  offset = offset >>> 0
+  if (!noAssert) checkOffset(offset, 4, this.length)
+  return ieee754.read(this, offset, false, 23, 4)
+}
+
+Buffer.prototype.readDoubleLE = function readDoubleLE (offset, noAssert) {
+  offset = offset >>> 0
+  if (!noAssert) checkOffset(offset, 8, this.length)
+  return ieee754.read(this, offset, true, 52, 8)
+}
+
+Buffer.prototype.readDoubleBE = function readDoubleBE (offset, noAssert) {
+  offset = offset >>> 0
+  if (!noAssert) checkOffset(offset, 8, this.length)
+  return ieee754.read(this, offset, false, 52, 8)
+}
+
+function checkInt (buf, value, offset, ext, max, min) {
+  if (!Buffer.isBuffer(buf)) throw new TypeError('"buffer" argument must be a Buffer instance')
+  if (value > max || value < min) throw new RangeError('"value" argument is out of bounds')
+  if (offset + ext > buf.length) throw new RangeError('Index out of range')
+}
+
+Buffer.prototype.writeUIntLE = function writeUIntLE (value, offset, byteLength, noAssert) {
+  value = +value
+  offset = offset >>> 0
+  byteLength = byteLength >>> 0
+  if (!noAssert) {
+    var maxBytes = Math.pow(2, 8 * byteLength) - 1
+    checkInt(this, value, offset, byteLength, maxBytes, 0)
+  }
+
+  var mul = 1
+  var i = 0
+  this[offset] = value & 0xFF
+  while (++i < byteLength && (mul *= 0x100)) {
+    this[offset + i] = (value / mul) & 0xFF
+  }
+
+  return offset + byteLength
+}
+
+Buffer.prototype.writeUIntBE = function writeUIntBE (value, offset, byteLength, noAssert) {
+  value = +value
+  offset = offset >>> 0
+  byteLength = byteLength >>> 0
+  if (!noAssert) {
+    var maxBytes = Math.pow(2, 8 * byteLength) - 1
+    checkInt(this, value, offset, byteLength, maxBytes, 0)
+  }
+
+  var i = byteLength - 1
+  var mul = 1
+  this[offset + i] = value & 0xFF
+  while (--i >= 0 && (mul *= 0x100)) {
+    this[offset + i] = (value / mul) & 0xFF
+  }
+
+  return offset + byteLength
+}
+
+Buffer.prototype.writeUInt8 = function writeUInt8 (value, offset, noAssert) {
+  value = +value
+  offset = offset >>> 0
+  if (!noAssert) checkInt(this, value, offset, 1, 0xff, 0)
+  this[offset] = (value & 0xff)
+  return offset + 1
+}
+
+Buffer.prototype.writeUInt16LE = function writeUInt16LE (value, offset, noAssert) {
+  value = +value
+  offset = offset >>> 0
+  if (!noAssert) checkInt(this, value, offset, 2, 0xffff, 0)
+  this[offset] = (value & 0xff)
+  this[offset + 1] = (value >>> 8)
+  return offset + 2
+}
+
+Buffer.prototype.writeUInt16BE = function writeUInt16BE (value, offset, noAssert) {
+  value = +value
+  offset = offset >>> 0
+  if (!noAssert) checkInt(this, value, offset, 2, 0xffff, 0)
+  this[offset] = (value >>> 8)
+  this[offset + 1] = (value & 0xff)
+  return offset + 2
+}
+
+Buffer.prototype.writeUInt32LE = function writeUInt32LE (value, offset, noAssert) {
+  value = +value
+  offset = offset >>> 0
+  if (!noAssert) checkInt(this, value, offset, 4, 0xffffffff, 0)
+  this[offset + 3] = (value >>> 24)
+  this[offset + 2] = (value >>> 16)
+  this[offset + 1] = (value >>> 8)
+  this[offset] = (value & 0xff)
+  return offset + 4
+}
+
+Buffer.prototype.writeUInt32BE = function writeUInt32BE (value, offset, noAssert) {
+  value = +value
+  offset = offset >>> 0
+  if (!noAssert) checkInt(this, value, offset, 4, 0xffffffff, 0)
+  this[offset] = (value >>> 24)
+  this[offset + 1] = (value >>> 16)
+  this[offset + 2] = (value >>> 8)
+  this[offset + 3] = (value & 0xff)
+  return offset + 4
+}
+
+Buffer.prototype.writeIntLE = function writeIntLE (value, offset, byteLength, noAssert) {
+  value = +value
+  offset = offset >>> 0
+  if (!noAssert) {
+    var limit = Math.pow(2, (8 * byteLength) - 1)
+
+    checkInt(this, value, offset, byteLength, limit - 1, -limit)
+  }
+
+  var i = 0
+  var mul = 1
+  var sub = 0
+  this[offset] = value & 0xFF
+  while (++i < byteLength && (mul *= 0x100)) {
+    if (value < 0 && sub === 0 && this[offset + i - 1] !== 0) {
+      sub = 1
+    }
+    this[offset + i] = ((value / mul) >> 0) - sub & 0xFF
+  }
+
+  return offset + byteLength
+}
+
+Buffer.prototype.writeIntBE = function writeIntBE (value, offset, byteLength, noAssert) {
+  value = +value
+  offset = offset >>> 0
+  if (!noAssert) {
+    var limit = Math.pow(2, (8 * byteLength) - 1)
+
+    checkInt(this, value, offset, byteLength, limit - 1, -limit)
+  }
+
+  var i = byteLength - 1
+  var mul = 1
+  var sub = 0
+  this[offset + i] = value & 0xFF
+  while (--i >= 0 && (mul *= 0x100)) {
+    if (value < 0 && sub === 0 && this[offset + i + 1] !== 0) {
+      sub = 1
+    }
+    this[offset + i] = ((value / mul) >> 0) - sub & 0xFF
+  }
+
+  return offset + byteLength
+}
+
+Buffer.prototype.writeInt8 = function writeInt8 (value, offset, noAssert) {
+  value = +value
+  offset = offset >>> 0
+  if (!noAssert) checkInt(this, value, offset, 1, 0x7f, -0x80)
+  if (value < 0) value = 0xff + value + 1
+  this[offset] = (value & 0xff)
+  return offset + 1
+}
+
+Buffer.prototype.writeInt16LE = function writeInt16LE (value, offset, noAssert) {
+  value = +value
+  offset = offset >>> 0
+  if (!noAssert) checkInt(this, value, offset, 2, 0x7fff, -0x8000)
+  this[offset] = (value & 0xff)
+  this[offset + 1] = (value >>> 8)
+  return offset + 2
+}
+
+Buffer.prototype.writeInt16BE = function writeInt16BE (value, offset, noAssert) {
+  value = +value
+  offset = offset >>> 0
+  if (!noAssert) checkInt(this, value, offset, 2, 0x7fff, -0x8000)
+  this[offset] = (value >>> 8)
+  this[offset + 1] = (value & 0xff)
+  return offset + 2
+}
+
+Buffer.prototype.writeInt32LE = function writeInt32LE (value, offset, noAssert) {
+  value = +value
+  offset = offset >>> 0
+  if (!noAssert) checkInt(this, value, offset, 4, 0x7fffffff, -0x80000000)
+  this[offset] = (value & 0xff)
+  this[offset + 1] = (value >>> 8)
+  this[offset + 2] = (value >>> 16)
+  this[offset + 3] = (value >>> 24)
+  return offset + 4
+}
+
+Buffer.prototype.writeInt32BE = function writeInt32BE (value, offset, noAssert) {
+  value = +value
+  offset = offset >>> 0
+  if (!noAssert) checkInt(this, value, offset, 4, 0x7fffffff, -0x80000000)
+  if (value < 0) value = 0xffffffff + value + 1
+  this[offset] = (value >>> 24)
+  this[offset + 1] = (value >>> 16)
+  this[offset + 2] = (value >>> 8)
+  this[offset + 3] = (value & 0xff)
+  return offset + 4
+}
+
+function checkIEEE754 (buf, value, offset, ext, max, min) {
+  if (offset + ext > buf.length) throw new RangeError('Index out of range')
+  if (offset < 0) throw new RangeError('Index out of range')
+}
+
+function writeFloat (buf, value, offset, littleEndian, noAssert) {
+  value = +value
+  offset = offset >>> 0
+  if (!noAssert) {
+    checkIEEE754(buf, value, offset, 4, 3.4028234663852886e+38, -3.4028234663852886e+38)
+  }
+  ieee754.write(buf, value, offset, littleEndian, 23, 4)
+  return offset + 4
+}
+
+Buffer.prototype.writeFloatLE = function writeFloatLE (value, offset, noAssert) {
+  return writeFloat(this, value, offset, true, noAssert)
+}
+
+Buffer.prototype.writeFloatBE = function writeFloatBE (value, offset, noAssert) {
+  return writeFloat(this, value, offset, false, noAssert)
+}
+
+function writeDouble (buf, value, offset, littleEndian, noAssert) {
+  value = +value
+  offset = offset >>> 0
+  if (!noAssert) {
+    checkIEEE754(buf, value, offset, 8, 1.7976931348623157E+308, -1.7976931348623157E+308)
+  }
+  ieee754.write(buf, value, offset, littleEndian, 52, 8)
+  return offset + 8
+}
+
+Buffer.prototype.writeDoubleLE = function writeDoubleLE (value, offset, noAssert) {
+  return writeDouble(this, value, offset, true, noAssert)
+}
+
+Buffer.prototype.writeDoubleBE = function writeDoubleBE (value, offset, noAssert) {
+  return writeDouble(this, value, offset, false, noAssert)
+}
+
+// copy(targetBuffer, targetStart=0, sourceStart=0, sourceEnd=buffer.length)
+Buffer.prototype.copy = function copy (target, targetStart, start, end) {
+  if (!start) start = 0
+  if (!end && end !== 0) end = this.length
+  if (targetStart >= target.length) targetStart = target.length
+  if (!targetStart) targetStart = 0
+  if (end > 0 && end < start) end = start
+
+  // Copy 0 bytes; we're done
+  if (end === start) return 0
+  if (target.length === 0 || this.length === 0) return 0
+
+  // Fatal error conditions
+  if (targetStart < 0) {
+    throw new RangeError('targetStart out of bounds')
+  }
+  if (start < 0 || start >= this.length) throw new RangeError('sourceStart out of bounds')
+  if (end < 0) throw new RangeError('sourceEnd out of bounds')
+
+  // Are we oob?
+  if (end > this.length) end = this.length
+  if (target.length - targetStart < end - start) {
+    end = target.length - targetStart + start
+  }
+
+  var len = end - start
+  var i
+
+  if (this === target && start < targetStart && targetStart < end) {
+    // descending copy from end
+    for (i = len - 1; i >= 0; --i) {
+      target[i + targetStart] = this[i + start]
+    }
+  } else if (len < 1000) {
+    // ascending copy from start
+    for (i = 0; i < len; ++i) {
+      target[i + targetStart] = this[i + start]
+    }
+  } else {
+    Uint8Array.prototype.set.call(
+      target,
+      this.subarray(start, start + len),
+      targetStart
+    )
+  }
+
+  return len
+}
+
+// Usage:
+//    buffer.fill(number[, offset[, end]])
+//    buffer.fill(buffer[, offset[, end]])
+//    buffer.fill(string[, offset[, end]][, encoding])
+Buffer.prototype.fill = function fill (val, start, end, encoding) {
+  // Handle string cases:
+  if (typeof val === 'string') {
+    if (typeof start === 'string') {
+      encoding = start
+      start = 0
+      end = this.length
+    } else if (typeof end === 'string') {
+      encoding = end
+      end = this.length
+    }
+    if (val.length === 1) {
+      var code = val.charCodeAt(0)
+      if (code < 256) {
+        val = code
+      }
+    }
+    if (encoding !== undefined && typeof encoding !== 'string') {
+      throw new TypeError('encoding must be a string')
+    }
+    if (typeof encoding === 'string' && !Buffer.isEncoding(encoding)) {
+      throw new TypeError('Unknown encoding: ' + encoding)
+    }
+  } else if (typeof val === 'number') {
+    val = val & 255
+  }
+
+  // Invalid ranges are not set to a default, so can range check early.
+  if (start < 0 || this.length < start || this.length < end) {
+    throw new RangeError('Out of range index')
+  }
+
+  if (end <= start) {
+    return this
+  }
+
+  start = start >>> 0
+  end = end === undefined ? this.length : end >>> 0
+
+  if (!val) val = 0
+
+  var i
+  if (typeof val === 'number') {
+    for (i = start; i < end; ++i) {
+      this[i] = val
+    }
+  } else {
+    var bytes = Buffer.isBuffer(val)
+      ? val
+      : new Buffer(val, encoding)
+    var len = bytes.length
+    for (i = 0; i < end - start; ++i) {
+      this[i + start] = bytes[i % len]
+    }
+  }
+
+  return this
+}
+
+// HELPER FUNCTIONS
+// ================
+
+var INVALID_BASE64_RE = /[^+/0-9A-Za-z-_]/g
+
+function base64clean (str) {
+  // Node strips out invalid characters like \n and \t from the string, base64-js does not
+  str = str.trim().replace(INVALID_BASE64_RE, '')
+  // Node converts strings with length < 2 to ''
+  if (str.length < 2) return ''
+  // Node allows for non-padded base64 strings (missing trailing ===), base64-js does not
+  while (str.length % 4 !== 0) {
+    str = str + '='
+  }
+  return str
+}
+
+function toHex (n) {
+  if (n < 16) return '0' + n.toString(16)
+  return n.toString(16)
+}
+
+function utf8ToBytes (string, units) {
+  units = units || Infinity
+  var codePoint
+  var length = string.length
+  var leadSurrogate = null
+  var bytes = []
+
+  for (var i = 0; i < length; ++i) {
+    codePoint = string.charCodeAt(i)
+
+    // is surrogate component
+    if (codePoint > 0xD7FF && codePoint < 0xE000) {
+      // last char was a lead
+      if (!leadSurrogate) {
+        // no lead yet
+        if (codePoint > 0xDBFF) {
+          // unexpected trail
+          if ((units -= 3) > -1) bytes.push(0xEF, 0xBF, 0xBD)
+          continue
+        } else if (i + 1 === length) {
+          // unpaired lead
+          if ((units -= 3) > -1) bytes.push(0xEF, 0xBF, 0xBD)
+          continue
+        }
+
+        // valid lead
+        leadSurrogate = codePoint
+
+        continue
+      }
+
+      // 2 leads in a row
+      if (codePoint < 0xDC00) {
+        if ((units -= 3) > -1) bytes.push(0xEF, 0xBF, 0xBD)
+        leadSurrogate = codePoint
+        continue
+      }
+
+      // valid surrogate pair
+      codePoint = (leadSurrogate - 0xD800 << 10 | codePoint - 0xDC00) + 0x10000
+    } else if (leadSurrogate) {
+      // valid bmp char, but last char was a lead
+      if ((units -= 3) > -1) bytes.push(0xEF, 0xBF, 0xBD)
+    }
+
+    leadSurrogate = null
+
+    // encode utf8
+    if (codePoint < 0x80) {
+      if ((units -= 1) < 0) break
+      bytes.push(codePoint)
+    } else if (codePoint < 0x800) {
+      if ((units -= 2) < 0) break
+      bytes.push(
+        codePoint >> 0x6 | 0xC0,
+        codePoint & 0x3F | 0x80
+      )
+    } else if (codePoint < 0x10000) {
+      if ((units -= 3) < 0) break
+      bytes.push(
+        codePoint >> 0xC | 0xE0,
+        codePoint >> 0x6 & 0x3F | 0x80,
+        codePoint & 0x3F | 0x80
+      )
+    } else if (codePoint < 0x110000) {
+      if ((units -= 4) < 0) break
+      bytes.push(
+        codePoint >> 0x12 | 0xF0,
+        codePoint >> 0xC & 0x3F | 0x80,
+        codePoint >> 0x6 & 0x3F | 0x80,
+        codePoint & 0x3F | 0x80
+      )
+    } else {
+      throw new Error('Invalid code point')
+    }
+  }
+
+  return bytes
+}
+
+function asciiToBytes (str) {
+  var byteArray = []
+  for (var i = 0; i < str.length; ++i) {
+    // Node's code seems to be doing this and not & 0x7F..
+    byteArray.push(str.charCodeAt(i) & 0xFF)
+  }
+  return byteArray
+}
+
+function utf16leToBytes (str, units) {
+  var c, hi, lo
+  var byteArray = []
+  for (var i = 0; i < str.length; ++i) {
+    if ((units -= 2) < 0) break
+
+    c = str.charCodeAt(i)
+    hi = c >> 8
+    lo = c % 256
+    byteArray.push(lo)
+    byteArray.push(hi)
+  }
+
+  return byteArray
+}
+
+function base64ToBytes (str) {
+  return base64.toByteArray(base64clean(str))
+}
+
+function blitBuffer (src, dst, offset, length) {
+  for (var i = 0; i < length; ++i) {
+    if ((i + offset >= dst.length) || (i >= src.length)) break
+    dst[i + offset] = src[i]
+  }
+  return i
+}
+
+// ArrayBuffers from another context (i.e. an iframe) do not pass the `instanceof` check
+// but they should be treated as valid. See: https://github.com/feross/buffer/issues/166
+function isArrayBuffer (obj) {
+  return obj instanceof ArrayBuffer ||
+    (obj != null && obj.constructor != null && obj.constructor.name === 'ArrayBuffer' &&
+      typeof obj.byteLength === 'number')
+}
+
+// Node 0.10 supports `ArrayBuffer` but lacks `ArrayBuffer.isView`
+function isArrayBufferView (obj) {
+  return (typeof ArrayBuffer.isView === 'function') && ArrayBuffer.isView(obj)
+}
+
+function numberIsNaN (obj) {
+  return obj !== obj // eslint-disable-line no-self-compare
+}
+
+},{"base64-js":264,"ieee754":270}],267:[function(require,module,exports){
+module.exports = {
+  "100": "Continue",
+  "101": "Switching Protocols",
+  "102": "Processing",
+  "200": "OK",
+  "201": "Created",
+  "202": "Accepted",
+  "203": "Non-Authoritative Information",
+  "204": "No Content",
+  "205": "Reset Content",
+  "206": "Partial Content",
+  "207": "Multi-Status",
+  "208": "Already Reported",
+  "226": "IM Used",
+  "300": "Multiple Choices",
+  "301": "Moved Permanently",
+  "302": "Found",
+  "303": "See Other",
+  "304": "Not Modified",
+  "305": "Use Proxy",
+  "307": "Temporary Redirect",
+  "308": "Permanent Redirect",
+  "400": "Bad Request",
+  "401": "Unauthorized",
+  "402": "Payment Required",
+  "403": "Forbidden",
+  "404": "Not Found",
+  "405": "Method Not Allowed",
+  "406": "Not Acceptable",
+  "407": "Proxy Authentication Required",
+  "408": "Request Timeout",
+  "409": "Conflict",
+  "410": "Gone",
+  "411": "Length Required",
+  "412": "Precondition Failed",
+  "413": "Payload Too Large",
+  "414": "URI Too Long",
+  "415": "Unsupported Media Type",
+  "416": "Range Not Satisfiable",
+  "417": "Expectation Failed",
+  "418": "I'm a teapot",
+  "421": "Misdirected Request",
+  "422": "Unprocessable Entity",
+  "423": "Locked",
+  "424": "Failed Dependency",
+  "425": "Unordered Collection",
+  "426": "Upgrade Required",
+  "428": "Precondition Required",
+  "429": "Too Many Requests",
+  "431": "Request Header Fields Too Large",
+  "451": "Unavailable For Legal Reasons",
+  "500": "Internal Server Error",
+  "501": "Not Implemented",
+  "502": "Bad Gateway",
+  "503": "Service Unavailable",
+  "504": "Gateway Timeout",
+  "505": "HTTP Version Not Supported",
+  "506": "Variant Also Negotiates",
+  "507": "Insufficient Storage",
+  "508": "Loop Detected",
+  "509": "Bandwidth Limit Exceeded",
+  "510": "Not Extended",
+  "511": "Network Authentication Required"
+}
+
+},{}],268:[function(require,module,exports){
+(function (Buffer){
+// Copyright Joyent, Inc. and other Node contributors.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to permit
+// persons to whom the Software is furnished to do so, subject to the
+// following conditions:
+//
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+// NOTE: These type checking functions intentionally don't use `instanceof`
+// because it is fragile and can be easily faked with `Object.create()`.
+
+function isArray(arg) {
+  if (Array.isArray) {
+    return Array.isArray(arg);
+  }
+  return objectToString(arg) === '[object Array]';
+}
+exports.isArray = isArray;
+
+function isBoolean(arg) {
+  return typeof arg === 'boolean';
+}
+exports.isBoolean = isBoolean;
+
+function isNull(arg) {
+  return arg === null;
+}
+exports.isNull = isNull;
+
+function isNullOrUndefined(arg) {
+  return arg == null;
+}
+exports.isNullOrUndefined = isNullOrUndefined;
+
+function isNumber(arg) {
+  return typeof arg === 'number';
+}
+exports.isNumber = isNumber;
+
+function isString(arg) {
+  return typeof arg === 'string';
+}
+exports.isString = isString;
+
+function isSymbol(arg) {
+  return typeof arg === 'symbol';
+}
+exports.isSymbol = isSymbol;
+
+function isUndefined(arg) {
+  return arg === void 0;
+}
+exports.isUndefined = isUndefined;
+
+function isRegExp(re) {
+  return objectToString(re) === '[object RegExp]';
+}
+exports.isRegExp = isRegExp;
+
+function isObject(arg) {
+  return typeof arg === 'object' && arg !== null;
+}
+exports.isObject = isObject;
+
+function isDate(d) {
+  return objectToString(d) === '[object Date]';
+}
+exports.isDate = isDate;
+
+function isError(e) {
+  return (objectToString(e) === '[object Error]' || e instanceof Error);
+}
+exports.isError = isError;
+
+function isFunction(arg) {
+  return typeof arg === 'function';
+}
+exports.isFunction = isFunction;
+
+function isPrimitive(arg) {
+  return arg === null ||
+         typeof arg === 'boolean' ||
+         typeof arg === 'number' ||
+         typeof arg === 'string' ||
+         typeof arg === 'symbol' ||  // ES6 symbol
+         typeof arg === 'undefined';
+}
+exports.isPrimitive = isPrimitive;
+
+exports.isBuffer = Buffer.isBuffer;
+
+function objectToString(o) {
+  return Object.prototype.toString.call(o);
+}
+
+}).call(this,{"isBuffer":require("../../is-buffer/index.js")})
+},{"../../is-buffer/index.js":272}],269:[function(require,module,exports){
+// Copyright Joyent, Inc. and other Node contributors.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to permit
+// persons to whom the Software is furnished to do so, subject to the
+// following conditions:
+//
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+function EventEmitter() {
+  this._events = this._events || {};
+  this._maxListeners = this._maxListeners || undefined;
+}
+module.exports = EventEmitter;
+
+// Backwards-compat with node 0.10.x
+EventEmitter.EventEmitter = EventEmitter;
+
+EventEmitter.prototype._events = undefined;
+EventEmitter.prototype._maxListeners = undefined;
+
+// By default EventEmitters will print a warning if more than 10 listeners are
+// added to it. This is a useful default which helps finding memory leaks.
+EventEmitter.defaultMaxListeners = 10;
+
+// Obviously not all Emitters should be limited to 10. This function allows
+// that to be increased. Set to zero for unlimited.
+EventEmitter.prototype.setMaxListeners = function(n) {
+  if (!isNumber(n) || n < 0 || isNaN(n))
+    throw TypeError('n must be a positive number');
+  this._maxListeners = n;
+  return this;
+};
+
+EventEmitter.prototype.emit = function(type) {
+  var er, handler, len, args, i, listeners;
+
+  if (!this._events)
+    this._events = {};
+
+  // If there is no 'error' event listener then throw.
+  if (type === 'error') {
+    if (!this._events.error ||
+        (isObject(this._events.error) && !this._events.error.length)) {
+      er = arguments[1];
+      if (er instanceof Error) {
+        throw er; // Unhandled 'error' event
+      } else {
+        // At least give some kind of context to the user
+        var err = new Error('Uncaught, unspecified "error" event. (' + er + ')');
+        err.context = er;
+        throw err;
+      }
+    }
+  }
+
+  handler = this._events[type];
+
+  if (isUndefined(handler))
+    return false;
+
+  if (isFunction(handler)) {
+    switch (arguments.length) {
+      // fast cases
+      case 1:
+        handler.call(this);
+        break;
+      case 2:
+        handler.call(this, arguments[1]);
+        break;
+      case 3:
+        handler.call(this, arguments[1], arguments[2]);
+        break;
+      // slower
+      default:
+        args = Array.prototype.slice.call(arguments, 1);
+        handler.apply(this, args);
+    }
+  } else if (isObject(handler)) {
+    args = Array.prototype.slice.call(arguments, 1);
+    listeners = handler.slice();
+    len = listeners.length;
+    for (i = 0; i < len; i++)
+      listeners[i].apply(this, args);
+  }
+
+  return true;
+};
+
+EventEmitter.prototype.addListener = function(type, listener) {
+  var m;
+
+  if (!isFunction(listener))
+    throw TypeError('listener must be a function');
+
+  if (!this._events)
+    this._events = {};
+
+  // To avoid recursion in the case that type === "newListener"! Before
+  // adding it to the listeners, first emit "newListener".
+  if (this._events.newListener)
+    this.emit('newListener', type,
+              isFunction(listener.listener) ?
+              listener.listener : listener);
+
+  if (!this._events[type])
+    // Optimize the case of one listener. Don't need the extra array object.
+    this._events[type] = listener;
+  else if (isObject(this._events[type]))
+    // If we've already got an array, just append.
+    this._events[type].push(listener);
+  else
+    // Adding the second element, need to change to array.
+    this._events[type] = [this._events[type], listener];
+
+  // Check for listener leak
+  if (isObject(this._events[type]) && !this._events[type].warned) {
+    if (!isUndefined(this._maxListeners)) {
+      m = this._maxListeners;
+    } else {
+      m = EventEmitter.defaultMaxListeners;
+    }
+
+    if (m && m > 0 && this._events[type].length > m) {
+      this._events[type].warned = true;
+      console.error('(node) warning: possible EventEmitter memory ' +
+                    'leak detected. %d listeners added. ' +
+                    'Use emitter.setMaxListeners() to increase limit.',
+                    this._events[type].length);
+      if (typeof console.trace === 'function') {
+        // not supported in IE 10
+        console.trace();
+      }
+    }
+  }
+
+  return this;
+};
+
+EventEmitter.prototype.on = EventEmitter.prototype.addListener;
+
+EventEmitter.prototype.once = function(type, listener) {
+  if (!isFunction(listener))
+    throw TypeError('listener must be a function');
+
+  var fired = false;
+
+  function g() {
+    this.removeListener(type, g);
+
+    if (!fired) {
+      fired = true;
+      listener.apply(this, arguments);
+    }
+  }
+
+  g.listener = listener;
+  this.on(type, g);
+
+  return this;
+};
+
+// emits a 'removeListener' event iff the listener was removed
+EventEmitter.prototype.removeListener = function(type, listener) {
+  var list, position, length, i;
+
+  if (!isFunction(listener))
+    throw TypeError('listener must be a function');
+
+  if (!this._events || !this._events[type])
+    return this;
+
+  list = this._events[type];
+  length = list.length;
+  position = -1;
+
+  if (list === listener ||
+      (isFunction(list.listener) && list.listener === listener)) {
+    delete this._events[type];
+    if (this._events.removeListener)
+      this.emit('removeListener', type, listener);
+
+  } else if (isObject(list)) {
+    for (i = length; i-- > 0;) {
+      if (list[i] === listener ||
+          (list[i].listener && list[i].listener === listener)) {
+        position = i;
+        break;
+      }
+    }
+
+    if (position < 0)
+      return this;
+
+    if (list.length === 1) {
+      list.length = 0;
+      delete this._events[type];
+    } else {
+      list.splice(position, 1);
+    }
+
+    if (this._events.removeListener)
+      this.emit('removeListener', type, listener);
+  }
+
+  return this;
+};
+
+EventEmitter.prototype.removeAllListeners = function(type) {
+  var key, listeners;
+
+  if (!this._events)
+    return this;
+
+  // not listening for removeListener, no need to emit
+  if (!this._events.removeListener) {
+    if (arguments.length === 0)
+      this._events = {};
+    else if (this._events[type])
+      delete this._events[type];
+    return this;
+  }
+
+  // emit removeListener for all listeners on all events
+  if (arguments.length === 0) {
+    for (key in this._events) {
+      if (key === 'removeListener') continue;
+      this.removeAllListeners(key);
+    }
+    this.removeAllListeners('removeListener');
+    this._events = {};
+    return this;
+  }
+
+  listeners = this._events[type];
+
+  if (isFunction(listeners)) {
+    this.removeListener(type, listeners);
+  } else if (listeners) {
+    // LIFO order
+    while (listeners.length)
+      this.removeListener(type, listeners[listeners.length - 1]);
+  }
+  delete this._events[type];
+
+  return this;
+};
+
+EventEmitter.prototype.listeners = function(type) {
+  var ret;
+  if (!this._events || !this._events[type])
+    ret = [];
+  else if (isFunction(this._events[type]))
+    ret = [this._events[type]];
+  else
+    ret = this._events[type].slice();
+  return ret;
+};
+
+EventEmitter.prototype.listenerCount = function(type) {
+  if (this._events) {
+    var evlistener = this._events[type];
+
+    if (isFunction(evlistener))
+      return 1;
+    else if (evlistener)
+      return evlistener.length;
+  }
+  return 0;
+};
+
+EventEmitter.listenerCount = function(emitter, type) {
+  return emitter.listenerCount(type);
+};
+
+function isFunction(arg) {
+  return typeof arg === 'function';
+}
+
+function isNumber(arg) {
+  return typeof arg === 'number';
+}
+
+function isObject(arg) {
+  return typeof arg === 'object' && arg !== null;
+}
+
+function isUndefined(arg) {
+  return arg === void 0;
+}
+
+},{}],270:[function(require,module,exports){
+exports.read = function (buffer, offset, isLE, mLen, nBytes) {
+  var e, m
+  var eLen = nBytes * 8 - mLen - 1
+  var eMax = (1 << eLen) - 1
+  var eBias = eMax >> 1
+  var nBits = -7
+  var i = isLE ? (nBytes - 1) : 0
+  var d = isLE ? -1 : 1
+  var s = buffer[offset + i]
+
+  i += d
+
+  e = s & ((1 << (-nBits)) - 1)
+  s >>= (-nBits)
+  nBits += eLen
+  for (; nBits > 0; e = e * 256 + buffer[offset + i], i += d, nBits -= 8) {}
+
+  m = e & ((1 << (-nBits)) - 1)
+  e >>= (-nBits)
+  nBits += mLen
+  for (; nBits > 0; m = m * 256 + buffer[offset + i], i += d, nBits -= 8) {}
+
+  if (e === 0) {
+    e = 1 - eBias
+  } else if (e === eMax) {
+    return m ? NaN : ((s ? -1 : 1) * Infinity)
+  } else {
+    m = m + Math.pow(2, mLen)
+    e = e - eBias
+  }
+  return (s ? -1 : 1) * m * Math.pow(2, e - mLen)
+}
+
+exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
+  var e, m, c
+  var eLen = nBytes * 8 - mLen - 1
+  var eMax = (1 << eLen) - 1
+  var eBias = eMax >> 1
+  var rt = (mLen === 23 ? Math.pow(2, -24) - Math.pow(2, -77) : 0)
+  var i = isLE ? 0 : (nBytes - 1)
+  var d = isLE ? 1 : -1
+  var s = value < 0 || (value === 0 && 1 / value < 0) ? 1 : 0
+
+  value = Math.abs(value)
+
+  if (isNaN(value) || value === Infinity) {
+    m = isNaN(value) ? 1 : 0
+    e = eMax
+  } else {
+    e = Math.floor(Math.log(value) / Math.LN2)
+    if (value * (c = Math.pow(2, -e)) < 1) {
+      e--
+      c *= 2
+    }
+    if (e + eBias >= 1) {
+      value += rt / c
+    } else {
+      value += rt * Math.pow(2, 1 - eBias)
+    }
+    if (value * c >= 2) {
+      e++
+      c /= 2
+    }
+
+    if (e + eBias >= eMax) {
+      m = 0
+      e = eMax
+    } else if (e + eBias >= 1) {
+      m = (value * c - 1) * Math.pow(2, mLen)
+      e = e + eBias
+    } else {
+      m = value * Math.pow(2, eBias - 1) * Math.pow(2, mLen)
+      e = 0
+    }
+  }
+
+  for (; mLen >= 8; buffer[offset + i] = m & 0xff, i += d, m /= 256, mLen -= 8) {}
+
+  e = (e << mLen) | m
+  eLen += mLen
+  for (; eLen > 0; buffer[offset + i] = e & 0xff, i += d, e /= 256, eLen -= 8) {}
+
+  buffer[offset + i - d] |= s * 128
+}
+
+},{}],271:[function(require,module,exports){
+if (typeof Object.create === 'function') {
+  // implementation from standard node.js 'util' module
+  module.exports = function inherits(ctor, superCtor) {
+    ctor.super_ = superCtor
+    ctor.prototype = Object.create(superCtor.prototype, {
+      constructor: {
+        value: ctor,
+        enumerable: false,
+        writable: true,
+        configurable: true
+      }
+    });
+  };
+} else {
+  // old school shim for old browsers
+  module.exports = function inherits(ctor, superCtor) {
+    ctor.super_ = superCtor
+    var TempCtor = function () {}
+    TempCtor.prototype = superCtor.prototype
+    ctor.prototype = new TempCtor()
+    ctor.prototype.constructor = ctor
+  }
+}
+
+},{}],272:[function(require,module,exports){
+/*!
+ * Determine if an object is a Buffer
+ *
+ * @author   Feross Aboukhadijeh <https://feross.org>
+ * @license  MIT
+ */
+
+// The _isBuffer check is for Safari 5-7 support, because it's missing
+// Object.prototype.constructor. Remove this eventually
+module.exports = function (obj) {
+  return obj != null && (isBuffer(obj) || isSlowBuffer(obj) || !!obj._isBuffer)
+}
+
+function isBuffer (obj) {
+  return !!obj.constructor && typeof obj.constructor.isBuffer === 'function' && obj.constructor.isBuffer(obj)
+}
+
+// For Node v0.10 support. Remove this eventually.
+function isSlowBuffer (obj) {
+  return typeof obj.readFloatLE === 'function' && typeof obj.slice === 'function' && isBuffer(obj.slice(0, 0))
+}
+
+},{}],273:[function(require,module,exports){
+var toString = {}.toString;
+
+module.exports = Array.isArray || function (arr) {
+  return toString.call(arr) == '[object Array]';
+};
+
+},{}],274:[function(require,module,exports){
+(function (process){
+'use strict';
+
+if (!process.version ||
+    process.version.indexOf('v0.') === 0 ||
+    process.version.indexOf('v1.') === 0 && process.version.indexOf('v1.8.') !== 0) {
+  module.exports = nextTick;
+} else {
+  module.exports = process.nextTick;
+}
+
+function nextTick(fn, arg1, arg2, arg3) {
+  if (typeof fn !== 'function') {
+    throw new TypeError('"callback" argument must be a function');
+  }
+  var len = arguments.length;
+  var args, i;
+  switch (len) {
+  case 0:
+  case 1:
+    return process.nextTick(fn);
+  case 2:
+    return process.nextTick(function afterTickOne() {
+      fn.call(null, arg1);
+    });
+  case 3:
+    return process.nextTick(function afterTickTwo() {
+      fn.call(null, arg1, arg2);
+    });
+  case 4:
+    return process.nextTick(function afterTickThree() {
+      fn.call(null, arg1, arg2, arg3);
+    });
+  default:
+    args = new Array(len - 1);
+    i = 0;
+    while (i < args.length) {
+      args[i++] = arguments[i];
+    }
+    return process.nextTick(function afterTick() {
+      fn.apply(null, args);
+    });
+  }
+}
+
+}).call(this,require('_process'))
+},{"_process":275}],275:[function(require,module,exports){
+// shim for using process in browser
+var process = module.exports = {};
+
+// cached from whatever global is present so that test runners that stub it
+// don't break things.  But we need to wrap it in a try catch in case it is
+// wrapped in strict mode code which doesn't define any globals.  It's inside a
+// function because try/catches deoptimize in certain engines.
+
+var cachedSetTimeout;
+var cachedClearTimeout;
+
+function defaultSetTimout() {
+    throw new Error('setTimeout has not been defined');
+}
+function defaultClearTimeout () {
+    throw new Error('clearTimeout has not been defined');
+}
+(function () {
+    try {
+        if (typeof setTimeout === 'function') {
+            cachedSetTimeout = setTimeout;
+        } else {
+            cachedSetTimeout = defaultSetTimout;
+        }
+    } catch (e) {
+        cachedSetTimeout = defaultSetTimout;
+    }
+    try {
+        if (typeof clearTimeout === 'function') {
+            cachedClearTimeout = clearTimeout;
+        } else {
+            cachedClearTimeout = defaultClearTimeout;
+        }
+    } catch (e) {
+        cachedClearTimeout = defaultClearTimeout;
+    }
+} ())
+function runTimeout(fun) {
+    if (cachedSetTimeout === setTimeout) {
+        //normal enviroments in sane situations
+        return setTimeout(fun, 0);
+    }
+    // if setTimeout wasn't available but was latter defined
+    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
+        cachedSetTimeout = setTimeout;
+        return setTimeout(fun, 0);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedSetTimeout(fun, 0);
+    } catch(e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
+            return cachedSetTimeout.call(null, fun, 0);
+        } catch(e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
+            return cachedSetTimeout.call(this, fun, 0);
+        }
+    }
+
+
+}
+function runClearTimeout(marker) {
+    if (cachedClearTimeout === clearTimeout) {
+        //normal enviroments in sane situations
+        return clearTimeout(marker);
+    }
+    // if clearTimeout wasn't available but was latter defined
+    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
+        cachedClearTimeout = clearTimeout;
+        return clearTimeout(marker);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedClearTimeout(marker);
+    } catch (e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
+            return cachedClearTimeout.call(null, marker);
+        } catch (e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
+            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
+            return cachedClearTimeout.call(this, marker);
+        }
+    }
+
+
+
+}
+var queue = [];
+var draining = false;
+var currentQueue;
+var queueIndex = -1;
+
+function cleanUpNextTick() {
+    if (!draining || !currentQueue) {
+        return;
+    }
+    draining = false;
+    if (currentQueue.length) {
+        queue = currentQueue.concat(queue);
+    } else {
+        queueIndex = -1;
+    }
+    if (queue.length) {
+        drainQueue();
+    }
+}
+
+function drainQueue() {
+    if (draining) {
+        return;
+    }
+    var timeout = runTimeout(cleanUpNextTick);
+    draining = true;
+
+    var len = queue.length;
+    while(len) {
+        currentQueue = queue;
+        queue = [];
+        while (++queueIndex < len) {
+            if (currentQueue) {
+                currentQueue[queueIndex].run();
+            }
+        }
+        queueIndex = -1;
+        len = queue.length;
+    }
+    currentQueue = null;
+    draining = false;
+    runClearTimeout(timeout);
+}
+
+process.nextTick = function (fun) {
+    var args = new Array(arguments.length - 1);
+    if (arguments.length > 1) {
+        for (var i = 1; i < arguments.length; i++) {
+            args[i - 1] = arguments[i];
+        }
+    }
+    queue.push(new Item(fun, args));
+    if (queue.length === 1 && !draining) {
+        runTimeout(drainQueue);
+    }
+};
+
+// v8 likes predictible objects
+function Item(fun, array) {
+    this.fun = fun;
+    this.array = array;
+}
+Item.prototype.run = function () {
+    this.fun.apply(null, this.array);
+};
+process.title = 'browser';
+process.browser = true;
+process.env = {};
+process.argv = [];
+process.version = ''; // empty string to avoid regexp issues
+process.versions = {};
+
+function noop() {}
+
+process.on = noop;
+process.addListener = noop;
+process.once = noop;
+process.off = noop;
+process.removeListener = noop;
+process.removeAllListeners = noop;
+process.emit = noop;
+process.prependListener = noop;
+process.prependOnceListener = noop;
+
+process.listeners = function (name) { return [] }
+
+process.binding = function (name) {
+    throw new Error('process.binding is not supported');
+};
+
+process.cwd = function () { return '/' };
+process.chdir = function (dir) {
+    throw new Error('process.chdir is not supported');
+};
+process.umask = function() { return 0; };
+
+},{}],276:[function(require,module,exports){
+(function (global){
+/*! https://mths.be/punycode v1.4.1 by @mathias */
+;(function(root) {
+
+	/** Detect free variables */
+	var freeExports = typeof exports == 'object' && exports &&
+		!exports.nodeType && exports;
+	var freeModule = typeof module == 'object' && module &&
+		!module.nodeType && module;
+	var freeGlobal = typeof global == 'object' && global;
+	if (
+		freeGlobal.global === freeGlobal ||
+		freeGlobal.window === freeGlobal ||
+		freeGlobal.self === freeGlobal
+	) {
+		root = freeGlobal;
+	}
+
+	/**
+	 * The `punycode` object.
+	 * @name punycode
+	 * @type Object
+	 */
+	var punycode,
+
+	/** Highest positive signed 32-bit float value */
+	maxInt = 2147483647, // aka. 0x7FFFFFFF or 2^31-1
+
+	/** Bootstring parameters */
+	base = 36,
+	tMin = 1,
+	tMax = 26,
+	skew = 38,
+	damp = 700,
+	initialBias = 72,
+	initialN = 128, // 0x80
+	delimiter = '-', // '\x2D'
+
+	/** Regular expressions */
+	regexPunycode = /^xn--/,
+	regexNonASCII = /[^\x20-\x7E]/, // unprintable ASCII chars + non-ASCII chars
+	regexSeparators = /[\x2E\u3002\uFF0E\uFF61]/g, // RFC 3490 separators
+
+	/** Error messages */
+	errors = {
+		'overflow': 'Overflow: input needs wider integers to process',
+		'not-basic': 'Illegal input >= 0x80 (not a basic code point)',
+		'invalid-input': 'Invalid input'
+	},
+
+	/** Convenience shortcuts */
+	baseMinusTMin = base - tMin,
+	floor = Math.floor,
+	stringFromCharCode = String.fromCharCode,
+
+	/** Temporary variable */
+	key;
+
+	/*--------------------------------------------------------------------------*/
+
+	/**
+	 * A generic error utility function.
+	 * @private
+	 * @param {String} type The error type.
+	 * @returns {Error} Throws a `RangeError` with the applicable error message.
+	 */
+	function error(type) {
+		throw new RangeError(errors[type]);
+	}
+
+	/**
+	 * A generic `Array#map` utility function.
+	 * @private
+	 * @param {Array} array The array to iterate over.
+	 * @param {Function} callback The function that gets called for every array
+	 * item.
+	 * @returns {Array} A new array of values returned by the callback function.
+	 */
+	function map(array, fn) {
+		var length = array.length;
+		var result = [];
+		while (length--) {
+			result[length] = fn(array[length]);
+		}
+		return result;
+	}
+
+	/**
+	 * A simple `Array#map`-like wrapper to work with domain name strings or email
+	 * addresses.
+	 * @private
+	 * @param {String} domain The domain name or email address.
+	 * @param {Function} callback The function that gets called for every
+	 * character.
+	 * @returns {Array} A new string of characters returned by the callback
+	 * function.
+	 */
+	function mapDomain(string, fn) {
+		var parts = string.split('@');
+		var result = '';
+		if (parts.length > 1) {
+			// In email addresses, only the domain name should be punycoded. Leave
+			// the local part (i.e. everything up to `@`) intact.
+			result = parts[0] + '@';
+			string = parts[1];
+		}
+		// Avoid `split(regex)` for IE8 compatibility. See #17.
+		string = string.replace(regexSeparators, '\x2E');
+		var labels = string.split('.');
+		var encoded = map(labels, fn).join('.');
+		return result + encoded;
+	}
+
+	/**
+	 * Creates an array containing the numeric code points of each Unicode
+	 * character in the string. While JavaScript uses UCS-2 internally,
+	 * this function will convert a pair of surrogate halves (each of which
+	 * UCS-2 exposes as separate characters) into a single code point,
+	 * matching UTF-16.
+	 * @see `punycode.ucs2.encode`
+	 * @see <https://mathiasbynens.be/notes/javascript-encoding>
+	 * @memberOf punycode.ucs2
+	 * @name decode
+	 * @param {String} string The Unicode input string (UCS-2).
+	 * @returns {Array} The new array of code points.
+	 */
+	function ucs2decode(string) {
+		var output = [],
+		    counter = 0,
+		    length = string.length,
+		    value,
+		    extra;
+		while (counter < length) {
+			value = string.charCodeAt(counter++);
+			if (value >= 0xD800 && value <= 0xDBFF && counter < length) {
+				// high surrogate, and there is a next character
+				extra = string.charCodeAt(counter++);
+				if ((extra & 0xFC00) == 0xDC00) { // low surrogate
+					output.push(((value & 0x3FF) << 10) + (extra & 0x3FF) + 0x10000);
+				} else {
+					// unmatched surrogate; only append this code unit, in case the next
+					// code unit is the high surrogate of a surrogate pair
+					output.push(value);
+					counter--;
+				}
+			} else {
+				output.push(value);
+			}
+		}
+		return output;
+	}
+
+	/**
+	 * Creates a string based on an array of numeric code points.
+	 * @see `punycode.ucs2.decode`
+	 * @memberOf punycode.ucs2
+	 * @name encode
+	 * @param {Array} codePoints The array of numeric code points.
+	 * @returns {String} The new Unicode string (UCS-2).
+	 */
+	function ucs2encode(array) {
+		return map(array, function(value) {
+			var output = '';
+			if (value > 0xFFFF) {
+				value -= 0x10000;
+				output += stringFromCharCode(value >>> 10 & 0x3FF | 0xD800);
+				value = 0xDC00 | value & 0x3FF;
+			}
+			output += stringFromCharCode(value);
+			return output;
+		}).join('');
+	}
+
+	/**
+	 * Converts a basic code point into a digit/integer.
+	 * @see `digitToBasic()`
+	 * @private
+	 * @param {Number} codePoint The basic numeric code point value.
+	 * @returns {Number} The numeric value of a basic code point (for use in
+	 * representing integers) in the range `0` to `base - 1`, or `base` if
+	 * the code point does not represent a value.
+	 */
+	function basicToDigit(codePoint) {
+		if (codePoint - 48 < 10) {
+			return codePoint - 22;
+		}
+		if (codePoint - 65 < 26) {
+			return codePoint - 65;
+		}
+		if (codePoint - 97 < 26) {
+			return codePoint - 97;
+		}
+		return base;
+	}
+
+	/**
+	 * Converts a digit/integer into a basic code point.
+	 * @see `basicToDigit()`
+	 * @private
+	 * @param {Number} digit The numeric value of a basic code point.
+	 * @returns {Number} The basic code point whose value (when used for
+	 * representing integers) is `digit`, which needs to be in the range
+	 * `0` to `base - 1`. If `flag` is non-zero, the uppercase form is
+	 * used; else, the lowercase form is used. The behavior is undefined
+	 * if `flag` is non-zero and `digit` has no uppercase form.
+	 */
+	function digitToBasic(digit, flag) {
+		//  0..25 map to ASCII a..z or A..Z
+		// 26..35 map to ASCII 0..9
+		return digit + 22 + 75 * (digit < 26) - ((flag != 0) << 5);
+	}
+
+	/**
+	 * Bias adaptation function as per section 3.4 of RFC 3492.
+	 * https://tools.ietf.org/html/rfc3492#section-3.4
+	 * @private
+	 */
+	function adapt(delta, numPoints, firstTime) {
+		var k = 0;
+		delta = firstTime ? floor(delta / damp) : delta >> 1;
+		delta += floor(delta / numPoints);
+		for (/* no initialization */; delta > baseMinusTMin * tMax >> 1; k += base) {
+			delta = floor(delta / baseMinusTMin);
+		}
+		return floor(k + (baseMinusTMin + 1) * delta / (delta + skew));
+	}
+
+	/**
+	 * Converts a Punycode string of ASCII-only symbols to a string of Unicode
+	 * symbols.
+	 * @memberOf punycode
+	 * @param {String} input The Punycode string of ASCII-only symbols.
+	 * @returns {String} The resulting string of Unicode symbols.
+	 */
+	function decode(input) {
+		// Don't use UCS-2
+		var output = [],
+		    inputLength = input.length,
+		    out,
+		    i = 0,
+		    n = initialN,
+		    bias = initialBias,
+		    basic,
+		    j,
+		    index,
+		    oldi,
+		    w,
+		    k,
+		    digit,
+		    t,
+		    /** Cached calculation results */
+		    baseMinusT;
+
+		// Handle the basic code points: let `basic` be the number of input code
+		// points before the last delimiter, or `0` if there is none, then copy
+		// the first basic code points to the output.
+
+		basic = input.lastIndexOf(delimiter);
+		if (basic < 0) {
+			basic = 0;
+		}
+
+		for (j = 0; j < basic; ++j) {
+			// if it's not a basic code point
+			if (input.charCodeAt(j) >= 0x80) {
+				error('not-basic');
+			}
+			output.push(input.charCodeAt(j));
+		}
+
+		// Main decoding loop: start just after the last delimiter if any basic code
+		// points were copied; start at the beginning otherwise.
+
+		for (index = basic > 0 ? basic + 1 : 0; index < inputLength; /* no final expression */) {
+
+			// `index` is the index of the next character to be consumed.
+			// Decode a generalized variable-length integer into `delta`,
+			// which gets added to `i`. The overflow checking is easier
+			// if we increase `i` as we go, then subtract off its starting
+			// value at the end to obtain `delta`.
+			for (oldi = i, w = 1, k = base; /* no condition */; k += base) {
+
+				if (index >= inputLength) {
+					error('invalid-input');
+				}
+
+				digit = basicToDigit(input.charCodeAt(index++));
+
+				if (digit >= base || digit > floor((maxInt - i) / w)) {
+					error('overflow');
+				}
+
+				i += digit * w;
+				t = k <= bias ? tMin : (k >= bias + tMax ? tMax : k - bias);
+
+				if (digit < t) {
+					break;
+				}
+
+				baseMinusT = base - t;
+				if (w > floor(maxInt / baseMinusT)) {
+					error('overflow');
+				}
+
+				w *= baseMinusT;
+
+			}
+
+			out = output.length + 1;
+			bias = adapt(i - oldi, out, oldi == 0);
+
+			// `i` was supposed to wrap around from `out` to `0`,
+			// incrementing `n` each time, so we'll fix that now:
+			if (floor(i / out) > maxInt - n) {
+				error('overflow');
+			}
+
+			n += floor(i / out);
+			i %= out;
+
+			// Insert `n` at position `i` of the output
+			output.splice(i++, 0, n);
+
+		}
+
+		return ucs2encode(output);
+	}
+
+	/**
+	 * Converts a string of Unicode symbols (e.g. a domain name label) to a
+	 * Punycode string of ASCII-only symbols.
+	 * @memberOf punycode
+	 * @param {String} input The string of Unicode symbols.
+	 * @returns {String} The resulting Punycode string of ASCII-only symbols.
+	 */
+	function encode(input) {
+		var n,
+		    delta,
+		    handledCPCount,
+		    basicLength,
+		    bias,
+		    j,
+		    m,
+		    q,
+		    k,
+		    t,
+		    currentValue,
+		    output = [],
+		    /** `inputLength` will hold the number of code points in `input`. */
+		    inputLength,
+		    /** Cached calculation results */
+		    handledCPCountPlusOne,
+		    baseMinusT,
+		    qMinusT;
+
+		// Convert the input in UCS-2 to Unicode
+		input = ucs2decode(input);
+
+		// Cache the length
+		inputLength = input.length;
+
+		// Initialize the state
+		n = initialN;
+		delta = 0;
+		bias = initialBias;
+
+		// Handle the basic code points
+		for (j = 0; j < inputLength; ++j) {
+			currentValue = input[j];
+			if (currentValue < 0x80) {
+				output.push(stringFromCharCode(currentValue));
+			}
+		}
+
+		handledCPCount = basicLength = output.length;
+
+		// `handledCPCount` is the number of code points that have been handled;
+		// `basicLength` is the number of basic code points.
+
+		// Finish the basic string - if it is not empty - with a delimiter
+		if (basicLength) {
+			output.push(delimiter);
+		}
+
+		// Main encoding loop:
+		while (handledCPCount < inputLength) {
+
+			// All non-basic code points < n have been handled already. Find the next
+			// larger one:
+			for (m = maxInt, j = 0; j < inputLength; ++j) {
+				currentValue = input[j];
+				if (currentValue >= n && currentValue < m) {
+					m = currentValue;
+				}
+			}
+
+			// Increase `delta` enough to advance the decoder's <n,i> state to <m,0>,
+			// but guard against overflow
+			handledCPCountPlusOne = handledCPCount + 1;
+			if (m - n > floor((maxInt - delta) / handledCPCountPlusOne)) {
+				error('overflow');
+			}
+
+			delta += (m - n) * handledCPCountPlusOne;
+			n = m;
+
+			for (j = 0; j < inputLength; ++j) {
+				currentValue = input[j];
+
+				if (currentValue < n && ++delta > maxInt) {
+					error('overflow');
+				}
+
+				if (currentValue == n) {
+					// Represent delta as a generalized variable-length integer
+					for (q = delta, k = base; /* no condition */; k += base) {
+						t = k <= bias ? tMin : (k >= bias + tMax ? tMax : k - bias);
+						if (q < t) {
+							break;
+						}
+						qMinusT = q - t;
+						baseMinusT = base - t;
+						output.push(
+							stringFromCharCode(digitToBasic(t + qMinusT % baseMinusT, 0))
+						);
+						q = floor(qMinusT / baseMinusT);
+					}
+
+					output.push(stringFromCharCode(digitToBasic(q, 0)));
+					bias = adapt(delta, handledCPCountPlusOne, handledCPCount == basicLength);
+					delta = 0;
+					++handledCPCount;
+				}
+			}
+
+			++delta;
+			++n;
+
+		}
+		return output.join('');
+	}
+
+	/**
+	 * Converts a Punycode string representing a domain name or an email address
+	 * to Unicode. Only the Punycoded parts of the input will be converted, i.e.
+	 * it doesn't matter if you call it on a string that has already been
+	 * converted to Unicode.
+	 * @memberOf punycode
+	 * @param {String} input The Punycoded domain name or email address to
+	 * convert to Unicode.
+	 * @returns {String} The Unicode representation of the given Punycode
+	 * string.
+	 */
+	function toUnicode(input) {
+		return mapDomain(input, function(string) {
+			return regexPunycode.test(string)
+				? decode(string.slice(4).toLowerCase())
+				: string;
+		});
+	}
+
+	/**
+	 * Converts a Unicode string representing a domain name or an email address to
+	 * Punycode. Only the non-ASCII parts of the domain name will be converted,
+	 * i.e. it doesn't matter if you call it with a domain that's already in
+	 * ASCII.
+	 * @memberOf punycode
+	 * @param {String} input The domain name or email address to convert, as a
+	 * Unicode string.
+	 * @returns {String} The Punycode representation of the given domain name or
+	 * email address.
+	 */
+	function toASCII(input) {
+		return mapDomain(input, function(string) {
+			return regexNonASCII.test(string)
+				? 'xn--' + encode(string)
+				: string;
+		});
+	}
+
+	/*--------------------------------------------------------------------------*/
+
+	/** Define the public API */
+	punycode = {
+		/**
+		 * A string representing the current Punycode.js version number.
+		 * @memberOf punycode
+		 * @type String
+		 */
+		'version': '1.4.1',
+		/**
+		 * An object of methods to convert from JavaScript's internal character
+		 * representation (UCS-2) to Unicode code points, and back.
+		 * @see <https://mathiasbynens.be/notes/javascript-encoding>
+		 * @memberOf punycode
+		 * @type Object
+		 */
+		'ucs2': {
+			'decode': ucs2decode,
+			'encode': ucs2encode
+		},
+		'decode': decode,
+		'encode': encode,
+		'toASCII': toASCII,
+		'toUnicode': toUnicode
+	};
+
+	/** Expose `punycode` */
+	// Some AMD build optimizers, like r.js, check for specific condition patterns
+	// like the following:
+	if (
+		typeof define == 'function' &&
+		typeof define.amd == 'object' &&
+		define.amd
+	) {
+		define('punycode', function() {
+			return punycode;
+		});
+	} else if (freeExports && freeModule) {
+		if (module.exports == freeExports) {
+			// in Node.js, io.js, or RingoJS v0.8.0+
+			freeModule.exports = punycode;
+		} else {
+			// in Narwhal or RingoJS v0.7.0-
+			for (key in punycode) {
+				punycode.hasOwnProperty(key) && (freeExports[key] = punycode[key]);
+			}
+		}
+	} else {
+		// in Rhino or a web browser
+		root.punycode = punycode;
+	}
+
+}(this));
+
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{}],277:[function(require,module,exports){
+// Copyright Joyent, Inc. and other Node contributors.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to permit
+// persons to whom the Software is furnished to do so, subject to the
+// following conditions:
+//
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+'use strict';
+
+// If obj.hasOwnProperty has been overridden, then calling
+// obj.hasOwnProperty(prop) will break.
+// See: https://github.com/joyent/node/issues/1707
+function hasOwnProperty(obj, prop) {
+  return Object.prototype.hasOwnProperty.call(obj, prop);
+}
+
+module.exports = function(qs, sep, eq, options) {
+  sep = sep || '&';
+  eq = eq || '=';
+  var obj = {};
+
+  if (typeof qs !== 'string' || qs.length === 0) {
+    return obj;
+  }
+
+  var regexp = /\+/g;
+  qs = qs.split(sep);
+
+  var maxKeys = 1000;
+  if (options && typeof options.maxKeys === 'number') {
+    maxKeys = options.maxKeys;
+  }
+
+  var len = qs.length;
+  // maxKeys <= 0 means that we should not limit keys count
+  if (maxKeys > 0 && len > maxKeys) {
+    len = maxKeys;
+  }
+
+  for (var i = 0; i < len; ++i) {
+    var x = qs[i].replace(regexp, '%20'),
+        idx = x.indexOf(eq),
+        kstr, vstr, k, v;
+
+    if (idx >= 0) {
+      kstr = x.substr(0, idx);
+      vstr = x.substr(idx + 1);
+    } else {
+      kstr = x;
+      vstr = '';
+    }
+
+    k = decodeURIComponent(kstr);
+    v = decodeURIComponent(vstr);
+
+    if (!hasOwnProperty(obj, k)) {
+      obj[k] = v;
+    } else if (isArray(obj[k])) {
+      obj[k].push(v);
+    } else {
+      obj[k] = [obj[k], v];
+    }
+  }
+
+  return obj;
+};
+
+var isArray = Array.isArray || function (xs) {
+  return Object.prototype.toString.call(xs) === '[object Array]';
+};
+
+},{}],278:[function(require,module,exports){
+// Copyright Joyent, Inc. and other Node contributors.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to permit
+// persons to whom the Software is furnished to do so, subject to the
+// following conditions:
+//
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+'use strict';
+
+var stringifyPrimitive = function(v) {
+  switch (typeof v) {
+    case 'string':
+      return v;
+
+    case 'boolean':
+      return v ? 'true' : 'false';
+
+    case 'number':
+      return isFinite(v) ? v : '';
+
+    default:
+      return '';
+  }
+};
+
+module.exports = function(obj, sep, eq, name) {
+  sep = sep || '&';
+  eq = eq || '=';
+  if (obj === null) {
+    obj = undefined;
+  }
+
+  if (typeof obj === 'object') {
+    return map(objectKeys(obj), function(k) {
+      var ks = encodeURIComponent(stringifyPrimitive(k)) + eq;
+      if (isArray(obj[k])) {
+        return map(obj[k], function(v) {
+          return ks + encodeURIComponent(stringifyPrimitive(v));
+        }).join(sep);
+      } else {
+        return ks + encodeURIComponent(stringifyPrimitive(obj[k]));
+      }
+    }).join(sep);
+
+  }
+
+  if (!name) return '';
+  return encodeURIComponent(stringifyPrimitive(name)) + eq +
+         encodeURIComponent(stringifyPrimitive(obj));
+};
+
+var isArray = Array.isArray || function (xs) {
+  return Object.prototype.toString.call(xs) === '[object Array]';
+};
+
+function map (xs, f) {
+  if (xs.map) return xs.map(f);
+  var res = [];
+  for (var i = 0; i < xs.length; i++) {
+    res.push(f(xs[i], i));
+  }
+  return res;
+}
+
+var objectKeys = Object.keys || function (obj) {
+  var res = [];
+  for (var key in obj) {
+    if (Object.prototype.hasOwnProperty.call(obj, key)) res.push(key);
+  }
+  return res;
+};
+
+},{}],279:[function(require,module,exports){
+'use strict';
+
+exports.decode = exports.parse = require('./decode');
+exports.encode = exports.stringify = require('./encode');
+
+},{"./decode":277,"./encode":278}],280:[function(require,module,exports){
+module.exports = require('./lib/_stream_duplex.js');
+
+},{"./lib/_stream_duplex.js":281}],281:[function(require,module,exports){
+// Copyright Joyent, Inc. and other Node contributors.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to permit
+// persons to whom the Software is furnished to do so, subject to the
+// following conditions:
+//
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+// a duplex stream is just a stream that is both readable and writable.
+// Since JS doesn't have multiple prototypal inheritance, this class
+// prototypally inherits from Readable, and then parasitically from
+// Writable.
+
+'use strict';
+
+/*<replacement>*/
+
+var processNextTick = require('process-nextick-args');
+/*</replacement>*/
+
+/*<replacement>*/
+var objectKeys = Object.keys || function (obj) {
+  var keys = [];
+  for (var key in obj) {
+    keys.push(key);
+  }return keys;
+};
+/*</replacement>*/
+
+module.exports = Duplex;
+
+/*<replacement>*/
+var util = require('core-util-is');
+util.inherits = require('inherits');
+/*</replacement>*/
+
+var Readable = require('./_stream_readable');
+var Writable = require('./_stream_writable');
+
+util.inherits(Duplex, Readable);
+
+var keys = objectKeys(Writable.prototype);
+for (var v = 0; v < keys.length; v++) {
+  var method = keys[v];
+  if (!Duplex.prototype[method]) Duplex.prototype[method] = Writable.prototype[method];
+}
+
+function Duplex(options) {
+  if (!(this instanceof Duplex)) return new Duplex(options);
+
+  Readable.call(this, options);
+  Writable.call(this, options);
+
+  if (options && options.readable === false) this.readable = false;
+
+  if (options && options.writable === false) this.writable = false;
+
+  this.allowHalfOpen = true;
+  if (options && options.allowHalfOpen === false) this.allowHalfOpen = false;
+
+  this.once('end', onend);
+}
+
+// the no-half-open enforcer
+function onend() {
+  // if we allow half-open state, or if the writable side ended,
+  // then we're ok.
+  if (this.allowHalfOpen || this._writableState.ended) return;
+
+  // no more data can be written.
+  // But allow more writes to happen in this tick.
+  processNextTick(onEndNT, this);
+}
+
+function onEndNT(self) {
+  self.end();
+}
+
+Object.defineProperty(Duplex.prototype, 'destroyed', {
+  get: function () {
+    if (this._readableState === undefined || this._writableState === undefined) {
+      return false;
+    }
+    return this._readableState.destroyed && this._writableState.destroyed;
+  },
+  set: function (value) {
+    // we ignore the value if the stream
+    // has not been initialized yet
+    if (this._readableState === undefined || this._writableState === undefined) {
+      return;
+    }
+
+    // backward compatibility, the user is explicitly
+    // managing destroyed
+    this._readableState.destroyed = value;
+    this._writableState.destroyed = value;
+  }
+});
+
+Duplex.prototype._destroy = function (err, cb) {
+  this.push(null);
+  this.end();
+
+  processNextTick(cb, err);
+};
+
+function forEach(xs, f) {
+  for (var i = 0, l = xs.length; i < l; i++) {
+    f(xs[i], i);
+  }
+}
+},{"./_stream_readable":283,"./_stream_writable":285,"core-util-is":268,"inherits":271,"process-nextick-args":274}],282:[function(require,module,exports){
+// Copyright Joyent, Inc. and other Node contributors.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to permit
+// persons to whom the Software is furnished to do so, subject to the
+// following conditions:
+//
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+// a passthrough stream.
+// basically just the most minimal sort of Transform stream.
+// Every written chunk gets output as-is.
+
+'use strict';
+
+module.exports = PassThrough;
+
+var Transform = require('./_stream_transform');
+
+/*<replacement>*/
+var util = require('core-util-is');
+util.inherits = require('inherits');
+/*</replacement>*/
+
+util.inherits(PassThrough, Transform);
+
+function PassThrough(options) {
+  if (!(this instanceof PassThrough)) return new PassThrough(options);
+
+  Transform.call(this, options);
+}
+
+PassThrough.prototype._transform = function (chunk, encoding, cb) {
+  cb(null, chunk);
+};
+},{"./_stream_transform":284,"core-util-is":268,"inherits":271}],283:[function(require,module,exports){
+(function (process,global){
+// Copyright Joyent, Inc. and other Node contributors.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to permit
+// persons to whom the Software is furnished to do so, subject to the
+// following conditions:
+//
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+'use strict';
+
+/*<replacement>*/
+
+var processNextTick = require('process-nextick-args');
+/*</replacement>*/
+
+module.exports = Readable;
+
+/*<replacement>*/
+var isArray = require('isarray');
+/*</replacement>*/
+
+/*<replacement>*/
+var Duplex;
+/*</replacement>*/
+
+Readable.ReadableState = ReadableState;
+
+/*<replacement>*/
+var EE = require('events').EventEmitter;
+
+var EElistenerCount = function (emitter, type) {
+  return emitter.listeners(type).length;
+};
+/*</replacement>*/
+
+/*<replacement>*/
+var Stream = require('./internal/streams/stream');
+/*</replacement>*/
+
+// TODO(bmeurer): Change this back to const once hole checks are
+// properly optimized away early in Ignition+TurboFan.
+/*<replacement>*/
+var Buffer = require('safe-buffer').Buffer;
+var OurUint8Array = global.Uint8Array || function () {};
+function _uint8ArrayToBuffer(chunk) {
+  return Buffer.from(chunk);
+}
+function _isUint8Array(obj) {
+  return Buffer.isBuffer(obj) || obj instanceof OurUint8Array;
+}
+/*</replacement>*/
+
+/*<replacement>*/
+var util = require('core-util-is');
+util.inherits = require('inherits');
+/*</replacement>*/
+
+/*<replacement>*/
+var debugUtil = require('util');
+var debug = void 0;
+if (debugUtil && debugUtil.debuglog) {
+  debug = debugUtil.debuglog('stream');
+} else {
+  debug = function () {};
+}
+/*</replacement>*/
+
+var BufferList = require('./internal/streams/BufferList');
+var destroyImpl = require('./internal/streams/destroy');
+var StringDecoder;
+
+util.inherits(Readable, Stream);
+
+var kProxyEvents = ['error', 'close', 'destroy', 'pause', 'resume'];
+
+function prependListener(emitter, event, fn) {
+  // Sadly this is not cacheable as some libraries bundle their own
+  // event emitter implementation with them.
+  if (typeof emitter.prependListener === 'function') {
+    return emitter.prependListener(event, fn);
+  } else {
+    // This is a hack to make sure that our error handler is attached before any
+    // userland ones.  NEVER DO THIS. This is here only because this code needs
+    // to continue to work with older versions of Node.js that do not include
+    // the prependListener() method. The goal is to eventually remove this hack.
+    if (!emitter._events || !emitter._events[event]) emitter.on(event, fn);else if (isArray(emitter._events[event])) emitter._events[event].unshift(fn);else emitter._events[event] = [fn, emitter._events[event]];
+  }
+}
+
+function ReadableState(options, stream) {
+  Duplex = Duplex || require('./_stream_duplex');
+
+  options = options || {};
+
+  // object stream flag. Used to make read(n) ignore n and to
+  // make all the buffer merging and length checks go away
+  this.objectMode = !!options.objectMode;
+
+  if (stream instanceof Duplex) this.objectMode = this.objectMode || !!options.readableObjectMode;
+
+  // the point at which it stops calling _read() to fill the buffer
+  // Note: 0 is a valid value, means "don't call _read preemptively ever"
+  var hwm = options.highWaterMark;
+  var defaultHwm = this.objectMode ? 16 : 16 * 1024;
+  this.highWaterMark = hwm || hwm === 0 ? hwm : defaultHwm;
+
+  // cast to ints.
+  this.highWaterMark = Math.floor(this.highWaterMark);
+
+  // A linked list is used to store data chunks instead of an array because the
+  // linked list can remove elements from the beginning faster than
+  // array.shift()
+  this.buffer = new BufferList();
+  this.length = 0;
+  this.pipes = null;
+  this.pipesCount = 0;
+  this.flowing = null;
+  this.ended = false;
+  this.endEmitted = false;
+  this.reading = false;
+
+  // a flag to be able to tell if the event 'readable'/'data' is emitted
+  // immediately, or on a later tick.  We set this to true at first, because
+  // any actions that shouldn't happen until "later" should generally also
+  // not happen before the first read call.
+  this.sync = true;
+
+  // whenever we return null, then we set a flag to say
+  // that we're awaiting a 'readable' event emission.
+  this.needReadable = false;
+  this.emittedReadable = false;
+  this.readableListening = false;
+  this.resumeScheduled = false;
+
+  // has it been destroyed
+  this.destroyed = false;
+
+  // Crypto is kind of old and crusty.  Historically, its default string
+  // encoding is 'binary' so we have to make this configurable.
+  // Everything else in the universe uses 'utf8', though.
+  this.defaultEncoding = options.defaultEncoding || 'utf8';
+
+  // the number of writers that are awaiting a drain event in .pipe()s
+  this.awaitDrain = 0;
+
+  // if true, a maybeReadMore has been scheduled
+  this.readingMore = false;
+
+  this.decoder = null;
+  this.encoding = null;
+  if (options.encoding) {
+    if (!StringDecoder) StringDecoder = require('string_decoder/').StringDecoder;
+    this.decoder = new StringDecoder(options.encoding);
+    this.encoding = options.encoding;
+  }
+}
+
+function Readable(options) {
+  Duplex = Duplex || require('./_stream_duplex');
+
+  if (!(this instanceof Readable)) return new Readable(options);
+
+  this._readableState = new ReadableState(options, this);
+
+  // legacy
+  this.readable = true;
+
+  if (options) {
+    if (typeof options.read === 'function') this._read = options.read;
+
+    if (typeof options.destroy === 'function') this._destroy = options.destroy;
+  }
+
+  Stream.call(this);
+}
+
+Object.defineProperty(Readable.prototype, 'destroyed', {
+  get: function () {
+    if (this._readableState === undefined) {
+      return false;
+    }
+    return this._readableState.destroyed;
+  },
+  set: function (value) {
+    // we ignore the value if the stream
+    // has not been initialized yet
+    if (!this._readableState) {
+      return;
+    }
+
+    // backward compatibility, the user is explicitly
+    // managing destroyed
+    this._readableState.destroyed = value;
+  }
+});
+
+Readable.prototype.destroy = destroyImpl.destroy;
+Readable.prototype._undestroy = destroyImpl.undestroy;
+Readable.prototype._destroy = function (err, cb) {
+  this.push(null);
+  cb(err);
+};
+
+// Manually shove something into the read() buffer.
+// This returns true if the highWaterMark has not been hit yet,
+// similar to how Writable.write() returns true if you should
+// write() some more.
+Readable.prototype.push = function (chunk, encoding) {
+  var state = this._readableState;
+  var skipChunkCheck;
+
+  if (!state.objectMode) {
+    if (typeof chunk === 'string') {
+      encoding = encoding || state.defaultEncoding;
+      if (encoding !== state.encoding) {
+        chunk = Buffer.from(chunk, encoding);
+        encoding = '';
+      }
+      skipChunkCheck = true;
+    }
+  } else {
+    skipChunkCheck = true;
+  }
+
+  return readableAddChunk(this, chunk, encoding, false, skipChunkCheck);
+};
+
+// Unshift should *always* be something directly out of read()
+Readable.prototype.unshift = function (chunk) {
+  return readableAddChunk(this, chunk, null, true, false);
+};
+
+function readableAddChunk(stream, chunk, encoding, addToFront, skipChunkCheck) {
+  var state = stream._readableState;
+  if (chunk === null) {
+    state.reading = false;
+    onEofChunk(stream, state);
+  } else {
+    var er;
+    if (!skipChunkCheck) er = chunkInvalid(state, chunk);
+    if (er) {
+      stream.emit('error', er);
+    } else if (state.objectMode || chunk && chunk.length > 0) {
+      if (typeof chunk !== 'string' && !state.objectMode && Object.getPrototypeOf(chunk) !== Buffer.prototype) {
+        chunk = _uint8ArrayToBuffer(chunk);
+      }
+
+      if (addToFront) {
+        if (state.endEmitted) stream.emit('error', new Error('stream.unshift() after end event'));else addChunk(stream, state, chunk, true);
+      } else if (state.ended) {
+        stream.emit('error', new Error('stream.push() after EOF'));
+      } else {
+        state.reading = false;
+        if (state.decoder && !encoding) {
+          chunk = state.decoder.write(chunk);
+          if (state.objectMode || chunk.length !== 0) addChunk(stream, state, chunk, false);else maybeReadMore(stream, state);
+        } else {
+          addChunk(stream, state, chunk, false);
+        }
+      }
+    } else if (!addToFront) {
+      state.reading = false;
+    }
+  }
+
+  return needMoreData(state);
+}
+
+function addChunk(stream, state, chunk, addToFront) {
+  if (state.flowing && state.length === 0 && !state.sync) {
+    stream.emit('data', chunk);
+    stream.read(0);
+  } else {
+    // update the buffer info.
+    state.length += state.objectMode ? 1 : chunk.length;
+    if (addToFront) state.buffer.unshift(chunk);else state.buffer.push(chunk);
+
+    if (state.needReadable) emitReadable(stream);
+  }
+  maybeReadMore(stream, state);
+}
+
+function chunkInvalid(state, chunk) {
+  var er;
+  if (!_isUint8Array(chunk) && typeof chunk !== 'string' && chunk !== undefined && !state.objectMode) {
+    er = new TypeError('Invalid non-string/buffer chunk');
+  }
+  return er;
+}
+
+// if it's past the high water mark, we can push in some more.
+// Also, if we have no data yet, we can stand some
+// more bytes.  This is to work around cases where hwm=0,
+// such as the repl.  Also, if the push() triggered a
+// readable event, and the user called read(largeNumber) such that
+// needReadable was set, then we ought to push more, so that another
+// 'readable' event will be triggered.
+function needMoreData(state) {
+  return !state.ended && (state.needReadable || state.length < state.highWaterMark || state.length === 0);
+}
+
+Readable.prototype.isPaused = function () {
+  return this._readableState.flowing === false;
+};
+
+// backwards compatibility.
+Readable.prototype.setEncoding = function (enc) {
+  if (!StringDecoder) StringDecoder = require('string_decoder/').StringDecoder;
+  this._readableState.decoder = new StringDecoder(enc);
+  this._readableState.encoding = enc;
+  return this;
+};
+
+// Don't raise the hwm > 8MB
+var MAX_HWM = 0x800000;
+function computeNewHighWaterMark(n) {
+  if (n >= MAX_HWM) {
+    n = MAX_HWM;
+  } else {
+    // Get the next highest power of 2 to prevent increasing hwm excessively in
+    // tiny amounts
+    n--;
+    n |= n >>> 1;
+    n |= n >>> 2;
+    n |= n >>> 4;
+    n |= n >>> 8;
+    n |= n >>> 16;
+    n++;
+  }
+  return n;
+}
+
+// This function is designed to be inlinable, so please take care when making
+// changes to the function body.
+function howMuchToRead(n, state) {
+  if (n <= 0 || state.length === 0 && state.ended) return 0;
+  if (state.objectMode) return 1;
+  if (n !== n) {
+    // Only flow one buffer at a time
+    if (state.flowing && state.length) return state.buffer.head.data.length;else return state.length;
+  }
+  // If we're asking for more than the current hwm, then raise the hwm.
+  if (n > state.highWaterMark) state.highWaterMark = computeNewHighWaterMark(n);
+  if (n <= state.length) return n;
+  // Don't have enough
+  if (!state.ended) {
+    state.needReadable = true;
+    return 0;
+  }
+  return state.length;
+}
+
+// you can override either this method, or the async _read(n) below.
+Readable.prototype.read = function (n) {
+  debug('read', n);
+  n = parseInt(n, 10);
+  var state = this._readableState;
+  var nOrig = n;
+
+  if (n !== 0) state.emittedReadable = false;
+
+  // if we're doing read(0) to trigger a readable event, but we
+  // already have a bunch of data in the buffer, then just trigger
+  // the 'readable' event and move on.
+  if (n === 0 && state.needReadable && (state.length >= state.highWaterMark || state.ended)) {
+    debug('read: emitReadable', state.length, state.ended);
+    if (state.length === 0 && state.ended) endReadable(this);else emitReadable(this);
+    return null;
+  }
+
+  n = howMuchToRead(n, state);
+
+  // if we've ended, and we're now clear, then finish it up.
+  if (n === 0 && state.ended) {
+    if (state.length === 0) endReadable(this);
+    return null;
+  }
+
+  // All the actual chunk generation logic needs to be
+  // *below* the call to _read.  The reason is that in certain
+  // synthetic stream cases, such as passthrough streams, _read
+  // may be a completely synchronous operation which may change
+  // the state of the read buffer, providing enough data when
+  // before there was *not* enough.
+  //
+  // So, the steps are:
+  // 1. Figure out what the state of things will be after we do
+  // a read from the buffer.
+  //
+  // 2. If that resulting state will trigger a _read, then call _read.
+  // Note that this may be asynchronous, or synchronous.  Yes, it is
+  // deeply ugly to write APIs this way, but that still doesn't mean
+  // that the Readable class should behave improperly, as streams are
+  // designed to be sync/async agnostic.
+  // Take note if the _read call is sync or async (ie, if the read call
+  // has returned yet), so that we know whether or not it's safe to emit
+  // 'readable' etc.
+  //
+  // 3. Actually pull the requested chunks out of the buffer and return.
+
+  // if we need a readable event, then we need to do some reading.
+  var doRead = state.needReadable;
+  debug('need readable', doRead);
+
+  // if we currently have less than the highWaterMark, then also read some
+  if (state.length === 0 || state.length - n < state.highWaterMark) {
+    doRead = true;
+    debug('length less than watermark', doRead);
+  }
+
+  // however, if we've ended, then there's no point, and if we're already
+  // reading, then it's unnecessary.
+  if (state.ended || state.reading) {
+    doRead = false;
+    debug('reading or ended', doRead);
+  } else if (doRead) {
+    debug('do read');
+    state.reading = true;
+    state.sync = true;
+    // if the length is currently zero, then we *need* a readable event.
+    if (state.length === 0) state.needReadable = true;
+    // call internal read method
+    this._read(state.highWaterMark);
+    state.sync = false;
+    // If _read pushed data synchronously, then `reading` will be false,
+    // and we need to re-evaluate how much data we can return to the user.
+    if (!state.reading) n = howMuchToRead(nOrig, state);
+  }
+
+  var ret;
+  if (n > 0) ret = fromList(n, state);else ret = null;
+
+  if (ret === null) {
+    state.needReadable = true;
+    n = 0;
+  } else {
+    state.length -= n;
+  }
+
+  if (state.length === 0) {
+    // If we have nothing in the buffer, then we want to know
+    // as soon as we *do* get something into the buffer.
+    if (!state.ended) state.needReadable = true;
+
+    // If we tried to read() past the EOF, then emit end on the next tick.
+    if (nOrig !== n && state.ended) endReadable(this);
+  }
+
+  if (ret !== null) this.emit('data', ret);
+
+  return ret;
+};
+
+function onEofChunk(stream, state) {
+  if (state.ended) return;
+  if (state.decoder) {
+    var chunk = state.decoder.end();
+    if (chunk && chunk.length) {
+      state.buffer.push(chunk);
+      state.length += state.objectMode ? 1 : chunk.length;
+    }
+  }
+  state.ended = true;
+
+  // emit 'readable' now to make sure it gets picked up.
+  emitReadable(stream);
+}
+
+// Don't emit readable right away in sync mode, because this can trigger
+// another read() call => stack overflow.  This way, it might trigger
+// a nextTick recursion warning, but that's not so bad.
+function emitReadable(stream) {
+  var state = stream._readableState;
+  state.needReadable = false;
+  if (!state.emittedReadable) {
+    debug('emitReadable', state.flowing);
+    state.emittedReadable = true;
+    if (state.sync) processNextTick(emitReadable_, stream);else emitReadable_(stream);
+  }
+}
+
+function emitReadable_(stream) {
+  debug('emit readable');
+  stream.emit('readable');
+  flow(stream);
+}
+
+// at this point, the user has presumably seen the 'readable' event,
+// and called read() to consume some data.  that may have triggered
+// in turn another _read(n) call, in which case reading = true if
+// it's in progress.
+// However, if we're not ended, or reading, and the length < hwm,
+// then go ahead and try to read some more preemptively.
+function maybeReadMore(stream, state) {
+  if (!state.readingMore) {
+    state.readingMore = true;
+    processNextTick(maybeReadMore_, stream, state);
+  }
+}
+
+function maybeReadMore_(stream, state) {
+  var len = state.length;
+  while (!state.reading && !state.flowing && !state.ended && state.length < state.highWaterMark) {
+    debug('maybeReadMore read 0');
+    stream.read(0);
+    if (len === state.length)
+      // didn't get any data, stop spinning.
+      break;else len = state.length;
+  }
+  state.readingMore = false;
+}
+
+// abstract method.  to be overridden in specific implementation classes.
+// call cb(er, data) where data is <= n in length.
+// for virtual (non-string, non-buffer) streams, "length" is somewhat
+// arbitrary, and perhaps not very meaningful.
+Readable.prototype._read = function (n) {
+  this.emit('error', new Error('_read() is not implemented'));
+};
+
+Readable.prototype.pipe = function (dest, pipeOpts) {
+  var src = this;
+  var state = this._readableState;
+
+  switch (state.pipesCount) {
+    case 0:
+      state.pipes = dest;
+      break;
+    case 1:
+      state.pipes = [state.pipes, dest];
+      break;
+    default:
+      state.pipes.push(dest);
+      break;
+  }
+  state.pipesCount += 1;
+  debug('pipe count=%d opts=%j', state.pipesCount, pipeOpts);
+
+  var doEnd = (!pipeOpts || pipeOpts.end !== false) && dest !== process.stdout && dest !== process.stderr;
+
+  var endFn = doEnd ? onend : unpipe;
+  if (state.endEmitted) processNextTick(endFn);else src.once('end', endFn);
+
+  dest.on('unpipe', onunpipe);
+  function onunpipe(readable, unpipeInfo) {
+    debug('onunpipe');
+    if (readable === src) {
+      if (unpipeInfo && unpipeInfo.hasUnpiped === false) {
+        unpipeInfo.hasUnpiped = true;
+        cleanup();
+      }
+    }
+  }
+
+  function onend() {
+    debug('onend');
+    dest.end();
+  }
+
+  // when the dest drains, it reduces the awaitDrain counter
+  // on the source.  This would be more elegant with a .once()
+  // handler in flow(), but adding and removing repeatedly is
+  // too slow.
+  var ondrain = pipeOnDrain(src);
+  dest.on('drain', ondrain);
+
+  var cleanedUp = false;
+  function cleanup() {
+    debug('cleanup');
+    // cleanup event handlers once the pipe is broken
+    dest.removeListener('close', onclose);
+    dest.removeListener('finish', onfinish);
+    dest.removeListener('drain', ondrain);
+    dest.removeListener('error', onerror);
+    dest.removeListener('unpipe', onunpipe);
+    src.removeListener('end', onend);
+    src.removeListener('end', unpipe);
+    src.removeListener('data', ondata);
+
+    cleanedUp = true;
+
+    // if the reader is waiting for a drain event from this
+    // specific writer, then it would cause it to never start
+    // flowing again.
+    // So, if this is awaiting a drain, then we just call it now.
+    // If we don't know, then assume that we are waiting for one.
+    if (state.awaitDrain && (!dest._writableState || dest._writableState.needDrain)) ondrain();
+  }
+
+  // If the user pushes more data while we're writing to dest then we'll end up
+  // in ondata again. However, we only want to increase awaitDrain once because
+  // dest will only emit one 'drain' event for the multiple writes.
+  // => Introduce a guard on increasing awaitDrain.
+  var increasedAwaitDrain = false;
+  src.on('data', ondata);
+  function ondata(chunk) {
+    debug('ondata');
+    increasedAwaitDrain = false;
+    var ret = dest.write(chunk);
+    if (false === ret && !increasedAwaitDrain) {
+      // If the user unpiped during `dest.write()`, it is possible
+      // to get stuck in a permanently paused state if that write
+      // also returned false.
+      // => Check whether `dest` is still a piping destination.
+      if ((state.pipesCount === 1 && state.pipes === dest || state.pipesCount > 1 && indexOf(state.pipes, dest) !== -1) && !cleanedUp) {
+        debug('false write response, pause', src._readableState.awaitDrain);
+        src._readableState.awaitDrain++;
+        increasedAwaitDrain = true;
+      }
+      src.pause();
+    }
+  }
+
+  // if the dest has an error, then stop piping into it.
+  // however, don't suppress the throwing behavior for this.
+  function onerror(er) {
+    debug('onerror', er);
+    unpipe();
+    dest.removeListener('error', onerror);
+    if (EElistenerCount(dest, 'error') === 0) dest.emit('error', er);
+  }
+
+  // Make sure our error handler is attached before userland ones.
+  prependListener(dest, 'error', onerror);
+
+  // Both close and finish should trigger unpipe, but only once.
+  function onclose() {
+    dest.removeListener('finish', onfinish);
+    unpipe();
+  }
+  dest.once('close', onclose);
+  function onfinish() {
+    debug('onfinish');
+    dest.removeListener('close', onclose);
+    unpipe();
+  }
+  dest.once('finish', onfinish);
+
+  function unpipe() {
+    debug('unpipe');
+    src.unpipe(dest);
+  }
+
+  // tell the dest that it's being piped to
+  dest.emit('pipe', src);
+
+  // start the flow if it hasn't been started already.
+  if (!state.flowing) {
+    debug('pipe resume');
+    src.resume();
+  }
+
+  return dest;
+};
+
+function pipeOnDrain(src) {
+  return function () {
+    var state = src._readableState;
+    debug('pipeOnDrain', state.awaitDrain);
+    if (state.awaitDrain) state.awaitDrain--;
+    if (state.awaitDrain === 0 && EElistenerCount(src, 'data')) {
+      state.flowing = true;
+      flow(src);
+    }
+  };
+}
+
+Readable.prototype.unpipe = function (dest) {
+  var state = this._readableState;
+  var unpipeInfo = { hasUnpiped: false };
+
+  // if we're not piping anywhere, then do nothing.
+  if (state.pipesCount === 0) return this;
+
+  // just one destination.  most common case.
+  if (state.pipesCount === 1) {
+    // passed in one, but it's not the right one.
+    if (dest && dest !== state.pipes) return this;
+
+    if (!dest) dest = state.pipes;
+
+    // got a match.
+    state.pipes = null;
+    state.pipesCount = 0;
+    state.flowing = false;
+    if (dest) dest.emit('unpipe', this, unpipeInfo);
+    return this;
+  }
+
+  // slow case. multiple pipe destinations.
+
+  if (!dest) {
+    // remove all.
+    var dests = state.pipes;
+    var len = state.pipesCount;
+    state.pipes = null;
+    state.pipesCount = 0;
+    state.flowing = false;
+
+    for (var i = 0; i < len; i++) {
+      dests[i].emit('unpipe', this, unpipeInfo);
+    }return this;
+  }
+
+  // try to find the right one.
+  var index = indexOf(state.pipes, dest);
+  if (index === -1) return this;
+
+  state.pipes.splice(index, 1);
+  state.pipesCount -= 1;
+  if (state.pipesCount === 1) state.pipes = state.pipes[0];
+
+  dest.emit('unpipe', this, unpipeInfo);
+
+  return this;
+};
+
+// set up data events if they are asked for
+// Ensure readable listeners eventually get something
+Readable.prototype.on = function (ev, fn) {
+  var res = Stream.prototype.on.call(this, ev, fn);
+
+  if (ev === 'data') {
+    // Start flowing on next tick if stream isn't explicitly paused
+    if (this._readableState.flowing !== false) this.resume();
+  } else if (ev === 'readable') {
+    var state = this._readableState;
+    if (!state.endEmitted && !state.readableListening) {
+      state.readableListening = state.needReadable = true;
+      state.emittedReadable = false;
+      if (!state.reading) {
+        processNextTick(nReadingNextTick, this);
+      } else if (state.length) {
+        emitReadable(this);
+      }
+    }
+  }
+
+  return res;
+};
+Readable.prototype.addListener = Readable.prototype.on;
+
+function nReadingNextTick(self) {
+  debug('readable nexttick read 0');
+  self.read(0);
+}
+
+// pause() and resume() are remnants of the legacy readable stream API
+// If the user uses them, then switch into old mode.
+Readable.prototype.resume = function () {
+  var state = this._readableState;
+  if (!state.flowing) {
+    debug('resume');
+    state.flowing = true;
+    resume(this, state);
+  }
+  return this;
+};
+
+function resume(stream, state) {
+  if (!state.resumeScheduled) {
+    state.resumeScheduled = true;
+    processNextTick(resume_, stream, state);
+  }
+}
+
+function resume_(stream, state) {
+  if (!state.reading) {
+    debug('resume read 0');
+    stream.read(0);
+  }
+
+  state.resumeScheduled = false;
+  state.awaitDrain = 0;
+  stream.emit('resume');
+  flow(stream);
+  if (state.flowing && !state.reading) stream.read(0);
+}
+
+Readable.prototype.pause = function () {
+  debug('call pause flowing=%j', this._readableState.flowing);
+  if (false !== this._readableState.flowing) {
+    debug('pause');
+    this._readableState.flowing = false;
+    this.emit('pause');
+  }
+  return this;
+};
+
+function flow(stream) {
+  var state = stream._readableState;
+  debug('flow', state.flowing);
+  while (state.flowing && stream.read() !== null) {}
+}
+
+// wrap an old-style stream as the async data source.
+// This is *not* part of the readable stream interface.
+// It is an ugly unfortunate mess of history.
+Readable.prototype.wrap = function (stream) {
+  var state = this._readableState;
+  var paused = false;
+
+  var self = this;
+  stream.on('end', function () {
+    debug('wrapped end');
+    if (state.decoder && !state.ended) {
+      var chunk = state.decoder.end();
+      if (chunk && chunk.length) self.push(chunk);
+    }
+
+    self.push(null);
+  });
+
+  stream.on('data', function (chunk) {
+    debug('wrapped data');
+    if (state.decoder) chunk = state.decoder.write(chunk);
+
+    // don't skip over falsy values in objectMode
+    if (state.objectMode && (chunk === null || chunk === undefined)) return;else if (!state.objectMode && (!chunk || !chunk.length)) return;
+
+    var ret = self.push(chunk);
+    if (!ret) {
+      paused = true;
+      stream.pause();
+    }
+  });
+
+  // proxy all the other methods.
+  // important when wrapping filters and duplexes.
+  for (var i in stream) {
+    if (this[i] === undefined && typeof stream[i] === 'function') {
+      this[i] = function (method) {
+        return function () {
+          return stream[method].apply(stream, arguments);
+        };
+      }(i);
+    }
+  }
+
+  // proxy certain important events.
+  for (var n = 0; n < kProxyEvents.length; n++) {
+    stream.on(kProxyEvents[n], self.emit.bind(self, kProxyEvents[n]));
+  }
+
+  // when we try to consume some more bytes, simply unpause the
+  // underlying stream.
+  self._read = function (n) {
+    debug('wrapped _read', n);
+    if (paused) {
+      paused = false;
+      stream.resume();
+    }
+  };
+
+  return self;
+};
+
+// exposed for testing purposes only.
+Readable._fromList = fromList;
+
+// Pluck off n bytes from an array of buffers.
+// Length is the combined lengths of all the buffers in the list.
+// This function is designed to be inlinable, so please take care when making
+// changes to the function body.
+function fromList(n, state) {
+  // nothing buffered
+  if (state.length === 0) return null;
+
+  var ret;
+  if (state.objectMode) ret = state.buffer.shift();else if (!n || n >= state.length) {
+    // read it all, truncate the list
+    if (state.decoder) ret = state.buffer.join('');else if (state.buffer.length === 1) ret = state.buffer.head.data;else ret = state.buffer.concat(state.length);
+    state.buffer.clear();
+  } else {
+    // read part of list
+    ret = fromListPartial(n, state.buffer, state.decoder);
+  }
+
+  return ret;
+}
+
+// Extracts only enough buffered data to satisfy the amount requested.
+// This function is designed to be inlinable, so please take care when making
+// changes to the function body.
+function fromListPartial(n, list, hasStrings) {
+  var ret;
+  if (n < list.head.data.length) {
+    // slice is the same for buffers and strings
+    ret = list.head.data.slice(0, n);
+    list.head.data = list.head.data.slice(n);
+  } else if (n === list.head.data.length) {
+    // first chunk is a perfect match
+    ret = list.shift();
+  } else {
+    // result spans more than one buffer
+    ret = hasStrings ? copyFromBufferString(n, list) : copyFromBuffer(n, list);
+  }
+  return ret;
+}
+
+// Copies a specified amount of characters from the list of buffered data
+// chunks.
+// This function is designed to be inlinable, so please take care when making
+// changes to the function body.
+function copyFromBufferString(n, list) {
+  var p = list.head;
+  var c = 1;
+  var ret = p.data;
+  n -= ret.length;
+  while (p = p.next) {
+    var str = p.data;
+    var nb = n > str.length ? str.length : n;
+    if (nb === str.length) ret += str;else ret += str.slice(0, n);
+    n -= nb;
+    if (n === 0) {
+      if (nb === str.length) {
+        ++c;
+        if (p.next) list.head = p.next;else list.head = list.tail = null;
+      } else {
+        list.head = p;
+        p.data = str.slice(nb);
+      }
+      break;
+    }
+    ++c;
+  }
+  list.length -= c;
+  return ret;
+}
+
+// Copies a specified amount of bytes from the list of buffered data chunks.
+// This function is designed to be inlinable, so please take care when making
+// changes to the function body.
+function copyFromBuffer(n, list) {
+  var ret = Buffer.allocUnsafe(n);
+  var p = list.head;
+  var c = 1;
+  p.data.copy(ret);
+  n -= p.data.length;
+  while (p = p.next) {
+    var buf = p.data;
+    var nb = n > buf.length ? buf.length : n;
+    buf.copy(ret, ret.length - n, 0, nb);
+    n -= nb;
+    if (n === 0) {
+      if (nb === buf.length) {
+        ++c;
+        if (p.next) list.head = p.next;else list.head = list.tail = null;
+      } else {
+        list.head = p;
+        p.data = buf.slice(nb);
+      }
+      break;
+    }
+    ++c;
+  }
+  list.length -= c;
+  return ret;
+}
+
+function endReadable(stream) {
+  var state = stream._readableState;
+
+  // If we get here before consuming all the bytes, then that is a
+  // bug in node.  Should never happen.
+  if (state.length > 0) throw new Error('"endReadable()" called on non-empty stream');
+
+  if (!state.endEmitted) {
+    state.ended = true;
+    processNextTick(endReadableNT, state, stream);
+  }
+}
+
+function endReadableNT(state, stream) {
+  // Check that we didn't get one last unshift.
+  if (!state.endEmitted && state.length === 0) {
+    state.endEmitted = true;
+    stream.readable = false;
+    stream.emit('end');
+  }
+}
+
+function forEach(xs, f) {
+  for (var i = 0, l = xs.length; i < l; i++) {
+    f(xs[i], i);
+  }
+}
+
+function indexOf(xs, x) {
+  for (var i = 0, l = xs.length; i < l; i++) {
+    if (xs[i] === x) return i;
+  }
+  return -1;
+}
+}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"./_stream_duplex":281,"./internal/streams/BufferList":286,"./internal/streams/destroy":287,"./internal/streams/stream":288,"_process":275,"core-util-is":268,"events":269,"inherits":271,"isarray":273,"process-nextick-args":274,"safe-buffer":293,"string_decoder/":299,"util":265}],284:[function(require,module,exports){
+// Copyright Joyent, Inc. and other Node contributors.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to permit
+// persons to whom the Software is furnished to do so, subject to the
+// following conditions:
+//
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+// a transform stream is a readable/writable stream where you do
+// something with the data.  Sometimes it's called a "filter",
+// but that's not a great name for it, since that implies a thing where
+// some bits pass through, and others are simply ignored.  (That would
+// be a valid example of a transform, of course.)
+//
+// While the output is causally related to the input, it's not a
+// necessarily symmetric or synchronous transformation.  For example,
+// a zlib stream might take multiple plain-text writes(), and then
+// emit a single compressed chunk some time in the future.
+//
+// Here's how this works:
+//
+// The Transform stream has all the aspects of the readable and writable
+// stream classes.  When you write(chunk), that calls _write(chunk,cb)
+// internally, and returns false if there's a lot of pending writes
+// buffered up.  When you call read(), that calls _read(n) until
+// there's enough pending readable data buffered up.
+//
+// In a transform stream, the written data is placed in a buffer.  When
+// _read(n) is called, it transforms the queued up data, calling the
+// buffered _write cb's as it consumes chunks.  If consuming a single
+// written chunk would result in multiple output chunks, then the first
+// outputted bit calls the readcb, and subsequent chunks just go into
+// the read buffer, and will cause it to emit 'readable' if necessary.
+//
+// This way, back-pressure is actually determined by the reading side,
+// since _read has to be called to start processing a new chunk.  However,
+// a pathological inflate type of transform can cause excessive buffering
+// here.  For example, imagine a stream where every byte of input is
+// interpreted as an integer from 0-255, and then results in that many
+// bytes of output.  Writing the 4 bytes {ff,ff,ff,ff} would result in
+// 1kb of data being output.  In this case, you could write a very small
+// amount of input, and end up with a very large amount of output.  In
+// such a pathological inflating mechanism, there'd be no way to tell
+// the system to stop doing the transform.  A single 4MB write could
+// cause the system to run out of memory.
+//
+// However, even in such a pathological case, only a single written chunk
+// would be consumed, and then the rest would wait (un-transformed) until
+// the results of the previous transformed chunk were consumed.
+
+'use strict';
+
+module.exports = Transform;
+
+var Duplex = require('./_stream_duplex');
+
+/*<replacement>*/
+var util = require('core-util-is');
+util.inherits = require('inherits');
+/*</replacement>*/
+
+util.inherits(Transform, Duplex);
+
+function TransformState(stream) {
+  this.afterTransform = function (er, data) {
+    return afterTransform(stream, er, data);
+  };
+
+  this.needTransform = false;
+  this.transforming = false;
+  this.writecb = null;
+  this.writechunk = null;
+  this.writeencoding = null;
+}
+
+function afterTransform(stream, er, data) {
+  var ts = stream._transformState;
+  ts.transforming = false;
+
+  var cb = ts.writecb;
+
+  if (!cb) {
+    return stream.emit('error', new Error('write callback called multiple times'));
+  }
+
+  ts.writechunk = null;
+  ts.writecb = null;
+
+  if (data !== null && data !== undefined) stream.push(data);
+
+  cb(er);
+
+  var rs = stream._readableState;
+  rs.reading = false;
+  if (rs.needReadable || rs.length < rs.highWaterMark) {
+    stream._read(rs.highWaterMark);
+  }
+}
+
+function Transform(options) {
+  if (!(this instanceof Transform)) return new Transform(options);
+
+  Duplex.call(this, options);
+
+  this._transformState = new TransformState(this);
+
+  var stream = this;
+
+  // start out asking for a readable event once data is transformed.
+  this._readableState.needReadable = true;
+
+  // we have implemented the _read method, and done the other things
+  // that Readable wants before the first _read call, so unset the
+  // sync guard flag.
+  this._readableState.sync = false;
+
+  if (options) {
+    if (typeof options.transform === 'function') this._transform = options.transform;
+
+    if (typeof options.flush === 'function') this._flush = options.flush;
+  }
+
+  // When the writable side finishes, then flush out anything remaining.
+  this.once('prefinish', function () {
+    if (typeof this._flush === 'function') this._flush(function (er, data) {
+      done(stream, er, data);
+    });else done(stream);
+  });
+}
+
+Transform.prototype.push = function (chunk, encoding) {
+  this._transformState.needTransform = false;
+  return Duplex.prototype.push.call(this, chunk, encoding);
+};
+
+// This is the part where you do stuff!
+// override this function in implementation classes.
+// 'chunk' is an input chunk.
+//
+// Call `push(newChunk)` to pass along transformed output
+// to the readable side.  You may call 'push' zero or more times.
+//
+// Call `cb(err)` when you are done with this chunk.  If you pass
+// an error, then that'll put the hurt on the whole operation.  If you
+// never call cb(), then you'll never get another chunk.
+Transform.prototype._transform = function (chunk, encoding, cb) {
+  throw new Error('_transform() is not implemented');
+};
+
+Transform.prototype._write = function (chunk, encoding, cb) {
+  var ts = this._transformState;
+  ts.writecb = cb;
+  ts.writechunk = chunk;
+  ts.writeencoding = encoding;
+  if (!ts.transforming) {
+    var rs = this._readableState;
+    if (ts.needTransform || rs.needReadable || rs.length < rs.highWaterMark) this._read(rs.highWaterMark);
+  }
+};
+
+// Doesn't matter what the args are here.
+// _transform does all the work.
+// That we got here means that the readable side wants more data.
+Transform.prototype._read = function (n) {
+  var ts = this._transformState;
+
+  if (ts.writechunk !== null && ts.writecb && !ts.transforming) {
+    ts.transforming = true;
+    this._transform(ts.writechunk, ts.writeencoding, ts.afterTransform);
+  } else {
+    // mark that we need a transform, so that any data that comes in
+    // will get processed, now that we've asked for it.
+    ts.needTransform = true;
+  }
+};
+
+Transform.prototype._destroy = function (err, cb) {
+  var _this = this;
+
+  Duplex.prototype._destroy.call(this, err, function (err2) {
+    cb(err2);
+    _this.emit('close');
+  });
+};
+
+function done(stream, er, data) {
+  if (er) return stream.emit('error', er);
+
+  if (data !== null && data !== undefined) stream.push(data);
+
+  // if there's nothing in the write buffer, then that means
+  // that nothing more will ever be provided
+  var ws = stream._writableState;
+  var ts = stream._transformState;
+
+  if (ws.length) throw new Error('Calling transform done when ws.length != 0');
+
+  if (ts.transforming) throw new Error('Calling transform done when still transforming');
+
+  return stream.push(null);
+}
+},{"./_stream_duplex":281,"core-util-is":268,"inherits":271}],285:[function(require,module,exports){
+(function (process,global){
+// Copyright Joyent, Inc. and other Node contributors.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to permit
+// persons to whom the Software is furnished to do so, subject to the
+// following conditions:
+//
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+// A bit simpler than readable streams.
+// Implement an async ._write(chunk, encoding, cb), and it'll handle all
+// the drain event emission and buffering.
+
+'use strict';
+
+/*<replacement>*/
+
+var processNextTick = require('process-nextick-args');
+/*</replacement>*/
+
+module.exports = Writable;
+
+/* <replacement> */
+function WriteReq(chunk, encoding, cb) {
+  this.chunk = chunk;
+  this.encoding = encoding;
+  this.callback = cb;
+  this.next = null;
+}
+
+// It seems a linked list but it is not
+// there will be only 2 of these for each stream
+function CorkedRequest(state) {
+  var _this = this;
+
+  this.next = null;
+  this.entry = null;
+  this.finish = function () {
+    onCorkedFinish(_this, state);
+  };
+}
+/* </replacement> */
+
+/*<replacement>*/
+var asyncWrite = !process.browser && ['v0.10', 'v0.9.'].indexOf(process.version.slice(0, 5)) > -1 ? setImmediate : processNextTick;
+/*</replacement>*/
+
+/*<replacement>*/
+var Duplex;
+/*</replacement>*/
+
+Writable.WritableState = WritableState;
+
+/*<replacement>*/
+var util = require('core-util-is');
+util.inherits = require('inherits');
+/*</replacement>*/
+
+/*<replacement>*/
+var internalUtil = {
+  deprecate: require('util-deprecate')
+};
+/*</replacement>*/
+
+/*<replacement>*/
+var Stream = require('./internal/streams/stream');
+/*</replacement>*/
+
+/*<replacement>*/
+var Buffer = require('safe-buffer').Buffer;
+var OurUint8Array = global.Uint8Array || function () {};
+function _uint8ArrayToBuffer(chunk) {
+  return Buffer.from(chunk);
+}
+function _isUint8Array(obj) {
+  return Buffer.isBuffer(obj) || obj instanceof OurUint8Array;
+}
+/*</replacement>*/
+
+var destroyImpl = require('./internal/streams/destroy');
+
+util.inherits(Writable, Stream);
+
+function nop() {}
+
+function WritableState(options, stream) {
+  Duplex = Duplex || require('./_stream_duplex');
+
+  options = options || {};
+
+  // object stream flag to indicate whether or not this stream
+  // contains buffers or objects.
+  this.objectMode = !!options.objectMode;
+
+  if (stream instanceof Duplex) this.objectMode = this.objectMode || !!options.writableObjectMode;
+
+  // the point at which write() starts returning false
+  // Note: 0 is a valid value, means that we always return false if
+  // the entire buffer is not flushed immediately on write()
+  var hwm = options.highWaterMark;
+  var defaultHwm = this.objectMode ? 16 : 16 * 1024;
+  this.highWaterMark = hwm || hwm === 0 ? hwm : defaultHwm;
+
+  // cast to ints.
+  this.highWaterMark = Math.floor(this.highWaterMark);
+
+  // if _final has been called
+  this.finalCalled = false;
+
+  // drain event flag.
+  this.needDrain = false;
+  // at the start of calling end()
+  this.ending = false;
+  // when end() has been called, and returned
+  this.ended = false;
+  // when 'finish' is emitted
+  this.finished = false;
+
+  // has it been destroyed
+  this.destroyed = false;
+
+  // should we decode strings into buffers before passing to _write?
+  // this is here so that some node-core streams can optimize string
+  // handling at a lower level.
+  var noDecode = options.decodeStrings === false;
+  this.decodeStrings = !noDecode;
+
+  // Crypto is kind of old and crusty.  Historically, its default string
+  // encoding is 'binary' so we have to make this configurable.
+  // Everything else in the universe uses 'utf8', though.
+  this.defaultEncoding = options.defaultEncoding || 'utf8';
+
+  // not an actual buffer we keep track of, but a measurement
+  // of how much we're waiting to get pushed to some underlying
+  // socket or file.
+  this.length = 0;
+
+  // a flag to see when we're in the middle of a write.
+  this.writing = false;
+
+  // when true all writes will be buffered until .uncork() call
+  this.corked = 0;
+
+  // a flag to be able to tell if the onwrite cb is called immediately,
+  // or on a later tick.  We set this to true at first, because any
+  // actions that shouldn't happen until "later" should generally also
+  // not happen before the first write call.
+  this.sync = true;
+
+  // a flag to know if we're processing previously buffered items, which
+  // may call the _write() callback in the same tick, so that we don't
+  // end up in an overlapped onwrite situation.
+  this.bufferProcessing = false;
+
+  // the callback that's passed to _write(chunk,cb)
+  this.onwrite = function (er) {
+    onwrite(stream, er);
+  };
+
+  // the callback that the user supplies to write(chunk,encoding,cb)
+  this.writecb = null;
+
+  // the amount that is being written when _write is called.
+  this.writelen = 0;
+
+  this.bufferedRequest = null;
+  this.lastBufferedRequest = null;
+
+  // number of pending user-supplied write callbacks
+  // this must be 0 before 'finish' can be emitted
+  this.pendingcb = 0;
+
+  // emit prefinish if the only thing we're waiting for is _write cbs
+  // This is relevant for synchronous Transform streams
+  this.prefinished = false;
+
+  // True if the error was already emitted and should not be thrown again
+  this.errorEmitted = false;
+
+  // count buffered requests
+  this.bufferedRequestCount = 0;
+
+  // allocate the first CorkedRequest, there is always
+  // one allocated and free to use, and we maintain at most two
+  this.corkedRequestsFree = new CorkedRequest(this);
+}
+
+WritableState.prototype.getBuffer = function getBuffer() {
+  var current = this.bufferedRequest;
+  var out = [];
+  while (current) {
+    out.push(current);
+    current = current.next;
+  }
+  return out;
+};
+
+(function () {
+  try {
+    Object.defineProperty(WritableState.prototype, 'buffer', {
+      get: internalUtil.deprecate(function () {
+        return this.getBuffer();
+      }, '_writableState.buffer is deprecated. Use _writableState.getBuffer ' + 'instead.', 'DEP0003')
+    });
+  } catch (_) {}
+})();
+
+// Test _writableState for inheritance to account for Duplex streams,
+// whose prototype chain only points to Readable.
+var realHasInstance;
+if (typeof Symbol === 'function' && Symbol.hasInstance && typeof Function.prototype[Symbol.hasInstance] === 'function') {
+  realHasInstance = Function.prototype[Symbol.hasInstance];
+  Object.defineProperty(Writable, Symbol.hasInstance, {
+    value: function (object) {
+      if (realHasInstance.call(this, object)) return true;
+
+      return object && object._writableState instanceof WritableState;
+    }
+  });
+} else {
+  realHasInstance = function (object) {
+    return object instanceof this;
+  };
+}
+
+function Writable(options) {
+  Duplex = Duplex || require('./_stream_duplex');
+
+  // Writable ctor is applied to Duplexes, too.
+  // `realHasInstance` is necessary because using plain `instanceof`
+  // would return false, as no `_writableState` property is attached.
+
+  // Trying to use the custom `instanceof` for Writable here will also break the
+  // Node.js LazyTransform implementation, which has a non-trivial getter for
+  // `_writableState` that would lead to infinite recursion.
+  if (!realHasInstance.call(Writable, this) && !(this instanceof Duplex)) {
+    return new Writable(options);
+  }
+
+  this._writableState = new WritableState(options, this);
+
+  // legacy.
+  this.writable = true;
+
+  if (options) {
+    if (typeof options.write === 'function') this._write = options.write;
+
+    if (typeof options.writev === 'function') this._writev = options.writev;
+
+    if (typeof options.destroy === 'function') this._destroy = options.destroy;
+
+    if (typeof options.final === 'function') this._final = options.final;
+  }
+
+  Stream.call(this);
+}
+
+// Otherwise people can pipe Writable streams, which is just wrong.
+Writable.prototype.pipe = function () {
+  this.emit('error', new Error('Cannot pipe, not readable'));
+};
+
+function writeAfterEnd(stream, cb) {
+  var er = new Error('write after end');
+  // TODO: defer error events consistently everywhere, not just the cb
+  stream.emit('error', er);
+  processNextTick(cb, er);
+}
+
+// Checks that a user-supplied chunk is valid, especially for the particular
+// mode the stream is in. Currently this means that `null` is never accepted
+// and undefined/non-string values are only allowed in object mode.
+function validChunk(stream, state, chunk, cb) {
+  var valid = true;
+  var er = false;
+
+  if (chunk === null) {
+    er = new TypeError('May not write null values to stream');
+  } else if (typeof chunk !== 'string' && chunk !== undefined && !state.objectMode) {
+    er = new TypeError('Invalid non-string/buffer chunk');
+  }
+  if (er) {
+    stream.emit('error', er);
+    processNextTick(cb, er);
+    valid = false;
+  }
+  return valid;
+}
+
+Writable.prototype.write = function (chunk, encoding, cb) {
+  var state = this._writableState;
+  var ret = false;
+  var isBuf = _isUint8Array(chunk) && !state.objectMode;
+
+  if (isBuf && !Buffer.isBuffer(chunk)) {
+    chunk = _uint8ArrayToBuffer(chunk);
+  }
+
+  if (typeof encoding === 'function') {
+    cb = encoding;
+    encoding = null;
+  }
+
+  if (isBuf) encoding = 'buffer';else if (!encoding) encoding = state.defaultEncoding;
+
+  if (typeof cb !== 'function') cb = nop;
+
+  if (state.ended) writeAfterEnd(this, cb);else if (isBuf || validChunk(this, state, chunk, cb)) {
+    state.pendingcb++;
+    ret = writeOrBuffer(this, state, isBuf, chunk, encoding, cb);
+  }
+
+  return ret;
+};
+
+Writable.prototype.cork = function () {
+  var state = this._writableState;
+
+  state.corked++;
+};
+
+Writable.prototype.uncork = function () {
+  var state = this._writableState;
+
+  if (state.corked) {
+    state.corked--;
+
+    if (!state.writing && !state.corked && !state.finished && !state.bufferProcessing && state.bufferedRequest) clearBuffer(this, state);
+  }
+};
+
+Writable.prototype.setDefaultEncoding = function setDefaultEncoding(encoding) {
+  // node::ParseEncoding() requires lower case.
+  if (typeof encoding === 'string') encoding = encoding.toLowerCase();
+  if (!(['hex', 'utf8', 'utf-8', 'ascii', 'binary', 'base64', 'ucs2', 'ucs-2', 'utf16le', 'utf-16le', 'raw'].indexOf((encoding + '').toLowerCase()) > -1)) throw new TypeError('Unknown encoding: ' + encoding);
+  this._writableState.defaultEncoding = encoding;
+  return this;
+};
+
+function decodeChunk(state, chunk, encoding) {
+  if (!state.objectMode && state.decodeStrings !== false && typeof chunk === 'string') {
+    chunk = Buffer.from(chunk, encoding);
+  }
+  return chunk;
+}
+
+// if we're already writing something, then just put this
+// in the queue, and wait our turn.  Otherwise, call _write
+// If we return false, then we need a drain event, so set that flag.
+function writeOrBuffer(stream, state, isBuf, chunk, encoding, cb) {
+  if (!isBuf) {
+    var newChunk = decodeChunk(state, chunk, encoding);
+    if (chunk !== newChunk) {
+      isBuf = true;
+      encoding = 'buffer';
+      chunk = newChunk;
+    }
+  }
+  var len = state.objectMode ? 1 : chunk.length;
+
+  state.length += len;
+
+  var ret = state.length < state.highWaterMark;
+  // we must ensure that previous needDrain will not be reset to false.
+  if (!ret) state.needDrain = true;
+
+  if (state.writing || state.corked) {
+    var last = state.lastBufferedRequest;
+    state.lastBufferedRequest = {
+      chunk: chunk,
+      encoding: encoding,
+      isBuf: isBuf,
+      callback: cb,
+      next: null
+    };
+    if (last) {
+      last.next = state.lastBufferedRequest;
+    } else {
+      state.bufferedRequest = state.lastBufferedRequest;
+    }
+    state.bufferedRequestCount += 1;
+  } else {
+    doWrite(stream, state, false, len, chunk, encoding, cb);
+  }
+
+  return ret;
+}
+
+function doWrite(stream, state, writev, len, chunk, encoding, cb) {
+  state.writelen = len;
+  state.writecb = cb;
+  state.writing = true;
+  state.sync = true;
+  if (writev) stream._writev(chunk, state.onwrite);else stream._write(chunk, encoding, state.onwrite);
+  state.sync = false;
+}
+
+function onwriteError(stream, state, sync, er, cb) {
+  --state.pendingcb;
+
+  if (sync) {
+    // defer the callback if we are being called synchronously
+    // to avoid piling up things on the stack
+    processNextTick(cb, er);
+    // this can emit finish, and it will always happen
+    // after error
+    processNextTick(finishMaybe, stream, state);
+    stream._writableState.errorEmitted = true;
+    stream.emit('error', er);
+  } else {
+    // the caller expect this to happen before if
+    // it is async
+    cb(er);
+    stream._writableState.errorEmitted = true;
+    stream.emit('error', er);
+    // this can emit finish, but finish must
+    // always follow error
+    finishMaybe(stream, state);
+  }
+}
+
+function onwriteStateUpdate(state) {
+  state.writing = false;
+  state.writecb = null;
+  state.length -= state.writelen;
+  state.writelen = 0;
+}
+
+function onwrite(stream, er) {
+  var state = stream._writableState;
+  var sync = state.sync;
+  var cb = state.writecb;
+
+  onwriteStateUpdate(state);
+
+  if (er) onwriteError(stream, state, sync, er, cb);else {
+    // Check if we're actually ready to finish, but don't emit yet
+    var finished = needFinish(state);
+
+    if (!finished && !state.corked && !state.bufferProcessing && state.bufferedRequest) {
+      clearBuffer(stream, state);
+    }
+
+    if (sync) {
+      /*<replacement>*/
+      asyncWrite(afterWrite, stream, state, finished, cb);
+      /*</replacement>*/
+    } else {
+      afterWrite(stream, state, finished, cb);
+    }
+  }
+}
+
+function afterWrite(stream, state, finished, cb) {
+  if (!finished) onwriteDrain(stream, state);
+  state.pendingcb--;
+  cb();
+  finishMaybe(stream, state);
+}
+
+// Must force callback to be called on nextTick, so that we don't
+// emit 'drain' before the write() consumer gets the 'false' return
+// value, and has a chance to attach a 'drain' listener.
+function onwriteDrain(stream, state) {
+  if (state.length === 0 && state.needDrain) {
+    state.needDrain = false;
+    stream.emit('drain');
+  }
+}
+
+// if there's something in the buffer waiting, then process it
+function clearBuffer(stream, state) {
+  state.bufferProcessing = true;
+  var entry = state.bufferedRequest;
+
+  if (stream._writev && entry && entry.next) {
+    // Fast case, write everything using _writev()
+    var l = state.bufferedRequestCount;
+    var buffer = new Array(l);
+    var holder = state.corkedRequestsFree;
+    holder.entry = entry;
+
+    var count = 0;
+    var allBuffers = true;
+    while (entry) {
+      buffer[count] = entry;
+      if (!entry.isBuf) allBuffers = false;
+      entry = entry.next;
+      count += 1;
+    }
+    buffer.allBuffers = allBuffers;
+
+    doWrite(stream, state, true, state.length, buffer, '', holder.finish);
+
+    // doWrite is almost always async, defer these to save a bit of time
+    // as the hot path ends with doWrite
+    state.pendingcb++;
+    state.lastBufferedRequest = null;
+    if (holder.next) {
+      state.corkedRequestsFree = holder.next;
+      holder.next = null;
+    } else {
+      state.corkedRequestsFree = new CorkedRequest(state);
+    }
+  } else {
+    // Slow case, write chunks one-by-one
+    while (entry) {
+      var chunk = entry.chunk;
+      var encoding = entry.encoding;
+      var cb = entry.callback;
+      var len = state.objectMode ? 1 : chunk.length;
+
+      doWrite(stream, state, false, len, chunk, encoding, cb);
+      entry = entry.next;
+      // if we didn't call the onwrite immediately, then
+      // it means that we need to wait until it does.
+      // also, that means that the chunk and cb are currently
+      // being processed, so move the buffer counter past them.
+      if (state.writing) {
+        break;
+      }
+    }
+
+    if (entry === null) state.lastBufferedRequest = null;
+  }
+
+  state.bufferedRequestCount = 0;
+  state.bufferedRequest = entry;
+  state.bufferProcessing = false;
+}
+
+Writable.prototype._write = function (chunk, encoding, cb) {
+  cb(new Error('_write() is not implemented'));
+};
+
+Writable.prototype._writev = null;
+
+Writable.prototype.end = function (chunk, encoding, cb) {
+  var state = this._writableState;
+
+  if (typeof chunk === 'function') {
+    cb = chunk;
+    chunk = null;
+    encoding = null;
+  } else if (typeof encoding === 'function') {
+    cb = encoding;
+    encoding = null;
+  }
+
+  if (chunk !== null && chunk !== undefined) this.write(chunk, encoding);
+
+  // .end() fully uncorks
+  if (state.corked) {
+    state.corked = 1;
+    this.uncork();
+  }
+
+  // ignore unnecessary end() calls.
+  if (!state.ending && !state.finished) endWritable(this, state, cb);
+};
+
+function needFinish(state) {
+  return state.ending && state.length === 0 && state.bufferedRequest === null && !state.finished && !state.writing;
+}
+function callFinal(stream, state) {
+  stream._final(function (err) {
+    state.pendingcb--;
+    if (err) {
+      stream.emit('error', err);
+    }
+    state.prefinished = true;
+    stream.emit('prefinish');
+    finishMaybe(stream, state);
+  });
+}
+function prefinish(stream, state) {
+  if (!state.prefinished && !state.finalCalled) {
+    if (typeof stream._final === 'function') {
+      state.pendingcb++;
+      state.finalCalled = true;
+      processNextTick(callFinal, stream, state);
+    } else {
+      state.prefinished = true;
+      stream.emit('prefinish');
+    }
+  }
+}
+
+function finishMaybe(stream, state) {
+  var need = needFinish(state);
+  if (need) {
+    prefinish(stream, state);
+    if (state.pendingcb === 0) {
+      state.finished = true;
+      stream.emit('finish');
+    }
+  }
+  return need;
+}
+
+function endWritable(stream, state, cb) {
+  state.ending = true;
+  finishMaybe(stream, state);
+  if (cb) {
+    if (state.finished) processNextTick(cb);else stream.once('finish', cb);
+  }
+  state.ended = true;
+  stream.writable = false;
+}
+
+function onCorkedFinish(corkReq, state, err) {
+  var entry = corkReq.entry;
+  corkReq.entry = null;
+  while (entry) {
+    var cb = entry.callback;
+    state.pendingcb--;
+    cb(err);
+    entry = entry.next;
+  }
+  if (state.corkedRequestsFree) {
+    state.corkedRequestsFree.next = corkReq;
+  } else {
+    state.corkedRequestsFree = corkReq;
+  }
+}
+
+Object.defineProperty(Writable.prototype, 'destroyed', {
+  get: function () {
+    if (this._writableState === undefined) {
+      return false;
+    }
+    return this._writableState.destroyed;
+  },
+  set: function (value) {
+    // we ignore the value if the stream
+    // has not been initialized yet
+    if (!this._writableState) {
+      return;
+    }
+
+    // backward compatibility, the user is explicitly
+    // managing destroyed
+    this._writableState.destroyed = value;
+  }
+});
+
+Writable.prototype.destroy = destroyImpl.destroy;
+Writable.prototype._undestroy = destroyImpl.undestroy;
+Writable.prototype._destroy = function (err, cb) {
+  this.end();
+  cb(err);
+};
+}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"./_stream_duplex":281,"./internal/streams/destroy":287,"./internal/streams/stream":288,"_process":275,"core-util-is":268,"inherits":271,"process-nextick-args":274,"safe-buffer":293,"util-deprecate":303}],286:[function(require,module,exports){
+'use strict';
+
+/*<replacement>*/
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Buffer = require('safe-buffer').Buffer;
+/*</replacement>*/
+
+function copyBuffer(src, target, offset) {
+  src.copy(target, offset);
+}
+
+module.exports = function () {
+  function BufferList() {
+    _classCallCheck(this, BufferList);
+
+    this.head = null;
+    this.tail = null;
+    this.length = 0;
+  }
+
+  BufferList.prototype.push = function push(v) {
+    var entry = { data: v, next: null };
+    if (this.length > 0) this.tail.next = entry;else this.head = entry;
+    this.tail = entry;
+    ++this.length;
+  };
+
+  BufferList.prototype.unshift = function unshift(v) {
+    var entry = { data: v, next: this.head };
+    if (this.length === 0) this.tail = entry;
+    this.head = entry;
+    ++this.length;
+  };
+
+  BufferList.prototype.shift = function shift() {
+    if (this.length === 0) return;
+    var ret = this.head.data;
+    if (this.length === 1) this.head = this.tail = null;else this.head = this.head.next;
+    --this.length;
+    return ret;
+  };
+
+  BufferList.prototype.clear = function clear() {
+    this.head = this.tail = null;
+    this.length = 0;
+  };
+
+  BufferList.prototype.join = function join(s) {
+    if (this.length === 0) return '';
+    var p = this.head;
+    var ret = '' + p.data;
+    while (p = p.next) {
+      ret += s + p.data;
+    }return ret;
+  };
+
+  BufferList.prototype.concat = function concat(n) {
+    if (this.length === 0) return Buffer.alloc(0);
+    if (this.length === 1) return this.head.data;
+    var ret = Buffer.allocUnsafe(n >>> 0);
+    var p = this.head;
+    var i = 0;
+    while (p) {
+      copyBuffer(p.data, ret, i);
+      i += p.data.length;
+      p = p.next;
+    }
+    return ret;
+  };
+
+  return BufferList;
+}();
+},{"safe-buffer":293}],287:[function(require,module,exports){
+'use strict';
+
+/*<replacement>*/
+
+var processNextTick = require('process-nextick-args');
+/*</replacement>*/
+
+// undocumented cb() API, needed for core, not for public API
+function destroy(err, cb) {
+  var _this = this;
+
+  var readableDestroyed = this._readableState && this._readableState.destroyed;
+  var writableDestroyed = this._writableState && this._writableState.destroyed;
+
+  if (readableDestroyed || writableDestroyed) {
+    if (cb) {
+      cb(err);
+    } else if (err && (!this._writableState || !this._writableState.errorEmitted)) {
+      processNextTick(emitErrorNT, this, err);
+    }
+    return;
+  }
+
+  // we set destroyed to true before firing error callbacks in order
+  // to make it re-entrance safe in case destroy() is called within callbacks
+
+  if (this._readableState) {
+    this._readableState.destroyed = true;
+  }
+
+  // if this is a duplex stream mark the writable part as destroyed as well
+  if (this._writableState) {
+    this._writableState.destroyed = true;
+  }
+
+  this._destroy(err || null, function (err) {
+    if (!cb && err) {
+      processNextTick(emitErrorNT, _this, err);
+      if (_this._writableState) {
+        _this._writableState.errorEmitted = true;
+      }
+    } else if (cb) {
+      cb(err);
+    }
+  });
+}
+
+function undestroy() {
+  if (this._readableState) {
+    this._readableState.destroyed = false;
+    this._readableState.reading = false;
+    this._readableState.ended = false;
+    this._readableState.endEmitted = false;
+  }
+
+  if (this._writableState) {
+    this._writableState.destroyed = false;
+    this._writableState.ended = false;
+    this._writableState.ending = false;
+    this._writableState.finished = false;
+    this._writableState.errorEmitted = false;
+  }
+}
+
+function emitErrorNT(self, err) {
+  self.emit('error', err);
+}
+
+module.exports = {
+  destroy: destroy,
+  undestroy: undestroy
+};
+},{"process-nextick-args":274}],288:[function(require,module,exports){
+module.exports = require('events').EventEmitter;
+
+},{"events":269}],289:[function(require,module,exports){
+module.exports = require('./readable').PassThrough
+
+},{"./readable":290}],290:[function(require,module,exports){
+exports = module.exports = require('./lib/_stream_readable.js');
+exports.Stream = exports;
+exports.Readable = exports;
+exports.Writable = require('./lib/_stream_writable.js');
+exports.Duplex = require('./lib/_stream_duplex.js');
+exports.Transform = require('./lib/_stream_transform.js');
+exports.PassThrough = require('./lib/_stream_passthrough.js');
+
+},{"./lib/_stream_duplex.js":281,"./lib/_stream_passthrough.js":282,"./lib/_stream_readable.js":283,"./lib/_stream_transform.js":284,"./lib/_stream_writable.js":285}],291:[function(require,module,exports){
+module.exports = require('./readable').Transform
+
+},{"./readable":290}],292:[function(require,module,exports){
+module.exports = require('./lib/_stream_writable.js');
+
+},{"./lib/_stream_writable.js":285}],293:[function(require,module,exports){
+/* eslint-disable node/no-deprecated-api */
+var buffer = require('buffer')
+var Buffer = buffer.Buffer
+
+// alternative to using Object.keys for old browsers
+function copyProps (src, dst) {
+  for (var key in src) {
+    dst[key] = src[key]
+  }
+}
+if (Buffer.from && Buffer.alloc && Buffer.allocUnsafe && Buffer.allocUnsafeSlow) {
+  module.exports = buffer
+} else {
+  // Copy properties from require('buffer')
+  copyProps(buffer, exports)
+  exports.Buffer = SafeBuffer
+}
+
+function SafeBuffer (arg, encodingOrOffset, length) {
+  return Buffer(arg, encodingOrOffset, length)
+}
+
+// Copy static methods from Buffer
+copyProps(Buffer, SafeBuffer)
+
+SafeBuffer.from = function (arg, encodingOrOffset, length) {
+  if (typeof arg === 'number') {
+    throw new TypeError('Argument must not be a number')
+  }
+  return Buffer(arg, encodingOrOffset, length)
+}
+
+SafeBuffer.alloc = function (size, fill, encoding) {
+  if (typeof size !== 'number') {
+    throw new TypeError('Argument must be a number')
+  }
+  var buf = Buffer(size)
+  if (fill !== undefined) {
+    if (typeof encoding === 'string') {
+      buf.fill(fill, encoding)
+    } else {
+      buf.fill(fill)
+    }
+  } else {
+    buf.fill(0)
+  }
+  return buf
+}
+
+SafeBuffer.allocUnsafe = function (size) {
+  if (typeof size !== 'number') {
+    throw new TypeError('Argument must be a number')
+  }
+  return Buffer(size)
+}
+
+SafeBuffer.allocUnsafeSlow = function (size) {
+  if (typeof size !== 'number') {
+    throw new TypeError('Argument must be a number')
+  }
+  return buffer.SlowBuffer(size)
+}
+
+},{"buffer":266}],294:[function(require,module,exports){
+// Copyright Joyent, Inc. and other Node contributors.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to permit
+// persons to whom the Software is furnished to do so, subject to the
+// following conditions:
+//
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+module.exports = Stream;
+
+var EE = require('events').EventEmitter;
+var inherits = require('inherits');
+
+inherits(Stream, EE);
+Stream.Readable = require('readable-stream/readable.js');
+Stream.Writable = require('readable-stream/writable.js');
+Stream.Duplex = require('readable-stream/duplex.js');
+Stream.Transform = require('readable-stream/transform.js');
+Stream.PassThrough = require('readable-stream/passthrough.js');
+
+// Backwards-compat with node 0.4.x
+Stream.Stream = Stream;
+
+
+
+// old-style streams.  Note that the pipe method (the only relevant
+// part of this class) is overridden in the Readable class.
+
+function Stream() {
+  EE.call(this);
+}
+
+Stream.prototype.pipe = function(dest, options) {
+  var source = this;
+
+  function ondata(chunk) {
+    if (dest.writable) {
+      if (false === dest.write(chunk) && source.pause) {
+        source.pause();
+      }
+    }
+  }
+
+  source.on('data', ondata);
+
+  function ondrain() {
+    if (source.readable && source.resume) {
+      source.resume();
+    }
+  }
+
+  dest.on('drain', ondrain);
+
+  // If the 'end' option is not supplied, dest.end() will be called when
+  // source gets the 'end' or 'close' events.  Only dest.end() once.
+  if (!dest._isStdio && (!options || options.end !== false)) {
+    source.on('end', onend);
+    source.on('close', onclose);
+  }
+
+  var didOnEnd = false;
+  function onend() {
+    if (didOnEnd) return;
+    didOnEnd = true;
+
+    dest.end();
+  }
+
+
+  function onclose() {
+    if (didOnEnd) return;
+    didOnEnd = true;
+
+    if (typeof dest.destroy === 'function') dest.destroy();
+  }
+
+  // don't leave dangling pipes when there are errors.
+  function onerror(er) {
+    cleanup();
+    if (EE.listenerCount(this, 'error') === 0) {
+      throw er; // Unhandled stream error in pipe.
+    }
+  }
+
+  source.on('error', onerror);
+  dest.on('error', onerror);
+
+  // remove all the event listeners that were added.
+  function cleanup() {
+    source.removeListener('data', ondata);
+    dest.removeListener('drain', ondrain);
+
+    source.removeListener('end', onend);
+    source.removeListener('close', onclose);
+
+    source.removeListener('error', onerror);
+    dest.removeListener('error', onerror);
+
+    source.removeListener('end', cleanup);
+    source.removeListener('close', cleanup);
+
+    dest.removeListener('close', cleanup);
+  }
+
+  source.on('end', cleanup);
+  source.on('close', cleanup);
+
+  dest.on('close', cleanup);
+
+  dest.emit('pipe', source);
+
+  // Allow for unix-like usage: A.pipe(B).pipe(C)
+  return dest;
+};
+
+},{"events":269,"inherits":271,"readable-stream/duplex.js":280,"readable-stream/passthrough.js":289,"readable-stream/readable.js":290,"readable-stream/transform.js":291,"readable-stream/writable.js":292}],295:[function(require,module,exports){
+(function (global){
+var ClientRequest = require('./lib/request')
+var extend = require('xtend')
+var statusCodes = require('builtin-status-codes')
+var url = require('url')
+
+var http = exports
+
+http.request = function (opts, cb) {
+	if (typeof opts === 'string')
+		opts = url.parse(opts)
+	else
+		opts = extend(opts)
+
+	// Normally, the page is loaded from http or https, so not specifying a protocol
+	// will result in a (valid) protocol-relative url. However, this won't work if
+	// the protocol is something else, like 'file:'
+	var defaultProtocol = global.location.protocol.search(/^https?:$/) === -1 ? 'http:' : ''
+
+	var protocol = opts.protocol || defaultProtocol
+	var host = opts.hostname || opts.host
+	var port = opts.port
+	var path = opts.path || '/'
+
+	// Necessary for IPv6 addresses
+	if (host && host.indexOf(':') !== -1)
+		host = '[' + host + ']'
+
+	// This may be a relative url. The browser should always be able to interpret it correctly.
+	opts.url = (host ? (protocol + '//' + host) : '') + (port ? ':' + port : '') + path
+	opts.method = (opts.method || 'GET').toUpperCase()
+	opts.headers = opts.headers || {}
+
+	// Also valid opts.auth, opts.mode
+
+	var req = new ClientRequest(opts)
+	if (cb)
+		req.on('response', cb)
+	return req
+}
+
+http.get = function get (opts, cb) {
+	var req = http.request(opts, cb)
+	req.end()
+	return req
+}
+
+http.Agent = function () {}
+http.Agent.defaultMaxSockets = 4
+
+http.STATUS_CODES = statusCodes
+
+http.METHODS = [
+	'CHECKOUT',
+	'CONNECT',
+	'COPY',
+	'DELETE',
+	'GET',
+	'HEAD',
+	'LOCK',
+	'M-SEARCH',
+	'MERGE',
+	'MKACTIVITY',
+	'MKCOL',
+	'MOVE',
+	'NOTIFY',
+	'OPTIONS',
+	'PATCH',
+	'POST',
+	'PROPFIND',
+	'PROPPATCH',
+	'PURGE',
+	'PUT',
+	'REPORT',
+	'SEARCH',
+	'SUBSCRIBE',
+	'TRACE',
+	'UNLOCK',
+	'UNSUBSCRIBE'
+]
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"./lib/request":297,"builtin-status-codes":267,"url":301,"xtend":304}],296:[function(require,module,exports){
+(function (global){
+exports.fetch = isFunction(global.fetch) && isFunction(global.ReadableStream)
+
+exports.blobConstructor = false
+try {
+	new Blob([new ArrayBuffer(1)])
+	exports.blobConstructor = true
+} catch (e) {}
+
+// The xhr request to example.com may violate some restrictive CSP configurations,
+// so if we're running in a browser that supports `fetch`, avoid calling getXHR()
+// and assume support for certain features below.
+var xhr
+function getXHR () {
+	// Cache the xhr value
+	if (xhr !== undefined) return xhr
+
+	if (global.XMLHttpRequest) {
+		xhr = new global.XMLHttpRequest()
+		// If XDomainRequest is available (ie only, where xhr might not work
+		// cross domain), use the page location. Otherwise use example.com
+		// Note: this doesn't actually make an http request.
+		try {
+			xhr.open('GET', global.XDomainRequest ? '/' : 'https://example.com')
+		} catch(e) {
+			xhr = null
+		}
+	} else {
+		// Service workers don't have XHR
+		xhr = null
+	}
+	return xhr
+}
+
+function checkTypeSupport (type) {
+	var xhr = getXHR()
+	if (!xhr) return false
+	try {
+		xhr.responseType = type
+		return xhr.responseType === type
+	} catch (e) {}
+	return false
+}
+
+// For some strange reason, Safari 7.0 reports typeof global.ArrayBuffer === 'object'.
+// Safari 7.1 appears to have fixed this bug.
+var haveArrayBuffer = typeof global.ArrayBuffer !== 'undefined'
+var haveSlice = haveArrayBuffer && isFunction(global.ArrayBuffer.prototype.slice)
+
+// If fetch is supported, then arraybuffer will be supported too. Skip calling
+// checkTypeSupport(), since that calls getXHR().
+exports.arraybuffer = exports.fetch || (haveArrayBuffer && checkTypeSupport('arraybuffer'))
+
+// These next two tests unavoidably show warnings in Chrome. Since fetch will always
+// be used if it's available, just return false for these to avoid the warnings.
+exports.msstream = !exports.fetch && haveSlice && checkTypeSupport('ms-stream')
+exports.mozchunkedarraybuffer = !exports.fetch && haveArrayBuffer &&
+	checkTypeSupport('moz-chunked-arraybuffer')
+
+// If fetch is supported, then overrideMimeType will be supported too. Skip calling
+// getXHR().
+exports.overrideMimeType = exports.fetch || (getXHR() ? isFunction(getXHR().overrideMimeType) : false)
+
+exports.vbArray = isFunction(global.VBArray)
+
+function isFunction (value) {
+	return typeof value === 'function'
+}
+
+xhr = null // Help gc
+
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{}],297:[function(require,module,exports){
+(function (process,global,Buffer){
+var capability = require('./capability')
+var inherits = require('inherits')
+var response = require('./response')
+var stream = require('readable-stream')
+var toArrayBuffer = require('to-arraybuffer')
+
+var IncomingMessage = response.IncomingMessage
+var rStates = response.readyStates
+
+function decideMode (preferBinary, useFetch) {
+	if (capability.fetch && useFetch) {
+		return 'fetch'
+	} else if (capability.mozchunkedarraybuffer) {
+		return 'moz-chunked-arraybuffer'
+	} else if (capability.msstream) {
+		return 'ms-stream'
+	} else if (capability.arraybuffer && preferBinary) {
+		return 'arraybuffer'
+	} else if (capability.vbArray && preferBinary) {
+		return 'text:vbarray'
+	} else {
+		return 'text'
+	}
+}
+
+var ClientRequest = module.exports = function (opts) {
+	var self = this
+	stream.Writable.call(self)
+
+	self._opts = opts
+	self._body = []
+	self._headers = {}
+	if (opts.auth)
+		self.setHeader('Authorization', 'Basic ' + new Buffer(opts.auth).toString('base64'))
+	Object.keys(opts.headers).forEach(function (name) {
+		self.setHeader(name, opts.headers[name])
+	})
+
+	var preferBinary
+	var useFetch = true
+	if (opts.mode === 'disable-fetch' || 'timeout' in opts) {
+		// If the use of XHR should be preferred and includes preserving the 'content-type' header.
+		// Force XHR to be used since the Fetch API does not yet support timeouts.
+		useFetch = false
+		preferBinary = true
+	} else if (opts.mode === 'prefer-streaming') {
+		// If streaming is a high priority but binary compatibility and
+		// the accuracy of the 'content-type' header aren't
+		preferBinary = false
+	} else if (opts.mode === 'allow-wrong-content-type') {
+		// If streaming is more important than preserving the 'content-type' header
+		preferBinary = !capability.overrideMimeType
+	} else if (!opts.mode || opts.mode === 'default' || opts.mode === 'prefer-fast') {
+		// Use binary if text streaming may corrupt data or the content-type header, or for speed
+		preferBinary = true
+	} else {
+		throw new Error('Invalid value for opts.mode')
+	}
+	self._mode = decideMode(preferBinary, useFetch)
+
+	self.on('finish', function () {
+		self._onFinish()
+	})
+}
+
+inherits(ClientRequest, stream.Writable)
+
+ClientRequest.prototype.setHeader = function (name, value) {
+	var self = this
+	var lowerName = name.toLowerCase()
+	// This check is not necessary, but it prevents warnings from browsers about setting unsafe
+	// headers. To be honest I'm not entirely sure hiding these warnings is a good thing, but
+	// http-browserify did it, so I will too.
+	if (unsafeHeaders.indexOf(lowerName) !== -1)
+		return
+
+	self._headers[lowerName] = {
+		name: name,
+		value: value
+	}
+}
+
+ClientRequest.prototype.getHeader = function (name) {
+	var header = this._headers[name.toLowerCase()]
+	if (header)
+		return header.value
+	return null
+}
+
+ClientRequest.prototype.removeHeader = function (name) {
+	var self = this
+	delete self._headers[name.toLowerCase()]
+}
+
+ClientRequest.prototype._onFinish = function () {
+	var self = this
+
+	if (self._destroyed)
+		return
+	var opts = self._opts
+
+	var headersObj = self._headers
+	var body = null
+	if (opts.method !== 'GET' && opts.method !== 'HEAD') {
+		if (capability.blobConstructor) {
+			body = new global.Blob(self._body.map(function (buffer) {
+				return toArrayBuffer(buffer)
+			}), {
+				type: (headersObj['content-type'] || {}).value || ''
+			})
+		} else {
+			// get utf8 string
+			body = Buffer.concat(self._body).toString()
+		}
+	}
+
+	// create flattened list of headers
+	var headersList = []
+	Object.keys(headersObj).forEach(function (keyName) {
+		var name = headersObj[keyName].name
+		var value = headersObj[keyName].value
+		if (Array.isArray(value)) {
+			value.forEach(function (v) {
+				headersList.push([name, v])
+			})
+		} else {
+			headersList.push([name, value])
+		}
+	})
+
+	if (self._mode === 'fetch') {
+		global.fetch(self._opts.url, {
+			method: self._opts.method,
+			headers: headersList,
+			body: body || undefined,
+			mode: 'cors',
+			credentials: opts.withCredentials ? 'include' : 'same-origin'
+		}).then(function (response) {
+			self._fetchResponse = response
+			self._connect()
+		}, function (reason) {
+			self.emit('error', reason)
+		})
+	} else {
+		var xhr = self._xhr = new global.XMLHttpRequest()
+		try {
+			xhr.open(self._opts.method, self._opts.url, true)
+		} catch (err) {
+			process.nextTick(function () {
+				self.emit('error', err)
+			})
+			return
+		}
+
+		// Can't set responseType on really old browsers
+		if ('responseType' in xhr)
+			xhr.responseType = self._mode.split(':')[0]
+
+		if ('withCredentials' in xhr)
+			xhr.withCredentials = !!opts.withCredentials
+
+		if (self._mode === 'text' && 'overrideMimeType' in xhr)
+			xhr.overrideMimeType('text/plain; charset=x-user-defined')
+
+		if ('timeout' in opts) {
+			xhr.timeout = opts.timeout
+			xhr.ontimeout = function () {
+				self.emit('timeout')
+			}
+		}
+
+		headersList.forEach(function (header) {
+			xhr.setRequestHeader(header[0], header[1])
+		})
+
+		self._response = null
+		xhr.onreadystatechange = function () {
+			switch (xhr.readyState) {
+				case rStates.LOADING:
+				case rStates.DONE:
+					self._onXHRProgress()
+					break
+			}
+		}
+		// Necessary for streaming in Firefox, since xhr.response is ONLY defined
+		// in onprogress, not in onreadystatechange with xhr.readyState = 3
+		if (self._mode === 'moz-chunked-arraybuffer') {
+			xhr.onprogress = function () {
+				self._onXHRProgress()
+			}
+		}
+
+		xhr.onerror = function () {
+			if (self._destroyed)
+				return
+			self.emit('error', new Error('XHR error'))
+		}
+
+		try {
+			xhr.send(body)
+		} catch (err) {
+			process.nextTick(function () {
+				self.emit('error', err)
+			})
+			return
+		}
+	}
+}
+
+/**
+ * Checks if xhr.status is readable and non-zero, indicating no error.
+ * Even though the spec says it should be available in readyState 3,
+ * accessing it throws an exception in IE8
+ */
+function statusValid (xhr) {
+	try {
+		var status = xhr.status
+		return (status !== null && status !== 0)
+	} catch (e) {
+		return false
+	}
+}
+
+ClientRequest.prototype._onXHRProgress = function () {
+	var self = this
+
+	if (!statusValid(self._xhr) || self._destroyed)
+		return
+
+	if (!self._response)
+		self._connect()
+
+	self._response._onXHRProgress()
+}
+
+ClientRequest.prototype._connect = function () {
+	var self = this
+
+	if (self._destroyed)
+		return
+
+	self._response = new IncomingMessage(self._xhr, self._fetchResponse, self._mode)
+	self._response.on('error', function(err) {
+		self.emit('error', err)
+	})
+
+	self.emit('response', self._response)
+}
+
+ClientRequest.prototype._write = function (chunk, encoding, cb) {
+	var self = this
+
+	self._body.push(chunk)
+	cb()
+}
+
+ClientRequest.prototype.abort = ClientRequest.prototype.destroy = function () {
+	var self = this
+	self._destroyed = true
+	if (self._response)
+		self._response._destroyed = true
+	if (self._xhr)
+		self._xhr.abort()
+	// Currently, there isn't a way to truly abort a fetch.
+	// If you like bikeshedding, see https://github.com/whatwg/fetch/issues/27
+}
+
+ClientRequest.prototype.end = function (data, encoding, cb) {
+	var self = this
+	if (typeof data === 'function') {
+		cb = data
+		data = undefined
+	}
+
+	stream.Writable.prototype.end.call(self, data, encoding, cb)
+}
+
+ClientRequest.prototype.flushHeaders = function () {}
+ClientRequest.prototype.setTimeout = function () {}
+ClientRequest.prototype.setNoDelay = function () {}
+ClientRequest.prototype.setSocketKeepAlive = function () {}
+
+// Taken from http://www.w3.org/TR/XMLHttpRequest/#the-setrequestheader%28%29-method
+var unsafeHeaders = [
+	'accept-charset',
+	'accept-encoding',
+	'access-control-request-headers',
+	'access-control-request-method',
+	'connection',
+	'content-length',
+	'cookie',
+	'cookie2',
+	'date',
+	'dnt',
+	'expect',
+	'host',
+	'keep-alive',
+	'origin',
+	'referer',
+	'te',
+	'trailer',
+	'transfer-encoding',
+	'upgrade',
+	'user-agent',
+	'via'
+]
+
+}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer)
+},{"./capability":296,"./response":298,"_process":275,"buffer":266,"inherits":271,"readable-stream":290,"to-arraybuffer":300}],298:[function(require,module,exports){
+(function (process,global,Buffer){
+var capability = require('./capability')
+var inherits = require('inherits')
+var stream = require('readable-stream')
+
+var rStates = exports.readyStates = {
+	UNSENT: 0,
+	OPENED: 1,
+	HEADERS_RECEIVED: 2,
+	LOADING: 3,
+	DONE: 4
+}
+
+var IncomingMessage = exports.IncomingMessage = function (xhr, response, mode) {
+	var self = this
+	stream.Readable.call(self)
+
+	self._mode = mode
+	self.headers = {}
+	self.rawHeaders = []
+	self.trailers = {}
+	self.rawTrailers = []
+
+	// Fake the 'close' event, but only once 'end' fires
+	self.on('end', function () {
+		// The nextTick is necessary to prevent the 'request' module from causing an infinite loop
+		process.nextTick(function () {
+			self.emit('close')
+		})
+	})
+
+	if (mode === 'fetch') {
+		self._fetchResponse = response
+
+		self.url = response.url
+		self.statusCode = response.status
+		self.statusMessage = response.statusText
+		
+		response.headers.forEach(function(header, key){
+			self.headers[key.toLowerCase()] = header
+			self.rawHeaders.push(key, header)
+		})
+
+
+		// TODO: this doesn't respect backpressure. Once WritableStream is available, this can be fixed
+		var reader = response.body.getReader()
+		function read () {
+			reader.read().then(function (result) {
+				if (self._destroyed)
+					return
+				if (result.done) {
+					self.push(null)
+					return
+				}
+				self.push(new Buffer(result.value))
+				read()
+			}).catch(function(err) {
+				self.emit('error', err)
+			})
+		}
+		read()
+
+	} else {
+		self._xhr = xhr
+		self._pos = 0
+
+		self.url = xhr.responseURL
+		self.statusCode = xhr.status
+		self.statusMessage = xhr.statusText
+		var headers = xhr.getAllResponseHeaders().split(/\r?\n/)
+		headers.forEach(function (header) {
+			var matches = header.match(/^([^:]+):\s*(.*)/)
+			if (matches) {
+				var key = matches[1].toLowerCase()
+				if (key === 'set-cookie') {
+					if (self.headers[key] === undefined) {
+						self.headers[key] = []
+					}
+					self.headers[key].push(matches[2])
+				} else if (self.headers[key] !== undefined) {
+					self.headers[key] += ', ' + matches[2]
+				} else {
+					self.headers[key] = matches[2]
+				}
+				self.rawHeaders.push(matches[1], matches[2])
+			}
+		})
+
+		self._charset = 'x-user-defined'
+		if (!capability.overrideMimeType) {
+			var mimeType = self.rawHeaders['mime-type']
+			if (mimeType) {
+				var charsetMatch = mimeType.match(/;\s*charset=([^;])(;|$)/)
+				if (charsetMatch) {
+					self._charset = charsetMatch[1].toLowerCase()
+				}
+			}
+			if (!self._charset)
+				self._charset = 'utf-8' // best guess
+		}
+	}
+}
+
+inherits(IncomingMessage, stream.Readable)
+
+IncomingMessage.prototype._read = function () {}
+
+IncomingMessage.prototype._onXHRProgress = function () {
+	var self = this
+
+	var xhr = self._xhr
+
+	var response = null
+	switch (self._mode) {
+		case 'text:vbarray': // For IE9
+			if (xhr.readyState !== rStates.DONE)
+				break
+			try {
+				// This fails in IE8
+				response = new global.VBArray(xhr.responseBody).toArray()
+			} catch (e) {}
+			if (response !== null) {
+				self.push(new Buffer(response))
+				break
+			}
+			// Falls through in IE8	
+		case 'text':
+			try { // This will fail when readyState = 3 in IE9. Switch mode and wait for readyState = 4
+				response = xhr.responseText
+			} catch (e) {
+				self._mode = 'text:vbarray'
+				break
+			}
+			if (response.length > self._pos) {
+				var newData = response.substr(self._pos)
+				if (self._charset === 'x-user-defined') {
+					var buffer = new Buffer(newData.length)
+					for (var i = 0; i < newData.length; i++)
+						buffer[i] = newData.charCodeAt(i) & 0xff
+
+					self.push(buffer)
+				} else {
+					self.push(newData, self._charset)
+				}
+				self._pos = response.length
+			}
+			break
+		case 'arraybuffer':
+			if (xhr.readyState !== rStates.DONE || !xhr.response)
+				break
+			response = xhr.response
+			self.push(new Buffer(new Uint8Array(response)))
+			break
+		case 'moz-chunked-arraybuffer': // take whole
+			response = xhr.response
+			if (xhr.readyState !== rStates.LOADING || !response)
+				break
+			self.push(new Buffer(new Uint8Array(response)))
+			break
+		case 'ms-stream':
+			response = xhr.response
+			if (xhr.readyState !== rStates.LOADING)
+				break
+			var reader = new global.MSStreamReader()
+			reader.onprogress = function () {
+				if (reader.result.byteLength > self._pos) {
+					self.push(new Buffer(new Uint8Array(reader.result.slice(self._pos))))
+					self._pos = reader.result.byteLength
+				}
+			}
+			reader.onload = function () {
+				self.push(null)
+			}
+			// reader.onerror = ??? // TODO: this
+			reader.readAsArrayBuffer(response)
+			break
+	}
+
+	// The ms-stream case handles end separately in reader.onload()
+	if (self._xhr.readyState === rStates.DONE && self._mode !== 'ms-stream') {
+		self.push(null)
+	}
+}
+
+}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer)
+},{"./capability":296,"_process":275,"buffer":266,"inherits":271,"readable-stream":290}],299:[function(require,module,exports){
+'use strict';
+
+var Buffer = require('safe-buffer').Buffer;
+
+var isEncoding = Buffer.isEncoding || function (encoding) {
+  encoding = '' + encoding;
+  switch (encoding && encoding.toLowerCase()) {
+    case 'hex':case 'utf8':case 'utf-8':case 'ascii':case 'binary':case 'base64':case 'ucs2':case 'ucs-2':case 'utf16le':case 'utf-16le':case 'raw':
+      return true;
+    default:
+      return false;
+  }
+};
+
+function _normalizeEncoding(enc) {
+  if (!enc) return 'utf8';
+  var retried;
+  while (true) {
+    switch (enc) {
+      case 'utf8':
+      case 'utf-8':
+        return 'utf8';
+      case 'ucs2':
+      case 'ucs-2':
+      case 'utf16le':
+      case 'utf-16le':
+        return 'utf16le';
+      case 'latin1':
+      case 'binary':
+        return 'latin1';
+      case 'base64':
+      case 'ascii':
+      case 'hex':
+        return enc;
+      default:
+        if (retried) return; // undefined
+        enc = ('' + enc).toLowerCase();
+        retried = true;
+    }
+  }
+};
+
+// Do not cache `Buffer.isEncoding` when checking encoding names as some
+// modules monkey-patch it to support additional encodings
+function normalizeEncoding(enc) {
+  var nenc = _normalizeEncoding(enc);
+  if (typeof nenc !== 'string' && (Buffer.isEncoding === isEncoding || !isEncoding(enc))) throw new Error('Unknown encoding: ' + enc);
+  return nenc || enc;
+}
+
+// StringDecoder provides an interface for efficiently splitting a series of
+// buffers into a series of JS strings without breaking apart multi-byte
+// characters.
+exports.StringDecoder = StringDecoder;
+function StringDecoder(encoding) {
+  this.encoding = normalizeEncoding(encoding);
+  var nb;
+  switch (this.encoding) {
+    case 'utf16le':
+      this.text = utf16Text;
+      this.end = utf16End;
+      nb = 4;
+      break;
+    case 'utf8':
+      this.fillLast = utf8FillLast;
+      nb = 4;
+      break;
+    case 'base64':
+      this.text = base64Text;
+      this.end = base64End;
+      nb = 3;
+      break;
+    default:
+      this.write = simpleWrite;
+      this.end = simpleEnd;
+      return;
+  }
+  this.lastNeed = 0;
+  this.lastTotal = 0;
+  this.lastChar = Buffer.allocUnsafe(nb);
+}
+
+StringDecoder.prototype.write = function (buf) {
+  if (buf.length === 0) return '';
+  var r;
+  var i;
+  if (this.lastNeed) {
+    r = this.fillLast(buf);
+    if (r === undefined) return '';
+    i = this.lastNeed;
+    this.lastNeed = 0;
+  } else {
+    i = 0;
+  }
+  if (i < buf.length) return r ? r + this.text(buf, i) : this.text(buf, i);
+  return r || '';
+};
+
+StringDecoder.prototype.end = utf8End;
+
+// Returns only complete characters in a Buffer
+StringDecoder.prototype.text = utf8Text;
+
+// Attempts to complete a partial non-UTF-8 character using bytes from a Buffer
+StringDecoder.prototype.fillLast = function (buf) {
+  if (this.lastNeed <= buf.length) {
+    buf.copy(this.lastChar, this.lastTotal - this.lastNeed, 0, this.lastNeed);
+    return this.lastChar.toString(this.encoding, 0, this.lastTotal);
+  }
+  buf.copy(this.lastChar, this.lastTotal - this.lastNeed, 0, buf.length);
+  this.lastNeed -= buf.length;
+};
+
+// Checks the type of a UTF-8 byte, whether it's ASCII, a leading byte, or a
+// continuation byte.
+function utf8CheckByte(byte) {
+  if (byte <= 0x7F) return 0;else if (byte >> 5 === 0x06) return 2;else if (byte >> 4 === 0x0E) return 3;else if (byte >> 3 === 0x1E) return 4;
+  return -1;
+}
+
+// Checks at most 3 bytes at the end of a Buffer in order to detect an
+// incomplete multi-byte UTF-8 character. The total number of bytes (2, 3, or 4)
+// needed to complete the UTF-8 character (if applicable) are returned.
+function utf8CheckIncomplete(self, buf, i) {
+  var j = buf.length - 1;
+  if (j < i) return 0;
+  var nb = utf8CheckByte(buf[j]);
+  if (nb >= 0) {
+    if (nb > 0) self.lastNeed = nb - 1;
+    return nb;
+  }
+  if (--j < i) return 0;
+  nb = utf8CheckByte(buf[j]);
+  if (nb >= 0) {
+    if (nb > 0) self.lastNeed = nb - 2;
+    return nb;
+  }
+  if (--j < i) return 0;
+  nb = utf8CheckByte(buf[j]);
+  if (nb >= 0) {
+    if (nb > 0) {
+      if (nb === 2) nb = 0;else self.lastNeed = nb - 3;
+    }
+    return nb;
+  }
+  return 0;
+}
+
+// Validates as many continuation bytes for a multi-byte UTF-8 character as
+// needed or are available. If we see a non-continuation byte where we expect
+// one, we "replace" the validated continuation bytes we've seen so far with
+// UTF-8 replacement characters ('\ufffd'), to match v8's UTF-8 decoding
+// behavior. The continuation byte check is included three times in the case
+// where all of the continuation bytes for a character exist in the same buffer.
+// It is also done this way as a slight performance increase instead of using a
+// loop.
+function utf8CheckExtraBytes(self, buf, p) {
+  if ((buf[0] & 0xC0) !== 0x80) {
+    self.lastNeed = 0;
+    return '\ufffd'.repeat(p);
+  }
+  if (self.lastNeed > 1 && buf.length > 1) {
+    if ((buf[1] & 0xC0) !== 0x80) {
+      self.lastNeed = 1;
+      return '\ufffd'.repeat(p + 1);
+    }
+    if (self.lastNeed > 2 && buf.length > 2) {
+      if ((buf[2] & 0xC0) !== 0x80) {
+        self.lastNeed = 2;
+        return '\ufffd'.repeat(p + 2);
+      }
+    }
+  }
+}
+
+// Attempts to complete a multi-byte UTF-8 character using bytes from a Buffer.
+function utf8FillLast(buf) {
+  var p = this.lastTotal - this.lastNeed;
+  var r = utf8CheckExtraBytes(this, buf, p);
+  if (r !== undefined) return r;
+  if (this.lastNeed <= buf.length) {
+    buf.copy(this.lastChar, p, 0, this.lastNeed);
+    return this.lastChar.toString(this.encoding, 0, this.lastTotal);
+  }
+  buf.copy(this.lastChar, p, 0, buf.length);
+  this.lastNeed -= buf.length;
+}
+
+// Returns all complete UTF-8 characters in a Buffer. If the Buffer ended on a
+// partial character, the character's bytes are buffered until the required
+// number of bytes are available.
+function utf8Text(buf, i) {
+  var total = utf8CheckIncomplete(this, buf, i);
+  if (!this.lastNeed) return buf.toString('utf8', i);
+  this.lastTotal = total;
+  var end = buf.length - (total - this.lastNeed);
+  buf.copy(this.lastChar, 0, end);
+  return buf.toString('utf8', i, end);
+}
+
+// For UTF-8, a replacement character for each buffered byte of a (partial)
+// character needs to be added to the output.
+function utf8End(buf) {
+  var r = buf && buf.length ? this.write(buf) : '';
+  if (this.lastNeed) return r + '\ufffd'.repeat(this.lastTotal - this.lastNeed);
+  return r;
+}
+
+// UTF-16LE typically needs two bytes per character, but even if we have an even
+// number of bytes available, we need to check if we end on a leading/high
+// surrogate. In that case, we need to wait for the next two bytes in order to
+// decode the last character properly.
+function utf16Text(buf, i) {
+  if ((buf.length - i) % 2 === 0) {
+    var r = buf.toString('utf16le', i);
+    if (r) {
+      var c = r.charCodeAt(r.length - 1);
+      if (c >= 0xD800 && c <= 0xDBFF) {
+        this.lastNeed = 2;
+        this.lastTotal = 4;
+        this.lastChar[0] = buf[buf.length - 2];
+        this.lastChar[1] = buf[buf.length - 1];
+        return r.slice(0, -1);
+      }
+    }
+    return r;
+  }
+  this.lastNeed = 1;
+  this.lastTotal = 2;
+  this.lastChar[0] = buf[buf.length - 1];
+  return buf.toString('utf16le', i, buf.length - 1);
+}
+
+// For UTF-16LE we do not explicitly append special replacement characters if we
+// end on a partial character, we simply let v8 handle that.
+function utf16End(buf) {
+  var r = buf && buf.length ? this.write(buf) : '';
+  if (this.lastNeed) {
+    var end = this.lastTotal - this.lastNeed;
+    return r + this.lastChar.toString('utf16le', 0, end);
+  }
+  return r;
+}
+
+function base64Text(buf, i) {
+  var n = (buf.length - i) % 3;
+  if (n === 0) return buf.toString('base64', i);
+  this.lastNeed = 3 - n;
+  this.lastTotal = 3;
+  if (n === 1) {
+    this.lastChar[0] = buf[buf.length - 1];
+  } else {
+    this.lastChar[0] = buf[buf.length - 2];
+    this.lastChar[1] = buf[buf.length - 1];
+  }
+  return buf.toString('base64', i, buf.length - n);
+}
+
+function base64End(buf) {
+  var r = buf && buf.length ? this.write(buf) : '';
+  if (this.lastNeed) return r + this.lastChar.toString('base64', 0, 3 - this.lastNeed);
+  return r;
+}
+
+// Pass bytes on through for single-byte encodings (e.g. ascii, latin1, hex)
+function simpleWrite(buf) {
+  return buf.toString(this.encoding);
+}
+
+function simpleEnd(buf) {
+  return buf && buf.length ? this.write(buf) : '';
+}
+},{"safe-buffer":293}],300:[function(require,module,exports){
+var Buffer = require('buffer').Buffer
+
+module.exports = function (buf) {
+	// If the buffer is backed by a Uint8Array, a faster version will work
+	if (buf instanceof Uint8Array) {
+		// If the buffer isn't a subarray, return the underlying ArrayBuffer
+		if (buf.byteOffset === 0 && buf.byteLength === buf.buffer.byteLength) {
+			return buf.buffer
+		} else if (typeof buf.buffer.slice === 'function') {
+			// Otherwise we need to get a proper copy
+			return buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength)
+		}
+	}
+
+	if (Buffer.isBuffer(buf)) {
+		// This is the slow version that will work with any Buffer
+		// implementation (even in old browsers)
+		var arrayCopy = new Uint8Array(buf.length)
+		var len = buf.length
+		for (var i = 0; i < len; i++) {
+			arrayCopy[i] = buf[i]
+		}
+		return arrayCopy.buffer
+	} else {
+		throw new Error('Argument must be a Buffer')
+	}
+}
+
+},{"buffer":266}],301:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -93442,7 +92892,7 @@ Url.prototype.parseHost = function() {
   if (host) this.hostname = host;
 };
 
-},{"./util":303,"punycode":273,"querystring":276}],303:[function(require,module,exports){
+},{"./util":302,"punycode":276,"querystring":279}],302:[function(require,module,exports){
 'use strict';
 
 module.exports = {
@@ -93460,7 +92910,7 @@ module.exports = {
   }
 };
 
-},{}],304:[function(require,module,exports){
+},{}],303:[function(require,module,exports){
 (function (global){
 
 /**
@@ -93531,7 +92981,7 @@ function config (name) {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],305:[function(require,module,exports){
+},{}],304:[function(require,module,exports){
 module.exports = extend
 
 var hasOwnProperty = Object.prototype.hasOwnProperty;
