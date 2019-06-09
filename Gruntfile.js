@@ -5,7 +5,7 @@ var grunt = require('grunt');
 grunt.loadNpmTasks('grunt-contrib-watch');
 grunt.loadNpmTasks('grunt-contrib-coffee');
 grunt.loadNpmTasks('grunt-contrib-copy');
-grunt.loadNpmTasks('grunt-contrib-uglify');
+grunt.loadNpmTasks('grunt-contrib-uglify-es');
 grunt.loadNpmTasks('grunt-notify');
 grunt.loadNpmTasks('grunt-run');
 grunt.loadNpmTasks('grunt-sandbox-css');
@@ -72,7 +72,17 @@ grunt.initConfig({
       ext: '.js'
     }
   },
-  copy: {
+	copy: {
+		decaffeinate: {
+			files: [
+				{
+					expand: true,
+					cwd: 'src',
+					src: ['**'],
+					dest: '.tmp/src'
+				}	
+			]	
+		},
     js: {
       files: [
         {
@@ -181,7 +191,8 @@ grunt.initConfig({
 grunt.registerTask('clean', ['run:clean']);
 
 grunt.registerTask('compile', ['-compile', '-post-compile']);
-grunt.registerTask('-compile', ['coffee', 'copy:templates']);
+//grunt.registerTask('-compile', ['coffee', 'copy:templates']);
+grunt.registerTask('-compile', ['copy:decaffeinate', 'copy:templates']);
 grunt.registerTask('-post-compile', ['run:inject_version', '-inline_templates']);
 
 // Run tests.
@@ -203,7 +214,8 @@ grunt.registerTask('build', [
 
 grunt.registerTask('build:dist', [
   'clean',
-  'compile',
+	'compile',
+	'copy:decaffeinate',
   'style',
   'run:bundle_artifacts',
   'uglify:dist'
