@@ -1,108 +1,162 @@
-Event = require '../../event'
-CoreView = require '../../core-view'
-Options = require '../../options'
+/*
+ * decaffeinate suggestions:
+ * DS001: Remove Babel/TypeScript constructor workaround
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS103: Rewrite code to no longer use __guard__
+ * DS206: Consider reworking classes to avoid initClass
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let FacetView;
+const Event = require('../../event');
+const CoreView = require('../../core-view');
+const Options = require('../../options');
 
-# methods we are composing in.
-SetsPathNames = require '../../mixins/sets-path-names'
+// methods we are composing in.
+const SetsPathNames = require('../../mixins/sets-path-names');
 
-# The data-model object.
-SummaryItems = require '../../models/summary-items'
-NumericRange = require '../../models/numeric-range'
+// The data-model object.
+const SummaryItems = require('../../models/summary-items');
+const NumericRange = require('../../models/numeric-range');
 
-# The child views of this view.
-SummaryHeading = require './summary-heading'
-FacetItems = require './items'
-SelectedCount = require './selected-count'
-FacetVisualisation = require './visualisation'
+// The child views of this view.
+const SummaryHeading = require('./summary-heading');
+const FacetItems = require('./items');
+const SelectedCount = require('./selected-count');
+const FacetVisualisation = require('./visualisation');
 
-module.exports = class FacetView extends CoreView
+module.exports = (FacetView = (function() {
+  FacetView = class FacetView extends CoreView {
+    constructor(...args) {
+      {
+        // Hack: trick Babel/TypeScript into allowing this before super.
+        if (false) { super(); }
+        let thisFn = (() => { return this; }).toString();
+        let thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1];
+        eval(`${thisName} = this;`);
+      }
+      this.Model = this.Model.bind(this);
+      super(...args);
+    }
 
-  @include SetsPathNames
+    static initClass() {
+  
+      this.include(SetsPathNames);
+  
+      this.prototype.parameters = ['query', 'view'];
+  
+      this.prototype.optionalParameters = ['noTitle'];
+    }
 
-  className: -> 'im-facet-view'
+    className() { return 'im-facet-view'; }
 
-  modelEvents: ->
-    'change:min change:max': @setLimits
+    modelEvents() {
+      return {'change:min change:max': this.setLimits};
+    }
 
-  stateEvents: ->
-    'change:open': @honourOpenness
+    stateEvents() {
+      return {'change:open': this.honourOpenness};
+    }
 
-  parameters: ['query', 'view']
+    Model() { return new SummaryItems({query: this.query, view: this.view}); }
 
-  optionalParameters: ['noTitle']
+    // May inherit state, defines a model based on @query and @view
+    initialize() {
+      super.initialize(...arguments);
+      this.range = new NumericRange;
+      this.setPathNames();
+      return this.setLimits();
+    }
 
-  Model: => new SummaryItems {@query, @view}
+    initState() {
+      if (!this.state.has('open')) { return this.state.set({open: Options.get('Facets.Initally.Open')}); }
+    }
 
-  # May inherit state, defines a model based on @query and @view
-  initialize: ->
-    super
-    @range = new NumericRange
-    @setPathNames()
-    @setLimits()
+    setLimits() { if (this.model.get('numeric')) {
+      return this.range.setLimits(this.model.pick('min', 'max'));
+    } }
 
-  initState: ->
-    @state.set(open: Options.get 'Facets.Initally.Open') unless @state.has 'open'
+    // Conditions that must be true by initialisation.
 
-  setLimits: -> if @model.get 'numeric'
-    @range.setLimits @model.pick 'min', 'max'
+    invariants() {
+      return {
+        hasQuery: "No query",
+        hasAttrView: `The view is not an attribute: ${ this.view }`,
+        modelIsSummaryItemsModel: `The model is not a summary items model: ${ this.model }`
+      };
+    }
 
-  # Conditions that must be true by initialisation.
+    modelIsSummaryItemsModel() { return this.model instanceof SummaryItems; }
 
-  invariants: ->
-    hasQuery: "No query"
-    hasAttrView: "The view is not an attribute: #{ @view }"
-    modelIsSummaryItemsModel: "The model is not a summary items model: #{ @model }"
+    hasQuery() { return (this.query != null); }
 
-  modelIsSummaryItemsModel: -> @model instanceof SummaryItems
+    hasAttrView() { return __guardMethod__(this.view, 'isAttribute', o => o.isAttribute()); }
 
-  hasQuery: -> @query?
+    // Rendering logic. This is a composed view that has no template of its own.
 
-  hasAttrView: -> @view?.isAttribute?()
+    postRender() {
+      this.renderTitle();
+      this.renderVisualisation();
+      this.renderSelectedCount();
+      this.renderItems();
+      return this.honourOpenness();
+    }
 
-  # Rendering logic. This is a composed view that has no template of its own.
+    renderTitle() {
+      if (!this.noTitle) { return this.renderChild('title', (new SummaryHeading({model: this.model, state: this.state}))); }
+    }
 
-  postRender: ->
-    @renderTitle()
-    @renderVisualisation()
-    @renderSelectedCount()
-    @renderItems()
-    @honourOpenness()
+    renderVisualisation() {
+      return this.renderChild('viz', (new FacetVisualisation({model: this.model, state: this.state, range: this.range})));
+    }
 
-  renderTitle: ->
-    @renderChild 'title', (new SummaryHeading {@model, @state}) unless @noTitle
+    renderSelectedCount() {
+      return this.renderChild('count', (new SelectedCount({model: this.model, range: this.range})));
+    }
 
-  renderVisualisation: ->
-    @renderChild 'viz', (new FacetVisualisation {@model, @state, @range})
+    renderItems() {
+      return this.renderChild('facet', (new FacetItems({model: this.model, state: this.state, range: this.range})));
+    }
 
-  renderSelectedCount: ->
-    @renderChild 'count', (new SelectedCount {@model, @range})
+    honourOpenness() {
+      const isOpen = this.state.get('open');
+      const wasOpen = this.state.previous('open');
+      const facet = this.$('dd.im-facet');
 
-  renderItems: ->
-    @renderChild 'facet', (new FacetItems {@model, @state, @range})
+      if (isOpen) {
+        facet.slideDown();
+        this.trigger('opened', this);
+      } else {
+        facet.slideUp();
+        this.trigger('closed', this);
+      }
 
-  honourOpenness: ->
-    isOpen = @state.get 'open'
-    wasOpen = @state.previous 'open'
-    facet = @$ 'dd.im-facet'
+      if ((wasOpen != null) && (isOpen !== wasOpen)) {
+        return this.trigger('toggled', this);
+      }
+    }
 
-    if isOpen
-      facet.slideDown()
-      @trigger 'opened', @
-    else
-      facet.slideUp()
-      @trigger 'closed', @
+    // Event definitions and their handlers.
 
-    if wasOpen? and (isOpen isnt wasOpen)
-      @trigger 'toggled', @
+    events() {
+      return {'click .im-summary-heading': 'toggle'};
+    }
 
-  # Event definitions and their handlers.
+    toggle() { return this.state.toggle('open'); }
 
-  events: ->
-    'click .im-summary-heading': 'toggle'
+    close() { return this.state.set({open: false}); }
 
-  toggle: -> @state.toggle 'open'
+    open() { return this.state.set({open: true}); }
+  };
+  FacetView.initClass();
+  return FacetView;
+})());
 
-  close: -> @state.set open: false
 
-  open: -> @state.set open: true
-
+function __guardMethod__(obj, methodName, transform) {
+  if (typeof obj !== 'undefined' && obj !== null && typeof obj[methodName] === 'function') {
+    return transform(obj, methodName);
+  } else {
+    return undefined;
+  }
+}

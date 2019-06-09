@@ -1,10 +1,15 @@
-# Simple event that can be passed to handlers for cancellable events.
-module.exports = class Event
+// Simple event that can be passed to handlers for cancellable events.
+let Event;
+module.exports = (Event = class Event {
 
-  constructor: (@data, @target) ->
+  constructor(data, target) {
+    this.data = data;
+    this.target = target;
+  }
 
-  cancel: -> @cancelled = true
+  cancel() { return this.cancelled = true; }
 
-  preventDefault: -> @cancel()
+  preventDefault() { return this.cancel(); }
 
-  stopPropagation: -> # no-op
+  stopPropagation() {} // no-op
+});

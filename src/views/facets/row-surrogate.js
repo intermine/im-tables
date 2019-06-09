@@ -1,18 +1,31 @@
-_ = require 'underscore'
-CoreView = require '../../core-view'
-Templates = require '../../templates'
+/*
+ * decaffeinate suggestions:
+ * DS206: Consider reworking classes to avoid initClass
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let RowSurrogate;
+const _ = require('underscore');
+const CoreView = require('../../core-view');
+const Templates = require('../../templates');
 
-module.exports = class RowSurrogate extends CoreView
+module.exports = (RowSurrogate = (function() {
+  RowSurrogate = class RowSurrogate extends CoreView {
+    static initClass() {
+  
+      this.prototype.className = 'im-facet-surrogate';
+  
+      this.prototype.template = Templates.template('row_surrogate');
+    }
 
-  className: 'im-facet-surrogate'
+    initialize({above}) { this.above = above; return super.initialize(...arguments); }
 
-  initialize: ({@above}) -> super
+    getData() { return _.extend(super.getData(...arguments), {above: this.above}); }
 
-  template: Templates.template 'row_surrogate'
+    postRender() { return this.$el.addClass(this.above ? 'above' : 'below'); }
 
-  getData: -> _.extend super, {@above}
-
-  postRender: -> @$el.addClass if @above then 'above' else 'below'
-
-  remove: -> @$el.fadeOut 'fast', => super()
+    remove() { return this.$el.fadeOut('fast', () => RowSurrogate.prototype.__proto__.remove.call(this, )); }
+  };
+  RowSurrogate.initClass();
+  return RowSurrogate;
+})());
 

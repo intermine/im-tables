@@ -1,186 +1,246 @@
-_ = require 'underscore'
+/*
+ * decaffeinate suggestions:
+ * DS101: Remove unnecessary use of Array.from
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS103: Rewrite code to no longer use __guard__
+ * DS206: Consider reworking classes to avoid initClass
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let SelectListEditor;
+const _ = require('underscore');
 
-CoreView = require '../../core-view'
-Templates = require '../../templates'
-Collection = require '../../core/collection'
+const CoreView = require('../../core-view');
+const Templates = require('../../templates');
+const Collection = require('../../core/collection');
 
-HandlesDOMReSort = require '../../mixins/handles-dom-resort'
+const HandlesDOMReSort = require('../../mixins/handles-dom-resort');
 
-SelectedColumn = require './selected-column'
-UnselectedColumn = require './unselected-column'
-ColumnChooser = require './path-chooser'
+const SelectedColumn = require('./selected-column');
+const UnselectedColumn = require('./unselected-column');
+const ColumnChooser = require('./path-chooser');
 
-childId = (model) -> "path_#{ model.get 'id' }"
-binnedId = (model) -> "expath_#{ model.get 'id' }"
-incr = (x) -> x + 1
+const childId = model => `path_${ model.get('id') }`;
+const binnedId = model => `expath_${ model.get('id') }`;
+const incr = x => x + 1;
 
-module.exports = class SelectListEditor extends CoreView
+module.exports = (SelectListEditor = (function() {
+  SelectListEditor = class SelectListEditor extends CoreView {
+    static initClass() {
+  
+      this.include(HandlesDOMReSort);
+  
+      this.prototype.parameters = ['query', 'collection', 'rubbishBin'];
+  
+      this.prototype.className = 'im-select-list-editor';
+  
+      this.prototype.template = Templates.template('column-manager-select-list');
+    }
 
-  @include HandlesDOMReSort
+    getData() { return _.extend(super.getData(...arguments), {hasRubbish: this.rubbishBin.size()}); }
 
-  parameters: ['query', 'collection', 'rubbishBin']
+    initialize() {
+      super.initialize(...arguments);
+      return this.listenTo(this.rubbishBin, 'remove', this.restoreView);
+    }
 
-  className: 'im-select-list-editor'
+    initState() {
+      return this.state.set({adding: false});
+    }
 
-  template: Templates.template 'column-manager-select-list'
+    collectionEvents() {
+      return {
+        'remove': 'moveToBin',
+        'add remove': 'reRender'
+      };
+    }
 
-  getData: -> _.extend super, hasRubbish: @rubbishBin.size()
+    events() {
+      return {
+        'drop .im-rubbish-bin': 'onDragToBin',
+        'sortupdate .im-active-view': 'onOrderChanged',
+        'click .im-add-view-path': 'setAddingTrue'
+      };
+    }
 
-  initialize: ->
-    super
-    @listenTo @rubbishBin, 'remove', @restoreView
+    stateEvents() {
+      return {'change:adding': 'onChangeMode'};
+    }
 
-  initState: ->
-    @state.set adding: false
+    setAddingTrue() { return this.state.set({adding: true}); }
 
-  collectionEvents: ->
-    'remove': 'moveToBin'
-    'add remove': 'reRender'
+    onDragToBin(e, ui) { return ui.draggable.trigger('binned'); }
 
-  events: ->
-    'drop .im-rubbish-bin': 'onDragToBin'
-    'sortupdate .im-active-view': 'onOrderChanged'
-    'click .im-add-view-path': 'setAddingTrue'
+    moveToBin(model) {
+      this.rubbishBin.add(this.query.makePath(model.get('path')));
+      return this.reIndexFrom(model.get('index'));
+    }
 
-  stateEvents: ->
-    'change:adding': 'onChangeMode'
+    reIndexFrom(idx) {
+      return __range__(idx, this.collection.size(), true).map((i) =>
+        __guard__(this.collection.at(i), x => x.set({index: i})));
+    }
 
-  setAddingTrue: -> @state.set adding: true
+    restoreView(model) { return this.collection.add(this.query.makePath(model.get('path'))); }
 
-  onDragToBin: (e, ui) -> ui.draggable.trigger 'binned'
+    onChangeMode() { if (this.rendered) {
+      if (this.state.get('adding')) {
+        this.$('.im-removal-and-rearrangement').hide();
+        this.$('.im-addition').show();
+        return this.renderPathChooser();
+      } else {
+        this.$('.im-removal-and-rearrangement').show();
+        this.$('.im-addition').hide();
+        return this.removeChild('columnChooser');
+      }
+    } }
 
-  moveToBin: (model) ->
-    @rubbishBin.add @query.makePath model.get 'path'
-    @reIndexFrom model.get 'index'
+    renderPathChooser() {
+      const columns = new ColumnChooser({query: this.query, collection: this.collection});
+      this.listenTo(columns, 'done', () => this.state.set({adding: false}));
+      return this.renderChild('columnChooser', columns, this.$('.im-addition'));
+    }
 
-  reIndexFrom: (idx) ->
-    for i in [idx .. @collection.size()]
-      @collection.at(i)?.set index: i
+    onOrderChanged(e, ui) {
+      if (ui.sender != null) {
+        return this.restoreFromBin(ui.item);
+      } else {
+        return this.onDOMResort();
+      }
+    }
 
-  restoreView: (model) -> @collection.add @query.makePath model.get 'path'
+    getInsertPoint($el) {
+      const addedAfter = $el.prev();
+      const kids = this.children;
 
-  onChangeMode: -> if @rendered
-    if @state.get 'adding'
-      @$('.im-removal-and-rearrangement').hide()
-      @$('.im-addition').show()
-      @renderPathChooser()
-    else
-      @$('.im-removal-and-rearrangement').show()
-      @$('.im-addition').hide()
-      @removeChild 'columnChooser'
+      const prevModel = this.collection.find(function(m) {
+        const active = kids[childId(m)];
+        return active.el === addedAfter[0];});
 
-  renderPathChooser: ->
-    columns = new ColumnChooser {@query, @collection}
-    @listenTo columns, 'done', => @state.set adding: false
-    @renderChild 'columnChooser', columns, @$ '.im-addition'
+      if ((prevModel == null)) {
+        return 0; // Nothing in front, we are first, yay.
+      } else { // We are added at the index after the one in front.
+        return prevModel.get('index') + 1;
+      }
+    }
 
-  onOrderChanged: (e, ui) ->
-    if ui.sender?
-      @restoreFromBin ui.item
-    else
-      @onDOMResort()
+    getRestoredModel($el) { return this.rubbishBin.find(m => {
+      const binned = this.children[binnedId(m)];
+      return (binned != null ? binned.el : undefined) === $el[0];
+  }); }
 
-  getInsertPoint: ($el) ->
-    addedAfter = $el.prev()
-    kids = @children
+    // jQuery UI sortable does not give us indexes - so we have
+    // to work those out ourselves, very annoyingly.
+    restoreFromBin($el) {
+      const kids = this.children;                  //:: {string -> View}
+      const preAddSize = this.collection.size();   //:: int
+      const addedAt = this.getInsertPoint($el);     //:: int
+      const toRestore = this.getRestoredModel($el); //:: Model?
 
-    prevModel = @collection.find (m) ->
-      active = kids[childId m]
-      active.el is addedAfter[0]
+      // Destroy the binned view - this triggers the model's
+      // removal from the bin, which triggers restoreView - so
+      // once it returns, the path has been added back to the view.
+      if (toRestore != null) {
+        toRestore.destroy();
+      } else {
+        console.error('could not find model for:', $el);
+        return; // Something went wrong, nothing we can do.
+      }
+      // Added at end - our work is done.
+      if (addedAt === preAddSize) { return; }
 
-    if not prevModel?
-      return 0 # Nothing in front, we are first, yay.
-    else # We are added at the index after the one in front.
-      return prevModel.get('index') + 1
+      // At this point, the path has been restored - but
+      // we still need to put it in the correct place.
+      // first find the models we need to bump to the right.
+      const toBump = (__range__(addedAt, preAddSize, false).map((i) => this.collection.at(i)));
+      // The one we added is always the last.
+      const added = this.collection.last();
+      // Bump the ones after us to the right.
+      for (let m of Array.from(toBump)) {
+        m.swap('index', incr);
+      }
+      // Set the index of the newly added model.
+      added.set({index: addedAt});
+      // OK, so the state is correct, we just have to put the new
+      // element in the right place, which is done with this horror:
+      // While this is slightly ugly, it is much more efficient
+      // than the alternative, which is to reposition on the sort
+      // event, since this is O(1), not O(n*n).
+      return kids[childId(added)].$el.insertBefore(kids[childId(toBump[0])].el);
+    }
 
-  getRestoredModel: ($el) -> @rubbishBin.find (m) =>
-    binned = @children[binnedId m]
-    binned?.el is $el[0]
+    onDOMResort() { return this.setChildIndices(childId); }
 
-  # jQuery UI sortable does not give us indexes - so we have
-  # to work those out ourselves, very annoyingly.
-  restoreFromBin: ($el) ->
-    kids = @children                  #:: {string -> View}
-    preAddSize = @collection.size()   #:: int
-    addedAt = @getInsertPoint $el     #:: int
-    toRestore = @getRestoredModel $el #:: Model?
+    postRender() {
+      const columns = this.$('.im-active-view');
+      const binnedCols = this.$('.im-removed-view');
 
-    # Destroy the binned view - this triggers the model's
-    # removal from the bin, which triggers restoreView - so
-    # once it returns, the path has been added back to the view.
-    if toRestore?
-      toRestore.destroy()
-    else
-      console.error 'could not find model for:', $el
-      return # Something went wrong, nothing we can do.
-    # Added at end - our work is done.
-    return if addedAt is preAddSize
+      //TODO: cut-and paste from sort-order.coffee - move to separate file.
+      const cutoff = 900;
+      const modalWidth = this.$el.closest('.modal').width();
+      const wide = (modalWidth >= cutoff);
 
-    # At this point, the path has been restored - but
-    # we still need to put it in the correct place.
-    # first find the models we need to bump to the right.
-    toBump = (@collection.at i for i in [addedAt ... preAddSize])
-    # The one we added is always the last.
-    added = @collection.last()
-    # Bump the ones after us to the right.
-    for m in toBump
-      m.swap 'index', incr
-    # Set the index of the newly added model.
-    added.set index: addedAt
-    # OK, so the state is correct, we just have to put the new
-    # element in the right place, which is done with this horror:
-    # While this is slightly ugly, it is much more efficient
-    # than the alternative, which is to reposition on the sort
-    # event, since this is O(1), not O(n*n).
-    kids[childId added].$el.insertBefore kids[childId toBump[0]].el
+      // By now backbone should have attached a collection attribute
+      // to the models, but it either hasn't or its been stripped upstream.
+      // TODO: figure out why and remove the following loop
+      this.collection.each(model => { return model.collection = this.collection; });
+      this.rubbishBin.each(model => { return model.collection = this.rubbishBin; });
 
-  onDOMResort: -> @setChildIndices childId
+      this.collection.each(model => {
+        return this.renderChild((childId(model)), (new SelectedColumn({model})), columns);
+      });
+      this.rubbishBin.each(model => {
+        return this.renderChild((binnedId(model)), (new UnselectedColumn({model})), binnedCols);
+      });
 
-  postRender: ->
-    columns = @$ '.im-active-view'
-    binnedCols = @$ '.im-removed-view'
+      columns.sortable({
+        placeholder: 'im-view-list-placeholder',
+        opacity: 0.6,
+        cancel: 'i,a,button',
+        axis: (wide ? null : 'y'),
+        appendTo: this.el
+      });
 
-    #TODO: cut-and paste from sort-order.coffee - move to separate file.
-    cutoff = 900
-    modalWidth = @$el.closest('.modal').width()
-    wide = (modalWidth >= cutoff)
+      this.$('.im-removed-view').sortable({
+        placeholder: 'im-view-list-placeholder',
+        connectWith: columns,
+        opacity: 0.6,
+        cancel: 'i,a,button',
+        axis: (wide ? null : 'y'),
+        appendTo: this.el
+      });
 
-    # By now backbone should have attached a collection attribute
-    # to the models, but it either hasn't or its been stripped upstream.
-    # TODO: figure out why and remove the following loop
-    @collection.each (model) => model.collection = @collection
-    @rubbishBin.each (model) => model.collection = @rubbishBin
+      this.$('.im-rubbish-bin').droppable({
+        accept: '.im-selected-column',
+        activeClass: 'im-can-remove-column',
+        hoverClass: 'im-will-remove-column'
+      });
 
-    @collection.each (model) =>
-      @renderChild (childId model), (new SelectedColumn {model}), columns
-    @rubbishBin.each (model) =>
-      @renderChild (binnedId model), (new UnselectedColumn {model}), binnedCols
+      return this.onChangeMode(); // make sure we are in the right mode.
+    }
 
-    columns.sortable
-      placeholder: 'im-view-list-placeholder'
-      opacity: 0.6
-      cancel: 'i,a,button'
-      axis: (if wide then null else 'y')
-      appendTo: @el
+    removeAllChildren() {
+      if (this.rendered) {
+        this.$('.im-active-view').sortable('destroy');
+        this.$('.im-removed-view').sortable('destroy');
+        this.$('.im-rubbish-bin').droppable('destroy');
+      }
+      return super.removeAllChildren(...arguments);
+    }
+  };
+  SelectListEditor.initClass();
+  return SelectListEditor;
+})());
 
-    @$('.im-removed-view').sortable
-      placeholder: 'im-view-list-placeholder'
-      connectWith: columns
-      opacity: 0.6
-      cancel: 'i,a,button'
-      axis: (if wide then null else 'y')
-      appendTo: @el
-
-    @$('.im-rubbish-bin').droppable
-      accept: '.im-selected-column'
-      activeClass: 'im-can-remove-column'
-      hoverClass: 'im-will-remove-column'
-
-    @onChangeMode() # make sure we are in the right mode.
-
-  removeAllChildren: ->
-    if @rendered
-      @$('.im-active-view').sortable 'destroy'
-      @$('.im-removed-view').sortable 'destroy'
-      @$('.im-rubbish-bin').droppable 'destroy'
-    super
+function __range__(left, right, inclusive) {
+  let range = [];
+  let ascending = left < right;
+  let end = !inclusive ? right : ascending ? right + 1 : right - 1;
+  for (let i = left; ascending ? i < end : i > end; ascending ? i++ : i--) {
+    range.push(i);
+  }
+  return range;
+}
+function __guard__(value, transform) {
+  return (typeof value !== 'undefined' && value !== null) ? transform(value) : undefined;
+}

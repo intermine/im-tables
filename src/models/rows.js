@@ -1,23 +1,42 @@
-_ = require 'underscore'
+/*
+ * decaffeinate suggestions:
+ * DS101: Remove unnecessary use of Array.from
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS206: Consider reworking classes to avoid initClass
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let RowsCollection;
+const _ = require('underscore');
 
-CoreModel = require '../core-model'
-Collection = require '../core/collection'
+const CoreModel = require('../core-model');
+const Collection = require('../core/collection');
 
-# A row in the table, basically just a container for cells.
-class RowModel extends CoreModel
+// A row in the table, basically just a container for cells.
+class RowModel extends CoreModel {
 
-  defaults: ->
-    index: null
-    query: null # string for caching skipsets
-    cells: []
+  defaults() {
+    return {
+      index: null,
+      query: null, // string for caching skipsets
+      cells: []
+    };
+  }
 
-  toJSON: -> _.extend super, cells: (c.toJSON() for c in @get 'cells')
+  toJSON() { return _.extend(super.toJSON(...arguments), {cells: ((Array.from(this.get('cells')).map((c) => c.toJSON())))}); }
+}
 
-# An ordered collection of rows
-# It indexes rows by index, so it must be reset if the query changes.
-module.exports = class RowsCollection extends Collection
-
-  model: RowModel
-
-  comparator: 'index'
+// An ordered collection of rows
+// It indexes rows by index, so it must be reset if the query changes.
+module.exports = (RowsCollection = (function() {
+  RowsCollection = class RowsCollection extends Collection {
+    static initClass() {
+  
+      this.prototype.model = RowModel;
+  
+      this.prototype.comparator = 'index';
+    }
+  };
+  RowsCollection.initClass();
+  return RowsCollection;
+})());
 

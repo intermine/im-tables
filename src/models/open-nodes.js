@@ -1,32 +1,47 @@
-Backbone = require 'backbone'
-UniqItems = require './uniq-items'
+/*
+ * decaffeinate suggestions:
+ * DS101: Remove unnecessary use of Array.from
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let OpenNodes;
+const Backbone = require('backbone');
+const UniqItems = require('./uniq-items');
 
-# True if a is b, or b is child of a
-descendsFrom = (a, b) ->
-  return false if (not a?.equals) or (not b?.isRoot)
-  while (not a.equals b)
-    # Now either keep going, or give up.
-    return false if b.isRoot() # nowhere to go
-    b = b.getParent()
-  return true
+// True if a is b, or b is child of a
+const descendsFrom = function(a, b) {
+  if ((!(a != null ? a.equals : undefined)) || (!(b != null ? b.isRoot : undefined))) { return false; }
+  while (!a.equals(b)) {
+    // Now either keep going, or give up.
+    if (b.isRoot()) { return false; } // nowhere to go
+    b = b.getParent();
+  }
+  return true;
+};
 
-# Differs in terms of the definition of containment. If the node X.y.z is open, then
-# X.y will return true for contains.
-module.exports = class OpenNodes extends UniqItems
+// Differs in terms of the definition of containment. If the node X.y.z is open, then
+// X.y will return true for contains.
+module.exports = (OpenNodes = class OpenNodes extends UniqItems {
 
-  # True for X.y if X.y.z is open
-  contains: (path) ->
-    if path instanceof Backbone.Model
-      super path
-    else
-      @any (node) -> descendsFrom path, node.get('item')
+  // True for X.y if X.y.z is open
+  contains(path) {
+    if (path instanceof Backbone.Model) {
+      return super.contains(path);
+    } else {
+      return this.any(node => descendsFrom(path, node.get('item')));
+    }
+  }
 
-  # Also removes sub-nodes.
-  remove: (path) ->
-    if !path? then return false
-    if path instanceof Backbone.Model
-      super path
+  // Also removes sub-nodes.
+  remove(path) {
+    if ((path == null)) { return false; }
+    if (path instanceof Backbone.Model) {
+      super.remove(path);
+    }
 
-    delenda = @filter (node) -> descendsFrom path, node.get('item')
-    for delendum in delenda
-      super delendum
+    const delenda = this.filter(node => descendsFrom(path, node.get('item')));
+    return Array.from(delenda).map((delendum) =>
+      super.remove(delendum));
+  }
+});

@@ -1,121 +1,165 @@
-_ = require 'underscore'
-View = require '../../core-view'
+/*
+ * decaffeinate suggestions:
+ * DS101: Remove unnecessary use of Array.from
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS206: Consider reworking classes to avoid initClass
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let Attribute;
+const _ = require('underscore');
+const View = require('../../core-view');
 
-Options = require '../../options'
-Icons = require '../../icons'
+const Options = require('../../options');
+const Icons = require('../../icons');
 
-###
-# Type expectations:
-#  - @chosenPaths :: UniqItems
-#  - @model :: CoreModel {multiSelect}
-#  - @trail :: [PathInfo]
-#  - @query :: Query
-#  - @path :: PathInfo
-#
-###
+/*
+ * Type expectations:
+ *  - @chosenPaths :: UniqItems
+ *  - @model :: CoreModel {multiSelect}
+ *  - @trail :: [PathInfo]
+ *  - @query :: Query
+ *  - @path :: PathInfo
+ *
+ */
 
-notBlank = (s) -> s? and /\w/.test s
+const notBlank = s => (s != null) && /\w/.test(s);
 
-stripLeadingSegments = (name) -> name?.replace(/^.*\s*>/, '')
+const stripLeadingSegments = name => name != null ? name.replace(/^.*\s*>/, '') : undefined;
 
-highlightMatch = (match) -> "<strong>#{ match }</strong>"
+const highlightMatch = match => `<strong>${ match }</strong>`;
 
-module.exports = class Attribute extends View
+module.exports = (Attribute = (function() {
+  Attribute = class Attribute extends View {
+    static initClass() {
+  
+      this.prototype.tagName = 'li';
+  
+      this.prototype.template = _.template(`\
+<a href="#" title="<%- title %>">
+  <%= icon %>
+  <span>
+    <%= name %>
+  </span>
+</a>\
+`
+      );
+    }
 
-  tagName: 'li'
+    events() {
+      return {'click a': 'handleClick'};
+    }
 
-  events: ->
-    'click a': 'handleClick'
+    initialize({chosenPaths, view, query, path, trail}) {
+      this.chosenPaths = chosenPaths;
+      this.view = view;
+      this.query = query;
+      this.path = path;
+      this.trail = trail;
+      super.initialize(...arguments);
+      this.depth = this.trail.length + 1;
+      this.state.set({
+        visible: true,
+        highlitName: null,
+        name: this.path.toString()
+      });
 
-  initialize: ({@chosenPaths, @view, @query, @path, @trail}) ->
-    super
-    @depth = @trail.length + 1
-    @state.set
-      visible: true
-      highlitName: null
-      name: @path.toString()
+      this.listenTo(this.chosenPaths, 'add remove reset', this.handleChoice);
+      this.listenTo(this.state, 'change:visible', this.onChangeVisible);
+      this.listenTo(this.state, 'change:highlitName', this.render);
+      this.listenTo(this.state, 'change:displayName', this.render);
 
-    @listenTo @chosenPaths, 'add remove reset', @handleChoice
-    @listenTo @state, 'change:visible', @onChangeVisible
-    @listenTo @state, 'change:highlitName', @render
-    @listenTo @state, 'change:displayName', @render
+      return this.path.getDisplayName().then(displayName => {
+        return this.state.set({displayName, name: stripLeadingSegments(displayName)});
+    });
+    }
 
-    @path.getDisplayName().then (displayName) =>
-      @state.set {displayName, name: stripLeadingSegments(displayName)}
+    onChangeVisible() { return this.$el.toggle(this.state.get('visible')); }
 
-  onChangeVisible: -> @$el.toggle @state.get 'visible'
+    getFilterPatterns() {
+      const filterTerms = this.model.get('filter');
+      if (notBlank(filterTerms)) {
+        return (Array.from(filterTerms.split(/\s+/)).filter((t) => t).map((t) => new RegExp(t, 'i')));
+      } else {
+        return [];
+      }
+    }
 
-  getFilterPatterns: ->
-    filterTerms = @model.get('filter')
-    if notBlank filterTerms
-      (new RegExp(t, 'i') for t in filterTerms.split(/\s+/) when t)
-    else
-      []
+    handleClick(e) {
+      e.stopPropagation();
+      e.preventDefault();
 
-  handleClick: (e) ->
-    e.stopPropagation()
-    e.preventDefault()
+      if ((this.model.get('dontSelectView')) && (this.view != null ? this.view.contains(this.path) : undefined)) {
+        return;
+      }
 
-    if (@model.get 'dontSelectView') and (@view?.contains @path)
-      return
+      if (this.chosenPaths.contains(this.path)) {
+        return this.chosenPaths.remove(this.path);
+      } else {
+        return this.choose();
+      }
+    }
 
-    if @chosenPaths.contains @path
-      @chosenPaths.remove @path
-    else
-      @choose()
+    choose() { // Depending on the selection mode, either add this, or select just this.
+      if (this.model.get('multiSelect')) {
+        return this.chosenPaths.add(this.path);
+      } else {
+        return this.chosenPaths.reset([this.path]);
+      }
+    }
 
-  choose: -> # Depending on the selection mode, either add this, or select just this.
-    if @model.get 'multiSelect'
-      @chosenPaths.add @path
-    else
-      @chosenPaths.reset [@path]
+    handleChoice() {
+      return this.$el.toggleClass('active', this.chosenPaths.contains(this.path));
+    }
 
-  handleChoice: ->
-    @$el.toggleClass 'active', @chosenPaths.contains @path
+    setHighlitName(regexps) { // Set now if available, or wait until it is.
+      if (this.state.has('name')) {
+        return this.state.set({highlitName: this.getHighlitName(regexps)});
+      } else {
+        return this.state.once('change:name', () => {
+          return this.state.set({highlitName: this.getHighlitName(regexps)});
+        });
+      }
+    }
 
-  setHighlitName: (regexps) -> # Set now if available, or wait until it is.
-    if @state.has 'name'
-      @state.set highlitName: @getHighlitName(regexps)
-    else
-      @state.once 'change:name', =>
-        @state.set highlitName: @getHighlitName(regexps)
+    getHighlitName(regexps) {
+      const name = this.state.get('name');
+      const pathName = this.path.end != null ? this.path.end.name : undefined;
+      let highlit = name;
 
-  getHighlitName: (regexps) ->
-    name = @state.get('name')
-    pathName = @path.end?.name
-    highlit = name
+      for (let r of Array.from(regexps)) {
+        highlit = highlit.replace(r, highlightMatch);
+      }
 
-    for r in regexps
-      highlit = highlit.replace r, highlightMatch
+      if (/strong/.test(highlit)) {
+        return highlit;
+      } else {
+        return highlightMatch(highlit); // Highlight it all.
+      }
+    }
 
-    if /strong/.test highlit
-      highlit
-    else
-      highlightMatch highlit # Highlight it all.
+    getDisabled() { return false; }
 
-  getDisabled: -> false
+    getData() {
+      const title = Options.get('ShowId') ? `${ this.path } (${ this.path.getType() })` : '';
+      const name = this.state.get('highlitName') ? this.state.get('highlitName') : this.state.escape('name');
+      const icon = Icons.icon('Attribute');
+      return {icon, title, name};
+    }
 
-  getData: ->
-    title = if Options.get('ShowId') then "#{ @path } (#{ @path.getType() })" else ''
-    name = if @state.get('highlitName') then @state.get('highlitName') else @state.escape('name')
-    icon = Icons.icon 'Attribute'
-    {icon, title, name}
-
-  template: _.template """
-    <a href="#" title="<%- title %>">
-      <%= icon %>
-      <span>
-        <%= name %>
-      </span>
-    </a>
-  """
-
-  render: ->
-    super
-    @$el.toggleClass 'disabled', @getDisabled()
-    if Options.get('ShowId')
-      @$('a').tooltip placement: 'bottom'
-    @handleChoice()
-    if @view?
-      @$el.toggleClass 'in-view', @view.contains @path
-    this
+    render() {
+      super.render(...arguments);
+      this.$el.toggleClass('disabled', this.getDisabled());
+      if (Options.get('ShowId')) {
+        this.$('a').tooltip({placement: 'bottom'});
+      }
+      this.handleChoice();
+      if (this.view != null) {
+        this.$el.toggleClass('in-view', this.view.contains(this.path));
+      }
+      return this;
+    }
+  };
+  Attribute.initClass();
+  return Attribute;
+})());

@@ -1,165 +1,206 @@
-{Promise} = require 'es6-promise'
+/*
+ * decaffeinate suggestions:
+ * DS101: Remove unnecessary use of Array.from
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS104: Avoid inline assignments
+ * DS204: Change includes calls to have a more natural evaluation order
+ * DS206: Consider reworking classes to avoid initClass
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+const {Promise} = require('es6-promise');
 
-Options = require '../options'
-Page = require '../models/page'
+const Options = require('../options');
+const Page = require('../models/page');
 
-CACHES = {}
-ALREADY_DONE = Promise.resolve true
+const CACHES = {};
+const ALREADY_DONE = Promise.resolve(true);
 
-exports.getCache = (query) ->
-  xml = query.toXML()
-  root = query.service.root
-  CACHES[root + ':' + xml] ?= new ResultCache query
+exports.getCache = function(query) {
+  let name;
+  const xml = query.toXML();
+  const { root } = query.service;
+  return CACHES[name = root + ':' + xml] != null ? CACHES[name] : (CACHES[name] = new ResultCache(query));
+};
 
-# TODO - make sure that the caches are informed of list change events.
-exports.onListChange = (listName) ->
-  for name, cache of CACHES
-    if listName in listNamesFor(cache.query)
-      cache.dropRows() # we cannot rely on this cache if one of its queries has changed.
-  return false
+// TODO - make sure that the caches are informed of list change events.
+exports.onListChange = function(listName) {
+  for (let name in CACHES) {
+    var needle;
+    const cache = CACHES[name];
+    if ((needle = listName, Array.from(listNamesFor(cache.query)).includes(needle))) {
+      cache.dropRows(); // we cannot rely on this cache if one of its queries has changed.
+    }
+  }
+  return false;
+};
 
-# An object that maintains a results cache for a given version of a query. Instances
-# of this object should *only* be obtained with the `getCache` method, which
-# guarantees that the results will be correct.
-#
-# note for testing: the required API of the query object is:
-#   * has `clone` method that returns an object with a `tableRows(page)` method,
-#   which when called returns a `Promise<[[TableCellResult]]>`
-#
-class ResultCache
+// An object that maintains a results cache for a given version of a query. Instances
+// of this object should *only* be obtained with the `getCache` method, which
+// guarantees that the results will be correct.
+//
+// note for testing: the required API of the query object is:
+//   * has `clone` method that returns an object with a `tableRows(page)` method,
+//   which when called returns a `Promise<[[TableCellResult]]>`
+//
+class ResultCache {
+  static initClass() {
+  
+    this.prototype.offset = 0; // :: int
+    this.prototype.rows = null;
+     // []? - single contiguous cache of rows.
+  }
 
-  offset: 0 # :: int
-  rows: null # []? - single contiguous cache of rows.
+  constructor(query) {
+    this.query = query.clone(); // freeze this query, so it does not change.
+  }
 
-  constructor: (query) ->
-    @query = query.clone() # freeze this query, so it does not change.
+  toString() { if ((this.rows != null ? this.rows.length : undefined)) {
+    return `ResultCache(${ this.offset } .. ${ this.offset + this.rows.length })`;
+  } else {
+    return "ResultCache(EMPTY)";
+  } }
 
-  toString: -> if @rows?.length
-    "ResultCache(#{ @offset } .. #{ @offset + @rows.length })"
-  else
-    "ResultCache(EMPTY)"
+  // This is *the* primary external public API method. All others should be
+  // considered private.
+  //
+  // :: start :: int, size :: int?  -> Promise<rows>
+  fetchRows(start, size = null) {
+    if (start == null) { start = 0; }
+    const page = new Page(start, size);
+    const updating = this.updateCache(page);
+    return updating.then(() => this.getRows(page));
+  }
 
-  # This is *the* primary external public API method. All others should be
-  # considered private.
-  #
-  # :: start :: int, size :: int?  -> Promise<rows>
-  fetchRows: (start = 0, size = null) ->
-    page = new Page start, size
-    updating = @updateCache page
-    updating.then => @getRows page
+  updateCache(page) {
+    if (this.contains(page)) { return ALREADY_DONE; }
 
-  updateCache: (page) ->
-    return ALREADY_DONE if @contains page
+    // Return a promise to update the cache
+    const p = this.getRequestPage(page);
 
-    # Return a promise to update the cache
-    p = @getRequestPage page
+    // @overlayTable() # FIXME - move overlay stuff back to table.
+    // fetching.then @removeOverlay, @removeOverlay
+    return this.query.tableRows({start: p.start, size: p.size})
+                 .then(this.addRowsToCache(p));
+  }
 
-    # @overlayTable() # FIXME - move overlay stuff back to table.
-    # fetching.then @removeOverlay, @removeOverlay
-    return @query.tableRows start: p.start, size: p.size
-                 .then @addRowsToCache p
-
-  contains: (page) ->
-    cache = @rows
-    # We definitely don't have it if we don't have any results cached.
-    return false unless cache?.length
-    end = @offset + cache.length
+  contains(page) {
+    const cache = this.rows;
+    // We definitely don't have it if we don't have any results cached.
+    if (!(cache != null ? cache.length : undefined)) { return false; }
+    const end = this.offset + cache.length;
  
-    # We need new data if the range of this request goes beyond
-    # that of the cached values, or if all results are selected.
-    return (not page.all()) and (page.start >= @offset) and (page.end() <= end)
+    // We need new data if the range of this request goes beyond
+    // that of the cached values, or if all results are selected.
+    return (!page.all()) && (page.start >= this.offset) && (page.end() <= end);
+  }
 
-  dropRows: ->
-    @rows = null
-    @offset = 0
+  dropRows() {
+    this.rows = null;
+    return this.offset = 0;
+  }
 
-  # Transform a table page into a larger request page.
-  getRequestPage: (page) ->
-    cache = @rows
-    factor = Options.get 'TableResults.CacheFactor'
-    requestLimit = Options.get 'TableResults.RequestLimit'
-    size = if page.all() then page.size else page.size * factor
+  // Transform a table page into a larger request page.
+  getRequestPage(page) {
+    let gap;
+    const cache = this.rows;
+    const factor = Options.get('TableResults.CacheFactor');
+    const requestLimit = Options.get('TableResults.RequestLimit');
+    const size = page.all() ? page.size : page.size * factor;
 
-    # Can ignore the cache if it hasn't been set, just return the expanded page.
-    if not cache?
-      return new Page(page.start, size)
+    // Can ignore the cache if it hasn't been set, just return the expanded page.
+    if ((cache == null)) {
+      return new Page(page.start, size);
+    }
 
-    upperBound = @offset + cache.length
+    const upperBound = this.offset + cache.length;
 
-    # When paging backwards - extend page towards 0.
-    start = if page.all() or (page.start >= @offset)
+    // When paging backwards - extend page towards 0.
+    const start = page.all() || (page.start >= this.offset) ?
       page.start
-    else
-      Math.max 0, page.start - size
+    :
+      Math.max(0, page.start - size);
 
-    requestPage = new Page(start, size)
+    const requestPage = new Page(start, size);
 
-    # Don't permit gaps, so try to keep the cache contiguous.
+    // Don't permit gaps, so try to keep the cache contiguous.
 
-    # We only care if the requestPage is entirely left or right of the current cache.
-    if requestPage.isBefore @offset
-      gap = requestPage.rightGap @offset
-      if (gap + requestPage.size) > requestLimit
-        @dropRows() # prefer to dump the cache rather than request this much
-      else
-        requestPage.size += gap
-    else if requestPage.isAfter upperBound
-      gap = requestPage.leftGap upperBound
-      if (gap + requestPage.size) > requestLimit
-        @dropRows() # prefer to dump the cache rather than request this much
-      else
-        requestPage.size += gap
-        requestPage.start = upperBound
+    // We only care if the requestPage is entirely left or right of the current cache.
+    if (requestPage.isBefore(this.offset)) {
+      gap = requestPage.rightGap(this.offset);
+      if ((gap + requestPage.size) > requestLimit) {
+        this.dropRows(); // prefer to dump the cache rather than request this much
+      } else {
+        requestPage.size += gap;
+      }
+    } else if (requestPage.isAfter(upperBound)) {
+      gap = requestPage.leftGap(upperBound);
+      if ((gap + requestPage.size) > requestLimit) {
+        this.dropRows(); // prefer to dump the cache rather than request this much
+      } else {
+        requestPage.size += gap;
+        requestPage.start = upperBound;
+      }
+    }
 
-    return requestPage
+    return requestPage;
+  }
 
-  # Update the cache with the retrieved results. If there is an overlap 
-  # between the returned results and what is already held in cache, prefer the newer 
-  # results.
-  #
-  # @param page The page these results were requested with.
-  # @param rows The rows returned from the server.
-  #
-  addRowsToCache: (page) -> (rows) =>
-    cache = @rows
-    offset = @offset
-    if cache? # may not exist if this is the first request, or we have dumped the cache.
-      upperBound = @offset + cache.length
+  // Update the cache with the retrieved results. If there is an overlap 
+  // between the returned results and what is already held in cache, prefer the newer 
+  // results.
+  //
+  // @param page The page these results were requested with.
+  // @param rows The rows returned from the server.
+  //
+  addRowsToCache(page) { return rows => {
+    let cache = this.rows;
+    let { offset } = this;
+    if (cache != null) { // may not exist if this is the first request, or we have dumped the cache.
+      const upperBound = this.offset + cache.length;
 
-      # Add rows we don't have to the front - TODO: use splice rather than slice!
-      if page.start < offset
-        if page.end() < offset
-          throw new Error("Cannot add #{ page } to #{ @ } - non contiguous")
-        if page.all() or page.end() > upperBound
-          cache = rows.slice() # containment, rows replace cache.
-        else # concat together
-          cache = rows.concat cache.slice page.end() - offset
-      else if page.start > upperBound
-        throw new Error("Cannot add #{ page } to #{ @ } - non contiguous")
-      else if page.all() or upperBound < page.end()
-        # Add rows we don't have to the end
-        cache = cache.slice(0, (page.start - offset)).concat(rows)
-      else
-        console.error "Useless cache add - we already had these rows: #{ page }"
+      // Add rows we don't have to the front - TODO: use splice rather than slice!
+      if (page.start < offset) {
+        if (page.end() < offset) {
+          throw new Error(`Cannot add ${ page } to ${ this } - non contiguous`);
+        }
+        if (page.all() || (page.end() > upperBound)) {
+          cache = rows.slice(); // containment, rows replace cache.
+        } else { // concat together
+          cache = rows.concat(cache.slice(page.end() - offset));
+        }
+      } else if (page.start > upperBound) {
+        throw new Error(`Cannot add ${ page } to ${ this } - non contiguous`);
+      } else if (page.all() || (upperBound < page.end())) {
+        // Add rows we don't have to the end
+        cache = cache.slice(0, (page.start - offset)).concat(rows);
+      } else {
+        console.error(`Useless cache add - we already had these rows: ${ page }`);
+      }
 
-      offset = Math.min offset, page.start
-    else
-      cache = rows.slice()
-      offset = page.start
+      offset = Math.min(offset, page.start);
+    } else {
+      cache = rows.slice();
+      offset = page.start;
+    }
 
-    @offset = offset
-    @rows = cache
-    return true
+    this.offset = offset;
+    this.rows = cache;
+    return true;
+  }; }
 
-  # Extract the given rows from the cache. When this method is called the
-  # cache must have been populated by `updateCache`, so don't call it
-  # directly.
-  getRows: ({start, size}) ->
-    throw new Error 'Cache has not been updated' unless @rows?
-    rows = @rows.slice() # copy the cached rows, so we don't truncate the cache.
-    # Splice off the undesired sections.
-    rows.splice(0, start - @offset)
-    rows.splice(size, rows.length) if (size? and size > 0)
-    return rows
+  // Extract the given rows from the cache. When this method is called the
+  // cache must have been populated by `updateCache`, so don't call it
+  // directly.
+  getRows({start, size}) {
+    if (this.rows == null) { throw new Error('Cache has not been updated'); }
+    const rows = this.rows.slice(); // copy the cached rows, so we don't truncate the cache.
+    // Splice off the undesired sections.
+    rows.splice(0, start - this.offset);
+    if ((size != null) && (size > 0)) { rows.splice(size, rows.length); }
+    return rows;
+  }
+}
+ResultCache.initClass();
 
-exports.ResultCache = ResultCache # exported for testing.
+exports.ResultCache = ResultCache; // exported for testing.

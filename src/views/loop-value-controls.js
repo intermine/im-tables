@@ -1,53 +1,78 @@
-_ = require 'underscore'
-fs = require 'fs'
-{Promise} = require 'es6-promise'
+/*
+ * decaffeinate suggestions:
+ * DS101: Remove unnecessary use of Array.from
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS205: Consider reworking code to avoid use of IIFEs
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let LoopValueControls;
+const _ = require('underscore');
+const fs = require('fs');
+const {Promise} = require('es6-promise');
 
-Messages = require '../messages'
-View = require '../core-view'
+const Messages = require('../messages');
+const View = require('../core-view');
 
-helpers = require '../templates/helpers'
-mustacheSettings = require '../templates/mustache-settings'
-toNamedPath = require '../utils/to-named-path'
+const helpers = require('../templates/helpers');
+const mustacheSettings = require('../templates/mustache-settings');
+const toNamedPath = require('../utils/to-named-path');
 
-html = fs.readFileSync __dirname + '/../templates/loop-value-controls.html', 'utf8'
-template = _.template html
+const html = fs.readFileSync(__dirname + '/../templates/loop-value-controls.html', 'utf8');
+const template = _.template(html);
 
-toOption = ({path, name}) -> value: path.toString(), text: name
+const toOption = ({path, name}) => ({value: path.toString(), text: name});
 
-module.exports = class LoopValueControls extends View
+module.exports = (LoopValueControls = class LoopValueControls extends View {
 
-  initialize: ({@query}) ->
-    super
-    @path = @model.get 'path'
-    @type = @path.getType()
-    @setCandidateLoops()
-    @listenTo @model, 'change', @reRender
+  initialize({query}) {
+    this.query = query;
+    super.initialize(...arguments);
+    this.path = this.model.get('path');
+    this.type = this.path.getType();
+    this.setCandidateLoops();
+    return this.listenTo(this.model, 'change', this.reRender);
+  }
 
-  events: ->
-    'change select': 'setLoop'
+  events() {
+    return {'change select': 'setLoop'};
+  }
 
-  setLoop: -> @model.set value: @$('select').val()
+  setLoop() { return this.model.set({value: this.$('select').val()}); }
 
-  setCandidateLoops: -> unless @model.has 'candidateLoops'
-    @getCandidateLoops().then (candidateLoops) => @model.set {candidateLoops}
+  setCandidateLoops() { if (!this.model.has('candidateLoops')) {
+    return this.getCandidateLoops().then(candidateLoops => this.model.set({candidateLoops}));
+  } }
 
-  isSuitable: (candidate) ->
-    ((candidate.isa @type) or (@path.isa candidate.getType())) and
-      (@path.toString() isnt candidate.toString())
+  isSuitable(candidate) {
+    return ((candidate.isa(this.type)) || (this.path.isa(candidate.getType()))) &&
+      (this.path.toString() !== candidate.toString());
+  }
 
-  # Cache this result, since we don't want to keep fetching display names.
-  getCandidateLoops: -> @__candidate_loops ?= do =>
-    loopCandidates = (n for n in @query.getQueryNodes() when @isSuitable n)
+  // Cache this result, since we don't want to keep fetching display names.
+  getCandidateLoops() { return this.__candidate_loops != null ? this.__candidate_loops : (this.__candidate_loops = (() => {
+    const loopCandidates = ((() => {
+      const result = [];
+      for (let n of Array.from(this.query.getQueryNodes())) {         if (this.isSuitable(n)) {
+          result.push(n);
+        }
+      }
+      return result;
+    })());
 
-    Promise.all loopCandidates.map toNamedPath
+    return Promise.all(loopCandidates.map(toNamedPath));
+  })()); }
 
-  template: (data) ->
-    template _.extend {messages: Messages}, helpers, data
+  template(data) {
+    return template(_.extend({messages: Messages}, helpers, data));
+  }
 
-  getData: ->
-    currentValue = @model.get 'value'
-    candidateLoops = (toOption c for c in (@model.get('candidateLoops') or []))
-    isSelected = (opt) -> opt.value is currentValue
-    {candidateLoops, isSelected}
+  getData() {
+    const currentValue = this.model.get('value');
+    const candidateLoops = ((Array.from(this.model.get('candidateLoops') || [])).map((c) => toOption(c)));
+    const isSelected = opt => opt.value === currentValue;
+    return {candidateLoops, isSelected};
+  }
+});
 
 

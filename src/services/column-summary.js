@@ -1,9 +1,17 @@
-CACHE = {}
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS104: Avoid inline assignments
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+const CACHE = {};
 
-getKey = (query, path) ->
-  "#{ query.service.root }:#{ query.service.token }:#{ query.toXML() }:#{ path }"
+const getKey = (query, path) => `${ query.service.root }:${ query.service.token }:${ query.toXML() }:${ path }`;
 
-# (imjs.Query, String) -> Promise<Summary>
-exports.getColumnSummary = (query, path, term, limit) ->
-  CACHE[getKey query, path, term, limit] ?= do -> query.filterSummary path, term, limit
+// (imjs.Query, String) -> Promise<Summary>
+exports.getColumnSummary = function(query, path, term, limit) {
+  let name;
+  return CACHE[name = getKey(query, path, term, limit)] != null ? CACHE[name] : (CACHE[name] = (() => query.filterSummary(path, term, limit))());
+};
 

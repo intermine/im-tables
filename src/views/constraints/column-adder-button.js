@@ -1,27 +1,40 @@
-_ = require 'underscore'
-CoreView = require '../../core-view'
-Messages = require '../../messages'
-PathModel = require '../../models/path'
+/*
+ * decaffeinate suggestions:
+ * DS206: Consider reworking classes to avoid initClass
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let AdderButton;
+const _ = require('underscore');
+const CoreView = require('../../core-view');
+const Messages = require('../../messages');
+const PathModel = require('../../models/path');
 
-require '../../messages/constraints'
+require('../../messages/constraints');
 
-module.exports = class AdderButton extends CoreView
-
-  Model: PathModel
+module.exports = (AdderButton = (function() {
+  AdderButton = class AdderButton extends CoreView {
+    static initClass() {
   
-  tagName: 'button'
+      this.prototype.Model = PathModel;
+    
+      this.prototype.tagName = 'button';
+  
+      this.prototype.className = 'btn btn-primary im-add-constraint';
+  
+      this.prototype.optionalParameters = ['hideType'];
+  
+      this.prototype.hideType = false;
+  }
 
-  className: 'btn btn-primary im-add-constraint'
+    template(data) { return _.escape(Messages.getText('constraints.AddConFor', data)); }
 
-  optionalParameters: ['hideType']
+    getData() { return _.extend(super.getData(...arguments), {hideType: this.hideType}); }
 
-  hideType: false
+    modelEvents() { return {change: this.reRender}; }
 
-  template: (data) -> _.escape Messages.getText 'constraints.AddConFor', data
-
-  getData: -> _.extend super, {@hideType}
-
-  modelEvents: -> change: @reRender
-
-  events: -> click: -> @trigger 'chosen', @model.get 'path'
+    events() { return {click() { return this.trigger('chosen', this.model.get('path')); }}; }
+};
+  AdderButton.initClass();
+  return AdderButton;
+})());
 

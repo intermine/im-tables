@@ -1,51 +1,70 @@
-_ = require 'underscore'
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+const _ = require('underscore');
 
-CACHE = {}
+const CACHE = {};
 
-# Mixin method that runs a query, defined by @query and the values of @model
-exports.runQuery = (overrides = {}) ->
-  params = @getExportParameters overrides
-  key = "results:#{ @query.service.root }:#{ JSON.stringify params }"
-  endpoint = 'query/results'
-  format = @model.get('format')
-  # Custom formats have custom endpoints.
-  endpoint += "/#{ format.id }" if format.needs?.length
-  CACHE[key] ?= @query.service.post endpoint, params
+// Mixin method that runs a query, defined by @query and the values of @model
+exports.runQuery = function(overrides) {
+  if (overrides == null) { overrides = {}; }
+  const params = this.getExportParameters(overrides);
+  const key = `results:${ this.query.service.root }:${ JSON.stringify(params) }`;
+  let endpoint = 'query/results';
+  const format = this.model.get('format');
+  // Custom formats have custom endpoints.
+  if (format.needs != null ? format.needs.length : undefined) { endpoint += `/${ format.id }`; }
+  return CACHE[key] != null ? CACHE[key] : (CACHE[key] = this.query.service.post(endpoint, params));
+};
 
-exports.getEstimatedSize = ->
-  q = @getExportQuery()
-  key = "count:#{ q.service.root }:#{ q.toXML() }"
-  CACHE[key] ?= q.count()
+exports.getEstimatedSize = function() {
+  const q = this.getExportQuery();
+  const key = `count:${ q.service.root }:${ q.toXML() }`;
+  return CACHE[key] != null ? CACHE[key] : (CACHE[key] = q.count());
+};
 
-exports.getExportQuery = ->
-  toRun = @query.clone()
-  columns = @model.get 'columns'
-  if columns?.length
-    toRun.select columns
-  return toRun
+exports.getExportQuery = function() {
+  const toRun = this.query.clone();
+  const columns = this.model.get('columns');
+  if (columns != null ? columns.length : undefined) {
+    toRun.select(columns);
+  }
+  return toRun;
+};
 
-exports.getExportURI = (overrides) ->
-  @getExportQuery().getExportURI @model.get('format').id, @getExportParameters overrides
+exports.getExportURI = function(overrides) {
+  return this.getExportQuery().getExportURI(this.model.get('format').id, this.getExportParameters(overrides));
+};
 
-exports.getFileName = -> "#{ @getBaseName() }.#{ @getFileExtension() }"
+exports.getFileName = function() { return `${ this.getBaseName() }.${ this.getFileExtension() }`; };
 
-exports.getBaseName = -> @model.get 'filename'
+exports.getBaseName = function() { return this.model.get('filename'); };
 
-exports.getFileExtension = -> @model.get('format').ext
+exports.getFileExtension = function() { return this.model.get('format').ext; };
 
-exports.getExportParameters = (overrides = {}) ->
-  data = @model.pick 'start', 'size', 'format', 'filename'
-  data.format = data.format.id
-  data.query = @getExportQuery().toXML()
-  if @model.get 'compress'
-    data.compress = @model.get 'compression'
-  if @model.get 'headers'
-    data.columnheaders = @model.get 'headerType'
-  # TODO - this is hacky - the model should reflect the request
-  if (data.format is 'json') and ('rows' isnt @model.get 'jsonFormat')
-    data.format += @model.get 'jsonFormat'
-  if (data.format is 'fasta') and (@model.get('fastaExtension'))
-    data.extension = @model.get('fastaExtension')
-  if (data.format is 'fasta') or (data.format is 'gff3')
-    data.view = @model.get 'columns'
-  _.extend data, overrides
+exports.getExportParameters = function(overrides) {
+  if (overrides == null) { overrides = {}; }
+  const data = this.model.pick('start', 'size', 'format', 'filename');
+  data.format = data.format.id;
+  data.query = this.getExportQuery().toXML();
+  if (this.model.get('compress')) {
+    data.compress = this.model.get('compression');
+  }
+  if (this.model.get('headers')) {
+    data.columnheaders = this.model.get('headerType');
+  }
+  // TODO - this is hacky - the model should reflect the request
+  if ((data.format === 'json') && ('rows' !== this.model.get('jsonFormat'))) {
+    data.format += this.model.get('jsonFormat');
+  }
+  if ((data.format === 'fasta') && (this.model.get('fastaExtension'))) {
+    data.extension = this.model.get('fastaExtension');
+  }
+  if ((data.format === 'fasta') || (data.format === 'gff3')) {
+    data.view = this.model.get('columns');
+  }
+  return _.extend(data, overrides);
+};

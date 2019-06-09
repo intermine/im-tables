@@ -1,50 +1,79 @@
-_ = require 'underscore'
-CoreView = require '../core-view'
-Templates = require '../templates'
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS206: Consider reworking classes to avoid initClass
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let InputWithButton;
+const _ = require('underscore');
+const CoreView = require('../core-view');
+const Templates = require('../templates');
 
-# Component that represents an input with an appended
-# button. This component keeps the model value in sync
-# with the displayed DOM value, and emits an 'act' event
-# when the button is clicked.
-module.exports = class InputWithButton extends CoreView
+// Component that represents an input with an appended
+// button. This component keeps the model value in sync
+// with the displayed DOM value, and emits an 'act' event
+// when the button is clicked.
+module.exports = (InputWithButton = (function() {
+  InputWithButton = class InputWithButton extends CoreView {
+    static initClass() {
+  
+      this.prototype.className = 'input-group';
+  
+      this.prototype.template = Templates.template('input-with-button');
+    }
 
-  className: 'input-group'
+    getData() { return _.extend(this.getBaseData(), {
+      value: this.model.get(this.sets),
+      placeholder: this.placeholder,
+      button: this.button
+    }
+    ); }
 
-  template: Templates.template 'input-with-button'
+    // If passed in with a model, then we set into that,
+    // otherwise maintain our own model value.
+    initialize({placeholder, button, sets}) {
+      this.placeholder = placeholder;
+      this.button = button;
+      this.sets = sets;
+      super.initialize(...arguments);
+      return this.sets != null ? this.sets : (this.sets = 'value');
+    }
 
-  getData: -> _.extend @getBaseData(),
-    value: @model.get @sets
-    placeholder: @placeholder
-    button: @button
+    postRender() {
+      return this.$el.addClass(this.className);
+    }
 
-  # If passed in with a model, then we set into that,
-  # otherwise maintain our own model value.
-  initialize: ({@placeholder, @button, @sets}) ->
-    super
-    @sets ?= 'value'
+    modelEvents() {
+      const e = {};
+      e[`change:${ this.sets }`] = this.setDomValue;
+      return e;
+    }
 
-  postRender: ->
-    @$el.addClass @className
+    events() {
+      return {
+        'keyup input': 'setModelValue',
+        'click button': 'act'
+      };
+    }
 
-  modelEvents: ->
-    e = {}
-    e["change:#{ @sets }"] = @setDomValue
-    return e
+    setModelValue(e) {
+      return this.model.set(this.sets, e.target.value);
+    }
 
-  events: ->
-    'keyup input': 'setModelValue'
-    'click button': 'act'
+    setDomValue() {
+      const value = this.model.get(this.sets);
+      const $input = this.$('input');
+      const domValue = $input.val();
 
-  setModelValue: (e) ->
-    @model.set @sets, e.target.value
+      if (domValue !== value) {
+        return $input.val(value);
+      }
+    }
 
-  setDomValue: ->
-    value = @model.get @sets
-    $input = @$ 'input'
-    domValue = $input.val()
-
-    if domValue isnt value
-      $input.val value
-
-  act: -> @trigger 'act', @model.get @sets
+    act() { return this.trigger('act', this.model.get(this.sets)); }
+  };
+  InputWithButton.initClass();
+  return InputWithButton;
+})());
 

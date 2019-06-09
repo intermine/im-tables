@@ -1,114 +1,161 @@
-_ = require 'underscore'
-Backbone = require 'backbone'
+/*
+ * decaffeinate suggestions:
+ * DS001: Remove Babel/TypeScript constructor workaround
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS206: Consider reworking classes to avoid initClass
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let SummaryItems;
+const _ = require('underscore');
+const Backbone = require('backbone');
 
-CoreView = require '../../core-view'
-Templates = require '../../templates'
-Messages = require '../../messages'
-SetsPathNames = require '../../mixins/sets-path-names'
+const CoreView = require('../../core-view');
+const Templates = require('../../templates');
+const Messages = require('../../messages');
+const SetsPathNames = require('../../mixins/sets-path-names');
 
-SummaryItemsControls = require './summary-items-controls'
-FacetRow = require './row'
+const SummaryItemsControls = require('./summary-items-controls');
+const FacetRow = require('./row');
 
-require '../../messages/summary'
+require('../../messages/summary');
 
-# Null safe event ignorer, and blocker.
-IGNORE = (e) -> if e?
-  e.preventDefault()
-  e.stopPropagation()
+// Null safe event ignorer, and blocker.
+const IGNORE = function(e) { if (e != null) {
+  e.preventDefault();
+  return e.stopPropagation();
+} };
 
-rowId = (model) -> "row_#{ model.get('id') }"
+const rowId = model => `row_${ model.get('id') }`;
 
-module.exports = class SummaryItems extends CoreView
+module.exports = (SummaryItems = (function() {
+  SummaryItems = class SummaryItems extends CoreView {
+    constructor(...args) {
+      {
+        // Hack: trick Babel/TypeScript into allowing this before super.
+        if (false) { super(); }
+        let thisFn = (() => { return this; }).toString();
+        let thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1];
+        eval(`${thisName} = this;`);
+      }
+      this.filterItems = this.filterItems.bind(this);
+      super(...args);
+    }
 
-  @include SetsPathNames
+    static initClass() {
+  
+      this.include(SetsPathNames);
+  
+      this.prototype.tagName = 'div';
+  
+      this.prototype.className = 'im-summary-items';
+  
+      // The template, and data used by templates
+  
+      this.prototype.template = Templates.template('summary_items');
+  
+      this.prototype.colClasses = ['im-item-selector', 'im-item-value', 'im-item-count'];
+    }
 
-  tagName: 'div'
+    stateEvents() { return {'change:error': this.setErrOnModel}; }
 
-  className: 'im-summary-items'
+    setErrOnModel() { return this.model.set(this.state.pick('error')); }
 
-  stateEvents: -> 'change:error': @setErrOnModel
+    initialize() {
+      super.initialize(...arguments);
+      this.listenTo(this.model.items, 'add', this.addItem);
+      this.listenTo(this.model.items, 'remove', this.removeItem);
+      this.listenTo(this.state, 'change:typeName change:endName', this.reRender);
+      return this.setPathNames();
+    }
 
-  setErrOnModel: -> @model.set @state.pick 'error'
+    // Things we need before we can start.
+    invariants() {
+      return {
+        modelHasItems: `expected a SummaryItems model, got: ${ this.model }`,
+        modelCanHasMore: `expected the correct model methods, got: ${ this.model }`
+      };
+    }
 
-  initialize: ->
-    super
-    @listenTo @model.items, 'add', @addItem
-    @listenTo @model.items, 'remove', @removeItem
-    @listenTo @state, 'change:typeName change:endName', @reRender
-    @setPathNames()
+    modelHasItems() { return (this.model != null ? this.model.items : undefined) instanceof Backbone.Collection; }
 
-  # Things we need before we can start.
-  invariants: ->
-    modelHasItems: "expected a SummaryItems model, got: #{ @model }"
-    modelCanHasMore: "expected the correct model methods, got: #{ @model }"
-
-  modelHasItems: -> @model?.items instanceof Backbone.Collection
-
-  modelCanHasMore: -> _.isFunction @model?.hasMore
-
-  # The template, and data used by templates
-
-  template: Templates.template 'summary_items'
+    modelCanHasMore() { return _.isFunction(this.model != null ? this.model.hasMore : undefined); }
  
-  getData: -> _.extend super,
-    hasMore: @model.hasMore()
-    colClasses: (_.result @, 'colClasses')
-    colHeaders: (_.result @, 'colHeaders')
+    getData() { return _.extend(super.getData(...arguments), {
+      hasMore: this.model.hasMore(),
+      colClasses: (_.result(this, 'colClasses')),
+      colHeaders: (_.result(this, 'colHeaders'))
+    }
+    ); }
 
-  colClasses: ['im-item-selector', 'im-item-value', 'im-item-count']
+    colHeaders() {
+      const itemColHeader = this.state.has('typeName') ?
+        `${ this.state.get('typeName') } ${ this.state.get('endName') }`
+      :
+        Messages.getText('summary.Item');
 
-  colHeaders: ->
-    itemColHeader = if @state.has 'typeName'
-      "#{ @state.get 'typeName' } #{ @state.get 'endName' }"
-    else
-      Messages.getText 'summary.Item'
+      return [' ', itemColHeader, (Messages.getText('summary.Count'))];
+    }
 
-    [' ', itemColHeader, (Messages.getText 'summary.Count')]
+    // Subviews and post-render actions.
 
-  # Subviews and post-render actions.
+    postRender() {
+      this.tbody = this.$('.im-item-table tbody');
+      if (!this.tbody.length) { throw new Error('Could not find table'); }
+      this.addControls();
+      return this.addItems();
+    }
 
-  postRender: ->
-    @tbody = @$ '.im-item-table tbody'
-    throw new Error 'Could not find table' unless @tbody.length
-    @addControls()
-    @addItems()
+    addControls() {
+      return this.renderChildAt('.im-summary-controls', (new SummaryItemsControls({model: this.model})));
+    }
 
-  addControls: ->
-    @renderChildAt '.im-summary-controls', (new SummaryItemsControls {@model})
+    addItems(from) { if (from == null) { from = 0; } if (this.rendered && (from < this.model.items.length)) {
+      const next = from + 100;
+      return _.defer(() => {
+        const frag = document.createDocumentFragment();
+        this.model.items.slice(from, next).forEach(item => this.addItem(item, frag));
+        this.tbody.append(frag);
+        return this.addItems(next);
+      });
+    } }
 
-  addItems: (from = 0) -> if @rendered and from < @model.items.length
-    next = from + 100
-    _.defer =>
-      frag = document.createDocumentFragment()
-      @model.items.slice(from, next).forEach (item) => @addItem item, frag
-      @tbody.append frag
-      @addItems next
+    addItem(model, body) { if (this.rendered) { // Wait until rendered.
+      return this.renderChild((rowId(model)), (new FacetRow({model})), (body != null ? body : this.tbody));
+    } }
 
-  addItem: (model, body) -> if @rendered # Wait until rendered.
-    @renderChild (rowId model), (new FacetRow {model}), (body ? @tbody)
+    removeItem(model) { return this.removeChild(rowId(model)); }
 
-  removeItem: (model) -> @removeChild rowId model
+    // Event definitions and their handlers
 
-  # Event definitions and their handlers
+    events() {
+      return {
+        'click .im-load-more': 'loadMoreItems',
+        'click .im-clear-value-filter': 'clearValueFilter',
+        'keyup .im-filter-values': (_.throttle(this.filterItems, 250, {leading: false})),
+        'submit': IGNORE, // not a real form - do not submit.
+        'click': IGNORE // trap bubbled events.
+      };
+    }
 
-  events: ->
-    'click .im-load-more': 'loadMoreItems'
-    'click .im-clear-value-filter': 'clearValueFilter'
-    'keyup .im-filter-values': (_.throttle @filterItems, 250, leading: false)
-    'submit': IGNORE # not a real form - do not submit.
-    'click': IGNORE # trap bubbled events.
+    loadMoreItems() {
+      if (this.model.get('loading')) { return; }
+      return this.model.increaseLimit(2);
+    }
 
-  loadMoreItems: ->
-    return if @model.get 'loading'
-    @model.increaseLimit 2
+    clearValueFilter() {
+      const $input = this.$('.im-filter-values');
+      $input.val(null);
+      return this.model.setFilterTerm(null);
+    }
 
-  clearValueFilter: ->
-    $input = @$ '.im-filter-values'
-    $input.val null
-    @model.setFilterTerm null
-
-  filterItems: (e) => # Bound method because it is throttled in events.
-    $input = @$ '.im-filter-values'
-    val = $input.val()
-    @model.setFilterTerm $input.val()
+    filterItems(e) { // Bound method because it is throttled in events.
+      const $input = this.$('.im-filter-values');
+      const val = $input.val();
+      return this.model.setFilterTerm($input.val());
+    }
+  };
+  SummaryItems.initClass();
+  return SummaryItems;
+})());
 

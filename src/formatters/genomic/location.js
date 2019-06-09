@@ -1,7 +1,13 @@
-simpleFormatter = require '../../utils/simple-formatter'
+/*
+ * decaffeinate suggestions:
+ * DS101: Remove unnecessary use of Array.from
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let FIELDS;
+const simpleFormatter = require('../../utils/simple-formatter');
 
-[chr] = FIELDS = ['locatedOn.primaryIdentifier', 'start', 'end']
-formatter = (loc) -> "#{ loc[chr] }:#{ loc.start }..#{ loc.end }"
-classes = 'monospace-text'
+const [chr] = Array.from((FIELDS = ['locatedOn.primaryIdentifier', 'start', 'end']));
+const formatter = loc => `${ loc[chr] }:${ loc.start }..${ loc.end }`;
+const classes = 'monospace-text';
 
-module.exports = simpleFormatter 'Location', FIELDS, formatter, classes
+module.exports = simpleFormatter('Location', FIELDS, formatter, classes);

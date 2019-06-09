@@ -1,33 +1,56 @@
-# We may still need these...
-modelIsBio = (model) -> !!model?.classes['Gene']
+/*
+ * decaffeinate suggestions:
+ * DS101: Remove unnecessary use of Array.from
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS205: Consider reworking code to avoid use of IIFEs
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+// We may still need these...
+const modelIsBio = model => !!(model != null ? model.classes['Gene'] : undefined);
 
-requiresAuthentication = (q) -> _.any q.constraints, (c) -> c.op in ['NOT IN', 'IN']
+const requiresAuthentication = q => _.any(q.constraints, c => ['NOT IN', 'IN'].includes(c.op));
 
-organisable = (path) ->
-  path.getEndClass().name is 'Organism' or path.getType().fields['organism']?
+const organisable = path => (path.getEndClass().name === 'Organism') || (path.getType().fields['organism'] != null);
 
-getOrganisms = (q, cb) -> $.when(q).then (query) ->
-  def = $.Deferred()
-  def.done cb if cb?
-  done = _.compose def.resolve, uniquelyFlat
+const getOrganisms = (q, cb) => $.when(q).then(function(query) {
+  const def = $.Deferred();
+  if (cb != null) { def.done(cb); }
+  const done = _.compose(def.resolve, uniquelyFlat);
 
-  mustBe = ((c.value or c.values) for c in query.constraints when (
-    (c.op in ['=', 'ONE OF', 'LOOKUP']) and c.path.match(/(o|O)rganism(\.\w+)?$/)))
+  const mustBe = ((() => {
+    const result = [];
+    for (let c of Array.from(query.constraints)) {       if ((['=', 'ONE OF', 'LOOKUP'].includes(c.op)) && c.path.match(/(o|O)rganism(\.\w+)?$/)) {
+        result.push((c.value || c.values));
+      }
+    }
+    return result;
+  })());
 
-  if mustBe.length
-    done mustBe
-  else
-    toRun = query.clone()
-    newView = for n in toRun.getViewNodes() when organisable n
-      opath = if n.getEndClass().name is 'Organism' then n else n.append('organism')
-      opath.append 'shortName'
+  if (mustBe.length) {
+    done(mustBe);
+  } else {
+    const toRun = query.clone();
+    const newView = (() => {
+      const result1 = [];
+      for (let n of Array.from(toRun.getViewNodes())) {
+        if (organisable(n)) {
+          const opath = n.getEndClass().name === 'Organism' ? n : n.append('organism');
+          result1.push(opath.append('shortName'));
+        }
+      }
+      return result1;
+    })();
 
-    if newView.length
-      toRun.select(_.uniq newView, String)
+    if (newView.length) {
+      toRun.select(_.uniq(newView, String))
             .orderBy([])
             .rows()
-            .then(done, -> done [])
-    else
-      done []
+            .then(done, () => done([]));
+    } else {
+      done([]);
+    }
+  }
 
-  return def.promise()
+  return def.promise();
+}) ;

@@ -1,29 +1,50 @@
-Collection = require '../core/collection'
-PathModel = require './path'
+/*
+ * decaffeinate suggestions:
+ * DS101: Remove unnecessary use of Array.from
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS206: Consider reworking classes to avoid initClass
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let AvailableColumns;
+const Collection = require('../core/collection');
+const PathModel = require('./path');
 
-cmp = (f, a, b) ->
-  [fa, fb] = (f x for x in [a, b])
-  if fa < fb
-    -1
-  else if fa > fb
-    1
-  else
-    0
+const cmp = function(f, a, b) {
+  const [fa, fb] = Array.from(([a, b].map((x) => f(x))));
+  if (fa < fb) {
+    return -1;
+  } else if (fa > fb) {
+    return 1;
+  } else {
+    return 0;
+  }
+};
 
-partsLen = (m) -> m.get('parts').length
-displayName = (m) -> m.get 'displayName'
+const partsLen = m => m.get('parts').length;
+const displayName = m => m.get('displayName');
 
-module.exports = class AvailableColumns extends Collection
+module.exports = (AvailableColumns = (function() {
+  AvailableColumns = class AvailableColumns extends Collection {
+    static initClass() {
+  
+      this.prototype.model = PathModel;
+    }
 
-  model: PathModel
+    add(model) {
+      const returned = super.add(...arguments);
+      if (returned && (returned.collection == null)) { return returned.collection = this; }
+    }
 
-  add: (model) ->
-    returned = super
-    if returned and !returned.collection? then returned.collection = @
+    initialize() {
+      super.initialize(...arguments);
+      return this.on('change:parts change:displayName', () => this.sort());
+    }
 
-  initialize: ->
-    super
-    @on 'change:parts change:displayName', => @sort()
-
-  comparator: (a, b) -> # sort by path-length, and then lexically by attribute name.
-    (cmp partsLen, a, b) or (cmp displayName, a, b)
+    comparator(a, b) { // sort by path-length, and then lexically by attribute name.
+      return (cmp(partsLen, a, b)) || (cmp(displayName, a, b));
+    }
+  };
+  AvailableColumns.initClass();
+  return AvailableColumns;
+})());

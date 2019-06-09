@@ -1,117 +1,169 @@
-_ = require 'underscore'
+/*
+ * decaffeinate suggestions:
+ * DS001: Remove Babel/TypeScript constructor workaround
+ * DS101: Remove unnecessary use of Array.from
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS206: Consider reworking classes to avoid initClass
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let ConstraintAdder;
+const _ = require('underscore');
 
-# Support
-Messages = require '../messages'
-Templates = require '../templates'
-View = require '../core-view'
-CoreModel = require '../core-model'
-PathSet = require '../models/path-set'
-OpenNodes = require '../models/open-nodes'
+// Support
+const Messages = require('../messages');
+const Templates = require('../templates');
+const View = require('../core-view');
+const CoreModel = require('../core-model');
+const PathSet = require('../models/path-set');
+const OpenNodes = require('../models/open-nodes');
 
-# Sub-views
-ConstraintAdderOptions = require './constraint-adder-options'
-NewConstraint = require './new-constraint'
-PathChooser = require './path-chooser'
+// Sub-views
+const ConstraintAdderOptions = require('./constraint-adder-options');
+const NewConstraint = require('./new-constraint');
+const PathChooser = require('./path-chooser');
 
-# Text strings
-Messages.set
-  'constraints.BrowseForColumn': 'Browse for Column'
-  'constraints.AddANewFilter': 'Add a new filter'
-  'constraints.Choose': 'Choose'
-  'constraints.Filter': 'Filter'
-  'columns.CollapseAll': 'Collapse columns'
+// Text strings
+Messages.set({
+  'constraints.BrowseForColumn': 'Browse for Column',
+  'constraints.AddANewFilter': 'Add a new filter',
+  'constraints.Choose': 'Choose',
+  'constraints.Filter': 'Filter',
+  'columns.CollapseAll': 'Collapse columns',
   'columns.AllowRevRef': 'Allow reverse references'
+});
 
-class ConstraintAdderModel extends CoreModel
+class ConstraintAdderModel extends CoreModel {
   
-  defaults: ->
-    filter: null              # No filter by default, but in the model for templates.
-    showTree: true            # Should we be showing the tree?
-    allowRevRefs: false       # Can we expand reverse references?
-    canSelectReferences: true # Can we select references?
-    multiSelect: false        # Can we select multiple paths?
+  defaults() {
+    return {
+      filter: null,              // No filter by default, but in the model for templates.
+      showTree: true,            // Should we be showing the tree?
+      allowRevRefs: false,       // Can we expand reverse references?
+      canSelectReferences: true, // Can we select references?
+      multiSelect: false        // Can we select multiple paths?
+    };
+  }
+}
 
-OPTIONS_SEL = '.im-constraint-adder-options'
+const OPTIONS_SEL = '.im-constraint-adder-options';
 
-module.exports = class ConstraintAdder extends View
+module.exports = (ConstraintAdder = (function() {
+  ConstraintAdder = class ConstraintAdder extends View {
+    constructor(...args) {
+      {
+        // Hack: trick Babel/TypeScript into allowing this before super.
+        if (false) { super(); }
+        let thisFn = (() => { return this; }).toString();
+        let thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1];
+        eval(`${thisName} = this;`);
+      }
+      this.showTree = this.showTree.bind(this);
+      super(...args);
+    }
 
-  tagName: 'div'
-
-  className: 'im-constraint-adder row-fluid'
+    static initClass() {
   
-  Model: ConstraintAdderModel
+      this.prototype.tagName = 'div';
+  
+      this.prototype.className = 'im-constraint-adder row-fluid';
+    
+      this.prototype.Model = ConstraintAdderModel;
+  
+      this.prototype.template = Templates.template('constraint_adder');
+    }
 
-  initialize: ({@query, @buttonDelegate}) ->
-    super
-    @model.set
-      root: @query.getPathInfo(@query.root) # Should never change.
+    initialize({query, buttonDelegate}) {
+      this.query = query;
+      this.buttonDelegate = buttonDelegate;
+      super.initialize(...arguments);
+      this.model.set({
+        root: this.query.getPathInfo(this.query.root)}); // Should never change.
 
-    @chosenPaths = new PathSet
-    @view = new PathSet(@query.makePath p for p in @query.views)
-    @openNodes = new OpenNodes @query.getViewNodes() # Open by default
-    @listenTo @query, 'change:constraints', @remove # our job is done
+      this.chosenPaths = new PathSet;
+      this.view = new PathSet(Array.from(this.query.views).map((p) => this.query.makePath(p)));
+      this.openNodes = new OpenNodes(this.query.getViewNodes()); // Open by default
+      return this.listenTo(this.query, 'change:constraints', this.remove); // our job is done
+    }
 
-  modelEvents: ->
-    approved: @handleApproval
-    'change:showTree': @toggleTree
-    'change:constraint': @onChangeConstraint
+    modelEvents() {
+      return {
+        approved: this.handleApproval,
+        'change:showTree': this.toggleTree,
+        'change:constraint': this.onChangeConstraint
+      };
+    }
 
-  getTreeRoot: -> @model.get 'root'
+    getTreeRoot() { return this.model.get('root'); }
 
-  handleApproval: ->
-    [chosen] = @chosenPaths.toJSON()
-    if chosen?
-      current = @model.get 'constraint'
-      newPath = chosen.toString()
-      if current?.path isnt newPath
-        constraint = path: newPath
-        @model.set {constraint}
-        # likely not necessary - remove? Tells containers which phase we are in.
-        @query.trigger 'editing-constraint', constraint
-      else # Path hasn't changed - go back to the constraint.
-        @onChangeConstraint()
-    else
-      console.debug 'nothing chosen'
-      @model.unset 'constraint'
+    handleApproval() {
+      const [chosen] = Array.from(this.chosenPaths.toJSON());
+      if (chosen != null) {
+        const current = this.model.get('constraint');
+        const newPath = chosen.toString();
+        if ((current != null ? current.path : undefined) !== newPath) {
+          const constraint = {path: newPath};
+          this.model.set({constraint});
+          // likely not necessary - remove? Tells containers which phase we are in.
+          return this.query.trigger('editing-constraint', constraint);
+        } else { // Path hasn't changed - go back to the constraint.
+          return this.onChangeConstraint();
+        }
+      } else {
+        console.debug('nothing chosen');
+        return this.model.unset('constraint');
+      }
+    }
 
-  renderConstraintEditor: ->
-    constraint = @model.get 'constraint'
-    editor = new NewConstraint {@buttonDelegate, @query, constraint}
-    @renderChild 'con', editor, @$ '.im-new-constraint'
-    @listenTo editor, 'remove', -> @model.set showTree: true
+    renderConstraintEditor() {
+      const constraint = this.model.get('constraint');
+      const editor = new NewConstraint({buttonDelegate: this.buttonDelegate, query: this.query, constraint});
+      this.renderChild('con', editor, this.$('.im-new-constraint'));
+      return this.listenTo(editor, 'remove', function() { return this.model.set({showTree: true}); });
+    }
 
-  onChangeConstraint: -> if @rendered
-    if @model.get 'constraint'
-      @model.set showTree: false
-      @renderConstraintEditor()
-    else
-      @removeChild 'con'
+    onChangeConstraint() { if (this.rendered) {
+      if (this.model.get('constraint')) {
+        this.model.set({showTree: false});
+        return this.renderConstraintEditor();
+      } else {
+        return this.removeChild('con');
+      }
+    } }
 
-  toggleTree: ->
-    if @model.get('showTree')
-      @showTree()
-    else
-      @hideTree()
+    toggleTree() {
+      if (this.model.get('showTree')) {
+        return this.showTree();
+      } else {
+        return this.hideTree();
+      }
+    }
 
-  hideTree: ->
-    @trigger 'resetting:tree'
-    @$('.im-path-finder').removeClass('open')
-    @removeChild 'tree'
+    hideTree() {
+      this.trigger('resetting:tree');
+      this.$('.im-path-finder').removeClass('open');
+      return this.removeChild('tree');
+    }
 
-  showTree: (e) =>
-    @trigger 'showing:tree'
-    @removeChild 'con' # Either show the tree or the constraint editor, not both.
-    pathFinder = new PathChooser {@model, @query, @chosenPaths, @openNodes, @view, trail: []}
-    @$('.im-path-finder').addClass('open')
-    @renderChild 'tree', pathFinder, @$ '.im-path-finder'
+    showTree(e) {
+      this.trigger('showing:tree');
+      this.removeChild('con'); // Either show the tree or the constraint editor, not both.
+      const pathFinder = new PathChooser({model: this.model, query: this.query, chosenPaths: this.chosenPaths, openNodes: this.openNodes, view: this.view, trail: []});
+      this.$('.im-path-finder').addClass('open');
+      return this.renderChild('tree', pathFinder, this.$('.im-path-finder'));
+    }
 
-  template: Templates.template 'constraint_adder'
+    renderOptions() {
+      const opts = {model: this.model, openNodes: this.openNodes, chosenPaths: this.chosenPaths, query: this.query};
+      return this.renderChild('opts', (new ConstraintAdderOptions(opts)), this.$(OPTIONS_SEL));
+    }
 
-  renderOptions: ->
-    opts = {@model, @openNodes, @chosenPaths, @query}
-    @renderChild 'opts', (new ConstraintAdderOptions opts), @$ OPTIONS_SEL
-
-  postRender: ->
-    @renderOptions()
-    @toggleTree() # respect the open status.
+    postRender() {
+      this.renderOptions();
+      return this.toggleTree();
+    }
+  };
+  ConstraintAdder.initClass();
+  return ConstraintAdder; // respect the open status.
+})());
 

@@ -1,65 +1,93 @@
-CoreModel = require '../core-model'
-Collection = require '../core/collection'
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS206: Consider reworking classes to avoid initClass
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let SelectedObjects;
+const CoreModel = require('../core-model');
+const Collection = require('../core/collection');
 
-types = require '../core/type-assertions'
+const types = require('../core/type-assertions');
 
-# This class defines our expectations for the data that 
-# the selected objects collection contains.
-class SelectionModel extends CoreModel
+// This class defines our expectations for the data that 
+// the selected objects collection contains.
+class SelectionModel extends CoreModel {
 
-  defaults: ->
-    'class': null
-    'id': null
+  defaults() {
+    return {
+      'class': null,
+      'id': null
+    };
+  }
 
-  validate: (attrs, opts) ->
-    if 'class' of attrs
-      return '"class" must not be null' unless attrs['class']?
+  validate(attrs, opts) {
+    if ('class' in attrs) {
+      if (attrs['class'] == null) { return '"class" must not be null'; }
+    }
 
-    if 'id' of attrs
-      return '"id" must not be null' unless attrs.id?
+    if ('id' in attrs) {
+      if (attrs.id == null) { return '"id" must not be null'; }
+    }
 
-    return false
+    return false;
+  }
+}
 
-# A collection that monitors its contents and calculates some
-# aggregate values based on them - specificially the common
-# type of its contents.
-module.exports = class SelectedObjects extends Collection
+// A collection that monitors its contents and calculates some
+// aggregate values based on them - specificially the common
+// type of its contents.
+module.exports = (SelectedObjects = (function() {
+  SelectedObjects = class SelectedObjects extends Collection {
+    static initClass() {
+  
+      this.prototype.model = SelectionModel;
+    }
 
-  model: SelectionModel
+    constructor(service) {
+      super();
+      types.assertMatch(types.Service, service, 'service');
+      this.state = new CoreModel({node: null, commonType: null, typeName: null});
+      this.listenTo(this.state, 'change:commonType', this.onChangeType);
+      this.listenTo(this.state, 'change:node', this.onChangeNode);
+      this.listenTo(this, 'add remove reset', this.setType);
+      service.fetchModel().then(schema => { this.schema = schema; return this.setType(); });
+    }
 
-  constructor: (service) ->
-    super()
-    types.assertMatch types.Service, service, 'service'
-    @state = new CoreModel node: null, commonType: null, typeName: null
-    @listenTo @state, 'change:commonType', @onChangeType
-    @listenTo @state, 'change:node', @onChangeNode
-    @listenTo @, 'add remove reset', @setType
-    service.fetchModel().then (@schema) => @setType()
+    onChangeNode() { return this.trigger('change:node change', this.state.get('node')); }
 
-  onChangeNode: -> @trigger 'change:node change', @state.get('node')
+    onChangeType() {
+      if (this.schema == null) { return; } // wait until we have the data model.
+      const type = this.state.get('commonType');
+      if (type == null) { return this.state.set({typeName: null}); }
+      const path = this.schema.makePath(type);
+      path.getDisplayName().then(name => {
+        this.state.set({typeName: name});
+        return this.trigger('change:typeName change');
+      });
+      return this.trigger('change:commonType change');
+    }
 
-  onChangeType: ->
-    return unless @schema? # wait until we have the data model.
-    type = @state.get('commonType')
-    return @state.set(typeName: null) unless type?
-    path = @schema.makePath type
-    path.getDisplayName().then (name) =>
-      @state.set typeName: name
-      @trigger 'change:typeName change'
-    @trigger 'change:commonType change'
+    setType() {
+      if (this.schema == null) { return; } // wait until we have the data model.
 
-  setType: ->
-    return unless @schema? # wait until we have the data model.
+      var commonType = this.size() ?
+        (commonType = this.schema.findCommonType(this.map(o => o.get('class'))))
+      :
+        null;
 
-    commonType = if @size()
-      commonType = @schema.findCommonType @map (o) -> o.get 'class'
-    else
-      null
-
-    if commonType?
-      @state.set commonType: commonType
-    else
-      @state.set
-        commonType: null
-        typeName: null
+      if (commonType != null) {
+        return this.state.set({commonType});
+      } else {
+        return this.state.set({
+          commonType: null,
+          typeName: null
+        });
+      }
+    }
+  };
+  SelectedObjects.initClass();
+  return SelectedObjects;
+})());
 

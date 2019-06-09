@@ -1,52 +1,83 @@
-CoreView = require '../../core-view'
-SubtableHeader = require './subtable-header'
-buildSkipped = require '../../utils/build-skipset'
+/*
+ * decaffeinate suggestions:
+ * DS101: Remove unnecessary use of Array.from
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS205: Consider reworking code to avoid use of IIFEs
+ * DS206: Consider reworking classes to avoid initClass
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let SubtableInner;
+const CoreView = require('../../core-view');
+const SubtableHeader = require('./subtable-header');
+const buildSkipped = require('../../utils/build-skipset');
 
-# This class renders the rows and column headers of
-# nested subtables. It is a thin wrapper around the 
-# subcomponents that render the column headers and
-# cells.
-module.exports = class SubtableInner extends CoreView
+// This class renders the rows and column headers of
+// nested subtables. It is a thin wrapper around the 
+// subcomponents that render the column headers and
+// cells.
+module.exports = (SubtableInner = (function() {
+  SubtableInner = class SubtableInner extends CoreView {
+    static initClass() {
+  
+      this.prototype.tagName = 'table';
+  
+      this.prototype.className = 'im-subtable table table-condensed table-striped';
+  
+      this.prototype.parameters = [ // things we want from the SubTable
+        'query',
+        'headers',
+        'model',
+        'rows',
+        'cellify',
+      ];
+    }
 
-  tagName: 'table'
+    render() {
+      this.removeAllChildren();
+      if (this.rendered) { this.el.innerHTML = ''; }
+      if (this.headers.length > 1) { this.renderHead(); }
+      const tbody = document.createElement('tbody');
+      for (let i = 0; i < this.rows.length; i++) {
+        const row = this.rows[i];
+        this.appendRow(row, i, tbody);
+      }
+      this.el.appendChild(tbody);
+      this.trigger('rendered', (this.rendered = true));
+      return this;
+    }
 
-  className: 'im-subtable table table-condensed table-striped'
+    renderHead(table) {
+      const head = new SubtableHeader({
+        query: this.query,
+        collection: this.headers,
+        columnModel: this.model
+      });
+      return this.renderChild('thead', head, table);
+    }
 
-  parameters: [ # things we want from the SubTable
-    'query'
-    'headers',
-    'model',
-    'rows',
-    'cellify',
-  ]
+    buildSkipped(cells) { return this._skipped != null ? this._skipped : (this._skipped = buildSkipped(cells, this.headers)); }
 
-  render: ->
-    @removeAllChildren()
-    @el.innerHTML = '' if @rendered
-    @renderHead() if @headers.length > 1
-    tbody = document.createElement('tbody')
-    for row, i in @rows
-      @appendRow row, i, tbody
-    @el.appendChild tbody
-    @trigger 'rendered', @rendered = true
-    return this
+    appendRow(row, i, tbody) {
+      const tr = document.createElement('tr');
+      tbody.appendChild(tr);
+      const cells = (Array.from(row).map((c) => this.cellify(c)));
 
-  renderHead: (table) ->
-    head = new SubtableHeader
-      query: @query
-      collection: @headers
-      columnModel: @model
-    @renderChild 'thead', head, table
+      const skipped = this.buildSkipped(cells);
 
-  buildSkipped: (cells) -> @_skipped ?= buildSkipped cells, @headers
-
-  appendRow: (row, i, tbody) ->
-    tr = document.createElement 'tr'
-    tbody.appendChild tr
-    cells = (@cellify c for c in row)
-
-    skipped = @buildSkipped cells
-
-    for cell, j in cells when not skipped[cell.model.get('column')]
-      @renderChild "cell-#{ i }-#{ j }", cell, tr
+      return (() => {
+        const result = [];
+        for (let j = 0; j < cells.length; j++) {
+          const cell = cells[j];
+          if (!skipped[cell.model.get('column')]) {
+            result.push(this.renderChild(`cell-${ i }-${ j }`, cell, tr));
+          }
+        }
+        return result;
+      })();
+    }
+  };
+  SubtableInner.initClass();
+  return SubtableInner;
+})());
 

@@ -1,39 +1,59 @@
-_ = require 'underscore'
-CoreModel = require '../core-model'
-CoreCollection = require '../core/collection'
+/*
+ * decaffeinate suggestions:
+ * DS101: Remove unnecessary use of Array.from
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let CreateListModel;
+const _ = require('underscore');
+const CoreModel = require('../core-model');
+const CoreCollection = require('../core/collection');
 
-ON_COMMA = /,\s*/
+const ON_COMMA = /,\s*/;
 
-trim = (s) -> s.replace(/(^\s+|\s+$)/g, '')
+const trim = s => s.replace(/(^\s+|\s+$)/g, '');
 
-module.exports = class CreateListModel extends CoreModel
+module.exports = (CreateListModel = class CreateListModel extends CoreModel {
 
-  defaults: ->
-    name: null
-    description: null
+  defaults() {
+    return {
+      name: null,
+      description: null
+    };
+  }
 
-  initialize: ->
-    @tags = new CoreCollection
-    if @has 'tags'
-      @tags.reset( {id: tag} for tag in @get 'tags' )
-    @listenTo @tags, 'remove', (t) =>
-      @trigger 'remove:tag', t
-      @trigger 'change'
-    @listenTo @tags, 'add', (t) =>
-      @trigger 'add:tag', t
-      @trigger 'change'
+  initialize() {
+    this.tags = new CoreCollection;
+    if (this.has('tags')) {
+      this.tags.reset( Array.from(this.get('tags')).map((tag) => ({id: tag})) );
+    }
+    this.listenTo(this.tags, 'remove', t => {
+      this.trigger('remove:tag', t);
+      return this.trigger('change');
+    });
+    return this.listenTo(this.tags, 'add', t => {
+      this.trigger('add:tag', t);
+      return this.trigger('change');
+    });
+  }
 
-  toJSON: -> _.extend super, tags: @tags.map (t) -> t.get 'id'
+  toJSON() { return _.extend(super.toJSON(...arguments), {tags: this.tags.map(t => t.get('id'))}); }
 
-  addTag: ->
-    tags = @get 'nextTag'
-    throw new Error('No tag to add') unless tags?
-    @unset 'nextTag'
-    for tag in trim(tags).split ON_COMMA
-      @tags.add {id: tag}
+  addTag() {
+    const tags = this.get('nextTag');
+    if (tags == null) { throw new Error('No tag to add'); }
+    this.unset('nextTag');
+    return Array.from(trim(tags).split(ON_COMMA)).map((tag) =>
+      this.tags.add({id: tag}));
+  }
 
-  destroy: ->
-    @tags?.close()
-    super
+  destroy() {
+    if (this.tags != null) {
+      this.tags.close();
+    }
+    return super.destroy(...arguments);
+  }
+});
 
 

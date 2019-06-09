@@ -1,19 +1,36 @@
-_ = require 'underscore'
-ModalBody = require './main'
-Templates = require '../../templates'
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS206: Consider reworking classes to avoid initClass
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let CompressionControls;
+const _ = require('underscore');
+const ModalBody = require('./main');
+const Templates = require('../../templates');
 
-module.exports = class CompressionControls extends ModalBody
+module.exports = (CompressionControls = (function() {
+  CompressionControls = class CompressionControls extends ModalBody {
+    static initClass() {
+  
+      this.prototype.RERENDER_EVENT = 'change';
+  
+      this.prototype.tagName = 'form';
+  
+      this.prototype.template = Templates.template('export_compression_controls');
+  }
 
-  RERENDER_EVENT: 'change'
+    setCompression(type) { return () => this.model.set({compression: type}); }
 
-  tagName: 'form'
-
-  template: Templates.template 'export_compression_controls'
-
-  setCompression: (type) -> => @model.set compression: type
-
-  events: ->
-    'click .im-compress': => @model.toggle 'compress'
-    'click input[name=gzip]': @setCompression 'gzip'
-    'click input[name=zip]': @setCompression 'zip'
+    events() {
+      return {
+          'click .im-compress': () => this.model.toggle('compress'),
+          'click input[name=gzip]': this.setCompression('gzip'),
+          'click input[name=zip]': this.setCompression('zip')
+      };
+  }
+};
+  CompressionControls.initClass();
+  return CompressionControls;
+})());
 

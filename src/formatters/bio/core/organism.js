@@ -1,26 +1,40 @@
-define 'formatters/bio/core/organism', ->
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+define('formatters/bio/core/organism', function() {
 
-  getData = (model, prop, backupProp) ->
-    ret = {}
-    val = ret[prop] = model.get prop
-    unless val?
-      ret[prop] = model.get backupProp
-    return ret
+  let Organism;
+  const getData = function(model, prop, backupProp) {
+    const ret = {};
+    const val = (ret[prop] = model.get(prop));
+    if (val == null) {
+      ret[prop] = model.get(backupProp);
+    }
+    return ret;
+  };
 
-  ensureData = (model, service) ->
-    return if model._fetching? or model.has 'shortName'
-    model._fetching = p = service.findById 'Organism', model.get 'id'
-    p.done (org) -> model.set shortName: org.shortName
+  const ensureData = function(model, service) {
+    let p;
+    if ((model._fetching != null) || model.has('shortName')) { return; }
+    model._fetching = (p = service.findById('Organism', model.get('id')));
+    return p.done(org => model.set({shortName: org.shortName}));
+  };
 
-  templ = _.template """<span class="name"><%- shortName %></span>"""
+  const templ = _.template("<span class=\"name\"><%- shortName %></span>");
 
-  Organism = (model) ->
-    @$el.addClass 'organism'
-    ensureData model, @model.get('query').service
+  return Organism = function(model) {
+    this.$el.addClass('organism');
+    ensureData(model, this.model.get('query').service);
 
-    if model.get 'id'
-      data = getData model, 'shortName', 'name'
-      templ data
-    else
-      """<span class="null-value">&nbsp;</span>"""
+    if (model.get('id')) {
+      const data = getData(model, 'shortName', 'name');
+      return templ(data);
+    } else {
+      return "<span class=\"null-value\">&nbsp;</span>";
+    }
+  };
+});
 

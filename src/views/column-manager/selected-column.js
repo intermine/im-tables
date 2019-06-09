@@ -1,103 +1,132 @@
-_ = require 'underscore'
+/*
+ * decaffeinate suggestions:
+ * DS101: Remove unnecessary use of Array.from
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS206: Consider reworking classes to avoid initClass
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let SelectedColumn;
+const _ = require('underscore');
 
-CoreView = require '../../core-view'
-Collection = require '../../core/collection'
-Templates = require '../../templates'
+const CoreView = require('../../core-view');
+const Collection = require('../../core/collection');
+const Templates = require('../../templates');
 
-PathModel = require '../../models/path'
+const PathModel = require('../../models/path');
 
-{ignore} = require '../../utils/events'
+const {ignore} = require('../../utils/events');
 
-decr = (i) -> i - 1
-incr = (i) -> i + 1
+const decr = i => i - 1;
+const incr = i => i + 1;
 
-TEMPLATE_PARTS = [
+const TEMPLATE_PARTS = [
   'column-manager-path-remover',
   'column-manager-position-controls',
   'column-manager-path-name'
-]
+];
 
-# (*) Note that when we use the buttons to re-arrange, we do the swapping in
-# the event handlers. This is ugly, since we are updating the model _and_ the
-# DOM in the same method, rather than having the DOM reflect the model.
-# However, the reason for this is as follows: there are two ways to rearrange
-# the view - dragging or button clicks. Dragging does not need a re-render,
-# just a model update, which is performed in the parent component; Button
-# clicks don't need a re-render as such, just a re-arrangement, but
-# re-arranging on change:index would cause re-renders when the model is updated
-# after drag, causing flicker. Also, we don't really _need_ to re-render the
-# whole parent, just swap two neighbouring elements. Since this is easy to do,
-# it makes sense to do it here.
-#
-# As for the moveUp/moveDown methods - these are only available when the view
-# is not first/last, this they are null safe with regards to prev/next models.
-module.exports = class SelectedColumn extends CoreView
+// (*) Note that when we use the buttons to re-arrange, we do the swapping in
+// the event handlers. This is ugly, since we are updating the model _and_ the
+// DOM in the same method, rather than having the DOM reflect the model.
+// However, the reason for this is as follows: there are two ways to rearrange
+// the view - dragging or button clicks. Dragging does not need a re-render,
+// just a model update, which is performed in the parent component; Button
+// clicks don't need a re-render as such, just a re-arrangement, but
+// re-arranging on change:index would cause re-renders when the model is updated
+// after drag, causing flicker. Also, we don't really _need_ to re-render the
+// whole parent, just swap two neighbouring elements. Since this is easy to do,
+// it makes sense to do it here.
+//
+// As for the moveUp/moveDown methods - these are only available when the view
+// is not first/last, this they are null safe with regards to prev/next models.
+module.exports = (SelectedColumn = (function() {
+  SelectedColumn = class SelectedColumn extends CoreView {
+    static initClass() {
+  
+      this.prototype.Model = PathModel;
+  
+      this.prototype.tagName = 'li';
+  
+      this.prototype.className = 'list-group-item im-selected-column';
+  
+      this.prototype.template = Templates.templateFromParts(TEMPLATE_PARTS);
+  
+      this.prototype.removeTitle = 'columns.RemoveColumn';
+    }
 
-  Model: PathModel
+    getData() {
+      const isLast = (this.model === this.model.collection.last());
+      return _.extend(super.getData(...arguments), {removeTitle: this.removeTitle, isLast, parts: (this.parts.pluck('part'))});
+    }
 
-  tagName: 'li'
+    initialize() {
+      super.initialize(...arguments);
+      this.parts = new Collection;
+      this.listenTo(this.parts, 'add remove reset', this.reRender);
+      this.resetParts();
+      return this.listenTo(this.model.collection, 'sort', this.onCollectionSorted);
+    }
 
-  className: 'list-group-item im-selected-column'
+    modelEvents() {
+      return {
+        destroy: this.stopListeningTo,
+        'change:parts': this.resetParts
+      };
+    }
 
-  template: Templates.templateFromParts TEMPLATE_PARTS
+    stateEvents() {
+      return {'change:fullPath': this.setFullPathClass};
+    }
 
-  removeTitle: 'columns.RemoveColumn'
+    onCollectionSorted() { return this.reRender(); }
 
-  getData: ->
-    isLast = (@model is @model.collection.last())
-    _.extend super, {@removeTitle, isLast, parts: (@parts.pluck 'part')}
+    resetParts() { return this.parts.reset(Array.from(this.model.get('parts')).map((part, id) => ({part, id}))); }
 
-  initialize: ->
-    super
-    @parts = new Collection
-    @listenTo @parts, 'add remove reset', @reRender
-    @resetParts()
-    @listenTo @model.collection, 'sort', @onCollectionSorted
+    postRender() {
+      // Activate tooltips.
+      return this.$('[title]').tooltip({container: this.$el});
+    }
 
-  modelEvents: ->
-    destroy: @stopListeningTo
-    'change:parts': @resetParts
+    events() {
+      return {
+        'click .im-remove-view': 'removeView',
+        'click .im-move-up': 'moveUp',
+        'click .im-move-down': 'moveDown',
+        'click': 'toggleFullPath',
+        'binned': 'removeView'
+      };
+    }
 
-  stateEvents: ->
-    'change:fullPath': @setFullPathClass
+    toggleFullPath() { return this.state.toggle('fullPath'); }
 
-  onCollectionSorted: -> @reRender()
+    // Move this view element to the right.
+    moveDown(e) {
+      ignore(e);
+      const next = this.model.collection.at(incr(this.model.get('index')));
+      next.swap('index', decr);
+      this.model.swap('index', incr);
+      return this.$el.insertAfter(this.$el.next()); // this is ugly, but see *
+    }
 
-  resetParts: -> @parts.reset({part, id} for part, id in @model.get 'parts')
+    // Move this view element to the left.
+    moveUp(e) {
+      ignore(e);
+      const prev = this.model.collection.at(decr(this.model.get('index')));
+      prev.swap('index', incr);
+      this.model.swap('index', decr);
+      return this.$el.insertBefore(this.$el.prev()); // this is ugly, but see *
+    }
 
-  postRender: ->
-    # Activate tooltips.
-    @$('[title]').tooltip container: @$el
+    setFullPathClass() {
+      return this.$el.toggleClass('im-full-path', this.state.get('fullPath'));
+    }
 
-  events: ->
-    'click .im-remove-view': 'removeView'
-    'click .im-move-up': 'moveUp'
-    'click .im-move-down': 'moveDown'
-    'click': 'toggleFullPath'
-    'binned': 'removeView'
-
-  toggleFullPath: -> @state.toggle 'fullPath'
-
-  # Move this view element to the right.
-  moveDown: (e) ->
-    ignore e
-    next = @model.collection.at incr @model.get 'index'
-    next.swap 'index', decr
-    @model.swap 'index', incr
-    @$el.insertAfter @$el.next() # this is ugly, but see *
-
-  # Move this view element to the left.
-  moveUp: (e) ->
-    ignore e
-    prev = @model.collection.at decr @model.get 'index'
-    prev.swap 'index', incr
-    @model.swap 'index', decr
-    @$el.insertBefore @$el.prev() # this is ugly, but see *
-
-  setFullPathClass: ->
-    @$el.toggleClass 'im-full-path', @state.get('fullPath')
-
-  removeView: (e) ->
-    ignore e
-    @model.collection.remove @model
-    @model.destroy()
+    removeView(e) {
+      ignore(e);
+      this.model.collection.remove(this.model);
+      return this.model.destroy();
+    }
+  };
+  SelectedColumn.initClass();
+  return SelectedColumn;
+})());

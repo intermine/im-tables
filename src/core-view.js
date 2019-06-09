@@ -1,300 +1,373 @@
-require './shim' # This loads jquery plugins and sets up Backbone
-Backbone = require 'backbone'
-_ = require 'underscore'
-$ = require 'jquery'
+/*
+ * decaffeinate suggestions:
+ * DS101: Remove unnecessary use of Array.from
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS104: Avoid inline assignments
+ * DS205: Consider reworking code to avoid use of IIFEs
+ * DS206: Consider reworking classes to avoid initClass
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let CoreView;
+require('./shim'); // This loads jquery plugins and sets up Backbone
+const Backbone = require('backbone');
+const _ = require('underscore');
+const $ = require('jquery');
 
-CoreModel = require './core-model'
-Messages = require './messages'
-Templates = require './templates'
-Icons = require './icons'
-Event = require './event'
+const CoreModel = require('./core-model');
+const Messages = require('./messages');
+const Templates = require('./templates');
+const Icons = require('./icons');
+const Event = require('./event');
 
-helpers = require './templates/helpers'
-onChange = require './utils/on-change'
+let helpers = require('./templates/helpers');
+const onChange = require('./utils/on-change');
 
-# We only need one copy of this - it is a very generic throbber.
-IndeterminateProgressBar = (Templates.template 'progress-bar') doneness: 1
+// We only need one copy of this - it is a very generic throbber.
+const IndeterminateProgressBar = (Templates.template('progress-bar'))({doneness: 1});
 
-# private incrementing id counter for children
-kid = 0
+// private incrementing id counter for children
+let kid = 0;
 
-getKid = -> kid++
+const getKid = () => kid++;
 
-# Private methods.
-listenToModel = -> listenToThing.call @, 'model'
-listenToState = -> listenToThing.call @, 'state'
-listenToCollection = -> listenToThing.call @, 'collection'
-listenToThing = (thing) ->
-  definitions = _.result @, "#{ thing }Events"
-  return unless _.size definitions
-  throw new Error("Cannot listen to #{ thing } - it is null.") unless @[thing]?
-  for event, handler of definitions
-    handler = if _.isFunction handler then handler else @[handler]
-    throw new Error("No handler for #{thing}:#{event}") unless handler?
-    @listenTo @[thing], event, handler
+// Private methods.
+const listenToModel = function() { return listenToThing.call(this, 'model'); };
+const listenToState = function() { return listenToThing.call(this, 'state'); };
+const listenToCollection = function() { return listenToThing.call(this, 'collection'); };
+var listenToThing = function(thing) {
+  const definitions = _.result(this, `${ thing }Events`);
+  if (!_.size(definitions)) { return; }
+  if (this[thing] == null) { throw new Error(`Cannot listen to ${ thing } - it is null.`); }
+  return (() => {
+    const result = [];
+    for (let event in definitions) {
+      let handler = definitions[event];
+      handler = _.isFunction(handler) ? handler : this[handler];
+      if (handler == null) { throw new Error(`No handler for ${thing}:${event}`); }
+      result.push(this.listenTo(this[thing], event, handler));
+    }
+    return result;
+  })();
+};
 
-# Class defining the core conventions of views in the application
-#  - adds a data -> template -> render flow
-#  - adds @make helper
-#  - ensures @children, and their clean up (requires super call in initialize) 
-#  - ensures @model :: CoreModel (requires super call in initialize)
-#  - ensures @state :: CoreModel (requires super call).
-#  - ensures the render cycle is established (preRender, postRender)
-#  - starts listening to the RERENDER_EVENT if defined.
-module.exports = class CoreView extends Backbone.View
+// Class defining the core conventions of views in the application
+//  - adds a data -> template -> render flow
+//  - adds @make helper
+//  - ensures @children, and their clean up (requires super call in initialize) 
+//  - ensures @model :: CoreModel (requires super call in initialize)
+//  - ensures @state :: CoreModel (requires super call).
+//  - ensures the render cycle is established (preRender, postRender)
+//  - starts listening to the RERENDER_EVENT if defined.
+module.exports = (CoreView = (function() {
+  let hasAll = undefined;
+  CoreView = class CoreView extends Backbone.View {
+    static initClass() {
+  
+      this.prototype.hasOwnModel = true; // True if the model does not belong to anyone else
+  
+      // Properties of the options object which will be made available on the
+      // view at @[prop]. Additionally, their presence (via non-null check)
+      // will be asserted as an invariant.
+      this.prototype.parameters = [];
+  
+      // Properties of the options object which will be made available on the
+      // view at @[prop]. Default values should be provided on the prototype,
+      // which will then be overriden but available to other instances.
+      this.prototype.optionalParameters = [];
+  
+      // Type assertions, one for each parameter, keyed by parameter name.
+      //
+      // An assertion is an object with the following structure:
+      //   test :: (value :: Any) -> bool
+      //   message :: (name :: String) -> String
+      // 
+      // Types do not need to be defined for all parameters, but they will be asserted if they are.
+      this.prototype.parameterTypes = {};
+  
+      this.prototype.ICONS = 'change';
+  
+      // Declarative model event binding. Use these hooks rather than
+      // binding in initialize.
+  
+      // The list of model attributes that must be present to render.
+      // If not available yet,
+      // the view will listen until they are.
+      this.prototype.renderRequires = [];
+  
+      // The model events that we should listen to, eg: {'change:foo': 'reRender'}
+      this.prototype.modelEvents = {};
+  
+      // The state events that we should listen to, eg: {'change:foo': 'reRender'}
+      this.prototype.stateEvents = {};
+  
+      // The collection events that we should listen to, eg: {'change:foo': 'reRender'}
+      this.prototype.collectionEvents = {};
+  
+      hasAll = (model, props) => _.all(props, p => model.has(p));
+  
+      this.prototype.removed = false;
+    }
 
-  @include = (mixin) -> _.extend @.prototype, mixin
+    static include(mixin) { return _.extend(this.prototype, mixin); }
 
-  hasOwnModel: true # True if the model does not belong to anyone else
+    // Implement this method to set values on the state object. Well, that is
+    // the purpose at least. Called after variants have been asserted.
+    initState() {}
 
-  # Properties of the options object which will be made available on the
-  # view at @[prop]. Additionally, their presence (via non-null check)
-  # will be asserted as an invariant.
-  parameters: []
+    initialize(opts) {
+      let left, left1;
+      if (opts == null) { opts = {}; }
+      this.state = opts.state; // separate to avoid override issues in parameters
+      const params = ((left = _.result(this, 'parameters'))) != null ? left : [];
+      const optParams = ((left1 = _.result(this, 'optionalParameters'))) != null ? left1 : [];
+      // Set all required parameters.
+      _.extend(this, _.pick(opts, ...Array.from(params)));
+      // Set optional parameters if provided.
+      for (let p of Array.from(optParams)) { // Ignore if null.
+        if (opts[p] != null) {
+          this[p] = opts[p];
+        }
+      }
+      this.children = {};
+      const Model = (this.Model || CoreModel);
+      if ((this.model != null ? this.model.toJSON : undefined) != null) { this.hasOwnModel = false; } // We did not create this model
+      if (this.model == null) { this.model = new Model; } // Make sure we have one
+      if (this.model.toJSON == null) { this.model = new Model(this.model); } // Lift to Model
 
-  # Properties of the options object which will be made available on the
-  # view at @[prop]. Default values should be provided on the prototype,
-  # which will then be overriden but available to other instances.
-  optionalParameters: []
+      if (this.state == null) { this.state = new CoreModel; } // State holds transient and computed data.
+      if (this.state.toJSON == null) {
+        this.state = new CoreModel(this.state);
+      }
+      if (this.RERENDER_EVENT != null) {
+        this.listenTo(this.model, this.RERENDER_EVENT, this.reRender);
+      }
 
-  # Type assertions, one for each parameter, keyed by parameter name.
-  #
-  # An assertion is an object with the following structure:
-  #   test :: (value :: Any) -> bool
-  #   message :: (name :: String) -> String
-  # 
-  # Types do not need to be defined for all parameters, but they will be asserted if they are.
-  parameterTypes: {}
+      this.on('rendering', this.preRender);
+      this.on('rendered', this.postRender);
+      this.assertInvariants();
+      this.initState();
+      listenToModel.call(this);
+      listenToState.call(this);
+      listenToCollection.call(this);
+      this.listenTo(Icons, this.ICONS, function() { if (this.template) { return this.reRender(); } });
+      return this.listenTo(this.model, 'destroy', function() { return this.remove(); }); // Specialise what icons to listen to here.
+    }
 
-  # Implement this method to set values on the state object. Well, that is
-  # the purpose at least. Called after variants have been asserted.
-  initState: ->
+    // Restricted arity version of @stopListening - just takes an object,
+    // no event names or whatnot. The purpose of this is to be used in event
+    // listeners listening for removal events, eg:
+    //
+    //   destroy: @stopListeningTo
+    //
+    // rather than:
+    //
+    //   destroy: (m) -> @stopListening m
+    stopListeningTo(obj) { return this.stopListening(obj); }
 
-  initialize: (opts = {}) ->
-    @state = opts.state # separate to avoid override issues in parameters
-    params = (_.result @, 'parameters') ? []
-    optParams = (_.result @, 'optionalParameters') ? []
-    # Set all required parameters.
-    _.extend @, _.pick opts, params...
-    # Set optional parameters if provided.
-    for p in optParams when opts[p]? # Ignore if null.
-      @[p] = opts[p]
-    @children = {}
-    Model = (@Model or CoreModel)
-    @hasOwnModel = false if (@model?.toJSON?) # We did not create this model
-    @model = new Model unless @model? # Make sure we have one
-    @model = new Model @model unless @model.toJSON? # Lift to Model
+    // Sorthand for listening for one or more change events on an emitter.
+    listenForChange(emitter, handler, ...props) {
+      if (!(props != null ? props.length : undefined)) { throw new Error('No properties listed'); } // Nothing to listen for.
+      return this.listenTo(emitter, (onChange(props)), handler);
+    }
 
-    @state ?= new CoreModel # State holds transient and computed data.
-    unless @state.toJSON?
-      @state = new CoreModel @state
-    if @RERENDER_EVENT?
-      @listenTo @model, @RERENDER_EVENT, @reRender
+    renderError(resp) { return renderError(this.el)(resp); }
 
-    @on 'rendering', @preRender
-    @on 'rendered', @postRender
-    @assertInvariants()
-    @initState()
-    listenToModel.call @
-    listenToState.call @
-    listenToCollection.call @
-    @listenTo Icons, @ICONS, -> @reRender() if @template
-    @listenTo @model, 'destroy', -> @remove()
+    // the helpers, cloned to avoid mutation by subclasses.
+    helpers() { return _.extend({IndeterminateProgressBar}, helpers); }
 
-  ICONS: 'change' # Specialise what icons to listen to here.
+    getBaseData() {
+      helpers = _.result(this, 'helpers');
+      const labels = _.result(this, 'labels');
+      return _.extend({state: this.state.toJSON(), Messages, Icons, labels}, helpers);
+    }
 
-  # Restricted arity version of @stopListening - just takes an object,
-  # no event names or whatnot. The purpose of this is to be used in event
-  # listeners listening for removal events, eg:
-  #
-  #   destroy: @stopListeningTo
-  #
-  # rather than:
-  #
-  #   destroy: (m) -> @stopListening m
-  stopListeningTo: (obj) -> @stopListening obj
+    // By default, the model and collection, extending state, helpers, labels, Messages and Icons
+    getData() { let left;
+    return _.extend(this.getBaseData(), this.model.toJSON(), {collection: ((left = (this.collection != null ? this.collection.toJSON() : undefined)) != null ? left : [])}); }
 
-  # Declarative model event binding. Use these hooks rather than
-  # binding in initialize.
+    // Like render, but only happens if already rendered at least once.
+    reRender() {
+      if (this.rendered && !this.removed) { this.render(); }
+      return this;
+    }
 
-  # The list of model attributes that must be present to render.
-  # If not available yet,
-  # the view will listen until they are.
-  renderRequires: []
+    // Default post-render hook. Override to hook into render-cycle
+    postRender() {}
 
-  # The model events that we should listen to, eg: {'change:foo': 'reRender'}
-  modelEvents: {}
+    // Default pre-render hook. Override to hook into render-cycle
+    preRender() {}
 
-  # The state events that we should listen to, eg: {'change:foo': 'reRender'}
-  stateEvents: {}
+    onRenderError(e) {
+      console.error('RENDER FAILED', this, e);
+      return this.state.set({error: e});
+    }
 
-  # The collection events that we should listen to, eg: {'change:foo': 'reRender'}
-  collectionEvents: {}
+    // Safely remove all existing children, apply template if
+    // available, and mark as rendered. Most Views will not need
+    // to override this method - instead customise getData, template
+    // and/or renderChildren, preRender and postRender
+    render() {
+      if (this.removed) { return; }
+      const requiredProps = _.result(this, 'renderRequires');
+      if ((requiredProps != null ? requiredProps.length : undefined) && (!hasAll(this.model, requiredProps))) {
+        const evt = onChange(requiredProps);
+        this.listenToOnce(this.model, evt, this.render);
+        return this;
+      }
 
-  # Sorthand for listening for one or more change events on an emitter.
-  listenForChange: (emitter, handler, props...) ->
-    throw new Error('No properties listed') unless props?.length # Nothing to listen for.
-    @listenTo emitter, (onChange props), handler
+      const prerenderEvent = new Event(this.rendered);
+      this.trigger('rendering', prerenderEvent);
+      if (prerenderEvent.cancelled) { return this; }
 
-  renderError: (resp) -> renderError(@el) resp
+      this.removeAllChildren();
 
-  # the helpers, cloned to avoid mutation by subclasses.
-  helpers: -> _.extend {IndeterminateProgressBar}, helpers
+      if (this.template != null) {
+        try {
+          this.$el.html(this.template(this.getData()));
+        } catch (e) {
+          this.onRenderError(e);
+        }
+      }
 
-  getBaseData: ->
-    helpers = _.result @, 'helpers'
-    labels = _.result @, 'labels'
-    _.extend {state: @state.toJSON(), Messages, Icons, labels}, helpers
+      this.renderChildren();
 
-  # By default, the model and collection, extending state, helpers, labels, Messages and Icons
-  getData: -> _.extend @getBaseData(), @model.toJSON(), collection: (@collection?.toJSON() ? [])
+      this.trigger('rendered', (this.rendered = true));
 
-  # Like render, but only happens if already rendered at least once.
-  reRender: ->
-    @render() if (@rendered and not @removed)
-    this
+      return this;
+    }
 
-  # Default post-render hook. Override to hook into render-cycle
-  postRender: ->
+    renderChildren() {} // Implement this method to insert children during render.
 
-  # Default pre-render hook. Override to hook into render-cycle
-  preRender: ->
+    // Renders a child, appending it to part of this view.
+    // Should happen after the main view is rendered.
+    // The child is saved in the @children mapping so it can be disposed of later.
+    // the child may be null, in which case it will be ignored.
+    // A name really ought to be supplied, but one will be generated if needed.
+    // If no container is given, the child is appended to the element of this view.
+    renderChild(name, view, container, placement) {
+      if (container == null) { container = this.el; }
+      if (placement == null) { placement = 'append'; }
+      if (name == null) { name = getKid(); }
+      this.removeChild(name);
+      this.children[name] = view;
+      if (view == null) { return this; }
+      switch (placement) {
+        case 'append': view.$el.appendTo(container); break;
+        case 'prepend': view.$el.prependTo(container); break;
+        case 'at': view.setElement(container[0] || container); break;
+        default: throw new Error(`Unknown position: ${ placement }`);
+      }
+      view.render();
+      return this;
+    }
 
-  hasAll = (model, props) -> _.all props, (p) -> model.has p
+    // Render a child and rather than appending it set the given element
+    // as the element of the component.
+    //
+    // Can be called as:
+    //   this.renderChildAt '.modal-body', body
+    //
+    renderChildAt(name, view, element) {
+      if (element == null) { element = this.$(name); }
+      return this.renderChild(name, view, element, 'at');
+    }
 
-  onRenderError: (e) ->
-    console.error 'RENDER FAILED', @, e
-    @state.set error: e
+    // Remove a child by name, if it exists.
+    removeChild(name) {
+      if (this.children[name] != null) {
+        this.children[name].remove();
+      }
+      return delete this.children[name];
+    }
 
-  # Safely remove all existing children, apply template if
-  # available, and mark as rendered. Most Views will not need
-  # to override this method - instead customise getData, template
-  # and/or renderChildren, preRender and postRender
-  render: ->
-    return if @removed
-    requiredProps = _.result @, 'renderRequires'
-    if (requiredProps?.length) and (not hasAll @model, requiredProps)
-      evt = onChange requiredProps
-      @listenToOnce @model, evt, @render
-      return this
+    removeAllChildren() {
+      if (this.children != null) { // Might have been unset.
+        return Array.from(_.keys(this.children)).map((child) =>
+          this.removeChild(child));
+      }
+    }
 
-    prerenderEvent = new Event @rendered
-    @trigger 'rendering', prerenderEvent
-    return this if prerenderEvent.cancelled
+    remove() { if (!this.removed) { // re-entrant
+      this.stopListening();
+      this.removed = true;
+      this.$el.parent().trigger('childremoved', this); // Tell parents we are leaving.
+      this.trigger('remove', this);
+      if (this.hasOwnModel) { this.model.destroy(); } // Destroy the model if we created it.
+      this.removeAllChildren();
+      this.off();
+      super.remove(...arguments); // actually remove us from the DOM (see Backbone.View)
+      return this;
+    } }
 
-    @removeAllChildren()
+    // eg: this.make('span', {className: 'foo'}, 'bar')
+    make(elemName, attrs, content) {
+      const el = document.createElement(elemName);
+      const $el = $(el);
+      if (attrs != null) {
+        for (let name in attrs) {
+          const value = attrs[name];
+          if (['class', 'className'].includes(name)) {
+            $el.addClass(value);
+          } else {
+            $el.attr(name, value);
+          }
+        }
+      }
+      if (content != null) {
+        if (_.isArray(content)) {
+          for (let x of Array.from(content)) { $el.append(x); }
+        } else {
+          $el.append(content);
+        }
+      }
+      return el;
+    }
 
-    if @template?
-      try
-        @$el.html @template @getData()
-      catch e
-        @onRenderError e
+    // Machinery for allowing views to make assertions about their initial state.
+    invariants() { return {}; }
 
-    @renderChildren()
+    assertInvariant(condition, message) { if (!condition) { throw new Error(message); } }
 
-    @trigger 'rendered', @rendered = true
+    assertInvariants() {
+      let left, left1, left2, message, p, v;
+      const params         = ((left = _.result(this, 'parameters'))) != null ? left : [];
+      const optionalParams = ((left1 = _.result(this, 'optionalParameters'))) != null ? left1 : [];
+      const paramTypes     = ((left2 = _.result(this, 'parameterTypes'))) != null ? left2 : {};
 
-    return this
+      // Assert that we have all our required parameters.
+      for (p of Array.from(params)) {
+        v = this[p];
+        this.assertInvariant((v != null), `Missing required option: ${ p }`);
+      }
 
-  renderChildren: -> # Implement this method to insert children during render.
+      // Assert that all our parameters (optional and required) meet their
+      // expectations.
+      for (p of Array.from(params.concat(optionalParams))) {
+        const typeAssertion = paramTypes[p];
+        if (typeAssertion != null) {
+          // The constract of these calls is that they are evaluated in this order, so
+          // that ::message() has access to data collected during ::test() (if it wants to do
+          // so. DO NOT REORDER.
+          v = this[p];
+          const assertion = typeAssertion.test(v);
+          message = typeAssertion.message(p);
+          this.assertInvariant(assertion, message);
+        }
+      }
 
-  # Renders a child, appending it to part of this view.
-  # Should happen after the main view is rendered.
-  # The child is saved in the @children mapping so it can be disposed of later.
-  # the child may be null, in which case it will be ignored.
-  # A name really ought to be supplied, but one will be generated if needed.
-  # If no container is given, the child is appended to the element of this view.
-  renderChild: (name, view, container = @el, placement = 'append') ->
-    name ?= getKid()
-    @removeChild name
-    @children[name] = view
-    return this unless view?
-    switch placement
-      when 'append' then view.$el.appendTo container
-      when 'prepend' then view.$el.prependTo container
-      when 'at' then view.setElement(container[0] or container)
-      else throw new Error "Unknown position: #{ placement }"
-    view.render()
-    this
-
-  # Render a child and rather than appending it set the given element
-  # as the element of the component.
-  #
-  # Can be called as:
-  #   this.renderChildAt '.modal-body', body
-  #
-  renderChildAt: (name, view, element) ->
-    element ?= @$ name
-    @renderChild name, view, element, 'at'
-
-  # Remove a child by name, if it exists.
-  removeChild: (name) ->
-    @children[name]?.remove()
-    delete @children[name]
-
-  removeAllChildren: ->
-    if @children? # Might have been unset.
-      for child in _.keys(@children)
-        @removeChild child
-
-  removed: false
-
-  remove: -> unless @removed # re-entrant
-    @stopListening()
-    @removed = true
-    @$el.parent().trigger 'childremoved', @ # Tell parents we are leaving.
-    @trigger 'remove', @
-    @model.destroy() if @hasOwnModel # Destroy the model if we created it.
-    @removeAllChildren()
-    @off()
-    super # actually remove us from the DOM (see Backbone.View)
-    this
-
-  # eg: this.make('span', {className: 'foo'}, 'bar')
-  make: (elemName, attrs, content) ->
-    el = document.createElement(elemName)
-    $el = $(el)
-    if attrs?
-      for name, value of attrs
-        if name in ['class', 'className']
-          $el.addClass(value)
-        else
-          $el.attr name, value
-    if content?
-      if _.isArray(content)
-        $el.append(x) for x in content
-      else
-        $el.append content
-    el
-
-  # Machinery for allowing views to make assertions about their initial state.
-  invariants: -> {}
-
-  assertInvariant: (condition, message) -> throw new Error(message) unless condition
-
-  assertInvariants: ->
-    params         = (_.result @, 'parameters') ? []
-    optionalParams = (_.result @, 'optionalParameters') ? []
-    paramTypes     = (_.result @, 'parameterTypes') ? {}
-
-    # Assert that we have all our required parameters.
-    for p in params
-      v = @[p]
-      @assertInvariant v?, "Missing required option: #{ p }"
-
-    # Assert that all our parameters (optional and required) meet their
-    # expectations.
-    for p in params.concat(optionalParams)
-      typeAssertion = paramTypes[p]
-      if typeAssertion?
-        # The constract of these calls is that they are evaluated in this order, so
-        # that ::message() has access to data collected during ::test() (if it wants to do
-        # so. DO NOT REORDER.
-        v = @[p]
-        assertion = typeAssertion.test v
-        message = typeAssertion.message p
-        @assertInvariant assertion, message
-
-    # Assert any other more specific invariants.
-    for condition, message of @invariants()
-      @assertInvariant (_.result @, condition), message
+      // Assert any other more specific invariants.
+      return (() => {
+        const result = [];
+        const object = this.invariants();
+        for (let condition in object) {
+          message = object[condition];
+          result.push(this.assertInvariant((_.result(this, condition)), message));
+        }
+        return result;
+      })();
+    }
+  };
+  CoreView.initClass();
+  return CoreView;
+})());

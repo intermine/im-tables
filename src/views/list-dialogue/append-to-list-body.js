@@ -1,33 +1,51 @@
-_ = require 'underscore'
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS206: Consider reworking classes to avoid initClass
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let AppendToListBody;
+const _ = require('underscore');
 
-CoreView = require '../../core-view' # base
-Templates = require '../../templates' # template
-Messages = require '../../messages'
+const CoreView = require('../../core-view'); // base
+const Templates = require('../../templates'); // template
+const Messages = require('../../messages');
 
-# Sub-components
-SelectWithLabel = require '../../core/select-with-label'
+// Sub-components
+const SelectWithLabel = require('../../core/select-with-label');
 
-# This view uses the lists messages bundle.
-require '../../messages/lists'
+// This view uses the lists messages bundle.
+require('../../messages/lists');
 
-module.exports = class AppendToListBody extends CoreView
+module.exports = (AppendToListBody = (function() {
+  AppendToListBody = class AppendToListBody extends CoreView {
+    static initClass() {
+  
+      this.prototype.parameters = ['model', 'collection'];
+    }
 
-  parameters: ['model', 'collection']
+    postRender() { // Render child views.
+      return this.renderListSelector();
+    }
 
-  postRender: -> # Render child views.
-    @renderListSelector()
-
-  renderListSelector: ->
-    selector = new SelectWithLabel
-      model: @model
-      collection: @collection
-      attr: 'target'
-      label: 'lists.params.Target'
-      optionLabel: 'lists.PossibleAppendTarget'
-      helpMessage: 'lists.params.help.Target'
-      noOptionsMessage: 'lists.append.NoSuitableLists'
-      getProblem: (target) -> not target?.length
-    @listenTo selector.state, 'change:error', console.error.bind(console)
-    @renderChild 'list-selector', selector
+    renderListSelector() {
+      const selector = new SelectWithLabel({
+        model: this.model,
+        collection: this.collection,
+        attr: 'target',
+        label: 'lists.params.Target',
+        optionLabel: 'lists.PossibleAppendTarget',
+        helpMessage: 'lists.params.help.Target',
+        noOptionsMessage: 'lists.append.NoSuitableLists',
+        getProblem(target) { return !(target != null ? target.length : undefined); }
+      });
+      this.listenTo(selector.state, 'change:error', console.error.bind(console));
+      return this.renderChild('list-selector', selector);
+    }
+  };
+  AppendToListBody.initClass();
+  return AppendToListBody;
+})());
       
 

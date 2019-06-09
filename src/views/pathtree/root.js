@@ -1,31 +1,56 @@
-_ = require 'underscore'
+/*
+ * decaffeinate suggestions:
+ * DS101: Remove unnecessary use of Array.from
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS206: Consider reworking classes to avoid initClass
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let RootClass;
+const _ = require('underscore');
 
-Icons = require '../../icons'
+const Icons = require('../../icons');
 
-Attribute = require './attribute'
+const Attribute = require('./attribute');
 
-module.exports = class RootClass extends Attribute
+module.exports = (RootClass = (function() {
+  RootClass = class RootClass extends Attribute {
+    static initClass() {
+  
+      this.prototype.className = 'im-rootclass';
+    }
 
-  className: 'im-rootclass'
+    initialize(opts) {
+      let cd;
+      ({cd, openNodes: this.openNodes} = opts);
+      opts.trail = [];
+      opts.path = opts.query.getPathInfo(cd.name);
 
-  initialize: (opts) ->
-    {cd, @openNodes} = opts
-    opts.trail = []
-    opts.path = opts.query.getPathInfo cd.name
+      return super.initialize(opts);
+    }
 
-    super opts
+    getData() { return _.extend(super.getData(), {icon: Icons.icon('RootClass')}); }
 
-  getData: -> _.extend super(), icon: Icons.icon('RootClass')
-
-  handleClick: (e) ->
-    e?.preventDefault()
-    e?.stopPropagation()
-    if @$(e.target).is('i') or (not @model.get('canSelectReferences'))
-      if @openNodes.size()
-        @openNodes.reset []
-      else
-        {collections, references} = @path.getType()
-        paths = (@path.append r.name for r in _.values(references).concat(_.values collections))
-        @openNodes.reset paths
-    else
-      super(e)
+    handleClick(e) {
+      if (e != null) {
+        e.preventDefault();
+      }
+      if (e != null) {
+        e.stopPropagation();
+      }
+      if (this.$(e.target).is('i') || (!this.model.get('canSelectReferences'))) {
+        if (this.openNodes.size()) {
+          return this.openNodes.reset([]);
+        } else {
+          const {collections, references} = this.path.getType();
+          const paths = (Array.from(_.values(references).concat(_.values(collections))).map((r) => this.path.append(r.name)));
+          return this.openNodes.reset(paths);
+        }
+      } else {
+        return super.handleClick(e);
+      }
+    }
+  };
+  RootClass.initClass();
+  return RootClass;
+})());

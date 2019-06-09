@@ -1,10 +1,27 @@
-_ = require 'underscore'
+/*
+ * decaffeinate suggestions:
+ * DS205: Consider reworking code to avoid use of IIFEs
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let ClassSet;
+const _ = require('underscore');
 
-module.exports = class ClassSet
+module.exports = (ClassSet = class ClassSet {
 
-  constructor: (@definitions) ->
+  constructor(definitions) {
+    this.definitions = definitions;
+  }
 
-  activeClasses: -> (cssClass for cssClass of @definitions when _.result @definitions, cssClass)
+  activeClasses() { return ((() => {
+    const result = [];
+    for (let cssClass in this.definitions) {
+      if (_.result(this.definitions, cssClass)) {
+        result.push(cssClass);
+      }
+    }
+    return result;
+  })()); }
 
-  toString: -> @activeClasses().join(' ')
+  toString() { return this.activeClasses().join(' '); }
+});
 

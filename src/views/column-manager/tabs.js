@@ -1,44 +1,66 @@
-_ = require 'underscore'
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS206: Consider reworking classes to avoid initClass
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let ColumnManagerTabs;
+const _ = require('underscore');
 
-CoreView = require '../../core-view'
-Templates = require '../../templates'
+const CoreView = require('../../core-view');
+const Templates = require('../../templates');
 
-ClassSet = require '../../utils/css-class-set'
+const ClassSet = require('../../utils/css-class-set');
 
-tabClassSet = (tab, state) ->
-  defs = active: -> state.get('currentTab') is tab
-  defs["im-#{ tab }-tab"] = true
-  new ClassSet defs
+const tabClassSet = function(tab, state) {
+  const defs = {active() { return state.get('currentTab') === tab; }};
+  defs[`im-${ tab }-tab`] = true;
+  return new ClassSet(defs);
+};
 
-module.exports = class ColumnManagerTabs extends CoreView
+module.exports = (ColumnManagerTabs = (function() {
+  ColumnManagerTabs = class ColumnManagerTabs extends CoreView {
+    static initClass() {
+  
+      this.TABS = ['view', 'sortorder'];
+  
+      this.prototype.template = Templates.template('column-manager-tabs');
+  
+      this.prototype.className = 'im-column-manager-tabs';
+    }
 
-  @TABS: ['view', 'sortorder']
+    getData() { return _.extend(super.getData(...arguments), {classes: this.classSets}); }
 
-  template: Templates.template 'column-manager-tabs'
+    initState() {
+      return this.state.set({currentTab: ColumnManagerTabs.TABS[0]});
+    }
 
-  className: 'im-column-manager-tabs'
+    initialize() {
+      super.initialize(...arguments);
+      return this.initClassSets();
+    }
 
-  getData: -> _.extend super, classes: @classSets
+    stateEvents() { return {'change:currentTab': this.reRender}; }
 
-  initState: ->
-    @state.set currentTab: ColumnManagerTabs.TABS[0]
+    events() {
+      return {
+        'click .im-view-tab': 'selectViewTab',
+        'click .im-sortorder-tab': 'selectSortOrderTab'
+      };
+    }
 
-  initialize: ->
-    super
-    @initClassSets()
+    selectViewTab() { return this.state.set({currentTab: 'view'}); }
 
-  stateEvents: -> 'change:currentTab': @reRender
+    selectSortOrderTab() { return this.state.set({currentTab: 'sortorder'}); }
 
-  events: ->
-    'click .im-view-tab': 'selectViewTab'
-    'click .im-sortorder-tab': 'selectSortOrderTab'
-
-  selectViewTab: -> @state.set currentTab: 'view'
-
-  selectSortOrderTab: -> @state.set currentTab: 'sortorder'
-
-  initClassSets: ->
-    @classSets = {}
-    for tab in ['view', 'sortorder'] then do (tab) =>
-      @classSets[tab] = tabClassSet tab, @state
+    initClassSets() {
+      this.classSets = {};
+      return ['view', 'sortorder'].map((tab) => (tab => {
+        return this.classSets[tab] = tabClassSet(tab, this.state);
+      })(tab));
+    }
+  };
+  ColumnManagerTabs.initClass();
+  return ColumnManagerTabs;
+})());
 

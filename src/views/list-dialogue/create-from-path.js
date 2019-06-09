@@ -1,9 +1,22 @@
-{Promise} = require 'es6-promise'
+/*
+ * decaffeinate suggestions:
+ * DS206: Consider reworking classes to avoid initClass
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let CreateFromPath;
+const {Promise} = require('es6-promise');
 
-# Base class
-BaseCreateListDialogue = require './base-dialogue'
-FromPathMixin = require './from-path-mixin'
+// Base class
+const BaseCreateListDialogue = require('./base-dialogue');
+const FromPathMixin = require('./from-path-mixin');
 
-module.exports = class CreateFromPath extends BaseCreateListDialogue
-
-  @include FromPathMixin BaseCreateListDialogue
+module.exports = (CreateFromPath = (function() {
+  CreateFromPath = class CreateFromPath extends BaseCreateListDialogue {
+    static initClass() {
+  
+      this.include(FromPathMixin(BaseCreateListDialogue));
+    }
+  };
+  CreateFromPath.initClass();
+  return CreateFromPath;
+})());

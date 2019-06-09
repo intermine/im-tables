@@ -1,75 +1,109 @@
-CoreView = require '../../core-view'
-Templates = require '../../templates'
-Options = require '../../options'
+/*
+ * decaffeinate suggestions:
+ * DS101: Remove unnecessary use of Array.from
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS206: Consider reworking classes to avoid initClass
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let ColumnChooser;
+const CoreView = require('../../core-view');
+const Templates = require('../../templates');
+const Options = require('../../options');
 
-PathSet = require '../../models/path-set'
-OpenNodes = require '../../models/open-nodes'
+const PathSet = require('../../models/path-set');
+const OpenNodes = require('../../models/open-nodes');
 
-PathChooser = require '../path-chooser'
+const PathChooser = require('../path-chooser');
 
-class Buttons extends CoreView
-
-  parameters: ['collection', 'selectList']
-
-  template: Templates.template 'column-manager-path-chooser-buttons'
-
-  collectionEvents: ->
-    'add remove reset': 'reRender'
-
-  events: ->
-    'click .im-add-column': 'addColumn'
-    'click .im-rearrange-columns': 'cancel'
-
-  cancel: ->
-    @trigger 'done'
+class Buttons extends CoreView {
+  static initClass() {
   
-  addColumn: ->
-    selectList = @selectList
-    paths = @collection.paths()
-    @cancel()
-    selectList.add paths
+    this.prototype.parameters = ['collection', 'selectList'];
+  
+    this.prototype.template = Templates.template('column-manager-path-chooser-buttons');
+  }
 
-module.exports = class ColumnChooser extends CoreView
+  collectionEvents() {
+    return {'add remove reset': 'reRender'};
+  }
 
-  parameters: ['query', 'collection']
+  events() {
+    return {
+      'click .im-add-column': 'addColumn',
+      'click .im-rearrange-columns': 'cancel'
+    };
+  }
 
-  template: Templates.template 'column-manager-path-chooser'
+  cancel() {
+    return this.trigger('done');
+  }
+  
+  addColumn() {
+    const { selectList } = this;
+    const paths = this.collection.paths();
+    this.cancel();
+    return selectList.add(paths);
+  }
+}
+Buttons.initClass();
 
-  initialize: ->
-    super
-    @chosenPaths = new PathSet
-    @view = new PathSet(@query.makePath p for p in @collection.pluck 'path')
-    @openNodes = new OpenNodes @query.getViewNodes() # Open by default
+module.exports = (ColumnChooser = (function() {
+  ColumnChooser = class ColumnChooser extends CoreView {
+    static initClass() {
+  
+      this.prototype.parameters = ['query', 'collection'];
+  
+      this.prototype.template = Templates.template('column-manager-path-chooser');
+    }
 
-  initState: ->
-    @query.makePath(@query.root).getDisplayName().then (name) => @state.set rootName: name
+    initialize() {
+      super.initialize(...arguments);
+      this.chosenPaths = new PathSet;
+      this.view = new PathSet(Array.from(this.collection.pluck('path')).map((p) => this.query.makePath(p)));
+      return this.openNodes = new OpenNodes(this.query.getViewNodes()); // Open by default
+    }
 
-  stateEvents: ->
-    'change:rootName': 'reRender'
+    initState() {
+      return this.query.makePath(this.query.root).getDisplayName().then(name => this.state.set({rootName: name}));
+    }
 
-  postRender: ->
-    @renderButtons()
-    @openPathChooser()
+    stateEvents() {
+      return {'change:rootName': 'reRender'};
+    }
 
-  renderButtons: ->
-    btns = new Buttons {@state, collection: @chosenPaths, selectList: @collection}
-    @listenTo btns, 'done', => @trigger 'done'
-    @renderChildAt '.btn-group', btns
+    postRender() {
+      this.renderButtons();
+      return this.openPathChooser();
+    }
 
-  openPathChooser: ->
-    model =
-      dontSelectView: true
-      multiSelect: (Options.get 'ColumnManager.SelectColumn.Multi')
-    pathChooser = new PathChooser {model, @query, @chosenPaths, @openNodes, @view, trail: []}
-    @renderChild 'pathChooser', pathChooser
-    @setPathChooserHeight()
+    renderButtons() {
+      const btns = new Buttons({state: this.state, collection: this.chosenPaths, selectList: this.collection});
+      this.listenTo(btns, 'done', () => this.trigger('done'));
+      return this.renderChildAt('.btn-group', btns);
+    }
 
-  setPathChooserHeight: -> # Don't let it get too big.
-    @$('.im-path-chooser').css 'max-height': (@$el.closest('.modal').height() - 350)
+    openPathChooser() {
+      const model = {
+        dontSelectView: true,
+        multiSelect: (Options.get('ColumnManager.SelectColumn.Multi'))
+      };
+      const pathChooser = new PathChooser({model, query: this.query, chosenPaths: this.chosenPaths, openNodes: this.openNodes, view: this.view, trail: []});
+      this.renderChild('pathChooser', pathChooser);
+      return this.setPathChooserHeight();
+    }
 
-  remove: ->
-    @chosenPaths.close()
-    @view.close()
-    @openNodes.close()
-    super
+    setPathChooserHeight() { // Don't let it get too big.
+      return this.$('.im-path-chooser').css({'max-height': (this.$el.closest('.modal').height() - 350)});
+    }
+
+    remove() {
+      this.chosenPaths.close();
+      this.view.close();
+      this.openNodes.close();
+      return super.remove(...arguments);
+    }
+  };
+  ColumnChooser.initClass();
+  return ColumnChooser;
+})());
 

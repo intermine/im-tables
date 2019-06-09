@@ -1,109 +1,159 @@
-_ = require 'underscore'
-CoreView = require '../core-view'
-Templates = require '../templates'
-Messages = require '../messages'
-Options = require '../options'
-Step = require './undo-history/step'
+/*
+ * decaffeinate suggestions:
+ * DS101: Remove unnecessary use of Array.from
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS206: Consider reworking classes to avoid initClass
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let UndoHistory;
+const _ = require('underscore');
+const CoreView = require('../core-view');
+const Templates = require('../templates');
+const Messages = require('../messages');
+const Options = require('../options');
+const Step = require('./undo-history/step');
 
-childId = (s) -> "state-#{ s.get('revision') }" 
+const childId = s => `state-${ s.get('revision') }`; 
 
-ELLIPSIS = -1
+const ELLIPSIS = -1;
 
-require '../messages/undo'
+require('../messages/undo');
 
-class Ellipsis extends CoreView
+class Ellipsis extends CoreView {
+  static initClass() {
+  
+    this.prototype.parameters = ['more'];
+  
+    this.prototype.tagName = 'li';
+  
+    this.prototype.className = 'im-step im-ellipsis';
+  }
 
-  parameters: ['more']
+  template() { return _.escape(`${ Messages.getText('undo.MoreSteps', {more: this.more}) } ...`); }
 
-  tagName: 'li'
+  attributes() { return {title: Messages.getText('undo.ShowAllStates', {n: this.more})}; }
 
-  className: 'im-step im-ellipsis'
+  postRender() { return this.$el.tooltip({placement: 'right'}); }
 
-  template: -> _.escape "#{ Messages.getText 'undo.MoreSteps', {@more} } ..."
+  events() { return {
+  click(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      return this.state.toggle('showAll');
+    }
+  }; }
+}
+Ellipsis.initClass();
 
-  attributes: -> title: Messages.getText('undo.ShowAllStates', n: @more)
+// A step is not trivial is its count differs from the step before it
+// (i.e. it introduced some significant change that changed the results).
+// The first and last models are always significant.
+const notTrivial = function(m, i, ms) {
+  const prev = ms[i - 1];
+  return (i === 0) || (i === (ms.length - 1)) || (m.get('count') !== prev.get('count'));
+};
 
-  postRender: -> @$el.tooltip placement: 'right'
+module.exports = (UndoHistory = (function() {
+  UndoHistory = class UndoHistory extends CoreView {
+    static initClass() {
+  
+      this.prototype.parameters = ['collection'];
+  
+      this.prototype.className = 'btn-group im-undo-history';
+  
+      this.prototype.template = Templates.template('undo-history');
+    }
 
-  events: -> click: (e) ->
-    e.preventDefault()
-    e.stopPropagation()
-    @state.toggle 'showAll'
+    events() {
+      return {
+        'click .btn.im-undo': 'revertToPreviousState',
+        'click .im-toggle-trivial': 'toggleTrivial'
+      };
+    }
 
-# A step is not trivial is its count differs from the step before it
-# (i.e. it introduced some significant change that changed the results).
-# The first and last models are always significant.
-notTrivial = (m, i, ms) ->
-  prev = ms[i - 1]
-  (i is 0) or (i is ms.length - 1) or (m.get('count') isnt prev.get('count'))
+    initState() {
+      return this.state.set({showAll: false, hideTrivial: false});
+    }
 
-module.exports = class UndoHistory extends CoreView
+    stateEvents() {
+      return {
+        'change:showAll': this.reRender,
+        'change:hideTrivial': this.reRender
+      };
+    }
 
-  parameters: ['collection']
+    collectionEvents() {
+      return {
+        remove: this.removeStep,
+        'add remove': this.reRender,
+        'change:count': this.reRenderIfHidingTrivial
+      };
+    }
 
-  className: 'btn-group im-undo-history'
+    toggleTrivial(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      return this.state.toggle('hideTrivial');
+    }
 
-  template: Templates.template 'undo-history'
+    revertToPreviousState() { return this.collection.popState(); }
 
-  events: ->
-    'click .btn.im-undo': 'revertToPreviousState'
-    'click .im-toggle-trivial': 'toggleTrivial'
+    reRenderIfHidingTrivial() { if (this.state.get('hideTrivial')) {
+      return this.reRender();
+    } }
 
-  initState: ->
-    @state.set showAll: false, hideTrivial: false
+    postRender() {
+      this.$('.im-toggle-trivial').tooltip({placement: 'right'});
+      this.$list = this.$('.im-state-list');
+      this.renderStates();
+      this.$el.toggleClass('im-has-history', this.collection.size() > 1);
+      return this.$el.toggleClass('im-hidden', this.collection.size() <= 1);
+    }
 
-  stateEvents: ->
-    'change:showAll': @reRender
-    'change:hideTrivial': @reRender
+    renderStates() {
+      const {showAll, hideTrivial} = this.state.toJSON();
+      const coll = this.collection;
+      const models = hideTrivial ?
+        coll.filter(notTrivial)
+      :
+        coll.models.slice(); // With low level access comes great responsibility.
+      const states = models.length;
+      const cutoff = Options.get('UndoHistory.ShowAllStatesCutOff');
+      const range = (showAll) || (states <= cutoff) ?
+        __range__(states - 1, 0, true)
+      :
+        __range__(states - 1, states - (cutoff - 1), true).concat([ELLIPSIS, 0]);
 
-  collectionEvents: ->
-    remove: @removeStep
-    'add remove': @reRender
-    'change:count': @reRenderIfHidingTrivial
+      return Array.from(range).map((i) =>
+        i === ELLIPSIS ?
+          this.renderEllipsis(states - cutoff)
+        :
+          this.renderState(models[i]));
+    }
 
-  toggleTrivial: (e) ->
-    e.preventDefault()
-    e.stopPropagation()
-    @state.toggle 'hideTrivial'
+    renderEllipsis(more) {
+      return this.renderChild('...', (new Ellipsis({more, state: this.state})), this.$list);
+    }
 
-  revertToPreviousState: -> @collection.popState()
+    renderState(s) {
+      return this.renderChild((childId(s)), (new Step({model: s})), this.$list);
+    }
 
-  reRenderIfHidingTrivial: -> if @state.get 'hideTrivial'
-    @reRender()
+    removeStep(s) {
+      return this.removeChild(childId(s));
+    }
+  };
+  UndoHistory.initClass();
+  return UndoHistory;
+})());
 
-  postRender: ->
-    @$('.im-toggle-trivial').tooltip placement: 'right'
-    @$list = @$ '.im-state-list'
-    @renderStates()
-    @$el.toggleClass 'im-has-history', @collection.size() > 1
-    @$el.toggleClass 'im-hidden', @collection.size() <= 1
 
-  renderStates: ->
-    {showAll, hideTrivial} = @state.toJSON()
-    coll = @collection
-    models = if hideTrivial
-      coll.filter notTrivial
-    else
-      coll.models.slice() # With low level access comes great responsibility.
-    states = models.length
-    cutoff = Options.get('UndoHistory.ShowAllStatesCutOff')
-    range = if (showAll) or (states <= cutoff)
-      [states - 1 .. 0]
-    else
-      [states - 1 .. states - (cutoff - 1)].concat [ELLIPSIS, 0]
-
-    for i in range
-      if i is ELLIPSIS
-        @renderEllipsis states - cutoff
-      else
-        @renderState models[i]
-
-  renderEllipsis: (more) ->
-    @renderChild '...', (new Ellipsis {more, @state}), @$list
-
-  renderState: (s) ->
-    @renderChild (childId s), (new Step model: s), @$list
-
-  removeStep: (s) ->
-    @removeChild childId s
-
+function __range__(left, right, inclusive) {
+  let range = [];
+  let ascending = left < right;
+  let end = !inclusive ? right : ascending ? right + 1 : right - 1;
+  for (let i = left; ascending ? i < end : i > end; ascending ? i++ : i--) {
+    range.push(i);
+  }
+  return range;
+}

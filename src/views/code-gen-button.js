@@ -1,55 +1,80 @@
-_ = require 'underscore'
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS206: Consider reworking classes to avoid initClass
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let CodeGenButton;
+const _ = require('underscore');
 
-CoreView = require '../core-view'
+const CoreView = require('../core-view');
 
-# Text strings
-Messages = require '../messages'
-# Configuration
-Options = require '../options'
-# Templating
-Templates = require '../templates'
-# The model for this class.
-CodeGenModel = require '../models/code-gen'
-Dialogue = require './code-gen-dialogue'
+// Text strings
+const Messages = require('../messages');
+// Configuration
+const Options = require('../options');
+// Templating
+const Templates = require('../templates');
+// The model for this class.
+const CodeGenModel = require('../models/code-gen');
+const Dialogue = require('./code-gen-dialogue');
 
-# This class uses the code-gen message bundle.
-require '../messages/code-gen'
+// This class uses the code-gen message bundle.
+require('../messages/code-gen');
 
-class MainButton extends CoreView
+class MainButton extends CoreView {
+  static initClass() {
+  
+    this.prototype.template = Templates.template('code-gen-button-main');
+  }
 
-  modelEvents: ->
-    'change:lang': @reRender
+  modelEvents() {
+    return {'change:lang': this.reRender};
+  }
+}
+MainButton.initClass();
 
-  template: Templates.template 'code-gen-button-main'
+module.exports = (CodeGenButton = (function() {
+  CodeGenButton = class CodeGenButton extends CoreView {
+    static initClass() {
+  
+      this.prototype.parameters = ['query', 'tableState'];
+  
+      // Connect this view with its model.
+      this.prototype.Model = CodeGenModel;
+  
+      // The template which renders this view.
+      this.prototype.template = Templates.template('code-gen-button');
+    }
 
-module.exports = class CodeGenButton extends CoreView
+    // The data that the template renders.
+    getData() { return _.extend(super.getData(...arguments), {options: Options.get('CodeGen')}); }
 
-  parameters: ['query', 'tableState']
+    renderChildren() {
+      return this.renderChildAt('.im-show-code-gen-dialogue', new MainButton({model: this.model}));
+    }
 
-  # Connect this view with its model.
-  Model: CodeGenModel
+    events() {
+      return {
+        'click .dropdown-menu.im-code-gen-langs li': 'chooseLang',
+        'click .im-show-code-gen-dialogue': 'showDialogue'
+      };
+    }
 
-  # The template which renders this view.
-  template: Templates.template 'code-gen-button'
+    chooseLang(e) {
+      const lang = this.$(e.target).closest('li').data('lang');
+      this.model.set({lang});
+      return this.showDialogue();
+    }
 
-  # The data that the template renders.
-  getData: -> _.extend super, options: Options.get('CodeGen')
-
-  renderChildren: ->
-    @renderChildAt '.im-show-code-gen-dialogue', new MainButton {@model}
-
-  events: ->
-    'click .dropdown-menu.im-code-gen-langs li': 'chooseLang'
-    'click .im-show-code-gen-dialogue': 'showDialogue'
-
-  chooseLang: (e) ->
-    lang = @$(e.target).closest('li').data 'lang'
-    @model.set(lang: lang)
-    @showDialogue()
-
-  showDialogue: ->
-    page = @tableState.pick 'start', 'size'
-    dialogue = new Dialogue {@query, @model, page}
-    @renderChild 'dialogue', dialogue
-    # Returns a promise, but in this case we don't care about it.
-    dialogue.show()
+    showDialogue() {
+      const page = this.tableState.pick('start', 'size');
+      const dialogue = new Dialogue({query: this.query, model: this.model, page});
+      this.renderChild('dialogue', dialogue);
+      // Returns a promise, but in this case we don't care about it.
+      return dialogue.show();
+    }
+  };
+  CodeGenButton.initClass();
+  return CodeGenButton;
+})());

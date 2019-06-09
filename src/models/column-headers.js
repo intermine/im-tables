@@ -1,20 +1,37 @@
-Collection = require '../core/collection'
-HeaderModel = require './header'
+/*
+ * decaffeinate suggestions:
+ * DS101: Remove unnecessary use of Array.from
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS206: Consider reworking classes to avoid initClass
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let ColumnHeaders;
+const Collection = require('../core/collection');
+const HeaderModel = require('./header');
 
-buildHeaders = require '../utils/build-headers'
+const buildHeaders = require('../utils/build-headers');
 
-module.exports = class ColumnHeaders extends Collection
+module.exports = (ColumnHeaders = (function() {
+  ColumnHeaders = class ColumnHeaders extends Collection {
+    static initClass() {
+  
+      this.prototype.model = HeaderModel;
+  
+      this.prototype.comparator = 'index';
+    }
 
-  model: HeaderModel
+    initialize() {
+      super.initialize(...arguments);
+      return this.listenTo(this, 'change:index', this.sort);
+    }
 
-  comparator: 'index'
-
-  initialize: ->
-    super
-    @listenTo @, 'change:index', @sort
-
-  # (Query, Collection) -> Promise
-  setHeaders: (query, banList) ->
-    building = buildHeaders(query, banList)
-    building.then (hs) => @set(new HeaderModel h, query for h in hs)
+    // (Query, Collection) -> Promise
+    setHeaders(query, banList) {
+      const building = buildHeaders(query, banList);
+      return building.then(hs => this.set(Array.from(hs).map((h) => new HeaderModel(h, query))));
+    }
+  };
+  ColumnHeaders.initClass();
+  return ColumnHeaders;
+})());
 

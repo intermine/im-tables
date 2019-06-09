@@ -1,23 +1,40 @@
-_ = require 'underscore'
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS206: Consider reworking classes to avoid initClass
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let UnselectedColumn;
+const _ = require('underscore');
 
-SelectedColumn = require './selected-column'
-Templates = require '../../templates'
+const SelectedColumn = require('./selected-column');
+const Templates = require('../../templates');
 
-TEMPLATE_PARTS = [
+const TEMPLATE_PARTS = [
   'column-manager-path-name',
   'column-manager-restore-path'
-]
+];
 
-module.exports = class UnselectedColumn extends SelectedColumn
+module.exports = (UnselectedColumn = (function() {
+  UnselectedColumn = class UnselectedColumn extends SelectedColumn {
+    static initClass() {
+  
+      this.prototype.template = Templates.templateFromParts(TEMPLATE_PARTS);
+  
+      this.prototype.restoreTitle = 'columns.RestoreColumn';
+    }
 
-  template: Templates.templateFromParts TEMPLATE_PARTS
+    events() { // Same logic as remove - remove from collection.
+      return {
+        'click .im-restore-view': 'removeView',
+        'click': 'toggleFullPath'
+      };
+    }
 
-  events: -> # Same logic as remove - remove from collection.
-    'click .im-restore-view': 'removeView'
-    'click': 'toggleFullPath'
-
-  restoreTitle: 'columns.RestoreColumn'
-
-  getData: -> _.extend super, {@restoreTitle}
+    getData() { return _.extend(super.getData(...arguments), {restoreTitle: this.restoreTitle}); }
+  };
+  UnselectedColumn.initClass();
+  return UnselectedColumn;
+})());
 
 

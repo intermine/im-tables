@@ -1,52 +1,71 @@
-CoreModel = require '../core-model'
+/*
+ * decaffeinate suggestions:
+ * DS101: Remove unnecessary use of Array.from
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let PathModel;
+const CoreModel = require('../core-model');
 
-{Model: {NUMERIC_TYPES, BOOLEAN_TYPES}} = require 'imjs'
+const {Model: {NUMERIC_TYPES, BOOLEAN_TYPES}} = require('imjs');
 
-module.exports = class PathModel extends CoreModel
+module.exports = (PathModel = class PathModel extends CoreModel {
 
-  defaults: ->
-    path: null
-    type: null
-    displayName: null
-    typeName: null
-    parts: []
-    isNumeric: false
-    isBoolean: false
-    isReference: false # Assumes attribute by default
-    isAttribute: true
+  defaults() {
+    return {
+      path: null,
+      type: null,
+      displayName: null,
+      typeName: null,
+      parts: [],
+      isNumeric: false,
+      isBoolean: false,
+      isReference: false, // Assumes attribute by default
+      isAttribute: true
+    };
+  }
 
-  constructor: (path) ->
-    super()
-    @set @pathAttributes path
-    @setDisplayName path
-    @setTypeName path
-    @pathInfo = -> path
-    # Freeze the things that should never change
-    @freeze 'path', 'isNumeric', 'isBoolean', 'isReference', 'isAttribute'
+  constructor(path) {
+    super();
+    this.set(this.pathAttributes(path));
+    this.setDisplayName(path);
+    this.setTypeName(path);
+    this.pathInfo = () => path;
+    // Freeze the things that should never change
+    this.freeze('path', 'isNumeric', 'isBoolean', 'isReference', 'isAttribute');
+  }
 
-  setDisplayName: (path) ->
-    path.getDisplayName().then (name) =>
-      @set displayName: name, parts: name.split(' > ')
-      @freeze 'displayName', 'parts'
+  setDisplayName(path) {
+    return path.getDisplayName().then(name => {
+      this.set({displayName: name, parts: name.split(' > ')});
+      return this.freeze('displayName', 'parts');
+    });
+  }
 
-  setTypeName: (path) ->
-    type = (if path.isAttribute() then path.getParent() else path).getType()
-    type.getDisplayName().then (name) => @set typeName: name
+  setTypeName(path) {
+    const type = (path.isAttribute() ? path.getParent() : path).getType();
+    return type.getDisplayName().then(name => this.set({typeName: name}));
+  }
 
-  pathAttributes: (path) ->
-    str = String path
-    isAttr = path.isAttribute()
-    type = path.getType()
-    attrs =
-      id: (if isAttr then str else "#{ str }.id")
-      path: str
-      type: (type.name ? type)
+  pathAttributes(path) {
+    const str = String(path);
+    const isAttr = path.isAttribute();
+    const type = path.getType();
+    const attrs = {
+      id: (isAttr ? str : `${ str }.id`),
+      path: str,
+      type: (type.name != null ? type.name : type)
+    };
 
-    if isAttr
-      attrs.isNumeric = (type in NUMERIC_TYPES)
-      attrs.isBoolean = (type in BOOLEAN_TYPES)
-    else
-      attrs.isReference = true
-      attrs.isAttribute = false
+    if (isAttr) {
+      attrs.isNumeric = (Array.from(NUMERIC_TYPES).includes(type));
+      attrs.isBoolean = (Array.from(BOOLEAN_TYPES).includes(type));
+    } else {
+      attrs.isReference = true;
+      attrs.isAttribute = false;
+    }
 
-    return attrs
+    return attrs;
+  }
+});

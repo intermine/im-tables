@@ -1,11 +1,18 @@
-$ = require 'jquery'
-{Promise} = require 'es6-promise'
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+const $ = require('jquery');
+const {Promise} = require('es6-promise');
 
-Options = require '../options'
+const Options = require('../options');
 
-module.exports = (key, varName) ->
-  if global[varName]
-    Promise.resolve global[varName]
-  else
-    Promise.resolve($.ajax url: Options.get(key), cache: true, dataType: 'script')
-           .then -> global[varName]
+module.exports = function(key, varName) {
+  if (global[varName]) {
+    return Promise.resolve(global[varName]);
+  } else {
+    return Promise.resolve($.ajax({url: Options.get(key), cache: true, dataType: 'script'}))
+           .then(() => global[varName]);
+  }
+};

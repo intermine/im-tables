@@ -1,35 +1,53 @@
-_ = require 'underscore'
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS206: Consider reworking classes to avoid initClass
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let ExportDialogueButton;
+const _ = require('underscore');
 
-# Base class.
-QueryDialogueButton = require '../query-dialogue-button'
+// Base class.
+const QueryDialogueButton = require('../query-dialogue-button');
 
-# The model for this class.
-ExportDialogue = require '../export-dialogue'
+// The model for this class.
+const ExportDialogue = require('../export-dialogue');
 
-Counter = require '../../utils/count-executor'
+const Counter = require('../../utils/count-executor');
 
-module.exports = class ExportDialogueButton extends QueryDialogueButton
+module.exports = (ExportDialogueButton = (function() {
+  ExportDialogueButton = class ExportDialogueButton extends QueryDialogueButton {
+    static initClass() {
+  
+      // an identifying class.
+      this.prototype.className = 'im-export-dialogue-button';
+  
+      this.prototype.longLabel = 'export.ExportQuery';
+      this.prototype.shortLabel = 'export.Export';
+      this.prototype.icon = 'Download';
+  
+      this.prototype.optionalParameters = ['tableState'];
+  
+      this.prototype.Dialogue = ExportDialogue;
+  }
 
-  # an identifying class.
-  className: 'im-export-dialogue-button'
+    initialize() {
+      super.initialize(...arguments);
+      return Counter.count(this.query) // Disable export if no results or in error.
+             .then(count => this.state.set({disabled: count === 0}))
+             .then(null, err => this.state.set({disabled: true, error: err}));
+  }
 
-  longLabel: 'export.ExportQuery'
-  shortLabel: 'export.Export'
-  icon: 'Download'
+    initState() {
+      return this.state.set({name: this.query.name});
+  }
 
-  optionalParameters: ['tableState']
-
-  initialize: ->
-    super
-    Counter.count @query # Disable export if no results or in error.
-           .then (count) => @state.set disabled: count is 0
-           .then null, (err) => @state.set disabled: true, error: err
-
-  initState: ->
-    @state.set name: @query.name
-
-  dialogueOptions: ->
-    page = @tableState?.pick('start', 'size')
-    {@query, model: {tablePage: page}}
-
-  Dialogue: ExportDialogue
+    dialogueOptions() {
+      const page = this.tableState != null ? this.tableState.pick('start', 'size') : undefined;
+      return {query: this.query, model: {tablePage: page}};
+  }
+};
+  ExportDialogueButton.initClass();
+  return ExportDialogueButton;
+})());

@@ -1,75 +1,100 @@
-_ = require 'underscore'
-imjs = require 'imjs'
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS206: Consider reworking classes to avoid initClass
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let ErrorNotice;
+const _ = require('underscore');
+const imjs = require('imjs');
 
-Options = require '../../options'
-CoreView = require '../../core-view'
-Templates = require '../../templates'
-Messages = require '../../messages'
-indentXML = require '../../utils/indent-xml'
-mailto = require '../../utils/mailto'
-withResource = require '../../utils/with-cdn-resource'
-VERSION = require '../../version'
+const Options = require('../../options');
+const CoreView = require('../../core-view');
+const Templates = require('../../templates');
+const Messages = require('../../messages');
+const indentXML = require('../../utils/indent-xml');
+const mailto = require('../../utils/mailto');
+const withResource = require('../../utils/with-cdn-resource');
+const VERSION = require('../../version');
 
-require '../../messages/error'
+require('../../messages/error');
 
-withPrettyPrintOne = _.partial withResource, 'prettify', 'prettyPrintOne'
+const withPrettyPrintOne = _.partial(withResource, 'prettify', 'prettyPrintOne');
 
-getDomain = (err) ->
-  if /(Type|Reference)Error/.test String err
-    'client' # clearly our fault.
-  else
-    'server'
+const getDomain = function(err) {
+  if (/(Type|Reference)Error/.test(String(err))) {
+    return 'client'; // clearly our fault.
+  } else {
+    return 'server';
+  }
+};
 
-module.exports = class ErrorNotice extends CoreView
+module.exports = (ErrorNotice = (function() {
+  ErrorNotice = class ErrorNotice extends CoreView {
+    static initClass() {
+  
+      this.prototype.className = 'im-error-notice';
+  
+      this.prototype.parameters = ['model', 'query'];
+  
+      this.prototype.template = Templates.template('table-error');
+    }
 
-  className: 'im-error-notice'
+    helpers() { return _.extend(super.helpers(...arguments), {indent: indentXML}); }
 
-  parameters: ['model', 'query']
+    getData() {
+      const err = this.model.get('error');
+      const time = new Date();
+      const subject = Messages.getText('error.mail.Subject');
+      const address = this.query.service.help;
+      const domain = getDomain(err);
 
-  helpers: -> _.extend super, indent: indentXML
+      // Make sure this error is logged.
+      console.error(err);
 
-  template: Templates.template 'table-error'
-
-  getData: ->
-    err = @model.get('error')
-    time = new Date()
-    subject = Messages.getText('error.mail.Subject')
-    address = @query.service.help
-    domain = getDomain err
-
-    # Make sure this error is logged.
-    console.error err
-
-    href = mailto.href address, subject, """
-      We encountered an error running a query from an
-      embedded result table.
+      const href = mailto.href(address, subject, `\
+We encountered an error running a query from an
+embedded result table.
       
-      page:       #{ global.location }
-      service:    #{ @query.service.root }
-      error:      #{ err }
-      date-stamp: #{ time }
+page:       ${ global.location }
+service:    ${ this.query.service.root }
+error:      ${ err }
+date-stamp: ${ time }
 
-      -------------------------------
-      IMJS:       #{ imjs.VERSION }
-      -------------------------------
-      IMTABLES:   #{ VERSION }
-      -------------------------------
-      QUERY:      #{ @query.toXML() }
-      -------------------------------
-      STACK:      #{ err?.stack }
-    """
+-------------------------------
+IMJS:       ${ imjs.VERSION }
+-------------------------------
+IMTABLES:   ${ VERSION }
+-------------------------------
+QUERY:      ${ this.query.toXML() }
+-------------------------------
+STACK:      ${ (err != null ? err.stack : undefined) }\
+`
+      );
 
-    _.extend super, {domain, mailto: href, query: @query.toXML()}
+      return _.extend(super.getData(...arguments), {domain, mailto: href, query: this.query.toXML()});
+    }
 
-  postRender: ->
-    query = indentXML @query.toXML()
-    pre = @$ '.query-xml'
-    withPrettyPrintOne (ppo) -> pre.html ppo _.escape query
+    postRender() {
+      const query = indentXML(this.query.toXML());
+      const pre = this.$('.query-xml');
+      return withPrettyPrintOne(ppo => pre.html(ppo(_.escape(query))));
+    }
 
-  events: ->
-    'click .im-show-query': ->
-      @$('.query-xml').slideToggle()
-      @$('.im-show-query').toggleClass 'active'
-    'click .im-show-error': ->
-      @$('.error-message').slideToggle()
-      @$('.im-show-error').toggleClass 'active'
+    events() {
+      return {
+        'click .im-show-query'() {
+          this.$('.query-xml').slideToggle();
+          return this.$('.im-show-query').toggleClass('active');
+        },
+        'click .im-show-error'() {
+          this.$('.error-message').slideToggle();
+          return this.$('.im-show-error').toggleClass('active');
+        }
+      };
+    }
+  };
+  ErrorNotice.initClass();
+  return ErrorNotice;
+})());

@@ -1,48 +1,70 @@
-Backbone = require 'backbone'
+/*
+ * decaffeinate suggestions:
+ * DS101: Remove unnecessary use of Array.from
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS206: Consider reworking classes to avoid initClass
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let CoreModel;
+const Backbone = require('backbone');
 
-invert = (x) -> not x
+const invert = x => !x;
 
-# Extension to Backbone.Model which adds some useful helpers
-#  - @swap(key, (val) -> val) - replaces value with derived value
-#  - @toggle(key) - Specialisation of swap for booleans.
-module.exports = class CoreModel extends Backbone.Model
+// Extension to Backbone.Model which adds some useful helpers
+//  - @swap(key, (val) -> val) - replaces value with derived value
+//  - @toggle(key) - Specialisation of swap for booleans.
+module.exports = (CoreModel = (function() {
+  CoreModel = class CoreModel extends Backbone.Model {
+    static initClass() {
+  
+      this.prototype.destroyed = false;
+  
+      this.prototype._frozen = [];
+    }
 
-  destroyed: false
+    // Helper to toggle the state of boolean value (using not)
+    toggle(key) { return this.swap(key, invert); }
 
-  # Helper to toggle the state of boolean value (using not)
-  toggle: (key) -> @swap key, invert
+    // Helper to change the value of an entry using a function.
+    swap(key, f) { return this.set(key, f(this.get(key))); }
 
-  # Helper to change the value of an entry using a function.
-  swap: (key, f) -> @set key, f @get key
+    toJSON() { if (this.destroyed) { return 'DESTROYED'; } else { return super.toJSON(...arguments); } }
 
-  toJSON: -> if @destroyed then 'DESTROYED' else super
+    // Release listeners in both directions, and delete
+    // all instance properties.
+    // Unlike in the standard backboniverse, this does not
+    // attempt to sync with anywhere.
+    destroy() { if (!this.destroyed) { // re-entrant.
+      this.stopListening();
+      this.destroyed = true;
+      this.trigger('destroy', this, this.collection);
+      this._frozen = [];
+      this.clear();
+      return this.off();
+    } }
 
-  # Release listeners in both directions, and delete
-  # all instance properties.
-  # Unlike in the standard backboniverse, this does not
-  # attempt to sync with anywhere.
-  destroy: -> unless @destroyed # re-entrant.
-    @stopListening()
-    @destroyed = true
-    @trigger 'destroy', @, @collection
-    @_frozen = []
-    @clear()
-    @off()
+    _validate(attrs, opts) {
+      for (let p of Array.from(this._frozen)) {
+        if ((p in attrs) && (attrs[p] !== this.get(p))) {
+          const msg = `${ p } is frozen (trying to set it to ${ attrs[p] } - is ${ this.get(p) })`;
+          if (opts.merge) { // Expected when calling set. Rethink this if this causes bugs.
+            // console.debug 'ignoring merge'
+            attrs[p] = this.get(p); // otherwise it will be overwritten.
+          } else {
+            throw new Error(msg);
+          }
+        }
+      }
+      return super._validate(...arguments);
+    }
 
-  _frozen: []
-
-  _validate: (attrs, opts) ->
-    for p in @_frozen when (p of attrs) and (attrs[p] isnt @get p)
-      msg = "#{ p } is frozen (trying to set it to #{ attrs[p] } - is #{ @get p })"
-      if opts.merge # Expected when calling set. Rethink this if this causes bugs.
-        # console.debug 'ignoring merge'
-        attrs[p] = @get p # otherwise it will be overwritten.
-      else
-        throw new Error msg
-    super
-
-  # Calls to set(prop) after freeze(prop) will throw.
-  freeze: (properties...) ->
-    @_frozen = @_frozen.concat properties
-    this
+    // Calls to set(prop) after freeze(prop) will throw.
+    freeze(...properties) {
+      this._frozen = this._frozen.concat(properties);
+      return this;
+    }
+  };
+  CoreModel.initClass();
+  return CoreModel;
+})());
 

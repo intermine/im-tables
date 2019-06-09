@@ -1,50 +1,91 @@
-Backbone = require 'backbone'
-_ = require 'underscore'
+/*
+ * decaffeinate suggestions:
+ * DS001: Remove Babel/TypeScript constructor workaround
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS104: Avoid inline assignments
+ * DS205: Consider reworking code to avoid use of IIFEs
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+const Backbone = require('backbone');
+const _ = require('underscore');
 
-# HWAT! Do not be tempted to replace this with a loop to build DEFAULTS. That
-# would break browserify. You would want to do that, would you?
-actionMessages = require './messages/actions'
-common = require './messages/common'
+// HWAT! Do not be tempted to replace this with a loop to build DEFAULTS. That
+// would break browserify. You would want to do that, would you?
+const actionMessages = require('./messages/actions');
+const common = require('./messages/common');
 
-{numToString, pluralise} = require './templates/helpers'
+const {numToString, pluralise} = require('./templates/helpers');
 
-DEFAULTS = [common, actionMessages]
+const DEFAULTS = [common, actionMessages];
 
-HELPERS = # All message templates have access to these helpers.
-  formatNumber: numToString
-  pluralise: pluralise
+const HELPERS = { // All message templates have access to these helpers.
+  formatNumber: numToString,
+  pluralise
+};
 
-class Messages extends Backbone.Model
+class Messages extends Backbone.Model {
 
-  initialize: ->
-    @cache = {}
-    @on 'change', => @cache = {}
+  constructor(...args) {
+    {
+      // Hack: trick Babel/TypeScript into allowing this before super.
+      if (false) { super(); }
+      let thisFn = (() => { return this; }).toString();
+      let thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1];
+      eval(`${thisName} = this;`);
+    }
+    this.getText = this.getText.bind(this);
+    super(...args);
+  }
 
-  destroy: ->
-    @off()
-    for prop of @
-      delete @[prop]
+  initialize() {
+    this.cache = {};
+    return this.on('change', () => { return this.cache = {}; });
+  }
 
-  getTemplate: (key) ->
-    templ = (@cache[key] ? @get key)
-    if templ? and not templ.call?
-      # Don't recompile the template each time
-      # also, allow users to supply precompiled or custom templates.
-      templ = _.template(templ)
-    @cache[key] = templ
+  destroy() {
+    this.off();
+    return (() => {
+      const result = [];
+      for (let prop in this) {
+        result.push(delete this[prop]);
+      }
+      return result;
+    })();
+  }
 
-  getText: (key, args = {}) =>
-    templ = @getTemplate key
-    # Make missing keys really obvious
-    templ?(_.extend {Messages: @}, HELPERS, args) ? "!!!No message for #{ key }!!!"
+  getTemplate(key) {
+    let templ = (this.cache[key] != null ? this.cache[key] : this.get(key));
+    if ((templ != null) && (templ.call == null)) {
+      // Don't recompile the template each time
+      // also, allow users to supply precompiled or custom templates.
+      templ = _.template(templ);
+    }
+    return this.cache[key] = templ;
+  }
 
-  # Allows sets of messages to be set with a prefix namespacing them.
-  setWithPrefix: (prefix, messages) -> for key, val of messages
-    @set "#{prefix}.#{key}", val
+  getText(key, args) {
+    let left;
+    if (args == null) { args = {}; }
+    const templ = this.getTemplate(key);
+    // Make missing keys really obvious
+    return (left = (typeof templ === 'function' ? templ(_.extend({Messages: this}, HELPERS, args)) : undefined)) != null ? left : `!!!No message for ${ key }!!!`;
+  }
 
-  defaults: -> _.extend.apply null, [{}].concat DEFAULTS
+  // Allows sets of messages to be set with a prefix namespacing them.
+  setWithPrefix(prefix, messages) { return (() => {
+    const result = [];
+    for (let key in messages) {
+      const val = messages[key];
+      result.push(this.set(`${prefix}.${key}`, val));
+    }
+    return result;
+  })(); }
 
-module.exports = new Messages
+  defaults() { return _.extend.apply(null, [{}].concat(DEFAULTS)); }
+}
 
-module.exports.Messages = Messages
+module.exports = new Messages;
+
+module.exports.Messages = Messages;
   

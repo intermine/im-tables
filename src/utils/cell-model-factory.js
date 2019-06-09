@@ -1,67 +1,90 @@
-_ = require 'underscore'
+/*
+ * decaffeinate suggestions:
+ * DS101: Remove unnecessary use of Array.from
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let CellModelFactory;
+const _ = require('underscore');
 
-ObjectStore      = require '../models/object-store'
-NestedTableModel = require '../models/nested-table'
-CellModel        = require '../models/cell'
-NullObject       = require '../models/null-object'
-FPObject         = require '../models/fast-path-object'
+const ObjectStore      = require('../models/object-store');
+const NestedTableModel = require('../models/nested-table');
+const CellModel        = require('../models/cell');
+const NullObject       = require('../models/null-object');
+const FPObject         = require('../models/fast-path-object');
 
-# Factory that wraps an object store for constructing entity models
-# with logic for handling other types of cell model, such as null 
-# values, fast-path objects and sub-tables.
-module.exports = class CellModelFactory
+// Factory that wraps an object store for constructing entity models
+// with logic for handling other types of cell model, such as null 
+// values, fast-path objects and sub-tables.
+module.exports = (CellModelFactory = class CellModelFactory {
 
-  constructor: (service, model) ->
-    @itemModels = new ObjectStore service.root, model
+  constructor(service, model) {
+    this.itemModels = new ObjectStore(service.root, model);
+  }
 
-  # Take a cell returned from the web-service and produce a model.
-  getCreator: (query) ->
-    throw new Error('No query') unless query
-    creator = (cell) =>
-      path = query.makePath cell.column
-      if _.has(cell, 'rows')
-        @_make_sub_table_model cell, path, creator
-      else
-        @_make_simple_cell_model cell, path
+  // Take a cell returned from the web-service and produce a model.
+  getCreator(query) {
+    let creator;
+    if (!query) { throw new Error('No query'); }
+    return creator = cell => {
+      const path = query.makePath(cell.column);
+      if (_.has(cell, 'rows')) {
+        return this._make_sub_table_model(cell, path, creator);
+      } else {
+        return this._make_simple_cell_model(cell, path);
+      }
+    };
+  }
 
-  _make_sub_table_model: (nestedTable, column, createModel) ->
-    # Here we lift some properties to more useful types, then wrap it up in
-    # a structured object.
+  _make_sub_table_model(nestedTable, column, createModel) {
+    // Here we lift some properties to more useful types, then wrap it up in
+    // a structured object.
 
-    # We assign from nestedTable to get access to properties such as .view
-    new NestedTableModel _.extend {}, nestedTable,
-      node: column # Duplicate name - not necessary?
-      column: column
-      rows: (r.map((subcell) -> createModel subcell) for r in nestedTable.rows)
+    // We assign from nestedTable to get access to properties such as .view
+    return new NestedTableModel(_.extend({}, nestedTable, {
+      node: column, // Duplicate name - not necessary?
+      column,
+      rows: ((Array.from(nestedTable.rows).map((r) => r.map(subcell => createModel(subcell)))))
+    }
+    )
+    );
+  }
 
-  _make_simple_cell_model: (obj, column) ->
-    # The obj this attr belongs to (eg. Employee)
-    node = column.getParent()
-    # The raw attribute name.
-    field = column.end.name
+  _make_simple_cell_model(obj, column) {
+    // The obj this attr belongs to (eg. Employee)
+    const node = column.getParent();
+    // The raw attribute name.
+    const field = column.end.name;
 
-    # Can be either a full InterMineObject, a null placeholder, or
-    # a light-weight fast-path object.
+    // Can be either a full InterMineObject, a null placeholder, or
+    // a light-weight fast-path object.
    
-    entity = if obj.id?
-      @itemModels.get obj, field # Get or create 
-    else if not obj.class? # create a new null-cell for this cell.
-      new NullObject node.getType().name, field
-    else # FastPathObjects don't have ids, and cannot be in lists.
-      new FPObject obj, field
+    const entity = (obj.id != null) ?
+      this.itemModels.get(obj, field) // Get or create 
+    : (obj.class == null) ? // create a new null-cell for this cell.
+      new NullObject(node.getType().name, field)
+    : // FastPathObjects don't have ids, and cannot be in lists.
+      new FPObject(obj, field);
 
-    # A cell model is a nested model, containing cell, a sub-model containing
-    # the data for this entity, not just this cell.
-    # There is one CellModel for each cell displayed in the table, but there
-    # is only one InterMineObject for each entity represented in the table.
-    new CellModel
-      entity: entity
-      node: node
-      column: column
-      field: field
+    // A cell model is a nested model, containing cell, a sub-model containing
+    // the data for this entity, not just this cell.
+    // There is one CellModel for each cell displayed in the table, but there
+    // is only one InterMineObject for each entity represented in the table.
+    return new CellModel({
+      entity,
+      node,
+      column,
+      field,
       value: obj.value
+    });
+  }
 
-  destroy: ->
-    @itemModels?.destroy()
-    delete @itemModels
-    this
+  destroy() {
+    if (this.itemModels != null) {
+      this.itemModels.destroy();
+    }
+    delete this.itemModels;
+    return this;
+  }
+});

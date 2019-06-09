@@ -1,102 +1,160 @@
-_ = require 'underscore'
+/*
+ * decaffeinate suggestions:
+ * DS001: Remove Babel/TypeScript constructor workaround
+ * DS101: Remove unnecessary use of Array.from
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS205: Consider reworking code to avoid use of IIFEs
+ * DS206: Consider reworking classes to avoid initClass
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let PathChooser;
+const _ = require('underscore');
 
-Options = require '../options'
-CoreView = require '../core-view'
+const Options = require('../options');
+const CoreView = require('../core-view');
 
-Attribute = require './pathtree/attribute'
-RootClass = require './pathtree/root'
-Reference = require './pathtree/reference'
-ReverseReference = require './pathtree/reverse-reference'
+const Attribute = require('./pathtree/attribute');
+const RootClass = require('./pathtree/root');
+const Reference = require('./pathtree/reference');
+const ReverseReference = require('./pathtree/reverse-reference');
 
-appendField = (pth, fld) -> pth.append fld
+const appendField = (pth, fld) => pth.append(fld);
 
-module.exports = class PathChooser extends CoreView
+module.exports = (PathChooser = (function() {
+  PathChooser = class PathChooser extends CoreView {
+    constructor(...args) {
+      {
+        // Hack: trick Babel/TypeScript into allowing this before super.
+        if (false) { super(); }
+        let thisFn = (() => { return this; }).toString();
+        let thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1];
+        eval(`${thisName} = this;`);
+      }
+      this.createSubFinder = this.createSubFinder.bind(this);
+      super(...args);
+    }
 
-  # Model must have 'path'
-  parameters: ['model', 'query', 'chosenPaths', 'openNodes', 'view', 'trail']
+    static initClass() {
+  
+      // Model must have 'path'
+      this.prototype.parameters = ['model', 'query', 'chosenPaths', 'openNodes', 'view', 'trail'];
+  
+      this.prototype.tagName = 'ul';
+        
+      this.prototype.className = 'im-path-chooser';
+    }
 
-  tagName: 'ul'
-      
-  className: 'im-path-chooser'
+    initialize() {
+      super.initialize(...arguments);
+      this.path  = (_.last(this.trail) || this.model.get('root') || this.query.makePath(this.query.root));
+      this.cd    = this.path.getEndClass();
+      const toPath = appendField.bind(null, this.path);
 
-  initialize: ->
-    super
-    @path  = (_.last(@trail) or @model.get('root') or @query.makePath(@query.root))
-    @cd    = @path.getEndClass()
-    toPath = appendField.bind null, @path
+      // These are all :: [PathInfo]
+      for (var fieldType of ['attributes', 'references', 'collections']) {
+        this[fieldType] = ((() => {
+          const result = [];
+          for (let name in this.cd[fieldType]) {
+            const attr = this.cd[fieldType][name];
+            result.push(toPath(attr));
+          }
+          return result;
+        })());
+      }
 
-    # These are all :: [PathInfo]
-    for fieldType in ['attributes', 'references', 'collections']
-      @[fieldType] = (toPath attr for name, attr of @cd[fieldType])
+      this.listenTo(this.model, 'change:allowRevRefs', this.render);
+      return this.listenTo(this.openNodes, 'reset', this.render);
+    }
 
-    @listenTo @model, 'change:allowRevRefs', @render
-    @listenTo @openNodes, 'reset', @render
+    getDepth() { return this.trail.length; }
 
-  getDepth: -> @trail.length
+    showRoot() { return (this.getDepth() === 0) && this.model.get('canSelectReferences'); }
 
-  showRoot: -> @getDepth() is 0 and @model.get('canSelectReferences')
+    // Machinery for preserving scroll positions.
+    events() { return {scroll: this.onScroll}; }
 
-  # Machinery for preserving scroll positions.
-  events: -> scroll: @onScroll
+    onScroll() { if (!this.state.get('ignoreScroll')) {
+      const st = this.el.scrollTop;
+      const diff = this.state.has('scroll') ? Math.abs(this.state.get('scroll') - st) : 0;
+      if ((st !== 0) || (diff < 50)) { // Within the range of manual scrolling, allow it.
+        return this.state.set({scroll: st});
+      } else { // very likely reset due to tree activity.
+        return _.defer(() => { return this.el.scrollTop = this.state.get('scroll'); });
+      }
+    } }
 
-  onScroll: -> unless @state.get('ignoreScroll')
-    st = @el.scrollTop
-    diff = if @state.has('scroll') then Math.abs(@state.get('scroll') - st) else 0
-    if (st isnt 0) or (diff < 50) # Within the range of manual scrolling, allow it.
-      @state.set scroll: st
-    else # very likely reset due to tree activity.
-      _.defer => @el.scrollTop = @state.get 'scroll'
+    startIgnoringScroll() {
+      return this.state.set({ignoreScroll: true}); // Ignore during the main render, since it will wipe scroll top.
+    }
 
-  startIgnoringScroll: ->
-    @state.set ignoreScroll: true # Ignore during the main render, since it will wipe scroll top.
+    startListeningForScroll() {
+      if (this.state.has('scroll')) { // Preserve the scroll position.
+        this.el.scrollTop = this.state.get('scroll');
+      }
+      return this.state.set({ignoreScroll: false}); // start listening for scroll again.
+    }
 
-  startListeningForScroll: ->
-    if @state.has('scroll') # Preserve the scroll position.
-      @el.scrollTop = @state.get('scroll')
-    @state.set ignoreScroll: false # start listening for scroll again.
+    preRender() { return this.startIgnoringScroll(); }
 
-  preRender: -> @startIgnoringScroll()
+    postRender() {
+      let path;
+      const showId = Options.get('ShowId');
 
-  postRender: ->
-    showId = Options.get 'ShowId'
+      if (this.showRoot()) { // then show the root class
+        const root = this.createRoot();
+        this.renderChild('root', root);
+      }
 
-    if @showRoot() # then show the root class
-      root = @createRoot()
-      @renderChild 'root', root
+      for (path of Array.from(this.attributes)) {
+        if (showId || (path.end.name !== 'id')) {
+          const attr = this.createAttribute(path);
+          this.renderChild(path.toString(), attr);
+        }
+      }
 
-    for path in @attributes
-      if showId or (path.end.name isnt 'id')
-        attr = @createAttribute path
-        @renderChild path.toString(), attr
+      // Same logic for references and collections, but we want references to go first.
+      for (path of Array.from(this.references.concat(this.collections))) {
+        const ref = this.createReference(path);
+        this.renderChild(path.toString(), ref);
+      }
+      return this.startListeningForScroll();
+    }
 
-    # Same logic for references and collections, but we want references to go first.
-    for path in @references.concat(@collections)
-      ref = @createReference path
-      @renderChild path.toString(), ref
-    @startListeningForScroll()
+    createRoot() {
+      return new RootClass({query: this.query, model: this.model, chosenPaths: this.chosenPaths, openNodes: this.openNodes, cd: this.cd});
+    }
 
-  createRoot: ->
-    new RootClass {@query, @model, @chosenPaths, @openNodes, @cd}
+    createAttribute(path) {
+      return new Attribute({model: this.model, chosenPaths: this.chosenPaths, view: this.view, query: this.query, trail: this.trail, path});
+    }
 
-  createAttribute: (path) ->
-    new Attribute {@model, @chosenPaths, @view, @query, @trail, path}
+    createReference(path) {
+      const isLoop = this.isLoop(path);
+      const allowingRevRefs = this.model.get('allowRevRefs');
 
-  createReference: (path) ->
-    isLoop = @isLoop path
-    allowingRevRefs = @model.get 'allowRevRefs'
+      const Ref = isLoop && !allowingRevRefs ? ReverseReference : Reference;
+      return new Ref({model: this.model, chosenPaths: this.chosenPaths, query: this.query, trail: this.trail, path, view: this.view, openNodes: this.openNodes, createSubFinder: this.createSubFinder});
+    }
 
-    Ref = if isLoop and not allowingRevRefs then ReverseReference else Reference
-    new Ref {@model, @chosenPaths, @query, @trail, path, @view, @openNodes, @createSubFinder}
+    // Inject mechanism for creating a PathChooser to avoid a cyclic dependency.
+    createSubFinder(args) {
+      return new PathChooser(_.extend({model: this.model, query: this.query, chosenPaths: this.chosenPaths, view: this.view, openNodes: this.openNodes}, args));
+    }
 
-  # Inject mechanism for creating a PathChooser to avoid a cyclic dependency.
-  createSubFinder: (args) =>
-    new PathChooser _.extend {@model, @query, @chosenPaths, @view, @openNodes}, args
-
-  isLoop: (path) ->
-    if path.end.reverseReference? and @path.isReference()
-      if @path.getParent().isa path.end.referencedType
-        if @path.end.name is path.end.reverseReference
-          return true
-    return false
+    isLoop(path) {
+      if ((path.end.reverseReference != null) && this.path.isReference()) {
+        if (this.path.getParent().isa(path.end.referencedType)) {
+          if (this.path.end.name === path.end.reverseReference) {
+            return true;
+          }
+        }
+      }
+      return false;
+    }
+  };
+  PathChooser.initClass();
+  return PathChooser;
+})());
 
 

@@ -1,59 +1,88 @@
-_ = require 'underscore'
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS104: Avoid inline assignments
+ * DS206: Consider reworking classes to avoid initClass
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let SubtableHeaders;
+const _ = require('underscore');
 
-CoreView = require '../../core-view'
-Templates = require '../../templates'
+const CoreView = require('../../core-view');
+const Templates = require('../../templates');
 
-require '../../messages/subtables'
+require('../../messages/subtables');
 
-class SubtableHeader extends CoreView
+class SubtableHeader extends CoreView {
+  static initClass() {
+  
+    this.prototype.tagName = 'th';
+  
+    this.prototype.parameters = ['columnModel', 'model', 'query'];
+  
+    this.prototype.template = Templates.template('table-subtables-header');
+  }
 
-  tagName: 'th'
+  getData() { return _.extend(super.getData(...arguments), this.columnModel.pick('columnName')); }
 
-  parameters: ['columnModel', 'model', 'query']
+  modelEvents() { return {'change:displayName': this.reRender}; }
 
-  template: Templates.template 'table-subtables-header'
+  events() { return {'click a': this.removeView}; }
 
-  getData: -> _.extend super, @columnModel.pick('columnName')
+  removeView() {
+    let left;
+    return this.query.removeFromSelect((left = this.model.get('replaces')) != null ? left : this.model.get('path'));
+  }
 
-  modelEvents: -> 'change:displayName': @reRender
+  postRender() {
+    return this.$('[title]').tooltip();
+  }
 
-  events: -> 'click a': @removeView
+  initialize() {
+    super.initialize(...arguments);
+    return this.listenTo(this.columnModel, 'change:columnName', this.reRender);
+  }
 
-  removeView: ->
-    @query.removeFromSelect(@model.get('replaces') ? @model.get('path'))
+  remove() {
+    delete this.columnModel;
+    return super.remove(...arguments);
+  }
+}
+SubtableHeader.initClass();
 
-  postRender: ->
-    @$('[title]').tooltip()
+module.exports = (SubtableHeaders = (function() {
+  SubtableHeaders = class SubtableHeaders extends CoreView {
+    static initClass() {
+  
+      this.prototype.tagName = 'thead';
+  
+      this.prototype.parameters = [
+        'collection', // the column headers
+        'columnModel', // The model of the column we are on.
+        'query', // Needed because we will need to remove views.
+      ];
+    }
 
-  initialize: ->
-    super
-    @listenTo @columnModel, 'change:columnName', @reRender
+    template() { return '<tr></tr>'; }
 
-  remove: ->
-    delete @columnModel
-    super
+    collectionEvents() {
+      return {'add remove': this.reRender};
+    }
 
-module.exports = class SubtableHeaders extends CoreView
+    renderChildren() {
+      const tr = this.el.querySelector('tr');
+      return this.collection.forEach((model, i) => {
+        return this.renderChild(i, (new SubtableHeader({model, query: this.query, columnModel: this.columnModel})), tr);
+      });
+    }
 
-  tagName: 'thead'
-
-  template: -> '<tr></tr>'
-
-  parameters: [
-    'collection', # the column headers
-    'columnModel', # The model of the column we are on.
-    'query', # Needed because we will need to remove views.
-  ]
-
-  collectionEvents: ->
-    'add remove': @reRender
-
-  renderChildren: ->
-    tr = @el.querySelector 'tr'
-    @collection.forEach (model, i) =>
-      @renderChild i, (new SubtableHeader {model, @query, @columnModel}), tr
-
-  remove: ->
-    delete @columnModel
-    super
+    remove() {
+      delete this.columnModel;
+      return super.remove(...arguments);
+    }
+  };
+  SubtableHeaders.initClass();
+  return SubtableHeaders;
+})());
 

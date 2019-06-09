@@ -1,162 +1,213 @@
-_ = require 'underscore'
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS205: Consider reworking code to avoid use of IIFEs
+ * DS206: Consider reworking classes to avoid initClass
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let ListDialogueButton;
+const _ = require('underscore');
 
-CoreView = require '../../core-view'
-CoreModel = require '../../core-model'
-Collection = require '../../core/collection'
-Templates = require '../../templates'
+const CoreView = require('../../core-view');
+const CoreModel = require('../../core-model');
+const Collection = require('../../core/collection');
+const Templates = require('../../templates');
 
-ClassSet = require '../../utils/css-class-set'
-Counter = require '../../utils/count-executor'
-PathModel = require '../../models/path'
+const ClassSet = require('../../utils/css-class-set');
+const Counter = require('../../utils/count-executor');
+const PathModel = require('../../models/path');
 
-# The four dialogues of the apocalypse
-AppendPicker = require './append-from-selection'
-CreatePicker = require './create-from-selection'
-AppendFromPath = require './append-from-path'
-CreateFromPath = require './create-from-path'
+// The four dialogues of the apocalypse
+const AppendPicker = require('./append-from-selection');
+const CreatePicker = require('./create-from-selection');
+const AppendFromPath = require('./append-from-path');
+const CreateFromPath = require('./create-from-path');
 
-require '../../messages/lists'
+require('../../messages/lists');
 
 
-class Paths extends Collection
+class Paths extends Collection {
+  static initClass() {
+  
+    this.prototype.model = PathModel;
+  }
+}
+Paths.initClass();
 
-  model: PathModel
+class SelectableNode extends CoreView {
+  static initClass() {
+  
+    this.prototype.parameters = ['query', 'model', 'showDialogue', 'highLight'];
+  
+    this.prototype.tagName = 'li';
+  
+    this.prototype.Model = PathModel;
+  
+    this.prototype.template = Templates.template('list-dialogue-button-node');
+  }
 
-class SelectableNode extends CoreView
+  modelEvents() { return {'change:displayName change:typeName': this.reRender}; }
 
-  parameters: ['query', 'model', 'showDialogue', 'highLight']
+  stateEvents() { return {'change:count': this.reRender}; }
 
-  tagName: 'li'
+  events() {
+    return {
+      click: this.openDialogue,
+      'mouseenter a'() { return _.defer(() => this.highLight(this.model.get('path'))); },
+      'mouseout a'() { return this.highLight(null); }
+    };
+  }
 
-  modelEvents: -> 'change:displayName change:typeName': @reRender
+  initialize() {
+    super.initialize(...arguments);
+    return this.query.summarise(this.model.get('id'))
+          .then(({stats}) => this.state.set({count: stats.uniqueValues}));
+  }
 
-  stateEvents: -> 'change:count': @reRender
+  openDialogue() {
+    const args = {query: this.query, path: this.model.get('id')};
+    return this.showDialogue(args);
+  }
+}
+SelectableNode.initClass();
 
-  Model: PathModel
+module.exports = (ListDialogueButton = (function() {
+  ListDialogueButton = class ListDialogueButton extends CoreView {
+    static initClass() {
+  
+      this.prototype.tagName = 'div';
+  
+      this.prototype.className = 'btn-group list-dialogue-button';
+  
+      this.prototype.template = Templates.template('list-dialogue-button');
+  
+      this.prototype.parameters = ['query', 'selected'];
+  
+      this.prototype.optionalParameters = ['tableState'];
+  
+      this.prototype.tableState = new CoreModel;
+    }
 
-  template: Templates.template 'list-dialogue-button-node'
+    initState() {
+      return this.state.set({action: 'create', authenticated: false, disabled: false});
+    }
 
-  events: ->
-    click: @openDialogue
-    'mouseenter a': -> _.defer => @highLight @model.get('path')
-    'mouseout a': -> @highLight null
+    stateEvents() {
+      return {
+        'change:action': this.setActionButtonState,
+        'change:authenticated': this.setVisible,
+        'change:disabled': this.onChangeDisabled
+      };
+    }
 
-  initialize: ->
-    super
-    @query.summarise @model.get 'id'
-          .then ({stats}) => @state.set count: stats.uniqueValues
+    events() {
+      return {
+        'click .im-create-action': this.setActionIsCreate,
+        'click .im-append-action': this.setActionIsAppend,
+        'click .im-pick-items': this.startPicking
+      };
+    }
 
-  openDialogue: ->
-    args = {@query, path: @model.get('id')}
-    @showDialogue args
+    initialize() {
+      super.initialize(...arguments);
+      this.initBtnClasses();
+      this.paths = new Paths;
+      // Reversed, because we prepend them in order to the menu.
+      this.query.getQueryNodes().reverse().forEach(n => this.paths.add(new PathModel(n)));
+      this.query.service.whoami().then(u => this.state.set({authenticated: (!!u)}));
+      return Counter.count(this.query) // Disable export if no results or in error.
+             .then(count => this.state.set({disabled: count === 0}))
+             .then(null, err => this.state.set({disabled: true, error: err}));
+    }
 
-module.exports = class ListDialogueButton extends CoreView
+    getData() { return _.extend(super.getData(...arguments), this.classSets, {paths: this.paths.toJSON()}); }
 
-  tagName: 'div'
+    postRender() {
+      this.setVisible();
+      this.onChangeDisabled();
+      const menu = this.$('.dropdown-menu');
+      const highLight = p => this.tableState.set({highlitNode: p});
+      const showDialogue = args => this.showPathDialogue(args);
+      return this.paths.each((model, i) => {
+        const node = new SelectableNode({query: this.query, model, showDialogue, highLight});
+        return this.renderChild(`path-${ i }`, node, menu, 'prepend');
+      });
+    }
 
-  className: 'btn-group list-dialogue-button'
+    onChangeDisabled() { return this.$('.btn').toggleClass('disabled', this.state.get('disabled')); }
 
-  template: Templates.template 'list-dialogue-button'
+    setVisible() { return this.$el.toggleClass('im-hidden', (!this.state.get('authenticated'))); }
 
-  parameters: ['query', 'selected']
+    setActionIsCreate(e) {
+      e.stopPropagation();
+      e.preventDefault();
+      return this.state.set({action: 'create'});
+    }
 
-  optionalParameters: ['tableState']
+    setActionIsAppend(e) {
+      e.stopPropagation();
+      e.preventDefault();
+      return this.state.set({action: 'append'});
+    }
 
-  tableState: new CoreModel
+    showDialogue(Dialogue, args) {
+      const dialogue = new Dialogue(args);
+      this.renderChild('dialogue', dialogue);
+      const action = this.state.get('action');
+      const handler = outcome => result => {
+        this.trigger(`${ outcome }:${ action }`, result);
+        return this.trigger(outcome, action, result);
+      };
+      return dialogue.show().then((handler('success')), (handler('failure')));
+    }
 
-  initState: ->
-    @state.set action: 'create', authenticated: false, disabled: false
+    showPathDialogue(args) {
+      const action = this.state.get('action');
+      const Dialogue = (() => { switch (action) {
+        case 'append': return AppendFromPath;
+        case 'create': return CreateFromPath;
+        default: throw new Error(`Unknown action: ${ action }`);
+      } })();
+      return this.showDialogue(Dialogue, args);
+    }
 
-  stateEvents: ->
-    'change:action': @setActionButtonState
-    'change:authenticated': @setVisible
-    'change:disabled': @onChangeDisabled
+    startPicking() {
+      const action = this.state.get('action');
+      const args = {collection: this.selected, service: this.query.service};
+      const Dialogue = (() => { switch (action) {
+        case 'append': return AppendPicker;
+        case 'create': return CreatePicker;
+        default: throw new Error(`Unknown action: ${ action }`);
+      } })();
+      this.tableState.set({selecting: true});
+      const stopPicking = () => {
+        this.tableState.set({selecting: false});
+        return this.selected.reset();
+      };
+      return this.showDialogue(Dialogue, args).then(stopPicking, stopPicking);
+    }
 
-  events: ->
-    'click .im-create-action': @setActionIsCreate
-    'click .im-append-action': @setActionIsAppend
-    'click .im-pick-items': @startPicking
+    setActionButtonState() {
+      const action = this.state.get('action');
+      this.$('.im-create-action').toggleClass('active', action === 'create');
+      return this.$('.im-append-action').toggleClass('active', action === 'append');
+    }
 
-  initialize: ->
-    super
-    @initBtnClasses()
-    @paths = new Paths
-    # Reversed, because we prepend them in order to the menu.
-    @query.getQueryNodes().reverse().forEach (n) => @paths.add new PathModel n
-    @query.service.whoami().then (u) => @state.set authenticated: (!!u)
-    Counter.count @query # Disable export if no results or in error.
-           .then (count) => @state.set disabled: count is 0
-           .then null, (err) => @state.set disabled: true, error: err
-
-  getData: -> _.extend super, @classSets, paths: @paths.toJSON()
-
-  postRender: ->
-    @setVisible()
-    @onChangeDisabled()
-    menu = @$ '.dropdown-menu'
-    highLight = (p) => @tableState.set highlitNode: p
-    showDialogue = (args) => @showPathDialogue args
-    @paths.each (model, i) =>
-      node = new SelectableNode {@query, model, showDialogue, highLight}
-      @renderChild "path-#{ i }", node, menu, 'prepend'
-
-  onChangeDisabled: -> @$('.btn').toggleClass 'disabled', @state.get 'disabled'
-
-  setVisible: -> @$el.toggleClass 'im-hidden', (not @state.get 'authenticated')
-
-  setActionIsCreate: (e) ->
-    e.stopPropagation()
-    e.preventDefault()
-    @state.set action: 'create'
-
-  setActionIsAppend: (e) ->
-    e.stopPropagation()
-    e.preventDefault()
-    @state.set action: 'append'
-
-  showDialogue: (Dialogue, args) ->
-    dialogue = new Dialogue args
-    @renderChild 'dialogue', dialogue
-    action = @state.get 'action'
-    handler = (outcome) => (result) =>
-      @trigger "#{ outcome }:#{ action }", result
-      @trigger outcome, action, result
-    dialogue.show().then (handler 'success'), (handler 'failure')
-
-  showPathDialogue: (args) ->
-    action = @state.get 'action'
-    Dialogue = switch action
-      when 'append' then AppendFromPath
-      when 'create' then CreateFromPath
-      else throw new Error "Unknown action: #{ action }"
-    @showDialogue Dialogue, args
-
-  startPicking: ->
-    action = @state.get 'action'
-    args = {collection: @selected, service: @query.service}
-    Dialogue = switch action
-      when 'append' then AppendPicker
-      when 'create' then CreatePicker
-      else throw new Error "Unknown action: #{ action }"
-    @tableState.set selecting: true
-    stopPicking = =>
-      @tableState.set selecting: false
-      @selected.reset()
-    @showDialogue(Dialogue, args).then stopPicking, stopPicking
-
-  setActionButtonState: ->
-    action = @state.get 'action'
-    @$('.im-create-action').toggleClass 'active', action is 'create'
-    @$('.im-append-action').toggleClass 'active', action is 'append'
-
-  initBtnClasses: ->
-    @classSets = {}
-    @classSets.createBtnClasses = new ClassSet
-      'im-create-action': true
-      'btn btn-default': true
-      active: => @state.get('action') is 'create'
-    @classSets.appendBtnClasses = new ClassSet
-      'im-append-action': true
-      'btn btn-default': true
-      active: => @state.get('action') is 'append'
+    initBtnClasses() {
+      this.classSets = {};
+      this.classSets.createBtnClasses = new ClassSet({
+        'im-create-action': true,
+        'btn btn-default': true,
+        active: () => this.state.get('action') === 'create'
+      });
+      return this.classSets.appendBtnClasses = new ClassSet({
+        'im-append-action': true,
+        'btn btn-default': true,
+        active: () => this.state.get('action') === 'append'
+      });
+    }
+  };
+  ListDialogueButton.initClass();
+  return ListDialogueButton;
+})());
 

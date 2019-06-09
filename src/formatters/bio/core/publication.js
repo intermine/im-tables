@@ -1,15 +1,24 @@
-define 'formatters/bio/core/publication', ->
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+define('formatters/bio/core/publication', function() {
 
-  PublicationFormatter = (imobject) ->
-    id = imobject.get 'id'
-    @$el.addClass 'publication'
-    unless imobject.has('title') and imobject.has('firstAuthor') and imobject.has('year')
-      imobject.__fetching ?= @model.get('query').service.findById 'Publication', id
-      imobject.__fetching.then (pub) -> imobject.set pub
+  const PublicationFormatter = function(imobject) {
+    const id = imobject.get('id');
+    this.$el.addClass('publication');
+    if (!imobject.has('title') || !imobject.has('firstAuthor') || !imobject.has('year')) {
+      if (imobject.__fetching == null) { imobject.__fetching = this.model.get('query').service.findById('Publication', id); }
+      imobject.__fetching.then(pub => imobject.set(pub));
+    }
 
-    {title, firstAuthor, year} = imobject.toJSON()
-    "#{title} (#{firstAuthor}, #{year})"
+    const {title, firstAuthor, year} = imobject.toJSON();
+    return `${title} (${firstAuthor}, ${year})`;
+  };
 
-  PublicationFormatter.replaces = [ 'title', 'firstAuthor', 'year' ]
+  PublicationFormatter.replaces = [ 'title', 'firstAuthor', 'year' ];
 
-  PublicationFormatter
+  return PublicationFormatter;
+});

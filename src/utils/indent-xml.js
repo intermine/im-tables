@@ -1,24 +1,34 @@
-# Rather naive (but generally effective) method of
-# prettifying the otherwise compressed XML.
-module.exports = indent = (xml) ->
-  lines = xml.split /></
-  indentLevel = 1
-  buffer = []
-  for line in lines
-    unless />$/.test line
-      line = line + '>'
-    unless /^</.test line
-      line = '<' + line
+/*
+ * decaffeinate suggestions:
+ * DS101: Remove unnecessary use of Array.from
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+// Rather naive (but generally effective) method of
+// prettifying the otherwise compressed XML.
+let indent;
+module.exports = (indent = function(xml) {
+  const lines = xml.split(/></);
+  let indentLevel = 1;
+  const buffer = [];
+  for (let line of Array.from(lines)) {
+    if (!/>$/.test(line)) {
+      line = line + '>';
+    }
+    if (!/^</.test(line)) {
+      line = `<${line}`;
+    }
 
-    isClosing = /^<\/\w+\s*>/.test(line)
-    isOneLiner = /\/>$/.test(line) or (not isClosing and /<\/\w+>$/.test(line))
-    isOpening = not (isOneLiner or isClosing)
+    const isClosing = /^<\/\w+\s*>/.test(line);
+    const isOneLiner = /\/>$/.test(line) || (!isClosing && /<\/\w+>$/.test(line));
+    const isOpening = !(isOneLiner || isClosing);
 
-    indentLevel-- if isClosing
+    if (isClosing) { indentLevel--; }
 
-    buffer.push new Array(indentLevel).join('  ') + line
+    buffer.push(new Array(indentLevel).join('  ') + line);
     
-    indentLevel++ if isOpening
+    if (isOpening) { indentLevel++; }
+  }
 
-  return buffer.join("\n")
+  return buffer.join("\n");
+});
 

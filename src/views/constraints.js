@@ -1,36 +1,57 @@
-_ = require 'underscore'
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS206: Consider reworking classes to avoid initClass
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let Constraints;
+const _ = require('underscore');
 
-CoreView = require '../core-view'
-Templates = require '../templates'
+const CoreView = require('../core-view');
+const Templates = require('../templates');
 
-ConstraintAdder = require './constraint-adder'
-ActiveConstraint = require './active-constraint'
+const ConstraintAdder = require('./constraint-adder');
+const ActiveConstraint = require('./active-constraint');
 
-require '../messages/constraints'
+require('../messages/constraints');
 
-module.exports = class Constraints extends CoreView
+module.exports = (Constraints = (function() {
+  Constraints = class Constraints extends CoreView {
+    static initClass() {
+  
+      this.prototype.className = "im-constraints";
+  
+      this.prototype.template = Templates.templateFromParts(['constraints-heading', 'active-constraints']);
+    }
 
-  className: "im-constraints"
+    initialize({query}) {
+      this.query = query;
+      super.initialize(...arguments);
+      return this.listenTo(this.query, "change:constraints", this.reRender);
+    }
 
-  initialize: ({@query}) ->
-    super
-    @listenTo @query, "change:constraints", @reRender
+    getData() { return _.extend(super.getData(...arguments), {constraints: this.getConstraints()}); }
 
-  getData: -> _.extend super, constraints: @getConstraints()
+    events() { return {click(e) { return (e != null ? e.stopPropagation() : undefined); }}; }
 
-  events: -> click: (e) -> e?.stopPropagation()
+    postRender() {
+      const container = this.$('.im-active-constraints');
 
-  template: Templates.templateFromParts ['constraints-heading', 'active-constraints']
+      const iterable = this.getConstraints();
+      for (let i = 0; i < iterable.length; i++) {
+        const constraint = iterable[i];
+        this.renderChild(`con_${ i }`, (new ActiveConstraint({query: this.query, constraint})), container);
+      }
 
-  postRender: ->
-    container = @$ '.im-active-constraints'
+      return this.renderChild('conAdder', this.getConAdder());
+    }
 
-    for constraint, i in @getConstraints()
-      @renderChild "con_#{ i }", (new ActiveConstraint {@query, constraint}), container
+    getConstraints() { return this.query.constraints.slice(); }
 
-    @renderChild 'conAdder', @getConAdder()
-
-  getConstraints: -> @query.constraints.slice()
-
-  getConAdder: -> new ConstraintAdder {@query}
+    getConAdder() { return new ConstraintAdder({query: this.query}); }
+  };
+  Constraints.initClass();
+  return Constraints;
+})());
 

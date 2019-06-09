@@ -1,93 +1,124 @@
-_ = require 'underscore'
+/*
+ * decaffeinate suggestions:
+ * DS101: Remove unnecessary use of Array.from
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS206: Consider reworking classes to avoid initClass
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let SubTable;
+const _ = require('underscore');
 
-CoreView = require '../../core-view'
-Options = require '../../options'
-Collection = require '../../core/collection'
-Templates = require '../../templates'
-TypeAssertions = require '../../core/type-assertions'
-NestedTableModel = require '../../models/nested-table'
-PathModel = require '../../models/path'
-SubtableSummary = require './subtable-summary'
-SubtableInner = require './subtable-inner'
+const CoreView = require('../../core-view');
+const Options = require('../../options');
+const Collection = require('../../core/collection');
+const Templates = require('../../templates');
+const TypeAssertions = require('../../core/type-assertions');
+const NestedTableModel = require('../../models/nested-table');
+const PathModel = require('../../models/path');
+const SubtableSummary = require('./subtable-summary');
+const SubtableInner = require('./subtable-inner');
 
-{ignore} = require '../../utils/events'
+const {ignore} = require('../../utils/events');
 
-class PathCollection extends Collection
+class PathCollection extends Collection {
+  static initClass() {
+  
+    this.prototype.model = PathModel;
+  }
+}
+PathCollection.initClass();
 
-  model: PathModel
+const INITIAL_STATE = 'Subtables.Initially.expanded';
 
-INITIAL_STATE = 'Subtables.Initially.expanded'
+// A cell containing a subtable of other rows.
+// The table itself can be expanded or collapsed.
+// When collapsed it is represented by a summary line.
+module.exports = (SubTable = (function() {
+  SubTable = class SubTable extends CoreView {
+    static initClass() {
+  
+      this.prototype.tagName = 'td';
+  
+      this.prototype.className = 'im-result-subtable';
+  
+      this.prototype.Model = NestedTableModel;
+  
+      this.prototype.parameters = [
+        'query',
+        'cellify',
+        'expandedSubtables'
+      ];
+  
+      this.prototype.parameterTypes = {
+        query: TypeAssertions.Query,
+        cellify: TypeAssertions.Function,
+        expandedSubtables: TypeAssertions.Collection
+      };
+  
+      this.prototype.template = Templates.template('table-subtable');
+  
+      this.prototype.tableRendered = false;
+    }
 
-# A cell containing a subtable of other rows.
-# The table itself can be expanded or collapsed.
-# When collapsed it is represented by a summary line.
-module.exports = class SubTable extends CoreView
+    initialize() {
+      super.initialize(...arguments);
+      this.headers = new PathCollection;
+      this.listenTo(this.expandedSubtables, 'add remove reset', this.onChangeExpandedSubtables);
+      return this.buildHeaders();
+    }
 
-  tagName: 'td'
+    // getPath is part of the RowCell API
+    getPath() { return this.model.get('column'); }
 
-  className: 'im-result-subtable'
+    initState() {
+      const open = (Options.get(INITIAL_STATE)) || (this.expandedSubtables.contains(this.getPath()));
+      return this.state.set({open});
+    }
 
-  Model: NestedTableModel
+    stateEvents() {
+      return {'change:open': this.onChangeOpen};
+    }
 
-  parameters: [
-    'query',
-    'cellify',
-    'expandedSubtables'
-  ]
+    onChangeOpen() {
+      const wrapper = this.el.querySelector('.im-table-wrapper');
+      if (this.state.get('open')) {
+        if (this.renderTable(wrapper)) { // no point in sliding down unless this returned true.
+          return this.$(wrapper).slideDown();
+        }
+      } else {
+        return this.$(wrapper).slideUp();
+      }
+    }
 
-  parameterTypes:
-    query: TypeAssertions.Query
-    cellify: TypeAssertions.Function
-    expandedSubtables: TypeAssertions.Collection
+    onChangeExpandedSubtables() {
+      return this.state.set({open: this.expandedSubtables.contains(this.getPath())});
+    }
 
-  initialize: ->
-    super
-    @headers = new PathCollection
-    @listenTo @expandedSubtables, 'add remove reset', @onChangeExpandedSubtables
-    @buildHeaders()
+    renderChildren() {
+      this.renderChildAt('.im-subtable-summary', (new SubtableSummary({model: this.model, state: this.state})));
+      return this.onChangeOpen();
+    }
 
-  # getPath is part of the RowCell API
-  getPath: -> @model.get 'column'
+    // Render the table, and return true if there is anything to show.
+    renderTable(wrapper) {
+      const rows = this.model.get('rows');
+      if (this.tableRendered || (rows.length === 0)) { return this.tableRendered; }
+      const inner = new SubtableInner(_.extend({rows}, (_.pick(this, SubtableInner.prototype.parameters))));
 
-  initState: ->
-    open = (Options.get INITIAL_STATE) or (@expandedSubtables.contains @getPath())
-    @state.set open: open
+      this.renderChild('inner', inner, wrapper);
+      return this.tableRendered = true;
+    }
 
-  stateEvents: ->
-    'change:open': @onChangeOpen
+    buildHeaders() {
+      const [row] = Array.from(this.model.get('rows'));
+      if (row == null) { return; } // No point building headers if the table is empty
 
-  onChangeOpen: ->
-    wrapper = @el.querySelector '.im-table-wrapper'
-    if @state.get('open')
-      if @renderTable(wrapper) # no point in sliding down unless this returned true.
-        @$(wrapper).slideDown()
-    else
-      @$(wrapper).slideUp()
-
-  onChangeExpandedSubtables: ->
-    @state.set open: @expandedSubtables.contains @getPath()
-
-  template: Templates.template 'table-subtable'
-
-  renderChildren: ->
-    @renderChildAt '.im-subtable-summary', (new SubtableSummary {@model, @state})
-    @onChangeOpen()
-
-  tableRendered: false
-
-  # Render the table, and return true if there is anything to show.
-  renderTable: (wrapper) ->
-    rows = @model.get 'rows'
-    return @tableRendered if (@tableRendered or (rows.length is 0))
-    inner = new SubtableInner _.extend {rows}, (_.pick @, SubtableInner::parameters)
-
-    @renderChild 'inner', inner, wrapper
-    @tableRendered = true
-
-  buildHeaders: ->
-    [row] = @model.get('rows')
-    return unless row? # No point building headers if the table is empty
-
-    # Use the first row as a pattern.
-    @headers.set(new PathModel c.get('column') for c in row)
+      // Use the first row as a pattern.
+      return this.headers.set(Array.from(row).map((c) => new PathModel(c.get('column'))));
+    }
+  };
+  SubTable.initClass();
+  return SubTable;
+})());
 

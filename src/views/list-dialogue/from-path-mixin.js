@@ -1,23 +1,32 @@
-{Promise} = require 'es6-promise'
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+const {Promise} = require('es6-promise');
 
-module.exports = (Base) ->
+module.exports = function(Base) {
 
-  parameters: ['query', 'path']
+  return {
+    parameters: ['query', 'path'],
 
-  className: -> Base::className.call(@) + ' im-from-path'
+    className() { return Base.prototype.className.call(this) + ' im-from-path'; },
 
-  # :: -> Promise<Query>
-  getQuery: -> Promise.resolve @query.selectPreservingImpliedConstraints [@path]
+    // :: -> Promise<Query>
+    getQuery() { return Promise.resolve(this.query.selectPreservingImpliedConstraints([this.path])); },
 
-  # :: -> Promise<int>
-  fetchCount: ->
-    @query.summarise @path
-          .then ({stats: {uniqueValues}}) -> uniqueValues
+    // :: -> Promise<int>
+    fetchCount() {
+      return this.query.summarise(this.path)
+            .then(({stats: {uniqueValues}}) => uniqueValues);
+    },
 
-  # :: -> Table?
-  getType: -> @query.makePath(@path).getParent().getType()
+    // :: -> Table?
+    getType() { return this.query.makePath(this.path).getParent().getType(); },
 
-  # :: -> Service
-  getService: -> @query.service
+    // :: -> Service
+    getService() { return this.query.service; }
+  };
+};
 
 

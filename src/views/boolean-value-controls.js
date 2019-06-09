@@ -1,29 +1,46 @@
-_ = require 'underscore'
-fs = require 'fs'
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS206: Consider reworking classes to avoid initClass
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let BooleanValueControls;
+const _ = require('underscore');
+const fs = require('fs');
 
-Messages = require '../messages'
-View = require '../core-view'
-Options = require '../options'
+const Messages = require('../messages');
+const View = require('../core-view');
+const Options = require('../options');
 
-mustacheSettings = require '../templates/mustache-settings'
+const mustacheSettings = require('../templates/mustache-settings');
 
-html = fs.readFileSync __dirname + '/../templates/boolean-value-controls.html', 'utf8'
+const html = fs.readFileSync(__dirname + '/../templates/boolean-value-controls.html', 'utf8');
 
-module.exports = class BooleanValueControls extends View
+module.exports = (BooleanValueControls = (function() {
+  BooleanValueControls = class BooleanValueControls extends View {
+    static initClass() {
+  
+      this.prototype.className = 'im-value-options btn-group';
+  
+      this.prototype.template = _.template(html, mustacheSettings);
+    }
 
-  className: 'im-value-options btn-group'
+    modelEvents() { return {change: this.reRender}; }
 
-  modelEvents: -> change: @reRender
+    getData() { return _.extend({value: null}, super.getData(...arguments)); }
 
-  getData: -> _.extend {value: null}, super
+    events() {
+      return {
+        'click .im-true': 'setValueTrue',
+        'click .im-false': 'setValueFalse'
+      };
+    }
 
-  template: _.template html, mustacheSettings
+    setValueTrue() { return this.model.set({value: true}); }
 
-  events: ->
-    'click .im-true': 'setValueTrue'
-    'click .im-false': 'setValueFalse'
-
-  setValueTrue: -> @model.set value: true
-
-  setValueFalse: -> @model.set value: false
+    setValueFalse() { return this.model.set({value: false}); }
+  };
+  BooleanValueControls.initClass();
+  return BooleanValueControls;
+})());
 

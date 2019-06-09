@@ -1,240 +1,309 @@
-_ = require 'underscore'
-{Promise} = require 'es6-promise'
+/*
+ * decaffeinate suggestions:
+ * DS101: Remove unnecessary use of Array.from
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS205: Consider reworking code to avoid use of IIFEs
+ * DS206: Consider reworking classes to avoid initClass
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let CodeGenDialogue;
+const _ = require('underscore');
+const {Promise} = require('es6-promise');
 
-# Base class
-Modal = require './modal'
+// Base class
+const Modal = require('./modal');
 
-# Text strings
-Messages = require '../messages'
-# Configuration
-Options = require '../options'
-# Templating
-Templates = require '../templates'
-# The model for this class.
-CodeGenModel = require '../models/code-gen'
-# The checkbox sub-component.
-Checkbox = require '../core/checkbox'
-# This class uses the code-gen message bundle.
-require '../messages/code-gen'
-# We use this xml indenter
-indentXml = require '../utils/indent-xml'
-# We use this string compacter.
-stripExtraneousWhiteSpace = require '../utils/strip-extra-whitespace'
-# We need access to a cdn resource - google's prettify
-withResource = require '../utils/with-cdn-resource'
+// Text strings
+const Messages = require('../messages');
+// Configuration
+const Options = require('../options');
+// Templating
+const Templates = require('../templates');
+// The model for this class.
+const CodeGenModel = require('../models/code-gen');
+// The checkbox sub-component.
+const Checkbox = require('../core/checkbox');
+// This class uses the code-gen message bundle.
+require('../messages/code-gen');
+// We use this xml indenter
+const indentXml = require('../utils/indent-xml');
+// We use this string compacter.
+const stripExtraneousWhiteSpace = require('../utils/strip-extra-whitespace');
+// We need access to a cdn resource - google's prettify
+const withResource = require('../utils/with-cdn-resource');
 
-# Comment finding regexen
-OCTOTHORPE_COMMENTS = /\s*#.*$/gm
-C_STYLE_COMMENTS = /\/\*(\*(?!\/)|[^*])*\*\//gm # just strip blocks.
-XML_MIMETYPE = 'application/xml;charset=utf8'
-JS_MIMETYPE = 'text/javascript;charset=utf8'
-HTML_MIMETYPE = 'text/html;charset=utf8'
-CANNOT_SAVE = {level: 'Info', key: 'codegen.CannotExportXML'}
-MIMETYPES =
-  js: JS_MIMETYPE
-  xml: XML_MIMETYPE
+// Comment finding regexen
+const OCTOTHORPE_COMMENTS = /\s*#.*$/gm;
+const C_STYLE_COMMENTS = /\/\*(\*(?!\/)|[^*])*\*\//gm; // just strip blocks.
+const XML_MIMETYPE = 'application/xml;charset=utf8';
+const JS_MIMETYPE = 'text/javascript;charset=utf8';
+const HTML_MIMETYPE = 'text/html;charset=utf8';
+const CANNOT_SAVE = {level: 'Info', key: 'codegen.CannotExportXML'};
+const MIMETYPES = {
+  js: JS_MIMETYPE,
+  xml: XML_MIMETYPE,
   html: HTML_MIMETYPE
+};
 
-withPrettyPrintOne = _.partial withResource, 'prettify', 'prettyPrintOne'
+const withPrettyPrintOne = _.partial(withResource, 'prettify', 'prettyPrintOne');
 
-withFileSaver = _.partial withResource, 'filesaver', 'saveAs'
+const withFileSaver = _.partial(withResource, 'filesaver', 'saveAs');
 
-alreadyRejected = Promise.reject 'Requirements not met'
+const alreadyRejected = Promise.reject('Requirements not met');
 
-stripEmptyValues = (q) ->
-  _.object( [k, v] for k, v of q when v and v.length isnt 0 )
+const stripEmptyValues = q =>
+  _.object((() => {
+    const result = [];
+     for (let k in q) {
+      const v = q[k];
+      if (v && (v.length !== 0)) {
+        result.push([k, v]);
+      }
+    } 
+    return result;
+  })())
+;
 
-canSaveFromMemory = ->
-  if not 'Blob' in global
-    alreadyRejected
-  else
-    withFileSaver _.identity
+const canSaveFromMemory = function() {
+  if (Array.from(global).includes(!'Blob')) {
+    return alreadyRejected;
+  } else {
+    return withFileSaver(_.identity);
+  }
+};
 
-module.exports = class CodeGenDialogue extends Modal
+module.exports = (CodeGenDialogue = (function() {
+  CodeGenDialogue = class CodeGenDialogue extends Modal {
+    static initClass() {
+  
+      // Connect this view with its model.
+      this.prototype.Model = CodeGenModel;
+  
+      this.prototype.parameters = ['query'];
+  
+      this.prototype.optionalParameters = ['page'];
+  
+      this.prototype.page = {
+        start: 0,
+        size: (Options.get('DefaultPageSize'))
+      };
+  
+      this.prototype.body = Templates.template('code_gen_body');
+    }
 
-  # Connect this view with its model.
-  Model: CodeGenModel
+    // We need a query, and we need to start generating our code.
+    initialize() {
+      super.initialize(...arguments);
+      this.generateCode();
+      return this.setExportLink();
+    }
 
-  parameters: ['query']
+    // The static descriptive stuff.
 
-  optionalParameters: ['page']
+    modalSize() { return 'lg'; }
 
-  page:
-    start: 0
-    size: (Options.get 'DefaultPageSize')
+    title() { return Messages.getText('codegen.DialogueTitle', {query: this.query, lang: this.model.get('lang')}); }
 
-  # We need a query, and we need to start generating our code.
-  initialize: ->
-    super
-    @generateCode()
-    @setExportLink()
+    primaryIcon() { return 'Download'; }
 
-  # The static descriptive stuff.
+    primaryAction() { return Messages.getText('codegen.PrimaryAction'); }
 
-  modalSize: -> 'lg'
+    // Conditions which must be true on instantiation
 
-  title: -> Messages.getText 'codegen.DialogueTitle', query: @query, lang: @model.get('lang')
+    invariants() {
+      return {hasQuery: "No query"};
+    }
 
-  primaryIcon: -> 'Download'
+    hasQuery() { return (this.query != null); }
 
-  primaryAction: -> Messages.getText 'codegen.PrimaryAction'
+    // Recalulate the code if the lang changes, otherwise just re-present it.
+    modelEvents() {
+      return {
+        'change': this.onChangeLang,
+        'change:showBoilerPlate': this.reRenderBody,
+        'change:highlightSyntax': this.reRenderBody
+      };
+    }
 
-  body: Templates.template 'code_gen_body'
+    // Show the code if it changes.
+    stateEvents() { return {'change:generatedCode': this.reRenderBody}; }
 
-  # Conditions which must be true on instantiation
+    // The DOM events - setting the attributes of the model.
+    events() { return _.extend(super.events(...arguments),
+      {'click .dropdown-menu.im-code-gen-langs li': 'chooseLang'}); }
 
-  invariants: ->
-    hasQuery: "No query"
+    // Get a regular expression that will strip comments.
+    getBoilerPlateRegex() {
+      if (this.model.get('showBoilerPlate')) { return; }
+      switch (this.model.get('lang')) {
+        case 'pl': case 'py': case 'rb': return OCTOTHORPE_COMMENTS;
+        case 'java': case 'js': return C_STYLE_COMMENTS;
+        default: return null;
+      }
+    }
 
-  hasQuery: -> @query?
+    act() { // only called for XML data, and only in supported browsers.
+      let lang = this.model.get('lang');
+      if ((lang === 'js') && this.model.get('extrajs')) { lang = 'html'; }
+      const blob = new Blob([this.state.get('generatedCode')], {type: MIMETYPES[lang]});
+      const filename = `${ this.query.name != null ? this.query.name : 'name' }.${ lang }`;
+      return withFileSaver(saveAs => saveAs(blob, filename));
+    }
 
-  # Recalulate the code if the lang changes, otherwise just re-present it.
-  modelEvents: ->
-    'change': @onChangeLang
-    'change:showBoilerPlate': @reRenderBody
-    'change:highlightSyntax': @reRenderBody
+    onChangeLang() {
+      const lang = this.model.get('lang');
+      this.$('.im-current-lang').text(Messages.getText('codegen.Lang', {lang}));
+      this.$('.modal-title').text(this.title());
+      if (['js', 'xml'].includes(lang)) {
+        canSaveFromMemory().then(() => this.state.unset('error'))
+                           .then(null, () => this.state.set({error: CANNOT_SAVE}));
+      } else {
+        this.state.unset('error');
+      }
+      this.generateCode();
+      return this.setExportLink();
+    }
 
-  # Show the code if it changes.
-  stateEvents: -> 'change:generatedCode': @reRenderBody
+    generateCode() {
+      const lang = this.model.get('lang');
+      switch (lang) {
+        case 'xml': return this.state.set({generatedCode: this.generateXML()});
+        case 'js':  return this.state.set({generatedCode: this.generateJS()});
+        default:
+          // TODO
+          // Safari 8 is caching imjs.fetchCode() even when options
+          // change. So, for example, prior results fetchCode('py') are
+          // smothering results for fetchCode('java'). Use our own cache for now.
+          return this.getCodeFromCache(lang);
+      }
+    }
 
-  # The DOM events - setting the attributes of the model.
-  events: -> _.extend super,
-    'click .dropdown-menu.im-code-gen-langs li': 'chooseLang'
+    getCodeFromCache(lang) {
+      if ((this.cache == null)) { this.cache = {}; }
+      if ((this.cache != null ? this.cache[lang] : undefined) != null) {
+        return this.state.set({generatedCode: this.cache[lang]});
+      } else {
+        const opts = {
+          query: this.query.toXML(),
+          lang,
+          date: Date.now()
+        };
+        // Bust the cache
+        return this.query.service.post(`query/code?cachebuster=${Date.now()}`, opts).then(res => {
+          this.cache[lang] = res.code;
+          return this.state.set({generatedCode: res.code});
+        });
+      }
+    }
 
-  # Get a regular expression that will strip comments.
-  getBoilerPlateRegex: ->
-    return if @model.get 'showBoilerPlate'
-    switch @model.get 'lang'
-      when 'pl', 'py', 'rb' then OCTOTHORPE_COMMENTS
-      when 'java', 'js' then C_STYLE_COMMENTS
-      else null
+    generateXML() {
+      return indentXml(this.query.toXML());
+    }
 
-  act: -> # only called for XML data, and only in supported browsers.
-    lang = @model.get('lang')
-    lang = 'html' if lang is 'js' and @model.get('extrajs')
-    blob = new Blob [@state.get('generatedCode')], type: MIMETYPES[lang]
-    filename = "#{ @query.name ? 'name' }.#{ lang }"
-    withFileSaver (saveAs) => saveAs blob, filename
+    generateJS() {
+      const t = Templates.template('code-gen-js');
+      const query = stripEmptyValues(this.query.toJSON());
+      const cdnBase = Options.get('CDN.server') + Options.get(['CDN', 'imtables']);
+      const data = {
+        service: this.query.service,
+        query,
+        page: this.page,
+        asHTML: this.model.get('extrajs'),
+        imtablesJS: cdnBase + 'imtables.js',
+        imtablesCSS: cdnBase + 'main.sandboxed.css'
+      };
+      return t(data);
+    }
 
-  onChangeLang: ->
-    lang = @model.get 'lang'
-    @$('.im-current-lang').text Messages.getText 'codegen.Lang', {lang}
-    @$('.modal-title').text @title()
-    if lang in ['js', 'xml']
-      canSaveFromMemory().then => @state.unset 'error'
-                         .then null, => @state.set error: CANNOT_SAVE
-    else
-      @state.unset 'error'
-    @generateCode()
-    @setExportLink()
+    // If the exportLink is null, then CodeGenDialogue#act will be called.
+    setExportLink() {
+      const lang = this.model.get('lang');
+      switch (lang) {
+        case 'xml': case 'js': return this.state.set({exportLink: null});
+        default: return this.state.set({exportLink: this.query.getCodeURI(lang)});
+      }
+    }
 
-  generateCode: ->
-    lang = @model.get 'lang'
-    switch lang
-      when 'xml' then @state.set generatedCode: @generateXML()
-      when 'js'  then @state.set generatedCode: @generateJS()
-      else
-        # TODO
-        # Safari 8 is caching imjs.fetchCode() even when options
-        # change. So, for example, prior results fetchCode('py') are
-        # smothering results for fetchCode('java'). Use our own cache for now.
-        @getCodeFromCache lang
+    // This could potentially go into Modal, but it would need more stuff
+    // to make it generic (dealing with children, etc). Not worth it for
+    // such a simple method.
+    reRenderBody() { if (this.rendered) {
+      // Replace the body with the current state of the body.
+      this.$('.modal-body').html(this.body(this.getData()));
+      // Trigger any DOM modifications, also re-renders the footer.
+      return this.trigger('rendered', this.rendered);
+    } }
 
-  getCodeFromCache: (lang) ->
-    if !@cache? then @cache = {}
-    if @cache?[lang]?
-      @state.set generatedCode: @cache[lang]
-    else
-      opts =
-        query: @query.toXML()
-        lang: lang
-        date: Date.now()
-      # Bust the cache
-      @query.service.post('query/code?cachebuster=' + Date.now(), opts).then (res) =>
-        @cache[lang] = res.code
-        @state.set generatedCode: res.code
+    postRender() {
+      super.postRender(...arguments);
+      this.addCheckboxes();
+      this.highlightCode();
+      return this.setMaxHeight();
+    }
 
-  generateXML: ->
-    indentXml @query.toXML()
+    setMaxHeight() {
+      const maxHeight = Math.max(250, (this.$el.closest('.modal').height() - 200));
+      return this.$('.im-generated-code').css({'max-height': maxHeight});
+    }
 
-  generateJS: ->
-    t = Templates.template 'code-gen-js'
-    query = stripEmptyValues @query.toJSON()
-    cdnBase = Options.get('CDN.server') + Options.get(['CDN', 'imtables'])
-    data =
-      service: @query.service
-      query: query
-      page: @page
-      asHTML: @model.get('extrajs')
-      imtablesJS: cdnBase + 'imtables.js'
-      imtablesCSS: cdnBase + 'main.sandboxed.css'
-    t data
+    addCheckboxes() {
+      let opt;
+      this.renderChildAt('.im-show-boilerplate', new Checkbox({
+        model: this.model,
+        attr: 'showBoilerPlate',
+        label: 'codegen.ShowBoilerPlate'
+      })
+      );
+      this.renderChildAt('.im-highlight-syntax', new Checkbox({
+        model: this.model,
+        attr: 'highlightSyntax',
+        label: 'codegen.HighlightSyntax'
+      })
+      );
+      if (opt = Options.get(['CodeGen', 'Extra', this.model.get('lang')])) {
+        return this.renderChildAt('.im-extra-options', new Checkbox({
+          model: this.model,
+          attr: (`extra${this.model.get('lang')}`),
+          label: opt
+        })
+        );
+      }
+    }
 
-  # If the exportLink is null, then CodeGenDialogue#act will be called.
-  setExportLink: ->
-    lang = @model.get 'lang'
-    switch lang
-      when 'xml', 'js' then @state.set exportLink: null
-      else @state.set exportLink: @query.getCodeURI lang
+    highlightCode() { if (this.model.get('highlightSyntax')) {
+      const lang = this.model.get('lang');
+      const pre = this.$('.im-generated-code');
+      const code = this.getCode();
+      if (code == null) { return; }
+      return withPrettyPrintOne(prettyPrintOne => pre.html(prettyPrintOne(_.escape(code))));
+    } }
 
-  # This could potentially go into Modal, but it would need more stuff
-  # to make it generic (dealing with children, etc). Not worth it for
-  # such a simple method.
-  reRenderBody: -> if @rendered
-    # Replace the body with the current state of the body.
-    @$('.modal-body').html @body @getData()
-    # Trigger any DOM modifications, also re-renders the footer.
-    @trigger 'rendered', @rendered
+    getData() { return _.extend(super.getData(...arguments), {
+      options: Options.get('CodeGen'),
+      generatedCode: this.getCode()
+    }
+    ); }
 
-  postRender: ->
-    super
-    @addCheckboxes()
-    @highlightCode()
-    @setMaxHeight()
+    getCode() {
+      const code = this.state.get('generatedCode');
+      const regex = this.getBoilerPlateRegex();
+      if (!regex) { return code; }
+      return stripExtraneousWhiteSpace(code != null ? code.replace(regex, '') : undefined);
+    }
 
-  setMaxHeight: ->
-    maxHeight = Math.max 250, (@$el.closest('.modal').height() - 200)
-    @$('.im-generated-code').css 'max-height': maxHeight
+    // Information flow from DOM -> Model
 
-  addCheckboxes: ->
-    @renderChildAt '.im-show-boilerplate', new Checkbox
-      model: @model
-      attr: 'showBoilerPlate'
-      label: 'codegen.ShowBoilerPlate'
-    @renderChildAt '.im-highlight-syntax', new Checkbox
-      model: @model
-      attr: 'highlightSyntax'
-      label: 'codegen.HighlightSyntax'
-    if (opt = Options.get(['CodeGen', 'Extra', @model.get('lang')]))
-      @renderChildAt '.im-extra-options', new Checkbox
-        model: @model
-        attr: ('extra' + @model.get('lang'))
-        label: opt
+    toggleShowBoilerPlate() { return this.model.toggle('showBoilerPlate'); }
 
-  highlightCode: -> if @model.get 'highlightSyntax'
-    lang = @model.get 'lang'
-    pre = @$ '.im-generated-code'
-    code = @getCode()
-    return unless code?
-    withPrettyPrintOne (prettyPrintOne) -> pre.html prettyPrintOne _.escape code
+    toggleHighlightSyntax() { return this.model.toggle('highlightSyntax'); }
 
-  getData: -> _.extend super,
-    options: Options.get('CodeGen')
-    generatedCode: @getCode()
-
-  getCode: ->
-    code = @state.get 'generatedCode'
-    regex = @getBoilerPlateRegex()
-    return code unless regex
-    stripExtraneousWhiteSpace code?.replace regex, ''
-
-  # Information flow from DOM -> Model
-
-  toggleShowBoilerPlate: -> @model.toggle 'showBoilerPlate'
-
-  toggleHighlightSyntax: -> @model.toggle 'highlightSyntax'
-
-  chooseLang: (e) ->
-    e.stopPropagation()
-    lang = @$(e.target).closest('li').data 'lang'
-    @model.set lang: lang
+    chooseLang(e) {
+      e.stopPropagation();
+      const lang = this.$(e.target).closest('li').data('lang');
+      return this.model.set({lang});
+    }
+  };
+  CodeGenDialogue.initClass();
+  return CodeGenDialogue;
+})());

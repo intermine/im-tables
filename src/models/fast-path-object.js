@@ -1,17 +1,21 @@
-CoreModel = require '../core-model'
+let FPObject;
+const CoreModel = require('../core-model');
 
-# FastPathObjects are light-weight data-base objects that
-# don't have ids. Because of this we can't merge them or
-# link to report pages or show previews.
-module.exports = class FPObject extends CoreModel
+// FastPathObjects are light-weight data-base objects that
+// don't have ids. Because of this we can't merge them or
+// link to report pages or show previews.
+module.exports = (FPObject = class FPObject extends CoreModel {
 
-  constructor: (obj, field) ->
-    super()
-    @set
-      'id': null
-      'classes': [obj.class]
-      'service:base': ''
-      'service:url': ''
+  constructor(obj, field) {
+    super();
+    this.set({
+      'id': null,
+      'classes': [obj.class],
+      'service:base': '',
+      'service:url': '',
       'report:uri': null
-    @set field, obj.value
+    });
+    this.set(field, obj.value);
+  }
+});
 

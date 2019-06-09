@@ -1,19 +1,34 @@
-_ = require 'underscore'
-View = require '../../core-view'
-LabelView = require '../label-view'
-Messages = require '../../messages'
-Templates = require '../../templates'
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS206: Consider reworking classes to avoid initClass
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let FastaOptions;
+const _ = require('underscore');
+const View = require('../../core-view');
+const LabelView = require('../label-view');
+const Messages = require('../../messages');
+const Templates = require('../../templates');
 
-module.exports = class FastaOptions extends View
+module.exports = (FastaOptions = (function() {
+  FastaOptions = class FastaOptions extends View {
+    static initClass() {
+  
+      this.prototype.RERENDER_EVENT = 'change';
+  
+      this.prototype.tagName = 'form';
+  
+      this.prototype.template = Templates.template('export_fasta_options');
+  }
 
-  RERENDER_EVENT: 'change'
+    setFastaExtension(ext) { return this.model.set({fastaExtension: ext}); }
 
-  tagName: 'form'
-
-  template: Templates.template 'export_fasta_options'
-
-  setFastaExtension: (ext) -> @model.set fastaExtension: ext
-
-  events: ->
-    'change .im-fasta-ext': (e) => @setFastaExtension e.target.value
+    events() {
+      return {'change .im-fasta-ext': e => this.setFastaExtension(e.target.value)};
+  }
+};
+  FastaOptions.initClass();
+  return FastaOptions;
+})());
 

@@ -1,27 +1,36 @@
-_ = require 'underscore'
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let DropDownColumnSummary;
+const _ = require('underscore');
 
-FacetView = require '../facets/facet-view'
-PathModel = require '../../models/path'
-{ignore} = require '../../utils/events'
+const FacetView = require('../facets/facet-view');
+const PathModel = require('../../models/path');
+const {ignore} = require('../../utils/events');
 
-NO_QUERY = 'No query in call to new DropDownColumnSummary'
-BAD_MODEL = 'No PathModel in call to new DropDownColumnSummary'
+const NO_QUERY = 'No query in call to new DropDownColumnSummary';
+const BAD_MODEL = 'No PathModel in call to new DropDownColumnSummary';
 
-# Thin wrapper that converts from the ColumnHeader calling convention
-# of {query :: Query, model :: HeaderModel} to the FacetView constructor
-# of {query :: Query, view :: PathInfo}.
-module.exports = class DropDownColumnSummary extends FacetView
+// Thin wrapper that converts from the ColumnHeader calling convention
+// of {query :: Query, model :: HeaderModel} to the FacetView constructor
+// of {query :: Query, view :: PathInfo}.
+module.exports = (DropDownColumnSummary = class DropDownColumnSummary extends FacetView {
 
-  className: -> "#{ super } im-dropdown-summary"
+  className() { return `${ super.className(...arguments) } im-dropdown-summary`; }
 
-  constructor: ({query, model}) ->
-    throw new Error(NO_QUERY) unless query
-    throw new Error(BAD_MODEL) unless model instanceof PathModel
-    super {query, view: model.pathInfo()}
+  constructor({query, model}) {
+    if (!query) { throw new Error(NO_QUERY); }
+    if (!(model instanceof PathModel)) { throw new Error(BAD_MODEL); }
+    super({query, view: model.pathInfo()});
+  }
 
-  events: -> _.extend super, click: ignore
+  events() { return _.extend(super.events(...arguments), {click: ignore}); }
 
-  postRender: ->
-    super
-    # there is one situation where this view is mounted, not appended.
-    @$el.addClass @className()
+  postRender() {
+    super.postRender(...arguments);
+    // there is one situation where this view is mounted, not appended.
+    return this.$el.addClass(this.className());
+  }
+});

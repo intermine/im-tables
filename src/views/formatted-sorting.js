@@ -1,51 +1,78 @@
-CoreView = require '../core-view'
-Templates = require '../templates'
-SortedPath = require './formatted/sorting-path'
+/*
+ * decaffeinate suggestions:
+ * DS101: Remove unnecessary use of Array.from
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS206: Consider reworking classes to avoid initClass
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let FormattedSorting;
+const CoreView = require('../core-view');
+const Templates = require('../templates');
+const SortedPath = require('./formatted/sorting-path');
 
-sortQueryByPath = require '../utils/sort-query-by-path'
+const sortQueryByPath = require('../utils/sort-query-by-path');
 
-# A class that handles the machinery for letting users choose which column
-# to sort by when a column represents multiple paths due to formatting.
-module.exports = class FormattedSorting extends CoreView
+// A class that handles the machinery for letting users choose which column
+// to sort by when a column represents multiple paths due to formatting.
+module.exports = (FormattedSorting = (function() {
+  FormattedSorting = class FormattedSorting extends CoreView {
+    static initClass() {
+  
+      this.prototype.className = 'im-col-sort-menu no-margins';
+  
+      this.prototype.tagName = 'ul';
+    }
 
-  className: 'im-col-sort-menu no-margins'
+    initialize({query}) {
+      this.query = query;
+      super.initialize(...arguments);
+      return this.setPathNames(); // initialise the path display name dictionary
+    }
 
-  tagName: 'ul'
+    modelEvents() {
+      return {
+        'change:displayName': this.initState,
+        'change:replaces': this.setPathNames
+      };
+    }
 
-  initialize: ({@query}) ->
-    super
-    @setPathNames() # initialise the path display name dictionary
+    initState() {
+      return this.state.set({group: this.model.get('displayName')});
+    }
 
-  modelEvents: ->
-    'change:displayName': @initState
-    'change:replaces': @setPathNames
+    // in this class we make use of the state as a path display name lookup
+    // dictionary which means we also need to make sure we have an entry of
+    // each of them.
+    setPathNames() { return Array.from(this.getPaths()).map((p) => (p => {
+      const key = p.toString();
+      if (!this.state.has(key)) { this.state.set(key, ''); }
+      return p.getDisplayName().then(name => this.state.set(key, name));
+    })(p)); }
 
-  initState: ->
-    @state.set group: @model.get('displayName')
+    // :: [PathInfo]
+    getPaths() {
+      const replaces = this.model.get('replaces');
+      if (replaces.length) {
+        return replaces.slice();
+      } else {
+        return [this.query.makePath(this.model.get('path'))];
+      }
+    }
 
-  # in this class we make use of the state as a path display name lookup
-  # dictionary which means we also need to make sure we have an entry of
-  # each of them.
-  setPathNames: -> for p in @getPaths() then do (p) =>
-    key = p.toString()
-    @state.set key, '' unless @state.has key
-    p.getDisplayName().then (name) => @state.set key, name
+    preRender(e) {
+      let paths;
+      const [path] = Array.from((paths = this.getPaths()));   // find the paths, and extract the first one.
+      if (paths.length === 1) {           // Nothing for the user to choose from
+        e.cancel();                   // cancels impending render.
+        return sortQueryByPath(this.query, path); // sort on the first (and only) path
+      }
+    }
 
-  # :: [PathInfo]
-  getPaths: ->
-    replaces = @model.get('replaces')
-    if replaces.length
-      replaces.slice()
-    else
-      [@query.makePath @model.get('path')]
-
-  preRender: (e) ->
-    [path] = paths = @getPaths()   # find the paths, and extract the first one.
-    if paths.length is 1           # Nothing for the user to choose from
-      e.cancel()                   # cancels impending render.
-      sortQueryByPath @query, path # sort on the first (and only) path
-
-  # templateless render - it is all about the child views.
-  postRender: -> for p, i in @getPaths()
-    @renderChild i, (new SortedPath {@model, @state, @query, path: p})
+    // templateless render - it is all about the child views.
+    postRender() { return Array.from(this.getPaths()).map((p, i) =>
+      this.renderChild(i, (new SortedPath({model: this.model, state: this.state, query: this.query, path: p})))); }
+  };
+  FormattedSorting.initClass();
+  return FormattedSorting;
+})());
 

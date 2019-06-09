@@ -1,156 +1,225 @@
-_ = require 'underscore'
+/*
+ * decaffeinate suggestions:
+ * DS001: Remove Babel/TypeScript constructor workaround
+ * DS101: Remove unnecessary use of Array.from
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS205: Consider reworking code to avoid use of IIFEs
+ * DS206: Consider reworking classes to avoid initClass
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let ColumnManager;
+const _ = require('underscore');
 
-Modal = require './modal'
+const Modal = require('./modal');
 
-Templates = require '../templates'
-Messages = require '../messages'
-Collection = require '../core/collection'
-PathModel = require '../models/path'
-ColumnManagerTabs = require './column-manager/tabs'
-SelectListEditor = require './column-manager/select-list'
-SortOrderEditor = require './column-manager/sort-order'
-AvailableColumns = require '../models/available-columns'
-OrderByModel = require '../models/order-element'
+const Templates = require('../templates');
+const Messages = require('../messages');
+const Collection = require('../core/collection');
+const PathModel = require('../models/path');
+const ColumnManagerTabs = require('./column-manager/tabs');
+const SelectListEditor = require('./column-manager/select-list');
+const SortOrderEditor = require('./column-manager/sort-order');
+const AvailableColumns = require('../models/available-columns');
+const OrderByModel = require('../models/order-element');
 
-require '../messages/columns'
+require('../messages/columns');
 
-# Requires ::modelFactory
-class IndexedCollection extends Collection
+// Requires ::modelFactory
+class IndexedCollection extends Collection {
+  static initClass() {
+  
+    this.prototype.comparator = 'index';
+  
+    this.prototype.modelFactory = Collection.prototype.model;
+  }
 
-  comparator: 'index'
+  add() {
+    return super.add(...arguments);
+  }
 
-  add: ->
-    super
+  constructor() {
+    {
+      // Hack: trick Babel/TypeScript into allowing this before super.
+      if (false) { super(); }
+      let thisFn = (() => { return this; }).toString();
+      let thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1];
+      eval(`${thisName} = this;`);
+    }
+    this.model = this.model.bind(this);
+    super(...arguments);
+    this.listenTo(this, 'change:index', function() { return _.defer(() => this.sort()); }); // by default, make a model.
+  }
 
-  constructor: ->
-    super
-    @listenTo @, 'change:index', -> _.defer => @sort()
+  model(args) {
+    const index = this.size();
+    const model = new this.modelFactory(args);
+    model.collection = this;
+    model.set({index});
+    return model;
+  }
+}
+IndexedCollection.initClass();
 
-  modelFactory: Collection::model # by default, make a model.
+class SelectList extends IndexedCollection {
+  static initClass() {
+  
+    this.prototype.modelFactory = PathModel;
+  }
+}
+SelectList.initClass();
 
-  model: (args) =>
-    index = @size()
-    model = new @modelFactory args
-    model.collection = @
-    model.set {index}
-    return model
+class OrderByList extends IndexedCollection {
+  static initClass() {
+  
+    this.prototype.modelFactory = OrderByModel;
+  }
+}
+OrderByList.initClass();
 
-class SelectList extends IndexedCollection
+module.exports = (ColumnManager = (function() {
+  ColumnManager = class ColumnManager extends Modal {
+    static initClass() {
+  
+      this.prototype.parameters = ['query'];
+    }
 
-  modelFactory: PathModel
+    modalSize() { return 'lg'; }
 
-class OrderByList extends IndexedCollection
+    className() { return super.className(...arguments) + ' im-column-manager'; }
 
-  modelFactory: OrderByModel
+    title() { return Messages.getText('columns.DialogueTitle'); }
 
-module.exports = class ColumnManager extends Modal
+    primaryAction() { return Messages.getText('columns.ApplyChanges'); }
 
-  parameters: ['query']
+    dismissAction() { return Messages.getText('Cancel'); }
 
-  modalSize: -> 'lg'
+    act() { if (!this.state.get('disabled')) {
+      const {viewChanged, orderChanged} = this.state.pick('viewChanged', 'orderChanged');
+      if (viewChanged && (!orderChanged)) {
+        this.query.select(this.getCurrentView()); // select the current view.
+      } else if (orderChanged && (!viewChanged)) {
+        this.query.orderBy(this.getCurrentSortOrder()); // order by the new sort-order.
+      } else {
+        // Collect all the events and trigger them all at once.
+        const opts = {silent: true, events: []};
+        this.query.select(this.getCurrentView(), opts);
+        this.query.orderBy(this.getCurrentSortOrder(), opts);
+        this.query.trigger(opts.events.join(' '));
+      }
+      return this.resolve('changed');
+    } }
 
-  className: -> super + ' im-column-manager'
+    stateEvents() {
+      return {
+        'change:currentTab': this.renderTabContent,
+        'change:adding': this.setDisabled
+      };
+    }
 
-  title: -> Messages.getText 'columns.DialogueTitle'
+    initialize() {
+      let path;
+      let direction;
+      super.initialize(...arguments);
+      // Populate the select list and sort-order with the current state of the
+      // query.
+      this.selectList = new SelectList;
+      this.rubbishBin = new SelectList;
+      this.sortOrder = new OrderByList;
+      this.availableColumns = new AvailableColumns;
+      // Populate the view
+      for (let v of Array.from(this.query.views)) {
+        this.selectList.add(this.query.makePath(v));
+      }
+      // Populate the sort-order
+      for ({path, direction} of Array.from(this.query.sortOrder)) {
+        this.sortOrder.add({direction, path: this.query.makePath(path)});
+      }
 
-  primaryAction: -> Messages.getText 'columns.ApplyChanges'
+      // Find the relevant sort paths which are not in the sort order already.
+      for (path of Array.from(this.getRelevantPaths())) {
+        if (!this.sortOrder.get(path.toString())) {
+          this.availableColumns.add(path, {sort: false});
+        }
+      }
+      this.availableColumns.sort(); // sort once, when they are all added.
 
-  dismissAction: -> Messages.getText 'Cancel'
+      this.listenTo(this.selectList, 'sort add remove', this.setDisabled);
+      return this.listenTo(this.sortOrder, 'sort add remove', this.setDisabled);
+    }
 
-  act: -> unless @state.get 'disabled'
-    {viewChanged, orderChanged} = @state.pick 'viewChanged', 'orderChanged'
-    if viewChanged and (not orderChanged)
-      @query.select @getCurrentView() # select the current view.
-    else if orderChanged and (not viewChanged)
-      @query.orderBy @getCurrentSortOrder() # order by the new sort-order.
-    else
-      # Collect all the events and trigger them all at once.
-      opts = silent: true, events: []
-      @query.select @getCurrentView(), opts
-      @query.orderBy @getCurrentSortOrder(), opts
-      @query.trigger opts.events.join ' '
-    @resolve 'changed'
+    getRelevantPaths() {
+      // Relevant paths are all the attributes of all the inner-joined query nodes.
+      return _.chain(this.query.getQueryNodes())
+       .filter(n => !this.query.isOuterJoined(n))
+       .map(n => (() => {
+         const result = [];
+         for (let cn of Array.from(n.getChildNodes())) {            if (cn.isAttribute() && (cn.end.name !== 'id')) {
+             result.push(cn);
+           }
+         }
+         return result;
+       })() )
+       .flatten()
+       .value();
+    }
 
-  stateEvents: ->
-    'change:currentTab': @renderTabContent
-    'change:adding': @setDisabled
+    getCurrentView() { return this.selectList.pluck('path'); }
 
-  initialize: ->
-    super
-    # Populate the select list and sort-order with the current state of the
-    # query.
-    @selectList = new SelectList
-    @rubbishBin = new SelectList
-    @sortOrder = new OrderByList
-    @availableColumns = new AvailableColumns
-    # Populate the view
-    for v in @query.views
-      @selectList.add @query.makePath v
-    # Populate the sort-order
-    for {path, direction} in @query.sortOrder
-      @sortOrder.add {direction, path: @query.makePath(path)}
+    getCurrentSortOrder() { return this.sortOrder.map(m => m.asOrderElement()); }
 
-    # Find the relevant sort paths which are not in the sort order already.
-    for path in @getRelevantPaths() when (not @sortOrder.get path.toString())
-      @availableColumns.add path, sort: false
-    @availableColumns.sort() # sort once, when they are all added.
+    setDisabled() {
+      if (this.state.get('adding')) { return this.state.set({disabled: true}); } // cannot confirm while adding.
+      const currentView = this.getCurrentView().join(' ');
+      const initialView = this.query.views.join(' ');
+      const currentSO = this.sortOrder.map( m => m.toOrderString()).join(' ');
+      const initialSO = this.query.getSorting();
+      const viewUnchanged = (currentView === initialView);
+      const soUnchanged = (currentSO === initialSO);
+      // if no changes, then disable, since there are no changes to apply.
+      return this.state.set({
+        viewChanged: (!viewUnchanged),
+        orderChanged: (!soUnchanged),
+        disabled: (viewUnchanged && soUnchanged)
+      });
+    }
 
-    @listenTo @selectList, 'sort add remove', @setDisabled
-    @listenTo @sortOrder, 'sort add remove', @setDisabled
+    initState() { // open the dialogue with the default tab open, and main button disabled.
+      return this.state.set({
+        disabledReason: 'columns.NoChangesToApply',
+        disabled: true,
+        currentTab: ColumnManagerTabs.TABS[0]});
+    }
 
-  getRelevantPaths: ->
-    # Relevant paths are all the attributes of all the inner-joined query nodes.
-    _.chain @query.getQueryNodes()
-     .filter (n) => not @query.isOuterJoined n
-     .map (n) -> (cn for cn in n.getChildNodes() when cn.isAttribute() and (cn.end.name isnt 'id'))
-     .flatten()
-     .value()
+    renderTabs() {
+      return this.renderChild('tabs', (new ColumnManagerTabs({state: this.state})), this.$('.modal-body'));
+    }
 
-  getCurrentView: -> @selectList.pluck 'path'
+    renderTabContent() { if (this.rendered) {
+      const main = (() => { switch (this.state.get('currentTab')) {
+        case 'view': return new SelectListEditor({state: this.state, query: this.query, rubbishBin: this.rubbishBin, collection: this.selectList});
+        case 'sortorder': return new SortOrderEditor({query: this.query, availableColumns: this.availableColumns, collection: this.sortOrder});
+        default: throw new Error(`Cannot render ${ this.state.get('currentTab') }`);
+      } })();
+      return this.renderChild('main', main, this.$('.modal-body'));
+    } }
 
-  getCurrentSortOrder: -> @sortOrder.map (m) -> m.asOrderElement()
+    postRender() {
+      super.postRender(...arguments);
+      this.renderTabs();
+      return this.renderTabContent();
+    }
 
-  setDisabled: ->
-    return @state.set disabled: true if @state.get('adding') # cannot confirm while adding.
-    currentView = @getCurrentView().join ' '
-    initialView = @query.views.join(' ')
-    currentSO = @sortOrder.map( (m) -> m.toOrderString() ).join ' '
-    initialSO = @query.getSorting()
-    viewUnchanged = (currentView is initialView)
-    soUnchanged = (currentSO is initialSO)
-    # if no changes, then disable, since there are no changes to apply.
-    @state.set
-      viewChanged: (not viewUnchanged)
-      orderChanged: (not soUnchanged)
-      disabled: (viewUnchanged and soUnchanged)
-
-  initState: -> # open the dialogue with the default tab open, and main button disabled.
-    @state.set
-      disabledReason: 'columns.NoChangesToApply'
-      disabled: true
-      currentTab: ColumnManagerTabs.TABS[0]
-
-  renderTabs: ->
-    @renderChild 'tabs', (new ColumnManagerTabs {@state}), @$ '.modal-body'
-
-  renderTabContent: -> if @rendered
-    main = switch @state.get('currentTab')
-      when 'view' then new SelectListEditor {@state, @query, @rubbishBin, collection: @selectList}
-      when 'sortorder' then new SortOrderEditor {@query, @availableColumns, collection: @sortOrder}
-      else throw new Error "Cannot render #{ @state.get 'currentTab' }"
-    @renderChild 'main', main, @$ '.modal-body'
-
-  postRender: ->
-    super
-    @renderTabs()
-    @renderTabContent()
-
-  remove: ->
-    @selectList.close()
-    @rubbishBin.close()
-    @sortOrder.close()
-    @availableColumns.close()
-    super
+    remove() {
+      this.selectList.close();
+      this.rubbishBin.close();
+      this.sortOrder.close();
+      this.availableColumns.close();
+      return super.remove(...arguments);
+    }
+  };
+  ColumnManager.initClass();
+  return ColumnManager;
+})());
 
 
 

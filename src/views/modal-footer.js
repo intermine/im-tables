@@ -1,31 +1,49 @@
-_ = require 'underscore'
-CoreView = require '../core-view'
-Templates = require '../templates'
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS206: Consider reworking classes to avoid initClass
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let ModalFooter;
+const _ = require('underscore');
+const CoreView = require('../core-view');
+const Templates = require('../templates');
 
-defaultData = ->
-  error: null
-  exportLink: null
-  disabled: false
-  disabledReason: null
+const defaultData = () =>
+  ({
+    error: null,
+    exportLink: null,
+    disabled: false,
+    disabledReason: null
+  })
+;
 
-module.exports = class ModalFooter extends CoreView
+module.exports = (ModalFooter = (function() {
+  ModalFooter = class ModalFooter extends CoreView {
+    static initClass() {
+    
+      this.prototype.tagName = 'div';
   
-  tagName: 'div'
+      this.prototype.className = 'modal-footer';
+  
+      // model properties we read in the template.
+      // The error is a blocking error to display to the user, which will disable
+      // the main action.
+      // The href is used by dialogues that perform export using GETs to URLs that support
+      // disposition = attachment, which browsers will perform as a download if this href is
+      // used in a link.
+      this.prototype.RERENDER_EVENT = 'change:error change:exportLink';
+  
+      this.prototype.parameters = ['template', 'actionNames', 'actionIcons'];
+    }
 
-  className: 'modal-footer'
+    getData() { return _.extend(defaultData(), this.actionNames, this.actionIcons, super.getData(...arguments)); }
 
-  # model properties we read in the template.
-  # The error is a blocking error to display to the user, which will disable
-  # the main action.
-  # The href is used by dialogues that perform export using GETs to URLs that support
-  # disposition = attachment, which browsers will perform as a download if this href is
-  # used in a link.
-  RERENDER_EVENT: 'change:error change:exportLink'
-
-  parameters: ['template', 'actionNames', 'actionIcons']
-
-  getData: -> _.extend defaultData(), @actionNames, @actionIcons, super
-
-  postRender: ->
-    @$('[title]').tooltip()
+    postRender() {
+      return this.$('[title]').tooltip();
+    }
+  };
+  ModalFooter.initClass();
+  return ModalFooter;
+})());
 

@@ -1,94 +1,138 @@
-_ = require 'underscore'
-fs = require 'fs'
-{Promise} = require 'es6-promise'
+/*
+ * decaffeinate suggestions:
+ * DS101: Remove unnecessary use of Array.from
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS205: Consider reworking code to avoid use of IIFEs
+ * DS206: Consider reworking classes to avoid initClass
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let ListValueControls;
+const _ = require('underscore');
+const fs = require('fs');
+const {Promise} = require('es6-promise');
 
-Messages = require '../messages'
-View = require '../core-view'
+const Messages = require('../messages');
+const View = require('../core-view');
 
-Messages.set
-  'convalue.BadType': "<%- name %> is of the wrong type (<%- type %>)."
-  'convalue.EmptyList': "<%- name %> is empty. This query will always return 0 results"
-  'convalue.BadList': """
-    You do not have access to list called "<%- name %>". Choose one from the list.
-  """
+Messages.set({
+  'convalue.BadType': "<%- name %> is of the wrong type (<%- type %>).",
+  'convalue.EmptyList': "<%- name %> is empty. This query will always return 0 results",
+  'convalue.BadList': `\
+You do not have access to list called "<%- name %>". Choose one from the list.\
+`
+});
 
-helpers = require '../templates/helpers'
-mustacheSettings = require '../templates/mustache-settings'
+const helpers = require('../templates/helpers');
+const mustacheSettings = require('../templates/mustache-settings');
 
-html = fs.readFileSync __dirname + '/../templates/list-value-controls.html', 'utf8'
-template = _.template html
-getOptionValue = (list) -> list.name
-formatList = (list) ->
-  if list.size
-    "#{ list.name } (#{ list.size } #{ list.typeName }s)"
-  else
-    list.name
+const html = fs.readFileSync(__dirname + '/../templates/list-value-controls.html', 'utf8');
+const template = _.template(html);
+const getOptionValue = list => list.name;
+const formatList = function(list) {
+  if (list.size) {
+    return `${ list.name } (${ list.size } ${ list.typeName }s)`;
+  } else {
+    return list.name;
+  }
+};
 
-# Promise to add a typeName property to the list.
-# :: Query -> List -> Promise<ExtendedList>
-withDisplayNames = (m) -> (l) ->
-  p = m.makePath l.type
-  p.getDisplayName().then (typeName) -> _.extend l, {typeName}
+// Promise to add a typeName property to the list.
+// :: Query -> List -> Promise<ExtendedList>
+const withDisplayNames = m => function(l) {
+  const p = m.makePath(l.type);
+  return p.getDisplayName().then(typeName => _.extend(l, {typeName}));
+} ;
 
-module.exports = class ListValueControls extends View
+module.exports = (ListValueControls = (function() {
+  ListValueControls = class ListValueControls extends View {
+    static initClass() {
+  
+      this.prototype.className = 'im-list-value-controls';
+    }
 
-  className: 'im-list-value-controls'
+    initialize({query}) {
+      this.query = query;
+      super.initialize(...arguments);
+      this.initialValue = this.model.get('value');
+      this.path = this.model.get('path');
+      this.setSuitableLists();
+      this.listenTo(this.model, 'change', this.reRender);
+      this.listenTo(this.model, 'change:value', this.checkCurrentValue);
+      return this.checkCurrentValue();
+    }
 
-  initialize: ({@query}) ->
-    super
-    @initialValue = @model.get 'value'
-    @path = @model.get 'path'
-    @setSuitableLists()
-    @listenTo @model, 'change', @reRender
-    @listenTo @model, 'change:value', @checkCurrentValue
-    @checkCurrentValue()
+    checkCurrentValue() {
+      const name = this.model.get('value');
+      const doesntExist = error => {
+        this.model.set({error: new Error(Messages.getText('convalue.BadList', {name}))});
+        return this.listenToOnce(this.model, 'change:value', () => this.model.unset('error'));
+      };
+      const exists = function(list) {
+        const err = (() => {
+          if (!list.size) {
+          return 'convalue.EmptyList';
+        } else if (!this.path.isa(list.type)) {
+          return 'convalue.BadType';
+        }
+        })();
 
-  checkCurrentValue: ->
-    name = @model.get 'value'
-    doesntExist = (error) =>
-      @model.set error: new Error Messages.getText 'convalue.BadList', {name}
-      @listenToOnce @model, 'change:value', => @model.unset 'error'
-    exists = (list) ->
-      err = if not list.size
-        'convalue.EmptyList'
-      else if not @path.isa list.type
-        'convalue.BadType'
+        if (err != null) {
+          this.model.set({error: new Error(Messages.getText(err, list))});
+          return this.listenToOnce(this.model, 'change:value', () => this.model.unset('error'));
+        }
+      };
 
-      if err?
-        @model.set error: new Error Messages.getText err, list
-        @listenToOnce @model, 'change:value', => @model.unset 'error'
+      return this.query.service.fetchList(name).then(exists, doesntExist);
+    }
 
-    @query.service.fetchList(name).then exists, doesntExist
+    events() {
+      return {'change select': 'setList'};
+    }
 
-  events: ->
-    'change select': 'setList'
+    setList() { return this.model.set({value: this.$('select').val()}); }
 
-  setList: -> @model.set value: @$('select').val()
+    setSuitableLists() { if (!this.model.has('suitableLists')) {
+      const success = suitableLists => this.model.set({suitableLists});
+      const failed = error => this.model.set({error});
+      return this.fetchSuitableLists().then(success, failed);
+    } }
 
-  setSuitableLists: -> unless @model.has 'suitableLists'
-    success = (suitableLists) => @model.set {suitableLists}
-    failed = (error) => @model.set {error}
-    @fetchSuitableLists().then success, failed
+    fetchSuitableLists() { // Cache this result, since we don't want to keep fetching it.
+      return this.__suitable_lists != null ? this.__suitable_lists : (this.__suitable_lists = this.query.service.fetchLists().then(lists => {
+        const selectables = ((() => {
+          const result = [];
+          for (let l of Array.from(lists)) {             if (l.size && this.path.isa(l.type)) {
+              result.push(l);
+            }
+          }
+          return result;
+        })());
+        return Promise.all(selectables.map(withDisplayNames(this.query.model)));
+      }));
+    }
 
-  fetchSuitableLists: -> # Cache this result, since we don't want to keep fetching it.
-    @__suitable_lists ?= @query.service.fetchLists().then (lists) =>
-      selectables = (l for l in lists when l.size and @path.isa l.type)
-      Promise.all selectables.map withDisplayNames @query.model
+    getSuitableLists() {
+      const currentValue = {name: this.initialValue};
+      const suitableLists = (this.model.get('suitableLists') || []);
+      let currentlySelected = _.findWhere(suitableLists, currentValue);
+      if (currentlySelected == null) { currentlySelected = currentValue; }
+      return _.uniq([currentlySelected].concat(suitableLists), false, 'name');
+    }
 
-  getSuitableLists: ->
-    currentValue = name: @initialValue
-    suitableLists = (@model.get('suitableLists') or [])
-    currentlySelected = _.findWhere suitableLists, currentValue
-    currentlySelected ?= currentValue
-    _.uniq [currentlySelected].concat(suitableLists), false, 'name'
+    template(data) {
+      data = _.extend({formatList, getOptionValue, messages: Messages}, helpers, data);
+      return template(data);
+    }
 
-  template: (data) ->
-    data = _.extend {formatList, getOptionValue, messages: Messages}, helpers, data
-    template data
-
-  getData: ->
-    currentValue = @model.get 'value'
-    suitableLists = @getSuitableLists()
-    isSelected = (opt) -> opt.name is currentValue
-    {suitableLists, isSelected}
+    getData() {
+      const currentValue = this.model.get('value');
+      const suitableLists = this.getSuitableLists();
+      const isSelected = opt => opt.name === currentValue;
+      return {suitableLists, isSelected};
+    }
+  };
+  ListValueControls.initClass();
+  return ListValueControls;
+})());
 

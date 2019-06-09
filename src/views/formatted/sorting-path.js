@@ -1,33 +1,49 @@
-CoreView = require '../../core-view'
-Templates = require '../../templates'
-Icons = require '../../icons'
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS206: Consider reworking classes to avoid initClass
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let SortedPath;
+const CoreView = require('../../core-view');
+const Templates = require('../../templates');
+const Icons = require('../../icons');
 
-sortQueryByPath = require '../../utils/sort-query-by-path'
+const sortQueryByPath = require('../../utils/sort-query-by-path');
 
-INITIAL_CARETS = /^\s*>\s*/
+const INITIAL_CARETS = /^\s*>\s*/;
 
-# An individual path we can sort by.
-module.exports = class SortedPath extends CoreView
+// An individual path we can sort by.
+module.exports = (SortedPath = (function() {
+  SortedPath = class SortedPath extends CoreView {
+    static initClass() {
+  
+      this.prototype.tagName = 'li';
+  
+      this.prototype.className = 'im-formatted-path im-subpath';
+  
+      // Inherits model and state from parent, but is specialised on @path
+      this.prototype.parameters = ['query', 'path'];
+  
+      this.prototype.template = Templates.template('formatted_sorting');
+  }
 
-  tagName: 'li'
+    stateEvents() { return {change: this.reRender}; }
 
-  className: 'im-formatted-path im-subpath'
+    getData() { // Provides Icons, name, direction
+      const names = this.state.toJSON();
+      const name = names[this.path] != null ? names[this.path].replace(names.group, '')
+                          .replace(INITIAL_CARETS, '') : undefined;
+      const direction = this.query.getSortDirection(this.path);
+      return {Icons, name, direction};
+  }
 
-  # Inherits model and state from parent, but is specialised on @path
-  parameters: ['query', 'path']
+    events() { return {click: 'sortByPath'}; }
 
-  stateEvents: -> change: @reRender
-
-  getData: -> # Provides Icons, name, direction
-    names = @state.toJSON()
-    name = names[@path]?.replace names.group, ''
-                        .replace INITIAL_CARETS, ''
-    direction = @query.getSortDirection @path
-    {Icons, name, direction}
-
-  template: Templates.template 'formatted_sorting'
-
-  events: -> click: 'sortByPath'
-
-  sortByPath: -> sortQueryByPath @query, @path
+    sortByPath() { return sortQueryByPath(this.query, this.path); }
+};
+  SortedPath.initClass();
+  return SortedPath;
+})());
 

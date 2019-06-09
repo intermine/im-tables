@@ -1,32 +1,52 @@
-_ = require 'underscore'
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS206: Consider reworking classes to avoid initClass
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let NewFilterDialogue;
+const _ = require('underscore');
 
-Modal = require './modal'
-ConstraintAdder = require './constraint-adder'
-Templates = require '../templates'
-Messages = require '../messages'
+const Modal = require('./modal');
+const ConstraintAdder = require('./constraint-adder');
+const Templates = require('../templates');
+const Messages = require('../messages');
 
-# Very simple dialogue that just wraps a ConstraintAdder
-module.exports = class NewFilterDialogue extends Modal
+// Very simple dialogue that just wraps a ConstraintAdder
+module.exports = (NewFilterDialogue = (function() {
+  NewFilterDialogue = class NewFilterDialogue extends Modal {
+    static initClass() {
+  
+      this.prototype.modalSize = 'lg';
+    }
 
-  className: -> 'im-constraint-dialogue ' + super
+    className() { return `im-constraint-dialogue ${super.className(...arguments)}`; }
 
-  modalSize: 'lg'
+    initialize({query}) {
+      this.query = query;
+      super.initialize(...arguments);
+      this.listenTo(this.query, 'change:constraints', this.resolve); // Our job is done.
+      return this.listenTo(this.query, 'editing-constraint', () => { // Can we do this on the model?
+          return this.$('.im-add-constraint').removeClass('disabled');
+      });
+    }
 
-  initialize: ({@query}) ->
-    super
-    @listenTo @query, 'change:constraints', @resolve # Our job is done.
-    @listenTo @query, 'editing-constraint', => # Can we do this on the model?
-        @$('.im-add-constraint').removeClass 'disabled'
+    events() { return _.extend(super.events(...arguments), {
+      'click .im-add-constraint': 'addConstraint',
+      'childremoved': (e, child) => { if (child instanceof ConstraintAdder) { return this.hide(); } }
+    }
+    ); }
 
-  events: -> _.extend super,
-    'click .im-add-constraint': 'addConstraint'
-    'childremoved': (e, child) => @hide() if child instanceof ConstraintAdder
+    title() { return Messages.getText('constraints.AddNewFilter'); }
+    primaryAction() { return Messages.getText('constraints.AddFilter'); }
 
-  title: -> Messages.getText 'constraints.AddNewFilter'
-  primaryAction: -> Messages.getText 'constraints.AddFilter'
-
-  postRender: ->
-    footer = @$ '.modal-footer'
-    body = @$ '.modal-body'
-    @renderChild 'adder', (new ConstraintAdder {buttonDelegate: footer, @query}), body
-    super
+    postRender() {
+      const footer = this.$('.modal-footer');
+      const body = this.$('.modal-body');
+      this.renderChild('adder', (new ConstraintAdder({buttonDelegate: footer, query: this.query})), body);
+      return super.postRender(...arguments);
+    }
+  };
+  NewFilterDialogue.initClass();
+  return NewFilterDialogue;
+})());

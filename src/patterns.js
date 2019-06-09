@@ -1,1 +1,1 @@
-exports.IS_BLANK = /^\s*$/
+exports.IS_BLANK = /^\s*$/;

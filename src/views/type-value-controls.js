@@ -1,70 +1,112 @@
-_ = require 'underscore'
-fs = require 'fs'
-{Promise} = require 'es6-promise'
+/*
+ * decaffeinate suggestions:
+ * DS101: Remove unnecessary use of Array.from
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS104: Avoid inline assignments
+ * DS205: Consider reworking code to avoid use of IIFEs
+ * DS206: Consider reworking classes to avoid initClass
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let TypeValueControls;
+const _ = require('underscore');
+const fs = require('fs');
+const {Promise} = require('es6-promise');
 
-Messages = require '../messages'
-View = require '../core-view'
+const Messages = require('../messages');
+const View = require('../core-view');
 
-Messages.set
-  'typeconstraints.BadType': """
-    <%- type %> is not a legal value for this constraint. Choose another from the list.
-  """
-  'typeconstraints.OneClass': """
-    <%- name %> is the only legal value this constraint can have. You can always remove it though.
-  """
+Messages.set({
+  'typeconstraints.BadType': `\
+<%- type %> is not a legal value for this constraint. Choose another from the list.\
+`,
+  'typeconstraints.OneClass': `\
+<%- name %> is the only legal value this constraint can have. You can always remove it though.\
+`
+});
 
-toNamedPath = require '../utils/to-named-path'
-helpers = require '../templates/helpers'
+const toNamedPath = require('../utils/to-named-path');
+const helpers = require('../templates/helpers');
 
-html = fs.readFileSync __dirname + '/../templates/type-value-controls.html', 'utf8'
+const html = fs.readFileSync(__dirname + '/../templates/type-value-controls.html', 'utf8');
 
-asOption = ({path, name}) -> value: path, text: name
+const asOption = ({path, name}) => ({value: path, text: name});
 
-module.exports = class TypeValueControls extends View
+module.exports = (TypeValueControls = (function() {
+  TypeValueControls = class TypeValueControls extends View {
+    static initClass() {
+  
+      this.prototype.parameters = ['query', 'model'];
+  
+      this.prototype.template = _.template(html);
+    }
 
-  parameters: ['query', 'model']
+    initialize() {
+      super.initialize(...arguments);
+      this.model.swap('type', t => t != null ? t : this.model.get('path').getType().name);
+      this.listenTo(Messages, 'change', this.reRender);
+      this.listenTo(this.state, 'change:subclasses', this.reRender);
+      return this.setSubclasses();
+    }
 
-  initialize: ->
-    super
-    @model.swap 'type', (t) => t ? @model.get('path').getType().name
-    @listenTo Messages, 'change', @reRender
-    @listenTo @state, 'change:subclasses', @reRender
-    @setSubclasses()
+    getData() {
+      let data, left;
+      const type = this.model.get('type');
+      return data = {
+        select: helpers.select,
+        messages: Messages,
+        subclasses: (((Array.from((left = this.state.get('subclasses')) != null ? left : [])).map((sc) => asOption(sc)))),
+        isSelected(opt) { return type === opt.value; }
+      };
+    }
 
-  getData: ->
-    type = @model.get 'type'
-    data =
-      select: helpers.select
-      messages: Messages
-      subclasses: (asOption sc for sc in (@state.get('subclasses') ? []))
-      isSelected: (opt) -> type is opt.value
+    events() {
+      return {'change .im-value-type': 'setType'};
+    }
 
-  events: ->
-    'change .im-value-type': 'setType'
+    setType() { return this.model.set({type: this.$('.im-value-type').val()}); }
 
-  setType: -> @model.set type: @$('.im-value-type').val()
+    setSubclasses() { if (!this.model.has('subclasses')) {
+      return this.getPossibleTypes().then(subclasses => {
+        if (subclasses.length === 1) {
+          const msg = Messages.getText('typeconstraints.OneClass', subclasses[0]);
+          this.model.set({error: {message: msg, level: 'warning'}});
+        }
+        return this.state.set({subclasses});
+    });
+    } }
 
-  template: _.template html
+    // Get the list of sub-types that this constraint could be set to.
+    getPossibleTypes() {
+      let t;
+      const {path, type} = this.model.toJSON();
+      const subclasses   = this.query.getSubclasses();
+      const schema       = this.query.model;
 
-  setSubclasses: -> unless @model.has('subclasses')
-    @getPossibleTypes().then (subclasses) =>
-      if subclasses.length is 1
-        msg = Messages.getText('typeconstraints.OneClass', subclasses[0])
-        @model.set error: {message: msg, level: 'warning'}
-      @state.set {subclasses}
-
-  # Get the list of sub-types that this constraint could be set to.
-  getPossibleTypes: ->
-    {path, type} = @model.toJSON()
-    subclasses   = @query.getSubclasses()
-    schema       = @query.model
-
-    delete subclasses[path] # no point unless we unconstrain it, but we may need other type-cons
-    baseType = schema.getPathInfo(path.toString(), subclasses).getType()
-    subtypes = (t for t in schema.getSubclassesOf baseType when t isnt baseType.name)
-    paths = (schema.makePath t for t in subtypes)
-    promises = paths.map toNamedPath
-    unless type in subtypes # Add it there if it isn't one of them, with a warning.
-      @model.set error: new Error Messages.getText 'typeconstraints.BadType', @model.toJSON()
-      promises.push Promise.resolve path: type, name: @model.get('typeName')
-    Promise.all promises
+      delete subclasses[path]; // no point unless we unconstrain it, but we may need other type-cons
+      const baseType = schema.getPathInfo(path.toString(), subclasses).getType();
+      const subtypes = ((() => {
+        const result = [];
+        for (t of Array.from(schema.getSubclassesOf(baseType))) {           if (t !== baseType.name) {
+            result.push(t);
+          }
+        }
+        return result;
+      })());
+      const paths = ((() => {
+        const result1 = [];
+        for (t of Array.from(subtypes)) {           result1.push(schema.makePath(t));
+        }
+        return result1;
+      })());
+      const promises = paths.map(toNamedPath);
+      if (!Array.from(subtypes).includes(type)) { // Add it there if it isn't one of them, with a warning.
+        this.model.set({error: new Error(Messages.getText('typeconstraints.BadType', this.model.toJSON()))});
+        promises.push(Promise.resolve({path: type, name: this.model.get('typeName')}));
+      }
+      return Promise.all(promises);
+    }
+  };
+  TypeValueControls.initClass();
+  return TypeValueControls;
+})());

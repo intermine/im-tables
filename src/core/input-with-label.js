@@ -1,84 +1,111 @@
-_ = require 'underscore'
-CoreView = require '../core-view'
-Templates = require '../templates'
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS206: Consider reworking classes to avoid initClass
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let InputWithLabel;
+const _ = require('underscore');
+const CoreView = require('../core-view');
+const Templates = require('../templates');
 
-# One word of caution - you should never inject the state into
-# this component (except for observation). If two components share
-# the same state object, they will probably collide on the validation
-# state. The only valid reason to do such a thing would be if two
-# such or similar components write to the same value.
-module.exports = class InputWithLabel extends CoreView
+// One word of caution - you should never inject the state into
+// this component (except for observation). If two components share
+// the same state object, they will probably collide on the validation
+// state. The only valid reason to do such a thing would be if two
+// such or similar components write to the same value.
+module.exports = (InputWithLabel = (function() {
+  InputWithLabel = class InputWithLabel extends CoreView {
+    static initClass() {
+  
+      this.prototype.className = 'form-group';
+  
+      this.prototype.template = Templates.template('input-with-label');
+  
+      // Nothing by default - provide one to give help if there is a problem. Also,
+      // problems may define their own help (see ::getProblem).
+      this.prototype.helpMessage = null;
+    }
 
-  className: 'form-group'
+    parameters() { return ['attr', 'placeholder', 'label']; }
 
-  template: Templates.template 'input-with-label'
+    optionalParameters() { return ['getProblem', 'helpMessage']; }
 
-  parameters: -> ['attr', 'placeholder', 'label']
+    // A function that takes the model value and returns a Problem if there is one
+    // A Problem is any truthy value. For simple cases `true` will do just fine,
+    // but the following fields are recognised:
+    //   - level: 'warning' or 'error' - default = 'error'
+    //   - message: A Messages key to replace the text in the help block.
+    getProblem(value) { return null; }
 
-  optionalParameters: -> ['getProblem', 'helpMessage']
+    initialize() {
+      super.initialize(...arguments);
+      return this.setValidity();
+    }
 
-  # A function that takes the model value and returns a Problem if there is one
-  # A Problem is any truthy value. For simple cases `true` will do just fine,
-  # but the following fields are recognised:
-  #   - level: 'warning' or 'error' - default = 'error'
-  #   - message: A Messages key to replace the text in the help block.
-  getProblem: (value) -> null
+    setValidity() { return this.state.set({problem: this.getProblem(this.model.get(this.attr))}); }
 
-  # Nothing by default - provide one to give help if there is a problem. Also,
-  # problems may define their own help (see ::getProblem).
-  helpMessage: null
+    getData() { return _.extend(this.getBaseData(), {
+      value: this.model.get(this.attr),
+      label: this.label,
+      placeholder: this.placeholder,
+      helpMessage: this.helpMessage,
+      hasProblem: this.state.get('problem')
+    }
+    ); }
 
-  initialize: ->
-    super
-    @setValidity()
+    postRender() {
+      this.$el.addClass(this.className); // in case we were renderedAt
+      return this.onChangeValidity();
+    }
 
-  setValidity: -> @state.set problem: @getProblem @model.get @attr
+    events() {
+      return {'keyup input': 'setModelValue'};
+    }
 
-  getData: -> _.extend @getBaseData(),
-    value: @model.get(@attr)
-    label: @label
-    placeholder: @placeholder
-    helpMessage: @helpMessage
-    hasProblem: @state.get('problem')
+    stateEvents() { return {'change:problem': this.onChangeValidity}; }
 
-  postRender: ->
-    @$el.addClass @className # in case we were renderedAt
-    @onChangeValidity()
+    modelEvents() {
+      const e = {};
+      e[`change:${ this.attr }`] = this.onChangeValue;
+      return e;
+    }
 
-  events: ->
-    'keyup input': 'setModelValue'
+    onChangeValue() {
+      this.setValidity();
+      return this.setDOMValue();
+    }
 
-  stateEvents:  -> 'change:problem': @onChangeValidity
+    onChangeValidity() {
+      const problem = this.state.get('problem');
+      const help = this.$('.help-block');
+      if (problem) {
+        this.$el.toggleClass('has-warning', (problem.level === 'warning'));
+        this.$el.toggleClass('has-error', (problem.level !== 'warning'));
+        if (problem.message != null) { help.text(Messages.getText(problem.message)); }
+        return help.slideDown();
+      } else {
+        this.$el.removeClass('has-warning has-error');
+        return help.slideUp();
+      }
+    }
 
-  modelEvents: ->
-    e = {}
-    e["change:#{ @attr }"] = @onChangeValue
-    return e
+    setModelValue(e) {
+      return this.model.set(this.attr, this.$(e.target).val()); // Use val so sub-classes can use it.
+    }
 
-  onChangeValue: ->
-    @setValidity()
-    @setDOMValue()
-
-  onChangeValidity: ->
-    problem = @state.get 'problem'
-    help = @$ '.help-block'
-    if problem
-      @$el.toggleClass 'has-warning', (problem.level is 'warning')
-      @$el.toggleClass 'has-error', (problem.level isnt 'warning')
-      help.text(Messages.getText(problem.message)) if problem.message?
-      help.slideDown()
-    else
-      @$el.removeClass 'has-warning has-error'
-      help.slideUp()
-
-  setModelValue: (e) ->
-    @model.set @attr, @$(e.target).val() # Use val so sub-classes can use it.
-
-  setDOMValue: ->
-    $input = @$ 'input'
-    domValue = $input.val()
-    modelValue = @model.get @attr
-    # We check that this is necessary to avoid futzing about with the cursor.
-    if modelValue isnt domValue
-      $input.val modelValue
+    setDOMValue() {
+      const $input = this.$('input');
+      const domValue = $input.val();
+      const modelValue = this.model.get(this.attr);
+      // We check that this is necessary to avoid futzing about with the cursor.
+      if (modelValue !== domValue) {
+        return $input.val(modelValue);
+      }
+    }
+  };
+  InputWithLabel.initClass();
+  return InputWithLabel;
+})());
 

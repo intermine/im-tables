@@ -1,117 +1,193 @@
-_ = require 'underscore'
+/*
+ * decaffeinate suggestions:
+ * DS101: Remove unnecessary use of Array.from
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS205: Consider reworking code to avoid use of IIFEs
+ * DS206: Consider reworking classes to avoid initClass
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let FilterDialogue;
+const _ = require('underscore');
 
-CoreView = require '../core-view'
-Modal = require './modal'
-Messages = require '../messages'
-Templates = require '../templates'
+const CoreView = require('../core-view');
+const Modal = require('./modal');
+const Messages = require('../messages');
+const Templates = require('../templates');
 
-Constraints = require './constraints'
+const Constraints = require('./constraints');
 
-require '../messages/constraints'
-require '../messages/logic'
+require('../messages/constraints');
+require('../messages/logic');
 
-class LogicManager extends CoreView
+class LogicManager extends CoreView {
+  static initClass() {
+  
+    this.prototype.className = 'form im-evenly-spaced im-constraint-logic';
+    this.prototype.tagName = 'form';
+  
+    this.prototype.template = Templates.template('logic-manager-body');
+  
+    this.prototype.parameters = ['query'];
+  }
 
-  className: 'form im-evenly-spaced im-constraint-logic'
-  tagName: 'form'
+  initialize() {
+    super.initialize(...arguments);
+    const codes = (Array.from(this.query.constraints).filter((c) => c.code).map((c) => c.code));
+    this.model.set({logic: this.query.constraintLogic});
+    return this.state.set({disabled: true, defaultLogic: codes.join(' and ')});
+  }
 
-  template: Templates.template('logic-manager-body')
+  events() {
+    return {
+      'change .im-logic': this.setLogic,
+      'submit': this.applyChanges
+    };
+  }
 
-  parameters: ['query']
+  modelEvents() {
+    return {'change:logic': this.setDisabled};
+  }
 
-  initialize: ->
-    super
-    codes = (c.code for c in @query.constraints when c.code)
-    @model.set logic: @query.constraintLogic
-    @state.set disabled: true, defaultLogic: codes.join ' and '
+  stateEvents() {
+    return {'change:disabled': this.reRender};
+  }
 
-  events: ->
-    'change .im-logic': @setLogic
-    'submit': @applyChanges
+  setDisabled() {
+    const newLogic = this.model.get('logic');
+    const current = this.query.constraintLogic;
+    return this.state.set({disabled: (newLogic === current)});
+  }
 
-  modelEvents: ->
-    'change:logic': @setDisabled
+  setLogic(e) {
+    return this.model.set({logic: e.target.value});
+  }
 
-  stateEvents: ->
-    'change:disabled': @reRender
+  applyChanges(e) {
+    if (e != null) {
+      e.preventDefault();
+    }
+    if (e != null) {
+      e.stopPropagation();
+    }
+    if (!this.state.get('disabled')) {
+      const newLogic = this.model.get('logic');
+      this.query.constraintLogic = newLogic;
+      return this.query.trigger('change:logic', newLogic);
+    }
+  }
+}
+LogicManager.initClass();
 
-  setDisabled: ->
-    newLogic = @model.get('logic')
-    current = @query.constraintLogic
-    @state.set disabled: (newLogic is current)
+var Body = (function() {
+  let CODES = undefined;
+  Body = class Body extends Constraints {
+    static initClass() {
+  
+      this.prototype.template = Templates.template('active-constraints');
+  
+      CODES = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    }
 
-  setLogic: (e) ->
-    @model.set logic: e.target.value
+    initialize() {
+      super.initialize(...arguments);
+      return this.assignCodes();
+    }
 
-  applyChanges: (e) ->
-    e?.preventDefault()
-    e?.stopPropagation()
-    unless @state.get('disabled')
-      newLogic = @model.get('logic')
-      @query.constraintLogic = newLogic
-      @query.trigger 'change:logic', newLogic
+    stateEvents() {
+      return {'change:adding': this.reRender};
+    }
 
-class Body extends Constraints
+    assignCodes() {
+      let c;
+      const constraints = ((() => {
+        const result = [];
+        for (c of Array.from(this.query.constraints)) {           if (c.op != null) {
+            result.push(c);
+          }
+        }
+        return result;
+      })());
+      if (constraints.length < 2) { return; }
+      const codes = CODES.split(''); // New array each time.
+      return (() => {
+        const result1 = [];
+        for (c of Array.from(constraints)) {
+          if ((c.code == null)) {
+            result1.push((() => {
+              let code;
+              const result2 = [];
+              while ((c.code == null) && (code = codes.shift())) {
+                if (!_.any(constraints, con => con.code === code)) { result2.push(c.code = code); } else {
+                  result2.push(undefined);
+                }
+              }
+              return result2;
+            })());
+          }
+        }
+        return result1;
+      })();
+    }
 
-  template: Templates.template 'active-constraints'
+    postRender() {
+      super.postRender(...arguments);
+      const constraints = this.getConstraints();
+      if (constraints.length > 1) {
+        this.renderChild('logic', new LogicManager({query: this.query}));
+      }
+      const mth = this.state.get('adding') ? 'slideUp' : 'slideDown';
+      return this.$('.im-current-constraints')[mth](400);
+    }
 
-  initialize: ->
-    super
-    @assignCodes()
+    getConAdder() { if (this.state.get('adding')) { return super.getConAdder(...arguments); } }
+  };
+  Body.initClass();
+  return Body;
+})();
 
-  stateEvents: ->
-    'change:adding': @reRender
+module.exports = (FilterDialogue = (function() {
+  FilterDialogue = class FilterDialogue extends Modal {
+    static initClass() {
+  
+      this.prototype.parameters = ['query'];
+    }
 
-  CODES = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    modalSize() { return 'lg'; }
 
-  assignCodes: ->
-    constraints = (c for c in @query.constraints when c.op?)
-    return if constraints.length < 2
-    codes = CODES.split('') # New array each time.
-    for c in constraints when not c.code?
-      while not c.code? and (code = codes.shift())
-        c.code = code unless (_.any constraints, (con) -> con.code is code)
+    className() { return super.className(...arguments) + ' im-filter-manager'; }
 
-  postRender: ->
-    super
-    constraints = @getConstraints()
-    if constraints.length > 1
-      @renderChild 'logic', new LogicManager {@query}
-    mth = if @state.get('adding') then 'slideUp' else 'slideDown'
-    @$('.im-current-constraints')[mth] 400
+    title() { return Messages.getText('constraints.Heading', {n: this.query.constraints.length}); }
 
-  getConAdder: -> super if @state.get 'adding'
+    initState() {
+      return this.state.set({adding: false, disabled: false});
+    }
 
-module.exports = class FilterDialogue extends Modal
+    act() {
+      return this.state.set({adding: true, disabled: true});
+    }
 
-  parameters: ['query']
+    dismissAction() { return Messages.getText('Cancel'); }
+    primaryAction() { return Messages.getText('constraints.DefineNew'); }
 
-  modalSize: -> 'lg'
+    initialize() {
+      super.initialize(...arguments);
+      this.listenTo(this, 'shown', this.renderBodyContent);
+      return this.listenTo(this.query, 'change:constraints', this.onChangeConstraints);
+    }
 
-  className: -> super + ' im-filter-manager'
+    onChangeConstraints() {
+      this.initState();
+      return this.renderTitle();
+    }
 
-  title: -> Messages.getText 'constraints.Heading', n: @query.constraints.length
-
-  initState: ->
-    @state.set adding: false, disabled: false
-
-  act: ->
-    @state.set adding: true, disabled: true
-
-  dismissAction: -> Messages.getText 'Cancel'
-  primaryAction: -> Messages.getText 'constraints.DefineNew'
-
-  initialize: ->
-    super
-    @listenTo @, 'shown', @renderBodyContent
-    @listenTo @query, 'change:constraints', @onChangeConstraints
-
-  onChangeConstraints: ->
-    @initState()
-    @renderTitle()
-
-  renderBodyContent: -> if @shown
-    body = @$ '.modal-body'
-    _.defer => @renderChild 'cons', (new Body {@state, @query}), body
+    renderBodyContent() { if (this.shown) {
+      const body = this.$('.modal-body');
+      return _.defer(() => this.renderChild('cons', (new Body({state: this.state, query: this.query})), body));
+    } }
+  };
+  FilterDialogue.initClass();
+  return FilterDialogue;
+})());
 
 

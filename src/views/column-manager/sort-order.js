@@ -1,141 +1,196 @@
-_ = require 'underscore'
+/*
+ * decaffeinate suggestions:
+ * DS101: Remove unnecessary use of Array.from
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS103: Rewrite code to no longer use __guard__
+ * DS206: Consider reworking classes to avoid initClass
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let SortOrderEditor;
+const _ = require('underscore');
 
-CoreView = require '../../core-view'
-CoreModel = require '../../core-model'
-Templates = require '../../templates'
-HandlesDOMReSort = require '../../mixins/handles-dom-resort'
+const CoreView = require('../../core-view');
+const CoreModel = require('../../core-model');
+const Templates = require('../../templates');
+const HandlesDOMReSort = require('../../mixins/handles-dom-resort');
 
-AvailablePath = require './available-path'
-OrderElement = require './order-element'
+const AvailablePath = require('./available-path');
+const OrderElement = require('./order-element');
 
-activeId = (model) -> "active_#{ model.get 'id' }"
-inactiveId = (model) -> "inactive_#{ model.get 'id' }"
+const activeId = model => `active_${ model.get('id') }`;
+const inactiveId = model => `inactive_${ model.get('id') }`;
 
-module.exports = class SortOrderEditor extends CoreView
+module.exports = (SortOrderEditor = (function() {
+  SortOrderEditor = class SortOrderEditor extends CoreView {
+    static initClass() {
+  
+      this.include(HandlesDOMReSort);
+  
+      this.prototype.parameters = ['collection', 'query', 'availableColumns'];
+  
+      this.prototype.className = 'im-sort-order-editor';
+  
+      this.prototype.template = Templates.template('column-manager-sort-order-editor');
+    }
 
-  @include HandlesDOMReSort
+    getData() { return _.extend(super.getData(...arguments), {available: this.availableColumns.size()}); }
 
-  parameters: ['collection', 'query', 'availableColumns']
+    collectionEvents() {
+      return {
+        'add remove': this.reRender,
+        'sort': this.resortSortOrder,
+        'remove': this.makeAvailable
+      };
+    }
 
-  className: 'im-sort-order-editor'
+    initialize() {
+      super.initialize(...arguments);
+      this.dragState = new CoreModel;
+      this.listenTo(this.availableColumns, 'sort add remove', this.resortAvailable);
+      return this.listenTo(this.availableColumns, 'remove', this.addToSortOrder);
+    }
 
-  template: Templates.template 'column-manager-sort-order-editor'
+    currentSortOrder() {
+      return this.collection.map(m => `${ m.get('path') } ${ m.get('direction') }`)
+                 .join(' ');
+    }
 
-  getData: -> _.extend super, available: @availableColumns.size()
+    postRender() {
+      // First we render the sort-order.
+      this.resortSortOrder();
+      // Then we activate the drag/drop/sort-ables - this must be done
+      // before we render the available paths, since they need a reference
+      // to the active paths, which is created in ::activateSortables
+      this.activateSortables();
+      // render the available paths.
+      this.resortAvailable();
+      return this.setAvailableHeight();
+    }
 
-  collectionEvents: ->
-    'add remove': @reRender
-    'sort': @resortSortOrder
-    'remove': @makeAvailable
+    activateSortables() {
+      const active = this.$('.im-active-oes');
+      // copied out of bootstrap variables - if only they could be shared!
+      const cutoff = 900;
+      const modalWidth = this.$el.closest('.modal').width();
+      const wide = (modalWidth >= cutoff);
 
-  initialize: ->
-    super
-    @dragState = new CoreModel
-    @listenTo @availableColumns, 'sort add remove', @resortAvailable
-    @listenTo @availableColumns, 'remove', @addToSortOrder
+      if (this.collection.size()) {
+        return this.$actives = active.sortable({
+          placeholder: 'im-view-list-placeholder',
+          opacity: 0.6,
+          cancel: 'i,a,button',
+          axis: (wide ? null : 'y'),
+          appendTo: this.el
+        });
+      } else {
+        return this.$droppable = this.$('.im-empty-collection').droppable({
+          accept: '.im-selected-column',
+          activeClass: 'im-can-add-column',
+          hoverClass: 'im-will-add-column'
+        });
+      }
+    }
 
-  currentSortOrder: ->
-    @collection.map (m) -> "#{ m.get 'path' } #{ m.get 'direction' }"
-               .join ' '
+    removeAllChildren() {
+      if (this.$actives != null) {
+        this.$actives.sortable('destroy');
+      }
+      if (this.$droppable != null) {
+        this.$droppable.droppable('destroy');
+      }
+      this.$droppable = null;
+      this.$actives = null;
+      return super.removeAllChildren(...arguments);
+    }
 
-  postRender: ->
-    # First we render the sort-order.
-    @resortSortOrder()
-    # Then we activate the drag/drop/sort-ables - this must be done
-    # before we render the available paths, since they need a reference
-    # to the active paths, which is created in ::activateSortables
-    @activateSortables()
-    # render the available paths.
-    @resortAvailable()
-    @setAvailableHeight()
+    events() {
+      return {
+        'drop .im-empty-collection': 'addSortElement',
+        'sortupdate .im-active-oes': 'onDOMResort'
+      };
+    }
 
-  activateSortables: ->
-    active = @$('.im-active-oes')
-    # copied out of bootstrap variables - if only they could be shared!
-    cutoff = 900
-    modalWidth = @$el.closest('.modal').width()
-    wide = (modalWidth >= cutoff)
+    onDOMResort(e, ui) {
+      let path;
+      if (path = this.dragState.get('dragged')) {
+        const model = this.availableColumns.findWhere({path});
+        const indexAt = ui.item.prevAll().length;
+        this.addToSortOrder(model, indexAt);
+        return this.dragState.unset('dragged');
+      } else {
+        return this.setChildIndices(activeId);
+      }
+    }
 
-    if @collection.size()
-      @$actives = active.sortable
-        placeholder: 'im-view-list-placeholder'
-        opacity: 0.6
-        cancel: 'i,a,button'
-        axis: (if wide then null else 'y')
-        appendTo: @el
-    else
-      @$droppable = @$('.im-empty-collection').droppable
-        accept: '.im-selected-column'
-        activeClass: 'im-can-add-column'
-        hoverClass: 'im-will-add-column'
+    makeAvailable(active) {
+      return this.availableColumns.add(this.query.makePath(active.get('path')));
+    }
 
-  removeAllChildren: ->
-    @$actives?.sortable 'destroy'
-    @$droppable?.droppable 'destroy'
-    @$droppable = null
-    @$actives = null
-    super
+    findAvailable(el) { return this.availableColumns.find(m => {
+      return __guard__(this.children[inactiveId(m)], x => x.el) === el;
+    }); }
 
-  events: ->
-    'drop .im-empty-collection': 'addSortElement'
-    'sortupdate .im-active-oes': 'onDOMResort'
+    addSortElement(e, ui) {
+      const $el = ui.draggable;
+      const available = this.findAvailable($el[0]);
+      return this.addToSortOrder(available);
+    }
 
-  onDOMResort: (e, ui) ->
-    if path = @dragState.get 'dragged'
-      model = @availableColumns.findWhere {path}
-      indexAt = ui.item.prevAll().length
-      @addToSortOrder model, indexAt
-      @dragState.unset 'dragged'
-    else
-      @setChildIndices activeId
+    addToSortOrder(availableColumnModel, atIndex) {
+      const path = this.query.makePath(availableColumnModel.get('path'));
+      const oe = {id: (String(path)), path};
+      const sizeBeforeAdd = this.collection.size();
+      // remove from collection, etc.
+      availableColumnModel.destroy();
+      this.collection.add(oe);
+      if ((atIndex != null) && (atIndex < sizeBeforeAdd)) {
+        const toBump = this.collection.filter(m => m.get('index') >= atIndex);
+        const added = this.collection.last();
+        for (let b of Array.from(toBump)) {
+          b.swap('index', idx => idx + 1);
+        }
+        return added.set({index: atIndex});
+      }
+    }
 
-  makeAvailable: (active) ->
-    @availableColumns.add @query.makePath active.get 'path'
+    // Cleanest way I could think of to do this.
+    resortAvailable() { if (this.rendered) {
+      const frag = global.document.createDocumentFragment();
+      this.availableColumns.each(model => {
+        return this._renderAvailable(model, frag);
+      });
+      return this.$('.im-available-oes').html(frag);
+    } }
 
-  findAvailable: (el) -> @availableColumns.find (m) =>
-    @children[inactiveId m]?.el is el
+    _renderAvailable(model, frag) {
+      const name = inactiveId(model);
+      const findActives = () => this.$actives;
+      const view = new AvailablePath({model, findActives, state: this.dragState});
+      return this.renderChild(name, view, frag);
+    }
 
-  addSortElement: (e, ui) ->
-    $el = ui.draggable
-    available = @findAvailable $el[0]
-    @addToSortOrder available
+    resortSortOrder() { if (this.rendered) {
+      const frag = global.document.createDocumentFragment();
+      this.collection.each(model => {
+        return this.renderChild((activeId(model)), (new OrderElement({model})), frag);
+      });
+      return this.$('.im-active-oes').html(frag);
+    } }
 
-  addToSortOrder: (availableColumnModel, atIndex) ->
-    path = @query.makePath availableColumnModel.get 'path'
-    oe = id: (String path), path: path
-    sizeBeforeAdd = @collection.size()
-    # remove from collection, etc.
-    availableColumnModel.destroy()
-    @collection.add oe
-    if atIndex? and (atIndex < sizeBeforeAdd)
-      toBump = @collection.filter (m) -> m.get('index') >= atIndex
-      added = @collection.last()
-      for b in toBump
-        b.swap 'index', (idx) -> idx + 1
-      added.set index: atIndex
+    setAvailableHeight() {
+      return this.$('.im-rubbish-bin').css({'max-height': Math.max(200, (this.$el.closest('.modal').height() - 450))});
+    }
 
-  # Cleanest way I could think of to do this.
-  resortAvailable: -> if @rendered
-    frag = global.document.createDocumentFragment()
-    @availableColumns.each (model) =>
-      @_renderAvailable model, frag
-    @$('.im-available-oes').html frag
+    remove() {
+      this.dragState.destroy();
+      return super.remove(...arguments);
+    }
+  };
+  SortOrderEditor.initClass();
+  return SortOrderEditor;
+})());
 
-  _renderAvailable: (model, frag) ->
-    name = inactiveId model
-    findActives = => @$actives
-    view = new AvailablePath {model, findActives, state: @dragState}
-    @renderChild name, view, frag
-
-  resortSortOrder: -> if @rendered
-    frag = global.document.createDocumentFragment()
-    @collection.each (model) =>
-      @renderChild (activeId model), (new OrderElement {model}), frag
-    @$('.im-active-oes').html frag
-
-  setAvailableHeight: ->
-    @$('.im-rubbish-bin').css 'max-height': Math.max(200, (@$el.closest('.modal').height() - 450))
-
-  remove: ->
-    @dragState.destroy()
-    super
+function __guard__(value, transform) {
+  return (typeof value !== 'undefined' && value !== null) ? transform(value) : undefined;
+}

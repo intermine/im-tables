@@ -1,29 +1,37 @@
-_ = require 'underscore'
-{Promise} = require 'es6-promise'
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+const _ = require('underscore');
+const {Promise} = require('es6-promise');
 
-Options = require '../options'
+const Options = require('../options');
 
-{fromPairs} = require './query-string'
+const {fromPairs} = require('./query-string');
 
-getGenomeSpaceUrl = (uri, fileName) ->
-  GenomeSpace = Options.get 'Destination.GenomeSpace'
-  pairs = [['uploadUrl', uri], ['fileName', fileName]]
-  qs = fromPairs pairs
-  "#{ GenomeSpace.Upload }?#{ qs }"
+const getGenomeSpaceUrl = function(uri, fileName) {
+  const GenomeSpace = Options.get('Destination.GenomeSpace');
+  const pairs = [['uploadUrl', uri], ['fileName', fileName]];
+  const qs = fromPairs(pairs);
+  return `${ GenomeSpace.Upload }?${ qs }`;
+};
 
-save = (uri, fileName) -> new Promise (resolve, reject) ->
-  # Open the GS pop-up interface.
-  win = window.open getGenomeSpaceUrl uri, fileName
+const save = (uri, fileName) => new Promise(function(resolve, reject) {
+  // Open the GS pop-up interface.
+  const win = window.open(getGenomeSpaceUrl(uri, fileName));
 
-  # Yes, technically this is a pointless wrapper function, but
-  # it makes the API clearer.
-  win.setCallbackOnGSUploadComplete = (savePath) -> resolve savePath
-  # We don't get sensible errors back, so just construct one.
-  win.setCallbackOnGSUploadError = (savePath) ->
-    console.log 'GSERR', arguments
-    reject new Error "Could not save to #{ savePath }"
-  win.addEventListener 'unload', -> reject new Error 'Upload cancelled'
+  // Yes, technically this is a pointless wrapper function, but
+  // it makes the API clearer.
+  win.setCallbackOnGSUploadComplete = savePath => resolve(savePath);
+  // We don't get sensible errors back, so just construct one.
+  win.setCallbackOnGSUploadError = function(savePath) {
+    console.log('GSERR', arguments);
+    return reject(new Error(`Could not save to ${ savePath }`));
+  };
+  win.addEventListener('unload', () => reject(new Error('Upload cancelled')));
 
-  win.focus()
+  return win.focus();
+}) ;
 
-module.exports = save
+module.exports = save;

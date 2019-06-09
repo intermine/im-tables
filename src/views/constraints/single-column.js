@@ -1,26 +1,46 @@
-Constraints = require '../constraints'
-SingleColumnConstraintAdder = require './single-column-adder'
-ComposedColumnConstraintAdder = require './composed-column-adder'
+/*
+ * decaffeinate suggestions:
+ * DS101: Remove unnecessary use of Array.from
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS205: Consider reworking code to avoid use of IIFEs
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let SingleColumnConstraints;
+const Constraints = require('../constraints');
+const SingleColumnConstraintAdder = require('./single-column-adder');
+const ComposedColumnConstraintAdder = require('./composed-column-adder');
 
-# Consumes a HeaderModel
-module.exports = class SingleColumnConstraints extends Constraints
+// Consumes a HeaderModel
+module.exports = (SingleColumnConstraints = class SingleColumnConstraints extends Constraints {
 
-  getConAdder: -> if @shouldShowAdder()
-    {replaces, isComposed, outerJoined} = @model.attributes
-    path = @model.pathInfo()
-    if isComposed and replaces.length > 1
-      new ComposedColumnConstraintAdder {@query, paths: replaces}
-    else if outerJoined
-      new ComposedColumnConstraintAdder {@query, paths: [path].concat(replaces)}
-    else
-      new SingleColumnConstraintAdder {@query, path: path}
+  getConAdder() { if (this.shouldShowAdder()) {
+    const {replaces, isComposed, outerJoined} = this.model.attributes;
+    const path = this.model.pathInfo();
+    if (isComposed && (replaces.length > 1)) {
+      return new ComposedColumnConstraintAdder({query: this.query, paths: replaces});
+    } else if (outerJoined) {
+      return new ComposedColumnConstraintAdder({query: this.query, paths: [path].concat(replaces)});
+    } else {
+      return new SingleColumnConstraintAdder({query: this.query, path});
+    }
+  } }
 
-  # Numeric paths can handle multiple constraints - others should just have one.
-  shouldShowAdder: ->
-    {numeric, isComposed, outerJoined} = @model.attributes
-    numeric or isComposed or outerJoined or (not @getConstraints().length)
+  // Numeric paths can handle multiple constraints - others should just have one.
+  shouldShowAdder() {
+    const {numeric, isComposed, outerJoined} = this.model.attributes;
+    return numeric || isComposed || outerJoined || (!this.getConstraints().length);
+  }
 
-  getConstraints: ->
-    view = @model.get 'path'
-    (c for c in @query.constraints when c.path.match view)
+  getConstraints() {
+    const view = this.model.get('path');
+    return ((() => {
+      const result = [];
+      for (let c of Array.from(this.query.constraints)) {         if (c.path.match(view)) {
+          result.push(c);
+        }
+      }
+      return result;
+    })());
+  }
+});
 

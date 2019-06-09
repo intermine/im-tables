@@ -1,21 +1,39 @@
-_ = require 'underscore'
-fs = require 'fs'
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS206: Consider reworking classes to avoid initClass
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let ErrorMessage;
+const _ = require('underscore');
+const fs = require('fs');
 
-CoreView = require '../core-view'
-Icons = require '../icons'
-Templates = require '../templates'
+const CoreView = require('../core-view');
+const Icons = require('../icons');
+const Templates = require('../templates');
 
-module.exports = class ErrorMessage extends CoreView
+module.exports = (ErrorMessage = (function() {
+  ErrorMessage = class ErrorMessage extends CoreView {
+    static initClass() {
+  
+      this.prototype.className = 'im-error-message';
+  
+      this.prototype.template = Templates.template('error-message');
+    }
 
-  className: 'im-error-message'
+    modelEvents() {
+      return {'change:error': this.reRender};
+    }
 
-  modelEvents: ->
-    'change:error': @reRender
+    getData() { return {icons: Icons, error: this.model.get('error')}; }
 
-  getData: -> icons: Icons, error: @model.get('error')
-
-  logError: ->
-    if e = @model.get('error')
-      console.error e, e.stack
-
-  template: Templates.template 'error-message'
+    logError() {
+      let e;
+      if (e = this.model.get('error')) {
+        return console.error(e, e.stack);
+      }
+    }
+  };
+  ErrorMessage.initClass();
+  return ErrorMessage;
+})());

@@ -1,83 +1,122 @@
-_ = require 'underscore'
+/*
+ * decaffeinate suggestions:
+ * DS101: Remove unnecessary use of Array.from
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS205: Consider reworking code to avoid use of IIFEs
+ * DS206: Consider reworking classes to avoid initClass
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let DestinationOptions;
+const _ = require('underscore');
 
-CoreView = require '../../core-view'
-Templates = require '../../templates'
-Options = require '../../options'
-Formats = require '../../models/export-formats'
+const CoreView = require('../../core-view');
+const Templates = require('../../templates');
+const Options = require('../../options');
+const Formats = require('../../models/export-formats');
 
-# TODO: allow other destinations to register their options.
-class DestinationSubOptions extends CoreView
+// TODO: allow other destinations to register their options.
+class DestinationSubOptions extends CoreView {
+  static initClass() {
+  
+    this.prototype.RERENDER_EVENT = 'change:dest';
+  
+    // These are stored at class definition time to avoid reparsing the templates.
+    this.prototype.galaxyTemplate = Templates.template('export_destination_galaxy_options');
+  }
 
-  RERENDER_EVENT: 'change:dest'
+  initialize() {
+    super.initialize(...arguments);
+    return this.listenTo(Options, 'change:Destination.Galaxy.*', this.reRender);
+  }
 
-  initialize: ->
-    super
-    @listenTo Options, 'change:Destination.Galaxy.*', @reRender
+  getData() { return _.extend(super.getData(...arguments), {Galaxy: Options.get('Destination.Galaxy')}); }
 
-  getData: -> _.extend super, Galaxy: Options.get('Destination.Galaxy')
+  // Dispatches to the template to use.
+  getTemplate() { switch (this.model.get('dest')) {
+    case 'Galaxy': return this.galaxyTemplate;
+    default: return (() => '');
+  } }
 
-  # Dispatches to the template to use.
-  getTemplate: -> switch @model.get 'dest'
-    when 'Galaxy' then @galaxyTemplate
-    else (-> '')
+  template(data) { return this.getTemplate()(data); }
 
-  # These are stored at class definition time to avoid reparsing the templates.
-  galaxyTemplate: Templates.template 'export_destination_galaxy_options'
+  events() {
+    return {
+      'change .im-galaxy-uri-param': 'setGalaxyUri',
+      'change .im-save-galaxy input': 'toggleSaveGalaxy'
+    };
+  }
 
-  template: (data) -> @getTemplate()(data)
+  setGalaxyUri({target}) { return Options.set('Destination.Galaxy.Current', target.value); }
 
-  events: ->
-    'change .im-galaxy-uri-param': 'setGalaxyUri'
-    'change .im-save-galaxy input': 'toggleSaveGalaxy'
+  toggleSaveGalaxy() {
+    const key = 'Destination.Galaxy.Save';
+    const current = Options.get(key);
+    return Options.set(key, (!current));
+  }
+}
+DestinationSubOptions.initClass();
 
-  setGalaxyUri: ({target}) -> Options.set 'Destination.Galaxy.Current', target.value
+class RadioButtons extends CoreView {
+  static initClass() {
+  
+    this.prototype.RERENDER_EVENT = 'change:dest';
+  
+    this.prototype.template = Templates.template('export_destination_radios');
+  }
 
-  toggleSaveGalaxy: ->
-    key = 'Destination.Galaxy.Save'
-    current = Options.get key
-    Options.set key, (not current)
+  destinations() { return ((() => {
+    const result = [];
+    for (let d of Array.from(Options.get('Destinations'))) {       if (Options.get(['Destination', d, 'Enabled'])) {
+        result.push(d);
+      }
+    }
+    return result;
+  })()); }
 
-class RadioButtons extends CoreView
+  getData() { return _.extend({destinations: this.destinations()}, super.getData(...arguments)); }
 
-  RERENDER_EVENT: 'change:dest'
+  setDest(d) { return () => this.model.set({dest: d}); }
 
-  destinations: -> (d for d in Options.get('Destinations') \
-                            when Options.get(['Destination', d, 'Enabled']))
+  events() { return _.object( Array.from(this.destinations()).map((d) => [`click .im-dest-${ d }`, this.setDest(d)])); }
+}
+RadioButtons.initClass();
 
-  getData: -> _.extend {destinations: @destinations()}, super
+module.exports = (DestinationOptions = (function() {
+  DestinationOptions = class DestinationOptions extends CoreView {
+    static initClass() {
+  
+      this.prototype.RERENDER_EVENT = 'change:format';
+  
+      this.prototype.template = Templates.template('export_destination_options');
+    }
 
-  template: Templates.template 'export_destination_radios'
+    getData() {
+      const types = this.model.get('has');
+      const formats = Formats.getFormats(types);
+      return _.extend({formats}, super.getData(...arguments));
+    }
 
-  setDest: (d) -> => @model.set dest: d
+    postRender() {
+      this.renderChildAt('.im-param-dest', (new RadioButtons({model: this.state})));
+      return this.renderChildAt('.im-dest-opts', (new DestinationSubOptions({model: this.state})));
+    }
 
-  events: -> _.object( ["click .im-dest-#{ d }", @setDest d] \
-                                           for d in @destinations())
+    events() {
+      const evts =
+        {'.change .im-param-name input': 'setName'};
 
-module.exports = class DestinationOptions extends CoreView
+      const types = this.model.get('has');
+      for (let fmt of Array.from(Formats.getFormats(types))) {
+        evts[`click .im-fmt-${ fmt.id }`] = this.setFormat.bind(this, fmt);
+      }
+      return evts;
+    }
 
-  RERENDER_EVENT: 'change:format'
+    setName(e) { return this.model.set({filename: e.target.value}); }
 
-  getData: ->
-    types = @model.get 'has'
-    formats = Formats.getFormats types
-    _.extend {formats}, super
-
-  template: Templates.template 'export_destination_options'
-
-  postRender: ->
-    @renderChildAt '.im-param-dest', (new RadioButtons model: @state)
-    @renderChildAt '.im-dest-opts', (new DestinationSubOptions model: @state)
-
-  events: ->
-    evts =
-      '.change .im-param-name input': 'setName'
-
-    types = @model.get 'has'
-    for fmt in Formats.getFormats types
-      evts["click .im-fmt-#{ fmt.id }"] = @setFormat.bind @, fmt
-    return evts
-
-  setName: (e) -> @model.set filename: e.target.value
-
-  setFormat: (format) -> @model.set {format}
+    setFormat(format) { return this.model.set({format}); }
+  };
+  DestinationOptions.initClass();
+  return DestinationOptions;
+})());
 

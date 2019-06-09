@@ -1,92 +1,122 @@
-_ = require 'underscore'
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS103: Rewrite code to no longer use __guard__
+ * DS206: Consider reworking classes to avoid initClass
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let BaseCreateListDialogue;
+const _ = require('underscore');
 
-# Base class
-Modal = require '../modal'
-# Text strings
-Messages = require '../../messages'
+// Base class
+const Modal = require('../modal');
+// Text strings
+const Messages = require('../../messages');
 
-CreateListModel = require '../../models/create-list'
-ListDialogueBody = require './body'
+const CreateListModel = require('../../models/create-list');
+const ListDialogueBody = require('./body');
 
-# This view uses the lists messages bundle.
-require '../../messages/lists'
+// This view uses the lists messages bundle.
+require('../../messages/lists');
 
-ABSTRACT = -> throw new Error 'not implemented'
+const ABSTRACT = function() { throw new Error('not implemented'); };
 
-module.exports = class BaseCreateListDialogue extends Modal
-
-  # :: -> Promise<Query>
-  getQuery: ABSTRACT
-
-  # :: -> Promise<int>
-  fetchCount: ABSTRACT
-
-  # :: -> PathInfo?
-  getType: ABSTRACT
-
-  # :: -> Service
-  getService: -> ABSTRACT
-
-  Model: CreateListModel
-
-  Body: ListDialogueBody
-
-  className: -> super + ' im-list-dialogue im-create-list'
-
-  title: -> Messages.getText 'lists.CreateListTitle', @getData()
-
-  primaryAction: -> Messages.getText 'lists.Create'
-
-  act: ->
-    @getQuery().then (toRun) => @processQuery toRun
-               .then @resolve, (e) => @state.set error: e
-
-  verifyState: -> @state.set error: null
-
-  processQuery: (query) -> query.saveAsList @model.toJSON()
-
-  modelEvents: ->
-    'change:type': 'onChangeType' # The type can change when selecting items
-
-  onChangeType: -> @setTypeName()
-
-  # If the things that inform the title changes, replace it.
-  stateEvents: ->
-    'change:typeName change:count': 'setTitle'
-    'change:typeName': 'setListName'
-    'change:error': -> console.log @state.get('error')
+module.exports = (BaseCreateListDialogue = (function() {
+  BaseCreateListDialogue = class BaseCreateListDialogue extends Modal {
+    static initClass() {
   
-  setTitle: -> @$('.modal-title').text @title()
+      // :: -> Promise<Query>
+      this.prototype.getQuery = ABSTRACT;
+  
+      // :: -> Promise<int>
+      this.prototype.fetchCount = ABSTRACT;
+  
+      // :: -> PathInfo?
+      this.prototype.getType = ABSTRACT;
+  
+      this.prototype.Model = CreateListModel;
+  
+      this.prototype.Body = ListDialogueBody;
+    }
 
-  setListName: ->
-    @model.set name: Messages.getText 'lists.DefaultName', @state.toJSON()
+    // :: -> Service
+    getService() { return ABSTRACT; }
 
-  initState: ->
-    @state.set existingLists: {}, minimised: _.result @, 'initiallyMinimised'
-    @setTypeName()
-    @setCount()
-    @checkAuth()
-    # you cannot overwrite your own lists. You can shadow everyone elses.
-    @getService().fetchLists()
-                 .then (ls) -> _.where ls, authorized: true
-                 .then (ls) -> _.groupBy ls, 'name'
-                 .then (existingLists) => @state.set {existingLists}
+    className() { return super.className(...arguments) + ' im-list-dialogue im-create-list'; }
 
-  setCount: ->
-    @fetchCount().then (count) => @state.set count: count
-                 .then null, (e) => @state.set error: e
+    title() { return Messages.getText('lists.CreateListTitle', this.getData()); }
 
-  setTypeName: ->
-    @getType()?.getDisplayName()
-               .then (typeName) => @state.set {typeName}
-               .then null, (e) => @state.set error: e
+    primaryAction() { return Messages.getText('lists.Create'); }
 
-  checkAuth: -> @getService().whoami().then null, =>
-    @state.set error: {level: 'Error', key: 'lists.error.MustBeLoggedIn'}
+    act() {
+      return this.getQuery().then(toRun => this.processQuery(toRun))
+                 .then(this.resolve, e => this.state.set({error: e}));
+    }
 
-  getBodyOptions: -> {@model, @state}
+    verifyState() { return this.state.set({error: null}); }
 
-  postRender: ->
-    super
-    @renderChild 'body', (new this.Body @getBodyOptions()), @$ '.modal-body'
+    processQuery(query) { return query.saveAsList(this.model.toJSON()); }
 
+    modelEvents() {
+      return {'change:type': 'onChangeType'}; // The type can change when selecting items
+    }
+
+    onChangeType() { return this.setTypeName(); }
+
+    // If the things that inform the title changes, replace it.
+    stateEvents() {
+      return {
+        'change:typeName change:count': 'setTitle',
+        'change:typeName': 'setListName',
+        'change:error'() { return console.log(this.state.get('error')); }
+      };
+    }
+  
+    setTitle() { return this.$('.modal-title').text(this.title()); }
+
+    setListName() {
+      return this.model.set({name: Messages.getText('lists.DefaultName', this.state.toJSON())});
+    }
+
+    initState() {
+      this.state.set({existingLists: {}, minimised: _.result(this, 'initiallyMinimised')});
+      this.setTypeName();
+      this.setCount();
+      this.checkAuth();
+      // you cannot overwrite your own lists. You can shadow everyone elses.
+      return this.getService().fetchLists()
+                   .then(ls => _.where(ls, {authorized: true}))
+                   .then(ls => _.groupBy(ls, 'name'))
+                   .then(existingLists => this.state.set({existingLists}));
+    }
+
+    setCount() {
+      return this.fetchCount().then(count => this.state.set({count}))
+                   .then(null, e => this.state.set({error: e}));
+    }
+
+    setTypeName() {
+      return __guard__(this.getType(), x => x.getDisplayName()
+                 .then(typeName => this.state.set({typeName}))
+                 .then(null, e => this.state.set({error: e})));
+    }
+
+    checkAuth() { return this.getService().whoami().then(null, () => {
+      return this.state.set({error: {level: 'Error', key: 'lists.error.MustBeLoggedIn'}});
+  }); }
+
+    getBodyOptions() { return {model: this.model, state: this.state}; }
+
+    postRender() {
+      super.postRender(...arguments);
+      return this.renderChild('body', (new this.Body(this.getBodyOptions())), this.$('.modal-body'));
+    }
+  };
+  BaseCreateListDialogue.initClass();
+  return BaseCreateListDialogue;
+})());
+
+
+function __guard__(value, transform) {
+  return (typeof value !== 'undefined' && value !== null) ? transform(value) : undefined;
+}

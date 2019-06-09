@@ -1,1 +1,1 @@
-exports.bool = (x) -> !!x
+exports.bool = x => !!x;

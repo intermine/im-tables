@@ -1,17 +1,25 @@
-$ = require 'jquery'
-{Promise} = require 'es6-promise'
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+const $ = require('jquery');
+const {Promise} = require('es6-promise');
 
-Options = require '../options'
-loadResource = require './load-resource'
+const Options = require('../options');
+const loadResource = require('./load-resource');
 
-loadDropbox = -> loadResource 'Destination.Dropbox.Library', 'Dropbox'
+const loadDropbox = () => loadResource('Destination.Dropbox.Library', 'Dropbox');
 
-module.exports = (url, filename, onProgress) -> loadDropbox().then (Dropbox) ->
-  new Promise (resolve, reject) ->
-    Dropbox.appKey = Options.get 'auth.dropbox'
-    Dropbox.save
-      files: [ {url, filename} ]
-      success:  resolve
-      progress: onProgress
-      cancel:   reject
+module.exports = (url, filename, onProgress) => loadDropbox().then(Dropbox =>
+  new Promise(function(resolve, reject) {
+    Dropbox.appKey = Options.get('auth.dropbox');
+    return Dropbox.save({
+      files: [ {url, filename} ],
+      success:  resolve,
+      progress: onProgress,
+      cancel:   reject,
       error:    reject
+    });
+  })
+) ;

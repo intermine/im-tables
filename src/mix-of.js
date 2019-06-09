@@ -1,10 +1,20 @@
-# Helper for Role-based composition.
-module.exports = (Base, mixins...) ->
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+// Helper for Role-based composition.
+module.exports = function(Base, ...mixins) {
 
-  class Mixed extends Base
+  class Mixed extends Base {}
 
-  for mixin in mixins by -1 #earlier mixins override later ones
-    for name, method of mixin::
-      Mixed::[name] = method
+  for (let i = mixins.length - 1; i >= 0; i--) { //earlier mixins override later ones
+    const mixin = mixins[i];
+    for (let name in mixin.prototype) {
+      const method = mixin.prototype[name];
+      Mixed.prototype[name] = method;
+    }
+  }
 
-  Mixed
+  return Mixed;
+};

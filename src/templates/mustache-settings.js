@@ -1,4 +1,5 @@
-module.exports =
-  interpolate: /\{\{\{ (.+?) \}\}\}/g
-  escape:      /\{\{ (.+?) \}\}/g
+module.exports = {
+  interpolate: /\{\{\{ (.+?) \}\}\}/g,
+  escape:      /\{\{ (.+?) \}\}/g,
   evaluate:    /\{\{# (.+?) \}\}/g
+};

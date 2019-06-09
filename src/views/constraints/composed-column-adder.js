@@ -1,80 +1,114 @@
-_ = require 'underscore'
-CoreView = require '../../core-view'
-PathModel = require '../../models/path'
-Templates = require '../../templates'
-Messages = require '../../messages'
-ConstraintAdder = require '../constraint-adder'
-AdderButton = require './column-adder-button'
+/*
+ * decaffeinate suggestions:
+ * DS101: Remove unnecessary use of Array.from
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS206: Consider reworking classes to avoid initClass
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let ComposedColumnConstraintAdder;
+const _ = require('underscore');
+const CoreView = require('../../core-view');
+const PathModel = require('../../models/path');
+const Templates = require('../../templates');
+const Messages = require('../../messages');
+const ConstraintAdder = require('../constraint-adder');
+const AdderButton = require('./column-adder-button');
 
-require '../../messages/constraints'
+require('../../messages/constraints');
 
-OPTS_SEL = '.im-constraint-adder-options'
+const OPTS_SEL = '.im-constraint-adder-options';
 
-class DropdownButtonGrp extends CoreView
+class DropdownButtonGrp extends CoreView {
+  static initClass() {
+  
+    this.prototype.className = 'btn-group';
+  
+    this.prototype.parameters = ['main', 'options'];
+  
+    this.prototype.ICONS = 'NONE';
+  }
 
-  className: 'btn-group'
+  initState() { return this.state.set({open: false}); }
 
-  parameters: ['main', 'options']
+  stateEvents() {
+    return {'change:open': this.toggleOpen};
+  }
 
-  initState: -> @state.set open: false
+  toggleOpen() { return this.$el.toggleClass('open', this.state.get('open')); }
 
-  stateEvents: ->
-    'change:open': @toggleOpen
+  postRender() {
+    this.toggleOpen();
+    this.renderChild('main', this.main);
+    this.renderChild('toggle', new Toggle({state: this.state}));
+    const ul = document.createElement('ul');
+    ul.className = 'dropdown-menu';
+    for (let i = 0; i < this.options.length; i++) {
+      const kid = this.options[i];
+      this.renderChild(i, kid, ul);
+    }
+    return this.$el.append(ul);
+  }
+}
+DropdownButtonGrp.initClass();
 
-  toggleOpen: -> @$el.toggleClass 'open', @state.get('open')
+class Toggle extends CoreView {
+  static initClass() {
+  
+    this.prototype.tagName = 'button';
+  
+    this.prototype.className = 'btn btn-primary dropdown-toggle';
+  
+    this.prototype.ICONS = 'NONE';
+  
+    this.prototype.template = _.template(`\
+<span class="caret"></span>
+<span class="sr-only"><%- Messages.getText('constraints.OtherPaths') %></span>\
+`
+    );
+  }
 
-  ICONS: 'NONE'
+  events() { return {click() { return this.state.toggle('open'); }}; }
+}
+Toggle.initClass();
 
-  postRender: ->
-    @toggleOpen()
-    @renderChild 'main', @main
-    @renderChild 'toggle', new Toggle state: @state
-    ul = document.createElement 'ul'
-    ul.className = 'dropdown-menu'
-    for kid, i in @options
-      @renderChild i, kid, ul
-    @$el.append ul
+class Option extends AdderButton {
+  static initClass() {
+  
+    this.prototype.tagName = 'li';
+  
+    this.prototype.className = '';
+  }
 
-class Toggle extends CoreView
+  template() { return `<a>${ super.template(...arguments) }</a>`; }
+}
+Option.initClass();
 
-  tagName: 'button'
+module.exports = (ComposedColumnConstraintAdder = (function() {
+  ComposedColumnConstraintAdder = class ComposedColumnConstraintAdder extends ConstraintAdder {
+    static initClass() {
+  
+      this.prototype.parameters = ['query', 'paths'];
+    }
 
-  className: 'btn btn-primary dropdown-toggle'
+    onChosen(path) { return this.model.set({constraint: {path}}); }
 
-  ICONS: 'NONE'
+    renderOptions() {} // nothing to do here.
 
-  template: _.template """
-    <span class="caret"></span>
-    <span class="sr-only"><%- Messages.getText('constraints.OtherPaths') %></span>
-  """
+    showTree() {
+      const [p, ...ps] = Array.from(this.paths);
+      const mainButton = new AdderButton({hideType: true, model: (new PathModel(p))});
+      const opts = Array.from(ps).map((p_) =>
+        new Option({hideType: true, model: (new PathModel(p_))}));
+      const grp = new DropdownButtonGrp({main: mainButton, options: opts});
 
-  events: -> click: -> @state.toggle 'open'
+      for (let b of [mainButton, ...Array.from(opts)]) {
+        this.listenTo(b, 'chosen', this.onChosen);
+      }
 
-class Option extends AdderButton
-
-  tagName: 'li'
-
-  className: ''
-
-  template: -> """<a>#{ super }</a>"""
-
-module.exports = class ComposedColumnConstraintAdder extends ConstraintAdder
-
-  parameters: ['query', 'paths']
-
-  onChosen: (path) -> @model.set constraint: {path}
-
-  renderOptions: -> # nothing to do here.
-
-  showTree: ->
-    [p, ps...] = @paths
-    mainButton = new AdderButton hideType: true, model: (new PathModel p)
-    opts = for p_ in ps
-      new Option hideType: true, model: (new PathModel p_)
-    grp = new DropdownButtonGrp main: mainButton, options: opts
-
-    for b in [mainButton, opts...]
-      @listenTo b, 'chosen', @onChosen
-
-    @renderChild 'tree', grp, @$ OPTS_SEL
+      return this.renderChild('tree', grp, this.$(OPTS_SEL));
+    }
+  };
+  ComposedColumnConstraintAdder.initClass();
+  return ComposedColumnConstraintAdder;
+})());
 

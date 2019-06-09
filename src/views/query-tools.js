@@ -1,85 +1,114 @@
-_ = require 'underscore'
-$ = require 'jquery'
+/*
+ * decaffeinate suggestions:
+ * DS101: Remove unnecessary use of Array.from
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS206: Consider reworking classes to avoid initClass
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let QueryTools;
+const _ = require('underscore');
+const $ = require('jquery');
 
-CoreView = require '../core-view'
-Templates = require '../templates'
-Options = require '../options'
+const CoreView = require('../core-view');
+const Templates = require('../templates');
+const Options = require('../options');
 
-QueryManagement      = require './query-management-tools'
-UndoHistory          = require './undo-history'
-ListDialogueButton   = require './list-dialogue/button'
-CodeGenButton        = require './code-gen-button'
-ExportDialogueButton = require './export-dialogue/button'
-{Bus}                = require '../utils/events'
+const QueryManagement      = require('./query-management-tools');
+const UndoHistory          = require('./undo-history');
+const ListDialogueButton   = require('./list-dialogue/button');
+const CodeGenButton        = require('./code-gen-button');
+const ExportDialogueButton = require('./export-dialogue/button');
+const {Bus}                = require('../utils/events');
 
-SUBSECTIONS = ['im-query-management', 'im-history', 'im-query-consumers']
+const SUBSECTIONS = ['im-query-management', 'im-history', 'im-query-consumers'];
 
-subsection = (s) -> """<div class="#{ s } clearfix"></div>"""
+const subsection = s => `<div class="${ s } clearfix"></div>`;
 
-module.exports = class QueryTools extends CoreView
+module.exports = (QueryTools = (function() {
+  QueryTools = class QueryTools extends CoreView {
+    static initClass() {
+  
+      this.prototype.className = 'im-query-tools';
+  
+      this.prototype.parameters = ['tableState', 'history', 'selectedObjects'];
+  
+      this.prototype.optionalParameters = [
+        'bus', // An event bus
+        'consumerContainer',
+        'consumerBtnClass'
+      ];
+  
+      this.prototype.bus = (new Bus);
+    }
 
-  className: 'im-query-tools'
+    template() { return (SUBSECTIONS.map(subsection)).join(''); }
 
-  parameters: ['tableState', 'history', 'selectedObjects']
+    initialize() {
+      super.initialize(...arguments);
+      return this.listenTo(this.history, 'changed:current', this.renderQueryConsumers);
+    }
 
-  optionalParameters: [
-    'bus', # An event bus
-    'consumerContainer',
-    'consumerBtnClass'
-  ]
+    renderChildren() {
+      this.renderManagementTools();
+      this.renderUndo();
+      return this.renderQueryConsumers();
+    }
 
-  bus: (new Bus)
+    renderManagementTools() {
+      return this.renderChildAt('.im-query-management', new QueryManagement({history: this.history}));
+    }
 
-  template: -> (SUBSECTIONS.map subsection).join ''
+    renderUndo() {
+      const $undo = this.$('.im-history');
+      return this.renderChild('undo', (new UndoHistory({collection: this.history})), $undo);
+    }
 
-  initialize: ->
-    super
-    @listenTo @history, 'changed:current', @renderQueryConsumers
+    getConsumerContainer() {
+      if (this.consumerContainer != null) {
+        this.consumerContainer.classList.add(Options.get('StylePrefix'));
+        this.consumerContainer.classList.add('im-query-consumers');
+        this.$('.im-query-management').addClass('im-has-more-space');
+        this.$('.im-history').addClass('im-has-more-space');
+        return this.consumerContainer;
+      } else {
+        const cons = this.$('.im-query-consumers').empty();
+        if (cons.length) { return cons; }
+      }
+    }
 
-  renderChildren: ->
-    @renderManagementTools()
-    @renderUndo()
-    @renderQueryConsumers()
+    renderQueryConsumers() {
+      const container = this.getConsumerContainer();
+      if (!container) { return; } // No point instantiating children that won't appear.
+      const query = this.history.getCurrentQuery();
+      const selected = this.selectedObjects;
+      const listDialogue = new ListDialogueButton({query, tableState: this.tableState, selected});
+      this.listenTo(listDialogue, 'all', (evt, ...args) => {
+        this.bus.trigger(`list-action:${evt}`, ...Array.from(args));
+        return this.bus.trigger("list-action", evt, ...Array.from(args));
+      });
 
-  renderManagementTools: ->
-    @renderChildAt '.im-query-management', new QueryManagement {@history}
+      this.renderChild('save', (new ExportDialogueButton({query, tableState: this.tableState})), container);
+      this.renderChild('code', (new CodeGenButton({query, tableState: this.tableState})), container);
+      this.renderChild('lists', listDialogue, container);
 
-  renderUndo: ->
-    $undo = @$ '.im-history'
-    @renderChild 'undo', (new UndoHistory {collection: @history}), $undo
+      if (this.consumerContainer && this.consumerBtnClass) {
+        for (let kid of ['save', 'code', 'lists']) {
+          this.listenTo(this.children[kid], 'rendered', this.setButtonStyle);
+        }
+      }
 
-  getConsumerContainer: ->
-    if @consumerContainer?
-      @consumerContainer.classList.add Options.get('StylePrefix')
-      @consumerContainer.classList.add 'im-query-consumers'
-      @$('.im-query-management').addClass 'im-has-more-space'
-      @$('.im-history').addClass 'im-has-more-space'
-      return @consumerContainer
-    else
-      cons = @$('.im-query-consumers').empty()
-      return cons if cons.length
+      return this.setButtonStyle();
+    }
 
-  renderQueryConsumers: ->
-    container = @getConsumerContainer()
-    return unless container # No point instantiating children that won't appear.
-    query = @history.getCurrentQuery()
-    selected = @selectedObjects
-    listDialogue = new ListDialogueButton {query, @tableState, selected}
-    @listenTo listDialogue, 'all', (evt, args...) =>
-      @bus.trigger "list-action:#{evt}", args...
-      @bus.trigger "list-action", evt, args...
-
-    @renderChild 'save', (new ExportDialogueButton {query, @tableState}), container
-    @renderChild 'code', (new CodeGenButton {query, @tableState}), container
-    @renderChild 'lists', listDialogue, container
-
-    if @consumerContainer and @consumerBtnClass
-      for kid in ['save', 'code', 'lists']
-        @listenTo @children[kid], 'rendered', @setButtonStyle
-
-    @setButtonStyle()
-
-  setButtonStyle: ->
-    if (con = @consumerContainer) and (cls = @consumerBtnClass)
-      $('.btn', con).addClass(cls)
+    setButtonStyle() {
+      let cls, con;
+      if ((con = this.consumerContainer) && (cls = this.consumerBtnClass)) {
+        return $('.btn', con).addClass(cls);
+      }
+    }
+  };
+  QueryTools.initClass();
+  return QueryTools;
+})());
 

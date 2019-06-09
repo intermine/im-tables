@@ -1,128 +1,172 @@
-_ = require 'underscore'
-Collection = require '../core/collection'
-StepModel = require './step'
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS104: Avoid inline assignments
+ * DS205: Consider reworking code to avoid use of IIFEs
+ * DS206: Consider reworking classes to avoid initClass
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let History;
+const _ = require('underscore');
+const Collection = require('../core/collection');
+const StepModel = require('./step');
 
-module.exports = class History extends Collection
+module.exports = (History = (function() {
+  History = class History extends Collection {
+    static initClass() {
+  
+      this.prototype.model = StepModel;
+  
+      this.prototype.currentQuery = null;
+  
+      // Monotonically increasing revision counter.
+      this.prototype.currentStep = 0;
+  
+      // Sort by revision.
+      // (Not really needed, but good to be explicit).
+      this.prototype.comparator = 'revision';
+    }
 
-  model: StepModel
+    initialize() {
+      super.initialize(...arguments);
+      this.listenTo(this, 'remove', this.unwatch);
+      return this.listenTo(this, 'add', this.watch);
+    }
 
-  currentQuery: null
+    // The current query is the query of the last (most
+    // recent) state.
+    getCurrentQuery() { return this.currentQuery; }
 
-  initialize: ->
-    super
-    @listenTo @, 'remove', @unwatch
-    @listenTo @, 'add', @watch
+    setCurrentQuery(m) {
+      return this.currentQuery = m.get('query').clone();
+    }
 
-  # Monotonically increasing revision counter.
-  currentStep: 0
+    // Stop listening to changes to the current query,
+    // or the given query.
+    unwatch(model) {
+      let left;
+      const q = ((left = (model != null ? model.get('query') : undefined)) != null ? left : this.getCurrentQuery());
+      if (q == null) { return; } // Nothing to stop listening to!
+      return this.stopListening(q);
+    }
 
-  # Sort by revision.
-  # (Not really needed, but good to be explicit).
-  comparator: 'revision'
+    watch(m) {
+      this.setCurrentQuery(m);
+      const q = this.getCurrentQuery();
+      if (q == null) { return; }
+      this.listenTo(q, "change:constraints", this.onChangeConstraints);
+      this.listenTo(q, "change:views", this.onChangeViews);
+      this.listenTo(q, "change:joins", this.onChangeJoins);
+      this.listenTo(q, "change:sortorder", this.onChangeSortOrder);
+      this.listenTo(q, "change:logic", this.onChangeLogic);
+      return this.listenTo(q, "undo", this.popState);
+    }
 
-  # The current query is the query of the last (most
-  # recent) state.
-  getCurrentQuery: -> @currentQuery
+    // TODO - get rid of labels - they are pointless. Use the query prop instead
 
-  setCurrentQuery: (m) ->
-    @currentQuery = m.get('query').clone()
+    onChangeConstraints() {
+      return this.onChange('constraints', 'filter', cons => _.map(cons, JSON.stringify));
+    }
 
-  # Stop listening to changes to the current query,
-  # or the given query.
-  unwatch: (model) ->
-    q = (model?.get('query') ? @getCurrentQuery())
-    return unless q? # Nothing to stop listening to!
-    @stopListening q
+    onChangeViews() {
+      return this.onChange('views', 'column');
+    }
 
-  watch: (m) ->
-    @setCurrentQuery m
-    q = @getCurrentQuery()
-    return unless q?
-    @listenTo q, "change:constraints", @onChangeConstraints
-    @listenTo q, "change:views", @onChangeViews
-    @listenTo q, "change:joins", @onChangeJoins
-    @listenTo q, "change:sortorder", @onChangeSortOrder
-    @listenTo q, "change:logic", @onChangeLogic
-    @listenTo q, "undo", @popState
+    onChangeJoins() {
+      return this.onChange('joins', 'join', joins => _.map(joins, (style, path) => `${ path }:${ style }`));
+    }
 
-  # TODO - get rid of labels - they are pointless. Use the query prop instead
+    onChangeSortOrder() {
+      return this.onChange('sortOrder', 'sort order element', so => _.map(so, JSON.stringify));
+    }
 
-  onChangeConstraints: ->
-    @onChange 'constraints', 'filter', (cons) -> _.map cons, JSON.stringify
+    onChangeLogic() {
+      return this.onChange('constraintLogic', 'constraint logic element', function(expr) {
+        let left;
+        return (left = (expr != null ? expr.match(/([A-Z]+)/) : undefined)) != null ? left : [];
+    });
+    }
 
-  onChangeViews: ->
-    @onChange 'views', 'column'
+    // Inform clients that the current query is different
+    triggerChangedCurrent() {
+      return this.trigger('changed:current', this.last());
+    }
 
-  onChangeJoins: ->
-    @onChange 'joins', 'join', (joins) -> _.map joins, (style, path) -> "#{ path }:#{ style }"
+    // Handle a change event, analysing what has changed
+    // and adding a step that records that change.
+    onChange( prop, label, f ) {
+      if (f == null) { f = x => x; }
+      const query = this.currentQuery;
+      const prev = this.last().get('query');
+      const xs = f(prev[prop]);
+      const ys = f(query[prop]);
+      const was = xs.length;
+      const now = ys.length;
+      const n = Math.abs(was - now);
 
-  onChangeSortOrder: ->
-    @onChange 'sortOrder', 'sort order element', (so) -> _.map so, JSON.stringify
+      const verb = (() => { switch (false) {
+        case !(was < now): return 'Added';
+        case !(was > now): return 'Removed';
+        case now !== _.union(xs, ys).length: return 'Rearranged';
+        default: return 'Changed';
+      } })();
 
-  onChangeLogic: ->
-    @onChange 'constraintLogic', 'constraint logic element', (expr) ->
-      expr?.match(/([A-Z]+)/) ? []
+      return this.addStep(verb, n, label, query);
+    }
 
-  # Inform clients that the current query is different
-  triggerChangedCurrent: ->
-    @trigger 'changed:current', @last()
+    // Set the root query of this history.
+    setInitialState(q) {
+      if (this.size()) { this.reset(); }
+      return this.addStep(null, null, 'Initial', q);
+    }
 
-  # Handle a change event, analysing what has changed
-  # and adding a step that records that change.
-  onChange: ( prop, label, f = (x) -> x ) ->
-    query = @currentQuery
-    prev = @last().get 'query'
-    xs = f prev[prop]
-    ys = f query[prop]
-    was = xs.length
-    now = ys.length
-    n = Math.abs was - now
+    // Add a new state to the history, setting it as the new
+    // current query.
+    addStep(verb, number, label, query) {
+      const was = this.currentQuery;
+      const now = query.clone();
+      this.unwatch(); // unbind listeners for the current query.
+      this.add({
+        query: now,
+        revision: this.currentStep++,
+        title: {
+          verb,
+          number,
+          label
+        }
+      });
+      if (was != null) {
+        was.trigger('replaced:by', now);
+      }
+      return this.triggerChangedCurrent();
+    }
 
-    verb = switch
-      when was < now then 'Added'
-      when was > now then 'Removed'
-      when now is _.union(xs, ys).length then 'Rearranged'
-      else 'Changed'
+    // Revert to the state before the most recent one.
+    popState() { return this.revertToIndex(-2); }
 
-    @addStep verb, n, label, query
+    revertToIndex(index) {
+      if (index < 0) { index = (this.length + index); }
+      const now = this.at(index);
+      return this.revertTo(now);
+    }
 
-  # Set the root query of this history.
-  setInitialState: (q) ->
-    @reset() if @size()
-    @addStep null, null, 'Initial', q
-
-  # Add a new state to the history, setting it as the new
-  # current query.
-  addStep: (verb, number, label, query) ->
-    was = @currentQuery
-    now = query.clone()
-    @unwatch() # unbind listeners for the current query.
-    @add
-      query: now
-      revision: @currentStep++
-      title:
-        verb: verb
-        number: number
-        label: label
-    was?.trigger 'replaced:by', now
-    @triggerChangedCurrent()
-
-  # Revert to the state before the most recent one.
-  popState: -> @revertToIndex -2
-
-  revertToIndex: (index) ->
-    index = (@length + index) if index < 0
-    now = @at index
-    @revertTo now
-
-  revertTo: (now) ->
-    throw new Error('State not in history') unless @contains now
-    was = @getCurrentQuery()
-    revision = now.get 'revision'
-    # Remove everything after the target
-    while @last().get('revision') > revision
-      @pop()
-    @watch now # Nothing added, but the current query has changed.
-    was?.trigger 'replaced:by', now.get('query')
-    @triggerChangedCurrent()
+    revertTo(now) {
+      if (!this.contains(now)) { throw new Error('State not in history'); }
+      const was = this.getCurrentQuery();
+      const revision = now.get('revision');
+      // Remove everything after the target
+      while (this.last().get('revision') > revision) {
+        this.pop();
+      }
+      this.watch(now); // Nothing added, but the current query has changed.
+      if (was != null) {
+        was.trigger('replaced:by', now.get('query'));
+      }
+      return this.triggerChangedCurrent();
+    }
+  };
+  History.initClass();
+  return History;
+})());
 

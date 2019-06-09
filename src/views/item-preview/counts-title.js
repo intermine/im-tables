@@ -1,20 +1,33 @@
-_ = require 'underscore'
+/*
+ * decaffeinate suggestions:
+ * DS206: Consider reworking classes to avoid initClass
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let CountsTitle;
+const _ = require('underscore');
 
-CoreView = require '../../core-view'
-Messages = require '../../messages'
+const CoreView = require('../../core-view');
+const Messages = require('../../messages');
 
-Messages.setWithPrefix 'preview',
-  RelatedItemsHeading: 'Related Items'
+Messages.setWithPrefix('preview',
+  {RelatedItemsHeading: 'Related Items'});
 
-module.exports = class CountsTitle extends CoreView
+module.exports = (CountsTitle = (function() {
+  CountsTitle = class CountsTitle extends CoreView {
+    static initClass() {
+  
+      this.prototype.tagName = 'h4';
+    }
 
-  tagName: 'h4'
+    collectionEvents() { return {'add remove reset': this.setVisibility}; }
 
-  collectionEvents: -> 'add remove reset': @setVisibility
+    setVisibility() { return this.$el.toggleClass('im-hidden', this.collection.isEmpty()); }
 
-  setVisibility: -> @$el.toggleClass 'im-hidden', @collection.isEmpty()
+    template() { return _.escape(Messages.getText('preview.RelatedItemsHeading')); }
 
-  template: -> _.escape Messages.getText 'preview.RelatedItemsHeading'
-
-  postRender: -> @setVisibility()
+    postRender() { return this.setVisibility(); }
+  };
+  CountsTitle.initClass();
+  return CountsTitle;
+})());
 

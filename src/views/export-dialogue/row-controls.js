@@ -1,77 +1,121 @@
-_ = require 'underscore'
-View = require '../../core-view'
-LabelView = require '../label-view'
-Messages = require '../../messages'
-Templates = require '../../templates'
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS206: Consider reworking classes to avoid initClass
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let RowControls;
+const _ = require('underscore');
+const View = require('../../core-view');
+const LabelView = require('../label-view');
+const Messages = require('../../messages');
+const Templates = require('../../templates');
 
-class SizeLabel extends LabelView
+class SizeLabel extends LabelView {
+  static initClass() {
+  
+    this.prototype.template = _.partial(Messages.getText, 'export.param.Size');
+  }
 
-  getData: -> size: (@model.get('size') or Messages.getText('rows.All'))
+  getData() { return {size: (this.model.get('size') || Messages.getText('rows.All'))}; }
+}
+SizeLabel.initClass();
 
-  template: _.partial Messages.getText, 'export.param.Size'
+class OffsetLabel extends LabelView {
+  static initClass() {
+  
+    this.prototype.template = _.partial(Messages.getText, 'export.param.Start');
+  }
+}
+OffsetLabel.initClass();
 
-class OffsetLabel extends LabelView
+class HeadingLabel extends LabelView {
+  static initClass() {
+  
+    this.prototype.template = _.partial(Messages.getText, 'export.category.Rows');
+  }
+}
+HeadingLabel.initClass();
 
-  template: _.partial Messages.getText, 'export.param.Start'
+class ResetButton extends View {
+  static initClass() {
+  
+    this.prototype.RERENDER_EVENT = 'change';
+  
+    this.prototype.template = Templates.template('export_rows_reset_button');
+  }
 
-class HeadingLabel extends LabelView
+  getData() { return _.extend(super.getData(...arguments), {isAll: !(this.model.get('start') || this.model.get('size'))}); }
 
-  template: _.partial Messages.getText, 'export.category.Rows'
+  events() {
+    return {
+      'click .btn-reset': 'reset',
+      'click .im-set-table-page': 'setTablePage'
+    };
+  }
 
-class ResetButton extends View
+  reset() {
+    return this.model.set({start: 0, size: null});
+  }
 
-  RERENDER_EVENT: 'change'
+  setTablePage() {
+    return this.model.set(this.model.get('tablePage'));
+  }
+}
+ResetButton.initClass();
 
-  getData: -> _.extend super, isAll: not (@model.get('start') or @model.get('size'))
+module.exports = (RowControls = (function() {
+  RowControls = class RowControls extends View {
+    static initClass() {
+  
+      this.prototype.RERENDER_EVENT = 'change:max';
+  
+      this.prototype.tagName = 'form';
+  
+      this.prototype.template = Templates.template('export_row_controls');
+    }
 
-  template: Templates.template 'export_rows_reset_button'
+    initialize() {
+      super.initialize(...arguments);
+      if (!this.model.has('max')) { this.model.set({max: null}); }
+      this.listenTo(this.model, 'change:size', this.updateLabels);
+      return this.listenTo(this.model, 'change:size change:start', this.updateInputs);
+    }
 
-  events: ->
-    'click .btn-reset': 'reset'
-    'click .im-set-table-page': 'setTablePage'
+    events() {
+      return {
+        'input input[name=size]': 'onChangeSize',
+        'input input[name=start]': 'onChangeStart'
+      };
+    }
 
-  reset: ->
-    @model.set start: 0, size: null
+    updateInputs() {
+      const {start, size, max} = this.model.toJSON();
+      this.$("input[name=size]").val((size || max));
+      return this.$("input[name=start]").val(start);
+    }
 
-  setTablePage: ->
-    @model.set @model.get 'tablePage'
+    onChangeSize() {
+      const size = parseInt(this.$('input[name=size]').val(), 10);
+      if ((!size) || (size === this.model.get('max'))) {
+        return this.model.set({size: null});
+      } else {
+        return this.model.set({size});
+      }
+    }
 
-module.exports = class RowControls extends View
+    onChangeStart() {
+      return this.model.set({start: parseInt(this.$('input[name=start]').val(), 10)});
+    }
 
-  RERENDER_EVENT: 'change:max'
-
-  initialize: ->
-    super
-    @model.set max: null unless @model.has 'max'
-    @listenTo @model, 'change:size', @updateLabels
-    @listenTo @model, 'change:size change:start', @updateInputs
-
-  tagName: 'form'
-
-  template: Templates.template 'export_row_controls'
-
-  events: ->
-    'input input[name=size]': 'onChangeSize'
-    'input input[name=start]': 'onChangeStart'
-
-  updateInputs: ->
-    {start, size, max} = @model.toJSON()
-    @$("input[name=size]").val (size or max)
-    @$("input[name=start]").val start
-
-  onChangeSize: ->
-    size = parseInt(@$('input[name=size]').val(), 10)
-    if (not size) or (size is @model.get('max'))
-      @model.set size: null
-    else
-      @model.set size: size
-
-  onChangeStart: ->
-    @model.set start: parseInt(@$('input[name=start]').val(), 10)
-
-  postRender: ->
-    @renderChild 'heading', (new HeadingLabel model: @state), @$ '.im-title'
-    @renderChild 'size', (new SizeLabel {@model}), @$ '.size-label'
-    @renderChild 'start', (new OffsetLabel {@model}), @$ '.start-label'
-    @renderChild 'reset', (new ResetButton {@model}), @$ '.im-reset'
+    postRender() {
+      this.renderChild('heading', (new HeadingLabel({model: this.state})), this.$('.im-title'));
+      this.renderChild('size', (new SizeLabel({model: this.model})), this.$('.size-label'));
+      this.renderChild('start', (new OffsetLabel({model: this.model})), this.$('.start-label'));
+      return this.renderChild('reset', (new ResetButton({model: this.model})), this.$('.im-reset'));
+    }
+  };
+  RowControls.initClass();
+  return RowControls;
+})());
 

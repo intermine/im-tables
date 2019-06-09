@@ -1,16 +1,29 @@
-_ = require 'underscore'
-{Promise} = require 'es6-promise'
+/*
+ * decaffeinate suggestions:
+ * DS206: Consider reworking classes to avoid initClass
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let CreateFromSelection;
+const _ = require('underscore');
+const {Promise} = require('es6-promise');
 
-# Base class
-BaseCreateListDialogue = require './base-dialogue'
+// Base class
+const BaseCreateListDialogue = require('./base-dialogue');
 
-# Mixins
-Floating = require '../../mixins/floating-dialogue'
-FromSelectionMixin = require './from-selection-mixin'
+// Mixins
+const Floating = require('../../mixins/floating-dialogue');
+const FromSelectionMixin = require('./from-selection-mixin');
 
-module.exports = class CreateFromSelection extends BaseCreateListDialogue
-
-  @include Floating
-
-  @include FromSelectionMixin BaseCreateListDialogue
+module.exports = (CreateFromSelection = (function() {
+  CreateFromSelection = class CreateFromSelection extends BaseCreateListDialogue {
+    static initClass() {
+  
+      this.include(Floating);
+  
+      this.include(FromSelectionMixin(BaseCreateListDialogue));
+  }
+};
+  CreateFromSelection.initClass();
+  return CreateFromSelection;
+})());
 

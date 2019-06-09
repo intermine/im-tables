@@ -1,19 +1,36 @@
-_ = require 'underscore'
-View = require '../../core-view'
-Options = require '../../options'
-Templates = require '../../templates'
+/*
+ * decaffeinate suggestions:
+ * DS101: Remove unnecessary use of Array.from
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS205: Consider reworking code to avoid use of IIFEs
+ * DS206: Consider reworking classes to avoid initClass
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let TabMenu;
+const _ = require('underscore');
+const View = require('../../core-view');
+const Options = require('../../options');
+const Templates = require('../../templates');
 
-class Tab
+class Tab {
 
-  constructor: (@ident, key, @formats = [], @groups = null) ->
-    @key = "export.category.#{ key }"
+  constructor(ident, key, formats, groups = null) {
+    this.ident = ident;
+    if (formats == null) { formats = []; }
+    this.formats = formats;
+    this.groups = groups;
+    this.key = `export.category.${ key }`;
+  }
 
-  isFor: (format) ->
-    return (format.ext in @formats) if @formats.length
-    return @groups[format.group] if @groups?
-    return true
+  isFor(format) {
+    if (this.formats.length) { return (Array.from(this.formats).includes(format.ext)); }
+    if (this.groups != null) { return this.groups[format.group]; }
+    return true;
+  }
+}
 
-TABS = [
+const TABS = [
   new Tab('dest', 'Destination'),
   new Tab('opts-json', 'JsonFormat', ['json']),
   new Tab('opts-fasta', 'FastaFormat', ['fasta']),
@@ -22,54 +39,85 @@ TABS = [
   new Tab('compression', 'Compression'),
   new Tab('column-headers', 'ColumnHeaders', ['tsv', 'csv']),
   new Tab('preview', 'Preview')
-]
+];
 
-module.exports = class TabMenu extends View
+module.exports = (TabMenu = (function() {
+  TabMenu = class TabMenu extends View {
+    static initClass() {
+  
+      this.prototype.tagName = 'ul';
+  
+      this.prototype.RERENDER_EVENT = 'change';
+  
+      this.prototype.className = "nav nav-pills nav-stacked im-export-tab-menu";
+  
+      this.prototype.template = Templates.template('export_tab_menu', {variable: 'data'});
+    }
 
-  tagName: 'ul'
+    getTabs() { return ((() => {
+      const result = [];
+      for (let tab of Array.from(TABS)) {         if (tab.isFor(this.model.get('format'))) {
+          result.push(tab);
+        }
+      }
+      return result;
+    })()); }
 
-  RERENDER_EVENT: 'change'
+    getData() {
+      const tabs = this.getTabs();
+      return _.extend({tabs}, super.getData(...arguments));
+    }
 
-  className: "nav nav-pills nav-stacked im-export-tab-menu"
+    setTab(tab) { return () => { if (!this.state.get('pinned')) {
+      return this.model.set({tab});
+    } }; }
 
-  template: Templates.template 'export_tab_menu', variable: 'data'
+    setPinned(tab) { return () => {
+      if (this.state.get('pinned') === tab) {
+        this.state.set({pinned: false});
+      } else {
+        this.state.set({pinned: tab});
+      }
 
-  getTabs: -> (tab for tab in TABS when tab.isFor @model.get('format'))
+      return this.model.set({tab}); // for good measure - should have been set by mouseover
+    }; }
 
-  getData: ->
-    tabs = @getTabs()
-    _.extend {tabs}, super
+    next() {
+      const tabs = (Array.from(this.getTabs()).map((t) => t.ident));
+      const current = _.indexOf(tabs, this.model.get('tab'));
+      let next = current + 1;
+      if (next === tabs.length) { next = 0; }
+      return this.model.set({tab: tabs[next]});
+    }
 
-  setTab: (tab) -> => unless @state.get('pinned')
-    @model.set {tab}
+    prev() {
+      const tabs = (Array.from(this.getTabs()).map((t) => t.ident));
+      const current = _.indexOf(tabs, this.model.get('tab'));
+      const prev = current === 0 ? tabs.length - 1 : current - 1;
+      return this.model.set({tab: tabs[prev]});
+    }
 
-  setPinned: (tab) -> =>
-    if @state.get('pinned') is tab
-      @state.set pinned: false
-    else
-      @state.set pinned: tab
-
-    @model.set tab: tab # for good measure - should have been set by mouseover
-
-  next: ->
-    tabs = (t.ident for t in @getTabs())
-    current = _.indexOf tabs, @model.get 'tab'
-    next = current + 1
-    next = 0 if next is tabs.length
-    @model.set tab: tabs[next]
-
-  prev: ->
-    tabs = (t.ident for t in @getTabs())
-    current = _.indexOf tabs, @model.get 'tab'
-    prev = if current is 0 then tabs.length - 1 else current - 1
-    @model.set tab: tabs[prev]
-
-  events: ->
-    evt = Options.get 'Events.ActivateTab'
-    events = _.object( ["#{ evt } .im-tab-#{ ident }", (@setTab ident)] \
-                                                         for {ident} in TABS )
-    if evt is 'mouseenter'
-      _.extend events, _.object( ["click .im-tab-#{ ident }", (@setPinned ident)] \
-                                                         for {ident} in TABS )
-    return events
+    events() {
+      let ident;
+      const evt = Options.get('Events.ActivateTab');
+      const events = _.object((() => {
+        const result = [];
+         for ({ident} of Array.from(TABS)) {           result.push([`${ evt } .im-tab-${ ident }`, (this.setTab(ident))]);
+        } 
+        return result;
+      })());
+      if (evt === 'mouseenter') {
+        _.extend(events, _.object((() => {
+          const result1 = [];
+           for ({ident} of Array.from(TABS)) {             result1.push([`click .im-tab-${ ident }`, (this.setPinned(ident))]);
+          } 
+          return result1;
+        })()));
+      }
+      return events;
+    }
+  };
+  TabMenu.initClass();
+  return TabMenu;
+})());
     

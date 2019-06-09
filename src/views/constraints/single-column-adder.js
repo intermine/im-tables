@@ -1,36 +1,54 @@
-_ = require 'underscore'
-CoreView = require '../../core-view'
-PathModel = require '../../models/path'
-Templates = require '../../templates'
-Messages = require '../../messages'
-ConstraintAdder = require '../constraint-adder'
-AdderButton = require './column-adder-button'
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS206: Consider reworking classes to avoid initClass
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let SingleColumnConstraintAdder;
+const _ = require('underscore');
+const CoreView = require('../../core-view');
+const PathModel = require('../../models/path');
+const Templates = require('../../templates');
+const Messages = require('../../messages');
+const ConstraintAdder = require('../constraint-adder');
+const AdderButton = require('./column-adder-button');
 
-require '../../messages/constraints'
+require('../../messages/constraints');
 
-OPTS_SEL = '.im-constraint-adder-options'
+const OPTS_SEL = '.im-constraint-adder-options';
 
-module.exports = class SingleColumnConstraintAdder extends ConstraintAdder
-
-  parameters: ['query', 'path']
-
-  initialize: ->
-    super
-    constraint = path: @path
-    @model.set {constraint}
-
-  events: ->
-    'click .im-add-constraint': @act
+module.exports = (SingleColumnConstraintAdder = (function() {
+  SingleColumnConstraintAdder = class SingleColumnConstraintAdder extends ConstraintAdder {
+    static initClass() {
   
-  act: ->
-    @hideTree()
-    @renderConstraintEditor()
+      this.prototype.parameters = ['query', 'path'];
+    }
 
-  renderOptions: -> # nothing to do here.
+    initialize() {
+      super.initialize(...arguments);
+      const constraint = {path: this.path};
+      return this.model.set({constraint});
+    }
 
-  showTree: ->
-    model = new PathModel @query.makePath @path
-    button = new AdderButton {model}
-    @renderChild 'tree', (new AdderButton {model}), @$ OPTS_SEL
+    events() {
+      return {'click .im-add-constraint': this.act};
+    }
+  
+    act() {
+      this.hideTree();
+      return this.renderConstraintEditor();
+    }
+
+    renderOptions() {} // nothing to do here.
+
+    showTree() {
+      const model = new PathModel(this.query.makePath(this.path));
+      const button = new AdderButton({model});
+      return this.renderChild('tree', (new AdderButton({model})), this.$(OPTS_SEL));
+    }
+  };
+  SingleColumnConstraintAdder.initClass();
+  return SingleColumnConstraintAdder;
+})());
 
 

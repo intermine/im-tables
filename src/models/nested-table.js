@@ -1,44 +1,60 @@
-_ = require 'underscore'
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let NestedTableModel;
+const _ = require('underscore');
 
-CoreModel = require '../core-model'
+const CoreModel = require('../core-model');
 
-# Forms a pair with models/cell
+// Forms a pair with models/cell
 
-module.exports = class NestedTableModel extends CoreModel
+module.exports = (NestedTableModel = class NestedTableModel extends CoreModel {
 
-  defaults: ->
-    columnName: null
-    columnTypeName: null
-    columnName: null
-    typeName: null
-    column: null # :: PathInfo
-    node: null # :: PathInfo
-    fieldName: null
-    contentName: null
-    view: [] # [String]
-    rows: [] # [CellModel]
+  defaults() {
+    return {
+      columnName: null,
+      columnTypeName: null,
+      columnName: null,
+      typeName: null,
+      column: null, // :: PathInfo
+      node: null, // :: PathInfo
+      fieldName: null,
+      contentName: null,
+      view: [], // [String]
+      rows: [] // [CellModel]
+    };
+  }
 
-  initialize: ->
-    @onChangeColumn()
-    @listenTo @, 'change:column', @onChangeColumn # Should never happen.
+  initialize() {
+    this.onChangeColumn();
+    return this.listenTo(this, 'change:column', this.onChangeColumn); // Should never happen.
+  }
 
-  onChangeColumn: -> # Set the display names.
-    column = @get 'column'
-    node = @get 'node'
-    views = @get 'view'
-    if views.length is 1 # Use the single column as our column.
-      column = column.model.makePath(views[0], column.subclasses)
-      node = if column.isAttribute() then column.getParent() else column
+  onChangeColumn() { // Set the display names.
+    let column = this.get('column');
+    let node = this.get('node');
+    const views = this.get('view');
+    if (views.length === 1) { // Use the single column as our column.
+      column = column.model.makePath(views[0], column.subclasses);
+      node = column.isAttribute() ? column.getParent() : column;
+    }
 
-    node.getType().getDisplayName().then (name) => @set columnTypeName: name
-    column.getDisplayName().then (name) =>
-      @set columnName: name
-      @set(fieldName: _.last(name.split ' > ')) if column.isAttribute()
-      @set contentName: _.compact([@get('columnTypeName'), @get('fieldName')]).join(' ')
+    node.getType().getDisplayName().then(name => this.set({columnTypeName: name}));
+    return column.getDisplayName().then(name => {
+      this.set({columnName: name});
+      if (column.isAttribute()) { this.set({fieldName: _.last(name.split(' > '))}); }
+      return this.set({contentName: _.compact([this.get('columnTypeName'), this.get('fieldName')]).join(' ')});
+    });
+  }
 
-  getPath: -> @get 'column'
+  getPath() { return this.get('column'); }
 
-  toJSON: -> _.extend super,
-    column: @get('column').toString()
-    node: @get('node').toString()
-    rows: @get('rows').map (r) -> r.map (c) -> c.toJSON()
+  toJSON() { return _.extend(super.toJSON(...arguments), {
+    column: this.get('column').toString(),
+    node: this.get('node').toString(),
+    rows: this.get('rows').map(r => r.map(c => c.toJSON()))
+  }
+  ); }
+});

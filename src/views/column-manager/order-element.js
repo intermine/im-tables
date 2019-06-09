@@ -1,29 +1,44 @@
-_ = require 'underscore'
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS206: Consider reworking classes to avoid initClass
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let OrderElement;
+const _ = require('underscore');
 
-SelectedColumn = require './selected-column'
-Templates = require '../../templates'
+const SelectedColumn = require('./selected-column');
+const Templates = require('../../templates');
 
-TEMPLATE_PARTS = [
+const TEMPLATE_PARTS = [
   'column-manager-position-controls',
   'column-manager-order-direction',
   'column-manager-path-name',
   'column-manager-path-remover'
-]
+];
 
-nextDirection = (dir) -> if (dir is 'ASC') then 'DESC' else 'ASC'
+const nextDirection = function(dir) { if (dir === 'ASC') { return 'DESC'; } else { return 'ASC'; } };
 
-module.exports = class OrderElement extends SelectedColumn
+module.exports = (OrderElement = (function() {
+  OrderElement = class OrderElement extends SelectedColumn {
+    static initClass() {
+  
+      this.prototype.removeTitle = 'columns.RemoveOrderElement';
+  
+      this.prototype.template = Templates.templateFromParts(TEMPLATE_PARTS);
+    }
 
-  removeTitle: 'columns.RemoveOrderElement'
+    modelEvents() { return _.extend(super.modelEvents(...arguments),
+      {'change:direction': this.reRender}); }
 
-  template: Templates.templateFromParts TEMPLATE_PARTS
+    events() { return _.extend(super.events(...arguments),
+      {'click .im-change-direction': 'changeDirection'}); }
 
-  modelEvents: -> _.extend super,
-    'change:direction': @reRender
-
-  events: -> _.extend super,
-    'click .im-change-direction': 'changeDirection'
-
-  changeDirection: ->
-    @model.swap 'direction', nextDirection
+    changeDirection() {
+      return this.model.swap('direction', nextDirection);
+    }
+  };
+  OrderElement.initClass();
+  return OrderElement;
+})());
 

@@ -1,50 +1,78 @@
-_ = require 'underscore'
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS205: Consider reworking code to avoid use of IIFEs
+ * DS206: Consider reworking classes to avoid initClass
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let FilterDialogue;
+const _ = require('underscore');
 
-CoreView = require '../core-view'
-Messages = require '../messages'
-Modal = require './modal'
-Body = require './join-manager/body'
-Joins = require '../models/joins'
+const CoreView = require('../core-view');
+const Messages = require('../messages');
+const Modal = require('./modal');
+const Body = require('./join-manager/body');
+const Joins = require('../models/joins');
 
-require '../messages/joins'
+require('../messages/joins');
 
-# Simple flat array equals
-areEql = (xs, ys) ->
-  (xs.length is ys.length) and (_.all xs, (x, i) -> x is ys[i])
+// Simple flat array equals
+const areEql = (xs, ys) => (xs.length === ys.length) && (_.all(xs, (x, i) => x === ys[i]));
 
-module.exports = class FilterDialogue extends Modal
+module.exports = (FilterDialogue = (function() {
+  FilterDialogue = class FilterDialogue extends Modal {
+    static initClass() {
+  
+      this.prototype.parameters = ['query'];
+    }
 
-  parameters: ['query']
+    className() { return super.className(...arguments) + ' im-join-manager'; }
 
-  className: -> super + ' im-join-manager'
+    title() { return Messages.getText('joins.Heading'); }
+    dismissAction() { return Messages.getText('Cancel'); }
+    primaryAction() { return Messages.getText('modal.ApplyChanges'); }
 
-  title: -> Messages.getText 'joins.Heading'
-  dismissAction: -> Messages.getText 'Cancel'
-  primaryAction: -> Messages.getText 'modal.ApplyChanges'
+    initialize() {
+      super.initialize(...arguments);
+      this.joins = Joins.fromQuery(this.query);
+      return this.listenTo(this.joins, 'change:style', this.setDisabled);
+    }
 
-  initialize: ->
-    super
-    @joins = Joins.fromQuery @query
-    @listenTo @joins, 'change:style', @setDisabled
+    initState() {
+      return this.state.set({disabled: true});
+    }
 
-  initState: ->
-    @state.set disabled: true
+    act() { if (!this.state.get('disabled')) {
+      const newJoins = this.joins.getJoins();
+      this.query.joins = newJoins;
+      this.query.trigger('change:joins', newJoins);
+      return this.resolve(newJoins);
+    } }
 
-  act: -> unless @state.get('disabled')
-    newJoins = @joins.getJoins()
-    @query.joins = newJoins
-    @query.trigger 'change:joins', newJoins
-    @resolve newJoins
+    setDisabled() {
+      const current = _.keys(this.joins.getJoins());
+      const initial = ((() => {
+        const result = [];
+        for (let p in this.query.joins) {
+          const s = this.query.joins[p];
+          if (s === 'OUTER') {
+            result.push(p);
+          }
+        }
+        return result;
+      })());
+      current.sort();
+      initial.sort();
+      return this.state.set({disabled: (areEql(current, initial))});
+    }
 
-  setDisabled: ->
-    current = _.keys @joins.getJoins()
-    initial = (p for p, s of @query.joins when s is 'OUTER')
-    current.sort()
-    initial.sort()
-    @state.set disabled: (areEql current, initial)
-
-  postRender: ->
-    super
-    body = @$ '.modal-body'
-    @renderChild 'cons', (new Body collection: @joins), body
+    postRender() {
+      super.postRender(...arguments);
+      const body = this.$('.modal-body');
+      return this.renderChild('cons', (new Body({collection: this.joins})), body);
+    }
+  };
+  FilterDialogue.initClass();
+  return FilterDialogue;
+})());
 

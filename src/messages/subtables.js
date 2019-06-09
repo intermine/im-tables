@@ -1,5 +1,7 @@
-Messages = require '../messages'
+const Messages = require('../messages');
 
-Messages.setWithPrefix 'subtables',
-  OpenHint: 'Click to view/hide rows'
+Messages.setWithPrefix('subtables', {
+  OpenHint: 'Click to view/hide rows',
   RemoveColumn: 'Remove this column'
+}
+);

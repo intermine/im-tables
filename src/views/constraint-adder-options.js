@@ -1,126 +1,177 @@
-_ = require 'underscore'
-{Promise} = require 'es6-promise'
+/*
+ * decaffeinate suggestions:
+ * DS101: Remove unnecessary use of Array.from
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS201: Simplify complex destructure assignments
+ * DS206: Consider reworking classes to avoid initClass
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let ConstraintAdderOptions;
+const _ = require('underscore');
+const {Promise} = require('es6-promise');
 
-View = require '../core-view'
-Options = require '../options'
-Templates = require '../templates'
-HasTypeaheads = require '../mixins/has-typeaheads'
-{IS_BLANK} = require '../patterns'
+const View = require('../core-view');
+const Options = require('../options');
+const Templates = require('../templates');
+const HasTypeaheads = require('../mixins/has-typeaheads');
+const {IS_BLANK} = require('../patterns');
 
-pathSuggester = require '../utils/path-suggester'
-getPathSuggestions = require '../utils/path-suggestions'
+const pathSuggester = require('../utils/path-suggester');
+const getPathSuggestions = require('../utils/path-suggestions');
 
-shortenLongName = (name) ->
-  parts = name.split ' > '
-  if parts.length > 3
-    [rest..., x, y, z] = parts
-    "...#{ x } > #{ y } > #{ z }"
-  else
-    name
+const shortenLongName = function(name) {
+  const parts = name.split(' > ');
+  if (parts.length > 3) {
+    const adjustedLength = Math.max(parts.length, 3),
+      rest = parts.slice(0, adjustedLength - 3),
+      x = parts[adjustedLength - 3],
+      y = parts[adjustedLength - 2],
+      z = parts[adjustedLength - 1];
+    return `...${ x } > ${ y } > ${ z }`;
+  } else {
+    return name;
+  }
+};
 
-# The control elements of a constraint adder.
-module.exports = class ConstraintAdderOptions extends View
+// The control elements of a constraint adder.
+module.exports = (ConstraintAdderOptions = (function() {
+  ConstraintAdderOptions = class ConstraintAdderOptions extends View {
+    static initClass() {
+  
+      this.include(HasTypeaheads);
+  
+      this.prototype.className = 'row';
+  
+      this.prototype.template = Templates.template('constraint_adder_options');
+    }
 
-  @include HasTypeaheads
+    initialize({query, openNodes, chosenPaths}) {
+      this.query = query;
+      this.openNodes = openNodes;
+      this.chosenPaths = chosenPaths;
+      super.initialize(...arguments);
+      this.state.set({chosen: []}); // default value.
+      this.listenTo(this.openNodes, 'add remove reset', this.reRender);
+      this.listenTo(this.chosenPaths, 'add remove reset', this.reRender);
+      this.listenTo(this.chosenPaths, 'add remove reset', this.setChosen);
+      this.setChosen();
+      return this.generatePathSuggestions();
+    }
 
-  className: 'row'
+    modelEvents() {
+      return {
+        destroy: this.stopListeningTo,
+        'change:showTree change:allowRevRefs': this.reRender
+      };
+    }
 
-  initialize: ({@query, @openNodes, @chosenPaths}) ->
-    super
-    @state.set chosen: [] # default value.
-    @listenTo @openNodes, 'add remove reset', @reRender
-    @listenTo @chosenPaths, 'add remove reset', @reRender
-    @listenTo @chosenPaths, 'add remove reset', @setChosen
-    @setChosen()
-    @generatePathSuggestions()
+    stateEvents() {
+      return {'change:chosen change:suggestions': this.reRender};
+    }
 
-  modelEvents: ->
-    destroy: @stopListeningTo
-    'change:showTree change:allowRevRefs': @reRender
+    pathAcceptable(path) {
+      if ((path.end != null ? path.end.name : undefined) === 'id') {
+        return false;
+      }
+      if (!this.model.get('canSelectReferences')) {
+        return path.isAttribute();
+      }
+      return true;
+    }
 
-  stateEvents: ->
-    'change:chosen change:suggestions': @reRender
+    generatePathSuggestions() {
+      const depth = Options.get('SuggestionDepth');
+      return getPathSuggestions(this.query, depth).then(suggestions => {
+        return this.state.set({suggestions: suggestions.filter(s => this.pathAcceptable(s.path))});
+      });
+    }
 
-  pathAcceptable: (path) ->
-    if path.end?.name is 'id'
-      return false
-    if not @model.get 'canSelectReferences'
-      return path.isAttribute()
-    return true
+    getData() {
+      const anyNodesOpen = this.openNodes.size();
+      const anyNodeChosen = this.chosenPaths.size();
+      return _.extend({anyNodesOpen, anyNodeChosen}, this.state.toJSON(), super.getData(...arguments));
+    }
 
-  generatePathSuggestions: ->
-    depth = Options.get 'SuggestionDepth'
-    getPathSuggestions(@query, depth).then (suggestions) =>
-      @state.set suggestions: suggestions.filter (s) => @pathAcceptable(s.path)
+    render() {
+      super.render(...arguments);
+      if (this.state.has('suggestions')) {
+        this.installTypeahead();
+      }
+      return this;
+    }
 
-  getData: ->
-    anyNodesOpen = @openNodes.size()
-    anyNodeChosen = @chosenPaths.size()
-    _.extend {anyNodesOpen, anyNodeChosen}, @state.toJSON(), super
+    installTypeahead() {
+      this.removeTypeAheads(); // no more than one at a time.
+      const input = this.$('.im-tree-filter');
+      const suggestions = this.state.get('suggestions');
+      const suggest = pathSuggester(suggestions);
 
-  template: Templates.template 'constraint_adder_options'
+      const opts = {
+        minLength: 3,
+        highlight: true
+      };
+      const dataset = {
+        name: 'path_suggestions',
+        source: suggest,
+        displayKey: 'name'
+      };
 
-  render: ->
-    super
-    if @state.has 'suggestions'
-      @installTypeahead()
-    this
+      return this.activateTypeahead(input, opts, dataset, suggestions[0].name, (e, suggestion) => {
+        const { path } = suggestion;
+        this.openNodes.add(path);
+        if (this.model.get('multiSelect')) {
+          return this.chosenPaths.add(path);
+        } else {
+          return this.chosenPaths.reset([path]);
+        }
+    });
+    }
 
-  installTypeahead: ->
-    @removeTypeAheads() # no more than one at a time.
-    input = @$ '.im-tree-filter'
-    suggestions = @state.get 'suggestions'
-    suggest = pathSuggester suggestions
+    events() {
+      return {
+        'click .im-collapser': 'collapseBranches',
+        'change .im-allow-rev-ref': 'toggleReverseRefs',
+        'change .im-tree-filter': 'setFilter',
+        'click .im-choose': 'toggleShowTree',
+        'click .im-approve': 'triggerApproval',
+        'click .im-clear-filter': 'clearFilter'
+      };
+    }
 
-    opts =
-      minLength: 3
-      highlight: true
-    dataset =
-      name: 'path_suggestions'
-      source: suggest
-      displayKey: 'name'
+    triggerApproval() { return this.model.trigger('approved'); }
 
-    @activateTypeahead input, opts, dataset, suggestions[0].name, (e, suggestion) =>
-      path = suggestion.path
-      @openNodes.add path
-      if @model.get 'multiSelect'
-        @chosenPaths.add path
-      else
-        @chosenPaths.reset [path]
+    remove() {
+      this.removeTypeAheads(); // here rather in removeAllChildren, since it was causing errors.
+      return super.remove(...arguments);
+    }
 
-  events: ->
-    'click .im-collapser': 'collapseBranches'
-    'change .im-allow-rev-ref': 'toggleReverseRefs'
-    'change .im-tree-filter': 'setFilter'
-    'click .im-choose': 'toggleShowTree'
-    'click .im-approve': 'triggerApproval'
-    'click .im-clear-filter': 'clearFilter'
+    clearFilter() {
+      this.model.set({filter: null});
+      return this.reRender();
+    }
 
-  triggerApproval: -> @model.trigger 'approved'
+    setFilter(e) {
+      const { value } = e.target;
+      return this.model.set({filter: (IS_BLANK.test(value) ? null : value)});
+    }
 
-  remove: ->
-    @removeTypeAheads() # here rather in removeAllChildren, since it was causing errors.
-    super
+    collapseBranches() { return this.openNodes.reset(); }
 
-  clearFilter: ->
-    @model.set filter: null
-    @reRender()
+    toggleShowTree() { return this.model.toggle('showTree'); }
 
-  setFilter: (e) ->
-    value = e.target.value
-    @model.set filter: (if IS_BLANK.test(value) then null else value)
+    toggleReverseRefs() { return this.model.toggle('allowRevRefs'); }
 
-  collapseBranches: -> @openNodes.reset()
+    setConstraint() { return this.model.trigger('approved'); }
 
-  toggleShowTree: -> @model.toggle 'showTree'
-
-  toggleReverseRefs: -> @model.toggle 'allowRevRefs'
-
-  setConstraint: -> @model.trigger 'approved'
-
-  setChosen: ->
-    paths = @chosenPaths.toJSON()
-    naming = Promise.all(p.getDisplayName() for p in paths)
-    naming.then (names) -> (shortenLongName n for n in names)
-          .then ((names) => @state.set chosen: names), ((e) -> console.error e)
+    setChosen() {
+      const paths = this.chosenPaths.toJSON();
+      const naming = Promise.all(Array.from(paths).map((p) => p.getDisplayName()));
+      return naming.then(names => Array.from(names).map((n) => shortenLongName(n)))
+            .then((names => this.state.set({chosen: names})), (e => console.error(e)));
+    }
+  };
+  ConstraintAdderOptions.initClass();
+  return ConstraintAdderOptions;
+})());
 

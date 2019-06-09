@@ -1,26 +1,43 @@
-CoreView = require '../../core-view'
-Templates = require '../../templates'
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS206: Consider reworking classes to avoid initClass
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let ListTag;
+const CoreView = require('../../core-view');
+const Templates = require('../../templates');
 
-# A component that manages a single tag.
-module.exports = class ListTag extends CoreView
+// A component that manages a single tag.
+module.exports = (ListTag = (function() {
+  ListTag = class ListTag extends CoreView {
+    static initClass() {
+  
+      this.prototype.className = 'im-list-tag label label-primary';
+  
+      this.prototype.template = Templates.template('list-tag');
+    }
 
-  className: 'im-list-tag label label-primary'
+    events() {
+      return {'click .im-remove': 'removeAndDestroy'};
+    }
 
-  template: Templates.template 'list-tag'
+    // Once rendered, activate the tooltip.
+    postRender() {
+      return this.activateTooltip();
+    }
 
-  events: ->
-    'click .im-remove': 'removeAndDestroy'
+    // If it has a title - then tooltip it.
+    activateTooltip() { return this.$('[title]').tooltip(); }
 
-  # Once rendered, activate the tooltip.
-  postRender: ->
-    @activateTooltip()
-
-  # If it has a title - then tooltip it.
-  activateTooltip: -> @$('[title]').tooltip()
-
-  # Destroy the tag, remove it from the model, and this view of it from the DOM
-  removeAndDestroy: ->
-    @model.collection.remove @model
-    @model.destroy()
-    @$el.fadeOut 400, => @remove()
+    // Destroy the tag, remove it from the model, and this view of it from the DOM
+    removeAndDestroy() {
+      this.model.collection.remove(this.model);
+      this.model.destroy();
+      return this.$el.fadeOut(400, () => this.remove());
+    }
+  };
+  ListTag.initClass();
+  return ListTag;
+})());
 

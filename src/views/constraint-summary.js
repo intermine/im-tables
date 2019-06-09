@@ -1,87 +1,130 @@
-_ = require 'underscore'
+/*
+ * decaffeinate suggestions:
+ * DS101: Remove unnecessary use of Array.from
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS104: Avoid inline assignments
+ * DS201: Simplify complex destructure assignments
+ * DS204: Change includes calls to have a more natural evaluation order
+ * DS206: Consider reworking classes to avoid initClass
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let ConstraintSummary;
+const _ = require('underscore');
 
-Messages = require '../messages'
-Templates = require '../templates'
-CoreView = require '../core-view'
-{IS_BLANK} = require '../patterns'
+const Messages = require('../messages');
+const Templates = require('../templates');
+const CoreView = require('../core-view');
+const {IS_BLANK} = require('../patterns');
 
-{Query, Model} = require 'imjs'
+const {Query, Model} = require('imjs');
 
-Messages.set
-  'consummary.IsA': 'is a'
+Messages.set({
+  'consummary.IsA': 'is a',
   'consummary.NoValue': 'no value'
+});
 
-module.exports = class ConstraintSummary extends CoreView
+module.exports = (ConstraintSummary = (function() {
+  ConstraintSummary = class ConstraintSummary extends CoreView {
+    static initClass() {
+  
+      this.prototype.tagName = 'ol';
+  
+      this.prototype.className = 'constraint-summary breadcrumb';
+  
+      this.prototype.template = Templates.template('constraint-summary');
+    }
 
-  tagName: 'ol'
+    initialize() {
+      super.initialize(...arguments);
+      return this.listenTo(Messages, 'change', this.reRender);
+    }
 
-  className: 'constraint-summary breadcrumb'
+    getData() { return _.extend(super.getData(...arguments), {labels: this.getSummary()}); }
 
-  initialize: ->
-    super
-    @listenTo Messages, 'change', @reRender
+    getTitleOp() { return this.model.get('op') || Messages.getText('consummary.IsA'); }
 
-  getData: -> _.extend super, labels: @getSummary()
+    modelEvents() {
+      return {change: this.reRender};
+    }
 
-  template: Templates.template 'constraint-summary'
+    events() {
+      return {'click .label-path'() { return this.state.toggle('showFullPath'); }};
+    }
 
-  getTitleOp: -> @model.get('op') or Messages.getText('consummary.IsA')
+    stateEvents() {
+      return {'change:showFullPath': this.toggleFullPath};
+    }
 
-  modelEvents: ->
-    change: @reRender
+    toggleFullPath() {
+      return this.$('.label-path').toggleClass('im-show-full-path', !!this.state.get('showFullPath'));
+    }
 
-  events: ->
-    'click .label-path': -> @state.toggle 'showFullPath'
+    postRender() {
+      return this.toggleFullPath();
+    }
 
-  stateEvents: ->
-    'change:showFullPath': @toggleFullPath
+    getTitleVal() {
+      let needle;
+      if (this.model.has('values') && (needle = this.model.get('op'), Array.from(Query.MULTIVALUE_OPS.concat(Query.RANGE_OPS)).includes(needle))) {
+        let vals;
+        if (vals = this.model.get('values')) {
+          if (vals.length === 1) {
+            return vals[0];
+          } else if (vals.length === 0) {
+            return '[ ]';
+          } else if (vals.length > 5) {
+            return vals.length + " values";
+          } else {
+            const adjustedLength = Math.max(vals.length, 1),
+              first = vals.slice(0, adjustedLength - 1),
+              last = vals[adjustedLength - 1];
+            return `${ first.join(', ') } and ${ last }`;
+          }
+        }
+      } else if (this.model.has('value')) {
+        return this.model.get('value');
+      } else {
+        let left;
+        return (left = this.model.get('typeName')) != null ? left : this.model.get('type'); // Ideally should use displayName
+      }
+    }
 
-  toggleFullPath: ->
-    @$('.label-path').toggleClass 'im-show-full-path', !!@state.get('showFullPath')
+    isLookup() { return this.model.get('op') === 'LOOKUP'; }
 
-  postRender: ->
-    @toggleFullPath()
+    getPathLabel() {
+      let left;
+      const {title, displayName, path} = this.model.toJSON();
+      return {content: String((left = title != null ? title : displayName) != null ? left : path), type: 'path'};
+    }
 
-  getTitleVal: () ->
-    if @model.has('values') and @model.get('op') in Query.MULTIVALUE_OPS.concat Query.RANGE_OPS
-      if vals = @model.get('values')
-        if vals.length is 1
-          vals[0]
-        else if vals.length is 0
-          '[ ]'
-        else if vals.length > 5
-          vals.length + " values"
-        else
-          [first..., last] = vals
-          "#{ first.join ', ' } and #{ last }"
-    else if @model.has('value')
-      @model.get('value')
-    else
-      @model.get('typeName') ? @model.get('type') # Ideally should use displayName
+    getSummary() {
+      let needle, op;
+      const labels = [];
 
-  isLookup: -> @model.get('op') is 'LOOKUP'
+      labels.push(this.getPathLabel());
 
-  getPathLabel: ->
-    {title, displayName, path} = @model.toJSON()
-    {content: String(title ? displayName ? path), type: 'path'}
+      if (op = this.getTitleOp()) {
+        labels.push({content: op, type: 'op'});
+      }
 
-  getSummary: ->
-    labels = []
+      if ((needle = this.model.get('op'), !Array.from(Query.NULL_OPS).includes(needle))) {
+        const val = this.getTitleVal();
+        if ((val == null) || IS_BLANK.test(val)) {
+          const level = this.model.get('new') ? 'warning' : 'error';
+          labels.push({content: 'NoValue', type: level});
+        } else {
+          labels.push({content: val, type: 'value'});
+        }
 
-    labels.push @getPathLabel()
+        if (this.isLookup() && this.model.has('extraValue')) {
+          labels.push({content: this.model.get('extraValue'), type: 'extra', icon: 'ExtraValue'});
+        }
+      }
 
-    if (op = @getTitleOp())
-      labels.push {content: op, type: 'op'}
-
-    unless @model.get('op') in Query.NULL_OPS
-      val = @getTitleVal()
-      if (not val? or IS_BLANK.test val)
-        level = if @model.get('new') then 'warning' else 'error'
-        labels.push content: 'NoValue', type: level
-      else
-        labels.push content: val, type: 'value'
-
-      if @isLookup() and @model.has 'extraValue'
-        labels.push {content: @model.get('extraValue'), type: 'extra', icon: 'ExtraValue'}
-
-    return labels
+      return labels;
+    }
+  };
+  ConstraintSummary.initClass();
+  return ConstraintSummary;
+})());

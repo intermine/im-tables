@@ -1,30 +1,47 @@
-CoreView = require '../core-view'
-{UnionOf, Listenable, Structure} = Types = require '../core/type-assertions'
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS206: Consider reworking classes to avoid initClass
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let QueryManagement, Types;
+const CoreView = require('../core-view');
+const {UnionOf, Listenable, Structure} = (Types = require('../core/type-assertions'));
 
-ColumnMangerButton   = require './column-manager/button'
-FilterDialogueButton = require './filter-dialogue/button'
-JoinManagerButton    = require './join-manager/button'
+const ColumnMangerButton   = require('./column-manager/button');
+const FilterDialogueButton = require('./filter-dialogue/button');
+const JoinManagerButton    = require('./join-manager/button');
 
-HistoryType = UnionOf Listenable, new Structure 'History',
-  getCurrentQuery: Types.Function
+const HistoryType = UnionOf(Listenable, new Structure('History',
+  {getCurrentQuery: Types.Function})
+);
 
-module.exports = class QueryManagement extends CoreView
+module.exports = (QueryManagement = (function() {
+  QueryManagement = class QueryManagement extends CoreView {
+    static initClass() {
+  
+      this.prototype.className = 'im-query-management';
+  
+      this.prototype.parameters = ['history'];
+  
+      this.prototype.parameterTypes =
+        {history: HistoryType};
+    }
 
-  className: 'im-query-management'
+    initialize() {
+      super.initialize(...arguments);
+      return this.listenTo(this.history, 'changed:current', this.reRender);
+    }
 
-  parameters: ['history']
-
-  parameterTypes:
-    history: HistoryType
-
-  initialize: ->
-    super
-    @listenTo @history, 'changed:current', @reRender
-
-  renderChildren: ->
-    query = @history.getCurrentQuery()
-    @renderChild 'cols', (new ColumnMangerButton {query})
-    @renderChild 'cons', (new FilterDialogueButton {query})
-    @renderChild 'joins', (new JoinManagerButton {query})
+    renderChildren() {
+      const query = this.history.getCurrentQuery();
+      this.renderChild('cols', (new ColumnMangerButton({query})));
+      this.renderChild('cons', (new FilterDialogueButton({query})));
+      return this.renderChild('joins', (new JoinManagerButton({query})));
+    }
+  };
+  QueryManagement.initClass();
+  return QueryManagement;
+})());
 
 

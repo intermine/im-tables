@@ -1,2 +1,2 @@
-scope 'intermine.messages.cell',
-  RelatedItems: "Related item counts:"
+scope('intermine.messages.cell',
+  {RelatedItems: "Related item counts:"});

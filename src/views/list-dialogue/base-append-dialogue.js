@@ -1,143 +1,194 @@
-_ = require 'underscore'
-{Promise} = require 'es6-promise'
+/*
+ * decaffeinate suggestions:
+ * DS001: Remove Babel/TypeScript constructor workaround
+ * DS101: Remove unnecessary use of Array.from
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS205: Consider reworking code to avoid use of IIFEs
+ * DS206: Consider reworking classes to avoid initClass
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let BaseAppendDialogue;
+const _ = require('underscore');
+const {Promise} = require('es6-promise');
 
-CoreCollection = require '../../core/collection'
-CoreModel = require '../../core-model'
-Messages = require '../../messages'
+const CoreCollection = require('../../core/collection');
+const CoreModel = require('../../core-model');
+const Messages = require('../../messages');
 
-BaseCreateListDialogue = require './base-dialogue'
+const BaseCreateListDialogue = require('./base-dialogue');
 
-AppendToListBody = require './append-to-list-body'
-AppendToListModel = require '../../models/append-to-list'
+const AppendToListBody = require('./append-to-list-body');
+const AppendToListModel = require('../../models/append-to-list');
 
-NO_SUITABLE_LISTS =
-  key: 'lists.NoSuitableLists'
-  level: 'Warning'
+const NO_SUITABLE_LISTS = {
+  key: 'lists.NoSuitableLists',
+  level: 'Warning',
   cannotDismiss: true
+};
 
-LIST_NOT_SUITABLE =
-  key: 'lists.TargetNotCorrectType'
-  level: 'Error'
+const LIST_NOT_SUITABLE = {
+  key: 'lists.TargetNotCorrectType',
+  level: 'Error',
   cannotDismiss: true
+};
 
-TARGET_DOES_NOT_EXIST =
-  key: 'lists.TargetDoesNotExist'
-  level: 'Error'
+const TARGET_DOES_NOT_EXIST = {
+  key: 'lists.TargetDoesNotExist',
+  level: 'Error',
   cannotDismiss: true
+};
 
-NO_TARGET_SELECTED =
-  key: 'lists.NoTargetSelected'
-  level: 'Info'
+const NO_TARGET_SELECTED = {
+  key: 'lists.NoTargetSelected',
+  level: 'Info',
   cannotDismiss: true
+};
 
-theListIsSuitable = (path) -> (list) ->
-  return (Promise.reject LIST_NOT_SUITABLE) unless (path.isa list.type)
+const theListIsSuitable = path => function(list) {
+  if (!path.isa(list.type)) { return (Promise.reject(LIST_NOT_SUITABLE)); }
+} ;
 
-onlyCurrent = (ls) -> _.where ls, status: 'CURRENT'
+const onlyCurrent = ls => _.where(ls, {status: 'CURRENT'});
 
-# Unpack list objects, taking only what we need.
-unpackLists = (ls) -> ({name, type, size, id: name} for {name, type, size} in ls)
+// Unpack list objects, taking only what we need.
+const unpackLists = ls => (() => {
+  const result = [];
+  for (let {name, type, size} of Array.from(ls)) {     result.push({name, type, size, id: name});
+  }
+  return result;
+})() ;
 
-class PossibleList extends CoreModel
+class PossibleList extends CoreModel {
 
-  defaults: ->
-    typeName: null
-    name: null
-    size: 0
+  defaults() {
+    return {
+      typeName: null,
+      name: null,
+      size: 0
+    };
+  }
 
-  initialize: ->
-    super
-    @fetchTypeName()
+  initialize() {
+    super.initialize(...arguments);
+    return this.fetchTypeName();
+  }
 
-  fetchTypeName: ->
-    s = @collection.service
-    type = @get 'type'
-    s.fetchModel().then (model) -> model.makePath(type)
-                  .then (path) -> path.getDisplayName()
-                  .then (name) => @set typeName: name
+  fetchTypeName() {
+    const s = this.collection.service;
+    const type = this.get('type');
+    return s.fetchModel().then(model => model.makePath(type))
+                  .then(path => path.getDisplayName())
+                  .then(name => this.set({typeName: name}));
+  }
+}
 
-class PossibleLists extends CoreCollection
-
-  model: PossibleList
-
-  constructor: ({@service}) -> super()
-
-module.exports = class BaseAppendDialogue extends BaseCreateListDialogue
-
-  Body: AppendToListBody
-
-  Model: AppendToListModel
-
-  title: -> Messages.getText 'lists.AppendToListTitle', @getData()
-
-  primaryAction: -> Messages.getText 'lists.Append'
-
-  initialize: ->
-    super
-    @listenTo @getPossibleLists(), 'remove reset', @verifyState
-    @listenTo @getPossibleLists(), 'add reset', @setTargetIfOnlyOne
-
-  getPossibleLists: ->  @possibleLists ?= new PossibleLists service: @getService()
-
-  processQuery: (query) -> query.appendToList @model.get 'target'
+class PossibleLists extends CoreCollection {
+  static initClass() {
   
-  modelEvents: -> _.extend super,
-    'change:target': 'onChangeTarget'
+    this.prototype.model = PossibleList;
+  }
 
-  initState: ->
-    super
-    @fetchSuitableLists()
-    @verifyState()
+  constructor({service}) { {     // Hack: trick Babel/TypeScript into allowing this before super.
+    if (false) { super(); }     let thisFn = (() => { return this; }).toString();     let thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1];     eval(`${thisName} = this;`);   }   this.service = service; super(); }
+}
+PossibleLists.initClass();
 
-  checkThereAreLists: -> unless @getPossibleLists().size()
-    @state.set error: NO_SUITABLE_LISTS
+module.exports = (BaseAppendDialogue = (function() {
+  BaseAppendDialogue = class BaseAppendDialogue extends BaseCreateListDialogue {
+    static initClass() {
+  
+      this.prototype.Body = AppendToListBody;
+  
+      this.prototype.Model = AppendToListModel;
+    }
 
-  onChangeTarget: ->
-    @setTitle()
-    @verifyState()
+    title() { return Messages.getText('lists.AppendToListTitle', this.getData()); }
 
-  verifyState: ->
-    @state.unset 'error' # it will be set down the line.
-    @checkThereAreLists()
-    @verifyTarget()
-    @verifyTargetExistsAndIsSuitable()
+    primaryAction() { return Messages.getText('lists.Append'); }
 
-  setTargetIfOnlyOne: ->
-    pls = @getPossibleLists()
-    if pls.length is 1
-      @model.set target: pls.at(0).get('name')
+    initialize() {
+      super.initialize(...arguments);
+      this.listenTo(this.getPossibleLists(), 'remove reset', this.verifyState);
+      return this.listenTo(this.getPossibleLists(), 'add reset', this.setTargetIfOnlyOne);
+    }
 
-  verifyTarget: ->
-    unless @model.get('target')
-      @state.set error: NO_TARGET_SELECTED
+    getPossibleLists() {  return this.possibleLists != null ? this.possibleLists : (this.possibleLists = new PossibleLists({service: this.getService()})); }
 
-  onChangeType: ->
-    super
-    @fetchSuitableLists()
+    processQuery(query) { return query.appendToList(this.model.get('target')); }
+  
+    modelEvents() { return _.extend(super.modelEvents(...arguments),
+      {'change:target': 'onChangeTarget'}); }
 
-  getBodyOptions: -> _.extend super, collection: @getPossibleLists()
+    initState() {
+      super.initState(...arguments);
+      this.fetchSuitableLists();
+      return this.verifyState();
+    }
 
-  verifyTargetExistsAndIsSuitable: ->
-    type = @getType()
-    return unless type?
-    target = @model.get 'target'
-    return unless target?
-    path = type.model.makePath type.name
+    checkThereAreLists() { if (!this.getPossibleLists().size()) {
+      return this.state.set({error: NO_SUITABLE_LISTS});
+    } }
 
-    @getService().fetchList target
-                 .then (theListIsSuitable path), (-> TARGET_DOES_NOT_EXIST)
-                 .then null, (e) => @state.set error: e
+    onChangeTarget() {
+      this.setTitle();
+      return this.verifyState();
+    }
 
-  fetchSuitableLists: ->
-    type = @getType()
-    return @getPossibleLists().reset() unless type?
+    verifyState() {
+      this.state.unset('error'); // it will be set down the line.
+      this.checkThereAreLists();
+      this.verifyTarget();
+      return this.verifyTargetExistsAndIsSuitable();
+    }
 
-    path = type.model.makePath type.name
+    setTargetIfOnlyOne() {
+      const pls = this.getPossibleLists();
+      if (pls.length === 1) {
+        return this.model.set({target: pls.at(0).get('name')});
+      }
+    }
 
-    @getService().fetchLists()
-                 .then (lists) -> _.filter lists, (list) -> path.isa list.type
-                 .then onlyCurrent
-                 .then unpackLists
-                 .then (ls) => @getPossibleLists().reset ls
-                 .then null, (e) => @state.set error: e
+    verifyTarget() {
+      if (!this.model.get('target')) {
+        return this.state.set({error: NO_TARGET_SELECTED});
+      }
+    }
+
+    onChangeType() {
+      super.onChangeType(...arguments);
+      return this.fetchSuitableLists();
+    }
+
+    getBodyOptions() { return _.extend(super.getBodyOptions(...arguments), {collection: this.getPossibleLists()}); }
+
+    verifyTargetExistsAndIsSuitable() {
+      const type = this.getType();
+      if (type == null) { return; }
+      const target = this.model.get('target');
+      if (target == null) { return; }
+      const path = type.model.makePath(type.name);
+
+      return this.getService().fetchList(target)
+                   .then((theListIsSuitable(path)), (() => TARGET_DOES_NOT_EXIST))
+                   .then(null, e => this.state.set({error: e}));
+    }
+
+    fetchSuitableLists() {
+      const type = this.getType();
+      if (type == null) { return this.getPossibleLists().reset(); }
+
+      const path = type.model.makePath(type.name);
+
+      return this.getService().fetchLists()
+                   .then(lists => _.filter(lists, list => path.isa(list.type)))
+                   .then(onlyCurrent)
+                   .then(unpackLists)
+                   .then(ls => this.getPossibleLists().reset(ls))
+                   .then(null, e => this.state.set({error: e}));
+    }
+  };
+  BaseAppendDialogue.initClass();
+  return BaseAppendDialogue;
+})());
 

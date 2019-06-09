@@ -1,93 +1,127 @@
-SELECT_LIMIT = 200 # for more than 200 pages move to form
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS206: Consider reworking classes to avoid initClass
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let Pagination;
+const SELECT_LIMIT = 200; // for more than 200 pages move to form
 
-_ = require 'underscore'
-fs = require 'fs'
+const _ = require('underscore');
+const fs = require('fs');
 
-View = require '../../core-view'
-Paging = require './paging'
+const View = require('../../core-view');
+const Paging = require('./paging');
 
-html = fs.readFileSync __dirname + '/../../templates/pagination.mtpl', 'utf8'
+const html = fs.readFileSync(__dirname + '/../../templates/pagination.mtpl', 'utf8');
 
-strip = (s) -> s.replace /\s+/g, ''
+const strip = s => s.replace(/\s+/g, '');
 
-ensureNumber = (raw) ->
-  if (typeof raw is 'string') then (parseInt (strip raw), 10) else raw
+const ensureNumber = function(raw) {
+  if (typeof raw === 'string') { return (parseInt((strip(raw)), 10)); } else { return raw; }
+};
 
-module.exports = class Pagination extends View
+module.exports = (Pagination = (function() {
+  Pagination = class Pagination extends View {
+    static initClass() {
+    
+      this.include(Paging);
   
-  @include Paging
-
-  tagName: 'nav'
-
-  className: 'im-table-pagination im-table-control'
-
-  RERENDER_EVENT: 'change:start change:count change:size'
-
-  template: _.template html
-
-  modelEvents: ->
-    'change:count': @setVisible
+      this.prototype.tagName = 'nav';
   
-  getData: ->
-    {start, size, count} = @model.toJSON()
-    max = @getMaxPage()
-    data =
-      max: max
-      min: 1
-      size: size
-      currentPage: @getCurrentPage()
-      gotoStart: (if start is 0 then 'disabled')
-      goFiveBack: (if start < (5 * size) then 'disabled')
-      goOneBack: (if start < size then 'disabled')
-      gotoEnd: (if start >= (count - size) then 'disabled')
-      goFiveForward: (if start >= (count - 6 * size) then 'disabled')
-      goOneForward: (if start >= (count - size) then 'disabled')
-      selected: (i) -> start is i * size
-      useSelect: (max <= SELECT_LIMIT)
+      this.prototype.className = 'im-table-pagination im-table-control';
+  
+      this.prototype.RERENDER_EVENT = 'change:start change:count change:size';
+  
+      this.prototype.template = _.template(html);
+    }
 
-  postRender: ->
-    @$('li').tooltip placement: 'top'
-    @setVisible()
+    modelEvents() {
+      return {'change:count': this.setVisible};
+    }
+  
+    getData() {
+      let data;
+      const {start, size, count} = this.model.toJSON();
+      const max = this.getMaxPage();
+      return data = {
+        max,
+        min: 1,
+        size,
+        currentPage: this.getCurrentPage(),
+        gotoStart: (start === 0 ? 'disabled' : undefined),
+        goFiveBack: (start < (5 * size) ? 'disabled' : undefined),
+        goOneBack: (start < size ? 'disabled' : undefined),
+        gotoEnd: (start >= (count - size) ? 'disabled' : undefined),
+        goFiveForward: (start >= (count - (6 * size)) ? 'disabled' : undefined),
+        goOneForward: (start >= (count - size) ? 'disabled' : undefined),
+        selected(i) { return start === (i * size); },
+        useSelect: (max <= SELECT_LIMIT)
+      };
+    }
 
-  setVisible: ->
-    max = @getMaxPage()
-    @$el.toggleClass 'im-hidden', max < 2
+    postRender() {
+      this.$('li').tooltip({placement: 'top'});
+      return this.setVisible();
+    }
 
-  events: ->
-    'submit .im-page-form': 'pageFormSubmit'
-    'click .im-current-page a': 'clickCurrentPage'
-    'change .im-page-form select': 'goToChosenPage'
-    'blur .im-page-form input': 'pageFormSubmit'
-    'click .im-goto-start': => @goTo 0
-    'click .im-go-back-5': => @goBack 5
-    'click .im-go-back-1': => @goBack 1
-    'click .im-go-fwd-5': => @goForward 5
-    'click .im-go-fwd-1': => @goForward 1
-    'click .im-goto-end': => @goTo (@getMaxPage() - 1) * @model.get('size')
+    setVisible() {
+      const max = this.getMaxPage();
+      return this.$el.toggleClass('im-hidden', max < 2);
+    }
 
-  goToChosenPage: (e) ->
-    start = ensureNumber @$(e.target).val()
-    @goTo start
+    events() {
+      return {
+        'submit .im-page-form': 'pageFormSubmit',
+        'click .im-current-page a': 'clickCurrentPage',
+        'change .im-page-form select': 'goToChosenPage',
+        'blur .im-page-form input': 'pageFormSubmit',
+        'click .im-goto-start': () => this.goTo(0),
+        'click .im-go-back-5': () => this.goBack(5),
+        'click .im-go-back-1': () => this.goBack(1),
+        'click .im-go-fwd-5': () => this.goForward(5),
+        'click .im-go-fwd-1': () => this.goForward(1),
+        'click .im-goto-end': () => this.goTo((this.getMaxPage() - 1) * this.model.get('size'))
+      };
+    }
 
-  clickCurrentPage: (e) ->
-    size = @model.get 'size'
-    total = @model.get 'count'
-    return if size >= total
-    @$(e.target).hide()
-    @$('form').show().find('input').focus()
+    goToChosenPage(e) {
+      const start = ensureNumber(this.$(e.target).val());
+      return this.goTo(start);
+    }
 
-  pageFormSubmit: (e) ->
-    e?.stopPropagation()
-    e?.preventDefault()
-    pageForm = @$('.im-page-form')
-    input = @$('.im-page-form input')
-    if input.size()
-      destination = ensureNumber input[0].value
-      if destination >= 1
-        page = Math.min @getMaxPage(), destination
-        @goTo (page - 1) * @model.get('size')
-        @$('.im-current-page > a').show()
-        pageForm.hide()
-      else
-        pageForm.find('.control-group').addClass 'error'
-        inp.val null
+    clickCurrentPage(e) {
+      const size = this.model.get('size');
+      const total = this.model.get('count');
+      if (size >= total) { return; }
+      this.$(e.target).hide();
+      return this.$('form').show().find('input').focus();
+    }
+
+    pageFormSubmit(e) {
+      if (e != null) {
+        e.stopPropagation();
+      }
+      if (e != null) {
+        e.preventDefault();
+      }
+      const pageForm = this.$('.im-page-form');
+      const input = this.$('.im-page-form input');
+      if (input.size()) {
+        const destination = ensureNumber(input[0].value);
+        if (destination >= 1) {
+          const page = Math.min(this.getMaxPage(), destination);
+          this.goTo((page - 1) * this.model.get('size'));
+          this.$('.im-current-page > a').show();
+          return pageForm.hide();
+        } else {
+          pageForm.find('.control-group').addClass('error');
+          return inp.val(null);
+        }
+      }
+    }
+  };
+  Pagination.initClass();
+  return Pagination;
+})());

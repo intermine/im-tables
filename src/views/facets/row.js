@@ -1,105 +1,134 @@
-_ = require 'underscore'
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS206: Consider reworking classes to avoid initClass
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let FacetRow;
+const _ = require('underscore');
 
-CoreView = require '../../core-view'
-Templates = require '../../templates'
+const CoreView = require('../../core-view');
+const Templates = require('../../templates');
 
-Checkbox = require '../../core/checkbox'
-RowSurrogate = require './row-surrogate'
+const Checkbox = require('../../core/checkbox');
+const RowSurrogate = require('./row-surrogate');
 
-require '../../messages/summary'
+require('../../messages/summary');
 
-bool = (x) -> !!x
+const bool = x => !!x;
 
-# Row in the drop down summary.
-module.exports = class FacetRow extends CoreView
-
-  # Not all of these are expected to actually change,
-  # but these are the things the template depends on.
-  RERENDER_EVENT: 'change:count change:item change:symbol change:share'
-
-  tagName: "tr"
-
-  className: "im-facet-row"
-
-  modelEvents: ->
-    "change:visible": @onChangeVisibility
-    "change:hover": @onChangeHover
-    "change:selected": @onChangeSelected
-
-  # Invariants
-
-  invariants: -> modelHasCollection: "No collection on model"
-
-  modelHasCollection: -> @model?.collection?
+// Row in the drop down summary.
+module.exports = (FacetRow = (function() {
+  FacetRow = class FacetRow extends CoreView {
+    static initClass() {
   
-  # The template, and data used by templates
- 
-  template: Templates.template 'facet_row'
+      // Not all of these are expected to actually change,
+      // but these are the things the template depends on.
+      this.prototype.RERENDER_EVENT = 'change:count change:item change:symbol change:share';
+  
+      this.prototype.tagName = "tr";
+  
+      this.prototype.className = "im-facet-row";
+    
+      // The template, and data used by templates
+   
+      this.prototype.template = Templates.template('facet_row');
+    }
 
-  getData: ->
-    max = @model.collection.getMaxCount()
-    ratio = @model.get('count') / max
-    opacity = (ratio / 2 + 0.5).toFixed() # opacity ranges from 0.5 - 1
-    percent = (ratio * 100).toFixed() # percentage is int from 0 - 100
+    modelEvents() {
+      return {
+        "change:visible": this.onChangeVisibility,
+        "change:hover": this.onChangeHover,
+        "change:selected": this.onChangeSelected
+      };
+    }
 
-    _.extend super, {percent, opacity, max}
+    // Invariants
 
-  onRenderError: (e) -> console.error e
+    invariants() { return {modelHasCollection: "No collection on model"}; }
 
-  # Subviews and interactions with the DOM.
+    modelHasCollection() { return ((this.model != null ? this.model.collection : undefined) != null); }
 
-  postRender: ->
-    @addCheckbox()
-    @onChangeVisibility()
-    @onChangeHover()
-    @onChangeSelected()
+    getData() {
+      const max = this.model.collection.getMaxCount();
+      const ratio = this.model.get('count') / max;
+      const opacity = ((ratio / 2) + 0.5).toFixed(); // opacity ranges from 0.5 - 1
+      const percent = (ratio * 100).toFixed(); // percentage is int from 0 - 100
 
-  addCheckbox: ->
-    @renderChildAt '.checkbox', (new Checkbox {@model, attr: 'selected'})
+      return _.extend(super.getData(...arguments), {percent, opacity, max});
+    }
 
-  onChangeVisibility: -> @$el.toggleClass 'im-hidden', not @model.get "visible"
+    onRenderError(e) { return console.error(e); }
 
-  onChangeHover: -> # can be hovered in the graph.
-    isHovered = bool @model.get 'hover'
-    @$el.toggleClass 'hover', isHovered
-    if isHovered
-      return @showSurrogateUnlessVisible()
-    else
-      return @removeSurrogate()
+    // Subviews and interactions with the DOM.
 
-  onChangeSelected: -> @$el.toggleClass 'im-selected', @model.get('selected')
+    postRender() {
+      this.addCheckbox();
+      this.onChangeVisibility();
+      this.onChangeHover();
+      return this.onChangeSelected();
+    }
 
-  removeSurrogate: -> @removeChild 'surrogate'
+    addCheckbox() {
+      return this.renderChildAt('.checkbox', (new Checkbox({model: this.model, attr: 'selected'})));
+    }
 
-  showSurrogateUnlessVisible: ->
-    @removeSurrogate() # to be sure
-    unless @isVisible()
-      above = @isAbove()
-      surrogate = new RowSurrogate {@model, above}
-      $s = surrogate.$el
-      table = @getTable()
-      @renderChild 'surrogate', surrogate, table
-      newTop = if above
-        $s.css top: table.scrollTop()
-      else
-        $s.css bottom: 0 - table.scrollTop()
+    onChangeVisibility() { return this.$el.toggleClass('im-hidden', !this.model.get("visible")); }
 
-  getTable: -> @$el.closest('.im-item-table')
+    onChangeHover() { // can be hovered in the graph.
+      const isHovered = bool(this.model.get('hover'));
+      this.$el.toggleClass('hover', isHovered);
+      if (isHovered) {
+        return this.showSurrogateUnlessVisible();
+      } else {
+        return this.removeSurrogate();
+      }
+    }
 
-  # Events definitions and their handlers.
+    onChangeSelected() { return this.$el.toggleClass('im-selected', this.model.get('selected')); }
 
-  events: -> 'click': 'handleClick'
+    removeSurrogate() { return this.removeChild('surrogate'); }
 
-  handleClick: (e) ->
-    e.stopPropagation()
-    @model.toggle 'selected'
+    showSurrogateUnlessVisible() {
+      this.removeSurrogate(); // to be sure
+      if (!this.isVisible()) {
+        let newTop;
+        const above = this.isAbove();
+        const surrogate = new RowSurrogate({model: this.model, above});
+        const $s = surrogate.$el;
+        const table = this.getTable();
+        this.renderChild('surrogate', surrogate, table);
+        return newTop = above ?
+          $s.css({top: table.scrollTop()})
+        :
+          $s.css({bottom: 0 - table.scrollTop()});
+      }
+    }
 
-  isBelow: () ->
-    parent = @getTable()
-    @$el.offset().top + @$el.outerHeight() > parent.offset().top + parent.outerHeight()
+    getTable() { return this.$el.closest('.im-item-table'); }
 
-  isAbove: () ->
-    parent = @getTable()
-    @$el.offset().top < parent.offset().top
+    // Events definitions and their handlers.
 
-  isVisible: () -> not (@isAbove() or @isBelow())
+    events() { return {'click': 'handleClick'}; }
+
+    handleClick(e) {
+      e.stopPropagation();
+      return this.model.toggle('selected');
+    }
+
+    isBelow() {
+      const parent = this.getTable();
+      return (this.$el.offset().top + this.$el.outerHeight()) > (parent.offset().top + parent.outerHeight());
+    }
+
+    isAbove() {
+      const parent = this.getTable();
+      return this.$el.offset().top < parent.offset().top;
+    }
+
+    isVisible() { return !(this.isAbove() || this.isBelow()); }
+  };
+  FacetRow.initClass();
+  return FacetRow;
+})());

@@ -1,12 +1,20 @@
-PathModel = require './path'
+/*
+ * decaffeinate suggestions:
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let OrderElementModel;
+const PathModel = require('./path');
 
-module.exports = class OrderElementModel extends PathModel
+module.exports = (OrderElementModel = class OrderElementModel extends PathModel {
 
-  constructor: ({path, direction}) ->
-    super path
-    direction ?= 'ASC'
-    @set {direction}
+  constructor({path, direction}) {
+    super(path);
+    if (direction == null) { direction = 'ASC'; }
+    this.set({direction});
+  }
 
-  asOrderElement: -> @pick 'path', 'direction'
+  asOrderElement() { return this.pick('path', 'direction'); }
 
-  toOrderString: -> "#{ @get 'path'} #{ @get 'direction' }"
+  toOrderString() { return `${ this.get('path')} ${ this.get('direction') }`; }
+});

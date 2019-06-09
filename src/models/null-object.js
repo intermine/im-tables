@@ -1,15 +1,19 @@
-CoreModel = require '../core-model'
+let NullObject;
+const CoreModel = require('../core-model');
 
-module.exports = class NullObject extends CoreModel
+module.exports = (NullObject = class NullObject extends CoreModel {
 
-  constructor: (type, field) ->
-    super()
-    @set
-      'id': null
-      'isNULL': true
-      'classes': [type]
-      'service:base': ''
-      'service:url': ''
+  constructor(type, field) {
+    super();
+    this.set({
+      'id': null,
+      'isNULL': true,
+      'classes': [type],
+      'service:base': '',
+      'service:url': '',
       'report:uri': null
-    @set field, null if field
+    });
+    if (field) { this.set(field, null); }
+  }
+});
 

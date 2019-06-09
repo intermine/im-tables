@@ -1,99 +1,129 @@
-_ = require 'underscore'
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS206: Consider reworking classes to avoid initClass
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let ListDialogueBody;
+const _ = require('underscore');
 
-CoreView = require '../../core-view' # base
-Templates = require '../../templates' # template
-Messages = require '../../messages'
-CreateListModel = require '../../models/create-list' # model
+const CoreView = require('../../core-view'); // base
+const Templates = require('../../templates'); // template
+const Messages = require('../../messages');
+const CreateListModel = require('../../models/create-list'); // model
 
-# Sub-components
-InputWithLabel = require '../../core/input-with-label'
-InputWithButton = require '../../core/input-with-button'
-ListTag = require './tag'
-TagsApology = require './tags-apology'
+// Sub-components
+const InputWithLabel = require('../../core/input-with-label');
+const InputWithButton = require('../../core/input-with-button');
+const ListTag = require('./tag');
+const TagsApology = require('./tags-apology');
 
-# This view uses the lists messages bundle.
-require '../../messages/lists'
+// This view uses the lists messages bundle.
+require('../../messages/lists');
 
-module.exports = class ListDialogueBody extends CoreView
+module.exports = (ListDialogueBody = (function() {
+  ListDialogueBody = class ListDialogueBody extends CoreView {
+    static initClass() {
+  
+      this.prototype.Model = CreateListModel;
+  
+      this.prototype.template = Templates.template('list-dialogue-body');
+  
+      this.prototype.$tags = null;
+    }
 
-  Model: CreateListModel
+    getData() { return _.extend(super.getData(...arguments)); }
 
-  template: Templates.template 'list-dialogue-body'
+    modelEvents() { return {'add:tag': 'addTag'}; }
 
-  getData: -> _.extend super
+    stateEvents() {
+      return {'change:minimised': 'toggleOptionalAttributes'};
+    }
 
-  modelEvents: -> 'add:tag': 'addTag'
+    events() { return {'click .im-more-options': () => this.state.toggle('minimised')}; } // cache the .im-active-tags selector here
 
-  stateEvents: ->
-    'change:minimised': 'toggleOptionalAttributes'
+    postRender() { // Render child views.
+      this.renderListNameInput();
+      this.renderListDescInput();
+      return this.renderTags();
+    }
 
-  events: -> 'click .im-more-options': => @state.toggle 'minimised'
+    renderTags() {
+      this.$tags = this.$('.im-active-tags');
+      this.addTags();
+      this.renderApology();
+      return this.renderTagAdder();
+    }
 
-  $tags: null # cache the .im-active-tags selector here
+    renderTagAdder() {
+      const nextTagView = new InputWithButton({
+        model: this.model,
+        placeholder: 'lists.AddTag',
+        button: 'lists.AddTagBtn',
+        sets: 'nextTag'
+      });
+      this.listenTo(nextTagView, 'act', this.addNextTag);
+      return this.renderChildAt('.im-next-tag', nextTagView);
+    }
 
-  postRender: -> # Render child views.
-    @renderListNameInput()
-    @renderListDescInput()
-    @renderTags()
+    addTags() { return this.model.tags.each(t => this.addTag(t)); }
 
-  renderTags: ->
-    @$tags = @$ '.im-active-tags'
-    @addTags()
-    @renderApology()
-    @renderTagAdder()
+    addTag(t) { if (this.rendered) {
+      return this.renderChild(`tag-${ t.get('id') }`, (new ListTag({model: t})), this.$tags);
+    } }
 
-  renderTagAdder: ->
-    nextTagView = new InputWithButton
-      model: @model
-      placeholder: 'lists.AddTag'
-      button: 'lists.AddTagBtn'
-      sets: 'nextTag'
-    @listenTo nextTagView, 'act', @addNextTag
-    @renderChildAt '.im-next-tag', nextTagView
+    toggleOptionalAttributes() {
+      const state = this.state.toJSON();
+      const $attrs = this.$('.im-optional-attributes');
+      if (state.minimised) {
+        $attrs.slideUp();
+      } else {
+        $attrs.slideDown();
+      }
+      const msg = Messages.getText('lists.ShowExtraOptions', state);
+      return this.$('.im-more-options .msg').text(msg);
+    }
 
-  addTags: -> @model.tags.each (t) => @addTag t
+    renderApology() {
+      return this.renderChildAt('.im-apology', (new TagsApology({collection: this.model.tags})));
+    }
 
-  addTag: (t) -> if @rendered
-    @renderChild "tag-#{ t.get 'id' }", (new ListTag model: t), @$tags
-
-  toggleOptionalAttributes: ->
-    state = @state.toJSON()
-    $attrs = @$ '.im-optional-attributes'
-    if state.minimised
-      $attrs.slideUp()
-    else
-      $attrs.slideDown()
-    msg = Messages.getText 'lists.ShowExtraOptions', state
-    @$('.im-more-options .msg').text msg
-
-  renderApology: ->
-    @renderChildAt '.im-apology', (new TagsApology collection: @model.tags)
-
-  renderListNameInput: ->
-    nameInput = new InputWithLabel
-      model: @model
-      attr: 'name'
-      label: 'lists.params.Name'
-      helpMessage: 'lists.params.help.Name'
-      placeholder: 'lists.params.NamePlaceholder'
-      getProblem: (name) => @validateName name
-    @listenTo nameInput.state, 'change:problem', ->
-      err = nameInput.state.get('problem')
-      @state.set disabled: !!err
-    @renderChildAt '.im-list-name', nameInput
+    renderListNameInput() {
+      const nameInput = new InputWithLabel({
+        model: this.model,
+        attr: 'name',
+        label: 'lists.params.Name',
+        helpMessage: 'lists.params.help.Name',
+        placeholder: 'lists.params.NamePlaceholder',
+        getProblem: name => this.validateName(name)
+      });
+      this.listenTo(nameInput.state, 'change:problem', function() {
+        const err = nameInput.state.get('problem');
+        return this.state.set({disabled: !!err});
+      });
+      return this.renderChildAt('.im-list-name', nameInput);
+    }
     
-  validateName: (name) ->
-    trimmed = name?.replace /(^\s+|\s+$)/g, '' # Trim name
-    (not trimmed) or (@state.get('existingLists')[trimmed])
+    validateName(name) {
+      const trimmed = name != null ? name.replace(/(^\s+|\s+$)/g, '') : undefined; // Trim name
+      return (!trimmed) || (this.state.get('existingLists')[trimmed]);
+    }
 
-  renderListDescInput: -> @renderChildAt '.im-list-desc', new InputWithLabel
-    model: @model
-    attr: 'description'
-    label: 'lists.params.Desc'
-    placeholder: 'lists.params.DescPlaceholder'
+    renderListDescInput() { return this.renderChildAt('.im-list-desc', new InputWithLabel({
+      model: this.model,
+      attr: 'description',
+      label: 'lists.params.Desc',
+      placeholder: 'lists.params.DescPlaceholder'
+    })
+    ); }
 
-  # DOM->model data-flow.
+    // DOM->model data-flow.
 
-  addNextTag: -> @model.addTag()
+    addNextTag() { return this.model.addTag(); }
+  };
+  ListDialogueBody.initClass();
+  return ListDialogueBody;
+})());
 
 

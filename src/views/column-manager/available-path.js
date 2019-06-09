@@ -1,54 +1,76 @@
-_ = require 'underscore'
-UnselectedColumn = require './unselected-column'
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS206: Consider reworking classes to avoid initClass
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let AvailablePath;
+const _ = require('underscore');
+const UnselectedColumn = require('./unselected-column');
 
-CUTOFF = 900
+const CUTOFF = 900;
 
-module.exports = class AvailablePath extends UnselectedColumn
+module.exports = (AvailablePath = (function() {
+  AvailablePath = class AvailablePath extends UnselectedColumn {
+    static initClass() {
+  
+      // a function that will help us find the connected list, without
+      // having a reverence to the parent directly.
+      this.prototype.parameters = ['findActives'];
+  
+      this.prototype.restoreTitle = 'columns.AddColumnToSortOrder';
+    }
 
-  # a function that will help us find the connected list, without
-  # having a reverence to the parent directly.
-  parameters: ['findActives']
+    events() { return _.extend(super.events(...arguments), {
+      mousedown: 'onMouseDown',
+      dragstart: 'onDragStart',
+      dragstop: 'onDragStop'
+    }
+    ); }
 
-  restoreTitle: 'columns.AddColumnToSortOrder'
+    onMouseDown() {
+      return this.fixAppendTo();
+    }
 
-  events: -> _.extend super,
-    mousedown: 'onMouseDown'
-    dragstart: 'onDragStart'
-    dragstop: 'onDragStop'
+    // Cannot be set correctly on init., since when this element is rendered
+    // it is likely part of a document fragment, and thus its appendTo
+    // will not be available.
+    fixAppendTo() {
+      this.$el.draggable('option', 'appendTo', this.$el.closest('.well'));
+      const modalWidth = this.$el.closest('.modal').width();
+      const wide = (modalWidth >= CUTOFF);
+      return this.$el.draggable('option', 'axis', (wide ? null : 'y'));
+    }
 
-  onMouseDown: ->
-    @fixAppendTo()
+    onDragStart() {
+      this.state.set({dragged: this.model.get('path')});
+      return this.$el.addClass('ui-dragging');
+    }
 
-  # Cannot be set correctly on init., since when this element is rendered
-  # it is likely part of a document fragment, and thus its appendTo
-  # will not be available.
-  fixAppendTo: ->
-    @$el.draggable 'option', 'appendTo', @$el.closest('.well')
-    modalWidth = @$el.closest('.modal').width()
-    wide = (modalWidth >= CUTOFF)
-    @$el.draggable 'option', 'axis', (if wide then null else 'y')
+    onDragStop() {
+      this.state.unset('dragged');
+      return this.$el.removeClass('ui-dragging');
+    }
 
-  onDragStart: ->
-    @state.set dragged: @model.get 'path'
-    @$el.addClass 'ui-dragging'
+    postRender() {
+      // copied out of bootstrap variables - if only they could be shared!
+      // TODO - move to common file.
+      const modalWidth = this.$el.closest('.modal').width();
+      const wide = (modalWidth >= CUTOFF);
+      const index = this.model.collection.indexOf(this.model);
+      this.$el.draggable({
+        axis: (wide ? null : 'y'),
+        connectToSortable: this.findActives(),
+        helper: 'clone',
+        revert: 'invalid',
+        opacity: 0.8,
+        cancel: 'i,a,button',
+        zIndex: 1000
+      });
 
-  onDragStop: ->
-    @state.unset 'dragged'
-    @$el.removeClass 'ui-dragging'
-
-  postRender: ->
-    # copied out of bootstrap variables - if only they could be shared!
-    # TODO - move to common file.
-    modalWidth = @$el.closest('.modal').width()
-    wide = (modalWidth >= CUTOFF)
-    index = @model.collection.indexOf @model
-    @$el.draggable
-      axis: (if wide then null else 'y')
-      connectToSortable: @findActives()
-      helper: 'clone'
-      revert: 'invalid'
-      opacity: 0.8
-      cancel: 'i,a,button'
-      zIndex: 1000
-
-    @$('[title]').tooltip placement: (if index is 0 then 'bottom' else 'top')
+      return this.$('[title]').tooltip({placement: (index === 0 ? 'bottom' : 'top')});
+    }
+  };
+  AvailablePath.initClass();
+  return AvailablePath;
+})());

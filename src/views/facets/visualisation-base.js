@@ -1,82 +1,106 @@
-d3 = require 'd3-browserify'
-_ = require 'underscore'
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS206: Consider reworking classes to avoid initClass
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let VisualisationBase;
+const d3 = require('d3-browserify');
+const _ = require('underscore');
 
-CoreView = require '../../core-view'
+const CoreView = require('../../core-view');
 
-module.exports = class VisualisationBase extends CoreView
+module.exports = (VisualisationBase = (function() {
+  VisualisationBase = class VisualisationBase extends CoreView {
+    static initClass() {
+  
+      this.prototype.chartHeight = 0; // the height of the chart - should be a number
+      this.prototype.chartWidth = 0;
+       // the width we have available - set during render.
+    }
 
-  chartHeight: 0 # the height of the chart - should be a number
-  chartWidth: 0 # the width we have available - set during render.
+    initialize() {
+      super.initialize(...arguments);
+      return this.listenTo(this.model, 'change:loading', this.reRender);
+    }
 
-  initialize: ->
-    super
-    @listenTo @model, 'change:loading', @reRender
+    postRender() {
+      if (this.model.get('loading')) { return; }
+      return this.addChart();
+    }
 
-  postRender: ->
-    return if @model.get 'loading'
-    @addChart()
+    addChart() { return _.defer(() => {
+      try {
+        return this._drawD3Chart();
+      } catch (e) {
+        return this.model.set({error: e});
+      }
+    }); }
 
-  addChart: -> _.defer =>
-    try
-      @_drawD3Chart()
-    catch e
-      @model.set error: e
+    // These methods need implementing by sub-classes - standard ABC stuff here.
+    getScales() { throw new Error('Not implemented'); }
 
-  # These methods need implementing by sub-classes - standard ABC stuff here.
-  getScales: -> throw new Error 'Not implemented'
+    selectNodes(chart) { throw new Error('not implemented'); }
 
-  selectNodes: (chart) -> throw new Error 'not implemented'
+    getChartData(scales) { throw new Error('not implemented'); }
 
-  getChartData: (scales) -> throw new Error 'not implemented'
+    exit(selection) { return selection.remove(); }
 
-  exit: (selection) -> selection.remove()
+    enter(selection, scales) { throw new Error('not implemented'); }
 
-  enter: (selection, scales) -> throw new Error 'not implemented'
+    update(selection, scales) { throw new Error('not implemented'); }
 
-  update: (selection, scales) -> throw new Error 'not implemented'
+    // If you want axes, then implement this method.
+    drawAxes(chart, scales) {} // optional.
 
-  # If you want axes, then implement this method.
-  drawAxes: (chart, scales) -> # optional.
+    // Return true to abort drawing the chart.
+    shouldNotDrawChart() { return false; }
 
-  # Return true to abort drawing the chart.
-  shouldNotDrawChart: -> false
+    _drawD3Chart() {
+      if (this.shouldNotDrawChart()) { return; }
+      this.initChart();
+      const scales = this.getScales();
+      const chart = this.getCanvas();
 
-  _drawD3Chart: ->
-    return if @shouldNotDrawChart()
-    @initChart()
-    scales = @getScales()
-    chart = @getCanvas()
+      this.updateChart(chart, scales);
 
-    @updateChart chart, scales
+      return this.drawAxes(chart, scales);
+    }
 
-    @drawAxes chart, scales
+    // Call this method when the data changes to update the visualisation.
+    updateChart(chart, scales) {
+      if (this.shouldNotDrawChart()) { return; }
+      if (chart == null) { chart = this.getCanvas(); } // when updating
+      if (scales == null) { scales = this.getScales(); } // when updating
 
-  # Call this method when the data changes to update the visualisation.
-  updateChart: (chart, scales) ->
-    return if @shouldNotDrawChart()
-    chart ?= @getCanvas() # when updating
-    scales ?= @getScales() # when updating
+      // Bind each data item to a node in the chart.
+      const selection = this.selectNodes(chart).data(this.getChartData(scales));
 
-    # Bind each data item to a node in the chart.
-    selection = @selectNodes(chart).data(@getChartData(scales))
+      // Remove any unneeded nodes
+      this.exit(selection.exit());
 
-    # Remove any unneeded nodes
-    @exit selection.exit()
+      // Initialise any new nodes
+      this.enter(selection.enter(), scales);
 
-    # Initialise any new nodes
-    @enter selection.enter(), scales
+      // Transition the nodes to their new state.
+      return this.update(selection, scales);
+    }
 
-    # Transition the nodes to their new state.
-    @update selection, scales
+    // Set properties that we need access to the DOM to calculate.
+    initChart() {
+      return this.chartWidth = this.$el.closest(':visible').width();
+    }
 
-  # Set properties that we need access to the DOM to calculate.
-  initChart: ->
-    @chartWidth = @$el.closest(':visible').width()
-
-  # Get the canvas if it exists, or create it.
-  getCanvas: ->
-    @paper ?= d3.select(@el)
-                .append('svg')
-                  .attr('class', 'im-summary-chart')
-                  .attr('width', @chartWidth)
-                  .attr('height', @chartHeight)
+    // Get the canvas if it exists, or create it.
+    getCanvas() {
+      return this.paper != null ? this.paper : (this.paper = d3.select(this.el)
+                  .append('svg')
+                    .attr('class', 'im-summary-chart')
+                    .attr('width', this.chartWidth)
+                    .attr('height', this.chartHeight));
+    }
+  };
+  VisualisationBase.initClass();
+  return VisualisationBase;
+})());

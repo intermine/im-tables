@@ -1,57 +1,79 @@
-_ = require 'underscore'
-CoreView = require '../core-view'
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS206: Consider reworking classes to avoid initClass
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+let Dashboard;
+const _ = require('underscore');
+const CoreView = require('../core-view');
 
-History         = require '../models/history'
-TableModel      = require '../models/table'
-SelectedObjects = require '../models/selected-objects'
-{Bus}           = require '../utils/events'
-Children        = require '../utils/children'
-Types           = require '../core/type-assertions'
+const History         = require('../models/history');
+const TableModel      = require('../models/table');
+const SelectedObjects = require('../models/selected-objects');
+const {Bus}           = require('../utils/events');
+const Children        = require('../utils/children');
+const Types           = require('../core/type-assertions');
 
-Table      = require './table'
-QueryTools = require './query-tools'
+const Table      = require('./table');
+const QueryTools = require('./query-tools');
 
-ERR = 'Bad arguments to Dashboard - {query :: imjs.Query} is required'
-CC_NOT_FOUND = 'consumerContainer provided as selector - but no matching element was found'
+const ERR = 'Bad arguments to Dashboard - {query :: imjs.Query} is required';
+const CC_NOT_FOUND = 'consumerContainer provided as selector - but no matching element was found';
 
-module.exports = class Dashboard extends CoreView
+module.exports = (Dashboard = (function() {
+  Dashboard = class Dashboard extends CoreView {
+    static initClass() {
+  
+      this.prototype.tagName = 'div';
+  
+      this.prototype.className = 'imtables-dashboard container-fluid';
+  
+      this.prototype.Model = TableModel;
+  
+      // :: Element or jQuery-ish or String
+      this.prototype.optionalParameters = ['consumerContainer', 'consumerBtnClass'];
+    }
 
-  tagName: 'div'
+    initialize({query}) {
+      if (!Types.Query.test(query)) {
+        if (query == null) { throw new Error(ERR); }
+      }
+      super.initialize(...arguments);
+      this.history = new History;
+      this.bus = new Bus;
+      this.history.setInitialState(query);
+      this.selectedObjects = new SelectedObjects(query.service);
+      // Lift selector to element if provided as such.
+      if ((this.consumerContainer != null) && _.isString(this.consumerContainer)) {
+        this.consumerContainer = document.querySelector(this.consumerContainer);
+        // If not found then log a message, but do not fail.
+        if (!this.consumerContainer) { return console.log(CC_NOT_FOUND); }
+      }
+    }
 
-  className: 'imtables-dashboard container-fluid'
+    renderChildren() {
+      this.renderQueryTools();
+      return this.renderTable();
+    }
 
-  Model: TableModel
+    renderTable() {
+      const table = Children.createChild(this, Table);
+      return this.renderChild('table', table);
+    }
 
-  # :: Element or jQuery-ish or String
-  optionalParameters: ['consumerContainer', 'consumerBtnClass']
+    renderQueryTools() {
+      const tools = Children.createChild(this, QueryTools, {tableState: this.model});
+      return this.renderChild('tools', tools);
+    }
 
-  initialize: ({query}) ->
-    unless Types.Query.test query
-      throw new Error(ERR) unless query?
-    super
-    @history = new History
-    @bus = new Bus
-    @history.setInitialState query
-    @selectedObjects = new SelectedObjects query.service
-    # Lift selector to element if provided as such.
-    if @consumerContainer? and _.isString @consumerContainer
-      @consumerContainer = document.querySelector @consumerContainer
-      # If not found then log a message, but do not fail.
-      console.log CC_NOT_FOUND unless @consumerContainer
-
-  renderChildren: ->
-    @renderQueryTools()
-    @renderTable()
-
-  renderTable: ->
-    table = Children.createChild @, Table
-    @renderChild 'table', table
-
-  renderQueryTools: ->
-    tools = Children.createChild @, QueryTools, tableState: @model
-    @renderChild 'tools', tools
-
-  remove: ->
-    @bus.destroy()
-    @history.close()
-    super
+    remove() {
+      this.bus.destroy();
+      this.history.close();
+      return super.remove(...arguments);
+    }
+  };
+  Dashboard.initClass();
+  return Dashboard;
+})());
