@@ -1,12 +1,3 @@
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
- * DS102: Remove unnecessary code created because of implicit returns
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 const _ = require('underscore');
 
 require('./shim');
@@ -41,7 +32,7 @@ return loadView = function(elem, opts, queryDef) {
 
 // Given a factory function and some arguments, create and render a view.
 // (factry, Elementable, Query, Page) -> Promiser
-var createView = function(create, elem, query, opts) { if (opts == null) { opts = {}; } return function(resolve) {
+var createView = function(create, elem, query, opts) { if (!opts) { opts = {}; } return function(resolve) {
   // Find the element referred to - throw an error otherwise.
   const element = asElement(elem);
   // Pick white-listed properties off the page.
@@ -52,7 +43,7 @@ var createView = function(create, elem, query, opts) { if (opts == null) { opts 
 
   // Set the view up correctly, making sure it has the right CSS classes.
   view.setElement(element);
-  for (let c of Array.from((_.result(view, 'className')).split(' '))) { element.classList.add(c); }
+  for (let c of (_.result(view, 'className')).split(' ')) { element.classList.add(c); }
   element.classList.add(Options.get('StylePrefix'));
   view.render();
 
@@ -61,9 +52,9 @@ var createView = function(create, elem, query, opts) { if (opts == null) { opts 
 
 // Element | String | Indexed<Element> -> Element
 var asElement = function(e) {
-  if (e == null) { throw new Error('No target element provided'); }
+  if (!e) { throw new Error('No target element provided'); }
   const ret = _.isString(e) ? document.querySelector(e) : (e[0] != null ? e[0] : e);
-  if (ret == null) { throw new Error(`Target(${ e }) not found on page`); }
+  if (!ret) { throw new Error(`Target(${ e }) not found on page`); }
   return ret;
 };
 

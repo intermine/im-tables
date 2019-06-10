@@ -1,13 +1,3 @@
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS104: Avoid inline assignments
- * DS205: Consider reworking code to avoid use of IIFEs
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 const _ = require('underscore');
 
 const Model = require('./core-model');
@@ -21,7 +11,7 @@ const registerIconSet = (name, icons) => ICONS[name] = _.extend({}, icons);
 class Icons extends Model {
 
   icon(key, size, props) {
-    if (props == null) { props = {}; }
+    if (!props) { props = {}; }
     const classes = [];
     const ps = ((() => {
       const result = [];
@@ -50,12 +40,12 @@ class Icons extends Model {
     let iconSet;
     if (iconSet = ICONS[this.options.get('icons')]) {
       this.clear({silent: true});
-      if (iconSet != null) { return this.set(iconSet); }
+      if (iconSet) { return this.set(iconSet); }
     }
   }
 
   initialize(options) {
-    if (options == null) { options = Options; }
+    if (!options) { options = Options; }
     this.options = options;
     this._loadIconSet();
     return this.listenTo(this.options, 'change:icons', this._loadIconSet);

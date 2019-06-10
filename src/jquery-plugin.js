@@ -1,13 +1,3 @@
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS103: Rewrite code to no longer use __guard__
- * DS205: Consider reworking code to avoid use of IIFEs
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 (function() {
   const SVG = "http://www.w3.org/TR/SVG11/feature#Shape";
   const supportsSVG = () => (typeof SVGAngle !== 'undefined' && SVGAngle !== null) || (window.SVGAngle != null) || __guardMethod__(document.implementation, 'hasFeature', o => o.hasFeature(SVG, "1.0"));
