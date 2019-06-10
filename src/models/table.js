@@ -14,15 +14,8 @@ const PathSet = require('./path-set');
 module.exports = (TableModel = class TableModel extends CoreModel {
 
   constructor(...args) {
-    {
-      // Hack: trick Babel/TypeScript into allowing this before super.
-      if (false) { super(); }
-      let thisFn = (() => { return this; }).toString();
-      let thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1];
-      eval(`${thisName} = this;`);
-    }
-    this.filled = this.filled.bind(this);
     super(...args);
+    this.filled = this.filled.bind(this);
   }
 
   defaults() {

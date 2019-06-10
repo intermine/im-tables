@@ -53,15 +53,8 @@ const OPTIONS_SEL = '.im-constraint-adder-options';
 module.exports = (ConstraintAdder = (function() {
   ConstraintAdder = class ConstraintAdder extends View {
     constructor(...args) {
-      {
-        // Hack: trick Babel/TypeScript into allowing this before super.
-        if (false) { super(); }
-        let thisFn = (() => { return this; }).toString();
-        let thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1];
-        eval(`${thisName} = this;`);
-      }
-      this.showTree = this.showTree.bind(this);
       super(...args);
+      this.showTree = this.showTree.bind(this);
     }
 
     static initClass() {

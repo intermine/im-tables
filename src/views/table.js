@@ -48,17 +48,10 @@ const UNKNOWN_ERROR = {
 module.exports = (Table = (function() {
   Table = class Table extends CoreView {
     constructor(...args) {
-      {
-        // Hack: trick Babel/TypeScript into allowing this before super.
-        if (false) { super(); }
-        let thisFn = (() => { return this; }).toString();
-        let thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1];
-        eval(`${thisName} = this;`);
-      }
+      super(...args);
       this.setSelecting = this.setSelecting.bind(this);
       this.unsetSelecting = this.unsetSelecting.bind(this);
       this.canUseFormatter = this.canUseFormatter.bind(this);
-      super(...args);
     }
 
     static initClass() {
@@ -80,8 +73,8 @@ module.exports = (Table = (function() {
       ];
   
       this.prototype.parameterTypes = {
-        history: (Types.InstanceOf(History, 'History')),
-        selectedObjects: (Types.InstanceOf(SelectedObjects, 'SelectedObjects'))
+        history: (new Types.InstanceOf(History, 'History')),
+        selectedObjects: (new Types.InstanceOf(SelectedObjects, 'SelectedObjects'))
       };
   
       this.prototype.cellModelFactory = null;

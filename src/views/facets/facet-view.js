@@ -30,15 +30,8 @@ const FacetVisualisation = require('./visualisation');
 module.exports = (FacetView = (function() {
   FacetView = class FacetView extends CoreView {
     constructor(...args) {
-      {
-        // Hack: trick Babel/TypeScript into allowing this before super.
-        if (false) { super(); }
-        let thisFn = (() => { return this; }).toString();
-        let thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1];
-        eval(`${thisName} = this;`);
-      }
-      this.Model = this.Model.bind(this);
       super(...args);
+      this.Model = this.Model.bind(this);
     }
 
     static initClass() {

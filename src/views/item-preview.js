@@ -106,15 +106,8 @@ const ServiceType = new types.Structure('ServiceType', {
 module.exports = (Preview = (function() {
   Preview = class Preview extends CoreView {
     constructor(...args) {
-      {
-        // Hack: trick Babel/TypeScript into allowing this before super.
-        if (false) { super(); }
-        let thisFn = (() => { return this; }).toString();
-        let thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1];
-        eval(`${thisName} = this;`);
-      }
-      this.handleItem = this.handleItem.bind(this);
       super(...args);
+      this.handleItem = this.handleItem.bind(this);
     }
 
     static initClass() {

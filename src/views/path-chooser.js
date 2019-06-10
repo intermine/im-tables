@@ -26,15 +26,8 @@ const appendField = (pth, fld) => pth.append(fld);
 module.exports = (PathChooser = (function() {
   PathChooser = class PathChooser extends CoreView {
     constructor(...args) {
-      {
-        // Hack: trick Babel/TypeScript into allowing this before super.
-        if (false) { super(); }
-        let thisFn = (() => { return this; }).toString();
-        let thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1];
-        eval(`${thisName} = this;`);
-      }
-      this.createSubFinder = this.createSubFinder.bind(this);
       super(...args);
+      this.createSubFinder = this.createSubFinder.bind(this);
     }
 
     static initClass() {

@@ -40,17 +40,10 @@ module.exports = (HeaderModel = class HeaderModel extends PathModel {
 
   // The query is needed to update derived properties.
   constructor(opts, query) {
-    {
-      // Hack: trick Babel/TypeScript into allowing this before super.
-      if (false) { super(); }
-      let thisFn = (() => { return this; }).toString();
-      let thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1];
-      eval(`${thisName} = this;`);
-    }
-    this.query = query;
-    if (!(this.query != null ? this.query.on : undefined)) { throw new Error('no query'); }
     if (opts == null) { throw new Error('no options'); }
     super(opts.path);
+    this.query = query;
+    if (!(this.query != null ? this.query.on : undefined)) { throw new Error('no query'); }
     this.set(_.omit(opts, 'path'));
     // ID depends on query as well as path.
     this.set({id: `${ this.query.toXML() }-${ this.get('path') }`});

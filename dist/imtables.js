@@ -1802,15 +1802,8 @@ const HELPERS = { // All message templates have access to these helpers.
 class Messages extends Backbone.Model {
 
   constructor(...args) {
-    {
-      // Hack: trick Babel/TypeScript into allowing this before super.
-      if (false) { super(); }
-      let thisFn = (() => { return this; }).toString();
-      let thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1];
-      eval(`${thisName} = this;`);
-    }
-    this.getText = this.getText.bind(this);
     super(...args);
+    this.getText = this.getText.bind(this);
   }
 
   initialize() {
@@ -3384,17 +3377,10 @@ module.exports = (HeaderModel = class HeaderModel extends PathModel {
 
   // The query is needed to update derived properties.
   constructor(opts, query) {
-    {
-      // Hack: trick Babel/TypeScript into allowing this before super.
-      if (false) { super(); }
-      let thisFn = (() => { return this; }).toString();
-      let thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1];
-      eval(`${thisName} = this;`);
-    }
-    this.query = query;
-    if (!(this.query != null ? this.query.on : undefined)) { throw new Error('no query'); }
     if (opts == null) { throw new Error('no options'); }
     super(opts.path);
+    this.query = query;
+    if (!(this.query != null ? this.query.on : undefined)) { throw new Error('no query'); }
     this.set(_.omit(opts, 'path'));
     // ID depends on query as well as path.
     this.set({id: `${ this.query.toXML() }-${ this.get('path') }`});
@@ -4457,16 +4443,9 @@ module.exports = (SummaryModel = class SummaryModel extends CoreModel {
   }
 
   constructor({query, view}) {
-    {
-      // Hack: trick Babel/TypeScript into allowing this before super.
-      if (false) { super(); }
-      let thisFn = (() => { return this; }).toString();
-      let thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1];
-      eval(`${thisName} = this;`);
-    }
+    super();
     this.query = query;
     this.view = view;
-    super();
     if (this.query == null) { throw new Error('No query in call to new SummaryModel'); }
     if (this.view == null) { throw new Error('No view in call to new SummaryModel'); }
     this.fetch = _.partial(getColumnSummary, this.query, this.view);
@@ -4692,15 +4671,8 @@ const PathSet = require('./path-set');
 module.exports = (TableModel = class TableModel extends CoreModel {
 
   constructor(...args) {
-    {
-      // Hack: trick Babel/TypeScript into allowing this before super.
-      if (false) { super(); }
-      let thisFn = (() => { return this; }).toString();
-      let thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1];
-      eval(`${thisName} = this;`);
-    }
-    this.filled = this.filled.bind(this);
     super(...args);
+    this.filled = this.filled.bind(this);
   }
 
   defaults() {
@@ -8253,15 +8225,8 @@ class IndexedCollection extends Collection {
   }
 
   constructor() {
-    {
-      // Hack: trick Babel/TypeScript into allowing this before super.
-      if (false) { super(); }
-      let thisFn = (() => { return this; }).toString();
-      let thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1];
-      eval(`${thisName} = this;`);
-    }
-    this.model = this.model.bind(this);
     super(...arguments);
+    this.model = this.model.bind(this);
     this.listenTo(this, 'change:index', function() { return _.defer(() => this.sort()); }); // by default, make a model.
   }
 
@@ -9652,15 +9617,8 @@ const OPTIONS_SEL = '.im-constraint-adder-options';
 module.exports = (ConstraintAdder = (function() {
   ConstraintAdder = class ConstraintAdder extends View {
     constructor(...args) {
-      {
-        // Hack: trick Babel/TypeScript into allowing this before super.
-        if (false) { super(); }
-        let thisFn = (() => { return this; }).toString();
-        let thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1];
-        eval(`${thisName} = this;`);
-      }
-      this.showTree = this.showTree.bind(this);
       super(...args);
+      this.showTree = this.showTree.bind(this);
     }
 
     static initClass() {
@@ -10721,17 +10679,10 @@ const isa = target => path => path.isa(target);
 module.exports = (ExportDialogue = (function() {
   ExportDialogue = class ExportDialogue extends Modal {
     constructor(...args) {
-      {
-        // Hack: trick Babel/TypeScript into allowing this before super.
-        if (false) { super(); }
-        let thisFn = (() => { return this; }).toString();
-        let thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1];
-        eval(`${thisName} = this;`);
-      }
+      super(...args);
       this.onUploadComplete = this.onUploadComplete.bind(this);
       this.onUploadProgress = this.onUploadProgress.bind(this);
       this.onUploadError = this.onUploadError.bind(this);
-      super(...args);
     }
 
     static initClass() {
@@ -11981,15 +11932,8 @@ const FacetVisualisation = require('./visualisation');
 module.exports = (FacetView = (function() {
   FacetView = class FacetView extends CoreView {
     constructor(...args) {
-      {
-        // Hack: trick Babel/TypeScript into allowing this before super.
-        if (false) { super(); }
-        let thisFn = (() => { return this; }).toString();
-        let thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1];
-        eval(`${thisName} = this;`);
-      }
-      this.Model = this.Model.bind(this);
       super(...args);
+      this.Model = this.Model.bind(this);
     }
 
     static initClass() {
@@ -13488,15 +13432,8 @@ const rowId = model => `row_${ model.get('id') }`;
 module.exports = (SummaryItems = (function() {
   SummaryItems = class SummaryItems extends CoreView {
     constructor(...args) {
-      {
-        // Hack: trick Babel/TypeScript into allowing this before super.
-        if (false) { super(); }
-        let thisFn = (() => { return this; }).toString();
-        let thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1];
-        eval(`${thisName} = this;`);
-      }
-      this.filterItems = this.filterItems.bind(this);
       super(...args);
+      this.filterItems = this.filterItems.bind(this);
     }
 
     static initClass() {
@@ -14489,15 +14426,8 @@ const ServiceType = new types.Structure('ServiceType', {
 module.exports = (Preview = (function() {
   Preview = class Preview extends CoreView {
     constructor(...args) {
-      {
-        // Hack: trick Babel/TypeScript into allowing this before super.
-        if (false) { super(); }
-        let thisFn = (() => { return this; }).toString();
-        let thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1];
-        eval(`${thisName} = this;`);
-      }
-      this.handleItem = this.handleItem.bind(this);
       super(...args);
+      this.handleItem = this.handleItem.bind(this);
     }
 
     static initClass() {
@@ -15310,8 +15240,10 @@ class PossibleLists extends CoreCollection {
     this.prototype.model = PossibleList;
   }
 
-  constructor({service}) { {     // Hack: trick Babel/TypeScript into allowing this before super.
-    if (false) { super(); }     let thisFn = (() => { return this; }).toString();     let thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1];     eval(`${thisName} = this;`);   }   this.service = service; super(); }
+  constructor({service}) {    
+    super(); 
+    this.service = service; 
+  }
 }
 PossibleLists.initClass();
 
@@ -16014,7 +15946,7 @@ module.exports = function(Base) {
     parameters: ['service', 'collection'], // collection must be SelectedObjects
 
     parameterTypes: {
-      collection: (TypeAssertions.InstanceOf(SelectedObjects, 'SelectedObjects'))
+      collection: (new TypeAssertions.InstanceOf(SelectedObjects, 'SelectedObjects'))
     },
 
     className() { return Base.prototype.className.call(this) + ' im-list-picker'; },
@@ -17084,15 +17016,8 @@ const appendField = (pth, fld) => pth.append(fld);
 module.exports = (PathChooser = (function() {
   PathChooser = class PathChooser extends CoreView {
     constructor(...args) {
-      {
-        // Hack: trick Babel/TypeScript into allowing this before super.
-        if (false) { super(); }
-        let thisFn = (() => { return this; }).toString();
-        let thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1];
-        eval(`${thisName} = this;`);
-      }
-      this.createSubFinder = this.createSubFinder.bind(this);
       super(...args);
+      this.createSubFinder = this.createSubFinder.bind(this);
     }
 
     static initClass() {
@@ -17852,17 +17777,10 @@ const UNKNOWN_ERROR = {
 module.exports = (Table = (function() {
   Table = class Table extends CoreView {
     constructor(...args) {
-      {
-        // Hack: trick Babel/TypeScript into allowing this before super.
-        if (false) { super(); }
-        let thisFn = (() => { return this; }).toString();
-        let thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1];
-        eval(`${thisName} = this;`);
-      }
+      super(...args);
       this.setSelecting = this.setSelecting.bind(this);
       this.unsetSelecting = this.unsetSelecting.bind(this);
       this.canUseFormatter = this.canUseFormatter.bind(this);
-      super(...args);
     }
 
     static initClass() {
@@ -17884,8 +17802,8 @@ module.exports = (Table = (function() {
       ];
   
       this.prototype.parameterTypes = {
-        history: (Types.InstanceOf(History, 'History')),
-        selectedObjects: (Types.InstanceOf(SelectedObjects, 'SelectedObjects'))
+        history: (new Types.InstanceOf(History, 'History')),
+        selectedObjects: (new Types.InstanceOf(SelectedObjects, 'SelectedObjects'))
       };
   
       this.prototype.cellModelFactory = null;
@@ -18468,8 +18386,8 @@ module.exports = (Cell = (function() {
       this.prototype.optionalParameters = ['formatter'];
   
       this.prototype.parameterTypes = {
-        model: (types.InstanceOf(CellModel, 'models/cell')),
-        selectedObjects: (types.InstanceOf(SelectedObjects, 'SelectedObjects')),
+        model: (new types.InstanceOf(CellModel, 'models/cell')),
+        selectedObjects: (new types.InstanceOf(SelectedObjects, 'SelectedObjects')),
         formatter: types.Callable,
         tableState: types.Model,
         service: types.Service,
@@ -19192,18 +19110,11 @@ const getViewPortWidth = () => Math.max(document.documentElement.clientWidth, wi
 module.exports = (ColumnHeader = (function() {
   ColumnHeader = class ColumnHeader extends CoreView {
     constructor(...args) {
-      {
-        // Hack: trick Babel/TypeScript into allowing this before super.
-        if (false) { super(); }
-        let thisFn = (() => { return this; }).toString();
-        let thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1];
-        eval(`${thisName} = this;`);
-      }
+      super(...args);
       this.showSummary = this.showSummary.bind(this);
       this.showColumnSummary = this.showColumnSummary.bind(this);
       this.showFilterSummary = this.showFilterSummary.bind(this);
       this.toggleColumnVisibility = this.toggleColumnVisibility.bind(this);
-      super(...args);
     }
 
     static initClass() {
@@ -19520,15 +19431,8 @@ const flip = f => (x, y) => f(y, x);
 module.exports = (ResultsTable = (function() {
   ResultsTable = class ResultsTable extends CoreView {
     constructor(...args) {
-      {
-        // Hack: trick Babel/TypeScript into allowing this before super.
-        if (false) { super(); }
-        let thisFn = (() => { return this; }).toString();
-        let thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1];
-        eval(`${thisName} = this;`);
-      }
-      this.canUseFormatter = this.canUseFormatter.bind(this);
       super(...args);
+      this.canUseFormatter = this.canUseFormatter.bind(this);
     }
 
     static initClass() {
@@ -19549,12 +19453,12 @@ module.exports = (ResultsTable = (function() {
       ];
   
       this.prototype.parameterTypes = {
-        history: (Types.InstanceOf(History, 'History')),
+        history: (new Types.InstanceOf(History, 'History')),
         blacklistedFormatters: Types.Collection,
         rows: Types.Collection,
-        tableState: (Types.InstanceOf(TableModel, 'TableModel')),
-        columnHeaders: (Types.InstanceOf(ColumnHeaders, 'ColumnHeaders')),
-        selectedObjects: (Types.InstanceOf(SelectedObjects, 'SelectedObjects'))
+        tableState: (new Types.InstanceOf(TableModel, 'TableModel')),
+        columnHeaders: (new Types.InstanceOf(ColumnHeaders, 'ColumnHeaders')),
+        selectedObjects: (new Types.InstanceOf(SelectedObjects, 'SelectedObjects'))
       };
   
       // Retrieve a formatter for a given leaf cell. Used by the cell factory.

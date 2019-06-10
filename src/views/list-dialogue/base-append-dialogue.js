@@ -91,8 +91,10 @@ class PossibleLists extends CoreCollection {
     this.prototype.model = PossibleList;
   }
 
-  constructor({service}) { {     // Hack: trick Babel/TypeScript into allowing this before super.
-    if (false) { super(); }     let thisFn = (() => { return this; }).toString();     let thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1];     eval(`${thisName} = this;`);   }   this.service = service; super(); }
+  constructor({service}) {    
+    super(); 
+    this.service = service; 
+  }
 }
 PossibleLists.initClass();
 

@@ -95,8 +95,8 @@ module.exports = (Cell = (function() {
       this.prototype.optionalParameters = ['formatter'];
   
       this.prototype.parameterTypes = {
-        model: (types.InstanceOf(CellModel, 'models/cell')),
-        selectedObjects: (types.InstanceOf(SelectedObjects, 'SelectedObjects')),
+        model: (new types.InstanceOf(CellModel, 'models/cell')),
+        selectedObjects: (new types.InstanceOf(SelectedObjects, 'SelectedObjects')),
         formatter: types.Callable,
         tableState: types.Model,
         service: types.Service,

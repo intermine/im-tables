@@ -40,15 +40,8 @@ class IndexedCollection extends Collection {
   }
 
   constructor() {
-    {
-      // Hack: trick Babel/TypeScript into allowing this before super.
-      if (false) { super(); }
-      let thisFn = (() => { return this; }).toString();
-      let thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1];
-      eval(`${thisName} = this;`);
-    }
-    this.model = this.model.bind(this);
     super(...arguments);
+    this.model = this.model.bind(this);
     this.listenTo(this, 'change:index', function() { return _.defer(() => this.sort()); }); // by default, make a model.
   }
 

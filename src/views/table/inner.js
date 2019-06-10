@@ -36,15 +36,8 @@ const flip = f => (x, y) => f(y, x);
 module.exports = (ResultsTable = (function() {
   ResultsTable = class ResultsTable extends CoreView {
     constructor(...args) {
-      {
-        // Hack: trick Babel/TypeScript into allowing this before super.
-        if (false) { super(); }
-        let thisFn = (() => { return this; }).toString();
-        let thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1];
-        eval(`${thisName} = this;`);
-      }
-      this.canUseFormatter = this.canUseFormatter.bind(this);
       super(...args);
+      this.canUseFormatter = this.canUseFormatter.bind(this);
     }
 
     static initClass() {
@@ -65,12 +58,12 @@ module.exports = (ResultsTable = (function() {
       ];
   
       this.prototype.parameterTypes = {
-        history: (Types.InstanceOf(History, 'History')),
+        history: (new Types.InstanceOf(History, 'History')),
         blacklistedFormatters: Types.Collection,
         rows: Types.Collection,
-        tableState: (Types.InstanceOf(TableModel, 'TableModel')),
-        columnHeaders: (Types.InstanceOf(ColumnHeaders, 'ColumnHeaders')),
-        selectedObjects: (Types.InstanceOf(SelectedObjects, 'SelectedObjects'))
+        tableState: (new Types.InstanceOf(TableModel, 'TableModel')),
+        columnHeaders: (new Types.InstanceOf(ColumnHeaders, 'ColumnHeaders')),
+        selectedObjects: (new Types.InstanceOf(SelectedObjects, 'SelectedObjects'))
       };
   
       // Retrieve a formatter for a given leaf cell. Used by the cell factory.

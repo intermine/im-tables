@@ -27,7 +27,7 @@ module.exports = function(Base) {
     parameters: ['service', 'collection'], // collection must be SelectedObjects
 
     parameterTypes: {
-      collection: (TypeAssertions.InstanceOf(SelectedObjects, 'SelectedObjects'))
+      collection: (new TypeAssertions.InstanceOf(SelectedObjects, 'SelectedObjects'))
     },
 
     className() { return Base.prototype.className.call(this) + ' im-list-picker'; },

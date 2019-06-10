@@ -29,15 +29,8 @@ const HELPERS = { // All message templates have access to these helpers.
 class Messages extends Backbone.Model {
 
   constructor(...args) {
-    {
-      // Hack: trick Babel/TypeScript into allowing this before super.
-      if (false) { super(); }
-      let thisFn = (() => { return this; }).toString();
-      let thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1];
-      eval(`${thisName} = this;`);
-    }
-    this.getText = this.getText.bind(this);
     super(...args);
+    this.getText = this.getText.bind(this);
   }
 
   initialize() {

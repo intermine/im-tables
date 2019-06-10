@@ -93,17 +93,10 @@ const isa = target => path => path.isa(target);
 module.exports = (ExportDialogue = (function() {
   ExportDialogue = class ExportDialogue extends Modal {
     constructor(...args) {
-      {
-        // Hack: trick Babel/TypeScript into allowing this before super.
-        if (false) { super(); }
-        let thisFn = (() => { return this; }).toString();
-        let thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1];
-        eval(`${thisName} = this;`);
-      }
+      super(...args);
       this.onUploadComplete = this.onUploadComplete.bind(this);
       this.onUploadProgress = this.onUploadProgress.bind(this);
       this.onUploadError = this.onUploadError.bind(this);
-      super(...args);
     }
 
     static initClass() {

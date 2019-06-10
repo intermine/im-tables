@@ -45,18 +45,11 @@ const getViewPortWidth = () => Math.max(document.documentElement.clientWidth, wi
 module.exports = (ColumnHeader = (function() {
   ColumnHeader = class ColumnHeader extends CoreView {
     constructor(...args) {
-      {
-        // Hack: trick Babel/TypeScript into allowing this before super.
-        if (false) { super(); }
-        let thisFn = (() => { return this; }).toString();
-        let thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1];
-        eval(`${thisName} = this;`);
-      }
+      super(...args);
       this.showSummary = this.showSummary.bind(this);
       this.showColumnSummary = this.showColumnSummary.bind(this);
       this.showFilterSummary = this.showFilterSummary.bind(this);
       this.toggleColumnVisibility = this.toggleColumnVisibility.bind(this);
-      super(...args);
     }
 
     static initClass() {

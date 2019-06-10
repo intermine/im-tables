@@ -33,15 +33,8 @@ const rowId = model => `row_${ model.get('id') }`;
 module.exports = (SummaryItems = (function() {
   SummaryItems = class SummaryItems extends CoreView {
     constructor(...args) {
-      {
-        // Hack: trick Babel/TypeScript into allowing this before super.
-        if (false) { super(); }
-        let thisFn = (() => { return this; }).toString();
-        let thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1];
-        eval(`${thisName} = this;`);
-      }
-      this.filterItems = this.filterItems.bind(this);
       super(...args);
+      this.filterItems = this.filterItems.bind(this);
     }
 
     static initClass() {

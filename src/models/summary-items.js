@@ -53,16 +53,9 @@ module.exports = (SummaryModel = class SummaryModel extends CoreModel {
   }
 
   constructor({query, view}) {
-    {
-      // Hack: trick Babel/TypeScript into allowing this before super.
-      if (false) { super(); }
-      let thisFn = (() => { return this; }).toString();
-      let thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1];
-      eval(`${thisName} = this;`);
-    }
+    super();
     this.query = query;
     this.view = view;
-    super();
     if (this.query == null) { throw new Error('No query in call to new SummaryModel'); }
     if (this.view == null) { throw new Error('No view in call to new SummaryModel'); }
     this.fetch = _.partial(getColumnSummary, this.query, this.view);
