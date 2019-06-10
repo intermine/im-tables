@@ -1,14 +1,3 @@
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
- * DS102: Remove unnecessary code created because of implicit returns
- * DS104: Avoid inline assignments
- * DS205: Consider reworking code to avoid use of IIFEs
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 let enableFormatter, getFormatter;
 const _ = require('underscore');
 const Templates = require('./templates');
@@ -53,14 +42,14 @@ const formatters = new NestedModel;
 // :: PathInfo -> Function | null | false
 exports.getFormatter = (getFormatter = function(path) {
   let left;
-  if (((path == null)) || path.isRoot()) { throw new Error('No path or path is root'); }
+  if (((!path)) || path.isRoot()) { throw new Error('No path or path is root'); }
 
   const { model }         = path; // we need to query the path's model.
   const formattersFor = ((left = formatters.get([model.name]))) != null ? left : {};
   const ancestors     = getAncestors(path);
   const fieldName     = path.end.name; // eg. 'name', 'employees'
 
-  for (let a of Array.from(ancestors)) {
+  for (let a of ancstors) {
     // find formatters registered against specific fields or whole classes.
     // formatters must be registed in this way to apply to one or more paths.
     // Note that we prefer the specifically registered formatter to the general one.
@@ -70,7 +59,7 @@ exports.getFormatter = (getFormatter = function(path) {
       // against the class name itself.
       formatter = formattersFor[a];
     }
-    if (formatter != null) { return formatter; }
+    if (formatter) { return formatter; }
   } // if set to `false` then we short-cut nicely.
   return null;
 });
@@ -80,7 +69,7 @@ exports.getFormatter = (getFormatter = function(path) {
 // an attribute check.
 // :: (PathInfo) -> bool
 exports.shouldFormat = function(path) {
-  if (path == null) { throw new Error('no path'); }
+  if (!path) { throw new Error('no path'); }
   if (!path.isAttribute()) { return false; } // we should only format attributes.
   // We should format if there is a formatter available to use (and it isn't disabled).
   return bool(getFormatter(path));
@@ -98,7 +87,7 @@ exports.shouldFormat = function(path) {
 // all we check for, making it possible to register an instance of a class if you want
 // as long as it has a `call` method with the same signature as Function::call.
 exports.registerFormatter = function(formatter, model, type, paths) {
-  if (paths == null) { paths = ['*']; }
+  if (!paths) { paths = ['*']; }
   if ((formatter != null ? formatter.call : undefined) == null) { throw new Error('formatter is not a function'); }
   if ((paths.length === 1) && (paths[0] !== '*')) {
     return formatters.set([model, `${ type }.${ paths[0] }`], formatter);
@@ -110,8 +99,8 @@ exports.registerFormatter = function(formatter, model, type, paths) {
 
 // Disable a formatter.
 exports.disableFormatter = function(model, type, paths) {
-  if (paths == null) { paths = ['*']; }
-  return Array.from(paths).map((p) =>
+  if (!paths) { paths = ['*']; }
+  return paths.map((p) =>
     formatters.set([model, `${ type }.${ p }`], false));
 };
 
@@ -132,13 +121,13 @@ exports.list = model =>
 
 // Enable a formatter.
 exports.enableFormatter = (enableFormatter = function(model, type, paths) {
-  if (paths == null) { paths = ['*']; }
-  return Array.from(paths).map((p) =>
+  if (!paths) { paths = ['*']; }
+  return paths.map((p) =>
     formatters.set([model, `${ type }.${ p }`], true));
 });
 
 exports.defaultFormatter = function(imobject, service, value) {
-  if (value != null) { return (_.escape(value)); } else { return Templates.null_value; }
+  if (value) { return (_.escape(value)); } else { return Templates.null_value; }
 };
 
 // Clear the formatters collection.

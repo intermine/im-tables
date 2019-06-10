@@ -1,15 +1,3 @@
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
- * DS102: Remove unnecessary code created because of implicit returns
- * DS104: Avoid inline assignments
- * DS205: Consider reworking code to avoid use of IIFEs
- * DS206: Consider reworking classes to avoid initClass
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 let CoreView;
 require('./shim'); // This loads jquery plugins and sets up Backbone
 const Backbone = require('backbone');
@@ -124,9 +112,9 @@ module.exports = (CoreView = (function() {
       const params = ((left = _.result(this, 'parameters'))) != null ? left : [];
       const optParams = ((left1 = _.result(this, 'optionalParameters'))) != null ? left1 : [];
       // Set all required parameters.
-      _.extend(this, _.pick(opts, ...Array.from(params)));
+      _.extend(this, _.pick(opts, params));
       // Set optional parameters if provided.
-      for (let p of Array.from(optParams)) { // Ignore if null.
+      for (let p of params) { // Ignore if null.
         if (opts[p] != null) {
           this[p] = opts[p];
         }
