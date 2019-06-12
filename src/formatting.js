@@ -49,7 +49,7 @@ exports.getFormatter = (getFormatter = function(path) {
   const ancestors     = getAncestors(path);
   const fieldName     = path.end.name; // eg. 'name', 'employees'
 
-  for (let a of ancstors) {
+  for (let a of ancestors) {
     // find formatters registered against specific fields or whole classes.
     // formatters must be registed in this way to apply to one or more paths.
     // Note that we prefer the specifically registered formatter to the general one.

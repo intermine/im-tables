@@ -1,13 +1,4 @@
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.imtables = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
- * DS102: Remove unnecessary code created because of implicit returns
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 const {Promise} = require('es6-promise');
 const _ = require('underscore');
 const $ = require('jquery');
@@ -76,15 +67,6 @@ exports.load = function(ident) {
 
 
 },{"./options":63,"es6-promise":238,"jquery":256,"underscore":262}],2:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
- * DS102: Remove unnecessary code created because of implicit returns
- * DS206: Consider reworking classes to avoid initClass
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 let CoreModel;
 const Backbone = require('backbone');
 
@@ -150,18 +132,6 @@ module.exports = (CoreModel = (function() {
 
 
 },{"backbone":235}],3:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
- * DS102: Remove unnecessary code created because of implicit returns
- * DS104: Avoid inline assignments
- * DS205: Consider reworking code to avoid use of IIFEs
- * DS206: Consider reworking classes to avoid initClass
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 let CoreView;
 require('./shim'); // This loads jquery plugins and sets up Backbone
 const Backbone = require('backbone');
@@ -276,9 +246,9 @@ module.exports = (CoreView = (function() {
       const params = ((left = _.result(this, 'parameters'))) != null ? left : [];
       const optParams = ((left1 = _.result(this, 'optionalParameters'))) != null ? left1 : [];
       // Set all required parameters.
-      _.extend(this, _.pick(opts, ...Array.from(params)));
+      _.extend(this, _.pick(opts, params));
       // Set optional parameters if provided.
-      for (let p of Array.from(optParams)) { // Ignore if null.
+      for (let p of params) { // Ignore if null.
         if (opts[p] != null) {
           this[p] = opts[p];
         }
@@ -1248,9 +1218,6 @@ exports.Query = new StructuralTypeAssertion('Query', {
 
 
 },{"../core-model":2,"./collection":5,"backbone":235,"underscore":262}],11:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-// Simple event that can be passed to handlers for cancellable events.
 let Event;
 module.exports = (Event = class Event {
 
@@ -1267,29 +1234,11 @@ module.exports = (Event = class Event {
 });
 
 },{}],12:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
-exports.suppress = function(e) { if (e != null) {
+exports.suppress = function(e) { if (e) {
   e.preventDefault();
 } return (e != null ? e.stopPropagation() : undefined); };
 
 },{}],13:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
- * DS102: Remove unnecessary code created because of implicit returns
- * DS104: Avoid inline assignments
- * DS205: Consider reworking code to avoid use of IIFEs
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 let enableFormatter, getFormatter;
 const _ = require('underscore');
 const Templates = require('./templates');
@@ -1334,14 +1283,14 @@ const formatters = new NestedModel;
 // :: PathInfo -> Function | null | false
 exports.getFormatter = (getFormatter = function(path) {
   let left;
-  if (((path == null)) || path.isRoot()) { throw new Error('No path or path is root'); }
+  if (((!path)) || path.isRoot()) { throw new Error('No path or path is root'); }
 
   const { model }         = path; // we need to query the path's model.
   const formattersFor = ((left = formatters.get([model.name]))) != null ? left : {};
   const ancestors     = getAncestors(path);
   const fieldName     = path.end.name; // eg. 'name', 'employees'
 
-  for (let a of Array.from(ancestors)) {
+  for (let a of ancestors) {
     // find formatters registered against specific fields or whole classes.
     // formatters must be registed in this way to apply to one or more paths.
     // Note that we prefer the specifically registered formatter to the general one.
@@ -1351,7 +1300,7 @@ exports.getFormatter = (getFormatter = function(path) {
       // against the class name itself.
       formatter = formattersFor[a];
     }
-    if (formatter != null) { return formatter; }
+    if (formatter) { return formatter; }
   } // if set to `false` then we short-cut nicely.
   return null;
 });
@@ -1361,7 +1310,7 @@ exports.getFormatter = (getFormatter = function(path) {
 // an attribute check.
 // :: (PathInfo) -> bool
 exports.shouldFormat = function(path) {
-  if (path == null) { throw new Error('no path'); }
+  if (!path) { throw new Error('no path'); }
   if (!path.isAttribute()) { return false; } // we should only format attributes.
   // We should format if there is a formatter available to use (and it isn't disabled).
   return bool(getFormatter(path));
@@ -1379,7 +1328,7 @@ exports.shouldFormat = function(path) {
 // all we check for, making it possible to register an instance of a class if you want
 // as long as it has a `call` method with the same signature as Function::call.
 exports.registerFormatter = function(formatter, model, type, paths) {
-  if (paths == null) { paths = ['*']; }
+  if (!paths) { paths = ['*']; }
   if ((formatter != null ? formatter.call : undefined) == null) { throw new Error('formatter is not a function'); }
   if ((paths.length === 1) && (paths[0] !== '*')) {
     return formatters.set([model, `${ type }.${ paths[0] }`], formatter);
@@ -1391,8 +1340,8 @@ exports.registerFormatter = function(formatter, model, type, paths) {
 
 // Disable a formatter.
 exports.disableFormatter = function(model, type, paths) {
-  if (paths == null) { paths = ['*']; }
-  return Array.from(paths).map((p) =>
+  if (!paths) { paths = ['*']; }
+  return paths.map((p) =>
     formatters.set([model, `${ type }.${ p }`], false));
 };
 
@@ -1413,13 +1362,13 @@ exports.list = model =>
 
 // Enable a formatter.
 exports.enableFormatter = (enableFormatter = function(model, type, paths) {
-  if (paths == null) { paths = ['*']; }
-  return Array.from(paths).map((p) =>
+  if (!paths) { paths = ['*']; }
+  return paths.map((p) =>
     formatters.set([model, `${ type }.${ p }`], true));
 });
 
 exports.defaultFormatter = function(imobject, service, value) {
-  if (value != null) { return (_.escape(value)); } else { return Templates.null_value; }
+  if (value) { return (_.escape(value)); } else { return Templates.null_value; }
 };
 
 // Clear the formatters collection.
@@ -1431,16 +1380,6 @@ exports.reset = function() {
 
 
 },{"./core/nested-model":8,"./templates":67,"underscore":262}],14:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS104: Avoid inline assignments
- * DS205: Consider reworking code to avoid use of IIFEs
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 const _ = require('underscore');
 
 const Model = require('./core-model');
@@ -1454,7 +1393,7 @@ const registerIconSet = (name, icons) => ICONS[name] = _.extend({}, icons);
 class Icons extends Model {
 
   icon(key, size, props) {
-    if (props == null) { props = {}; }
+    if (!props) { props = {}; }
     const classes = [];
     const ps = ((() => {
       const result = [];
@@ -1483,12 +1422,12 @@ class Icons extends Model {
     let iconSet;
     if (iconSet = ICONS[this.options.get('icons')]) {
       this.clear({silent: true});
-      if (iconSet != null) { return this.set(iconSet); }
+      if (iconSet) { return this.set(iconSet); }
     }
   }
 
   initialize(options) {
-    if (options == null) { options = Options; }
+    if (!options) { options = Options; }
     this.options = options;
     this._loadIconSet();
     return this.listenTo(this.options, 'change:icons', this._loadIconSet);
@@ -1674,15 +1613,6 @@ module.exports.names = function() {
 };
 
 },{"./core-model":2,"./options":63,"underscore":262}],15:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
- * DS102: Remove unnecessary code created because of implicit returns
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 const _ = require('underscore');
 
 require('./shim');
@@ -1717,7 +1647,7 @@ return loadView = function(elem, opts, queryDef) {
 
 // Given a factory function and some arguments, create and render a view.
 // (factry, Elementable, Query, Page) -> Promiser
-var createView = function(create, elem, query, opts) { if (opts == null) { opts = {}; } return function(resolve) {
+var createView = function(create, elem, query, opts) { if (!opts) { opts = {}; } return function(resolve) {
   // Find the element referred to - throw an error otherwise.
   const element = asElement(elem);
   // Pick white-listed properties off the page.
@@ -1728,7 +1658,7 @@ var createView = function(create, elem, query, opts) { if (opts == null) { opts 
 
   // Set the view up correctly, making sure it has the right CSS classes.
   view.setElement(element);
-  for (let c of Array.from((_.result(view, 'className')).split(' '))) { element.classList.add(c); }
+  for (let c of (_.result(view, 'className')).split(' ')) { element.classList.add(c); }
   element.classList.add(Options.get('StylePrefix'));
   view.render();
 
@@ -1737,9 +1667,9 @@ var createView = function(create, elem, query, opts) { if (opts == null) { opts 
 
 // Element | String | Indexed<Element> -> Element
 var asElement = function(e) {
-  if (e == null) { throw new Error('No target element provided'); }
+  if (!e) { throw new Error('No target element provided'); }
   const ret = _.isString(e) ? document.querySelector(e) : (e[0] != null ? e[0] : e);
-  if (ret == null) { throw new Error(`Target(${ e }) not found on page`); }
+  if (!ret) { throw new Error(`Target(${ e }) not found on page`); }
   return ret;
 };
 
@@ -15007,13 +14937,6 @@ module.exports = (JoinManagerButton = (function() {
 })());
 
 },{"../../messages/joins":23,"../join-manager":176,"../query-dialogue-button":206}],179:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS206: Consider reworking classes to avoid initClass
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 let LabelView;
 const View = require('../core-view');
 
@@ -15917,14 +15840,6 @@ module.exports = function(Base) {
 
 
 },{"es6-promise":238}],190:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 const SelectedObjects = require('../../models/selected-objects');
 const TypeAssertions = require('../../core/type-assertions');
 
@@ -16090,17 +16005,6 @@ module.exports = (TagsApology = (function() {
 
 
 },{"../../core-view":3,"../../messages/lists":24,"../../templates":67,"underscore":262}],193:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
- * DS102: Remove unnecessary code created because of implicit returns
- * DS205: Consider reworking code to avoid use of IIFEs
- * DS206: Consider reworking classes to avoid initClass
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 let ListValueControls;
 const _ = require('underscore');
 
@@ -16196,7 +16100,7 @@ module.exports = (ListValueControls = (function() {
       return this.__suitable_lists != null ? this.__suitable_lists : (this.__suitable_lists = this.query.service.fetchLists().then(lists => {
         const selectables = ((() => {
           const result = [];
-          for (let l of Array.from(lists)) {             if (l.size && this.path.isa(l.type)) {
+          for (let l of lists) {             if (l.size && this.path.isa(l.type)) {
               result.push(l);
             }
           }
