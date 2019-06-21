@@ -12,10 +12,7 @@ global.jQuery = $ # Yes, bootstrap *requires* jQuery to be global
 require 'bootstrap' # Extend our jQuery with bootstrappy-goodness.
 require 'typeahead.js' # Load the typeahead library.
 # Load jquery-ui components.
-require 'jquery-ui/slider'
-require 'jquery-ui/draggable'
-require 'jquery-ui/droppable'
-require 'jquery-ui/sortable'
+require 'jquery-ui-bundle'
 # Restore previous state.
 if oldjq?
   global.jQuery = oldjq

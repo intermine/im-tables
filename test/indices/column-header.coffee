@@ -24,7 +24,7 @@ class BasicTable extends CoreView
   className: 'table table-striped'
 
   initialize: ({@query}) ->
-    super
+    super()
     @headers = new Headers
     @setHeaders()
     @listenTo @query, 'change:views', @setHeaders

@@ -12,7 +12,7 @@ module.exports = class Counter extends View
   Model: CountModel
 
   initialize: (opts) ->
-    super
+    super()
     @setQuery opts.query
 
   modelEvents: ->
