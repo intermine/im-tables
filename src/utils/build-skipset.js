@@ -1,11 +1,3 @@
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 // Construct the index of which paths should be skipped when rendering a row of cells.
 // If the headers are supplied they will be adjusted (assuming they are a PathCollection)
 // by removing headers for the skipped paths and lifting the headers for the skipper
