@@ -497,15 +497,6 @@ module.exports = (CoreView = (function() {
 })());
 
 },{"./core-model":2,"./event":11,"./icons":14,"./messages":16,"./shim":66,"./templates":67,"./templates/helpers":68,"./utils/on-change":93,"backbone":235,"jquery":256,"underscore":262}],4:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS206: Consider reworking classes to avoid initClass
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 let Checkbox;
 const CoreView = require('../core-view');
 const Templates = require('../templates');
@@ -562,14 +553,6 @@ module.exports = (Checkbox = (function() {
 
 
 },{"../core-view":3,"../messages":16,"../templates":67}],5:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS206: Consider reworking classes to avoid initClass
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 let CoreCollection;
 const Backbone = require('backbone');
 const CoreModel = require('../core-model');
@@ -601,15 +584,6 @@ module.exports = (CoreCollection = (function() {
 })());
 
 },{"../core-model":2,"backbone":235}],6:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS206: Consider reworking classes to avoid initClass
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 let InputWithButton;
 const _ = require('underscore');
 const CoreView = require('../core-view');
@@ -684,15 +658,6 @@ module.exports = (InputWithButton = (function() {
 
 
 },{"../core-view":3,"../templates":67,"underscore":262}],7:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS206: Consider reworking classes to avoid initClass
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 let InputWithLabel;
 const _ = require('underscore');
 const CoreView = require('../core-view');
@@ -799,17 +764,6 @@ module.exports = (InputWithLabel = (function() {
 
 
 },{"../core-view":3,"../templates":67,"underscore":262}],8:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
- * DS102: Remove unnecessary code created because of implicit returns
- * DS201: Simplify complex destructure assignments
- * DS205: Consider reworking code to avoid use of IIFEs
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 let NestedModel;
 const _ = require('underscore');
 
@@ -952,14 +906,6 @@ module.exports = (NestedModel = class NestedModel extends Model {
 
 
 },{"../core-model":2,"underscore":262}],9:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS206: Consider reworking classes to avoid initClass
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 let SelectWithLabel;
 const _ = require('underscore');
 const Templates = require('../templates');
@@ -1013,14 +959,6 @@ module.exports = (SelectWithLabel = (function() {
 
 
 },{"../templates":67,"./input-with-label":7,"underscore":262}],10:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 let ArrayOf, Callable, DataModel, InterMineService, IsArray, StringType;
 const _ = require('underscore');
 const Backbone = require('backbone');
