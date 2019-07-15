@@ -1727,8 +1727,6 @@ module.exports.Messages = Messages;
   
 
 },{"./messages/actions":17,"./messages/common":20,"./templates/helpers":68,"backbone":235,"underscore":262}],17:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
 module.exports = {
   'export.Export': 'Export',
   'export.ExportQuery': 'Export',
@@ -1995,13 +1993,6 @@ in the page. We suggest the following alternatives:\
 
 
 },{}],18:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 const Messages = require('../messages');
 
 Messages.setWithPrefix('codegen', {
@@ -2036,8 +2027,6 @@ ${ lang !== 'xml' ? 'code' : '' }\
 
 
 },{"../messages":16}],19:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
 const Messages = require('../messages');
 
 Messages.setWithPrefix('columns', {
@@ -2100,13 +2089,6 @@ order.\
 
 
 },{"../messages":16}],20:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 module.exports = {
   All: 'All',
   Reset: 'Reset',
@@ -2138,8 +2120,6 @@ module.exports = {
 };
 
 },{}],21:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
 const Messages = require('../messages');
 
 Messages.setWithPrefix('constraints', {
@@ -2165,8 +2145,6 @@ Add filter to
 );
 
 },{"../messages":16}],22:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
 const Messages = require('../messages');
 
 Messages.setWithPrefix('error', {
@@ -2206,8 +2184,6 @@ filters or joins; use the tools above to do so.\
 );
 
 },{"../messages":16}],23:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
 const Messages = require('../messages');
 
 Messages.setWithPrefix('joins', {
@@ -2232,8 +2208,6 @@ returned as nested sub-tables within the main result set.\
 );
 
 },{"../messages":16}],24:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
 const Messages = require('../messages');
 
 Messages.setWithPrefix('lists', {
@@ -2471,8 +2445,6 @@ to show the individual columns separately.\
 );
 
 },{"../messages":16}],29:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
 const Messages = require('../messages');
 
 Messages.setWithPrefix('undo', {
