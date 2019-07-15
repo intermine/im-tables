@@ -2291,8 +2291,6 @@ No suitable lists were found
 );
 
 },{"../messages":16}],25:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
 const Messages = require('../messages');
 
 Messages.setWithPrefix('logic', {
@@ -2305,8 +2303,6 @@ Messages.setWithPrefix('logic', {
 );
 
 },{"../messages":16}],26:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
 const Messages = require('../messages');
 
 Messages.setWithPrefix('subtables', {
@@ -2316,8 +2312,6 @@ Messages.setWithPrefix('subtables', {
 );
 
 },{"../messages":16}],27:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
 const Messages = require('../messages');
 
 Messages.setWithPrefix('summary', {
@@ -2365,8 +2359,6 @@ There is only one <%- names.typeName %> <%- names.endName %>:
 );
 
 },{"../messages":16}],28:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
 const Messages = require('../messages');
 
 Messages.setWithPrefix('table', {
@@ -2510,13 +2502,6 @@ Messages.setWithPrefix('undo', {
 
 
 },{"../messages":16}],30:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 const $ = require('jquery');
 
 const centre = function(el) {
@@ -2552,15 +2537,6 @@ exports._hideModal = function() {
 
 
 },{"jquery":256}],31:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS205: Consider reworking code to avoid use of IIFEs
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 // Mixin for CoreView - requires @children
 
 const _ = require('underscore');
@@ -2593,15 +2569,6 @@ exports.setChildIndices = function(idFn, pos, collName) {
 
 
 },{"underscore":262}],32:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS205: Consider reworking code to avoid use of IIFEs
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 const _ = require('underscore');
 
 exports.initTypeaheads = function() { return this._typeaheads != null ? this._typeaheads : (this._typeaheads = []); };
@@ -2649,14 +2616,6 @@ exports.activateTypeahead = function(input, opts, data, placeholder, cb, onChang
 
 
 },{"underscore":262}],33:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 const _ = require('underscore');
 
 const CACHE = {};
@@ -2723,14 +2682,6 @@ exports.getExportParameters = function(overrides) {
 };
 
 },{"underscore":262}],34:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 //# Requires @query :: Query, @view :: PathInfo
 //# sets @state{typeName, pathName, endName, error}
 exports.setPathNames = function() {
@@ -2750,13 +2701,6 @@ exports.setPathNames = function() {
 };
 
 },{}],35:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 let AppendToListModel;
 const _ = require('underscore');
 const CoreModel = require('../core-model');
@@ -2773,16 +2717,6 @@ module.exports = (AppendToListModel = class AppendToListModel extends CoreModel 
 });
 
 },{"../core-model":2,"underscore":262}],36:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
- * DS102: Remove unnecessary code created because of implicit returns
- * DS206: Consider reworking classes to avoid initClass
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 let AvailableColumns;
 const Collection = require('../core/collection');
 const PathModel = require('./path');
@@ -2826,16 +2760,6 @@ module.exports = (AvailableColumns = (function() {
   return AvailableColumns;
 })());
 },{"../core/collection":5,"./path":56}],37:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
- * DS102: Remove unnecessary code created because of implicit returns
- * DS104: Avoid inline assignments
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 let CellModel;
 const _ = require('underscore');
 const {Promise} = require('es6-promise');
@@ -2883,13 +2807,6 @@ module.exports = (CellModel = class CellModel extends CoreModel {
 });
 
 },{"../core-model":2,"../options":63,"es6-promise":238,"underscore":262}],38:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 // Configuration
 let CodeGenModel;
 const Options = require('../options');
@@ -2909,15 +2826,6 @@ module.exports = (CodeGenModel = class CodeGenModel extends CoreModel {
 });
 
 },{"../core-model":2,"../options":63}],39:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
- * DS102: Remove unnecessary code created because of implicit returns
- * DS206: Consider reworking classes to avoid initClass
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 let ColumnHeaders;
 const Collection = require('../core/collection');
 const HeaderModel = require('./header');
@@ -2950,15 +2858,6 @@ module.exports = (ColumnHeaders = (function() {
 
 
 },{"../core/collection":5,"../utils/build-headers":71,"./header":44}],40:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
- * DS102: Remove unnecessary code created because of implicit returns
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 let ConstraintModel;
 const _ = require('underscore');
 
@@ -3016,15 +2915,6 @@ module.exports = (ConstraintModel = class ConstraintModel extends PathModel {
 });
 
 },{"./path":56,"imjs":247,"underscore":262}],41:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
- * DS102: Remove unnecessary code created because of implicit returns
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 let CreateListModel;
 const _ = require('underscore');
 const CoreModel = require('../core-model');
@@ -3079,16 +2969,6 @@ module.exports = (CreateListModel = class CreateListModel extends CoreModel {
 
 
 },{"../core-model":2,"../core/collection":5,"underscore":262}],42:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
- * DS102: Remove unnecessary code created because of implicit returns
- * DS205: Consider reworking code to avoid use of IIFEs
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 const _ = require('underscore');
 
 class Format {
@@ -3150,8 +3030,6 @@ exports.getFormats = availableTypes =>
 exports.registerFormat = ({id, icons, needs}) => formats.push(new Format(id, icons, needs));
 
 },{"underscore":262}],43:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
 let FPObject;
 const CoreModel = require('../core-model');
 
@@ -3175,17 +3053,6 @@ module.exports = (FPObject = class FPObject extends CoreModel {
 
 
 },{"../core-model":2}],44:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS001: Remove Babel/TypeScript constructor workaround
- * DS101: Remove unnecessary use of Array.from
- * DS102: Remove unnecessary code created because of implicit returns
- * DS205: Consider reworking code to avoid use of IIFEs
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 let HeaderModel;
 const _ = require('underscore');
 const PathModel = require('./path');
@@ -3293,17 +3160,6 @@ module.exports = (HeaderModel = class HeaderModel extends PathModel {
 
 
 },{"../options":63,"./path":56,"underscore":262}],45:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS104: Avoid inline assignments
- * DS205: Consider reworking code to avoid use of IIFEs
- * DS206: Consider reworking classes to avoid initClass
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 let History;
 const _ = require('underscore');
 const Collection = require('../core/collection');
@@ -3469,14 +3325,6 @@ module.exports = (History = (function() {
 
 
 },{"../core/collection":5,"./step":59,"underscore":262}],46:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 let IMObject;
 const _ = require('underscore');
 const CoreModel = require('../core-model');
@@ -3511,16 +3359,6 @@ module.exports = (IMObject = class IMObject extends CoreModel {
 
 
 },{"../core-model":2,"underscore":262}],47:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
- * DS102: Remove unnecessary code created because of implicit returns
- * DS206: Consider reworking classes to avoid initClass
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 let Joins;
 const _ = require('underscore');
 
@@ -3582,13 +3420,6 @@ Joins.fromQuery = function(query) {
 
 
 },{"../core/collection":5,"./path":56,"underscore":262}],48:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 let NestedTableModel;
 const _ = require('underscore');
 
@@ -3646,8 +3477,6 @@ module.exports = (NestedTableModel = class NestedTableModel extends CoreModel {
 });
 
 },{"../core-model":2,"underscore":262}],49:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
 let NullObject;
 const CoreModel = require('../core-model');
 
@@ -3669,15 +3498,6 @@ module.exports = (NullObject = class NullObject extends CoreModel {
 
 
 },{"../core-model":2}],50:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS206: Consider reworking classes to avoid initClass
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 let NumericRange;
 const _ = require('underscore');
 const Backbone = require('backbone');
@@ -3743,16 +3563,6 @@ module.exports = (NumericRange = (function() {
 
 
 },{"backbone":235,"underscore":262}],51:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
- * DS102: Remove unnecessary code created because of implicit returns
- * DS104: Avoid inline assignments
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 let ObjectStore;
 const _ = require('underscore');
 
@@ -3799,15 +3609,6 @@ module.exports = (ObjectStore = class ObjectStore {
 
 
 },{"./intermine-object":46,"underscore":262}],52:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
- * DS102: Remove unnecessary code created because of implicit returns
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 let OpenNodes;
 const Backbone = require('backbone');
 const UniqItems = require('./uniq-items');
@@ -3850,13 +3651,6 @@ module.exports = (OpenNodes = class OpenNodes extends UniqItems {
 });
 
 },{"./uniq-items":62,"backbone":235}],53:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 let OrderElementModel;
 const PathModel = require('./path');
 
@@ -3874,13 +3668,6 @@ module.exports = (OrderElementModel = class OrderElementModel extends PathModel 
 });
 
 },{"./path":56}],54:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 let Page;
 module.exports = (Page = class Page {
 
@@ -3931,14 +3718,6 @@ module.exports = (Page = class Page {
 });
 
 },{}],55:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 let PathSet;
 const UniqItems = require('./uniq-items');
 const Backbone = require('backbone');
@@ -3967,15 +3746,6 @@ module.exports = (PathSet = class PathSet extends UniqItems {
 
 
 },{"./uniq-items":62,"backbone":235}],56:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
- * DS102: Remove unnecessary code created because of implicit returns
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 let PathModel;
 const CoreModel = require('../core-model');
 
@@ -4042,15 +3812,6 @@ module.exports = (PathModel = class PathModel extends CoreModel {
 });
 
 },{"../core-model":2,"imjs":247}],57:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
- * DS102: Remove unnecessary code created because of implicit returns
- * DS206: Consider reworking classes to avoid initClass
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 let RowsCollection;
 const _ = require('underscore');
 
@@ -4088,15 +3849,6 @@ module.exports = (RowsCollection = (function() {
 
 
 },{"../core-model":2,"../core/collection":5,"underscore":262}],58:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS206: Consider reworking classes to avoid initClass
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 let SelectedObjects;
 const CoreModel = require('../core-model');
 const Collection = require('../core/collection');
@@ -4185,14 +3937,6 @@ module.exports = (SelectedObjects = (function() {
 
 
 },{"../core-model":2,"../core/collection":5,"../core/type-assertions":10}],59:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 let StepModel;
 const _ = require('underscore');
 const CoreModel = require('../core-model');
@@ -4228,20 +3972,6 @@ module.exports = (StepModel = class StepModel extends CoreModel {
 
 
 },{"../core-model":2,"../utils/count-executor":77,"underscore":262}],60:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS001: Remove Babel/TypeScript constructor workaround
- * DS101: Remove unnecessary use of Array.from
- * DS102: Remove unnecessary code created because of implicit returns
- * DS103: Rewrite code to no longer use __guard__
- * DS104: Avoid inline assignments
- * DS205: Consider reworking code to avoid use of IIFEs
- * DS206: Consider reworking classes to avoid initClass
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 let SummaryModel;
 const _ = require('underscore');
 
@@ -4495,14 +4225,6 @@ function __guard__(value, transform) {
   return (typeof value !== 'undefined' && value !== null) ? transform(value) : undefined;
 }
 },{"../core-model":2,"../core/collection":5,"../options":63,"../services/column-summary":65,"underscore":262}],61:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS001: Remove Babel/TypeScript constructor workaround
- * DS102: Remove unnecessary code created because of implicit returns
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 let TableModel;
 const Options = require('../options');
 const CoreModel = require('../core-model');
@@ -4552,17 +4274,6 @@ module.exports = (TableModel = class TableModel extends CoreModel {
 
 
 },{"../core-model":2,"../options":63,"./path-set":55}],62:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
- * DS102: Remove unnecessary code created because of implicit returns
- * DS205: Consider reworking code to avoid use of IIFEs
- * DS206: Consider reworking classes to avoid initClass
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 let UniqItems;
 const Backbone = require('backbone');
 const _ = require('underscore');
