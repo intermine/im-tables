@@ -1639,17 +1639,6 @@ exports.formatting = _.omit(Formatting, 'getFormatter', 'shouldFormat', 'reset')
 
 
 },{"./core/type-assertions":10,"./formatting":13,"./messages":16,"./options":63,"./shim":66,"./utils/simple-formatter":104,"./version":111,"./views/dashboard":136,"./views/table":209,"es6-promise":238,"imjs":247,"underscore":262}],16:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS001: Remove Babel/TypeScript constructor workaround
- * DS102: Remove unnecessary code created because of implicit returns
- * DS104: Avoid inline assignments
- * DS205: Consider reworking code to avoid use of IIFEs
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 const Backbone = require('backbone');
 const _ = require('underscore');
 
@@ -4361,13 +4350,6 @@ module.exports = (UniqItems = (function() {
 })());
 
 },{"../core-model":2,"../core/collection":5,"backbone":235,"underscore":262}],63:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 const NestedModel = require('./core/nested-model');
 
 class Options extends NestedModel {
@@ -4515,20 +4497,9 @@ module.exports = new Options;
 module.exports.Options = Options;
 
 },{"./core/nested-model":8}],64:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
 exports.IS_BLANK = /^\s*$/;
 
 },{}],65:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS104: Avoid inline assignments
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 const CACHE = {};
 
 const getKey = (query, path) => `${ query.service.root }:${ query.service.token }:${ query.toXML() }:${ path }`;
@@ -4542,13 +4513,6 @@ exports.getColumnSummary = function(query, path, term, limit) {
 
 },{}],66:[function(require,module,exports){
 (function (global){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 // Ugly, since we leak jQuery, but only for the duration of this call
 let $;
 const oldjq = global.jQuery;
@@ -4708,15 +4672,6 @@ exports.pagination = "<ul class=\"pagination\">\n    <li class=\"hidden-xs <%= g
 exports.column_manager_restore_path = "<% /* requires: restoreTitle */ %>\n<span class=\"pull-right im-restore-view\"\n    title=\"<%- Messages.getText(restoreTitle) %>\">\n    <%= Icons.icon('Add') %>\n</span>\n\n";
 
 },{"underscore":262}],68:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
- * DS102: Remove unnecessary code created because of implicit returns
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 
 const _ = require('underscore');
 const Options = require('../options');
@@ -4776,8 +4731,6 @@ exports.errorAlert = function({level}) { switch (level) {
 exports.errorIcon = ({level}) => level != null ? level : 'Error';
 
 },{"../options":63,"pluralize":258,"underscore":262}],69:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
 module.exports = {
   interpolate: /\{\{\{ (.+?) \}\}\}/g,
   escape:      /\{\{ (.+?) \}\}/g,
@@ -4785,14 +4738,6 @@ module.exports = {
 };
 
 },{}],70:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 const Options = require('../options');
 const {Promise} = require('es6-promise');
 
@@ -4819,16 +4764,6 @@ class Branding {
 }
 
 },{"../options":63,"es6-promise":238}],71:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
- * DS102: Remove unnecessary code created because of implicit returns
- * DS205: Consider reworking code to avoid use of IIFEs
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 const createColumns = require('./create-columns');
 const isKeyField = require('./is-key-field');
 const getReplacedTest = require('./get-replaced-test');
@@ -4942,14 +4877,6 @@ module.exports = (query, banList) => query.service.fetchClassKeys().then(functio
 
 
 },{"../formatting":13,"./create-columns":78,"./get-replaced-test":85,"./is-key-field":89}],72:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 // Construct the index of which paths should be skipped when rendering a row of cells.
 // If the headers are supplied they will be adjusted (assuming they are a PathCollection)
 // by removing headers for the skipped paths and lifting the headers for the skipper
@@ -4990,15 +4917,6 @@ module.exports = function(cells, headers) {
 };
 
 },{}],73:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
- * DS102: Remove unnecessary code created because of implicit returns
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 // Analyse the select list to establish what the columns are going to be,
 // based on the outer joined structure.
 
@@ -5053,20 +4971,9 @@ module.exports = (calculateRowTemplate = function(query) {
 
 
 },{}],74:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
 exports.bool = x => !!x;
 
 },{}],75:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
- * DS102: Remove unnecessary code created because of implicit returns
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 let CellModelFactory;
 const _ = require('underscore');
 
@@ -5152,14 +5059,6 @@ module.exports = (CellModelFactory = class CellModelFactory {
 });
 
 },{"../models/cell":37,"../models/fast-path-object":43,"../models/nested-table":48,"../models/null-object":49,"../models/object-store":51,"underscore":262}],76:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 const _ = require('underscore');
 
 // A utility for creating a child CoreView from a parent in the common
@@ -5178,14 +5077,6 @@ exports.createChild = function(parent, Child, args) {
 
 
 },{"underscore":262}],77:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS104: Avoid inline assignments
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 // Caching query executor.
 
 let CACHE = {};
@@ -5202,16 +5093,6 @@ exports.clearCache = () => CACHE = {};
 
 
 },{}],78:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
- * DS102: Remove unnecessary code created because of implicit returns
- * DS205: Consider reworking code to avoid use of IIFEs
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 let createColumns;
 const longestCommonPrefix = require('./longest-common-prefix');
 const structure = require('./calculate-row-template');
@@ -5270,13 +5151,6 @@ module.exports = (createColumns = query => structure(query).map(function(cell) {
 
 
 },{"./calculate-row-template":73,"./longest-common-prefix":91}],79:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS205: Consider reworking code to avoid use of IIFEs
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 let ClassSet;
 const _ = require('underscore');
 
@@ -5301,13 +5175,6 @@ module.exports = (ClassSet = class ClassSet {
 
 
 },{"underscore":262}],80:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 const getMissingData = require('./fetch-missing-data');
 const hasData        = require('./has-fields');
 
@@ -5322,15 +5189,6 @@ module.exports = function(type, fields) {
 };
 
 },{"./fetch-missing-data":82,"./has-fields":87}],81:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS206: Consider reworking classes to avoid initClass
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 const _ = require('underscore');
 const Backbone = require('backbone');
 
@@ -5358,16 +5216,6 @@ const Cls = (exports.Bus = class Bus {
 Cls.initClass();
 
 },{"backbone":235,"underscore":262}],82:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
- * DS102: Remove unnecessary code created because of implicit returns
- * DS205: Consider reworking code to avoid use of IIFEs
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 const _ = require('underscore');
 
 // Build a props object with the returned data,
@@ -5415,16 +5263,6 @@ function __range__(left, right, inclusive) {
   return range;
 }
 },{"underscore":262}],83:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
- * DS102: Remove unnecessary code created because of implicit returns
- * DS205: Consider reworking code to avoid use of IIFEs
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 let getLeaves;
 module.exports = (getLeaves = function(o, exceptList) {
   let v;
@@ -5458,17 +5296,6 @@ module.exports = (getLeaves = function(o, exceptList) {
 });
 
 },{}],84:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
- * DS102: Remove unnecessary code created because of implicit returns
- * DS103: Rewrite code to no longer use __guard__
- * DS205: Consider reworking code to avoid use of IIFEs
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 let getOrganisms;
 const _ = require('underscore');
 const {Promise} = require('es6-promise');
@@ -5550,14 +5377,6 @@ function __guard__(value, transform) {
   return (typeof value !== 'undefined' && value !== null) ? transform(value) : undefined;
 }
 },{"es6-promise":238,"underscore":262}],85:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 let getReplacedTest;
 const {shouldFormat} = require('../formatting');
 
@@ -5580,15 +5399,6 @@ module.exports = (getReplacedTest = (formatReplacements, allReplacements) => fun
 
 
 },{"../formatting":13}],86:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
- * DS102: Remove unnecessary code created because of implicit returns
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 let getResultClass;
 const {Promise} = require('es6-promise');
 
@@ -5608,23 +5418,9 @@ module.exports = (getResultClass = query => new Promise(function(resolve, reject
 }) );
 
 },{"es6-promise":238}],87:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 module.exports = function(fields) { if (fields == null) { fields = []; } return model => fields.every(f => model.has(f)); };
 
 },{}],88:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 // Rather naive (but generally effective) method of
 // prettifying the otherwise compressed XML.
 let indent;
@@ -5656,15 +5452,6 @@ module.exports = (indent = function(xml) {
 
 
 },{}],89:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
- * DS102: Remove unnecessary code created because of implicit returns
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 // Determine whether a path represents a key field, based on the
 // class key definitions.
 // :: {string: [string]} -> PathInfo -> bool
@@ -5680,13 +5467,6 @@ module.exports = (isKeyField = classKeys => function(path) {
 
 },{}],90:[function(require,module,exports){
 (function (global){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 const $ = require('jquery');
 const {Promise} = require('es6-promise');
 
@@ -5703,16 +5483,6 @@ module.exports = function(key, varName) {
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"../options":63,"es6-promise":238,"jquery":256}],91:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
- * DS102: Remove unnecessary code created because of implicit returns
- * DS201: Simplify complex destructure assignments
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 let longestCommonPrefix;
 const _ = require('underscore');
 
@@ -5740,15 +5510,6 @@ module.exports = (longestCommonPrefix = function(...args) {
 
 
 },{"underscore":262}],92:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
- * DS102: Remove unnecessary code created because of implicit returns
- * DS201: Simplify complex destructure assignments
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 exports.href = function(address, subject, body) {
   const pairs = [['subject', subject], ['body', body]];
   const params = pairs.map(function(...args) { const [k, v] = Array.from(args[0]); return `${ k }=${ encodeURIComponent(v) }`; })
@@ -5758,13 +5519,6 @@ exports.href = function(address, subject, body) {
 
 
 },{}],93:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 // Produce an event name for the change of multiple properties
 let onChange;
 module.exports = (onChange = props =>
@@ -5774,8 +5528,6 @@ module.exports = (onChange = props =>
 
 
 },{}],94:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
 let openWindowWithPost;
 module.exports = (openWindowWithPost = function(uri, name, params) {
   const form = document.createElement("form");
@@ -5799,14 +5551,6 @@ module.exports = (openWindowWithPost = function(uri, name, params) {
 });
 
 },{}],95:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
- * DS102: Remove unnecessary code created because of implicit returns
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 const _ = require('underscore');
 
 const pairsToParams = pairs => _.object(Array.from(pairs).map((p) => p.split('=').map(decodeURIComponent)));
@@ -5820,18 +5564,6 @@ module.exports = function(url) {
 
 
 },{"underscore":262}],96:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
- * DS102: Remove unnecessary code created because of implicit returns
- * DS103: Rewrite code to no longer use __guard__
- * DS104: Avoid inline assignments
- * DS205: Consider reworking code to avoid use of IIFEs
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 const _ = require('underscore');
 
 const contains_i = (a, b) => a.toLowerCase().indexOf(b) >= 0;
@@ -5862,16 +5594,6 @@ function __guard__(value, transform) {
   return (typeof value !== 'undefined' && value !== null) ? transform(value) : undefined;
 }
 },{"underscore":262}],97:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
- * DS102: Remove unnecessary code created because of implicit returns
- * DS205: Consider reworking code to avoid use of IIFEs
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 let getPathSuggestions;
 const _ = require('underscore');
 const {Promise} = require('es6-promise');
@@ -5909,15 +5631,6 @@ module.exports = (getPathSuggestions = function(query, depth) {
 });
 
 },{"es6-promise":238,"underscore":262}],98:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS104: Avoid inline assignments
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 // Wrapper that caches the results of findById and count
 // it fulfils the contract of ServiceType from item-preview
 // This is not for general use, as it *only* returns promises,
@@ -5984,26 +5697,11 @@ module.exports = (PopoverFactory = class PopoverFactory {
 });
 
 },{}],99:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
- * DS102: Remove unnecessary code created because of implicit returns
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 // ([[name, val]]) -> string
 exports.fromPairs = pairs => (Array.from(pairs).map((p) => p.map(encodeURIComponent).join('='))).join('&');
 
 
 },{}],100:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 const $ = require('jquery');
 const {Promise} = require('es6-promise');
 
@@ -6026,16 +5724,6 @@ module.exports = (url, filename, onProgress) => loadDropbox().then(Dropbox =>
 ) ;
 
 },{"../options":63,"./load-resource":90,"es6-promise":238,"jquery":256}],101:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
- * DS102: Remove unnecessary code created because of implicit returns
- * DS201: Simplify complex destructure assignments
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 let send;
 const _ = require('underscore');
 const {Promise} = require('es6-promise');
@@ -6099,13 +5787,6 @@ send.after = function() {
 
 
 },{"../messages":16,"../options":63,"./branding":70,"./get-organisms":84,"./get-result-class":86,"./open-window-with-post":94,"./parse-url":95,"es6-promise":238,"underscore":262}],102:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 const _ = require('underscore');
 const {Promise} = require('es6-promise');
 
@@ -6140,15 +5821,6 @@ const save = (uri, fileName) => new Promise(function(resolve, reject) {
 module.exports = save;
 
 },{"../options":63,"./query-string":99,"es6-promise":238,"underscore":262}],103:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS206: Consider reworking classes to avoid initClass
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 let sendToGoogleDrive;
 const $ = require('jquery');
 const _ = require('underscore');
@@ -6271,14 +5943,6 @@ class GoogleExporter {
 }
 
 },{"../options":63,"./load-resource":90,"es6-promise":238,"jquery":256,"underscore":262}],104:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
- * DS102: Remove unnecessary code created because of implicit returns
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 const {compose, escape} = require('underscore');
 const getData = require('./ensure-required-data');
 
@@ -6300,15 +5964,6 @@ module.exports = (type, fields, f, classes) =>
 ;
 
 },{"./ensure-required-data":80,"underscore":262}],105:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS104: Avoid inline assignments
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 let sortQueryByPath;
 const NEXT_DIRECTION_OF = {
   ASC: 'DESC',
@@ -6325,14 +5980,6 @@ module.exports = (sortQueryByPath = function(query, path) {
 
 
 },{}],106:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 // Compact multiple empty lines and trim
 let stripExtraneousWhiteSpace;
 module.exports = (stripExtraneousWhiteSpace = function(str) {
@@ -6343,19 +5990,6 @@ module.exports = (stripExtraneousWhiteSpace = function(str) {
 
 
 },{}],107:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
- * DS102: Remove unnecessary code created because of implicit returns
- * DS103: Rewrite code to no longer use __guard__
- * DS104: Avoid inline assignments
- * DS205: Consider reworking code to avoid use of IIFEs
- * DS206: Consider reworking classes to avoid initClass
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 let SuggestionSource;
 
 const _ = require('underscore');
@@ -6421,18 +6055,6 @@ function __guard__(value, transform) {
 }
 
 },{"../icons":14,"../messages":16,"../options":63,"../templates/mustache-settings":69,"underscore":262}],108:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
- * DS102: Remove unnecessary code created because of implicit returns
- * DS104: Avoid inline assignments
- * DS204: Change includes calls to have a more natural evaluation order
- * DS206: Consider reworking classes to avoid initClass
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 const {Promise} = require('es6-promise');
 
 const Options = require('../options');
@@ -6631,28 +6253,12 @@ ResultCache.initClass();
 exports.ResultCache = ResultCache; // exported for testing.
 
 },{"../models/page":54,"../options":63,"es6-promise":238}],109:[function(require,module,exports){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 // PathInfo -> Promise<{path :: String, name :: String}>
 let toNamedPath;
 module.exports = (toNamedPath = p => p.getDisplayName().then(name => ({path: p.toString(), name})) );
 
 },{}],110:[function(require,module,exports){
 (function (global){
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
- * DS102: Remove unnecessary code created because of implicit returns
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 let withResource;
 const {Promise} = require('es6-promise');
 
