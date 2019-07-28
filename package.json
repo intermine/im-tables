@@ -82,6 +82,7 @@
     "grunt-contrib-coffee": "^1.0.0",
     "grunt-contrib-copy": "^1.0.0",
     "grunt-contrib-uglify": "^4.0.1",
+    "grunt-contrib-uglify-es": "^3.3.0",
     "grunt-contrib-watch": "^1.1.0",
     "grunt-notify": "^0.4.1",
     "grunt-run": "^0.8.1",
