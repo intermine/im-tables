@@ -25,7 +25,7 @@ const stripExtraneousWhiteSpace = require('../utils/strip-extra-whitespace');
 const withResource = require('../utils/with-cdn-resource');
 
 // Comment finding regexen
-const OCTOTHORPE_COMMENTS = /\s*#.*$/gm;
+const OCTOTHORPE_COMMENTS = /\s*#[^!].*$/gm;
 const C_STYLE_COMMENTS = /\/\*(\*(?!\/)|[^*])*\*\//gm; // just strip blocks.
 const XML_MIMETYPE = 'application/xml;charset=utf8';
 const JS_MIMETYPE = 'text/javascript;charset=utf8';
