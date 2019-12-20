@@ -67,7 +67,7 @@ class Options extends NestedModel {
           Enabled: true
         },
         Galaxy: {
-          Main: "http://main.g2.bx.psu.edu",
+          Main: "https://usegalaxy.org/",
           Current: null,
           Tool: 'flymine', // The tool we should use to send data to Galaxy
           Save: false,
