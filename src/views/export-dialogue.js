@@ -26,7 +26,6 @@ const openWindowWithPost = require('../utils/open-window-with-post');
 const sendToDropBox = require('../utils/send-to-dropbox');
 const sendToGoogleDrive = require('../utils/send-to-google-drive');
 const sendToGalaxy = require('../utils/send-to-galaxy');
-const sendToGenomeSpace = require('../utils/send-to-genomespace');
 
 const INITIAL_STATE = {
   doneness: null, // null = not uploading. 0 - 1 = uploading
@@ -41,7 +40,7 @@ const FOOTER = ['progress_bar', 'modal_error', 'export_dialogue_footer'];
 // go away.
 class UndismissableError {
   static initClass() {
-  
+
     this.prototype.cannotDismiss = true;
   }
 
@@ -89,17 +88,17 @@ module.exports = (ExportDialogue = (function() {
     }
 
     static initClass() {
-  
+
       this.include(RunsQuery);
-  
+
       this.prototype.Model = ExportModel;
-  
+
       this.prototype.parameters = ['query'];
-  
+
       this.prototype.modalSize = 'lg';
-  
+
       this.prototype.body = Templates.template('export_dialogue');
-  
+
       // In some future universe we would have template inheritance here,
       // but that is a hack to fake in underscore templates
       this.prototype.footer = Templates.templateFromParts(FOOTER);
@@ -154,7 +153,7 @@ module.exports = (ExportDialogue = (function() {
     readUserPreferences() { return this.query.service.whoami().then(user => {
       let myGalaxy;
       if (!user.hasPreferences) { return; }
-    
+
       if (myGalaxy = user.preferences['galaxy-url']) {
         return Options.set('Destination.Galaxy.Current', myGalaxy);
       }
@@ -271,7 +270,6 @@ module.exports = (ExportDialogue = (function() {
       case 'Dropbox': return sendToDropBox;
       case 'Drive': return sendToGoogleDrive;
       case 'Galaxy': return sendToGalaxy;
-      case 'GenomeSpace': return sendToGenomeSpace;
       default: throw new Error(`Cannot export to ${ this.state.get('dest') }`);
     } }
 

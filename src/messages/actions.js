@@ -147,12 +147,10 @@ illegal characters: <%- illegals.join(', ') %>. Please remove them.\
   'download-file': 'Download File',
   download: 'Download file',
   Galaxy: 'Send to Galaxy',
-  GenomeSpace: 'Upload to Genomespace',
   Drive: 'Save to Google Drive',
   Dropbox: 'Save to Dropbox',
   'Destdownload-file': 'File',
   DestGalaxy: 'Galaxy',
-  DestGenomespace: 'Genomespace',
   ExportAlt: "Send Data Somewhere Else",
   ExportLong: `\
 <span class="hidden-tablet">Download</span>
@@ -164,12 +162,6 @@ File
 Galaxy
 <span class="im-only-widescreen">for analysis</span>\
 `,
-  SendToGenomespace: `\
-<span class="hidden-tablet">Upload to</span>
-<span class="im-only-widescreen">your</span>
-Genomespace
-<span class="im-only-widescreen">account</span>\
-`,
   MyGalaxy: "Send to your Galaxy",
   ForgetGalaxy: "Clear this galaxy URL",
   GalaxyHelp: "Start a file upload job within Galaxy",
@@ -180,7 +172,7 @@ Genomespace
   WhatIsGalaxyURL: "http://wiki.g2.bx.psu.edu/",
   GalaxyAuthExplanation: `\
 If you have already logged into Galaxy with this browser, then the data
-will be sent into your active account. Otherwise it will appear in a 
+will be sent into your active account. Otherwise it will appear in a
 temporary anonymous account.\
 `,
   CopyToClipBoard: 'Copy to clipboard: <CTL>+C, <ENTER>',
@@ -192,7 +184,7 @@ access to. If this is just a 24 hour access token, then you will need to replace
 once it becomes invalid.\
 `,
   LongURI: `\
-The normal URI for this query (which includes the full query XML in the 
+The normal URI for this query (which includes the full query XML in the
 parameters) is too long for a GET request. The URI you can see here uses a
 query-id, which has a limited validity. You should not store this URI for long
 term use.\
@@ -231,10 +223,10 @@ if you remove all the attributes from an item, then you <b>may change</b> the re
 you receive.\
 `,
   OuterJoinWarning: `\
-This query has outer-joined collections. This means that the number of rows in 
+This query has outer-joined collections. This means that the number of rows in
 the table is likely to be different from the number of rows in the exported results.
 <b>You are strongly discouraged from specifying specific ranges for export</b>. If
-you do specify a certain range, please check that you did in fact get all the 
+you do specify a certain range, please check that you did in fact get all the
 results you wanted.\
 `,
   IncludedFeatures: "Exportable parts of this Query - <strong>choose at least one</strong>:",
@@ -261,4 +253,3 @@ will be very difficult for you to read the whole table
 in the page. We suggest the following alternatives:\
 `
 };
-
