@@ -65,7 +65,7 @@ Issues & Support
 
 For help and support, the developers may be contacted at:
 
-  dev@intermine.org
+  http://intermine.org/contact/
 
 For a public bug tracker, please visit the github issues tracker:
 
@@ -101,7 +101,6 @@ development of:
  * Backbone
  * Bootstrap
  * Browserify
- * CoffeeScript
  * d3
  * FontAwesome
  * jQuery & jQuery.UI
@@ -110,5 +109,5 @@ development of:
 Copyright
 ----------
 
-The copyright on this work is help by Alex Kalderimis and InterMine
+The copyright on this work is held by Alex Kalderimis, InterMine, and all other authors who have contributed to this repository. 
 
