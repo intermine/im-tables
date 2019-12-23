@@ -6,7 +6,7 @@ elements in an HTML 5 capable web browser for interaction with
 InterMine data-warehouse systems. It is built on the following
 technologies:
 
- * **CoffeeScript** - The language of the library.
+ * **JavaScript** - The language of the library. (Formerly was CoffeeScript)
  * **Backbone** - An MVC and eventing abstraction layer
  * **Bootstrap** - User interface patterns (in css and javascript)
  * **d3** - Data visualisation
