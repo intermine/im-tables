@@ -80,8 +80,8 @@ grunt.initConfig({
 					cwd: 'src',
 					src: ['**'],
 					dest: '.tmp/src'
-				}	
-			]	
+				}
+			]
 		},
     js: {
       files: [
@@ -108,7 +108,7 @@ grunt.initConfig({
     server: {
       cmd: 'serve',
       args: [
-        '--port',
+        '-p',
         serverPort
       ],
       options: {
