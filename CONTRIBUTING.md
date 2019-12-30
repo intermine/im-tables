@@ -43,11 +43,12 @@ We assume you have the following global packages:
 - bower
 - grunt
 - coffeescript
+- brfs
 
 to install, run: 
 
 ```sh
-npm install -g browserify bower grunt coffeescript
+npm install -g browserify bower grunt coffeescript brfs
 ```
 
 #### Build library and install dependencies
