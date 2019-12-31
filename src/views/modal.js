@@ -12,12 +12,12 @@ const ModalFooter = require('./modal-footer');
 module.exports = (Modal = (function() {
   Modal = class Modal extends View {
     static initClass() {
-  
+
       this.prototype.Footer = ModalFooter;
-  
+
       // Override to customise the footer.
       this.prototype.footer = Templates.templateFromParts(['modal_error', 'modal_footer']);
-  
+
       this.prototype.shown = false;
     }
 
@@ -29,7 +29,7 @@ module.exports = (Modal = (function() {
       this._promise = new Promise((resolve, reject) => {
         this.resolve = resolve;
         this.reject = reject;
-        
+
     });
       return this.listenTo(this.state, 'change', this.renderFooter);
     }
@@ -142,7 +142,11 @@ module.exports = (Modal = (function() {
 
     // Actually show the modal dialogue. Override to customise.
     // This is a protected method - if you are not a modal yourself, do not call this method.
-    _showModal() { return this.$el.modal().modal('show'); }
+    _showModal() {
+      var theModal = this.$el;
+      theModal.addClass("in");
+      return theModal.modal().modal('show');
+    }
 
     // Actually hide the modal dialogue. Override to customise.
     // This is a protected method - if you are not a modal yourself, do not call this method.
