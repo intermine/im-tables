@@ -110,7 +110,7 @@
     "d3-browserify": "^3.4.12",
     "es6-promise": "^4.2.6",
     "font-awesome": "^4.3.0",
-    "imjs": "^3.12.0",
+    "imjs": "^3.17.0",
     "jquery": "^3.4.1",
     "jquery-ui-bundle": "^1.12.1-migrate",
     "less": "^3.9.0",
