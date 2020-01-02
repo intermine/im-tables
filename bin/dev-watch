@@ -6,7 +6,7 @@ NOTIFY='grunt notify'
 
 npm run pre-compile
 
-watch "npm run do-compile && npm run bundle-test-indices" src/ --wait=20 &
-watch "npm run do-compile && npm run bundle-test-indices" templates/ --wait=20 &
-watch "npm run bundle-test-indices" test/indices/ --wait=20 &
+watch "npm run do-compile" src/ --wait=20 &
+watch "npm run do-compile" templates/ --wait=20 &
+watch "npm run" test/indices/ --wait=20 &
 watch "npm run less && ${NOTIFY}:less" less/ --wait=20
