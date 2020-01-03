@@ -13,7 +13,8 @@ global.jQuery = $; // Yes, bootstrap *requires* jQuery to be global
 require('typeahead.js'); // Load the typeahead library.
 // Load jquery-ui components.
 require('jquery-ui-bundle');
-//bootstrap after jQuery UI might prevent jQuery UI stealing our tooltips
+// we include bootstrap after jQuery UI to prevent jQuery UI stealing our
+// tooltips - they both have .tooltip() methods 😩
 require('bootstrap'); // Extend our jQuery with bootstrappy-goodness.
 
 // Restore previous state.
