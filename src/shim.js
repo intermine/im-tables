@@ -10,10 +10,12 @@ Backbone.$ = jQuery;
 
 global.jQuery = $; // Yes, bootstrap *requires* jQuery to be global
 // jQuery should now be available to bootstrap to attach.
-require('bootstrap'); // Extend our jQuery with bootstrappy-goodness.
 require('typeahead.js'); // Load the typeahead library.
 // Load jquery-ui components.
 require('jquery-ui-bundle');
+//bootstrap after jQuery UI might prevent jQuery UI stealing our tooltips
+require('bootstrap'); // Extend our jQuery with bootstrappy-goodness.
+
 // Restore previous state.
 if (oldjq != null) {
   global.jQuery = oldjq;
