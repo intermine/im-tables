@@ -7873,12 +7873,6 @@
   width: 0px;}
 .imtables .im-query-tools .im-query-consumers > div {
   float: right;}
-.imtables .in {
-  opacity: 0.9;
-  filter: alpha(opacity=90);}
-.imtables .tooltip.show {
-  opacity: 0.9;
-  filter: alpha(opacity=90);}
 .imtables .im-hidden {
   display: none!important;}
 .imtables .im-latent {

@@ -10433,14 +10433,6 @@ li.L9 {
 .im-query-tools .im-query-consumers > div {
   float: right;
 }
-.in {
-  opacity: 0.9;
-  filter: alpha(opacity=90);
-}
-.tooltip.show {
-  opacity: 0.9;
-  filter: alpha(opacity=90);
-}
 /* Two hidden helpers - they differ in usage:
  * hidden hides things you don't want to show.
  * latent hides things until you want to show them.
