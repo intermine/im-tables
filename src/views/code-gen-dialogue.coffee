@@ -24,7 +24,7 @@ stripExtraneousWhiteSpace = require '../utils/strip-extra-whitespace'
 withResource = require '../utils/with-cdn-resource'
 
 # Comment finding regexen
-OCTOTHORPE_COMMENTS = /\s*#.*$/gm
+OCTOTHORPE_COMMENTS = /\s*#[^!].*$/gm
 C_STYLE_COMMENTS = /\/\*(\*(?!\/)|[^*])*\*\//gm # just strip blocks.
 XML_MIMETYPE = 'application/xml;charset=utf8'
 JS_MIMETYPE = 'text/javascript;charset=utf8'
