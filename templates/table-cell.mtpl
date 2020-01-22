@@ -18,33 +18,28 @@
     <% if (input.disabled) { %>disabled<% } %>
     style="display:<%- input.display %>">
 
-  <% if (field !== 'url') { %>
-    <a class="im-cell-link" target="<%- target %>" href="<%= url %>">
+  <a class="im-cell-link" target="<%- target %>" href="<%= url %>">
 
-      <% if (isForeign) { %>
-        <% if (icon) { %>
-          <img src="<%= icon %>" class="im-external-link"></img>
-        <% } else { %>
-          <%= Icons.icon('ExternalLink') %>
-        <% } %>
-      <% } %>
-
-      <% if (value != null && formattedValue != null) { %>
-        <span class="im-displayed-value"><%= formattedValue %></span>
+    <% if (isForeign) { %>
+      <% if (icon) { %>
+        <img src="<%= icon %>" class="im-external-link"></img>
       <% } else { %>
-        <%= NULL_VALUE %>
-      <% } %>
-
-    </a>
-    <% } else if (field === 'url')  { %>
-    <%
-    if (value != null && field === 'url') { %>
-      <a class="im-cell-link external" href="<%= value %>">
         <%= Icons.icon('ExternalLink') %>
-        <%= value %>
-      </a>
-      <% } else if (value === null) { %>
-        <%= NULL_VALUE %>
       <% } %>
+    <% } %>
+
+    <% if (value != null && formattedValue != null) { %>
+      <span class="im-displayed-value"><%= formattedValue %></span>
+    <% } else { %>
+      <%= NULL_VALUE %>
+    <% } %>
+
+  </a>
+
+  <% if (value != null && field === 'url' && rawValue != url) { %>
+    <a class="im-cell-link external" href="<%= rawValue %>">
+      <%= Icons.icon('ExternalLink') %>
+      <%- Messages.getText('table.cell.Link') %>
+    </a>
   <% } %>
 <% } %>
