@@ -98,7 +98,7 @@ grunt.initConfig({
     server: {
       cmd: 'serve',
       args: [
-        '--port',
+        '-p',
         serverPort
       ],
       options: {
