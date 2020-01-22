@@ -8,4 +8,4 @@ if test -z $PORT; then
     PORT="$npm_package_config_port"
 fi
 
-serve --port $PORT
+serve -p $PORT

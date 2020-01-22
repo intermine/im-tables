@@ -1,7 +1,7 @@
 <% if (state.minimised) { %>
   &hellip;
-<% } else if (entity.id == null) { %>
-  <% if (value != null && formattedValue != null) { %>
+<% } else if (entity.id === null) { %>
+  <% if (value !== null && formattedValue !== null) { %>
     <span class="im-displayed-value"><%= value %></span>
   <% } else if (entity.isNULL) { %>
     <span class="im-null-entity">
@@ -29,22 +29,21 @@
         <% } %>
       <% } %>
 
-      <% if (value != null && formattedValue != null) { %>
+      <% if (value !== null && formattedValue !== null && value !== 'null') { %>
         <span class="im-displayed-value"><%= formattedValue %></span>
       <% } else { %>
         <%= NULL_VALUE %>
       <% } %>
 
     </a>
-    <% } else if (field === 'url')  { %>
-    <%
-    if (value != null && field === 'url') { %>
+  <% } else if (field === 'url')  { %>
+    <% if (value !== null) { %>
       <a class="im-cell-link external" href="<%= value %>">
         <%= Icons.icon('ExternalLink') %>
         <%= value %>
       </a>
-      <% } else if (value === null) { %>
-        <%= NULL_VALUE %>
-      <% } %>
+    <% } else { %>
+      <%= NULL_VALUE %>
+    <% } %>
   <% } %>
 <% } %>

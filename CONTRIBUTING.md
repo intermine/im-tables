@@ -6,7 +6,7 @@ elements in an HTML 5 capable web browser for interaction with
 InterMine data-warehouse systems. It is built on the following
 technologies:
 
- * **JavaScript** - The language of the library. (Formerly was CoffeeScript)
+ * **CoffeeScript** - The language of the library.
  * **Backbone** - An MVC and eventing abstraction layer
  * **Bootstrap** - User interface patterns (in css and javascript)
  * **d3** - Data visualisation
@@ -32,12 +32,12 @@ tests, best practices and release procedure.
 
 ### Development Environment
 
-#### prerequisites 
+#### prerequisites
 
 im-tables is a node-based application. So the first step is to install node and npm (preferably using
-a node environment manager such as [nvm](https://github.com/nvm-sh/nvm)). 
+a node environment manager such as [nvm](https://github.com/nvm-sh/nvm)).
 
-We assume you have the following global packages: 
+We assume you have the following global packages:
 
 - browserify
 - bower
@@ -45,13 +45,14 @@ We assume you have the following global packages:
 - coffeescript
 - brfs
 
-to install, run: 
+to install, run:
 
 ```sh
 npm install -g browserify bower grunt coffeescript brfs
 ```
 
 #### Build library and install dependencies
+
 Install dependencies (and run an initial build):
 
 ```sh

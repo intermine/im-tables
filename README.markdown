@@ -101,6 +101,7 @@ development of:
  * Backbone
  * Bootstrap
  * Browserify
+ * CoffeeScript
  * d3
  * FontAwesome
  * jQuery & jQuery.UI
@@ -109,5 +110,4 @@ development of:
 Copyright
 ----------
 
-The copyright on this work is held by Alex Kalderimis, InterMine, and all other authors who have contributed to this repository. 
-
+The copyright on this work is held by Alex Kalderimis, InterMine, and all other authors who have contributed to this repository.

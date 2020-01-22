@@ -1,0 +1,1 @@
+exports.bool = (x) -> !!x
