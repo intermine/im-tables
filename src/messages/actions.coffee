@@ -177,7 +177,7 @@ module.exports =
   GalaxyAlt: "Send to a specific Galaxy",
   SaveGalaxyURL: "Make this my default Galaxy",
   WhatIsGalaxy: "What is Galaxy?",
-  WhatIsGalaxyURL: "http://wiki.g2.bx.psu.edu/",
+  WhatIsGalaxyURL: "https://galaxyproject.org/tutorials/g101/",
   GalaxyAuthExplanation: """
           If you have already logged into Galaxy with this browser, then the data
           will be sent into your active account. Otherwise it will appear in a 
