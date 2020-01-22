@@ -32,10 +32,26 @@ tests, best practices and release procedure.
 
 ### Development Environment
 
-The application is a standard JS client side application developed in a node.js
-dev environment. So the first step is to install node and npm (preferably using
-a node environment manager such as nvm). We currently use nvm running node
-0.10.x. Dependencies are managed with npm, obviously.
+#### prerequisites
+
+im-tables is a node-based application. So the first step is to install node and npm (preferably using
+a node environment manager such as [nvm](https://github.com/nvm-sh/nvm)).
+
+We assume you have the following global packages:
+
+- browserify
+- bower
+- grunt
+- coffeescript
+- brfs
+
+to install, run:
+
+```sh
+npm install -g browserify bower grunt coffeescript brfs
+```
+
+#### Build library and install dependencies
 
 Install dependencies (and run an initial build):
 
