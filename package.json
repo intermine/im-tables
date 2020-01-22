@@ -104,7 +104,7 @@
   },
   "dependencies": {
     "backbone": "^1.1.2",
-    "bootstrap": "^4.3.1",
+    "bootstrap": "^3.4.1",
     "bootstrap-less": "^3.3.8",
     "d3-browserify": "^3.4.12",
     "es6-promise": "^4.2.6",
