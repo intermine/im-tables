@@ -297,7 +297,7 @@ model.swap 'clicks', increment
 
 An internationalisation and customisation interface which abstracts all human
 language text strings behind a set of getters. A single instance of the text
-string store is made available via a call to `require('imtables/messages')` and
+string store is made available via a call to `require('im-tables/messages')` and
 it is injected into the templates by default (see `CoreView#getBaseData` for
 details), where it is available bound to the name `Messages`.
 
@@ -365,7 +365,7 @@ integrate better into your site:
    styles - eg:
 
 ```less
-@import "imtables/main.less"; // Import everything
+@import "im-tables/main.less"; // Import everything
 @import "./my-imtables-overrides.less"; // Your customisations
 ```
 

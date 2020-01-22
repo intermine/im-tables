@@ -15,7 +15,7 @@ Synopsis
 -----------------
 
 ```js
-    var imtables = require('imtables');
+    var imtables = require('im-tables');
 
     var element = document.querySelector('#my-id');
     var service = {root: 'http://www.flymine.org/query/service'};
@@ -51,13 +51,13 @@ as a commonjs module, from an AMD loader or as a window global. We recommend
 using npm and browserify:
 
 ```
-  npm install --save imtables
+  npm install --save im-tables
 ```
 
 Then in your code:
 
 ```
-  var imtables = require('imtables');
+  var imtables = require('im-tables');
 ```
 
 Issues & Support

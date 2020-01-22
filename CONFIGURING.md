@@ -13,7 +13,7 @@ of their appearance and behaviour can be customised:
 All the human-readable text strings can be configured, eg:
 
 ```js
-var imtables = require('imtables');
+var imtables = require('im-tables');
 imtables.setMessages({
     'columns.DialogueTitle': 'Spalten Bearbeiten',
     'columns.ApplyChanges': 'Änderungen Übernehmen'
@@ -34,7 +34,7 @@ Many configuration aspects are read out of a configuration object, which exposes
 a configuration API, eg:
 
 ```js
-var imtables = require('imtables');
+var imtables = require('im-tables');
 imtables.configure({
     CodeGen: {
         Default: 'rb' // Encourage rubyists
@@ -50,7 +50,7 @@ Configuration can be done using nested objects, as above, or using dot-separated
 paths, as below:
 
 ```js
-var imtables = require('imtables');
+var imtables = require('im-tables');
 imtables.configure('CodeGen.Default', 'rb');
 imtables.configure('Tables.CacheFactor', 5);
 imtables.configure('NUM_SEPARATOR', '.');
@@ -85,7 +85,7 @@ with imtables that will suffice for most cases. The Chromosome-Location
 formatter is implemented as follows:
 
 ```js
-var simpleFormatter = require('imtables/build/utils/simple-formatter');
+var simpleFormatter = require('im-tables/build/utils/simple-formatter');
 
 module.exports = simpleFormatter(
     'Location', // The type of thing this formatter handles
@@ -103,7 +103,7 @@ fetched separately.
 To activate a formatter, it needs to be registered against its class:
 
 ```js
-var imtables = require('imtables');
+var imtables = require('im-tables');
 imtables.formatting.registerFormatter(
     formatter,
     'genomic',

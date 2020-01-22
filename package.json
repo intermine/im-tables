@@ -1,5 +1,5 @@
 {
-  "name": "imtables",
+  "name": "im-tables",
   "version": "2.1.0",
   "description": "UI widgets for displaying query results in interactive tables",
   "config": {
