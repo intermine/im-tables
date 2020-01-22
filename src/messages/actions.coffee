@@ -147,12 +147,10 @@ module.exports =
   'download-file': 'Download File',
   download: 'Download file'
   Galaxy: 'Send to Galaxy',
-  GenomeSpace: 'Upload to Genomespace',
   Drive: 'Save to Google Drive'
   Dropbox: 'Save to Dropbox'
   'Destdownload-file': 'File',
   DestGalaxy: 'Galaxy',
-  DestGenomespace: 'Genomespace',
   ExportAlt: "Send Data Somewhere Else",
   ExportLong: """
     <span class="hidden-tablet">Download</span>
@@ -163,12 +161,6 @@ module.exports =
     <span class="hidden-tablet">Send to</span>
     Galaxy
     <span class="im-only-widescreen">for analysis</span>
-  """,
-  SendToGenomespace: """
-    <span class="hidden-tablet">Upload to</span>
-    <span class="im-only-widescreen">your</span>
-    Genomespace
-    <span class="im-only-widescreen">account</span>
   """,
   MyGalaxy: "Send to your Galaxy",
   ForgetGalaxy: "Clear this galaxy URL",

@@ -143,7 +143,6 @@ ICONS.fontawesome =
   Drive: 'fa-google'
   download: 'fa-cloud-download'
   Galaxy: 'fa-cloud-upload'
-  GenomeSpace: 'fa-cloud-upload'
   Filter: "fa-filter"
   Summary: "fa-bar-chart-o"
   Undo: "fa-undo"

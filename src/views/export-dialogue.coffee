@@ -25,7 +25,6 @@ openWindowWithPost = require '../utils/open-window-with-post'
 sendToDropBox = require '../utils/send-to-dropbox'
 sendToGoogleDrive = require '../utils/send-to-google-drive'
 sendToGalaxy = require '../utils/send-to-galaxy'
-sendToGenomeSpace = require '../utils/send-to-genomespace'
 
 INITIAL_STATE =
   doneness: null # null = not uploading. 0 - 1 = uploading
@@ -228,7 +227,6 @@ module.exports = class ExportDialogue extends Modal
     when 'Dropbox' then sendToDropBox
     when 'Drive' then sendToGoogleDrive
     when 'Galaxy' then sendToGalaxy
-    when 'GenomeSpace' then sendToGenomeSpace
     else throw new Error "Cannot export to #{ @state.get 'dest' }"
 
   events: ->

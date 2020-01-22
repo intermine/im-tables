@@ -47,7 +47,7 @@ class Options extends NestedModel
       DrawAverageLine: true
       Initially:
         Open: true # set to false to show them closed, initially.
-    Destinations: ['download', 'Galaxy', 'GenomeSpace', 'Drive', 'Dropbox']
+    Destinations: ['download', 'Galaxy', 'Drive', 'Dropbox']
     Destination:
       download:
         Enabled: true
@@ -56,9 +56,6 @@ class Options extends NestedModel
         Current: null
         Tool: 'flymine' # The tool we should use to send data to Galaxy
         Save: false
-        Enabled: true # Set this to false to disable this export destination
-      GenomeSpace:
-        Upload: "https://gsui.genomespace.org/jsui/upload/loadUrlToGenomespace.html"
         Enabled: true # Set this to false to disable this export destination
       Drive:
         Library: 'https://apis.google.com/js/client.js'

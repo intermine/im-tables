@@ -21,7 +21,7 @@ describe 'Options::get (simple)', ->
     options.get('StylePrefix').should.eql 'imtables'
 
   it 'should be able to read object values', ->
-    options.get('Destinations').should.eql ['download', 'Galaxy', 'GenomeSpace', 'Drive', 'Dropbox']
+    options.get('Destinations').should.eql ['download', 'Galaxy', 'Drive', 'Dropbox']
 
 describe 'Options::get (nested)', ->
 
@@ -143,16 +143,16 @@ describe 'Destination Options', ->
     destinations = (d for d in options.get('Destinations') \
                             when options.get(['Destination', d, 'Enabled']))
 
-    it 'should find 3 enabled destinations', ->
-      destinations.length.should.eql 3
+    it 'should find 2 enabled destinations', ->
+      destinations.length.should.eql 2
 
   describe 'disabling one of them', ->
 
     options = new Options
-    options.set 'Destination.GenomeSpace.Enabled', false
+    options.set 'Destination.Galaxy.Enabled', false
     destinations = (d for d in options.get('Destinations') \
                             when options.get(['Destination', d, 'Enabled']))
 
-    it 'should find 2 enabled destinations', ->
-      destinations.length.should.eql 2
+    it 'should find 1 enabled destinations', ->
+      destinations.length.should.eql 1
 
