@@ -22,7 +22,7 @@ Messages.setWithPrefix 'summary',
       <% } %>
     </strong>
   """
-  NumericDistribution: 'Showing distribution of <%= formatNumber(n) %>'
+  NumericDistribution: '<%= formatNumber(n) %> distinct'
   FilterValuesPlaceholder: 'Filter values'
   DownloadData: 'Download data'
   DownloadFormat: 'As'

@@ -1,19 +1,23 @@
 <% /* requires:
     *  numeric, available, got, uniqueValues
     *  state.typeName, state.endName
-    *  filtered 
+    *  filtered
     */ %>
 <h3>
   <% if (numeric) { %>
     <%- Messages.getText('summary.NumericDistribution', {n: available}) %>
     <span class="im-type-name"><%- state.typeName %></span>
+    <span class="im-attr-name"><%- pluralise(state.endName, got) %> for </span>
+    <span class="im-item-available">
+      <%- Messages.getText('Number', {n: available}) %>
+    </span>
     <span class="im-attr-name"><%- pluralise(state.endName, got) %></span>
-  <% } else { %> 
+  <% } else { %>
     <span class="im-item-got">
       <%- Messages.getText('summary.Got', {available: available, got: got}) %>
     </span>
     <span class="im-item-available">
-      <%- Messages.getText('Number', {n: available}) %>
+      <%- Messages.getText('Number', {n: available}) %> distinct
     </span>
     <span class="im-type-name"><%- state.typeName %></span>
     <span class="im-attr-name"><%- pluralise(state.endName, got) %></span>
@@ -23,5 +27,5 @@
             total: uniqueValues
           }) %>
     </span>
-  <% } %> 
+  <% } %>
 </h3>
