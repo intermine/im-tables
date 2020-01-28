@@ -40,7 +40,6 @@ a node environment manager such as [nvm](https://github.com/nvm-sh/nvm)).
 We assume you have the following global packages:
 
 - browserify
-- bower
 - grunt
 - coffeescript
 - brfs
@@ -48,7 +47,7 @@ We assume you have the following global packages:
 to install, run:
 
 ```sh
-npm install -g browserify bower grunt coffeescript brfs
+npm install -g browserify grunt coffeescript brfs
 ```
 
 #### Build library and install dependencies
