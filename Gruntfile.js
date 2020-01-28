@@ -108,10 +108,6 @@ grunt.initConfig({
     test: {
       exec: "mocha --require coffeescript/register test/unit/*"
     },
-    bower_install: {
-      cmd: 'bower',
-      args: ['install']
-    },
     bundle_test_indices: {
       cmd: './bin/bundle-test-indices'
     },
@@ -210,7 +206,6 @@ grunt.registerTask('build:dist', [
 ]);
 
 grunt.registerTask('build:test', [
-  'run:bower_install',
   'run:build_custom_style',
   'run:compile_umd_consumers',
   'run:bundle_test_indices',
