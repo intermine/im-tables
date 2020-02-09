@@ -65,6 +65,13 @@ serves them to the world (and runs the tests):
 npm start
 ```
 
+Run a local instance of im-tables
+```bash
+npm run dev
+```
+Navigate to `localhost:9000`.
+This uses the Flymine service and does not require a local testmine running on your machine.
+
 To use the test indices you will need a data server running the intermine-demo
 application at port 8080 on your machine - you can get this by running the
 `testmodel/setup.sh` script in the `intermine/intermine` repo.
