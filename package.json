@@ -8,7 +8,7 @@
   "scripts": {
     "repl": "coffee",
     "coffeelint": "coffeelint -f coffeelint.json",
-    "start": "grunt run:server",
+    "start": "npm run dev",
     "dev": "grunt serve",
     "test": "grunt test",
     "watch": "grunt watch",
