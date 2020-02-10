@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" type="text/css" href="../dist/main.css">
+    <script charset="UTF-8"
+            type="text/javascript"
+            src="../dist/imtables.js">
+    </script>
+  </head>
+  <body>
+    <div class="panel panel-default">
+        <div id="demo"></div>
+    </div>
+    
+    <script>
+      var selector = '#demo';
+      var service  = {root: 'http://www.flymine.org/flymine/service/'};
+      var query    = {
+        "from": "Gene",
+        "select": [
+          "secondaryIdentifier",
+          "symbol",
+          "primaryIdentifier",
+          "organism.name"
+        ],
+        "orderBy": [
+          {
+            "path": "secondaryIdentifier",
+            "direction": "ASC"
+          }
+        ]
+      };
+      imtables.configure({
+        TableCell: {
+          PreviewTrigger: 'hover',
+          IndicateOffHostLinks: false
+        }
+      });
+
+      imtables.loadTable(
+        selector, // Can also be an element, or a jQuery object.
+        {"start":0,"size":25}, // May be null
+        {service: service, query: query} // May be an imjs.Query
+      ).then(
+        function (table) { console.log('Table loaded', table); },
+        function (error) { console.error('Could not load table', error); }
+      );
+    </script>
+  </body>
+</html>
