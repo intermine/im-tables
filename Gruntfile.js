@@ -193,7 +193,6 @@ grunt.registerTask('style', [
 
 grunt.registerTask('build', [
   'build:dist',
-  'build:test',
   'notify:build'
 ]);
 
