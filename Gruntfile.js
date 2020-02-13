@@ -17,7 +17,7 @@ var serverPort = (grunt.option('port') || env.PORT || env.npm_package_config_por
 var NO_SPAWN = {spawn: false};
 
 grunt.initConfig({
-  watch: { // Hwat! This task lays out the dependency graph.
+  watchTests: { // Hwat! This task lays out the dependency graph.
     coffee: {
       files: ['src/**', 'templates/**', 'package.json'],
       tasks: [
