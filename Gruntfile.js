@@ -221,6 +221,8 @@ grunt.registerTask('style', [
   'sandbox_css'
 ]);
 
+grunt.registerTask('watchTests', ['watchTests']);
+
 grunt.registerTask('build', [
   'build:dist',
   'notify:build'
