@@ -59,11 +59,13 @@ npm install
 ```
 
 Start a development server, which builds (and rebuilds the test indices) and
-serves them to the world (and runs the tests):
+serves them to the world:
 
 ```sh
 npm start
 ```
+Navigate to `localhost:9000`.
+This uses the Flymine service and does not require a local testmine running on your machine.
 
 To use the test indices you will need a data server running the intermine-demo
 application at port 8080 on your machine - you can get this by running the
