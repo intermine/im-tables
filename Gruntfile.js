@@ -17,6 +17,36 @@ var serverPort = (grunt.option('port') || env.PORT || env.npm_package_config_por
 var NO_SPAWN = {spawn: false};
 
 grunt.initConfig({
+  watch: { // Hwat! This task lays out the dependency graph.
+    coffee: {
+      files: ['src/**', 'templates/**', 'package.json'],
+      tasks: [
+        'compile',
+        'build'
+      ],
+      options: NO_SPAWN
+    },
+    umd_consumers: {
+      files: ['test/scripts/**'],
+      tasks: [
+        'run:compile_umd_consumers',
+        'notify:build'
+      ],
+      options: NO_SPAWN
+    },
+    indices: {
+      files: ['test/indices/*', 'test/lib/*'],
+      tasks: [
+        'notify:build'
+      ],
+      options: NO_SPAWN
+    },
+    less: {
+      files: ['less/**'],
+      tasks: ['style'],
+      options: NO_SPAWN
+    }
+  },
   watchTests: { // Hwat! This task lays out the dependency graph.
     coffee: {
       files: ['src/**', 'templates/**', 'package.json'],
