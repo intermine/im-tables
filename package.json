@@ -11,7 +11,7 @@
     "start": "npm run dev",
     "dev": "grunt serve",
     "test": "grunt test",
-    "watch": "grunt watch",
+    "watch-tests": "grunt watchTests",
     "compile": "grunt compile",
     "less": "grunt run:lessc",
     "build": "grunt build",
