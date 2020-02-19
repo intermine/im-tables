@@ -7,11 +7,11 @@
 <script>
 <% } %>
 <% if (!asHTML) { %>
-/* Install from npm: npm install imtables
+/* Install from npm: npm install im-tables
  * This snippet assumes the presence on the page of an element like:
  * <div id="some-elem"></div>
  */
-var imtables = require('imtables');
+var imtables = require('im-tables');
 <% } %>
 
 var selector = '#some-elem';
