@@ -180,7 +180,11 @@ grunt.initConfig({
     }
   },
   concurrent: {
-    start: ['watchTests', 'serve']
+    start: ['watchTests', 'serve'],
+    options: {
+      logConcurrentOutput: true,
+      indent: false
+    }
   }
 });
 
