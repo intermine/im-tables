@@ -9,6 +9,7 @@ grunt.loadNpmTasks('grunt-contrib-uglify');
 grunt.loadNpmTasks('grunt-notify');
 grunt.loadNpmTasks('grunt-run');
 grunt.loadNpmTasks('grunt-sandbox-css');
+grunt.loadNpmTasks('grunt-concurrent');
 
 var env = process.env;
 
@@ -17,13 +18,19 @@ var serverPort = (grunt.option('port') || env.PORT || env.npm_package_config_por
 var NO_SPAWN = {spawn: false};
 
 grunt.initConfig({
-  watch: { // Hwat! This task lays out the dependency graph.
+  watch: { 
     coffee: {
       files: ['src/**', 'templates/**', 'package.json'],
       tasks: [
         'compile',
-        'run:test',
         'build'
+      ],
+      options: NO_SPAWN
+    },
+    coffee_test: {
+      files: ['src/**', 'templates/**', 'package.json'],
+      tasks: [
+        'run:test',
       ],
       options: NO_SPAWN
     },
@@ -171,6 +178,13 @@ grunt.initConfig({
         prefix: '.imtables'
       }
     }
+  },
+  concurrent: {
+    start: ['watchTests', 'serve'],
+    options: {
+      logConcurrentOutput: true,
+      indent: false
+    }
   }
 });
 
@@ -191,9 +205,15 @@ grunt.registerTask('style', [
   'sandbox_css'
 ]);
 
+grunt.registerTask('watchTests', [
+  'watch:coffee_test', 
+  'watch:test',
+  'watch:test_styles',
+  'watch:indices'
+]);
+
 grunt.registerTask('build', [
   'build:dist',
-  'build:test',
   'notify:build'
 ]);
 
@@ -214,7 +234,12 @@ grunt.registerTask('build:test', [
 grunt.registerTask('serve', [
   'build',
   'run:server',
-  'watch'
+  'watch:coffee',
+  'watch:umd_consumers',
+  'watch:less',
+  'notify:build'
 ]);
+
+grunt.registerTask('start', ['concurrent:start']);
 
 grunt.registerTask('default', ['build']);
