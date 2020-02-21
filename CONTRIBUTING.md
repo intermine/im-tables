@@ -59,15 +59,31 @@ npm install
 ```
 
 Start a development server, which builds (and rebuilds the test indices) and
-serves them to the world (and runs the tests):
+serves them to the world:
 
 ```sh
 npm start
 ```
+To view the running instance, navigate to `localhost:9000`.
+Note that this build execute all tests if changes are made to any file while the script is running.
+
+To get a similar instance running in the `watch` mode _without_ any tests, run the script:
+```bash
+npm run dev
+```
+Both these builds use Flymine as the service root and hence do not require setting up a local testmine.
+
+### Testing
 
 To use the test indices you will need a data server running the intermine-demo
 application at port 8080 on your machine - you can get this by running the
 `testmodel/setup.sh` script in the `intermine/intermine` repo.
+
+Apart from this, the current configuration includes a `watchTests` task defined in the [Gruntfile](https://github.com/intermine/im-tables/blob/dev/Gruntfile.js). This can be used to run tests on the project in `watch` mode. Type in the following command into your terminal:
+```bash
+grunt watchTests
+```
+The task uses `mocha` (the default testing framework for this project) and will log the test results after any changes are made.
 
 ### Coding Style
 
