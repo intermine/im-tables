@@ -20,7 +20,7 @@ Messages.setWithPrefix 'error.client',
   """
 
 Messages.setWithPrefix 'error.server',
-  Heading: "Server error - our bad!"
+  Heading: "Server error!"
   Body: """
     This is most likely related to the query that was just run. If you have
     two minutes, please send us an email with details of this query to help us
