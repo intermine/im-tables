@@ -73,6 +73,12 @@ npm run dev
 ```
 Both these builds use Flymine as the service root and hence do not require setting up a local testmine.
 
+#### Changing to a different mine
+
+By default, running `npm run dev` gives us data of Flymine. But many a times, we'll need to access data of different mines.
+One way of doing this is by changing the flymine URL in `index.html` to the URL of the desired mine.
+In case this doesn't work, we'll need to change the query given in `index.html`.
+
 ### Testing
 
 To use the test indices you will need a data server running the intermine-demo
