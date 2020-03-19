@@ -23,13 +23,15 @@ module.exports = class ItemDetails extends CoreView
   events: ->
     'click .im-too-long': @revealLongField
 
-  postRender: -> @collection.each (details) => @addDetail details
+  postRender: ->
+    @collection.each (details) => @addDetail details
 
   addDetail: (details) ->
-    @$el.append @['render' + details.get('fieldType')] details.toJSON()
+    if details.get('type') == "String"
+      @$el.append @['render' + details.get('fieldType')] details.toJSON()
 
   renderATTR: (data) -> ATTR _.extend @getBaseData(), data
-  
+
   renderREF: REFERENCE
 
   revealLongField: (e) ->
@@ -38,4 +40,3 @@ module.exports = class ItemDetails extends CoreView
     $overSpill = @$ '.im-overspill'
     $tooLong.remove()
     $overSpill.slideDown 250
-
