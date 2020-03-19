@@ -76,7 +76,7 @@ Both these builds use Flymine as the service root and hence do not require setti
 #### Changing to a different mine
 
 By default, running `npm run dev` gives us data of Flymine. But many a times, we'll need to access data of different mines.
-One way of doing this is by changing the flymine URL in `index.html` to the URL of the desired mine.
+One way of doing this is by changing the flymine URL in `index.html` to the URL of the desired mine which can be found in http://registry.intermine.org/.
 In case this doesn't work, we'll need to change the query given in `index.html`.
 
 ### Testing
