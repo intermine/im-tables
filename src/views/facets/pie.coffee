@@ -16,10 +16,13 @@ TWEEN_START =
 
 getChartPalette = ->
   colors = Options.get 'PieColors'
+  console.log colors
+  
+
   paint = if _.isFunction colors
     colors
   else
-    d3.scale[colors]()
+    d3.scale.ordinal(colors)
 
   (d) -> paint d.data.get('id')
 
