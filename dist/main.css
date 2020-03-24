@@ -9385,7 +9385,7 @@ fieldset[disabled] .modal .btn-cancel.active {
 .im-summary-chart .im-bucket,
 .im-summary-chart .im-item-bar {
   fill: #37578b;
-  stroke: #ffffff;
+  stroke: #37578b;
 }
 .im-summary-chart .im-item-bar.selected {
   fill: #bd3f65;
