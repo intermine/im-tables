@@ -9386,6 +9386,9 @@ fieldset[disabled] .modal .btn-cancel.active {
     margin-left: 5px;
   }
 }
+.im-export-dialogue .radio label {
+  padding-right: 50px;
+}
 .im-summary-chart .im-bucket,
 .im-summary-chart .im-item-bar {
   fill: #37578b;

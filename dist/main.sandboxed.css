@@ -7086,6 +7086,8 @@
 .imtables .im-export-dialogue .im-export-tab-menu > li {
     float: left;
     margin-left: 5px;}}
+.imtables .im-export-dialogue .radio label {
+  padding-right: 50px;}
 .imtables .im-summary-chart .im-bucket,
 .imtables .im-summary-chart .im-item-bar {
   fill: #37578b;
