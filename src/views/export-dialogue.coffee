@@ -58,7 +58,7 @@ class ExportModel extends Model
     max: null
     compress: false
     compression: 'gzip'
-    headers: false
+    headers: true
     jsonFormat: 'rows'
     fastaExtension: null
     headerType: 'friendly'
