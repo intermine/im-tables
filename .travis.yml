@@ -1,0 +1,12 @@
+language: node_js
+
+node_js:
+  - 'lts/*'
+
+install:
+  # Install all the project dependencies
+  - npm install
+
+script:
+  # Run test script
+  - npm run test
