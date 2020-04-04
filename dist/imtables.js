@@ -5258,7 +5258,7 @@
         ListFreshness: 250,
         MaxSuggestions: 1000,
         ListCategorisers: ['organism.name', 'department.company.name'],
-        PieColors: ['#706e72', '#673AB7', '#03A9F4'],
+        PieColors: ["#A07A19", "#AC30C0", "#EB9A72", "#BA86F5", "#EA22A8"],
         TableResults: {
           CacheFactor: 10,
           RequestLimit: 5000
@@ -14611,8 +14611,7 @@ module.exports = '2.1.0';
   getChartPalette = function() {
     var colors, paint;
     colors = Options.get('PieColors');
-    console.log(colors);
-    paint = _.isFunction(colors) ? colors : d3.scale.ordinal(colors);
+    paint = d3.scale.ordinal().range(colors);
     return function(d) {
       return paint(d.data.get('id'));
     };

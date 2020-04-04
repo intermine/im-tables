@@ -19,7 +19,7 @@ class Options extends NestedModel
     ListFreshness: 250 # Number of milliseconds lists requests will be considered fresh for.
     MaxSuggestions: 1000 # Max number of suggestions to fetch and show when editing constraints.
     ListCategorisers: ['organism.name', 'department.company.name']
-    PieColors: ['#706e72', '#673AB7', '#03A9F4'] #category10
+    PieColors:["#A07A19", "#AC30C0", "#EB9A72", "#BA86F5", "#EA22A8"] #category10 
     TableResults:
       CacheFactor: 10
       RequestLimit: 5000 # Dump the cache rather than request more rows than this
