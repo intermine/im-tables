@@ -9286,11 +9286,15 @@ span.twitter-typeahead {
   color: white;
 }
 .modal {
-  text-align: left;
+  text-align: center;
   white-space: normal;
 }
 .modal a.close {
   cursor: pointer;
+}
+.modal .modal-content {
+  max-height: 90vh;
+  overflow: auto;
 }
 .modal .btn-cancel {
   color: #333;

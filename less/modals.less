@@ -1,10 +1,15 @@
 .modal {
-    text-align: left;
+    text-align: center; //changed from left to center
     white-space: normal;
     a.close {
         cursor: pointer; 
     }
 
+    .modal-content {
+        max-height: 90vh;
+        overflow: auto;
+    }
+   
     .btn-cancel {
         .btn-default();
     }
@@ -31,4 +36,6 @@
         }
     }
 }
+
+
 
