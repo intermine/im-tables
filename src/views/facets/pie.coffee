@@ -16,13 +16,12 @@ TWEEN_START =
 
 getChartPalette = ->
   colors = Options.get 'PieColors'
-  paint = if _.isFunction colors
-    colors
-  else
-    d3.scale[colors]()
-
-  (d) -> paint d.data.get('id')
-
+  # paint = if _.isFunction colors
+  #   colors
+  # else
+  paint = d3.scale.ordinal().range(colors)
+  (d) -> paint d.data.get('id')	
+  
 getStartPosition = (model) -> model.get('currentPieCoords') ? TWEEN_START
 
 opacity = (d) -> if d.data.get('visible') then 1 else 0.25
