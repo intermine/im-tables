@@ -67,6 +67,9 @@ exports.configure = Options.set.bind(Options)
 # :: (elem, page, query) -> Promise Table
 exports.loadTable = load Table.create
 
+# Allow 3rd parties to create a table and externally manage the view rendering
+exports.createTable = Table.create
+
 # :: (elem, page, query) -> Promise Dashboard
 exports.loadDash = load (opts) -> new Dashboard opts
 
