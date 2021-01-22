@@ -20,6 +20,7 @@ TABS = [
   new Tab('columns', 'Columns'),
   new Tab('rows', 'Rows', [], {flat: true, machine: true}),
   new Tab('compression', 'Compression'),
+  new Tab('exportDataPackage', 'DataPackage'),
   new Tab('column-headers', 'ColumnHeaders', ['tsv', 'csv']),
   new Tab('preview', 'Preview')
 ]

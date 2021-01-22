@@ -92,7 +92,7 @@
 
 }).call(this);
 
-},{"./options":63,"es6-promise":248,"jquery":252,"underscore":257}],2:[function(require,module,exports){
+},{"./options":63,"es6-promise":249,"jquery":253,"underscore":258}],2:[function(require,module,exports){
 (function() {
   var Backbone, CoreModel, invert,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -174,7 +174,7 @@
 
 }).call(this);
 
-},{"backbone":230}],3:[function(require,module,exports){
+},{"backbone":231}],3:[function(require,module,exports){
 (function() {
   var $, Backbone, CoreModel, CoreView, Event, Icons, IndeterminateProgressBar, Messages, Templates, _, getKid, helpers, kid, listenToCollection, listenToModel, listenToState, listenToThing, onChange,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -580,7 +580,7 @@
 
 }).call(this);
 
-},{"./core-model":2,"./event":11,"./icons":14,"./messages":16,"./shim":66,"./templates":67,"./templates/helpers":68,"./utils/on-change":93,"backbone":230,"jquery":252,"underscore":257}],4:[function(require,module,exports){
+},{"./core-model":2,"./event":11,"./icons":14,"./messages":16,"./shim":66,"./templates":67,"./templates/helpers":68,"./utils/on-change":93,"backbone":231,"jquery":253,"underscore":258}],4:[function(require,module,exports){
 (function() {
   var Checkbox, CoreView, Messages, Templates,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -691,7 +691,7 @@
 
 }).call(this);
 
-},{"../core-model":2,"backbone":230}],6:[function(require,module,exports){
+},{"../core-model":2,"backbone":231}],6:[function(require,module,exports){
 (function() {
   var CoreView, InputWithButton, Templates, _,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -770,7 +770,7 @@
 
 }).call(this);
 
-},{"../core-view":3,"../templates":67,"underscore":257}],7:[function(require,module,exports){
+},{"../core-view":3,"../templates":67,"underscore":258}],7:[function(require,module,exports){
 (function() {
   var CoreView, InputWithLabel, Templates, _,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -894,7 +894,7 @@
 
 }).call(this);
 
-},{"../core-view":3,"../templates":67,"underscore":257}],8:[function(require,module,exports){
+},{"../core-view":3,"../templates":67,"underscore":258}],8:[function(require,module,exports){
 (function() {
   var Model, NestedModel, _, isPlainObject, mergeOldAndNew, setSection,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -1047,7 +1047,7 @@
 
 }).call(this);
 
-},{"../core-model":2,"underscore":257}],9:[function(require,module,exports){
+},{"../core-model":2,"underscore":258}],9:[function(require,module,exports){
 (function() {
   var InputWithLabel, SelectWithLabel, Templates, _,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -1113,7 +1113,7 @@
 
 }).call(this);
 
-},{"../templates":67,"./input-with-label":7,"underscore":257}],10:[function(require,module,exports){
+},{"../templates":67,"./input-with-label":7,"underscore":258}],10:[function(require,module,exports){
 (function() {
   var ArrayOf, Backbone, Callable, CoreCollection, CoreModel, DataModel, InstanceOfAssertion, InterMineService, IsArray, StringType, StructuralTypeAssertion, _,
     slice = [].slice;
@@ -1344,7 +1344,7 @@
 
 }).call(this);
 
-},{"../core-model":2,"./collection":5,"backbone":230,"underscore":257}],11:[function(require,module,exports){
+},{"../core-model":2,"./collection":5,"backbone":231,"underscore":258}],11:[function(require,module,exports){
 (function() {
   var Event;
 
@@ -1512,7 +1512,7 @@
 
 }).call(this);
 
-},{"./core/nested-model":8,"./templates":67,"underscore":257}],14:[function(require,module,exports){
+},{"./core/nested-model":8,"./templates":67,"underscore":258}],14:[function(require,module,exports){
 (function() {
   var ICONS, Icons, Model, Options, _, registerIconSet,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -1781,7 +1781,7 @@
 
 }).call(this);
 
-},{"./core-model":2,"./options":63,"underscore":257}],15:[function(require,module,exports){
+},{"./core-model":2,"./options":63,"underscore":258}],15:[function(require,module,exports){
 (function() {
   var Dashboard, Formatting, Messages, Options, Promise, Table, Types, _, asElement, connect, createView, load, simpleFormatter, version;
 
@@ -1878,7 +1878,7 @@
 
 }).call(this);
 
-},{"./core/type-assertions":10,"./formatting":13,"./messages":16,"./options":63,"./shim":66,"./utils/simple-formatter":102,"./version":109,"./views/dashboard":134,"./views/table":207,"es6-promise":248,"imjs":250,"underscore":257}],16:[function(require,module,exports){
+},{"./core/type-assertions":10,"./formatting":13,"./messages":16,"./options":63,"./shim":66,"./utils/simple-formatter":102,"./version":109,"./views/dashboard":134,"./views/table":208,"es6-promise":249,"imjs":251,"underscore":258}],16:[function(require,module,exports){
 (function() {
   var Backbone, DEFAULTS, HELPERS, Messages, _, actionMessages, common, numToString, pluralise, ref,
     bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
@@ -1973,7 +1973,7 @@
 
 }).call(this);
 
-},{"./messages/actions":17,"./messages/common":20,"./templates/helpers":68,"backbone":230,"underscore":257}],17:[function(require,module,exports){
+},{"./messages/actions":17,"./messages/common":20,"./templates/helpers":68,"backbone":231,"underscore":258}],17:[function(require,module,exports){
 (function() {
   module.exports = {
     'export.Export': 'Export',
@@ -1984,8 +1984,10 @@
     'export.category.Preview': "Preview",
     'export.preview.Limit': 'Preview is limited to at most 3 results.',
     'export.heading.Columns': "Columns",
+    'export.category.DataPackage': "Frictionless Data Package",
+    'export.DataPackage.Title': "Export Frictionless Data Package (uses ZIP compression).",
     'export.category.Rows': "<% if (rowCount === max) { %>\n  All\n<% } else { %>\n  <%= rowCount %> of <%= max %>\n<% } %>\nRows",
-    'export.category.Compression': "<% if (compression) { %>\n  <%= compression.toUpperCase() %>\n<% } else { %>\n  No\n<% } %> Compression",
+    'export.category.Compression': "<% if (exportDataPackage) { %>\n  ZIP\n<% } else if (compression) { %>\n  <%= compression.toUpperCase() %>\n<% } else { %>\n  No\n<% } %> Compression",
     'export.category.Options': "Options",
     'export.category.JsonFormat': "As <%= (jsonFormat === 'objects') ? 'Objects' : 'Rows' %>",
     'export.category.FastaFormat': 'FASTA options',
@@ -2288,7 +2290,7 @@
   });
 
   Messages.setWithPrefix('error.server', {
-    Heading: "Server error - our bad!",
+    Heading: "Server error!",
     Body: "This is most likely related to the query that was just run. If you have\ntwo minutes, please send us an email with details of this query to help us\ndiagnose and fix this bug - we have already pre-filled the bug report,\nyou just need to hit send (and maybe give us some extra details).\nAlternatively, you might be able to fix this query by changing its column, \nfilters or joins; use the tools above to do so."
   });
 
@@ -2555,7 +2557,7 @@
 
 }).call(this);
 
-},{"jquery":252}],31:[function(require,module,exports){
+},{"jquery":253}],31:[function(require,module,exports){
 (function() {
   var _;
 
@@ -2589,7 +2591,7 @@
 
 }).call(this);
 
-},{"underscore":257}],32:[function(require,module,exports){
+},{"underscore":258}],32:[function(require,module,exports){
 (function() {
   var _;
 
@@ -2637,7 +2639,7 @@
 
 }).call(this);
 
-},{"underscore":257}],33:[function(require,module,exports){
+},{"underscore":258}],33:[function(require,module,exports){
 (function() {
   var CACHE, _;
 
@@ -2704,6 +2706,10 @@
     if (this.model.get('compress')) {
       data.compress = this.model.get('compression');
     }
+    if (this.model.get('exportDataPackage')) {
+      data.exportDataPackage = this.model.get('exportDataPackage');
+      data.compress = 'zip';
+    }
     if (this.model.get('headers')) {
       data.columnheaders = this.model.get('headerType');
     }
@@ -2721,7 +2727,7 @@
 
 }).call(this);
 
-},{"underscore":257}],34:[function(require,module,exports){
+},{"underscore":258}],34:[function(require,module,exports){
 (function() {
   exports.setPathNames = function() {
     var end, q, ref, ref1, s, service, set, setError, type, v;
@@ -2778,7 +2784,7 @@
 
 }).call(this);
 
-},{"../core-model":2,"underscore":257}],36:[function(require,module,exports){
+},{"../core-model":2,"underscore":258}],36:[function(require,module,exports){
 (function() {
   var AvailableColumns, Collection, PathModel, cmp, displayName, partsLen,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -2938,7 +2944,7 @@
 
 }).call(this);
 
-},{"../core-model":2,"../options":63,"es6-promise":248,"underscore":257}],38:[function(require,module,exports){
+},{"../core-model":2,"../options":63,"es6-promise":249,"underscore":258}],38:[function(require,module,exports){
 (function() {
   var CodeGenModel, CoreModel, Options,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -3112,7 +3118,7 @@
 
 }).call(this);
 
-},{"./path":56,"imjs":250,"underscore":257}],41:[function(require,module,exports){
+},{"./path":56,"imjs":251,"underscore":258}],41:[function(require,module,exports){
 (function() {
   var CoreCollection, CoreModel, CreateListModel, ON_COMMA, _, trim,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -3215,7 +3221,7 @@
 
 }).call(this);
 
-},{"../core-model":2,"../core/collection":5,"underscore":257}],42:[function(require,module,exports){
+},{"../core-model":2,"../core/collection":5,"underscore":258}],42:[function(require,module,exports){
 (function() {
   var Format, _, formats;
 
@@ -3340,7 +3346,7 @@
 
 }).call(this);
 
-},{"underscore":257}],43:[function(require,module,exports){
+},{"underscore":258}],43:[function(require,module,exports){
 (function() {
   var CoreModel, FPObject,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -3514,7 +3520,7 @@
 
 }).call(this);
 
-},{"../options":63,"./path":56,"underscore":257}],45:[function(require,module,exports){
+},{"../options":63,"./path":56,"underscore":258}],45:[function(require,module,exports){
 (function() {
   var Collection, History, StepModel, _,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -3706,7 +3712,7 @@
 
 }).call(this);
 
-},{"../core/collection":5,"./step":59,"underscore":257}],46:[function(require,module,exports){
+},{"../core/collection":5,"./step":59,"underscore":258}],46:[function(require,module,exports){
 (function() {
   var CoreModel, IMObject, _,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -3752,7 +3758,7 @@
 
 }).call(this);
 
-},{"../core-model":2,"underscore":257}],47:[function(require,module,exports){
+},{"../core-model":2,"underscore":258}],47:[function(require,module,exports){
 (function() {
   var Collection, Join, Joins, PathModel, _,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -3843,7 +3849,7 @@
 
 }).call(this);
 
-},{"../core/collection":5,"./path":56,"underscore":257}],48:[function(require,module,exports){
+},{"../core/collection":5,"./path":56,"underscore":258}],48:[function(require,module,exports){
 (function() {
   var CoreModel, NestedTableModel, _,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -3935,7 +3941,7 @@
 
 }).call(this);
 
-},{"../core-model":2,"underscore":257}],49:[function(require,module,exports){
+},{"../core-model":2,"underscore":258}],49:[function(require,module,exports){
 (function() {
   var CoreModel, NullObject,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -4055,7 +4061,7 @@
 
 }).call(this);
 
-},{"backbone":230,"underscore":257}],51:[function(require,module,exports){
+},{"backbone":231,"underscore":258}],51:[function(require,module,exports){
 (function() {
   var IMObject, ObjectStore, _;
 
@@ -4115,7 +4121,7 @@
 
 }).call(this);
 
-},{"./intermine-object":46,"underscore":257}],52:[function(require,module,exports){
+},{"./intermine-object":46,"underscore":258}],52:[function(require,module,exports){
 (function() {
   var Backbone, OpenNodes, UniqItems, descendsFrom,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -4180,7 +4186,7 @@
 
 }).call(this);
 
-},{"./uniq-items":62,"backbone":230}],53:[function(require,module,exports){
+},{"./uniq-items":62,"backbone":231}],53:[function(require,module,exports){
 (function() {
   var OrderElementModel, PathModel,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -4343,7 +4349,7 @@
 
 }).call(this);
 
-},{"./uniq-items":62,"backbone":230}],56:[function(require,module,exports){
+},{"./uniq-items":62,"backbone":231}],56:[function(require,module,exports){
 (function() {
   var BOOLEAN_TYPES, CoreModel, NUMERIC_TYPES, PathModel, ref,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -4432,7 +4438,7 @@
 
 }).call(this);
 
-},{"../core-model":2,"imjs":250}],57:[function(require,module,exports){
+},{"../core-model":2,"imjs":251}],57:[function(require,module,exports){
 (function() {
   var Collection, CoreModel, RowModel, RowsCollection, _,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -4496,7 +4502,7 @@
 
 }).call(this);
 
-},{"../core-model":2,"../core/collection":5,"underscore":257}],58:[function(require,module,exports){
+},{"../core-model":2,"../core/collection":5,"underscore":258}],58:[function(require,module,exports){
 (function() {
   var Collection, CoreModel, SelectedObjects, SelectionModel, types,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -4681,7 +4687,7 @@
 
 }).call(this);
 
-},{"../core-model":2,"../utils/count-executor":77,"underscore":257}],60:[function(require,module,exports){
+},{"../core-model":2,"../utils/count-executor":77,"underscore":258}],60:[function(require,module,exports){
 (function() {
   var Collection, CoreModel, Options, SummaryHistogram, SummaryItemModel, SummaryItems, SummaryModel, _, getColumnSummary, inty,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -5036,7 +5042,7 @@
 
 }).call(this);
 
-},{"../core-model":2,"../core/collection":5,"../options":63,"../services/column-summary":65,"underscore":257}],61:[function(require,module,exports){
+},{"../core-model":2,"../core/collection":5,"../options":63,"../services/column-summary":65,"underscore":258}],61:[function(require,module,exports){
 (function() {
   var CoreModel, Options, PathSet, TableModel,
     bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
@@ -5222,7 +5228,7 @@
 
 }).call(this);
 
-},{"../core-model":2,"../core/collection":5,"backbone":230,"underscore":257}],63:[function(require,module,exports){
+},{"../core-model":2,"../core/collection":5,"backbone":231,"underscore":258}],63:[function(require,module,exports){
 (function() {
   var NestedModel, Options,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -5433,7 +5439,7 @@
 }).call(this);
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"backbone":230,"bootstrap":232,"jquery":252,"jquery-ui-bundle":251,"typeahead.js":256}],67:[function(require,module,exports){
+},{"backbone":231,"bootstrap":233,"jquery":253,"jquery-ui-bundle":252,"typeahead.js":257}],67:[function(require,module,exports){
 var _ = require('underscore');
 
 var TEMPLATES = exports;
@@ -5456,118 +5462,119 @@ function getTemplate (name) {
 }
 // Simple templates we can define inline.
 TEMPLATES.clear = '<div style="clear:both"></div>';
-exports.code_gen_js = "<% if (asHTML) { %>\n<!-- The Element we will target -->\n<div id=\"some-elem\"></div>\n<!-- The imtables source -->\n<script src=\"<%= imtablesJS %>\" charset=\"UTF-8\"></script>\n<link rel=\"stylesheet\" href=\"<%= imtablesCSS %>\">\n<script>\n<% } %>\n<% if (!asHTML) { %>\n/* Install from npm: npm install im-tables\n * This snippet assumes the presence on the page of an element like:\n * <div id=\"some-elem\"></div>\n */\nvar imtables = require('im-tables');\n<% } %>\n\nvar selector = '#some-elem';\nvar service  = {root: '<%= service.root %>'};\nvar query    = <%= JSON.stringify(query, null, 2) %>;\n\nimtables.loadTable(\n  selector, // Can also be an element, or a jQuery object.\n  <%= JSON.stringify(page) %>, // May be null\n  {service: service, query: query} // May be an imjs.Query\n).then(\n  function (table) { console.log('Table loaded', table); },\n  function (error) { console.error('Could not load table', error); }\n);\n<% if (asHTML) { %>\n</script>\n<% } %>\n";
-exports.select_with_label = "<label><%- Messages.getText(label) %></label>\n\n<% if (options.length) { %>\n    <select class=\"form-control\">\n        <% _.each(options, function (option) { %>\n            <option selected=\"<%= selected(option) ? 'selected' : void 0 %>\"\n                    value=\"<%- option.name %>\">\n                <%- Messages.getText(optionLabel, option) %>\n            </option>\n        <% }) %>\n    </select>\n    <% if (helpMessage) { %>\n        <span style=\"display:<%= hasProblem ? 'block' : 'none' %>\"\n              class=\"help-block\">\n                <%- Messages.getText(helpMessage) %>\n        </span>\n    <% } %>\n<% } else { %>\n    <span class=\"help-block\">\n        <%- Messages.getText(noOptionsMessage, {model: model}) %>\n    </span>\n<% } %>\n\n";
 exports.modal_base = "<div class=\"modal-dialog <%- modalSize %>\">\n    <div class=\"modal-content\">\n        <div class=\"modal-header\">\n            <button type=\"button\" class=\"close\">\n                <span aria-hidden=\"true\">&times;</span>\n                <span class=\"sr-only\">Close</span>\n            </button>\n            <h4 class=\"modal-title\"><%- title %></h4>\n        </div>\n        <div class=\"modal-body\">\n            <%= body %>\n        </div>\n    </div>\n</div>\n";
-exports.constraints_heading = "<% /* requires constraints.length */ %>\n<h3>\n  <%- Messages.getText('constraints.Heading', {n: constraints.length}) %>\n</h3>\n";
-exports.logic_manager_body = "<div class=\"form-group\">\n  <label class=\"form-label\">\n    <%- Messages.getText('logic.LogicLabel') %>\n    <input type=\"text\"\n          class=\"im-logic form-control\"\n          placeholder=\"<%- state.defaultLogic %>\"\n          value=\"<%- logic %>\">\n  </label>\n</div>\n<div class=\"form-group\">\n  <button class=\"pull-right btn btn-primary <%- (state.disabled) ? 'disabled' : null %>\"\n          type=\"submit\">\n    <%- Messages.getText('logic.ApplyLogic') %>\n  </button>\n</div>\n";
-exports.value_control_row = "<td>\n  <input type=\"checkbox\" {{ (selected) ? 'checked' : void 0 }}>\n</td>\n<td class=\"im-multi-value\">\n  {{# if (editing) { }}\n    <div class=\"input-group\">\n      <input type=\"text\" value=\"{{ value }}\" class=\"form-control\">\n      <span class=\"input-group-btn\">\n        <button class=\"btn btn-success im-save\"\n                title=\"{{ messages.getText('multivalue.SaveValue') }}\"\n                type=\"button\">\n            {{{ icons.icon('OK') }}}\n            <span class=\"im-long\">{{ messages.getText('multivalue.SaveValue') }}</span>\n        </button>\n        <button class=\"btn btn-danger im-cancel\"\n                title=\"{{ messages.getText('Cancel') }}\"\n                type=\"button\">\n            {{{ icons.icon('Cancel') }}}\n            <span class=\"im-long\">{{ messages.getText('Cancel') }}</span>\n        </button>\n      </span>\n    </div>\n  {{# } else { }}\n    <a class=\"im-edit pull-right\">{{{ icons.icon('Edit') }}}</a>\n    {{ value }}\n  {{# } }}\n</td>\n";
-exports.export_fasta_options = "<h3><%- Messages.getText('export.category.Options') %></h3>\n\n<div class=\"form-group\">\n    <label><%- Messages.getText('FastaExtension') %></label>\n    <input type=\"text\"\n           value=\"<%- fastaExtension %>\"\n           placeholder=\"5kbp\"\n           class=\"form-control im-fasta-ext\">\n</div>\n";
-exports.code_gen_button = "<% /* requires lang :: string, options.Langs :: [string] */ %>\n<div class=\"btn-group language-selector\">\n    <button type=\"button\"\n            class=\"btn btn-default im-show-code-gen-dialogue\">\n    </button>\n    <button type=\"button\"\n            data-toggle=\"dropdown\"\n            aria-expanded=\"false\"\n            class=\"btn btn-default dropdown-toggle\">\n        <span class=\"caret\"></span>\n    </button>\n    <ul class=\"dropdown-menu im-code-gen-langs\" role=\"menu\">\n        <% _.each(options.Langs, function (l) { %>\n            <li data-lang=\"<%- l %>\" class=\"<%= (l === lang) ? 'active' : void 0 %>\">\n                <a href=\"#\"><%- Messages.getText('codegen.Lang', {lang: l}) %></a>\n            </li>\n        <% }); %>\n    </ul>\n</div>\n";
-exports.too_many_suggestions = "<span class=\"alert alert-info\">\n  {{{ icons.icon('Info') }}}\n  {{ messages.getText('conbuilder.TooManySuggestions') }}\n  There are {{ extra }} values we could not include.\n</span>\n";
-exports.modal_dialogue_opener = "<button class=\"btn btn-default im-open-dialogue\">\n  <%= Icons.icon(labels.ICON) %>\n  <span class=\"im-hidden-sm hidden-sm hidden-xs\">\n    <%- Messages.getText(labels.LONG, state) %>\n  </span>\n  <span class=\"im-visible-sm-inline visible-sm-inline\">\n    <%- Messages.getText(labels.SHORT, state) %>\n  <span>\n</button>\n";
-exports.column_manager_path_remover = "<% /* requires: removeTitle */ %>\n<span class=\"pull-right im-remove-view\"\n      title=\"<%- Messages.getText(removeTitle) %>\">\n    <%= Icons.icon('Remove') %>\n</span>\n\n";
-exports.cell_preview_items = "<colgroup>\n  <col class=\"im-item-field\"/>\n  <col class=\"im-item-value\"/>\n</colgroup>\n<tbody></tbody>\n";
-exports.reset_button = "<button type=\"button\"\n        <%= (isAll) ? 'disabled' : void 0 %>\n        class=\"btn btn-default btn-reset\">\n    <%- Messages.getText('Reset') %>\n</button>\n";
-exports.error_message = "<% if (error) { %>\n    <div class=\"alert alert-<%= error.level || 'danger' %>\">\n        <%= icons.icon('Error') %>\n        <span class=\"im-conbuilder-error\">\n            <%- error.message || error %>\n        </span>\n    </div>\n<% } %>\n\n";
-exports.list_dialogue_expander = "<button class=\"btn btn-default im-expand-dialogue <%= minimised ? 'active' : void 0 %>\">\n  <%- Messages.getText('lists.picker.Collapse') %>\n</button>\n";
-exports.export_tab_menu = "<% _.each(data.tabs, function (tabDef) { %>\n  <li role=\"presentation\" class=\"im-tab-<%= tabDef.ident %> <%= data.tab === tabDef.ident ? 'active' : void 0 %>\">\n    <a><%- data.Messages.getText(tabDef.key, data) %></a>\n  </li>\n<% }); %>\n";
-exports.column_header = "<% /* requires the properties of HeaderModel +\n    *  penult, last, headerClasses, colTitleClasses, penultClasses\n    *  and the usual Icons, Messages\n    */ %>\n<div class=\"<%- headerClasses %>\">\n\n<div class=\"im-th-buttons\">\n    \n    <% if (outerJoined && isReference) { %>\n      <a href=\"#\" \n          class=\"im-subtable-expander im-th-button\"\n          title=\"<%- Messages.getText('table.header.ToggleTables') %>\">\n        <%= Icons.icon('Table') %>\n      </a>\n    <% } %>\n\n    <% if (sortable) { %>\n        <span class=\"im-th-dropdown im-col-sort dropdown\">\n            <a class=\"im-th-button im-col-sort-indicator\"\n                title=\"<%- Messages.getText('table.header.SortColumn', {dir: sortDirection}) %>\">\n                <%= Icons.icon(sortDirection || 'unsorted') %>\n            </a>\n            <div class=\"dropdown-menu\">\n                <div><%- Messages.getText('table.header.FailedToInitSortMenu') %></div>\n            </div>\n        </span>\n    <% } %>\n\n    <a class=\"im-th-button im-col-remover\"\n        title=\"<%- Messages.getText('table.header.RemoveColumn') %>\">\n        <%= Icons.icon('headerIconRemove') %>\n    </a>\n\n    <a class=\"im-th-button im-col-minumaximiser\"\n        title=\"<%- Messages.getText('table.header.ToggleColumn') %>\">\n        <%= Icons.icon(minimised ? 'headerIconReveal' : 'headerIconHide') %>\n    </a>\n\n    <span class=\"dropdown im-filter-summary im-th-dropdown\">\n        <a class=\"im-th-button im-col-filters dropdown-toggle\"\n            title=\"<%- Messages.getText('table.header.FilterTitle', {count: numOfCons}) %>\"\n            data-toggle=\"dropdown\" >\n            <%= Icons.icon('Filter') %>\n        </a>\n        <div class=\"dropdown-menu\">\n            <div><%- Messages.getText('table.header.FailedToInitFilter') %></div>\n        </div>\n    </span>\n\n    <span class=\"dropdown im-summary im-th-dropdown\">\n        <a class=\"im-th-button summary-img dropdown-toggle\"\n            title=\"<%- Messages.getText('table.header.ViewSummary') %>\"\n            data-toggle=\"dropdown\" >\n            <%= Icons.icon('Summary') %>\n        </a>\n        <div class=\"dropdown-menu\">\n            <div><%- Messages.getText('table.header.FailedToInitSummary') %></div>\n        </div>\n    </span>\n\n    <% if (isComposed) { %>\n        <a class=\"im-th-button im-col-composed\"\n            title=\"<%- Messages.getText('table.header.Composed', {replaces: replaces}) %>\">\n            <%= Icons.icon('Composed') %>\n        </a>\n    <% } %>\n</div>\n\n<div class=\"<%- colTitleClasses %>\">\n  <div class=\"<%- penultClasses %>\">\n      <%- penult %>\n  </div>\n  <% if (last) { %>\n    <div class=\"im-title-part im-last\">\n        <%- last %>\n    </div>\n  <% } %>\n</div>\n\n</div>\n\n";
-exports.column_manager_restore_path = "<% /* requires: restoreTitle */ %>\n<span class=\"pull-right im-restore-view\"\n    title=\"<%- Messages.getText(restoreTitle) %>\">\n    <%= Icons.icon('Add') %>\n</span>\n\n";
-exports.list_value_controls = "<% if (suitableLists.length) { %>\n    <%= select(suitableLists, isSelected, 'span7 im-value-options im-con-value im-con-value-list form-control', formatList, getOptionValue) %>\n<% } else { %>\n    <%- messages.getText('conbuilder.NoSuitableLists') %>\n<% } %>\n";
-exports.formatted_sorting = "<a> <% /* requires Icons, direction and name */ %>\n    <%= Icons.icon(direction || 'unsorted') %>\n    <span class=\"im-sort-path\"><%- name %></span>\n</a>\n";
-exports.cell_preview_attribute = "<tr>\n  <td class=\"im-field-name\"><%- _.last(parts) %></td>\n  <td class=\"im-field-value <%- field.toLowerCase() %> <%- type %>\">\n    <% if (isNumeric) { %>\n      <%- numToString(+value) %>\n    <% } else { %>\n      <%- value %>\n    <% } %>\n    <% if (tooLong) { %>\n      <span class=\"im-overspill\"><%- valueOverspill %></span>\n      <a class=\"im-too-long\">\n        <span class=\"im-ellipsis\">...</span>\n        <%= Icons.icon('More') %>\n      </a>\n    <% } %>\n  </td>\n</tr>\n";
-exports.extra_value_controls = "<label class=\"im-value-options\">\n    <%- messages.getText('conbuilder.ExtraLabel') %>\n    <input type=\"text\" class=\"im-extra-value form-control\"\n            placeholder=\"<%- state.extraPlaceholder %>\"\n            value=\"<%- con.extraValue %>\">\n</label>\n\n";
-exports.pagination = "<ul class=\"pagination\">\n    <li class=\"hidden-xs <%= gotoStart || 'im-goto-start' %>\" title=\"Go to start\">\n        <a class=\"im-pagination-button\">&#x21e4;</a>\n    </li>\n    <li class=\"hidden-xs hidden-sm <%= goFiveBack || 'im-go-back-5' %>\"\n        title=\"Go back five pages\"\n        class=\"visible-desktop\">\n        <a class=\"im-pagination-button\">&#x219e;</a>\n    </li>\n    <li class=\"<%= goOneBack || 'im-go-back-1' %>\"\n        title=\"Go to previous page\">\n        <a class=\"im-pagination-button\">&larr;</a>\n    </li>\n    <li class=\"im-current-page\">\n        <% if (useSelect) { %>\n          <form class=\"im-page-form form form-inline\">\n            <select class=\"form-control\">\n              <% for (i = 0; i < max; i++) { %>\n                <option\n                  <%= selected(i) ? 'selected' : void 0 %>\n                  value=\"<%= i * size %>\">\n                  page <%= i + 1 %>\n                </option>\n              <% } %>\n            </select>\n          </form>\n        <% } else { %>\n          <a href=\"#\">&hellip;</a>\n          <form class=\"im-page-form form form-inline\"\n                style=\"display:none;\">\n            <div class=\"control-group\">\n                <input type=\"number\"\n                       value=\"<%= currentPage %>\"\n                       max=\"<%= max %>\"\n                       min=\"<%= min %>\"\n                       class=\"form-control im-page-number\">\n            </div>\n          </form>\n        <% } %>\n    </li>\n    <li class=\"<%= goOneForward || 'im-go-fwd-1' %>\"\n        title=\"Go to next page\">\n        <a class=\"im-pagination-button\">&rarr;</a>\n    </li>\n    <li class=\"hidden-xs hidden-sm <%= goFiveForward || 'im-go-fwd-5' %>\"\n        title=\"Go forward five pages\"\n        class=\"visible-desktop\">\n        <a class=\"im-pagination-button\">&#x21a0;</a>\n    </li>\n    <li class=\"hidden-xs <%= gotoEnd || 'im-goto-end' %>\"\n        title=\"Go to last page\">\n        <a class=\"im-pagination-button\">&#x21e5;</a>\n    </li>\n</ul>\n";
-exports.constraint_summary = "<% if (code) { %>\n  <li><span class=\"text-muted\"><strong><%- code %>:</strong></span></li>\n<% } %>\n<% _.each(labels, function (label) { %>\n  <li>        \n    <span class=\"label label-<%- label.type %>\">\n      <% if (_.include(['error', 'warning'], label.type)) { %>\n        <%= Icons.icon('Error') %>\n        <%- Messages.getText('consummary.' + label.content) %>\n      <% } else if (label.type === 'path') { %>\n        <% _.each(label.content.split(' > '), function (part) { %>\n          <span title=\"<%- label.content %>\" class=\"im-name-part\"><%- part %></span>\n        <% }); %>\n      <% } else { %>\n        <% if (label.icon) { %><%= Icons.icon(label.icon) %><% } %>\n        <%- label.content %>\n      <% } %>\n    </span>\n  </li>\n<% }); %>\n";
-exports.facet_frequency = "<% /* requires: error, initialized */ %>\n<% if (error) { %>\n    <% /* Oh noes - something went wrong. */ %>\n    <div class=\"alert alert-warning\">\n        <%= Icons.icon('Error') %>\n        <strong><%- Messages.getText('Error') %></strong>\n        <% if (error.key) { %>\n            <%- Messages.getText(error.key) %>\n        <% } else { %>\n            <%- error.message || error %>\n        <% } %>\n    </div>\n<% } else if (initialized) { %>\n    <% /* Huzzah - there is data, which will be added here as child views */ %>\n<% } else { %>\n    <% /* Boo - no data. Show an indeterminate progress bar while we wait. */ %>\n    <div class=\"progress\">\n      <div class=\"progress-bar progress-bar-info progress-bar-striped active\"\n           role=\"progressbar\"\n           style=\"width:100%\">\n        <span class=\"sr-only\"><%- Messages.getText('Loading') %>.</span>\n      </div>\n    </div>\n<% } %>\n";
-exports.column_manager_position_controls = "<div class=\"im-position-controls\">\n    <% if (index > 0) { %>\n        <%= Icons.iconWithProps('ASC', {\n            className: 'im-move-up',\n            title: Messages.getText('columns.MoveUp')\n        }) %>\n    <% } %>\n    <% if (!isLast) { %>\n        <%= Icons.iconWithProps('DESC', {\n            className: 'im-move-down',\n            title: Messages.getText('columns.MoveDown')\n        }) %>\n    <% } %>\n</div>\n\n";
-exports.export_format_controls = "<h4 class=\"im-title\"></h4>\n\n<% _.each(formats, function (formatDef) { %>\n    <div class=\"radio\">\n        <label>\n            <input type=\"radio\"\n                   name=\"format\"\n                   value=\"<%= formatDef.id %>\"\n                   <%= (formatDef.id === format) ? 'checked' : void 0 %>>\n            <%= Icons.icon(formatDef.icon) %>\n            <%= Messages.getText(formatDef.desc) %>\n        </label>\n    </div>\n<% }); %>\n";
-exports.cell_preview_error = "<div class=\"alert alert-error\">\n    <h4>Error</h4>\n    <p>Sorry. We could not fetch the preview due to an error:</p>\n    <code><%- message %></code>\n</div>\n";
-exports.export_destination_radios = "<label><%- Messages.getText('export.param.Destination') %></label>\n<% _.each(destinations, function (d) { %>\n    <div class=\"radio im-dest-<%- d %>\">\n        <label>\n            <input type=\"radio\"\n                    name=\"dest\"\n                    <%= (d === dest) ? 'checked' : void 0 %>>\n            <%- Messages.getText(d) %>\n        </label>\n    </div>\n<% }); %>\n\n";
-exports.column_manager_sort_order_editor = "<% /* requires: collection, available */ %>\n<h4>\n  <%- Messages.getText('columns.CurrentSortOrder', {\n    oes: collection\n  }) %>\n</h4>\n\n<span class=\"help-block\">\n  <%- Messages.getText('columns.CurrentSortOrderHelp') %>\n</span>\n\n<div class=\"well im-current-sort-order\">\n\n  <div class=\"row\">\n    <div class=\"col-md-6\">\n        <% if (collection.length) { %>\n          <ul class=\"list-group im-active-oes im-connected-list\"></ul>\n        <% } else { %>\n          <div class=\"im-empty-collection\">\n            <%- Messages.getText('columns.NoSortOrder') %>\n          </div>\n        <% } %>\n    </div>\n\n    <div class=\"col-md-6\">\n        <% if (available) { %>\n          <div class=\"im-rubbish-bin\">\n            <ul class=\"list-group im-removed im-available-oes im-connected-list\">\n            </ul>\n          </div>\n        <% } %>\n    </div>\n  </div>\n</div>\n";
-exports.facet_item = "<dd>\n    <a href=#>\n        <b class=\"im-facet-count pull-right\">\n            (<%- count %>)\n        </b>\n        <%- item %>\n    </a>\n</dd>\n";
-exports.checkbox = "<label>\n    <input type=\"checkbox\" \n           <%= checked ? 'checked' : void 0 %>\n           >\n    <%- label %>\n</label>\n";
-exports.attribute_value_controls = "<div>\n    <input class=\"form-control im-constraint-value im-value-options im-con-value im-con-value-attr\"\n           type=\"text\"\n           placeholder=\"<%- state.valuePlaceholder %>\"\n           value=\"<%- con.value %>\">\n</div>\n";
-exports.input_with_label = "<label><%- Messages.getText(label) %></label>\n<input class=\"form-control\"\n       placeholder=\"<%- Messages.getText(placeholder) %>\"\n       value=\"<%- value %>\">\n<% if (helpMessage) { %>\n  <span style=\"display:<%= hasProblem ? 'block' : 'none' %>\"\n        class=\"help-block\">\n        <%- Messages.getText(helpMessage) %>\n  </span>\n<% } %>\n";
-exports.export_dialogue = "<div class=\"row\">\n    <nav class=\"col-sm-3 menu\">\n    </nav>\n    <div class=\"col-sm-9 main\">\n    </div>\n</div>\n";
-exports.input_with_button = "<input type=\"text\" class=\"form-control\"\n       value=\"<%- value %>\"\n       placeholder=\"<%- Messages.getText(placeholder) %>\">\n<span class=\"input-group-btn\">\n  <button class=\"btn btn-default\" type=\"button\">\n    <%- Messages.getText(button) %>\n  </button>\n</span>\n\n";
-exports.summary_no_results = "<div class=\"alert alert-warning\">\n    <%= Icons.icon('Warning') %>\n    <%- Messages.getText('summary.NoResults', {path: pathName}) %>\n</div>\n\n";
-exports.summary_items = "<% if (!(/boolean/i).test(type)) { %>\n    <div class=\"input-group im-filter-group\">\n    <span class=\"input-group-btn\">\n        <button class=\"btn btn-default im-clear-value-filter\">\n        <%= Icons.icon('Refresh') %>\n        </button>\n    </span>\n    <input type=\"search\" class=\"form-control im-filter-values\"\n        value=\"<%- filterTerm %>\"\n        placeholder=\"<%- Messages.getText('summary.FilterValuesPlaceholder') %>\">\n    </div>\n<% } %>\n\n<div class=\"im-item-table\">\n  <table class=\"table table-condensed table-striped\">\n    <colgroup>\n      <% _.each(colClasses, function (cls) { %>\n        <col class=\"<%- cls %>\">\n      <% }); %>\n    </colgroup>\n    <thead>\n      <tr>\n        <% _.each(colHeaders, function (hdr) { %>\n          <th><%- hdr %></th>\n        <% }); %>\n      </tr>\n    </thead>\n    <tbody class=\"scrollable\">\n    </tbody>\n  </table>\n\n  <% if (hasMore) { %>\n    <div class=\"im-load-more\">\n      <%- Messages.getText('summary.MoreItems') %>\n    </div>\n  <% } %>\n</div>\n\n<div class=\"im-summary-controls\">\n</div>\n";
-exports.list_dialogue_button_node = "<a href=\"#\">\n    <strong>\n        <%- displayName || path %>\n    </strong>\n    <% if (state.count) { %>\n        (<%- numToString(state.count) %>\n        <%- pluralise((typeName || type), state.count) %>)\n    <% } %>\n</a>\n";
-exports.join_style = "<% /* requires innerJoinBtn, outerJoinBtn */ %>\n<div class=\"btn-group pull-right\">\n  <button class=\"<%- innerJoinBtn %>\">\n    <%- Messages.getText('joins.Inner') %>\n  </button>\n  <button class=\"<%- outerJoinBtn %>\">\n    <%- Messages.getText('joins.Outer') %>\n  </button>\n</div>\n";
-exports.summary_heading = "<% /* requires:\n    *  numeric, available, got, uniqueValues\n    *  state.typeName, state.endName\n    *  filtered \n    */ %>\n<h3>\n  <% if (numeric) { %>\n    <%- Messages.getText('summary.NumericDistribution', {n: available}) %>\n    <span class=\"im-type-name\"><%- state.typeName %></span>\n    <span class=\"im-attr-name\"><%- pluralise(state.endName, got) %></span>\n  <% } else { %> \n    <span class=\"im-item-got\">\n      <%- Messages.getText('summary.Got', {available: available, got: got}) %>\n    </span>\n    <span class=\"im-item-available\">\n      <%- Messages.getText('Number', {n: available}) %>\n    </span>\n    <span class=\"im-type-name\"><%- state.typeName %></span>\n    <span class=\"im-attr-name\"><%- pluralise(state.endName, got) %></span>\n    <span class=\"im-item-total\">\n      <%- Messages.getText('summary.Total', {\n            filtered: filtered,\n            total: uniqueValues\n          }) %>\n    </span>\n  <% } %> \n</h3>\n";
-exports.code_gen_body = "<div class=\"row\">\n  <div class=\"col-sm-2\">\n    <% /* requires lang :: string, options :: {Extra :: {}, Langs :: [string]} */ %>\n    <div class=\"btn-group language-selector\">\n      <button type=\"button\"\n              data-toggle=\"dropdown\"\n              aria-expanded=\"false\"\n              class=\"btn btn-default dropdown-toggle\">\n        <span class=\"im-current-lang\">\n          <%- Messages.getText('codegen.Lang', {lang: lang}) %>\n        </span>\n        <span class=\"caret\"></span>\n      </button>\n      <ul class=\"dropdown-menu im-code-gen-langs\" role=\"menu\">\n        <% _.each(options.Langs, function (l) { %>\n            <li data-lang=\"<%- l %>\"\n                class=\"<%= (l === lang) ? 'active' : void 0 %>\">\n              <a href=\"#\"><%- Messages.getText('codegen.Lang', {lang: l}) %></a>\n            </li>\n        <% }); %>\n      </ul>\n    </div>\n    <div class=\"im-show-boilerplate\"></div>\n    <div class=\"im-highlight-syntax\"></div>\n    <div class=\"im-extra-options\"></div>\n  </div>\n  <div class=\"col-sm-10\">\n    <pre class=\"im-generated-code\"><%- generatedCode %></pre>\n  </div>\n</div>\n";
-exports.table_building = "<h2><%- Messages.getText('table.Building') %></h2>\n<%= IndeterminateProgressBar %>\n";
-exports.code_gen_button_main = "<%= Icons.icon('CodeFile') %>\n<span class=\"hidden-sm hidden-xs\">\n  <%- Messages.getText('codegen.GenerateCodeIn', {lang: lang}) %>\n</span>\n<span class=\"visible-sm-inline im-current-lang\">\n    <%- Messages.getText('codegen.Lang', {lang: lang}) %>\n</span>\n\n";
+exports.column_manager_path_chooser_buttons = "<button class=\"btn btn-default im-rearrange-columns\">\n  <%- Messages.getText('Cancel') %>\n</button>\n<button class=\"btn btn-success im-add-column\"\n  <%= collection.length ? (void 0) : 'disabled' %> >\n  <%- Messages.getText('columns.AddColumn', {num: collection.length}) %>\n</button>\n\n";
 exports.type_value_controls = "<label class=\"span4\">\n    <%- messages.getText('conbuilder.IsA') %>\n</label>\n<% if (subclasses.length == 1) { %>\n  <select disabled class=\"form-control\">\n      <option><%- subclasses[0].text %></option>\n  </select>\n<% } else { %>\n  <%= select(subclasses, isSelected, 'form-control im-value-type') %>\n<% } %>\n  \n";
+exports.select = "<select class=\"<%- data.classes %>\">\n  <% _.each(data.options, function (opt) { %>\n    <option value=\"<%- data.key(opt) %>\"\n      <%- data.selectedTest(opt) ? 'selected' : void 0 %> >\n      <% if (data.contentHandler) { %>\n        <%- data.contentHandler(opt) %>\n      <% } else { %>\n        <%- opt.text %>\n      <% } %>\n    </option>\n  <% }); %>\n</select>\n";
+exports.list_dialogue_button_node = "<a href=\"#\">\n    <strong>\n        <%- displayName || path %>\n    </strong>\n    <% if (state.count) { %>\n        (<%- numToString(state.count) %>\n        <%- pluralise((typeName || type), state.count) %>)\n    <% } %>\n</a>\n";
+exports.progress_bar = "<% /* requires: doneness (float: 0 <= i <= 1) */ %>\n<% if (doneness != null && doneness >= 0) { %>\n    <div class=\"progress\">\n        <div class=\"progress-bar progress-bar-striped active\"\n             role=\"progressbar\"\n             aria-valuenow=\"<%- doneness %>\"\n             aria-valuemin=\"0\"\n             aria-valuemax=\"1\"\n             style=\"width: <%- 100 * doneness %>%;\">\n            <% if (doneness < 1) { %>\n              <span class=\"sr-only\">\n                <%- Math.round(100 * doneness) %>% <%- Messages.getText('Complete') %>\n              </span>\n            <% } %>\n        </div>\n    </div>\n<% } %>\n";
+exports.cell_preview_reference = "<tr>\n    <td class=\"im-field-name\"><%- _.rest(parts).join(' ') %></td>\n    <td class=\"im-field-value <%- field.toLowerCase() %>\">\n        <%- values.join(', ') %>\n    </td>\n</tr>\n";
+exports.no_results = "<% /* requires: selectList :: [], canUndo :: bool */ %>\n<td colspan=\"<%- selectList.length %>\">\n  <div class=\"alert alert-warning\">\n    <% if (canUndo) { %>\n      <button class=\"pull-right btn btn-large btn-default btn-undo\">\n        <%= Icons.icon('Undo') %>\n        <%- Messages.getText('Undo') %>\n      </button>\n    <% } %>\n    <strong><%- Messages.getText('table.Empty') %></strong>\n    <p><%- Messages.getText('table.EmptyWhy') %></p>\n  </div>\n</td>\n";
+exports.summary_stats = "<table class=\"table\">\n    <thead>\n        <tr>\n            <th><%- Messages.getText('summary.Max') %></th>\n            <th><%- Messages.getText('summary.Min') %></th>\n            <th><%- Messages.getText('summary.Average') %></th>\n            <th><%- Messages.getText('summary.StdDev') %></th>\n        </tr>\n        <tr>\n            <td><%- Messages.getText('Number', {n: max}) %></td>\n            <td><%- Messages.getText('Number', {n: min}) %></td>\n            <td><%- Messages.getText('Number', {n: average}) %></td>\n            <td><%- Messages.getText('Number', {n: stdev}) %></td>\n        </tr>\n    </thead>\n</table>\n\n<div class=\"row im-range-controls\">\n    <div class=\"col-sm-4 im-range-from\">\n        <input type=\"text\"\n               class=\"form-control im-range-min input im-range-val\"\n               value=\"<%- min %>\">\n    </div>\n    <div class=\"col-sm-1 im-ellipsis\">\n        <span>...</span>\n    </div>\n    <div class=\"col-sm-4 im-range-to\">\n        <input type=\"text\"\n               class=\"form-control im-range-max input im-range-val\"\n               value=\"<%- max %>\">\n    </div>\n    <div class=\"col-sm-3 im-range-buttons\">\n        <div class=\"btn-group pull-right\">\n            <button class=\"btn btn-primary disabled\">Apply</button>\n            <button class=\"btn btn-cancel disabled\">Reset</button>\n        </div>\n    </div>\n</div>\n\n<div class=\"slider\"></div>\n\n";
+exports.list_dialogue_body = "<div class=\"im-list-name\"></div>\n\n<div class=\"row\">\n  <div class=\"col-sm-12 im-more-options\">\n    <h4>\n      <%= Icons.icon('Options') %>\n      <span class=\"msg\"><%- Messages.getText('lists.ShowExtraOptions', state) %></span>\n    </h4>\n  </div>\n</div>\n\n<div class=\"im-optional-attributes\" style=\"<%- state.minimised ? 'display:none' : void 0 %>\">\n  <div class=\"im-list-desc\"></div>\n\n  <div class=\"well im-tags\">\n    <div class=\"row im-active-tags\">\n    </div>\n    <div class=\"row\">\n      <div class=\"col-sm-6 im-apology\">\n      </div>\n      <div class=\"col-sm-6\">\n        <div class=\"im-next-tag\">\n        </div>\n      </div>\n    </div>\n  </div>\n</div>\n";
+exports.reset_button = "<button type=\"button\"\n        <%= (isAll) ? 'disabled' : void 0 %>\n        class=\"btn btn-default btn-reset\">\n    <%- Messages.getText('Reset') %>\n</button>\n";
+exports.active_constraints = "<% /* requires: constraints.length */ %>\n<div class=\"well im-current-constraints\">\n    <p class=\"well-help\">\n      <% if (constraints.length) { %>\n        <%- Messages.getText('constraints.EditOrRemove') %>\n      <% } else { %>\n        <%- Messages.getText('constraints.None') %>\n      <% } %>\n    </p>\n\n    <ul class=\"im-active-constraints\">\n    </ul>\n</div>\n";
+exports.logic_manager_body = "<div class=\"form-group\">\n  <label class=\"form-label\">\n    <%- Messages.getText('logic.LogicLabel') %>\n    <input type=\"text\"\n          class=\"im-logic form-control\"\n          placeholder=\"<%- state.defaultLogic %>\"\n          value=\"<%- logic %>\">\n  </label>\n</div>\n<div class=\"form-group\">\n  <button class=\"pull-right btn btn-primary <%- (state.disabled) ? 'disabled' : null %>\"\n          type=\"submit\">\n    <%- Messages.getText('logic.ApplyLogic') %>\n  </button>\n</div>\n";
+exports.constraint_adder_options = "<% if (showTree) { %>\n    <div class=\"col-sm-5\">\n        <div class=\"input-group\">\n            <span class=\"input-group-addon\">find</span>\n            <input type=\"text\"\n                value=\"<%- filter %>\"\n                class=\"im-tree-filter form-control\" placeholder=\"path\">\n            <span class=\"input-group-btn\">\n                <button class=\"btn btn-default im-clear-filter\" type=\"button\">\n                    <%- Messages.getText('Clear') %>\n                </button>\n            </span>\n        </div>\n    </div>\n<% } %>\n<div class=\"col-sm-7\">\n    <div class=\"btn-group\">\n        <% if (!showTree) { %>\n            <button type=\"button\" class=\"btn btn-default btn-chooser im-choose\">\n                <%= Icons.icon('Tree') %>\n                <span><%- Messages.getText('constraints.BrowseForColumn') %></span>\n            </button>\n        <% } else { %>\n            <button <%= anyNodeChosen ? void 0 : 'disabled' %>\n                    class=\"btn btn-primary im-approve\"\n                    type=\"button\" >\n                <%- Messages.getText('constraints.Choose') %>\n                <% _.each(chosen, function (path, i) { %>\n                    <%- path %>\n                    <% if (i + 2 === chosen.length) { %>\n                        <%- Messages.get('and') %>\n                    <% } else if (i + 2 < chosen.length) { %>\n                        <%- Messages.get('comma') %>\n                    <% } %>\n                <% }); %>\n            </button>\n        <% } %>\n    </div>\n    <div class=\"form-group\">\n        <label class=\"im-tree-option\">\n            <%- Messages.getText('columns.AllowRevRef') %>\n            <input type=\"checkbox\"\n                    class=\"im-allow-rev-ref\"\n                    <%= allowRevRefs ? 'checked' : void 0 %> >\n        </label>\n    </div>\n</div>\n";
+exports.list_dialogue_expander = "<button class=\"btn btn-default im-expand-dialogue <%= minimised ? 'active' : void 0 %>\">\n  <%- Messages.getText('lists.picker.Collapse') %>\n</button>\n";
+exports.table_building = "<h2><%- Messages.getText('table.Building') %></h2>\n<%= IndeterminateProgressBar %>\n";
+exports.attribute_value_select = "<select class=\"form-control im-con-value-attr\">\n    <% _.each(items, function (item) { %>\n    <option <%= (item.item === value) ? 'selected' : void 0 %> value=\"<%- item.item %>\">\n            <%- item.item %>\n        </option>\n    <% }); %>\n</select>\n";
+exports.export_tab_menu = "<% _.each(data.tabs, function (tabDef) { %>\n  <li role=\"presentation\" class=\"im-tab-<%= tabDef.ident %> <%= data.tab === tabDef.ident ? 'active' : void 0 %>\">\n    <a><%- data.Messages.getText(tabDef.key, data) %></a>\n  </li>\n<% }); %>\n";
+exports.export_fasta_options = "<h3><%- Messages.getText('export.category.Options') %></h3>\n\n<div class=\"form-group\">\n    <label><%- Messages.getText('FastaExtension') %></label>\n    <input type=\"text\"\n           value=\"<%- fastaExtension %>\"\n           placeholder=\"5kbp\"\n           class=\"form-control im-fasta-ext\">\n</div>\n";
+exports.list_tags_apology = "<% if (!hasTags) { %>\n  <span>\n    <%- Messages.getText('lists.NoTags') %>\n  </span>\n<% } %>\n";
+exports.code_gen_button = "<% /* requires lang :: string, options.Langs :: [string] */ %>\n<div class=\"btn-group language-selector\">\n    <button type=\"button\"\n            class=\"btn btn-default im-show-code-gen-dialogue\">\n    </button>\n    <button type=\"button\"\n            data-toggle=\"dropdown\"\n            aria-expanded=\"false\"\n            class=\"btn btn-default dropdown-toggle\">\n        <span class=\"caret\"></span>\n    </button>\n    <ul class=\"dropdown-menu im-code-gen-langs\" role=\"menu\">\n        <% _.each(options.Langs, function (l) { %>\n            <li data-lang=\"<%- l %>\" class=\"<%= (l === lang) ? 'active' : void 0 %>\">\n                <a href=\"#\"><%- Messages.getText('codegen.Lang', {lang: l}) %></a>\n            </li>\n        <% }); %>\n    </ul>\n</div>\n";
+exports.summary_no_results = "<div class=\"alert alert-warning\">\n    <%= Icons.icon('Warning') %>\n    <%- Messages.getText('summary.NoResults', {path: pathName}) %>\n</div>\n\n";
+exports.large_table_disuader = "<div class=\"modal-dialog\">\n    <div class=\"modal-content\">\n        <div class=\"modal-header\">\n            <h3>\n            <%= size %> rows - are you sure?\n            </h3>\n        </div>\n\n        <div class=\"modal-body\">\n\n            <p><%= Messages.getText('largetable.appeal', {size: size}) %></p>\n\n            <ul>\n                <li>\n                    <p>\n                        If you want to see all the data, you can page \n                        <span class=\"label label-info\">\n                            <%= Icons.icon('GoBack') %>\n                            backwards\n                        </span>\n                        and \n                        <span class=\"label label-info\">\n                            forwards\n                            <%= Icons.icon('GoForward') %>\n                        </span>\n                        through the results.\n                    </p>\n                    <div class=\"btn-group\">\n                        <a class=\"btn btn-default im-alternative-action page-backwards\" href=\"#\">\n                            <%= Icons.icon('GoBack') %>\n                            go one page back\n                        </a>\n                        <a class=\"btn btn-default im-alternative-action page-forwards\" href=\"#\">\n                            go one page forward\n                            <%= Icons.icon('GoForward') %>\n                        </a>\n                    </div>\n                </li>\n\n                <li>\n                    <p>\n                        If you are looking for something specific, you can use the\n                        <span class=\"label label-info\">filtering tools</span>\n                        to narrow down the result set. Then you \n                        might be able to fit the items you are interested in in a\n                        single page.\n                    </p>\n                    <button class=\"btn btn-default im-alternative-action add-filter-dialogue\">\n                        <%= Icons.icon('Filter') %>\n                        Add a new filter.\n                    </button>\n                </li>\n\n                <li>\n                    <p>\n                        If you want to get and save the results, we suggest\n                        <span class=\"label label-info\">downloading</span>\n                        the results in a format that suits you. \n                    <p>\n                    <button class=\"btn btn-default im-alternative-action download-menu\">\n                        <%= Icons.icon('Export') %>\n                        Open the download menu.\n                    </buttn>\n                </li>\n\n            </ul>\n        </div>\n\n        <div class=\"modal-footer\">\n            <button class=\"btn btn-primary pull-right\">\n                <%- Messages.getText('largetable.ok', {size: size}) %>\n            </button>\n            <button class=\"btn pull-left close\">\n                <%- Messages.getText('largetable.abort') %>\n            </button>\n        </div>\n    </div>\n</div>\n";
+exports.active_constraint = "<div class=\"im-con-overview\">\n  <% if (data.con.editable != null && data.con.editable === false) { %>\n    <a title=\"<%- data.messages.getText('conbuilder.NotEditable') %>\">\n        <%= data.icons.icon('Lock') %>\n    </a>\n  <% } else { %>\n    <a class=\"im-remove-constraint\"\n        title=\"<%- data.messages.getText('conbuilder.Remove') %>\"\n        >\n        <%= data.icons.icon('RemoveConstraint') %>\n    </a>\n    <a class=\"im-edit\" title=\"<%- data.messages.getText('conbuilder.EditCon') %>\">\n        <%= data.icons.icon('Edit') %>\n    </a>\n  <% } %>\n</div>\n\n<% /* We use the :empty selector on this element - hence it must be on one line */ %>\n<div class=\"im-constraint-editor\"></div>\n";
+exports.export_add_column_control = "<div class=\"row\">\n    <div class=\"col-sm-1 im-help\"\n         title=\"<%- Messages.getText('export.help.AdditionalCols') %>\">\n        <%= Icons.icon('Help', 'lg') %>\n    </div>\n    <div class=\"col-sm-11 form-group\">\n        <input type=\"text\" class=\"form-control\">\n    </div>\n</div>\n";
+exports.table_subtables_header = "<a title=\"<%- Messages.getText('subtables.RemoveColumn') %>\">\n  <%= Icons.icon('Remove') %>\n</a>\n<% if (displayName && columnName) { %>\n  <%- displayName.replace(columnName, '').replace(/^ > /, '') %>\n<% } %>\n";
+exports.table_cell = "<% if (state.minimised) { %>\n  &hellip;\n<% } else if (entity.id === null) { %>\n  <% if (value !== null && formattedValue !== null) { %>\n    <span class=\"im-displayed-value\"><%= value %></span>\n  <% } else if (entity.isNULL) { %>\n    <span class=\"im-null-entity\">\n      <%- Messages.getText('table.cell.NullEntity', {type: entity['class']}) %>\n    </span>\n  <% } else { %>\n    <%= NULL_VALUE %>\n  <% } %>\n<% } else { %>\n  <input\n    class=\"im-list-chooser\"\n    type=\"checkbox\"\n    <% if (input.checked) { %>checked<% } %>\n    <% if (input.disabled) { %>disabled<% } %>\n    style=\"display:<%- input.display %>\">\n\n  <% if (field !== 'url') { %>\n    <a class=\"im-cell-link\" target=\"<%- target %>\" href=\"<%= url %>\">\n\n      <% if (isForeign) { %>\n        <% if (icon) { %>\n          <img src=\"<%= icon %>\" class=\"im-external-link\"></img>\n        <% } else { %>\n          <%= Icons.icon('ExternalLink') %>\n        <% } %>\n      <% } %>\n\n      <% if (value !== null && formattedValue !== null && value !== 'null') { %>\n        <span class=\"im-displayed-value\"><%= formattedValue %></span>\n      <% } else { %>\n        <%= NULL_VALUE %>\n      <% } %>\n\n    </a>\n  <% } else if (field === 'url')  { %>\n    <% if (value !== null) { %>\n      <a class=\"im-cell-link external\" href=\"<%= value %>\">\n        <%= Icons.icon('ExternalLink') %>\n        <%= value %>\n      </a>\n    <% } else { %>\n      <%= NULL_VALUE %>\n    <% } %>\n  <% } %>\n<% } %>\n";
+exports.column_manager_sort_order_editor = "<% /* requires: collection, available */ %>\n<h4>\n  <%- Messages.getText('columns.CurrentSortOrder', {\n    oes: collection\n  }) %>\n</h4>\n\n<span class=\"help-block\">\n  <%- Messages.getText('columns.CurrentSortOrderHelp') %>\n</span>\n\n<div class=\"well im-current-sort-order\">\n\n  <div class=\"row\">\n    <div class=\"col-md-6\">\n        <% if (collection.length) { %>\n          <ul class=\"list-group im-active-oes im-connected-list\"></ul>\n        <% } else { %>\n          <div class=\"im-empty-collection\">\n            <%- Messages.getText('columns.NoSortOrder') %>\n          </div>\n        <% } %>\n    </div>\n\n    <div class=\"col-md-6\">\n        <% if (available) { %>\n          <div class=\"im-rubbish-bin\">\n            <ul class=\"list-group im-removed im-available-oes im-connected-list\">\n            </ul>\n          </div>\n        <% } %>\n    </div>\n  </div>\n</div>\n";
+exports.cell_preview_reference_relation = "<% _.each(collection, function (relation) { %>\n  <li class=\"im-relation\">\n    <span class=\"im-name\"><%- _.last(relation.parts) %></span>\n    <span class=\"im-count\"><%- numToString(relation.count) %></span>\n  </li>\n<% }); %>\n";
 exports.export_preview = "<div class=\"form-group im-export-formats\">\n  <label><%- Messages.getText('export.param.Format') %></label>\n  <select class=\"form-control\">\n    <% _.each(formats, function (fmt) { %>\n      <option value=\"<%- fmt.id %>\"\n              <%= (fmt.id === format.id) ? 'selected' : void 0 %>>\n        <%- Messages.getText(fmt.name) %>\n      </option>\n    <% }); %>\n  </select>\n</div>\n\n<pre class=\"im-export-preview\">\n<%- state.preview %>\n</pre>\n\n<div class=\"alert alert-info\">\n    <strong class=\"nb\">nb</strong>\n    <%- Messages.getText('export.preview.Limit') %>\n</div>\n";
+exports.export_dialogue = "<div class=\"row\">\n    <nav class=\"col-sm-3 menu\">\n    </nav>\n    <div class=\"col-sm-9 main\">\n    </div>\n</div>\n";
+exports.column_manager_select_list = "<div class=\"im-removal-and-rearrangement\">\n  <button class=\"pull-right btn btn-success im-add-view-path\">\n      <%= Icons.icon('Add') %>\n      <%- Messages.getText('columns.FindColumnToAdd') %>\n  </button>\n\n  <h4>\n    <%- Messages.getText('columns.ColumnsSelected', {columns: collection, removed: hasRubbish}) %>\n  </h4>\n\n  <span class=\"help-block\"><%- Messages.getText('columns.CurrentViewHelp') %></span>\n\n  <div class=\"well im-current-view\">\n\n    <div class=\"row\">\n\n      <div class=\"col-md-6\">\n        <ul class=\"list-group im-active-view im-connected-list\">\n        </ul>\n      </div>\n\n      <div class=\"col-md-6\">\n        <div class=\"im-rubbish-bin\">\n            <%= Icons.icon((hasRubbish ? 'RubbishFull' : 'Rubbish'), 'lg') %>\n            <% if (hasRubbish) { %>\n                <ul class=\"list-group im-removed im-removed-view im-connected-list\">\n                </ul>\n            <% } %>\n        </div>\n      </div>\n\n    </div>\n  </div>\n</div>\n\n<div class=\"im-addition\">\n</div>\n\n";
 exports.export_column_controls = "<h4><%- Messages.getText('export.heading.Columns') %></h4>\n\n<ul class=\"list-group\">\n</ul>\n\n<div class=\"row controls\"></div>\n";
-exports.only_one_item = "<div class=\"alert alert-info\">\n    <%= Icons.icon('Info') %>\n    <%= Messages.getText('summary.OnlyOne', {names: state, item: items[0]}) %>\n</div>\n\n";
+exports.export_dialogue_footer = "<% if (linkToFile) { %>\n    <div class=\"pull-left alert alert-info\">\n        <%- Messages.getText('export.cloud.FileLocation', {cloud: dest}) %>\n        <a href=\"<%= linkToFile %>\" target=\"_blank\"><%- linkToFile %></a>\n    </div>\n<% } %>\n\n<button type=\"button\" class=\"btn btn-cancel\">\n    <%- dismissAction %>\n</button>\n\n<% if (dest === 'download') { %>\n    <a class=\"btn btn-primary\"\n        href=\"<%- exportURI %>\">\n        <%= Icons.icon(primaryIcon) %>\n        <%- primaryAction %>\n    </a>\n<% } else { %>\n    <button type=\"button\"\n            <%= (error || doneness != null) ? 'disabled' : void 0 %>\n            class=\"btn btn-primary\">\n        <%= Icons.icon(primaryIcon) %>\n        <%- primaryAction %>\n    </button>\n<% } %>\n\n";
+exports.table_subtable = "<span class=\"im-subtable-summary\">\n</span>\n<div class=\"im-table-wrapper\">\n</div>\n";
+exports.column_manager_path_name = "<% /* requires parts */ %>\n<span class=\"im-path-name\">\n    <% _.each(parts, function (part) { %>\n        <span class=\"im-name-part\"><%- part %></span>\n    <% }); %>\n</span>\n\n";
+exports.count_summary = "<% if (size && count) { %>\n  <% var msg = (size == 0 ? '.ShowingAll' : '.ShowingRange'); %>\n  <% ['xs', 'sm', 'md', 'lg'].forEach(function (pageSize) { %>\n    <span class=\"visible-<%= pageSize %>-inline\">\n      <%- Messages.getText('table.' + pageSize + msg, page) %>\n    </span>\n  <% }); %>\n<% } %>\n";
+exports.undo_history = "<button class=\"btn btn-default im-undo\">\n  <%= Icons.icon('Undo') %>\n  <span class=\"visible-lg-inline\">\n    <%- Messages.getText('Undo') %>\n  </span>\n</button>\n\n<button class=\"btn btn-default dropdown-toggle\"\n        data-toggle=\"dropdown\">\n  <span class=\"caret\"></span>\n</button>\n\n<ul class=\"dropdown-menu im-state-list\">\n    <li>\n      <button\n          title=\"<%- Messages.getText('undo.ToggleTrivialTitle', state) %>\"\n          class=\"btn btn-xs btn-default im-toggle-trivial <%= state.hideTrivial ? 'active' : void 0 %>\">\n        <%- Messages.getText('undo.ToggleTrivial', state) %>\n      </button>\n    </li>\n</ul>\n";
+exports.export_json_options = "<h3><%- Messages.getText('export.category.Options') %></h3>\n\n<div class=\"radio\">\n    <label>\n        <input type=\"radio\"\n               name=\"rows\"\n               <%= (jsonFormat === 'rows') ? 'checked' : void 0 %>>\n        <%- Messages.getText('export.json.Rows') %>\n        <pre><%- Messages.getText('export.json.RowsExample') %></pre>\n    </label>\n</div>\n\n<div class=\"radio\">\n    <label>\n        <input type=\"radio\"\n               name=\"objects\"\n               <%= (jsonFormat === 'objects') ? 'checked' : void 0 %>>\n        <%- Messages.getText('export.json.Objects') %>\n        <pre><%- Messages.getText('export.json.ObjExample') %></pre>\n    </label>\n</div>\n\n<% if ((size || start) && jsonFormat === 'objects') { %>\n    <div class=\"alert alert-warning\">\n        <h4><%- Messages.get('Warning') %></h4>\n        <p><%- Messages.get('export.json.ObjWarning') %></p>\n    </div>\n<% } %>\n\n";
+exports.too_many_suggestions = "<span class=\"alert alert-info\">\n  {{{ icons.icon('Info') }}}\n  {{ messages.getText('conbuilder.TooManySuggestions') }}\n  There are {{ extra }} values we could not include.\n</span>\n";
+exports.table_throbber = "<tr class=\"im-table-throbber\">\n  <td colspan=\"<%= colcount %>\">\n    <h2><%- Messages.getText('table.RequestingData') %></h2>\n    <div class=\"progress progress-info progress-striped active\">\n      <div class=\"bar\" style=\"width: 100%\"></div>\n    </div>\n  </td>\n</tr>\n";
+exports.download_popover = "<% /* requires: formats, query, path */ %>\n<ul role=\"menu\" class=\"im-export-summary\">\n    <% _.each(formats, function (icon, param) { %>\n      <li role=\"presentation\">\n        <a role=\"menuitem\"\n            href=\"<%= query.getExportURI(param) %>&summaryPath=<%= path %>\">\n            <%= Icons.icon(icon) %>\n            <%- icon.toUpperCase() %>\n        </a>\n      </li>\n    <% }); %>\n</ul>\n";
+exports.value_control_row = "<td>\n  <input type=\"checkbox\" {{ (selected) ? 'checked' : void 0 }}>\n</td>\n<td class=\"im-multi-value\">\n  {{# if (editing) { }}\n    <div class=\"input-group\">\n      <input type=\"text\" value=\"{{ value }}\" class=\"form-control\">\n      <span class=\"input-group-btn\">\n        <button class=\"btn btn-success im-save\"\n                title=\"{{ messages.getText('multivalue.SaveValue') }}\"\n                type=\"button\">\n            {{{ icons.icon('OK') }}}\n            <span class=\"im-long\">{{ messages.getText('multivalue.SaveValue') }}</span>\n        </button>\n        <button class=\"btn btn-danger im-cancel\"\n                title=\"{{ messages.getText('Cancel') }}\"\n                type=\"button\">\n            {{{ icons.icon('Cancel') }}}\n            <span class=\"im-long\">{{ messages.getText('Cancel') }}</span>\n        </button>\n      </span>\n    </div>\n  {{# } else { }}\n    <a class=\"im-edit pull-right\">{{{ icons.icon('Edit') }}}</a>\n    {{ value }}\n  {{# } }}\n</td>\n";
+exports.constraint_editor = "<fieldset class=\"im-constraint-options form-group row\">\n  <label class=\"col-sm-3 path-label\"><%- data.con.displayName %></label>\n  <% if (data.con.op) { %>\n    <div class=\"im-operator col-sm-3\">\n        <select class=\"form-control im-ops\">\n        <option selected><%- data.con.op %></option>\n        <% data.otherOperators.forEach(function (op) { %>\n            <option><%- op %></option>\n        <% }); %>\n        </select>\n    </div>\n  <% } %>\n  <div class=\"col-sm-6 im-value-options im-value-section\">\n  </div>\n</fieldset>\n\n<div class=\"btn-group im-con-buttons\">\n  <% data.buttons.forEach(function (b, i) { %>\n  <button class=\"btn btn-<%= (i === 0) ? 'primary' : 'default' %> <%- b.classes %>\">\n    <%- data.messages.getText(b.key) %>\n  </button>\n  <% }); %>\n</div>\n";
+exports.export_format_controls = "<h4 class=\"im-title\"></h4>\n\n<% _.each(formats, function (formatDef) { %>\n    <div class=\"radio\">\n        <label>\n            <input type=\"radio\"\n                   name=\"format\"\n                   value=\"<%= formatDef.id %>\"\n                   <%= (formatDef.id === format) ? 'checked' : void 0 %>>\n            <%= Icons.icon(formatDef.icon) %>\n            <%= Messages.getText(formatDef.desc) %>\n        </label>\n    </div>\n<% }); %>\n";
+exports.constraint_summary = "<% if (code) { %>\n  <li><span class=\"text-muted\"><strong><%- code %>:</strong></span></li>\n<% } %>\n<% _.each(labels, function (label) { %>\n  <li>        \n    <span class=\"label label-<%- label.type %>\">\n      <% if (_.include(['error', 'warning'], label.type)) { %>\n        <%= Icons.icon('Error') %>\n        <%- Messages.getText('consummary.' + label.content) %>\n      <% } else if (label.type === 'path') { %>\n        <% _.each(label.content.split(' > '), function (part) { %>\n          <span title=\"<%- label.content %>\" class=\"im-name-part\"><%- part %></span>\n        <% }); %>\n      <% } else { %>\n        <% if (label.icon) { %><%= Icons.icon(label.icon) %><% } %>\n        <%- label.content %>\n      <% } %>\n    </span>\n  </li>\n<% }); %>\n";
+exports.facet_row = "<% /* requires: selected, symbol, item, count, percent, opacity, share */ %>\n<td class=\"im-selector-col\">\n  <span><%- symbol %></span>\n  <div class=\"checkbox\"></div>\n</td>\n\n<td class=\"im-item-col\">\n  <% if (item != null) { %>\n    <%- item %>\n  <% } else { %>\n    <span class=null-value>&nbsp;</span>\n  <% } %>\n</td>\n\n<td class=\"im-count-col\">\n  <% if (max > 1) { %>\n    <div class=\"im-facet-bar\"\n         style=\"width:<%- percent %>%;background:<%- Messages.getText('summary.FacetBar', {opacity: opacity}) %>\">\n    </div>\n  <% } %>\n  <span class=\"im-count\"><%- numToString(count) %></span>\n</td>\n\n<% if (share != null) { %>\n    <td class=\"im-percent-col\"><i><%- share.toFixed() %>%</i></td>\n<% } %>\n";
+exports.export_column_control = "<span class=\"badge\"><%- item.getType() %></span>\n<span class=\"im-active-state\">\n    <% if (active) { %>\n        <%= Icons.icon('Check') %>\n    <% } else { %>\n        <%= Icons.icon('UnCheck') %>\n    <% } %>\n</span>\n<%- name %>\n";
+exports.constraints_heading = "<% /* requires constraints.length */ %>\n<h3>\n  <%- Messages.getText('constraints.Heading', {n: constraints.length}) %>\n</h3>\n";
+exports.boolean_value_controls = "<button class=\"btn btn-default im-true {{ (value === true) ? ' active' : void 0 }}\">\n  True\n</button>\n<button class=\"btn btn-default im-false {{ (value === false) ? ' active' : void 0 }}\">\n  False\n</button>\n";
+exports.formatted_sorting = "<a> <% /* requires Icons, direction and name */ %>\n    <%= Icons.icon(direction || 'unsorted') %>\n    <span class=\"im-sort-path\"><%- name %></span>\n</a>\n";
+exports.undo_history_step = "<% if (!state.current) { %>\n  <button class=\"btn btn-default btn-small im-state-revert\"\n      title=\"<%- Messages.getText('undo.RevertToState') %>\">\n      <%= Icons.icon('Undo') %>\n  </button>\n<% } %>\n\n<h4>\n    <%- Messages.getText('undo.StepTitle', title) %>\n</h4>\n\n<% if (state.current) { %>\n  <span class=\"help-block\"><%- Messages.getText('undo.IsCurrentState') %></span>\n<% } %>\n<div style=\"clear:both\"></div>\n\n<span class=\"im-revision\" title=\"<%- Messages.getText('undo.RevisionTitle', {v: revision}) %>\">\n  <%- Messages.getText('undo.Revision', {v: revision}) %>\n</span>\n\n<div class=\"im-step-count\">\n  <span><%- Messages.getText('undo.StepCount', {count: count}) %></span>\n  <% if (diff) { %>\n    <span class=\"label im-label-<%= (diff > 0 ) ? 'pos' : 'neg' %>\">\n      <% if (diff > 0) { %>+<% } %><%- numToString(diff) %>\n    </span>\n  <% } %>\n</div>\n\n<div class=\"im-step-details\"></div>\n\n<div style=\"clear:both\"></div>\n";
+exports.column_manager_restore_path = "<% /* requires: restoreTitle */ %>\n<span class=\"pull-right im-restore-view\"\n    title=\"<%- Messages.getText(restoreTitle) %>\">\n    <%= Icons.icon('Add') %>\n</span>\n\n";
+exports.modal_error = "<% /* Renders an alert box at various levels, with appropriate icons and messages */ %>\n<% if (error) { %>\n    <div class=\"pull-left alert <%- errorAlert(error) %>\">\n        <% if (!error.cannotDismiss) { %>\n            <button type=\"button\" class=\"dismiss\">\n                <span aria-hidden=\"true\">&times;</span>\n                <span class=\"sr-only\">Close</span>\n            </button>\n        <% } %>\n        <%= Icons.icon(errorIcon(error)) %>\n        <strong><%- Messages.getText('ErrorTitle', error) %></strong>\n        <% if (error.key != null) { %>\n            <%- Messages.getText(error.key) %>\n        <% } else { %>\n            <%- error.message || error %>\n        <% } %>\n    </div>\n<% } %>\n";
+exports.error_message = "<% if (error) { %>\n    <div class=\"alert alert-<%= error.level || 'danger' %>\">\n        <%= icons.icon('Error') %>\n        <span class=\"im-conbuilder-error\">\n            <%- error.message || error %>\n        </span>\n    </div>\n<% } %>\n\n";
+exports.join_style = "<% /* requires innerJoinBtn, outerJoinBtn */ %>\n<div class=\"btn-group pull-right\">\n  <button class=\"<%- innerJoinBtn %>\">\n    <%- Messages.getText('joins.Inner') %>\n  </button>\n  <button class=\"<%- outerJoinBtn %>\">\n    <%- Messages.getText('joins.Outer') %>\n  </button>\n</div>\n";
+exports.modal_dialogue_opener = "<button class=\"btn btn-default im-open-dialogue\">\n  <%= Icons.icon(labels.ICON) %>\n  <span class=\"im-hidden-sm hidden-sm hidden-xs\">\n    <%- Messages.getText(labels.LONG, state) %>\n  </span>\n  <span class=\"im-visible-sm-inline visible-sm-inline\">\n    <%- Messages.getText(labels.SHORT, state) %>\n  <span>\n</button>\n";
+exports.loop_value_controls = "<% if (candidateLoops.length) { %>\n    <%= select(candidateLoops, isSelected, 'form-control im-value-options im-con-value') %>\n<% } else { %>\n    <%- messages.getText('conbuilder.NoSuitableLoops') %>\n<% } %>\n";
+exports.extra_value_controls = "<label class=\"im-value-options\">\n    <%- messages.getText('conbuilder.ExtraLabel') %>\n    <input type=\"text\" class=\"im-extra-value form-control\"\n            placeholder=\"<%- state.extraPlaceholder %>\"\n            value=\"<%- con.extraValue %>\">\n</label>\n\n";
+exports.cell_preview_error = "<div class=\"alert alert-error\">\n    <h4>Error</h4>\n    <p>Sorry. We could not fetch the preview due to an error:</p>\n    <code><%- message %></code>\n</div>\n";
+exports.attribute_value_controls = "<div>\n    <input class=\"form-control im-constraint-value im-value-options im-con-value im-con-value-attr\"\n           type=\"text\"\n           placeholder=\"<%- state.valuePlaceholder %>\"\n           value=\"<%- con.value %>\">\n</div>\n";
+exports.column_manager_tabs = "<ul class=\"nav nav-tabs\">\n    <li role=\"presentation\" class=\"<%- classes.view %>\">\n      <a href=\"#\">\n        <%- Messages.getText('columns.ViewTabTitle') %>\n      </a>\n    </li>\n    <li role=\"presentation\" class=\"<%- classes.sortorder %>\">\n      <a href=\"#\">\n        <%- Messages.getText('columns.SortOrderTabTitle') %>\n      </a>\n    </li>\n</ul>\n";
+exports.list_tag = "<%- id %>\n<span class=\"im-remove\" title=\"<%- Messages.getText('lists.RemoveTag') %>\">\n    <%= Icons.icon('Remove') %>\n</span>\n";
+exports.summary_selected_count = "<% if (state.selectedCount) { %>\n    <div class=\"alert alert-info im-selected-count\">\n        <strong>\n            <%- Messages.getText('summary.SelectedCount', state) %>\n        </strong>\n    </div>\n<% } %>\n";
+exports.export_compression_controls = "<h4><%- Messages.getText('export.category.Compression', state) %></h4>\n\n<% if (exportDataPackage) { %>\n    <p>Frictionless Data Package uses ZIP Compression only.</p>\n<% } else { %>\n    <div class=\"checkbox im-compress\">\n        <label>\n            <input type=\"checkbox\" <%= compress ? 'checked' : void 0 %>>\n            <%- Messages.getText('export.UseCompression') %>\n        </label>\n    </div>\n\n    <fieldset <%= compress ? void 0 : 'disabled' %>>\n        <div class=\"radio\">\n            <label>\n                <input type=\"radio\"\n                    name=\"gzip\"\n                    <%= (compression === 'gzip') ? 'checked' : void 0 %>>\n                <%- Messages.getText('export.UseGZIP') %>\n            </label>\n        </div>\n\n        <div class=\"radio\">\n            <label>\n                <input type=\"radio\"\n                    name=\"zip\"\n                    <%= (compression === 'zip') ? 'checked' : void 0 %>>\n                <%- Messages.getText('export.UseZIP') %>\n            </label>\n        </div>\n    </fieldset>\n<% } %>";
+exports.summary_items = "<% if (!(/boolean/i).test(type)) { %>\n    <div class=\"input-group im-filter-group\">\n    <span class=\"input-group-btn\">\n        <button class=\"btn btn-default im-clear-value-filter\">\n        <%= Icons.icon('Refresh') %>\n        </button>\n    </span>\n    <input type=\"search\" class=\"form-control im-filter-values\"\n        value=\"<%- filterTerm %>\"\n        placeholder=\"<%- Messages.getText('summary.FilterValuesPlaceholder') %>\">\n    </div>\n<% } %>\n\n<div class=\"im-item-table\">\n  <table class=\"table table-condensed table-striped\">\n    <colgroup>\n      <% _.each(colClasses, function (cls) { %>\n        <col class=\"<%- cls %>\">\n      <% }); %>\n    </colgroup>\n    <thead>\n      <tr>\n        <% _.each(colHeaders, function (hdr) { %>\n          <th><%- hdr %></th>\n        <% }); %>\n      </tr>\n    </thead>\n    <tbody class=\"scrollable\">\n    </tbody>\n  </table>\n\n  <% if (hasMore) { %>\n    <div class=\"im-load-more\">\n      <%- Messages.getText('summary.MoreItems') %>\n    </div>\n  <% } %>\n</div>\n\n<div class=\"im-summary-controls\">\n</div>\n";
+exports.export_destination_galaxy_options = "<div class=\"form-group\">\n    <label><%- Messages.getText('GalaxyURILabel') %></label>\n    <input type=\"url\"\n           class=\"form-control im-galaxy-uri-param\"\n           value=\"<%- Galaxy.Current || Galaxy.Main %>\">\n</div>\n<div class=\"checkbox im-save-galaxy\">\n    <label>\n        <input type=\"checkbox\" <%= (Galaxy.Save) ? 'checked' : void 0 %>>\n        <%- Messages.getText('SaveGalaxyURL') %></label>\n    </label>\n</div>\n";
+exports.join_manager_body = "<ul class=\"list-group\"></ul>\n\n<div class=\"alert alert-info\">\n  <%= Icons.icon('Info') %>\n  <strong class=\"im-clickable\">\n    <%- Messages.getText('joins.ExplanationTitle') %>\n  </strong>\n  <p class=\"<%= (!state.explaining) ? 'im-latent' : void 0 %>\">\n    <%- Messages.getText('joins.Explanation') %>\n  </p>\n</div>\n";
+exports.row_surrogate = "<%= Icons.icon(above ? 'ASC' : 'DESC') %>\n<%- item %>: <%- count %>\n";
+exports.code_gen_button_main = "<%= Icons.icon('CodeFile') %>\n<span class=\"hidden-sm hidden-xs\">\n  <%- Messages.getText('codegen.GenerateCodeIn', {lang: lang}) %>\n</span>\n<span class=\"visible-sm-inline im-current-lang\">\n    <%- Messages.getText('codegen.Lang', {lang: lang}) %>\n</span>\n\n";
+exports.facet_item = "<dd>\n    <a href=#>\n        <b class=\"im-facet-count pull-right\">\n            (<%- count %>)\n        </b>\n        <%- item %>\n    </a>\n</dd>\n";
+exports.active_progress_bar = "<div class=\"progress progress-info progress-striped active\">\n  <div class=\"bar\" style=\"width: 100%\"></div>\n</div>\n";
+exports.facet_title = "<%= Icons.icon(state.open ? 'Expanded' : 'Collapsed') %>\n<span class=\"im-facet-title\"><%- pathName %></span>\n&nbsp;\n<span class=\"im-facet-count\"><%- Messages.getText('Number', {n: got} %></span>\n";
+exports.null_value = "<span class=\"im-null-value\">&nbsp;</span>\n";
+exports.cell_preview_attribute = "<tr>\n  <td class=\"im-field-name\"><%- _.last(parts) %></td>\n  <td class=\"im-field-value <%- field.toLowerCase() %> <%- type %>\">\n    <% if (isNumeric) { %>\n      <%- numToString(+value) %>\n    <% } else { %>\n      <%- value %>\n    <% } %>\n    <% if (tooLong) { %>\n      <span class=\"im-overspill\"><%- valueOverspill %></span>\n      <a class=\"im-too-long\">\n        <span class=\"im-ellipsis\">...</span>\n        <%= Icons.icon('More') %>\n      </a>\n    <% } %>\n  </td>\n</tr>\n";
+exports.input_with_label = "<label><%- Messages.getText(label) %></label>\n<input class=\"form-control\"\n       placeholder=\"<%- Messages.getText(placeholder) %>\"\n       value=\"<%- value %>\">\n<% if (helpMessage) { %>\n  <span style=\"display:<%= hasProblem ? 'block' : 'none' %>\"\n        class=\"help-block\">\n        <%- Messages.getText(helpMessage) %>\n  </span>\n<% } %>\n";
+exports.summary_heading = "<% /* requires:\n    *  numeric, available, got, uniqueValues\n    *  state.typeName, state.endName\n    *  filtered \n    */ %>\n<h3>\n  <% if (numeric) { %>\n    <%- Messages.getText('summary.NumericDistribution', {n: available}) %>\n    <span class=\"im-type-name\"><%- state.typeName %></span>\n    <span class=\"im-attr-name\"><%- pluralise(state.endName, got) %></span>\n  <% } else { %> \n    <span class=\"im-item-got\">\n      <%- Messages.getText('summary.Got', {available: available, got: got}) %>\n    </span>\n    <span class=\"im-item-available\">\n      <%- Messages.getText('Number', {n: available}) %>\n    </span>\n    <span class=\"im-type-name\"><%- state.typeName %></span>\n    <span class=\"im-attr-name\"><%- pluralise(state.endName, got) %></span>\n    <span class=\"im-item-total\">\n      <%- Messages.getText('summary.Total', {\n            filtered: filtered,\n            total: uniqueValues\n          }) %>\n    </span>\n  <% } %> \n</h3>\n";
 exports.table_error = "<div class=\"alert alert-error alert-warning\">\n\n  <h2><%= Icons.icon('Bug') %><%- Messages.getText('error.Oops') %></h2>\n\n  <p>\n    <i><%- Messages.getText(error.key || 'error.' + domain + '.Heading') %></i>\n  </p>\n\n  <p><%- Messages.getText('error.' + domain + '.Body') %></p>\n\n  <a class=\"btn btn-primary pull-right\" href=\"mailto:<%= mailto %>\">\n    <%= Icons.icon('Mail') %>\n    <%- Messages.getText('error.EmailHelp') %>\n  </a>\n\n  <button class=\"btn btn-default im-show-query\">\n    <%= Icons.icon('xml') %>\n    <%- Messages.getText('error.ShowQuery') %>\n  </button>\n  <% if (error.message) { %>\n    <button class=\"btn btn-default im-show-error\">\n      <%= Icons.icon('Bug') %>\n      <%- Messages.getText('error.ShowError') %>\n    </button>\n  <% } %>\n\n  <pre class=\"query-xml well im-latent\"><%- indent(query) %></pre>\n\n  <% if (error.message) { %>\n    <pre class=\"error-message well im-latent\"><%- error.message %></pre>\n  <% } %>\n\n</div>\n";
 exports.page_sizer = "<% /* Expects size, sizes */ %>\n<% if (sizes.length) { %>\n    <label>\n        <span class=\"hidden-tablet\">Rows per page:</span>\n    </label>\n    <select class=\"form-control\" title=\"Rows per page\">\n        <% sizes.forEach(function (s) { %>\n            <option value=\"<%= s[0] %>\" <%= (s[0] === size) && 'selected' %>>\n            <%= s[1] || s[0] %>\n            </option>\n        <% }); %>\n    </select>\n<% } %>\n";
-exports.constraint_editor = "<fieldset class=\"im-constraint-options form-group row\">\n  <label class=\"col-sm-3 path-label\"><%- data.con.displayName %></label>\n  <% if (data.con.op) { %>\n    <div class=\"im-operator col-sm-3\">\n        <select class=\"form-control im-ops\">\n        <option selected><%- data.con.op %></option>\n        <% data.otherOperators.forEach(function (op) { %>\n            <option><%- op %></option>\n        <% }); %>\n        </select>\n    </div>\n  <% } %>\n  <div class=\"col-sm-6 im-value-options im-value-section\">\n  </div>\n</fieldset>\n\n<div class=\"btn-group im-con-buttons\">\n  <% data.buttons.forEach(function (b, i) { %>\n  <button class=\"btn btn-<%= (i === 0) ? 'primary' : 'default' %> <%- b.classes %>\">\n    <%- data.messages.getText(b.key) %>\n  </button>\n  <% }); %>\n</div>\n";
-exports.facet_row = "<% /* requires: selected, symbol, item, count, percent, opacity, share */ %>\n<td class=\"im-selector-col\">\n  <span><%- symbol %></span>\n  <div class=\"checkbox\"></div>\n</td>\n\n<td class=\"im-item-col\">\n  <% if (item != null) { %>\n    <%- item %>\n  <% } else { %>\n    <span class=null-value>&nbsp;</span>\n  <% } %>\n</td>\n\n<td class=\"im-count-col\">\n  <% if (max > 1) { %>\n    <div class=\"im-facet-bar\"\n         style=\"width:<%- percent %>%;background:<%- Messages.getText('summary.FacetBar', {opacity: opacity}) %>\">\n    </div>\n  <% } %>\n  <span class=\"im-count\"><%- numToString(count) %></span>\n</td>\n\n<% if (share != null) { %>\n    <td class=\"im-percent-col\"><i><%- share.toFixed() %>%</i></td>\n<% } %>\n";
-exports.table_subtables_header = "<a title=\"<%- Messages.getText('subtables.RemoveColumn') %>\">\n  <%= Icons.icon('Remove') %>\n</a>\n<% if (displayName && columnName) { %>\n  <%- displayName.replace(columnName, '').replace(/^ > /, '') %>\n<% } %>\n";
-exports.null_value = "<span class=\"im-null-value\">&nbsp;</span>\n";
-exports.cell_preview_reference = "<tr>\n    <td class=\"im-field-name\"><%- _.rest(parts).join(' ') %></td>\n    <td class=\"im-field-value <%- field.toLowerCase() %>\">\n        <%- values.join(', ') %>\n    </td>\n</tr>\n";
-exports.list_dialogue_button = "<button class=\"btn btn-default dropdown-toggle\" data-toggle=\"dropdown\">\n  <%= Icons.icon('Lists') %>\n  <span class=\"hidden-xxs\">\n    <%- Messages.getText('lists.SaveAsList') %>\n  </span>\n  <span class=\"caret\"></span>\n</button>\n\n<ul class=\"dropdown-menu dropdown-menu-right\" role=\"menu\">\n    <li class=\"divider\"></li>\n    <li>\n        <a class=\"im-pick-items\" href=\"#\">\n            <%- Messages.getText('lists.StartPicking') %>\n        </a>\n    </li>\n    <li class=\"divider\"></li>\n    <li>\n        <div class=\"btn-group btn-group-justified\" role=\"group\">\n            <a role=\"button\" class=\"<%- createBtnClasses %>\">\n                <%- Messages.getText('lists.Create') %>\n            </a>\n            <a role=\"button\" class=\"<%- appendBtnClasses %>\">\n                <%- Messages.getText('lists.Append') %>\n            </a>\n        </div>\n    </li>\n</ul>\n";
-exports.export_rows_reset_button = "<button type=\"button\"\n        <%= (isAll) ? 'disabled' : void 0 %>\n        class=\"btn btn-default btn-reset\">\n        <%- Messages.getText('export.ResetRowSelection') %>\n</button>\n\n<% if (tablePage) { %>\n    <button type=\"button\"\n            <%= (tablePage.start === start && tablePage.size === size) ? 'disabled' : void 0 %>\n            class=\"btn btn-default im-set-table-page\">\n            <%- Messages.getText('export.SetTablePage') %>\n    </button>\n<% } %>\n        \n";
-exports.active_constraint = "<div class=\"im-con-overview\">\n  <% if (data.con.editable != null && data.con.editable === false) { %>\n    <a title=\"<%- data.messages.getText('conbuilder.NotEditable') %>\">\n        <%= data.icons.icon('Lock') %>\n    </a>\n  <% } else { %>\n    <a class=\"im-remove-constraint\"\n        title=\"<%- data.messages.getText('conbuilder.Remove') %>\"\n        >\n        <%= data.icons.icon('RemoveConstraint') %>\n    </a>\n    <a class=\"im-edit\" title=\"<%- data.messages.getText('conbuilder.EditCon') %>\">\n        <%= data.icons.icon('Edit') %>\n    </a>\n  <% } %>\n</div>\n\n<% /* We use the :empty selector on this element - hence it must be on one line */ %>\n<div class=\"im-constraint-editor\"></div>\n";
-exports.column_manager_path_chooser_buttons = "<button class=\"btn btn-default im-rearrange-columns\">\n  <%- Messages.getText('Cancel') %>\n</button>\n<button class=\"btn btn-success im-add-column\"\n  <%= collection.length ? (void 0) : 'disabled' %> >\n  <%- Messages.getText('columns.AddColumn', {num: collection.length}) %>\n</button>\n\n";
-exports.large_table_disuader = "<div class=\"modal-dialog\">\n    <div class=\"modal-content\">\n        <div class=\"modal-header\">\n            <h3>\n            <%= size %> rows - are you sure?\n            </h3>\n        </div>\n\n        <div class=\"modal-body\">\n\n            <p><%= Messages.getText('largetable.appeal', {size: size}) %></p>\n\n            <ul>\n                <li>\n                    <p>\n                        If you want to see all the data, you can page \n                        <span class=\"label label-info\">\n                            <%= Icons.icon('GoBack') %>\n                            backwards\n                        </span>\n                        and \n                        <span class=\"label label-info\">\n                            forwards\n                            <%= Icons.icon('GoForward') %>\n                        </span>\n                        through the results.\n                    </p>\n                    <div class=\"btn-group\">\n                        <a class=\"btn btn-default im-alternative-action page-backwards\" href=\"#\">\n                            <%= Icons.icon('GoBack') %>\n                            go one page back\n                        </a>\n                        <a class=\"btn btn-default im-alternative-action page-forwards\" href=\"#\">\n                            go one page forward\n                            <%= Icons.icon('GoForward') %>\n                        </a>\n                    </div>\n                </li>\n\n                <li>\n                    <p>\n                        If you are looking for something specific, you can use the\n                        <span class=\"label label-info\">filtering tools</span>\n                        to narrow down the result set. Then you \n                        might be able to fit the items you are interested in in a\n                        single page.\n                    </p>\n                    <button class=\"btn btn-default im-alternative-action add-filter-dialogue\">\n                        <%= Icons.icon('Filter') %>\n                        Add a new filter.\n                    </button>\n                </li>\n\n                <li>\n                    <p>\n                        If you want to get and save the results, we suggest\n                        <span class=\"label label-info\">downloading</span>\n                        the results in a format that suits you. \n                    <p>\n                    <button class=\"btn btn-default im-alternative-action download-menu\">\n                        <%= Icons.icon('Export') %>\n                        Open the download menu.\n                    </buttn>\n                </li>\n\n            </ul>\n        </div>\n\n        <div class=\"modal-footer\">\n            <button class=\"btn btn-primary pull-right\">\n                <%- Messages.getText('largetable.ok', {size: size}) %>\n            </button>\n            <button class=\"btn pull-left close\">\n                <%- Messages.getText('largetable.abort') %>\n            </button>\n        </div>\n    </div>\n</div>\n";
-exports.cell_preview_reference_relation = "<% _.each(collection, function (relation) { %>\n  <li class=\"im-relation\">\n    <span class=\"im-name\"><%- _.last(relation.parts) %></span>\n    <span class=\"im-count\"><%- numToString(relation.count) %></span>\n  </li>\n<% }); %>\n";
-exports.new_filter_dialogue = "<div class=\"modal-body\">\n</div>\n<div class=\"modal-footer\">\n    <button class=\"disabled btn btn-primary pull-right im-add-constraint\">\n        <%- Messages.getText('constraints.AddFilter') %>\n    </button>\n    <button class=\"btn im-close pull-left\">\n        <%- Messages.getText('Cancel') %>\n        Cancel\n    </button>\n</div>\n";
-exports.loop_value_controls = "<% if (candidateLoops.length) { %>\n    <%= select(candidateLoops, isSelected, 'form-control im-value-options im-con-value') %>\n<% } else { %>\n    <%- messages.getText('conbuilder.NoSuitableLoops') %>\n<% } %>\n";
-exports.export_compression_controls = "<h4><%- Messages.getText('export.category.Compression', state) %></h4>\n\n<div class=\"checkbox im-compress\">\n    <label>\n        <input type=\"checkbox\" <%= compress ? 'checked' : void 0 %>>\n        <%- Messages.getText('export.UseCompression') %>\n    </label>\n</div>\n\n<fieldset <%= compress ? void 0 : 'disabled' %>>\n    <div class=\"radio\">\n        <label>\n            <input type=\"radio\"\n                name=\"gzip\"\n                <%= (compression === 'gzip') ? 'checked' : void 0 %>>\n            <%- Messages.getText('export.UseGZIP') %>\n        </label>\n    </div>\n\n    <div class=\"radio\">\n        <label>\n            <input type=\"radio\"\n                name=\"zip\"\n                <%= (compression === 'zip') ? 'checked' : void 0 %>>\n            <%- Messages.getText('export.UseZIP') %>\n        </label>\n    </div>\n</fieldset>\n\n";
-exports.slider = "<div class=\"im-slider\">\n    <% _.each(markers, function(marker) { %>\n        <span class=\"im-slider-marker\"><%- marker.value %></span>\n    <% }); %>\n</div>\n";
-exports.join_manager_body = "<ul class=\"list-group\"></ul>\n\n<div class=\"alert alert-info\">\n  <%= Icons.icon('Info') %>\n  <strong class=\"im-clickable\">\n    <%- Messages.getText('joins.ExplanationTitle') %>\n  </strong>\n  <p class=\"<%= (!state.explaining) ? 'im-latent' : void 0 %>\">\n    <%- Messages.getText('joins.Explanation') %>\n  </p>\n</div>\n";
-exports.no_results = "<% /* requires: selectList :: [], canUndo :: bool */ %>\n<td colspan=\"<%- selectList.length %>\">\n  <div class=\"alert alert-warning\">\n    <% if (canUndo) { %>\n      <button class=\"pull-right btn btn-large btn-default btn-undo\">\n        <%= Icons.icon('Undo') %>\n        <%- Messages.getText('Undo') %>\n      </button>\n    <% } %>\n    <strong><%- Messages.getText('table.Empty') %></strong>\n    <p><%- Messages.getText('table.EmptyWhy') %></p>\n  </div>\n</td>\n";
-exports.count_summary = "<% if (size && count) { %>\n  <% var msg = (size == 0 ? '.ShowingAll' : '.ShowingRange'); %>\n  <% ['xs', 'sm', 'md', 'lg'].forEach(function (pageSize) { %>\n    <span class=\"visible-<%= pageSize %>-inline\">\n      <%- Messages.getText('table.' + pageSize + msg, page) %>\n    </span>\n  <% }); %>\n<% } %>\n";
-exports.classy_popover = "<div class=\"popover <%- classes %>\" role=\"tooltip\">\n  <div class=\"arrow\"></div>\n  <h3 class=\"popover-title\"></h3>\n  <div class=\"popover-content\"></div>\n</div>\n";
-exports.undo_history = "<button class=\"btn btn-default im-undo\">\n  <%= Icons.icon('Undo') %>\n  <span class=\"visible-lg-inline\">\n    <%- Messages.getText('Undo') %>\n  </span>\n</button>\n\n<button class=\"btn btn-default dropdown-toggle\"\n        data-toggle=\"dropdown\">\n  <span class=\"caret\"></span>\n</button>\n\n<ul class=\"dropdown-menu im-state-list\">\n    <li>\n      <button\n          title=\"<%- Messages.getText('undo.ToggleTrivialTitle', state) %>\"\n          class=\"btn btn-xs btn-default im-toggle-trivial <%= state.hideTrivial ? 'active' : void 0 %>\">\n        <%- Messages.getText('undo.ToggleTrivial', state) %>\n      </button>\n    </li>\n</ul>\n";
-exports.table_subtable = "<span class=\"im-subtable-summary\">\n</span>\n<div class=\"im-table-wrapper\">\n</div>\n";
-exports.modal_footer = "<button type=\"button\" class=\"btn btn-cancel\">\n    <%- dismissAction %>\n</button>\n<% if (exportLink != null) { %>\n    <a class=\"btn btn-primary\"\n        <%= (error) ? 'disabled' : void 0 %>\n        href=\"<%- exportLink %>\">\n        <%= Icons.icon(primaryIcon) %>\n        <%- primaryAction %>\n    </a>\n<% } else { %>\n    <% /* We need the wrapper to deal with the fact that tooltips do not\n        * work on disabled buttons. */ %>\n    <div class=\"im-tooltip-wrapper\"\n        <% if (disabled && disabledReason) { %>\n          title=\"<%- Messages.getText(disabledReason)  %>\"\n        <% } %>>\n        <button type=\"button\"\n                <%= (error || disabled) ? 'disabled' : void 0 %>\n                class=\"btn btn-primary\">\n            <%= Icons.icon(primaryIcon) %>\n            <%- primaryAction %>\n        </button>\n    </div>\n<% } %>\n";
-exports.column_manager_path_chooser = "<div class=\"btn-group pull-right\">\n</div>\n<h4>\n  <%- Messages.getText('columns.ChooseAPathFrom', {root: state.rootName}) %>\n</h4>\n\n";
-exports.column_manager_order_direction = "<% /* requires: direction, isNumeric */ %>\n<span class=\"im-change-direction\"\n  title=\"<%- Messages.getText('columns.ChangeDirection') %>\">\n  <span class=\"sr-only\">\n    <%- Messages.getText('columns.CurrentDirection', {\n      dir: direction, numeric: isNumeric\n    }) %>\n  </span>\n  <%= Icons.icon('Sort' + (isNumeric ? 'Numeric' : 'String') + direction) %>\n</span>\n";
-exports.download_popover = "<% /* requires: formats, query, path */ %>\n<ul role=\"menu\" class=\"im-export-summary\">\n    <% _.each(formats, function (icon, param) { %>\n      <li role=\"presentation\">\n        <a role=\"menuitem\"\n            href=\"<%= query.getExportURI(param) %>&summaryPath=<%= path %>\">\n            <%= Icons.icon(icon) %>\n            <%- icon.toUpperCase() %>\n        </a>\n      </li>\n    <% }); %>\n</ul>\n";
-exports.modal_error = "<% /* Renders an alert box at various levels, with appropriate icons and messages */ %>\n<% if (error) { %>\n    <div class=\"pull-left alert <%- errorAlert(error) %>\">\n        <% if (!error.cannotDismiss) { %>\n            <button type=\"button\" class=\"dismiss\">\n                <span aria-hidden=\"true\">&times;</span>\n                <span class=\"sr-only\">Close</span>\n            </button>\n        <% } %>\n        <%= Icons.icon(errorIcon(error)) %>\n        <strong><%- Messages.getText('ErrorTitle', error) %></strong>\n        <% if (error.key != null) { %>\n            <%- Messages.getText(error.key) %>\n        <% } else { %>\n            <%- error.message || error %>\n        <% } %>\n    </div>\n<% } %>\n";
-exports.row_surrogate = "<%= Icons.icon(above ? 'ASC' : 'DESC') %>\n<%- item %>: <%- count %>\n";
-exports.active_constraints = "<% /* requires: constraints.length */ %>\n<div class=\"well im-current-constraints\">\n    <p class=\"well-help\">\n      <% if (constraints.length) { %>\n        <%- Messages.getText('constraints.EditOrRemove') %>\n      <% } else { %>\n        <%- Messages.getText('constraints.None') %>\n      <% } %>\n    </p>\n\n    <ul class=\"im-active-constraints\">\n    </ul>\n</div>\n";
-exports.list_tag = "<%- id %>\n<span class=\"im-remove\" title=\"<%- Messages.getText('lists.RemoveTag') %>\">\n    <%= Icons.icon('Remove') %>\n</span>\n";
+exports.code_gen_js = "<% if (asHTML) { %>\n<!-- The Element we will target -->\n<div id=\"some-elem\"></div>\n<!-- The imtables source -->\n<script src=\"<%= imtablesJS %>\" charset=\"UTF-8\"></script>\n<link rel=\"stylesheet\" href=\"<%= imtablesCSS %>\">\n<script>\n<% } %>\n<% if (!asHTML) { %>\n/* Install from npm: npm install im-tables\n * This snippet assumes the presence on the page of an element like:\n * <div id=\"some-elem\"></div>\n */\nvar imtables = require('im-tables');\n<% } %>\n\nvar selector = '#some-elem';\nvar service  = {root: '<%= service.root %>'};\nvar query    = <%= JSON.stringify(query, null, 2) %>;\n\nimtables.loadTable(\n  selector, // Can also be an element, or a jQuery object.\n  <%= JSON.stringify(page) %>, // May be null\n  {service: service, query: query} // May be an imjs.Query\n).then(\n  function (table) { console.log('Table loaded', table); },\n  function (error) { console.error('Could not load table', error); }\n);\n<% if (asHTML) { %>\n</script>\n<% } %>\n";
 exports.undo_history_step_section = "<div class=\"im-section-summary\">\n  <% if (collection.length) { %>\n    <%= Icons.icon(state.open ? 'ExpandedSection' : 'CollapsedSection') %>\n  <% } %>\n  <%- Messages.getText(summaryLabel, {n: count}) %>\n</div>\n<% if (collection.length) { %>\n  <div class=\"<%- collectionClasses %>\">\n    <% _.each(collection, function (e) { %>\n      <span class=\"label label-<%= e.added ? 'success' : (e.removed ? 'danger' : 'default') %>\">\n        <%- labelContent(e) %>\n      </span>\n    <% }); %>\n  </div>\n<% } %>\n";
-exports.export_destination_galaxy_options = "<div class=\"form-group\">\n    <label><%- Messages.getText('GalaxyURILabel') %></label>\n    <input type=\"url\"\n           class=\"form-control im-galaxy-uri-param\"\n           value=\"<%- Galaxy.Current || Galaxy.Main %>\">\n</div>\n<div class=\"checkbox im-save-galaxy\">\n    <label>\n        <input type=\"checkbox\" <%= (Galaxy.Save) ? 'checked' : void 0 %>>\n        <%- Messages.getText('SaveGalaxyURL') %></label>\n    </label>\n</div>\n";
-exports.attribute_value_select = "<select class=\"form-control im-con-value-attr\">\n    <% _.each(items, function (item) { %>\n    <option <%= (item.item === value) ? 'selected' : void 0 %> value=\"<%- item.item %>\">\n            <%- item.item %>\n        </option>\n    <% }); %>\n</select>\n";
-exports.column_manager_tabs = "<ul class=\"nav nav-tabs\">\n    <li role=\"presentation\" class=\"<%- classes.view %>\">\n      <a href=\"#\">\n        <%- Messages.getText('columns.ViewTabTitle') %>\n      </a>\n    </li>\n    <li role=\"presentation\" class=\"<%- classes.sortorder %>\">\n      <a href=\"#\">\n        <%- Messages.getText('columns.SortOrderTabTitle') %>\n      </a>\n    </li>\n</ul>\n";
-exports.export_flat_file_options = "<h4><%- Messages.getText('export.category.ColumnHeaders', state) %></h4>\n\n<div class=\"checkbox im-headers\">\n    <label>\n        <input type=\"checkbox\" <%= headers ? 'checked' : void 0 %>>\n        <%- Messages.getText('export.AddHeaders') %>\n    </label>\n</div>\n\n<fieldset <%= headers ? void 0 : 'disabled' %>>\n    <div class=\"radio\">\n        <label>\n            <input type=\"radio\"\n                name=\"hdrs-friendly\"\n                <%= (headerType === 'friendly') ? 'checked' : void 0 %>>\n            <%- Messages.getText('export.ff.FriendlyHeaders') %>\n        </label>\n    </div>\n\n    <div class=\"radio\">\n        <label>\n            <input type=\"radio\"\n                name=\"hdrs-path\"\n                <%= (headerType === 'path') ? 'checked' : void 0 %>>\n            <%- Messages.getText('export.ff.PathHeaders') %>\n        </label>\n    </div>\n</fieldset>\n\n";
-exports.constraint_adder_options = "<% if (showTree) { %>\n    <div class=\"col-sm-5\">\n        <div class=\"input-group\">\n            <span class=\"input-group-addon\">find</span>\n            <input type=\"text\"\n                value=\"<%- filter %>\"\n                class=\"im-tree-filter form-control\" placeholder=\"path\">\n            <span class=\"input-group-btn\">\n                <button class=\"btn btn-default im-clear-filter\" type=\"button\">\n                    <%- Messages.getText('Clear') %>\n                </button>\n            </span>\n        </div>\n    </div>\n<% } %>\n<div class=\"col-sm-7\">\n    <div class=\"btn-group\">\n        <% if (!showTree) { %>\n            <button type=\"button\" class=\"btn btn-default btn-chooser im-choose\">\n                <%= Icons.icon('Tree') %>\n                <span><%- Messages.getText('constraints.BrowseForColumn') %></span>\n            </button>\n        <% } else { %>\n            <button <%= anyNodeChosen ? void 0 : 'disabled' %>\n                    class=\"btn btn-primary im-approve\"\n                    type=\"button\" >\n                <%- Messages.getText('constraints.Choose') %>\n                <% _.each(chosen, function (path, i) { %>\n                    <%- path %>\n                    <% if (i + 2 === chosen.length) { %>\n                        <%- Messages.get('and') %>\n                    <% } else if (i + 2 < chosen.length) { %>\n                        <%- Messages.get('comma') %>\n                    <% } %>\n                <% }); %>\n            </button>\n        <% } %>\n    </div>\n    <div class=\"form-group\">\n        <label class=\"im-tree-option\">\n            <%- Messages.getText('columns.AllowRevRef') %>\n            <input type=\"checkbox\"\n                    class=\"im-allow-rev-ref\"\n                    <%= allowRevRefs ? 'checked' : void 0 %> >\n        </label>\n    </div>\n</div>\n";
-exports.summary_items_controls = "<button class=\"btn btn-default pull-right im-download\">\n  <%= Icons.icon('Download') %>\n  <%- Messages.getText('summary.DownloadData') %>\n</button>\n\n<div class=\"btn-group im-filter-group\">\n  <button type=\"submit\"\n        class=\"btn btn-primary im-filter-in\"\n        <%= (anyItemSelected) ? void 0 : 'disabled' %>>\n    <%- Messages.getText('Filter') %>\n  </button>\n  <button class=\"btn btn-primary dropdown-toggle\" \n          title=\"<%- Messages.getText('summary.SelectFilter') %>\"\n          <%= (anyItemSelected) ? void 0 : 'disabled' %>>\n    <span class=\"caret\"></span>\n  </button>\n  <ul class=\"dropdown-menu\">\n    <li>\n      <a href=\"#\" class=\"im-filter-in\">\n        <%- Messages.getText('summary.Include') %>\n      </a>\n    </li>\n    <li>\n      <a href=\"#\" class=\"im-filter-out\">\n        <%- Messages.getText('summary.Exclude') %>\n      </a>\n    </li>\n  </ul>\n</div>\n\n<div class=\"btn-group\">\n  <button class=\"btn btn-default btn-cancel\"\n          <%= (anyItemSelected) ? void 0 : 'disabled' %>\n          title=\"<%- Messages.getText('summary.Reset') %>\">\n    <%= Icons.icon('Undo') %>\n  </button>\n  <% if (!(/boolean/i).test(type)) { %>\n    <button class=\"btn btn-default btn-toggle-selection\"\n            title=\"<%- Messages.getText('summary.Toggle') %>\">\n        <%= Icons.icon('Toggle') %>\n    </button>\n  <% } %>\n</div>\n\n";
-exports.facet_title = "<%= Icons.icon(state.open ? 'Expanded' : 'Collapsed') %>\n<span class=\"im-facet-title\"><%- pathName %></span>\n&nbsp;\n<span class=\"im-facet-count\"><%- Messages.getText('Number', {n: got} %></span>\n";
-exports.export_add_column_control = "<div class=\"row\">\n    <div class=\"col-sm-1 im-help\"\n         title=\"<%- Messages.getText('export.help.AdditionalCols') %>\">\n        <%= Icons.icon('Help', 'lg') %>\n    </div>\n    <div class=\"col-sm-11 form-group\">\n        <input type=\"text\" class=\"form-control\">\n    </div>\n</div>\n";
-exports.export_column_control = "<span class=\"badge\"><%- item.getType() %></span>\n<span class=\"im-active-state\">\n    <% if (active) { %>\n        <%= Icons.icon('Check') %>\n    <% } else { %>\n        <%= Icons.icon('UnCheck') %>\n    <% } %>\n</span>\n<%- name %>\n";
-exports.table_cell = "<% if (state.minimised) { %>\n  &hellip;\n<% } else if (entity.id === null) { %>\n  <% if (value !== null && formattedValue !== null) { %>\n    <span class=\"im-displayed-value\"><%= value %></span>\n  <% } else if (entity.isNULL) { %>\n    <span class=\"im-null-entity\">\n      <%- Messages.getText('table.cell.NullEntity', {type: entity['class']}) %>\n    </span>\n  <% } else { %>\n    <%= NULL_VALUE %>\n  <% } %>\n<% } else { %>\n  <input\n    class=\"im-list-chooser\"\n    type=\"checkbox\"\n    <% if (input.checked) { %>checked<% } %>\n    <% if (input.disabled) { %>disabled<% } %>\n    style=\"display:<%- input.display %>\">\n\n  <% if (field !== 'url') { %>\n    <a class=\"im-cell-link\" target=\"<%- target %>\" href=\"<%= url %>\">\n\n      <% if (isForeign) { %>\n        <% if (icon) { %>\n          <img src=\"<%= icon %>\" class=\"im-external-link\"></img>\n        <% } else { %>\n          <%= Icons.icon('ExternalLink') %>\n        <% } %>\n      <% } %>\n\n      <% if (value !== null && formattedValue !== null && value !== 'null') { %>\n        <span class=\"im-displayed-value\"><%= formattedValue %></span>\n      <% } else { %>\n        <%= NULL_VALUE %>\n      <% } %>\n\n    </a>\n  <% } else if (field === 'url')  { %>\n    <% if (value !== null) { %>\n      <a class=\"im-cell-link external\" href=\"<%= value %>\">\n        <%= Icons.icon('ExternalLink') %>\n        <%= value %>\n      </a>\n    <% } else { %>\n      <%= NULL_VALUE %>\n    <% } %>\n  <% } %>\n<% } %>\n";
-exports.export_dialogue_footer = "<% if (linkToFile) { %>\n    <div class=\"pull-left alert alert-info\">\n        <%- Messages.getText('export.cloud.FileLocation', {cloud: dest}) %>\n        <a href=\"<%= linkToFile %>\" target=\"_blank\"><%- linkToFile %></a>\n    </div>\n<% } %>\n\n<button type=\"button\" class=\"btn btn-cancel\">\n    <%- dismissAction %>\n</button>\n\n<% if (dest === 'download') { %>\n    <a class=\"btn btn-primary\"\n        href=\"<%- exportURI %>\">\n        <%= Icons.icon(primaryIcon) %>\n        <%- primaryAction %>\n    </a>\n<% } else { %>\n    <button type=\"button\"\n            <%= (error || doneness != null) ? 'disabled' : void 0 %>\n            class=\"btn btn-primary\">\n        <%= Icons.icon(primaryIcon) %>\n        <%- primaryAction %>\n    </button>\n<% } %>\n\n";
-exports.progress_bar = "<% /* requires: doneness (float: 0 <= i <= 1) */ %>\n<% if (doneness != null && doneness >= 0) { %>\n    <div class=\"progress\">\n        <div class=\"progress-bar progress-bar-striped active\"\n             role=\"progressbar\"\n             aria-valuenow=\"<%- doneness %>\"\n             aria-valuemin=\"0\"\n             aria-valuemax=\"1\"\n             style=\"width: <%- 100 * doneness %>%;\">\n            <% if (doneness < 1) { %>\n              <span class=\"sr-only\">\n                <%- Math.round(100 * doneness) %>% <%- Messages.getText('Complete') %>\n              </span>\n            <% } %>\n        </div>\n    </div>\n<% } %>\n";
-exports.list_dialogue_body = "<div class=\"im-list-name\"></div>\n\n<div class=\"row\">\n  <div class=\"col-sm-12 im-more-options\">\n    <h4>\n      <%= Icons.icon('Options') %>\n      <span class=\"msg\"><%- Messages.getText('lists.ShowExtraOptions', state) %></span>\n    </h4>\n  </div>\n</div>\n\n<div class=\"im-optional-attributes\" style=\"<%- state.minimised ? 'display:none' : void 0 %>\">\n  <div class=\"im-list-desc\"></div>\n\n  <div class=\"well im-tags\">\n    <div class=\"row im-active-tags\">\n    </div>\n    <div class=\"row\">\n      <div class=\"col-sm-6 im-apology\">\n      </div>\n      <div class=\"col-sm-6\">\n        <div class=\"im-next-tag\">\n        </div>\n      </div>\n    </div>\n  </div>\n</div>\n";
-exports.column_manager_path_name = "<% /* requires parts */ %>\n<span class=\"im-path-name\">\n    <% _.each(parts, function (part) { %>\n        <span class=\"im-name-part\"><%- part %></span>\n    <% }); %>\n</span>\n\n";
-exports.select = "<select class=\"<%- data.classes %>\">\n  <% _.each(data.options, function (opt) { %>\n    <option value=\"<%- data.key(opt) %>\"\n      <%- data.selectedTest(opt) ? 'selected' : void 0 %> >\n      <% if (data.contentHandler) { %>\n        <%- data.contentHandler(opt) %>\n      <% } else { %>\n        <%- opt.text %>\n      <% } %>\n    </option>\n  <% }); %>\n</select>\n";
-exports.list_tags_apology = "<% if (!hasTags) { %>\n  <span>\n    <%- Messages.getText('lists.NoTags') %>\n  </span>\n<% } %>\n";
-exports.export_destination_options = "<div class=\"form-group im-param-name\">\n    <label><%- Messages.getText('export.param.Name') %></label>\n    <div class=\"input-group\">\n      <input type=\"text\"\n             value=\"<%- filename %>\"\n             class=\"form-control\"\n             placeholder=\"<%- Messages.getText('export.param.Name') %>\"\n             aria-label=\"<%- Messages.getText('export.param.Name') %>\">\n      <div class=\"input-group-btn\">\n        <button type=\"button\"\n                class=\"btn btn-default dropdown-toggle\"\n                data-toggle=\"dropdown\"\n                aria-expanded=\"false\">\n          .<%- format %>\n          <span class=\"caret\"></span>\n        </button>\n        <ul class=\"dropdown-menu dropdown-menu-right\" role=\"menu\">\n          <% _.chain(formats).groupBy('group').each(function (fmts, grp) { %>\n            <% if (this.i++) { %><li class=\"divider\"></li><% } %>\n            <% _.each(fmts, function (fmt) { %>\n                <li>\n                    <a href=\"#\"\n                       class=\"im-fmt-<%- fmt.id %>\">\n                      <%= Icons.icon(fmt.icon) %>\n                      <%- Messages.getText(fmt.name) %>\n                    </a>\n                </li>\n            <% }); %>\n          <% }, {i: 0}); %>\n        </ul>\n      </div>\n    </div>\n</div>\n\n<% if (format && format.desc) { %>\n  <div class=\"alert alert-info\">\n    <%- Messages.getText(format.desc) %>\n  </div>\n<% } %>\n\n<div class=\"row\">\n    <div class=\"col-sm-6 im-param-dest\">\n    </div>\n    <div class=\"col-sm-6 im-dest-opts\">\n    </div>\n</div>\n";
+exports.slider = "<div class=\"im-slider\">\n    <% _.each(markers, function(marker) { %>\n        <span class=\"im-slider-marker\"><%- marker.value %></span>\n    <% }); %>\n</div>\n";
+exports.list_dialogue_button = "<button class=\"btn btn-default dropdown-toggle\" data-toggle=\"dropdown\">\n  <%= Icons.icon('Lists') %>\n  <span class=\"hidden-xxs\">\n    <%- Messages.getText('lists.SaveAsList') %>\n  </span>\n  <span class=\"caret\"></span>\n</button>\n\n<ul class=\"dropdown-menu dropdown-menu-right\" role=\"menu\">\n    <li class=\"divider\"></li>\n    <li>\n        <a class=\"im-pick-items\" href=\"#\">\n            <%- Messages.getText('lists.StartPicking') %>\n        </a>\n    </li>\n    <li class=\"divider\"></li>\n    <li>\n        <div class=\"btn-group btn-group-justified\" role=\"group\">\n            <a role=\"button\" class=\"<%- createBtnClasses %>\">\n                <%- Messages.getText('lists.Create') %>\n            </a>\n            <a role=\"button\" class=\"<%- appendBtnClasses %>\">\n                <%- Messages.getText('lists.Append') %>\n            </a>\n        </div>\n    </li>\n</ul>\n";
+exports.export_data_package = "<h4><%- Messages.getText('export.category.DataPackage') %></h4>\n\n<div class=\"checkbox im-exportDataPackage\">\n    <label>\n        <input type=\"checkbox\" <%= exportDataPackage ? 'checked' : void 0 %>>\n        <%- Messages.getText('export.DataPackage.Title') %>\n    </label>\n</div>";
 exports.column_name_popover = "<% _.each(parts, function (part) { %>\n  <span class=\"im-name-part\"><%- part %></span>\n<% }); %>\n";
-exports.export_json_options = "<h3><%- Messages.getText('export.category.Options') %></h3>\n\n<div class=\"radio\">\n    <label>\n        <input type=\"radio\"\n               name=\"rows\"\n               <%= (jsonFormat === 'rows') ? 'checked' : void 0 %>>\n        <%- Messages.getText('export.json.Rows') %>\n        <pre><%- Messages.getText('export.json.RowsExample') %></pre>\n    </label>\n</div>\n\n<div class=\"radio\">\n    <label>\n        <input type=\"radio\"\n               name=\"objects\"\n               <%= (jsonFormat === 'objects') ? 'checked' : void 0 %>>\n        <%- Messages.getText('export.json.Objects') %>\n        <pre><%- Messages.getText('export.json.ObjExample') %></pre>\n    </label>\n</div>\n\n<% if ((size || start) && jsonFormat === 'objects') { %>\n    <div class=\"alert alert-warning\">\n        <h4><%- Messages.get('Warning') %></h4>\n        <p><%- Messages.get('export.json.ObjWarning') %></p>\n    </div>\n<% } %>\n\n";
+exports.pagination = "<ul class=\"pagination\">\n    <li class=\"hidden-xs <%= gotoStart || 'im-goto-start' %>\" title=\"Go to start\">\n        <a class=\"im-pagination-button\">&#x21e4;</a>\n    </li>\n    <li class=\"hidden-xs hidden-sm <%= goFiveBack || 'im-go-back-5' %>\"\n        title=\"Go back five pages\"\n        class=\"visible-desktop\">\n        <a class=\"im-pagination-button\">&#x219e;</a>\n    </li>\n    <li class=\"<%= goOneBack || 'im-go-back-1' %>\"\n        title=\"Go to previous page\">\n        <a class=\"im-pagination-button\">&larr;</a>\n    </li>\n    <li class=\"im-current-page\">\n        <% if (useSelect) { %>\n          <form class=\"im-page-form form form-inline\">\n            <select class=\"form-control\">\n              <% for (i = 0; i < max; i++) { %>\n                <option\n                  <%= selected(i) ? 'selected' : void 0 %>\n                  value=\"<%= i * size %>\">\n                  page <%= i + 1 %>\n                </option>\n              <% } %>\n            </select>\n          </form>\n        <% } else { %>\n          <a href=\"#\">&hellip;</a>\n          <form class=\"im-page-form form form-inline\"\n                style=\"display:none;\">\n            <div class=\"control-group\">\n                <input type=\"number\"\n                       value=\"<%= currentPage %>\"\n                       max=\"<%= max %>\"\n                       min=\"<%= min %>\"\n                       class=\"form-control im-page-number\">\n            </div>\n          </form>\n        <% } %>\n    </li>\n    <li class=\"<%= goOneForward || 'im-go-fwd-1' %>\"\n        title=\"Go to next page\">\n        <a class=\"im-pagination-button\">&rarr;</a>\n    </li>\n    <li class=\"hidden-xs hidden-sm <%= goFiveForward || 'im-go-fwd-5' %>\"\n        title=\"Go forward five pages\"\n        class=\"visible-desktop\">\n        <a class=\"im-pagination-button\">&#x21a0;</a>\n    </li>\n    <li class=\"hidden-xs <%= gotoEnd || 'im-goto-end' %>\"\n        title=\"Go to last page\">\n        <a class=\"im-pagination-button\">&#x21e5;</a>\n    </li>\n</ul>\n";
 exports.export_row_controls = "<h4 class=\"im-title\"></h4>\n\n<div class=\"form-group\">\n    <label class=\"size-label\"></label>\n    <input name=\"size\"\n           step=\"1\"\n           type=\"range\"\n           min=\"1\"\n           max=\"<%= max %>\"\n           value=\"<%= size || max %>\">\n</div>\n\n<div class=\"form-group\">\n    <label class=\"start-label\"></label>\n    <input name=\"start\"\n           step=\"1\"\n           type=\"range\"\n           min=\"0\"\n           max=\"<%= max - 1 %>\"\n           value=\"<%= start %>\">\n</div>\n\n<div class=\"form-group im-reset\">\n</div>\n";
-exports.add_value_control = "<div class=\"im-table-height-wrapper\">\n    <table class=\"table table-condensed\"></table>\n</div>\n<div class=\"input-group\">\n    <input type=\"text\" class=\"im-new-multi-value form-control\">\n    <span class=\"input-group-btn\">\n        <button class=\"btn btn-primary im-add\" type=\"button\">\n            <span class=\"im-long\"><%- messages.getText('multivalue.AddValue') %></span>\n            <span class=\"im-short\"><%- messages.getText('multivalue.AddValueShort') %></span>\n        </button>\n    </span>\n</div>\n";
-exports.constraint_adder = "<div class=\"im-constraint-adder-options\"></div>\n<div class=\"im-path-finder\"><div>\n<div class=\"im-new-constraint\"></div>\n";
-exports.summary_stats = "<table class=\"table\">\n    <thead>\n        <tr>\n            <th><%- Messages.getText('summary.Max') %></th>\n            <th><%- Messages.getText('summary.Min') %></th>\n            <th><%- Messages.getText('summary.Average') %></th>\n            <th><%- Messages.getText('summary.StdDev') %></th>\n        </tr>\n        <tr>\n            <td><%- Messages.getText('Number', {n: max}) %></td>\n            <td><%- Messages.getText('Number', {n: min}) %></td>\n            <td><%- Messages.getText('Number', {n: average}) %></td>\n            <td><%- Messages.getText('Number', {n: stdev}) %></td>\n        </tr>\n    </thead>\n</table>\n\n<div class=\"row im-range-controls\">\n    <div class=\"col-sm-4 im-range-from\">\n        <input type=\"text\"\n               class=\"form-control im-range-min input im-range-val\"\n               value=\"<%- min %>\">\n    </div>\n    <div class=\"col-sm-1 im-ellipsis\">\n        <span>...</span>\n    </div>\n    <div class=\"col-sm-4 im-range-to\">\n        <input type=\"text\"\n               class=\"form-control im-range-max input im-range-val\"\n               value=\"<%- max %>\">\n    </div>\n    <div class=\"col-sm-3 im-range-buttons\">\n        <div class=\"btn-group pull-right\">\n            <button class=\"btn btn-primary disabled\">Apply</button>\n            <button class=\"btn btn-cancel disabled\">Reset</button>\n        </div>\n    </div>\n</div>\n\n<div class=\"slider\"></div>\n\n";
-exports.undo_history_step = "<% if (!state.current) { %>\n  <button class=\"btn btn-default btn-small im-state-revert\"\n      title=\"<%- Messages.getText('undo.RevertToState') %>\">\n      <%= Icons.icon('Undo') %>\n  </button>\n<% } %>\n\n<h4>\n    <%- Messages.getText('undo.StepTitle', title) %>\n</h4>\n\n<% if (state.current) { %>\n  <span class=\"help-block\"><%- Messages.getText('undo.IsCurrentState') %></span>\n<% } %>\n<div style=\"clear:both\"></div>\n\n<span class=\"im-revision\" title=\"<%- Messages.getText('undo.RevisionTitle', {v: revision}) %>\">\n  <%- Messages.getText('undo.Revision', {v: revision}) %>\n</span>\n\n<div class=\"im-step-count\">\n  <span><%- Messages.getText('undo.StepCount', {count: count}) %></span>\n  <% if (diff) { %>\n    <span class=\"label im-label-<%= (diff > 0 ) ? 'pos' : 'neg' %>\">\n      <% if (diff > 0) { %>+<% } %><%- numToString(diff) %>\n    </span>\n  <% } %>\n</div>\n\n<div class=\"im-step-details\"></div>\n\n<div style=\"clear:both\"></div>\n";
-exports.column_manager_select_list = "<div class=\"im-removal-and-rearrangement\">\n  <button class=\"pull-right btn btn-success im-add-view-path\">\n      <%= Icons.icon('Add') %>\n      <%- Messages.getText('columns.FindColumnToAdd') %>\n  </button>\n\n  <h4>\n    <%- Messages.getText('columns.ColumnsSelected', {columns: collection, removed: hasRubbish}) %>\n  </h4>\n\n  <span class=\"help-block\"><%- Messages.getText('columns.CurrentViewHelp') %></span>\n\n  <div class=\"well im-current-view\">\n\n    <div class=\"row\">\n\n      <div class=\"col-md-6\">\n        <ul class=\"list-group im-active-view im-connected-list\">\n        </ul>\n      </div>\n\n      <div class=\"col-md-6\">\n        <div class=\"im-rubbish-bin\">\n            <%= Icons.icon((hasRubbish ? 'RubbishFull' : 'Rubbish'), 'lg') %>\n            <% if (hasRubbish) { %>\n                <ul class=\"list-group im-removed im-removed-view im-connected-list\">\n                </ul>\n            <% } %>\n        </div>\n      </div>\n\n    </div>\n  </div>\n</div>\n\n<div class=\"im-addition\">\n</div>\n\n";
+exports.list_value_controls = "<% if (suitableLists.length) { %>\n    <%= select(suitableLists, isSelected, 'span7 im-value-options im-con-value im-con-value-list form-control', formatList, getOptionValue) %>\n<% } else { %>\n    <%- messages.getText('conbuilder.NoSuitableLists') %>\n<% } %>\n";
+exports.summary_items_controls = "<button class=\"btn btn-default pull-right im-download\">\n  <%= Icons.icon('Download') %>\n  <%- Messages.getText('summary.DownloadData') %>\n</button>\n\n<div class=\"btn-group im-filter-group\">\n  <button type=\"submit\"\n        class=\"btn btn-primary im-filter-in\"\n        <%= (anyItemSelected) ? void 0 : 'disabled' %>>\n    <%- Messages.getText('Filter') %>\n  </button>\n  <button class=\"btn btn-primary dropdown-toggle\" \n          title=\"<%- Messages.getText('summary.SelectFilter') %>\"\n          <%= (anyItemSelected) ? void 0 : 'disabled' %>>\n    <span class=\"caret\"></span>\n  </button>\n  <ul class=\"dropdown-menu\">\n    <li>\n      <a href=\"#\" class=\"im-filter-in\">\n        <%- Messages.getText('summary.Include') %>\n      </a>\n    </li>\n    <li>\n      <a href=\"#\" class=\"im-filter-out\">\n        <%- Messages.getText('summary.Exclude') %>\n      </a>\n    </li>\n  </ul>\n</div>\n\n<div class=\"btn-group\">\n  <button class=\"btn btn-default btn-cancel\"\n          <%= (anyItemSelected) ? void 0 : 'disabled' %>\n          title=\"<%- Messages.getText('summary.Reset') %>\">\n    <%= Icons.icon('Undo') %>\n  </button>\n  <% if (!(/boolean/i).test(type)) { %>\n    <button class=\"btn btn-default btn-toggle-selection\"\n            title=\"<%- Messages.getText('summary.Toggle') %>\">\n        <%= Icons.icon('Toggle') %>\n    </button>\n  <% } %>\n</div>\n\n";
 exports.table_subtable_summary = "<% if (rows.length) { %>\n  <%= Icons.icon('Table') %>\n<% } else { %>\n  <%= Icons.icon('EmptyTable') %>\n<% } %>\n<%- rows.length %>\n<%- pluralise(contentName, rows.length) %>\n";
-exports.summary_selected_count = "<% if (state.selectedCount) { %>\n    <div class=\"alert alert-info im-selected-count\">\n        <strong>\n            <%- Messages.getText('summary.SelectedCount', state) %>\n        </strong>\n    </div>\n<% } %>\n";
-exports.boolean_value_controls = "<button class=\"btn btn-default im-true {{ (value === true) ? ' active' : void 0 }}\">\n  True\n</button>\n<button class=\"btn btn-default im-false {{ (value === false) ? ' active' : void 0 }}\">\n  False\n</button>\n";
-exports.active_progress_bar = "<div class=\"progress progress-info progress-striped active\">\n  <div class=\"bar\" style=\"width: 100%\"></div>\n</div>\n";
-exports.table_throbber = "<tr class=\"im-table-throbber\">\n  <td colspan=\"<%= colcount %>\">\n    <h2><%- Messages.getText('table.RequestingData') %></h2>\n    <div class=\"progress progress-info progress-striped active\">\n      <div class=\"bar\" style=\"width: 100%\"></div>\n    </div>\n  </td>\n</tr>\n";
+exports.select_with_label = "<label><%- Messages.getText(label) %></label>\n\n<% if (options.length) { %>\n    <select class=\"form-control\">\n        <% _.each(options, function (option) { %>\n            <option selected=\"<%= selected(option) ? 'selected' : void 0 %>\"\n                    value=\"<%- option.name %>\">\n                <%- Messages.getText(optionLabel, option) %>\n            </option>\n        <% }) %>\n    </select>\n    <% if (helpMessage) { %>\n        <span style=\"display:<%= hasProblem ? 'block' : 'none' %>\"\n              class=\"help-block\">\n                <%- Messages.getText(helpMessage) %>\n        </span>\n    <% } %>\n<% } else { %>\n    <span class=\"help-block\">\n        <%- Messages.getText(noOptionsMessage, {model: model}) %>\n    </span>\n<% } %>\n\n";
+exports.export_flat_file_options = "<h4><%- Messages.getText('export.category.ColumnHeaders', state) %></h4>\n\n<div class=\"checkbox im-headers\">\n    <label>\n        <input type=\"checkbox\" <%= headers ? 'checked' : void 0 %>>\n        <%- Messages.getText('export.AddHeaders') %>\n    </label>\n</div>\n\n<fieldset <%= headers ? void 0 : 'disabled' %>>\n    <div class=\"radio\">\n        <label>\n            <input type=\"radio\"\n                name=\"hdrs-friendly\"\n                <%= (headerType === 'friendly') ? 'checked' : void 0 %>>\n            <%- Messages.getText('export.ff.FriendlyHeaders') %>\n        </label>\n    </div>\n\n    <div class=\"radio\">\n        <label>\n            <input type=\"radio\"\n                name=\"hdrs-path\"\n                <%= (headerType === 'path') ? 'checked' : void 0 %>>\n            <%- Messages.getText('export.ff.PathHeaders') %>\n        </label>\n    </div>\n</fieldset>\n\n";
+exports.only_one_item = "<div class=\"alert alert-info\">\n    <%= Icons.icon('Info') %>\n    <%= Messages.getText('summary.OnlyOne', {names: state, item: items[0]}) %>\n</div>\n\n";
+exports.column_header = "<% /* requires the properties of HeaderModel +\n    *  penult, last, headerClasses, colTitleClasses, penultClasses\n    *  and the usual Icons, Messages\n    */ %>\n<div class=\"<%- headerClasses %>\">\n\n<div class=\"im-th-buttons\">\n    \n    <% if (outerJoined && isReference) { %>\n      <a href=\"#\" \n          class=\"im-subtable-expander im-th-button\"\n          title=\"<%- Messages.getText('table.header.ToggleTables') %>\">\n        <%= Icons.icon('Table') %>\n      </a>\n    <% } %>\n\n    <% if (sortable) { %>\n        <span class=\"im-th-dropdown im-col-sort dropdown\">\n            <a class=\"im-th-button im-col-sort-indicator\"\n                title=\"<%- Messages.getText('table.header.SortColumn', {dir: sortDirection}) %>\">\n                <%= Icons.icon(sortDirection || 'unsorted') %>\n            </a>\n            <div class=\"dropdown-menu\">\n                <div><%- Messages.getText('table.header.FailedToInitSortMenu') %></div>\n            </div>\n        </span>\n    <% } %>\n\n    <a class=\"im-th-button im-col-remover\"\n        title=\"<%- Messages.getText('table.header.RemoveColumn') %>\">\n        <%= Icons.icon('headerIconRemove') %>\n    </a>\n\n    <a class=\"im-th-button im-col-minumaximiser\"\n        title=\"<%- Messages.getText('table.header.ToggleColumn') %>\">\n        <%= Icons.icon(minimised ? 'headerIconReveal' : 'headerIconHide') %>\n    </a>\n\n    <span class=\"dropdown im-filter-summary im-th-dropdown\">\n        <a class=\"im-th-button im-col-filters dropdown-toggle\"\n            title=\"<%- Messages.getText('table.header.FilterTitle', {count: numOfCons}) %>\"\n            data-toggle=\"dropdown\" >\n            <%= Icons.icon('Filter') %>\n        </a>\n        <div class=\"dropdown-menu\">\n            <div><%- Messages.getText('table.header.FailedToInitFilter') %></div>\n        </div>\n    </span>\n\n    <span class=\"dropdown im-summary im-th-dropdown\">\n        <a class=\"im-th-button summary-img dropdown-toggle\"\n            title=\"<%- Messages.getText('table.header.ViewSummary') %>\"\n            data-toggle=\"dropdown\" >\n            <%= Icons.icon('Summary') %>\n        </a>\n        <div class=\"dropdown-menu\">\n            <div><%- Messages.getText('table.header.FailedToInitSummary') %></div>\n        </div>\n    </span>\n\n    <% if (isComposed) { %>\n        <a class=\"im-th-button im-col-composed\"\n            title=\"<%- Messages.getText('table.header.Composed', {replaces: replaces}) %>\">\n            <%= Icons.icon('Composed') %>\n        </a>\n    <% } %>\n</div>\n\n<div class=\"<%- colTitleClasses %>\">\n  <div class=\"<%- penultClasses %>\">\n      <%- penult %>\n  </div>\n  <% if (last) { %>\n    <div class=\"im-title-part im-last\">\n        <%- last %>\n    </div>\n  <% } %>\n</div>\n\n</div>\n\n";
+exports.modal_footer = "<button type=\"button\" class=\"btn btn-cancel\">\n    <%- dismissAction %>\n</button>\n<% if (exportLink != null) { %>\n    <a class=\"btn btn-primary\"\n        <%= (error) ? 'disabled' : void 0 %>\n        href=\"<%- exportLink %>\">\n        <%= Icons.icon(primaryIcon) %>\n        <%- primaryAction %>\n    </a>\n<% } else { %>\n    <% /* We need the wrapper to deal with the fact that tooltips do not\n        * work on disabled buttons. */ %>\n    <div class=\"im-tooltip-wrapper\"\n        <% if (disabled && disabledReason) { %>\n          title=\"<%- Messages.getText(disabledReason)  %>\"\n        <% } %>>\n        <button type=\"button\"\n                <%= (error || disabled) ? 'disabled' : void 0 %>\n                class=\"btn btn-primary\">\n            <%= Icons.icon(primaryIcon) %>\n            <%- primaryAction %>\n        </button>\n    </div>\n<% } %>\n";
+exports.add_value_control = "<div class=\"im-table-height-wrapper\">\n    <table class=\"table table-condensed\"></table>\n</div>\n<div class=\"input-group\">\n    <input type=\"text\" class=\"im-new-multi-value form-control\">\n    <span class=\"input-group-btn\">\n        <button class=\"btn btn-primary im-add\" type=\"button\">\n            <span class=\"im-long\"><%- messages.getText('multivalue.AddValue') %></span>\n            <span class=\"im-short\"><%- messages.getText('multivalue.AddValueShort') %></span>\n        </button>\n    </span>\n</div>\n";
+exports.input_with_button = "<input type=\"text\" class=\"form-control\"\n       value=\"<%- value %>\"\n       placeholder=\"<%- Messages.getText(placeholder) %>\">\n<span class=\"input-group-btn\">\n  <button class=\"btn btn-default\" type=\"button\">\n    <%- Messages.getText(button) %>\n  </button>\n</span>\n\n";
+exports.export_rows_reset_button = "<button type=\"button\"\n        <%= (isAll) ? 'disabled' : void 0 %>\n        class=\"btn btn-default btn-reset\">\n        <%- Messages.getText('export.ResetRowSelection') %>\n</button>\n\n<% if (tablePage) { %>\n    <button type=\"button\"\n            <%= (tablePage.start === start && tablePage.size === size) ? 'disabled' : void 0 %>\n            class=\"btn btn-default im-set-table-page\">\n            <%- Messages.getText('export.SetTablePage') %>\n    </button>\n<% } %>\n        \n";
+exports.column_manager_position_controls = "<div class=\"im-position-controls\">\n    <% if (index > 0) { %>\n        <%= Icons.iconWithProps('ASC', {\n            className: 'im-move-up',\n            title: Messages.getText('columns.MoveUp')\n        }) %>\n    <% } %>\n    <% if (!isLast) { %>\n        <%= Icons.iconWithProps('DESC', {\n            className: 'im-move-down',\n            title: Messages.getText('columns.MoveDown')\n        }) %>\n    <% } %>\n</div>\n\n";
+exports.column_manager_order_direction = "<% /* requires: direction, isNumeric */ %>\n<span class=\"im-change-direction\"\n  title=\"<%- Messages.getText('columns.ChangeDirection') %>\">\n  <span class=\"sr-only\">\n    <%- Messages.getText('columns.CurrentDirection', {\n      dir: direction, numeric: isNumeric\n    }) %>\n  </span>\n  <%= Icons.icon('Sort' + (isNumeric ? 'Numeric' : 'String') + direction) %>\n</span>\n";
+exports.column_manager_path_remover = "<% /* requires: removeTitle */ %>\n<span class=\"pull-right im-remove-view\"\n      title=\"<%- Messages.getText(removeTitle) %>\">\n    <%= Icons.icon('Remove') %>\n</span>\n\n";
+exports.cell_preview_items = "<colgroup>\n  <col class=\"im-item-field\"/>\n  <col class=\"im-item-value\"/>\n</colgroup>\n<tbody></tbody>\n";
+exports.column_manager_path_chooser = "<div class=\"btn-group pull-right\">\n</div>\n<h4>\n  <%- Messages.getText('columns.ChooseAPathFrom', {root: state.rootName}) %>\n</h4>\n\n";
+exports.facet_frequency = "<% /* requires: error, initialized */ %>\n<% if (error) { %>\n    <% /* Oh noes - something went wrong. */ %>\n    <div class=\"alert alert-warning\">\n        <%= Icons.icon('Error') %>\n        <strong><%- Messages.getText('Error') %></strong>\n        <% if (error.key) { %>\n            <%- Messages.getText(error.key) %>\n        <% } else { %>\n            <%- error.message || error %>\n        <% } %>\n    </div>\n<% } else if (initialized) { %>\n    <% /* Huzzah - there is data, which will be added here as child views */ %>\n<% } else { %>\n    <% /* Boo - no data. Show an indeterminate progress bar while we wait. */ %>\n    <div class=\"progress\">\n      <div class=\"progress-bar progress-bar-info progress-bar-striped active\"\n           role=\"progressbar\"\n           style=\"width:100%\">\n        <span class=\"sr-only\"><%- Messages.getText('Loading') %>.</span>\n      </div>\n    </div>\n<% } %>\n";
+exports.export_destination_radios = "<label><%- Messages.getText('export.param.Destination') %></label>\n<% _.each(destinations, function (d) { %>\n    <div class=\"radio im-dest-<%- d %>\">\n        <label>\n            <input type=\"radio\"\n                    name=\"dest\"\n                    <%= (d === dest) ? 'checked' : void 0 %>>\n            <%- Messages.getText(d) %>\n        </label>\n    </div>\n<% }); %>\n\n";
+exports.code_gen_body = "<div class=\"row\">\n  <div class=\"col-sm-2\">\n    <% /* requires lang :: string, options :: {Extra :: {}, Langs :: [string]} */ %>\n    <div class=\"btn-group language-selector\">\n      <button type=\"button\"\n              data-toggle=\"dropdown\"\n              aria-expanded=\"false\"\n              class=\"btn btn-default dropdown-toggle\">\n        <span class=\"im-current-lang\">\n          <%- Messages.getText('codegen.Lang', {lang: lang}) %>\n        </span>\n        <span class=\"caret\"></span>\n      </button>\n      <ul class=\"dropdown-menu im-code-gen-langs\" role=\"menu\">\n        <% _.each(options.Langs, function (l) { %>\n            <li data-lang=\"<%- l %>\"\n                class=\"<%= (l === lang) ? 'active' : void 0 %>\">\n              <a href=\"#\"><%- Messages.getText('codegen.Lang', {lang: l}) %></a>\n            </li>\n        <% }); %>\n      </ul>\n    </div>\n    <div class=\"im-show-boilerplate\"></div>\n    <div class=\"im-highlight-syntax\"></div>\n    <div class=\"im-extra-options\"></div>\n  </div>\n  <div class=\"col-sm-10\">\n    <pre class=\"im-generated-code\"><%- generatedCode %></pre>\n  </div>\n</div>\n";
+exports.classy_popover = "<div class=\"popover <%- classes %>\" role=\"tooltip\">\n  <div class=\"arrow\"></div>\n  <h3 class=\"popover-title\"></h3>\n  <div class=\"popover-content\"></div>\n</div>\n";
+exports.constraint_adder = "<div class=\"im-constraint-adder-options\"></div>\n<div class=\"im-path-finder\"><div>\n<div class=\"im-new-constraint\"></div>\n";
+exports.checkbox = "<label>\n    <input type=\"checkbox\" \n           <%= checked ? 'checked' : void 0 %>\n           >\n    <%- label %>\n</label>\n";
+exports.new_filter_dialogue = "<div class=\"modal-body\">\n</div>\n<div class=\"modal-footer\">\n    <button class=\"disabled btn btn-primary pull-right im-add-constraint\">\n        <%- Messages.getText('constraints.AddFilter') %>\n    </button>\n    <button class=\"btn im-close pull-left\">\n        <%- Messages.getText('Cancel') %>\n        Cancel\n    </button>\n</div>\n";
+exports.export_destination_options = "<div class=\"form-group im-param-name\">\n    <label><%- Messages.getText('export.param.Name') %></label>\n    <div class=\"input-group\">\n      <input type=\"text\"\n             value=\"<%- filename %>\"\n             class=\"form-control\"\n             placeholder=\"<%- Messages.getText('export.param.Name') %>\"\n             aria-label=\"<%- Messages.getText('export.param.Name') %>\">\n      <div class=\"input-group-btn\">\n        <button type=\"button\"\n                class=\"btn btn-default dropdown-toggle\"\n                data-toggle=\"dropdown\"\n                aria-expanded=\"false\">\n          .<%- format %>\n          <span class=\"caret\"></span>\n        </button>\n        <ul class=\"dropdown-menu dropdown-menu-right\" role=\"menu\">\n          <% _.chain(formats).groupBy('group').each(function (fmts, grp) { %>\n            <% if (this.i++) { %><li class=\"divider\"></li><% } %>\n            <% _.each(fmts, function (fmt) { %>\n                <li>\n                    <a href=\"#\"\n                       class=\"im-fmt-<%- fmt.id %>\">\n                      <%= Icons.icon(fmt.icon) %>\n                      <%- Messages.getText(fmt.name) %>\n                    </a>\n                </li>\n            <% }); %>\n          <% }, {i: 0}); %>\n        </ul>\n      </div>\n    </div>\n</div>\n\n<% if (format && format.desc) { %>\n  <div class=\"alert alert-info\">\n    <%- Messages.getText(format.desc) %>\n  </div>\n<% } %>\n\n<div class=\"row\">\n    <div class=\"col-sm-6 im-param-dest\">\n    </div>\n    <div class=\"col-sm-6 im-dest-opts\">\n    </div>\n</div>\n";
 
-},{"underscore":257}],68:[function(require,module,exports){
+},{"underscore":258}],68:[function(require,module,exports){
 (function() {
   var Options, _, fs, pluralize, select_html, select_templ;
 
@@ -5669,7 +5676,7 @@ exports.table_throbber = "<tr class=\"im-table-throbber\">\n  <td colspan=\"<%= 
 
 }).call(this);
 
-},{"../options":63,"pluralize":253,"underscore":257}],69:[function(require,module,exports){
+},{"../options":63,"pluralize":254,"underscore":258}],69:[function(require,module,exports){
 (function() {
   module.exports = {
     interpolate: /\{\{\{ (.+?) \}\}\}/g,
@@ -5726,7 +5733,7 @@ exports.table_throbber = "<tr class=\"im-table-throbber\">\n  <td colspan=\"<%= 
 
 }).call(this);
 
-},{"../options":63,"es6-promise":248}],71:[function(require,module,exports){
+},{"../options":63,"es6-promise":249}],71:[function(require,module,exports){
 (function() {
   var Formatting, createColumns, getReplacedTest, index, isKeyField, notBanned, returnIfOK,
     indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
@@ -6052,7 +6059,7 @@ exports.table_throbber = "<tr class=\"im-table-throbber\">\n  <td colspan=\"<%= 
 
 }).call(this);
 
-},{"../models/cell":37,"../models/fast-path-object":43,"../models/nested-table":48,"../models/null-object":49,"../models/object-store":51,"underscore":257}],76:[function(require,module,exports){
+},{"../models/cell":37,"../models/fast-path-object":43,"../models/nested-table":48,"../models/null-object":49,"../models/object-store":51,"underscore":258}],76:[function(require,module,exports){
 (function() {
   var _;
 
@@ -6070,7 +6077,7 @@ exports.table_throbber = "<tr class=\"im-table-throbber\">\n  <td colspan=\"<%= 
 
 }).call(this);
 
-},{"underscore":257}],77:[function(require,module,exports){
+},{"underscore":258}],77:[function(require,module,exports){
 (function() {
   var CACHE, key;
 
@@ -6174,7 +6181,7 @@ exports.table_throbber = "<tr class=\"im-table-throbber\">\n  <td colspan=\"<%= 
 
 }).call(this);
 
-},{"underscore":257}],80:[function(require,module,exports){
+},{"underscore":258}],80:[function(require,module,exports){
 (function() {
   var getMissingData, hasData, thenSet;
 
@@ -6236,7 +6243,7 @@ exports.table_throbber = "<tr class=\"im-table-throbber\">\n  <td colspan=\"<%= 
 
 }).call(this);
 
-},{"backbone":230,"underscore":257}],82:[function(require,module,exports){
+},{"backbone":231,"underscore":258}],82:[function(require,module,exports){
 (function() {
   var _, buildProps, refs, refsIn;
 
@@ -6299,7 +6306,7 @@ exports.table_throbber = "<tr class=\"im-table-throbber\">\n  <td colspan=\"<%= 
 
 }).call(this);
 
-},{"underscore":257}],83:[function(require,module,exports){
+},{"underscore":258}],83:[function(require,module,exports){
 (function() {
   var getLeaves,
     indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
@@ -6437,7 +6444,7 @@ exports.table_throbber = "<tr class=\"im-table-throbber\">\n  <td colspan=\"<%= 
 
 }).call(this);
 
-},{"es6-promise":248,"underscore":257}],85:[function(require,module,exports){
+},{"es6-promise":249,"underscore":258}],85:[function(require,module,exports){
 (function() {
   var getReplacedTest, isIDPath, shouldFormat;
 
@@ -6494,7 +6501,7 @@ exports.table_throbber = "<tr class=\"im-table-throbber\">\n  <td colspan=\"<%= 
 
 }).call(this);
 
-},{"es6-promise":248}],87:[function(require,module,exports){
+},{"es6-promise":249}],87:[function(require,module,exports){
 (function() {
   module.exports = function(fields) {
     if (fields == null) {
@@ -6590,7 +6597,7 @@ exports.table_throbber = "<tr class=\"im-table-throbber\">\n  <td colspan=\"<%= 
 }).call(this);
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../options":63,"es6-promise":248,"jquery":252}],91:[function(require,module,exports){
+},{"../options":63,"es6-promise":249,"jquery":253}],91:[function(require,module,exports){
 (function() {
   var _, longestCommonPrefix, prefixesAll,
     slice = [].slice;
@@ -6628,7 +6635,7 @@ exports.table_throbber = "<tr class=\"im-table-throbber\">\n  <td colspan=\"<%= 
 
 }).call(this);
 
-},{"underscore":257}],92:[function(require,module,exports){
+},{"underscore":258}],92:[function(require,module,exports){
 (function() {
   exports.href = function(address, subject, body) {
     var pairs, params;
@@ -6715,7 +6722,7 @@ exports.table_throbber = "<tr class=\"im-table-throbber\">\n  <td colspan=\"<%= 
 
 }).call(this);
 
-},{"underscore":257}],96:[function(require,module,exports){
+},{"underscore":258}],96:[function(require,module,exports){
 (function() {
   var _, contains_i;
 
@@ -6761,7 +6768,7 @@ exports.table_throbber = "<tr class=\"im-table-throbber\">\n  <td colspan=\"<%= 
 
 }).call(this);
 
-},{"underscore":257}],97:[function(require,module,exports){
+},{"underscore":258}],97:[function(require,module,exports){
 (function() {
   var CACHE, Promise, _, getPathSuggestions, matchPathsToNames;
 
@@ -6821,7 +6828,7 @@ exports.table_throbber = "<tr class=\"im-table-throbber\">\n  <td colspan=\"<%= 
 
 }).call(this);
 
-},{"es6-promise":248,"underscore":257}],98:[function(require,module,exports){
+},{"es6-promise":249,"underscore":258}],98:[function(require,module,exports){
 (function() {
   var PopoverFactory, PreviewCachingService;
 
@@ -6926,7 +6933,7 @@ exports.table_throbber = "<tr class=\"im-table-throbber\">\n  <td colspan=\"<%= 
 
 }).call(this);
 
-},{"../options":63,"./load-resource":90,"es6-promise":248,"jquery":252}],100:[function(require,module,exports){
+},{"../options":63,"./load-resource":90,"es6-promise":249,"jquery":253}],100:[function(require,module,exports){
 (function() {
   var Messages, Options, Promise, _, getBranding, getOrganisms, getParameters, getResultClass, openWindowWithPost, parseUrl, send;
 
@@ -7023,7 +7030,7 @@ exports.table_throbber = "<tr class=\"im-table-throbber\">\n  <td colspan=\"<%= 
 
 }).call(this);
 
-},{"../messages":16,"../options":63,"./branding":70,"./get-organisms":84,"./get-result-class":86,"./open-window-with-post":94,"./parse-url":95,"es6-promise":248,"underscore":257}],101:[function(require,module,exports){
+},{"../messages":16,"../options":63,"./branding":70,"./get-organisms":84,"./get-result-class":86,"./open-window-with-post":94,"./parse-url":95,"es6-promise":249,"underscore":258}],101:[function(require,module,exports){
 (function() {
   var $, BOUNDARY, CLOSE_DELIM, DELIMITER, DRIVE_METHOD, DRIVE_PATH, ERR, FILE_CT, GoogleExporter, LIB, METADATA_CT, MetaData, Options, Promise, REQ_CT, REQ_PARAMS, SCOPE, VERSION, _, __GOOGLE, loadResource, sendToGoogleDrive, withExporter;
 
@@ -7202,7 +7209,7 @@ exports.table_throbber = "<tr class=\"im-table-throbber\">\n  <td colspan=\"<%= 
 
 }).call(this);
 
-},{"../options":63,"./load-resource":90,"es6-promise":248,"jquery":252,"underscore":257}],102:[function(require,module,exports){
+},{"../options":63,"./load-resource":90,"es6-promise":249,"jquery":253,"underscore":258}],102:[function(require,module,exports){
 (function() {
   var callable, compose, escape, getData, ref,
     slice = [].slice;
@@ -7230,7 +7237,7 @@ exports.table_throbber = "<tr class=\"im-table-throbber\">\n  <td colspan=\"<%= 
 
 }).call(this);
 
-},{"./ensure-required-data":80,"underscore":257}],103:[function(require,module,exports){
+},{"./ensure-required-data":80,"underscore":258}],103:[function(require,module,exports){
 (function() {
   var NEXT_DIRECTION_OF, sortQueryByPath;
 
@@ -7352,7 +7359,7 @@ exports.table_throbber = "<tr class=\"im-table-throbber\">\n  <td colspan=\"<%= 
 
 }).call(this);
 
-},{"../icons":14,"../messages":16,"../options":63,"../templates/mustache-settings":69,"underscore":257}],106:[function(require,module,exports){
+},{"../icons":14,"../messages":16,"../options":63,"../templates/mustache-settings":69,"underscore":258}],106:[function(require,module,exports){
 (function() {
   var ALREADY_DONE, CACHES, Options, Page, Promise, ResultCache,
     indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
@@ -7536,7 +7543,7 @@ exports.table_throbber = "<tr class=\"im-table-throbber\">\n  <td colspan=\"<%= 
 
 }).call(this);
 
-},{"../models/page":54,"../options":63,"es6-promise":248}],107:[function(require,module,exports){
+},{"../models/page":54,"../options":63,"es6-promise":249}],107:[function(require,module,exports){
 (function() {
   var toNamedPath;
 
@@ -7580,7 +7587,7 @@ exports.table_throbber = "<tr class=\"im-table-throbber\">\n  <td colspan=\"<%= 
 }).call(this);
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../cdn":1,"es6-promise":248}],109:[function(require,module,exports){
+},{"../cdn":1,"es6-promise":249}],109:[function(require,module,exports){
 module.exports = '2.1.0';
 
 },{}],110:[function(require,module,exports){
@@ -7964,7 +7971,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../core-model":2,"../core-view":3,"../icons":14,"../messages":16,"../options":63,"../templates":67,"./constraint-editor":127,"./constraint-summary":128,"es6-promise":248,"imjs":250,"jquery":252,"underscore":257}],111:[function(require,module,exports){
+},{"../core-model":2,"../core-view":3,"../icons":14,"../messages":16,"../options":63,"../templates":67,"./constraint-editor":127,"./constraint-summary":128,"es6-promise":249,"imjs":251,"jquery":253,"underscore":258}],111:[function(require,module,exports){
 (function() {
   var $, AttributeValueControls, CoreView, HasTypeaheads, INTEGRAL_TYPES, IS_BLANK, Messages, NUMERIC_TYPES, NestedModel, Options, Promise, Query, SuggestionSource, Templates, _, getBranding, numToString, numify, ref, ref1, selectTemplate, trim,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -8361,7 +8368,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../core-view":3,"../core/nested-model":8,"../messages":16,"../mixins/has-typeaheads":32,"../options":63,"../patterns":64,"../templates":67,"../templates/helpers":68,"../utils/branding":70,"../utils/suggestion-source":105,"es6-promise":248,"imjs":250,"jquery":252,"underscore":257}],112:[function(require,module,exports){
+},{"../core-view":3,"../core/nested-model":8,"../messages":16,"../mixins/has-typeaheads":32,"../options":63,"../patterns":64,"../templates":67,"../templates/helpers":68,"../utils/branding":70,"../utils/suggestion-source":105,"es6-promise":249,"imjs":251,"jquery":253,"underscore":258}],112:[function(require,module,exports){
 (function() {
   var BooleanValueControls, Messages, Options, View, _, fs, html, mustacheSettings,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -8429,7 +8436,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../core-view":3,"../messages":16,"../options":63,"../templates/mustache-settings":69,"underscore":257}],113:[function(require,module,exports){
+},{"../core-view":3,"../messages":16,"../options":63,"../templates/mustache-settings":69,"underscore":258}],113:[function(require,module,exports){
 (function() {
   var CodeGenButton, CodeGenModel, CoreView, Dialogue, MainButton, Messages, Options, Templates, _,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -8529,7 +8536,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../core-view":3,"../messages":16,"../messages/code-gen":18,"../models/code-gen":38,"../options":63,"../templates":67,"./code-gen-dialogue":114,"underscore":257}],114:[function(require,module,exports){
+},{"../core-view":3,"../messages":16,"../messages/code-gen":18,"../models/code-gen":38,"../options":63,"../templates":67,"./code-gen-dialogue":114,"underscore":258}],114:[function(require,module,exports){
 (function (global){
 (function() {
   var CANNOT_SAVE, C_STYLE_COMMENTS, Checkbox, CodeGenDialogue, CodeGenModel, HTML_MIMETYPE, JS_MIMETYPE, MIMETYPES, Messages, Modal, OCTOTHORPE_COMMENTS, Options, Promise, Templates, XML_MIMETYPE, _, alreadyRejected, canSaveFromMemory, indentXml, stripEmptyValues, stripExtraneousWhiteSpace, withFileSaver, withPrettyPrintOne, withResource,
@@ -8925,7 +8932,7 @@ module.exports = '2.1.0';
 }).call(this);
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../core/checkbox":4,"../messages":16,"../messages/code-gen":18,"../models/code-gen":38,"../options":63,"../templates":67,"../utils/indent-xml":88,"../utils/strip-extra-whitespace":104,"../utils/with-cdn-resource":108,"./modal":195,"es6-promise":248,"underscore":257}],115:[function(require,module,exports){
+},{"../core/checkbox":4,"../messages":16,"../messages/code-gen":18,"../models/code-gen":38,"../options":63,"../templates":67,"../utils/indent-xml":88,"../utils/strip-extra-whitespace":104,"../utils/with-cdn-resource":108,"./modal":196,"es6-promise":249,"underscore":258}],115:[function(require,module,exports){
 (function() {
   var AvailableColumns, Collection, ColumnManager, ColumnManagerTabs, IndexedCollection, Messages, Modal, OrderByList, OrderByModel, PathModel, SelectList, SelectListEditor, SortOrderEditor, Templates, _,
     bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
@@ -9222,7 +9229,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../core/collection":5,"../messages":16,"../messages/columns":19,"../models/available-columns":36,"../models/order-element":53,"../models/path":56,"../templates":67,"./column-manager/select-list":120,"./column-manager/sort-order":122,"./column-manager/tabs":123,"./modal":195,"underscore":257}],116:[function(require,module,exports){
+},{"../core/collection":5,"../messages":16,"../messages/columns":19,"../models/available-columns":36,"../models/order-element":53,"../models/path":56,"../templates":67,"./column-manager/select-list":120,"./column-manager/sort-order":122,"./column-manager/tabs":123,"./modal":196,"underscore":258}],116:[function(require,module,exports){
 (function() {
   var AvailablePath, CUTOFF, UnselectedColumn, _,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -9302,7 +9309,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"./unselected-column":124,"underscore":257}],117:[function(require,module,exports){
+},{"./unselected-column":124,"underscore":258}],117:[function(require,module,exports){
 (function() {
   var ColumnManger, ColumnMangerButton, QueryDialogueButton,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -9337,7 +9344,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../messages/columns":19,"../column-manager":115,"../query-dialogue-button":204}],118:[function(require,module,exports){
+},{"../../messages/columns":19,"../column-manager":115,"../query-dialogue-button":205}],118:[function(require,module,exports){
 (function() {
   var OrderElement, SelectedColumn, TEMPLATE_PARTS, Templates, _, nextDirection,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -9392,7 +9399,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../templates":67,"./selected-column":121,"underscore":257}],119:[function(require,module,exports){
+},{"../../templates":67,"./selected-column":121,"underscore":258}],119:[function(require,module,exports){
 (function() {
   var Buttons, ColumnChooser, CoreView, OpenNodes, Options, PathChooser, PathSet, Templates,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -9551,7 +9558,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../core-view":3,"../../models/open-nodes":52,"../../models/path-set":55,"../../options":63,"../../templates":67,"../path-chooser":199}],120:[function(require,module,exports){
+},{"../../core-view":3,"../../models/open-nodes":52,"../../models/path-set":55,"../../options":63,"../../templates":67,"../path-chooser":200}],120:[function(require,module,exports){
 (function() {
   var Collection, ColumnChooser, CoreView, HandlesDOMReSort, SelectListEditor, SelectedColumn, Templates, UnselectedColumn, _, binnedId, childId, incr,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -9839,7 +9846,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../core-view":3,"../../core/collection":5,"../../mixins/handles-dom-resort":31,"../../templates":67,"./path-chooser":119,"./selected-column":121,"./unselected-column":124,"underscore":257}],121:[function(require,module,exports){
+},{"../../core-view":3,"../../core/collection":5,"../../mixins/handles-dom-resort":31,"../../templates":67,"./path-chooser":119,"./selected-column":121,"./unselected-column":124,"underscore":258}],121:[function(require,module,exports){
 (function() {
   var Collection, CoreView, PathModel, SelectedColumn, TEMPLATE_PARTS, Templates, _, decr, ignore, incr,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -9990,7 +9997,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../core-view":3,"../../core/collection":5,"../../models/path":56,"../../templates":67,"../../utils/events":81,"underscore":257}],122:[function(require,module,exports){
+},{"../../core-view":3,"../../core/collection":5,"../../models/path":56,"../../templates":67,"../../utils/events":81,"underscore":258}],122:[function(require,module,exports){
 (function (global){
 (function() {
   var AvailablePath, CoreModel, CoreView, HandlesDOMReSort, OrderElement, SortOrderEditor, Templates, _, activeId, inactiveId,
@@ -10234,7 +10241,7 @@ module.exports = '2.1.0';
 }).call(this);
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../../core-model":2,"../../core-view":3,"../../mixins/handles-dom-resort":31,"../../templates":67,"./available-path":116,"./order-element":118,"underscore":257}],123:[function(require,module,exports){
+},{"../../core-model":2,"../../core-view":3,"../../mixins/handles-dom-resort":31,"../../templates":67,"./available-path":116,"./order-element":118,"underscore":258}],123:[function(require,module,exports){
 (function() {
   var ClassSet, ColumnManagerTabs, CoreView, Templates, _, tabClassSet,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -10336,7 +10343,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../core-view":3,"../../templates":67,"../../utils/css-class-set":79,"underscore":257}],124:[function(require,module,exports){
+},{"../../core-view":3,"../../templates":67,"../../utils/css-class-set":79,"underscore":258}],124:[function(require,module,exports){
 (function() {
   var SelectedColumn, TEMPLATE_PARTS, Templates, UnselectedColumn, _,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -10380,7 +10387,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../templates":67,"./selected-column":121,"underscore":257}],125:[function(require,module,exports){
+},{"../../templates":67,"./selected-column":121,"underscore":258}],125:[function(require,module,exports){
 (function() {
   var ConstraintAdderOptions, HasTypeaheads, IS_BLANK, Options, Promise, Templates, View, _, getPathSuggestions, pathSuggester, shortenLongName,
     slice = [].slice,
@@ -10615,7 +10622,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../core-view":3,"../mixins/has-typeaheads":32,"../options":63,"../patterns":64,"../templates":67,"../utils/path-suggester":96,"../utils/path-suggestions":97,"es6-promise":248,"underscore":257}],126:[function(require,module,exports){
+},{"../core-view":3,"../mixins/has-typeaheads":32,"../options":63,"../patterns":64,"../templates":67,"../utils/path-suggester":96,"../utils/path-suggestions":97,"es6-promise":249,"underscore":258}],126:[function(require,module,exports){
 (function() {
   var ConstraintAdder, ConstraintAdderModel, ConstraintAdderOptions, CoreModel, Messages, NewConstraint, OPTIONS_SEL, OpenNodes, PathChooser, PathSet, Templates, View, _,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -10828,7 +10835,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../core-model":2,"../core-view":3,"../messages":16,"../models/open-nodes":52,"../models/path-set":55,"../templates":67,"./constraint-adder-options":125,"./new-constraint":197,"./path-chooser":199,"underscore":257}],127:[function(require,module,exports){
+},{"../core-model":2,"../core-view":3,"../messages":16,"../models/open-nodes":52,"../models/path-set":55,"../templates":67,"./constraint-adder-options":125,"./new-constraint":198,"./path-chooser":200,"underscore":258}],127:[function(require,module,exports){
 (function() {
   var ATTRIBUTE_OPS, ATTRIBUTE_VALUE_OPS, AttributeValueControls, BASIC_OPS, BOOLEAN_TYPES, BooleanValueControls, ConstraintEditor, CoreView, ErrorMessage, Icons, LIST_OPS, ListValueControls, LookupValueControls, LoopValueControls, MULTIVALUE_OPS, Messages, Model, MultiValueControls, NO_OP, NULL_OPS, NUMERIC_TYPES, Query, REFERENCE_OPS, TEMPLATE, TypeValueControls, _, fs, html, operatorsFor, ref,
     indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
@@ -11178,7 +11185,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../core-view":3,"../icons":14,"../messages":16,"./attribute-value-controls":111,"./boolean-value-controls":112,"./error-message":135,"./list-value-controls":191,"./lookup-value-controls":192,"./loop-value-controls":193,"./multi-value-controls":196,"./type-value-controls":226,"imjs":250,"underscore":257}],128:[function(require,module,exports){
+},{"../core-view":3,"../icons":14,"../messages":16,"./attribute-value-controls":111,"./boolean-value-controls":112,"./error-message":135,"./list-value-controls":192,"./lookup-value-controls":193,"./loop-value-controls":194,"./multi-value-controls":197,"./type-value-controls":227,"imjs":251,"underscore":258}],128:[function(require,module,exports){
 (function() {
   var ConstraintSummary, CoreView, IS_BLANK, Messages, Model, Query, Templates, _, ref,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -11335,7 +11342,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../core-view":3,"../messages":16,"../patterns":64,"../templates":67,"imjs":250,"underscore":257}],129:[function(require,module,exports){
+},{"../core-view":3,"../messages":16,"../patterns":64,"../templates":67,"imjs":251,"underscore":258}],129:[function(require,module,exports){
 (function() {
   var ActiveConstraint, ConstraintAdder, Constraints, CoreView, Templates, _,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -11414,7 +11421,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../core-view":3,"../messages/constraints":21,"../templates":67,"./active-constraint":110,"./constraint-adder":126,"underscore":257}],130:[function(require,module,exports){
+},{"../core-view":3,"../messages/constraints":21,"../templates":67,"./active-constraint":110,"./constraint-adder":126,"underscore":258}],130:[function(require,module,exports){
 (function() {
   var AdderButton, CoreView, Messages, PathModel, _,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -11477,7 +11484,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../core-view":3,"../../messages":16,"../../messages/constraints":21,"../../models/path":56,"underscore":257}],131:[function(require,module,exports){
+},{"../../core-view":3,"../../messages":16,"../../messages/constraints":21,"../../models/path":56,"underscore":258}],131:[function(require,module,exports){
 (function() {
   var AdderButton, ComposedColumnConstraintAdder, ConstraintAdder, CoreView, DropdownButtonGrp, Messages, OPTS_SEL, Option, PathModel, Templates, Toggle, _,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -11654,7 +11661,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../core-view":3,"../../messages":16,"../../messages/constraints":21,"../../models/path":56,"../../templates":67,"../constraint-adder":126,"./column-adder-button":130,"underscore":257}],132:[function(require,module,exports){
+},{"../../core-view":3,"../../messages":16,"../../messages/constraints":21,"../../models/path":56,"../../templates":67,"../constraint-adder":126,"./column-adder-button":130,"underscore":258}],132:[function(require,module,exports){
 (function() {
   var AdderButton, ConstraintAdder, CoreView, Messages, OPTS_SEL, PathModel, SingleColumnConstraintAdder, Templates, _,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -11728,7 +11735,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../core-view":3,"../../messages":16,"../../messages/constraints":21,"../../models/path":56,"../../templates":67,"../constraint-adder":126,"./column-adder-button":130,"underscore":257}],133:[function(require,module,exports){
+},{"../../core-view":3,"../../messages":16,"../../messages/constraints":21,"../../models/path":56,"../../templates":67,"../constraint-adder":126,"./column-adder-button":130,"underscore":258}],133:[function(require,module,exports){
 (function() {
   var ComposedColumnConstraintAdder, Constraints, SingleColumnConstraintAdder, SingleColumnConstraints,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -11894,7 +11901,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../core-view":3,"../core/type-assertions":10,"../models/history":45,"../models/selected-objects":58,"../models/table":61,"../utils/children":76,"../utils/events":81,"./query-tools":206,"./table":207,"underscore":257}],135:[function(require,module,exports){
+},{"../core-view":3,"../core/type-assertions":10,"../models/history":45,"../models/selected-objects":58,"../models/table":61,"../utils/children":76,"../utils/events":81,"./query-tools":207,"./table":208,"underscore":258}],135:[function(require,module,exports){
 (function() {
   var CoreView, ErrorMessage, Icons, Templates, _, fs,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -11947,9 +11954,9 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../core-view":3,"../icons":14,"../templates":67,"fs":245,"underscore":257}],136:[function(require,module,exports){
+},{"../core-view":3,"../icons":14,"../templates":67,"fs":246,"underscore":258}],136:[function(require,module,exports){
 (function() {
-  var $, ColumnControls, CompressionControls, ConstraintAdder, DestinationOptions, ExportDialogue, ExportModel, FOOTER, FastaOptions, FlatFileOptions, FormatControls, Formats, INITIAL_STATE, JSONOptions, Menu, Messages, Modal, Model, Options, Preview, RowControls, RunsQuery, Templates, UndismissableError, _, isa, openWindowWithPost, sendToDropBox, sendToGalaxy, sendToGoogleDrive,
+  var $, ColumnControls, CompressionControls, ConstraintAdder, DestinationOptions, ExportDataPackageControls, ExportDialogue, ExportModel, FOOTER, FastaOptions, FlatFileOptions, FormatControls, Formats, INITIAL_STATE, JSONOptions, Menu, Messages, Modal, Model, Options, Preview, RowControls, RunsQuery, Templates, UndismissableError, _, isa, openWindowWithPost, sendToDropBox, sendToGalaxy, sendToGoogleDrive,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     hasProp = {}.hasOwnProperty,
     bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
@@ -11983,6 +11990,8 @@ module.exports = '2.1.0';
   ColumnControls = require('./export-dialogue/column-controls');
 
   CompressionControls = require('./export-dialogue/compression-controls');
+
+  ExportDataPackageControls = require('./export-dialogue/datapackage-controls');
 
   FlatFileOptions = require('./export-dialogue/flat-file-options');
 
@@ -12041,6 +12050,7 @@ module.exports = '2.1.0';
         max: null,
         compress: false,
         compression: 'gzip',
+        exportDataPackage: false,
         headers: false,
         jsonFormat: 'rows',
         fastaExtension: null,
@@ -12202,8 +12212,8 @@ module.exports = '2.1.0';
     ExportDialogue.prototype.footer = Templates.templateFromParts(FOOTER);
 
     ExportDialogue.prototype.updateState = function() {
-      var columnDesc, columns, compress, compression, error, format, max, ref, rowCount, size, start;
-      ref = this.model.toJSON(), compress = ref.compress, compression = ref.compression, start = ref.start, size = ref.size, max = ref.max, format = ref.format, columns = ref.columns;
+      var columnDesc, columns, compress, compression, error, exportDataPackage, format, max, ref, rowCount, size, start;
+      ref = this.model.toJSON(), compress = ref.compress, compression = ref.compression, exportDataPackage = ref.exportDataPackage, start = ref.start, size = ref.size, max = ref.max, format = ref.format, columns = ref.columns;
       columnDesc = _.isEqual(columns, this.query.views) ? Messages.get('All') : columns.length;
       rowCount = this.getRowCount();
       error = columns.length === 0 ? new UndismissableError('NoColumnsSelected') : start >= max ? new UndismissableError('OffsetOutOfBounds') : null;
@@ -12215,6 +12225,7 @@ module.exports = '2.1.0';
         exportURI: this.getExportURI(),
         rowCount: this.getRowCount(),
         compression: (compress ? compression : null),
+        exportDataPackage: (exportDataPackage ? true : false),
         columns: columnDesc
       });
     };
@@ -12238,6 +12249,8 @@ module.exports = '2.1.0';
           return ColumnControls;
         case 'compression':
           return CompressionControls;
+        case 'exportDataPackage':
+          return ExportDataPackageControls;
         case 'column-headers':
           return FlatFileOptions;
         case 'opts-json':
@@ -12365,7 +12378,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../core-model":2,"../messages":16,"../mixins/runs-query":33,"../models/export-formats":42,"../options":63,"../templates":67,"../utils/open-window-with-post":94,"../utils/send-to-dropbox":99,"../utils/send-to-galaxy":100,"../utils/send-to-google-drive":101,"./constraint-adder":126,"./export-dialogue/column-controls":138,"./export-dialogue/compression-controls":139,"./export-dialogue/destination-options":140,"./export-dialogue/fasta-options":141,"./export-dialogue/flat-file-options":142,"./export-dialogue/format-controls":143,"./export-dialogue/json-options":144,"./export-dialogue/preview":146,"./export-dialogue/row-controls":147,"./export-dialogue/tab-menu":148,"./modal":195,"jquery":252,"underscore":257}],137:[function(require,module,exports){
+},{"../core-model":2,"../messages":16,"../mixins/runs-query":33,"../models/export-formats":42,"../options":63,"../templates":67,"../utils/open-window-with-post":94,"../utils/send-to-dropbox":99,"../utils/send-to-galaxy":100,"../utils/send-to-google-drive":101,"./constraint-adder":126,"./export-dialogue/column-controls":138,"./export-dialogue/compression-controls":139,"./export-dialogue/datapackage-controls":140,"./export-dialogue/destination-options":141,"./export-dialogue/fasta-options":142,"./export-dialogue/flat-file-options":143,"./export-dialogue/format-controls":144,"./export-dialogue/json-options":145,"./export-dialogue/preview":147,"./export-dialogue/row-controls":148,"./export-dialogue/tab-menu":149,"./modal":196,"jquery":253,"underscore":258}],137:[function(require,module,exports){
 (function() {
   var Counter, ExportDialogue, ExportDialogueButton, QueryDialogueButton, _,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -12439,7 +12452,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../utils/count-executor":77,"../export-dialogue":136,"../query-dialogue-button":204,"underscore":257}],138:[function(require,module,exports){
+},{"../../utils/count-executor":77,"../export-dialogue":136,"../query-dialogue-button":205,"underscore":258}],138:[function(require,module,exports){
 (function() {
   var AddColumnControl, ColumnControls, ColumnView, HasTypeaheads, HeadingLabel, LabelView, Messages, PathSet, ResetButton, Templates, View, _, pathSuggester,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -12812,7 +12825,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../core-view":3,"../../messages":16,"../../mixins/has-typeaheads":32,"../../models/path-set":55,"../../templates":67,"../../utils/path-suggester":96,"../label-view":177,"underscore":257}],139:[function(require,module,exports){
+},{"../../core-view":3,"../../messages":16,"../../mixins/has-typeaheads":32,"../../models/path-set":55,"../../templates":67,"../../utils/path-suggester":96,"../label-view":178,"underscore":258}],139:[function(require,module,exports){
 (function() {
   var CompressionControls, ModalBody, Templates, _,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -12865,7 +12878,48 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../templates":67,"./main":145,"underscore":257}],140:[function(require,module,exports){
+},{"../../templates":67,"./main":146,"underscore":258}],140:[function(require,module,exports){
+(function() {
+  var ExportDataPackageControls, ModalBody, Templates, _,
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
+
+  _ = require('underscore');
+
+  ModalBody = require('./main');
+
+  Templates = require('../../templates');
+
+  module.exports = ExportDataPackageControls = (function(superClass) {
+    extend(ExportDataPackageControls, superClass);
+
+    function ExportDataPackageControls() {
+      return ExportDataPackageControls.__super__.constructor.apply(this, arguments);
+    }
+
+    ExportDataPackageControls.prototype.RERENDER_EVENT = 'change';
+
+    ExportDataPackageControls.prototype.tagName = 'form';
+
+    ExportDataPackageControls.prototype.template = Templates.template('export_data_package');
+
+    ExportDataPackageControls.prototype.events = function() {
+      return {
+        'click .im-exportDataPackage': (function(_this) {
+          return function() {
+            return _this.model.toggle('exportDataPackage');
+          };
+        })(this)
+      };
+    };
+
+    return ExportDataPackageControls;
+
+  })(ModalBody);
+
+}).call(this);
+
+},{"../../templates":67,"./main":146,"underscore":258}],141:[function(require,module,exports){
 (function() {
   var CoreView, DestinationOptions, DestinationSubOptions, Formats, Options, RadioButtons, Templates, _,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -13061,7 +13115,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../core-view":3,"../../models/export-formats":42,"../../options":63,"../../templates":67,"underscore":257}],141:[function(require,module,exports){
+},{"../../core-view":3,"../../models/export-formats":42,"../../options":63,"../../templates":67,"underscore":258}],142:[function(require,module,exports){
 (function() {
   var FastaOptions, LabelView, Messages, Templates, View, _,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -13112,7 +13166,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../core-view":3,"../../messages":16,"../../templates":67,"../label-view":177,"underscore":257}],142:[function(require,module,exports){
+},{"../../core-view":3,"../../messages":16,"../../templates":67,"../label-view":178,"underscore":258}],143:[function(require,module,exports){
 (function() {
   var FlatFileOptions, Templates, View, _,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -13165,7 +13219,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../core-view":3,"../../templates":67,"underscore":257}],143:[function(require,module,exports){
+},{"../../core-view":3,"../../templates":67,"underscore":258}],144:[function(require,module,exports){
 (function() {
   var FormatControls, Formats, HeadingView, LabelView, Messages, Templates, View, _,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -13240,7 +13294,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../core-view":3,"../../messages":16,"../../models/export-formats":42,"../../templates":67,"../label-view":177,"underscore":257}],144:[function(require,module,exports){
+},{"../../core-view":3,"../../messages":16,"../../models/export-formats":42,"../../templates":67,"../label-view":178,"underscore":258}],145:[function(require,module,exports){
 (function() {
   var JSONOptions, LabelView, Messages, Templates, View, _,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -13292,7 +13346,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../core-view":3,"../../messages":16,"../../templates":67,"../label-view":177,"underscore":257}],145:[function(require,module,exports){
+},{"../../core-view":3,"../../messages":16,"../../templates":67,"../label-view":178,"underscore":258}],146:[function(require,module,exports){
 (function() {
   var ModalBody, View,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -13318,7 +13372,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../core-view":3}],146:[function(require,module,exports){
+},{"../../core-view":3}],147:[function(require,module,exports){
 (function() {
   var CoreView, Formats, Messages, PROPS, Preview, RunsQuery, Templates, _,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -13414,7 +13468,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../core-view":3,"../../messages":16,"../../mixins/runs-query":33,"../../models/export-formats":42,"../../templates":67,"underscore":257}],147:[function(require,module,exports){
+},{"../../core-view":3,"../../messages":16,"../../mixins/runs-query":33,"../../models/export-formats":42,"../../templates":67,"underscore":258}],148:[function(require,module,exports){
 (function() {
   var HeadingLabel, LabelView, Messages, OffsetLabel, ResetButton, RowControls, SizeLabel, Templates, View, _,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -13593,7 +13647,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../core-view":3,"../../messages":16,"../../templates":67,"../label-view":177,"underscore":257}],148:[function(require,module,exports){
+},{"../../core-view":3,"../../messages":16,"../../templates":67,"../label-view":178,"underscore":258}],149:[function(require,module,exports){
 (function() {
   var Options, TABS, Tab, TabMenu, Templates, View, _,
     indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
@@ -13635,7 +13689,7 @@ module.exports = '2.1.0';
     new Tab('dest', 'Destination'), new Tab('opts-json', 'JsonFormat', ['json']), new Tab('opts-fasta', 'FastaFormat', ['fasta']), new Tab('columns', 'Columns'), new Tab('rows', 'Rows', [], {
       flat: true,
       machine: true
-    }), new Tab('compression', 'Compression'), new Tab('column-headers', 'ColumnHeaders', ['tsv', 'csv']), new Tab('preview', 'Preview')
+    }), new Tab('compression', 'Compression'), new Tab('exportDataPackage', 'DataPackage'), new Tab('column-headers', 'ColumnHeaders', ['tsv', 'csv']), new Tab('preview', 'Preview')
   ];
 
   module.exports = TabMenu = (function(superClass) {
@@ -13779,7 +13833,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../core-view":3,"../../options":63,"../../templates":67,"underscore":257}],149:[function(require,module,exports){
+},{"../../core-view":3,"../../options":63,"../../templates":67,"underscore":258}],150:[function(require,module,exports){
 (function() {
   var CoreView, Event, FacetItems, FacetView, FacetVisualisation, NumericRange, Options, SelectedCount, SetsPathNames, SummaryHeading, SummaryItems,
     bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
@@ -13970,7 +14024,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../core-view":3,"../../event":11,"../../mixins/sets-path-names":34,"../../models/numeric-range":50,"../../models/summary-items":60,"../../options":63,"./items":151,"./selected-count":158,"./summary-heading":159,"./visualisation":164}],150:[function(require,module,exports){
+},{"../../core-view":3,"../../event":11,"../../mixins/sets-path-names":34,"../../models/numeric-range":50,"../../models/summary-items":60,"../../options":63,"./items":152,"./selected-count":159,"./summary-heading":160,"./visualisation":165}],151:[function(require,module,exports){
 (function() {
   var HistoFacet, Messages, Options, VisualisationBase, _, bool, d3, scale,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -14107,7 +14161,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../messages":16,"../../messages/summary":27,"../../options":63,"../../utils/casts":74,"./visualisation-base":163,"d3-browserify":247,"underscore":257}],151:[function(require,module,exports){
+},{"../../messages":16,"../../messages/summary":27,"../../options":63,"../../utils/casts":74,"./visualisation-base":164,"d3-browserify":248,"underscore":258}],152:[function(require,module,exports){
 (function() {
   var CoreView, FacetItems, NoResults, OnlyOneItem, REQ_ATTRS, SummaryItems, SummaryStats, Templates, _,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -14198,7 +14252,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../core-view":3,"../../templates":67,"./no-results":152,"./only-one-item":154,"./summary-items":161,"./summary-stats":162,"underscore":257}],152:[function(require,module,exports){
+},{"../../core-view":3,"../../templates":67,"./no-results":153,"./only-one-item":155,"./summary-items":162,"./summary-stats":163,"underscore":258}],153:[function(require,module,exports){
 (function() {
   var CoreView, NoResults, Templates,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -14235,7 +14289,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../core-view":3,"../../messages/summary":27,"../../templates":67}],153:[function(require,module,exports){
+},{"../../core-view":3,"../../messages/summary":27,"../../templates":67}],154:[function(require,module,exports){
 (function() {
   var $, Messages, NULL_SELECTION_WIDTH, NumericDistribution, Options, VisualisationBase, _, bucketRange, d3, limited, scale,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -14540,7 +14594,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../messages":16,"../../messages/summary":27,"../../options":63,"./visualisation-base":163,"d3-browserify":247,"jquery":252,"underscore":257}],154:[function(require,module,exports){
+},{"../../messages":16,"../../messages/summary":27,"../../options":63,"./visualisation-base":164,"d3-browserify":248,"jquery":253,"underscore":258}],155:[function(require,module,exports){
 (function() {
   var CoreView, OnlyOneItem, Templates,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -14579,7 +14633,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../core-view":3,"../../templates":67}],155:[function(require,module,exports){
+},{"../../core-view":3,"../../templates":67}],156:[function(require,module,exports){
 (function() {
   var $, DONUT, KEY, Options, PieChart, TWEEN_START, VisualisationBase, _, d3, getArc, getArcTween, getChartPalette, getEndPosition, getStartPosition, isPastSixOClock, opacity,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -14768,7 +14822,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../options":63,"./visualisation-base":163,"d3-browserify":247,"jquery":252,"underscore":257}],156:[function(require,module,exports){
+},{"../../options":63,"./visualisation-base":164,"d3-browserify":248,"jquery":253,"underscore":258}],157:[function(require,module,exports){
 (function() {
   var CoreView, RowSurrogate, Templates, _,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -14820,7 +14874,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../core-view":3,"../../templates":67,"underscore":257}],157:[function(require,module,exports){
+},{"../../core-view":3,"../../templates":67,"underscore":258}],158:[function(require,module,exports){
 (function() {
   var Checkbox, CoreView, FacetRow, RowSurrogate, Templates, _, bool,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -14987,7 +15041,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../core-view":3,"../../core/checkbox":4,"../../messages/summary":27,"../../templates":67,"./row-surrogate":156,"underscore":257}],158:[function(require,module,exports){
+},{"../../core-view":3,"../../core/checkbox":4,"../../messages/summary":27,"../../templates":67,"./row-surrogate":157,"underscore":258}],159:[function(require,module,exports){
 (function() {
   var CoreView, SelectedCount, Templates, _, fracWithinRange, fullyContained, getPartialCount, partiallyOverlapping, sum, sumCounts, sumPartials,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -15148,7 +15202,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../core-view":3,"../../messages/summary":27,"../../templates":67,"underscore":257}],159:[function(require,module,exports){
+},{"../../core-view":3,"../../messages/summary":27,"../../templates":67,"underscore":258}],160:[function(require,module,exports){
 (function() {
   var CoreView, SummaryHeading, Templates, _,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -15200,7 +15254,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../core-view":3,"../../messages/summary":27,"../../templates":67,"underscore":257}],160:[function(require,module,exports){
+},{"../../core-view":3,"../../messages/summary":27,"../../templates":67,"underscore":258}],161:[function(require,module,exports){
 (function() {
   var BASIC_OPS, CoreView, IGNORE, MIN_VALS_OPTIMISATION, Messages, SUMMARY_FORMATS, SummaryItemsControls, Templates, _, bool, negateOps,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -15469,7 +15523,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../core-view":3,"../../messages":16,"../../messages/summary":27,"../../templates":67,"underscore":257}],161:[function(require,module,exports){
+},{"../../core-view":3,"../../messages":16,"../../messages/summary":27,"../../templates":67,"underscore":258}],162:[function(require,module,exports){
 (function() {
   var Backbone, CoreView, FacetRow, IGNORE, Messages, SetsPathNames, SummaryItems, SummaryItemsControls, Templates, _, rowId,
     bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
@@ -15659,7 +15713,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../core-view":3,"../../messages":16,"../../messages/summary":27,"../../mixins/sets-path-names":34,"../../templates":67,"./row":157,"./summary-items-controls":160,"backbone":230,"underscore":257}],162:[function(require,module,exports){
+},{"../../core-view":3,"../../messages":16,"../../messages/summary":27,"../../mixins/sets-path-names":34,"../../templates":67,"./row":158,"./summary-items-controls":161,"backbone":231,"underscore":258}],163:[function(require,module,exports){
 (function() {
   var CoreView, DOWN, NULL_STATS, SummaryStats, Templates, UP, _,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -15913,7 +15967,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../core-view":3,"../../templates":67,"underscore":257}],163:[function(require,module,exports){
+},{"../../core-view":3,"../../templates":67,"underscore":258}],164:[function(require,module,exports){
 (function() {
   var CoreView, VisualisationBase, _, d3,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -16037,7 +16091,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../core-view":3,"d3-browserify":247,"underscore":257}],164:[function(require,module,exports){
+},{"../../core-view":3,"d3-browserify":248,"underscore":258}],165:[function(require,module,exports){
 (function() {
   var CoreView, FacetVisualisation, Histogram, NumericDistribution, Options, PieChart, SummaryItems,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -16111,7 +16165,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../core-view":3,"../../options":63,"./histogram":150,"./numeric":153,"./pie":155,"./summary-items":161}],165:[function(require,module,exports){
+},{"../../core-view":3,"../../options":63,"./histogram":151,"./numeric":154,"./pie":156,"./summary-items":162}],166:[function(require,module,exports){
 (function() {
   var Body, Constraints, CoreView, FilterDialogue, LogicManager, Messages, Modal, Templates, _,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -16390,7 +16444,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../core-view":3,"../messages":16,"../messages/constraints":21,"../messages/logic":25,"../templates":67,"./constraints":129,"./modal":195,"underscore":257}],166:[function(require,module,exports){
+},{"../core-view":3,"../messages":16,"../messages/constraints":21,"../messages/logic":25,"../templates":67,"./constraints":129,"./modal":196,"underscore":258}],167:[function(require,module,exports){
 (function() {
   var FilterDialogue, FilterDialogueButton, QueryDialogueButton,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -16425,7 +16479,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../messages/constraints":21,"../filter-dialogue":165,"../query-dialogue-button":204}],167:[function(require,module,exports){
+},{"../../messages/constraints":21,"../filter-dialogue":166,"../query-dialogue-button":205}],168:[function(require,module,exports){
 (function() {
   var CoreView, FormattedSorting, SortedPath, Templates, sortQueryByPath,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -16532,7 +16586,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../core-view":3,"../templates":67,"../utils/sort-query-by-path":103,"./formatted/sorting-path":168}],168:[function(require,module,exports){
+},{"../core-view":3,"../templates":67,"../utils/sort-query-by-path":103,"./formatted/sorting-path":169}],169:[function(require,module,exports){
 (function() {
   var CoreView, INITIAL_CARETS, Icons, SortedPath, Templates, sortQueryByPath,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -16597,7 +16651,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../core-view":3,"../../icons":14,"../../templates":67,"../../utils/sort-query-by-path":103}],169:[function(require,module,exports){
+},{"../../core-view":3,"../../icons":14,"../../templates":67,"../../utils/sort-query-by-path":103}],170:[function(require,module,exports){
 (function() {
   exports.openDialogue = function(dialogue) {
     this.renderChild('__dialogue__', dialogue);
@@ -16611,7 +16665,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{}],170:[function(require,module,exports){
+},{}],171:[function(require,module,exports){
 (function() {
   var AttrDetailsModel, Collection, CoreModel, CoreView, CountsTitle, DetailsModel, ERROR, HIDDEN_FIELDS, ItemDetails, Options, PathModel, Preview, PreviewModel, Promise, RefDetailsModel, ReferenceCounts, ServiceType, SortedByName, Templates, _, acceptAttr, acceptRef, cantFindField, concat, getLeaves, types,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -17061,7 +17115,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../core-model":2,"../core-view":3,"../core/collection":5,"../core/type-assertions":10,"../models/path":56,"../options":63,"../templates":67,"../utils/get-leaves":83,"./item-preview/counts-title":171,"./item-preview/details":172,"./item-preview/reference-counts":173,"es6-promise":248,"underscore":257}],171:[function(require,module,exports){
+},{"../core-model":2,"../core-view":3,"../core/collection":5,"../core/type-assertions":10,"../models/path":56,"../options":63,"../templates":67,"../utils/get-leaves":83,"./item-preview/counts-title":172,"./item-preview/details":173,"./item-preview/reference-counts":174,"es6-promise":249,"underscore":258}],172:[function(require,module,exports){
 (function() {
   var CoreView, CountsTitle, Messages, _,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -17110,7 +17164,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../core-view":3,"../../messages":16,"underscore":257}],172:[function(require,module,exports){
+},{"../../core-view":3,"../../messages":16,"underscore":258}],173:[function(require,module,exports){
 (function() {
   var ATTR, CoreView, ITEMS, ItemDetails, REFERENCE, Templates, _, ignore,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -17189,7 +17243,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../core-view":3,"../../templates":67,"../../utils/events":81,"underscore":257}],173:[function(require,module,exports){
+},{"../../core-view":3,"../../templates":67,"../../utils/events":81,"underscore":258}],174:[function(require,module,exports){
 (function() {
   var CoreView, ReferenceCounts, Templates,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -17224,7 +17278,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../core-view":3,"../../templates":67}],174:[function(require,module,exports){
+},{"../../core-view":3,"../../templates":67}],175:[function(require,module,exports){
 (function() {
   var Body, CoreView, FilterDialogue, Joins, Messages, Modal, _, areEql,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -17334,7 +17388,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../core-view":3,"../messages":16,"../messages/joins":23,"../models/joins":47,"./join-manager/body":175,"./modal":195,"underscore":257}],175:[function(require,module,exports){
+},{"../core-view":3,"../messages":16,"../messages/joins":23,"../models/joins":47,"./join-manager/body":176,"./modal":196,"underscore":258}],176:[function(require,module,exports){
 (function() {
   var BtnClasses, ClassSet, CoreView, Join, JoinManagerBody, LINE_PARTS, Templates, _, otherStyle,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -17500,7 +17554,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../core-view":3,"../../messages/joins":23,"../../templates":67,"../../utils/css-class-set":79,"underscore":257}],176:[function(require,module,exports){
+},{"../../core-view":3,"../../messages/joins":23,"../../templates":67,"../../utils/css-class-set":79,"underscore":258}],177:[function(require,module,exports){
 (function() {
   var JoinManager, JoinManagerButton, QueryDialogueButton,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -17535,7 +17589,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../messages/joins":23,"../join-manager":174,"../query-dialogue-button":204}],177:[function(require,module,exports){
+},{"../../messages/joins":23,"../join-manager":175,"../query-dialogue-button":205}],178:[function(require,module,exports){
 (function() {
   var LabelView, View,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -17560,7 +17614,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../core-view":3}],178:[function(require,module,exports){
+},{"../core-view":3}],179:[function(require,module,exports){
 (function() {
   var AppendFromPath, BaseAppendDialogue, FromPathMixin, Promise,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -17587,7 +17641,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"./base-append-dialogue":181,"./from-path-mixin":187,"es6-promise":248}],179:[function(require,module,exports){
+},{"./base-append-dialogue":182,"./from-path-mixin":188,"es6-promise":249}],180:[function(require,module,exports){
 (function() {
   var AppendFromSelection, BaseAppendDialogue, Floating, FromSelectionMixin, Promise,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -17618,7 +17672,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../mixins/floating-dialogue":30,"./base-append-dialogue":181,"./from-selection-mixin":188,"es6-promise":248}],180:[function(require,module,exports){
+},{"../../mixins/floating-dialogue":30,"./base-append-dialogue":182,"./from-selection-mixin":189,"es6-promise":249}],181:[function(require,module,exports){
 (function() {
   var AppendToListBody, CoreView, Messages, SelectWithLabel, Templates, _,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -17673,7 +17727,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../core-view":3,"../../core/select-with-label":9,"../../messages":16,"../../messages/lists":24,"../../templates":67,"underscore":257}],181:[function(require,module,exports){
+},{"../../core-view":3,"../../core/select-with-label":9,"../../messages":16,"../../messages/lists":24,"../../templates":67,"underscore":258}],182:[function(require,module,exports){
 (function() {
   var AppendToListBody, AppendToListModel, BaseAppendDialogue, BaseCreateListDialogue, CoreCollection, CoreModel, LIST_NOT_SUITABLE, Messages, NO_SUITABLE_LISTS, NO_TARGET_SELECTED, PossibleList, PossibleLists, Promise, TARGET_DOES_NOT_EXIST, _, onlyCurrent, theListIsSuitable, unpackLists,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -17951,7 +18005,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../core-model":2,"../../core/collection":5,"../../messages":16,"../../models/append-to-list":35,"./append-to-list-body":180,"./base-dialogue":182,"es6-promise":248,"underscore":257}],182:[function(require,module,exports){
+},{"../../core-model":2,"../../core/collection":5,"../../messages":16,"../../models/append-to-list":35,"./append-to-list-body":181,"./base-dialogue":183,"es6-promise":249,"underscore":258}],183:[function(require,module,exports){
 (function() {
   var ABSTRACT, BaseCreateListDialogue, CreateListModel, ListDialogueBody, Messages, Modal, _,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -18147,7 +18201,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../messages":16,"../../messages/lists":24,"../../models/create-list":41,"../modal":195,"./body":183,"underscore":257}],183:[function(require,module,exports){
+},{"../../messages":16,"../../messages/lists":24,"../../models/create-list":41,"../modal":196,"./body":184,"underscore":258}],184:[function(require,module,exports){
 (function() {
   var CoreView, CreateListModel, InputWithButton, InputWithLabel, ListDialogueBody, ListTag, Messages, TagsApology, Templates, _,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -18321,7 +18375,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../core-view":3,"../../core/input-with-button":6,"../../core/input-with-label":7,"../../messages":16,"../../messages/lists":24,"../../models/create-list":41,"../../templates":67,"./tag":189,"./tags-apology":190,"underscore":257}],184:[function(require,module,exports){
+},{"../../core-view":3,"../../core/input-with-button":6,"../../core/input-with-label":7,"../../messages":16,"../../messages/lists":24,"../../models/create-list":41,"../../templates":67,"./tag":190,"./tags-apology":191,"underscore":258}],185:[function(require,module,exports){
 (function() {
   var AppendFromPath, AppendPicker, ClassSet, Collection, CoreModel, CoreView, Counter, CreateFromPath, CreatePicker, ListDialogueButton, PathModel, Paths, SelectableNode, Templates, _,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -18669,7 +18723,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../core-model":2,"../../core-view":3,"../../core/collection":5,"../../messages/lists":24,"../../models/path":56,"../../templates":67,"../../utils/count-executor":77,"../../utils/css-class-set":79,"./append-from-path":178,"./append-from-selection":179,"./create-from-path":185,"./create-from-selection":186,"underscore":257}],185:[function(require,module,exports){
+},{"../../core-model":2,"../../core-view":3,"../../core/collection":5,"../../messages/lists":24,"../../models/path":56,"../../templates":67,"../../utils/count-executor":77,"../../utils/css-class-set":79,"./append-from-path":179,"./append-from-selection":180,"./create-from-path":186,"./create-from-selection":187,"underscore":258}],186:[function(require,module,exports){
 (function() {
   var BaseCreateListDialogue, CreateFromPath, FromPathMixin, Promise,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -18696,7 +18750,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"./base-dialogue":182,"./from-path-mixin":187,"es6-promise":248}],186:[function(require,module,exports){
+},{"./base-dialogue":183,"./from-path-mixin":188,"es6-promise":249}],187:[function(require,module,exports){
 (function() {
   var BaseCreateListDialogue, CreateFromSelection, Floating, FromSelectionMixin, Promise, _,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -18729,7 +18783,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../mixins/floating-dialogue":30,"./base-dialogue":182,"./from-selection-mixin":188,"es6-promise":248,"underscore":257}],187:[function(require,module,exports){
+},{"../../mixins/floating-dialogue":30,"./base-dialogue":183,"./from-selection-mixin":189,"es6-promise":249,"underscore":258}],188:[function(require,module,exports){
 (function() {
   var Promise;
 
@@ -18762,7 +18816,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"es6-promise":248}],188:[function(require,module,exports){
+},{"es6-promise":249}],189:[function(require,module,exports){
 (function() {
   var NO_COMMON_TYPE, NO_OBJECTS_SELECTED, SelectedObjects, TypeAssertions;
 
@@ -18860,7 +18914,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../core/type-assertions":10,"../../models/selected-objects":58}],189:[function(require,module,exports){
+},{"../../core/type-assertions":10,"../../models/selected-objects":58}],190:[function(require,module,exports){
 (function() {
   var CoreView, ListTag, Templates,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -18911,7 +18965,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../core-view":3,"../../templates":67}],190:[function(require,module,exports){
+},{"../../core-view":3,"../../templates":67}],191:[function(require,module,exports){
 (function() {
   var CoreView, TagsApology, Templates, _,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -18952,7 +19006,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../core-view":3,"../../messages/lists":24,"../../templates":67,"underscore":257}],191:[function(require,module,exports){
+},{"../../core-view":3,"../../messages/lists":24,"../../templates":67,"underscore":258}],192:[function(require,module,exports){
 (function() {
   var ListValueControls, Messages, Promise, View, _, formatList, fs, getOptionValue, helpers, html, mustacheSettings, template, withDisplayNames,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -19152,7 +19206,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../core-view":3,"../messages":16,"../templates/helpers":68,"../templates/mustache-settings":69,"es6-promise":248,"underscore":257}],192:[function(require,module,exports){
+},{"../core-view":3,"../messages":16,"../templates/helpers":68,"../templates/mustache-settings":69,"es6-promise":249,"underscore":258}],193:[function(require,module,exports){
 (function() {
   var AttributeValueControls, LoopValueControls, Messages, Promise, SuggestionSource, _, fs, html, template,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -19351,7 +19405,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../messages":16,"../utils/suggestion-source":105,"./attribute-value-controls":111,"es6-promise":248,"underscore":257}],193:[function(require,module,exports){
+},{"../messages":16,"../utils/suggestion-source":105,"./attribute-value-controls":111,"es6-promise":249,"underscore":258}],194:[function(require,module,exports){
 (function() {
   var LoopValueControls, Messages, Promise, View, _, fs, helpers, html, mustacheSettings, template, toNamedPath, toOption,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -19485,7 +19539,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../core-view":3,"../messages":16,"../templates/helpers":68,"../templates/mustache-settings":69,"../utils/to-named-path":107,"es6-promise":248,"underscore":257}],194:[function(require,module,exports){
+},{"../core-view":3,"../messages":16,"../templates/helpers":68,"../templates/mustache-settings":69,"../utils/to-named-path":107,"es6-promise":249,"underscore":258}],195:[function(require,module,exports){
 (function() {
   var CoreView, ModalFooter, Templates, _, defaultData,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -19535,7 +19589,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../core-view":3,"../templates":67,"underscore":257}],195:[function(require,module,exports){
+},{"../core-view":3,"../templates":67,"underscore":258}],196:[function(require,module,exports){
 (function() {
   var Messages, Modal, ModalFooter, Promise, Templates, View, _, modalTemplate,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -19740,7 +19794,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../core-view":3,"../messages":16,"../templates":67,"./modal-footer":194,"es6-promise":248,"underscore":257}],196:[function(require,module,exports){
+},{"../core-view":3,"../messages":16,"../templates":67,"./modal-footer":195,"es6-promise":249,"underscore":258}],197:[function(require,module,exports){
 (function() {
   var Collection, IS_BLANK, Icons, Messages, Model, MultiValueControls, Options, Templates, ValueControl, ValueModel, Values, View, _, ignore, mustacheSettings,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -20056,7 +20110,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../core-model":2,"../core-view":3,"../core/collection":5,"../icons":14,"../messages":16,"../options":63,"../patterns":64,"../templates":67,"../templates/mustache-settings":69,"../utils/events":81,"backbone":230,"underscore":257}],197:[function(require,module,exports){
+},{"../core-model":2,"../core-view":3,"../core/collection":5,"../icons":14,"../messages":16,"../options":63,"../patterns":64,"../templates":67,"../templates/mustache-settings":69,"../utils/events":81,"backbone":231,"underscore":258}],198:[function(require,module,exports){
 (function() {
   var ActiveConstraint, Messages, NewConstraint,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -20100,7 +20154,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../messages":16,"./active-constraint":110}],198:[function(require,module,exports){
+},{"../messages":16,"./active-constraint":110}],199:[function(require,module,exports){
 (function() {
   var ConstraintAdder, Messages, Modal, NewFilterDialogue, Templates, _,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -20178,7 +20232,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../messages":16,"../templates":67,"./constraint-adder":126,"./modal":195,"underscore":257}],199:[function(require,module,exports){
+},{"../messages":16,"../templates":67,"./constraint-adder":126,"./modal":196,"underscore":258}],200:[function(require,module,exports){
 (function() {
   var Attribute, CoreView, Options, PathChooser, Reference, ReverseReference, RootClass, _, appendField,
     bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
@@ -20382,7 +20436,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../core-view":3,"../options":63,"./pathtree/attribute":200,"./pathtree/reference":201,"./pathtree/reverse-reference":202,"./pathtree/root":203,"underscore":257}],200:[function(require,module,exports){
+},{"../core-view":3,"../options":63,"./pathtree/attribute":201,"./pathtree/reference":202,"./pathtree/reverse-reference":203,"./pathtree/root":204,"underscore":258}],201:[function(require,module,exports){
 (function() {
   var Attribute, Icons, Options, View, _, highlightMatch, notBlank, stripLeadingSegments,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -20576,7 +20630,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../core-view":3,"../../icons":14,"../../options":63,"underscore":257}],201:[function(require,module,exports){
+},{"../../core-view":3,"../../icons":14,"../../options":63,"underscore":258}],202:[function(require,module,exports){
 (function() {
   var Attribute, Icons, Reference, ignore,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -20652,7 +20706,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../icons":14,"../../utils/events":81,"./attribute":200}],202:[function(require,module,exports){
+},{"../../icons":14,"../../utils/events":81,"./attribute":201}],203:[function(require,module,exports){
 (function() {
   var Icons, Reference, ReverseReference,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -20698,7 +20752,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../icons":14,"./reference":201}],203:[function(require,module,exports){
+},{"../../icons":14,"./reference":202}],204:[function(require,module,exports){
 (function() {
   var Attribute, Icons, RootClass, _,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -20769,7 +20823,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../icons":14,"./attribute":200,"underscore":257}],204:[function(require,module,exports){
+},{"../../icons":14,"./attribute":201,"underscore":258}],205:[function(require,module,exports){
 (function() {
   var CoreView, QueryDialogueButton, Templates, _,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -20875,7 +20929,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../core-view":3,"../templates":67,"underscore":257}],205:[function(require,module,exports){
+},{"../core-view":3,"../templates":67,"underscore":258}],206:[function(require,module,exports){
 (function() {
   var ColumnMangerButton, CoreView, FilterDialogueButton, HistoryType, JoinManagerButton, Listenable, QueryManagement, Structure, Types, UnionOf, ref,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -20935,7 +20989,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../core-view":3,"../core/type-assertions":10,"./column-manager/button":117,"./filter-dialogue/button":166,"./join-manager/button":176}],206:[function(require,module,exports){
+},{"../core-view":3,"../core/type-assertions":10,"./column-manager/button":117,"./filter-dialogue/button":167,"./join-manager/button":177}],207:[function(require,module,exports){
 (function() {
   var $, Bus, CodeGenButton, CoreView, ExportDialogueButton, ListDialogueButton, Options, QueryManagement, QueryTools, SUBSECTIONS, Templates, UndoHistory, _, subsection,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -21083,7 +21137,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../core-view":3,"../options":63,"../templates":67,"../utils/events":81,"./code-gen-button":113,"./export-dialogue/button":137,"./list-dialogue/button":184,"./query-management-tools":205,"./undo-history":227,"jquery":252,"underscore":257}],207:[function(require,module,exports){
+},{"../core-view":3,"../options":63,"../templates":67,"../utils/events":81,"./code-gen-button":113,"./export-dialogue/button":137,"./list-dialogue/button":185,"./query-management-tools":206,"./undo-history":228,"jquery":253,"underscore":258}],208:[function(require,module,exports){
 (function() {
   var CellModelFactory, Collection, ColumnHeaders, CoreModel, CoreView, ErrorNotice, History, Messages, Options, PageSizer, Pagination, ResultsTable, RowsCollection, SelectedObjects, Table, TableModel, TableResults, TableSummary, Templates, Types, UNKNOWN_ERROR, UniqItems, _,
     bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
@@ -21527,7 +21581,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../core-model":2,"../core-view":3,"../core/collection":5,"../core/type-assertions":10,"../messages":16,"../messages/table":28,"../models/column-headers":39,"../models/history":45,"../models/rows":57,"../models/selected-objects":58,"../models/table":61,"../models/uniq-items":62,"../options":63,"../templates":67,"../utils/cell-model-factory":75,"../utils/table-results":106,"./table/error-notice":212,"./table/inner":215,"./table/page-sizer":218,"./table/pagination":219,"./table/summary":225,"underscore":257}],208:[function(require,module,exports){
+},{"../core-model":2,"../core-view":3,"../core/collection":5,"../core/type-assertions":10,"../messages":16,"../messages/table":28,"../models/column-headers":39,"../models/history":45,"../models/rows":57,"../models/selected-objects":58,"../models/table":61,"../models/uniq-items":62,"../options":63,"../templates":67,"../utils/cell-model-factory":75,"../utils/table-results":106,"./table/error-notice":213,"./table/inner":216,"./table/page-sizer":219,"./table/pagination":220,"./table/summary":226,"underscore":258}],209:[function(require,module,exports){
 (function() {
   var CoreView, EmptyApology, RowView, TableBody, Templates, _, buildSkipped,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -21699,7 +21753,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../core-view":3,"../../messages/table":28,"../../templates":67,"../../utils/build-skipset":72,"underscore":257}],209:[function(require,module,exports){
+},{"../../core-view":3,"../../messages/table":28,"../../templates":67,"../../utils/build-skipset":72,"underscore":258}],210:[function(require,module,exports){
 (function() {
   var Cell, NestedTableModel, SubTable;
 
@@ -21744,7 +21798,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../models/nested-table":48,"./cell":210,"./subtable":224}],210:[function(require,module,exports){
+},{"../../models/nested-table":48,"./cell":211,"./subtable":225}],211:[function(require,module,exports){
 (function (global){
 (function() {
   var $, Cell, CellModel, CoreView, Formatting, Messages, Options, SelectedObjects, Templates, _, _compatible, compatible, popoverTemplate, types,
@@ -22369,7 +22423,7 @@ module.exports = '2.1.0';
 }).call(this);
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../../core-view":3,"../../core/type-assertions":10,"../../formatting":13,"../../messages":16,"../../models/cell":37,"../../models/selected-objects":58,"../../options":63,"../../templates":67,"jquery":252,"underscore":257}],211:[function(require,module,exports){
+},{"../../core-view":3,"../../core/type-assertions":10,"../../formatting":13,"../../messages":16,"../../models/cell":37,"../../models/selected-objects":58,"../../options":63,"../../templates":67,"jquery":253,"underscore":258}],212:[function(require,module,exports){
 (function() {
   var BAD_MODEL, DropDownColumnSummary, FacetView, NO_QUERY, PathModel, _, ignore,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -22426,7 +22480,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../models/path":56,"../../utils/events":81,"../facets/facet-view":149,"underscore":257}],212:[function(require,module,exports){
+},{"../../models/path":56,"../../utils/events":81,"../facets/facet-view":150,"underscore":258}],213:[function(require,module,exports){
 (function (global){
 (function() {
   var CoreView, ErrorNotice, Messages, Options, Templates, VERSION, _, getDomain, imjs, indentXML, mailto, withPrettyPrintOne, withResource,
@@ -22529,7 +22583,7 @@ module.exports = '2.1.0';
 }).call(this);
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../../core-view":3,"../../messages":16,"../../messages/error":22,"../../options":63,"../../templates":67,"../../utils/indent-xml":88,"../../utils/mailto":92,"../../utils/with-cdn-resource":108,"../../version":109,"imjs":250,"underscore":257}],213:[function(require,module,exports){
+},{"../../core-view":3,"../../messages":16,"../../messages/error":22,"../../options":63,"../../templates":67,"../../utils/indent-xml":88,"../../utils/mailto":92,"../../utils/with-cdn-resource":108,"../../version":109,"imjs":251,"underscore":258}],214:[function(require,module,exports){
 (function() {
   var ColumnHeader, CoreView, TableHead, _,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -22596,7 +22650,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../core-view":3,"./header":214,"underscore":257}],214:[function(require,module,exports){
+},{"../../core-view":3,"./header":215,"underscore":258}],215:[function(require,module,exports){
 (function() {
   var ClassSet, Collection, ColumnHeader, CoreView, DropDownColumnSummary, FormattedSorting, HeaderModel, Messages, ModelReader, Options, OuterJoinDropDown, SingleColumnConstraints, Templates, _, getViewPortHeight, getViewPortWidth, ignore, onChange, sortQueryByPath,
     bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
@@ -22966,7 +23020,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../core-view":3,"../../core/collection":5,"../../messages":16,"../../messages/table":28,"../../models/header":44,"../../options":63,"../../templates":67,"../../utils/css-class-set":79,"../../utils/events":81,"../../utils/on-change":93,"../../utils/sort-query-by-path":103,"../constraints/single-column":133,"../formatted-sorting":167,"./column-summary":211,"./outer-join-summary":217,"underscore":257}],215:[function(require,module,exports){
+},{"../../core-view":3,"../../core/collection":5,"../../messages":16,"../../messages/table":28,"../../models/header":44,"../../options":63,"../../templates":67,"../../utils/css-class-set":79,"../../utils/events":81,"../../utils/on-change":93,"../../utils/sort-query-by-path":103,"../constraints/single-column":133,"../formatted-sorting":168,"./column-summary":212,"./outer-join-summary":218,"underscore":258}],216:[function(require,module,exports){
 (function() {
   var CellFactory, ColumnHeaders, CoreView, Formatting, History, PathSet, PopoverFactory, Preview, ResultsTable, SelectedObjects, TableBody, TableHead, TableModel, Templates, Types, _, flip,
     bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
@@ -23089,7 +23143,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../core-view":3,"../../core/type-assertions":10,"../../formatting":13,"../../models/column-headers":39,"../../models/history":45,"../../models/path-set":55,"../../models/selected-objects":58,"../../models/table":61,"../../templates":67,"../../utils/popover-factory":98,"../item-preview":170,"./body":208,"./cell-factory":209,"./head":213,"underscore":257}],216:[function(require,module,exports){
+},{"../../core-view":3,"../../core/type-assertions":10,"../../formatting":13,"../../models/column-headers":39,"../../models/history":45,"../../models/path-set":55,"../../models/selected-objects":58,"../../models/table":61,"../../templates":67,"../../utils/popover-factory":98,"../item-preview":171,"./body":209,"./cell-factory":210,"./head":214,"underscore":258}],217:[function(require,module,exports){
 (function() {
   var Actions, LargeTableDisuader, Modal, _, large_table_disuader,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -23163,7 +23217,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../templates":67,"../modal":195,"underscore":257}],217:[function(require,module,exports){
+},{"../../templates":67,"../modal":196,"underscore":258}],218:[function(require,module,exports){
 (function() {
   var Collection, CoreView, DropDownColumnSummary, OuterJoinDropDown, PathModel, SubColumn, SubColumns, Templates, _,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -23300,7 +23354,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../core-view":3,"../../core/collection":5,"../../models/path":56,"../../templates":67,"./column-summary":211,"underscore":257}],218:[function(require,module,exports){
+},{"../../core-view":3,"../../core/collection":5,"../../models/path":56,"../../templates":67,"./column-summary":212,"underscore":258}],219:[function(require,module,exports){
 (function() {
   var CoreView, Events, ExportDialogue, HasDialogues, LargeTableDisuader, NewFilterDialogue, PageSizer, Paging, Templates, _,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -23484,7 +23538,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../core-view":3,"../../events":12,"../../templates":67,"../export-dialogue":136,"../has-dialogues":169,"../new-filter-dialogue":198,"./large-table-disuader":216,"./paging":220,"underscore":257}],219:[function(require,module,exports){
+},{"../../core-view":3,"../../events":12,"../../templates":67,"../export-dialogue":136,"../has-dialogues":170,"../new-filter-dialogue":199,"./large-table-disuader":217,"./paging":221,"underscore":258}],220:[function(require,module,exports){
 (function() {
   var Pagination, Paging, SELECT_LIMIT, View, _, ensureNumber, fs, html, strip,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -23658,7 +23712,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../core-view":3,"./paging":220,"underscore":257}],220:[function(require,module,exports){
+},{"../../core-view":3,"./paging":221,"underscore":258}],221:[function(require,module,exports){
 (function() {
   exports.getCurrentPage = function() {
     var ref, size, start;
@@ -23699,7 +23753,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{}],221:[function(require,module,exports){
+},{}],222:[function(require,module,exports){
 (function() {
   var CoreView, SubtableHeader, SubtableHeaders, Templates, _,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -23811,7 +23865,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../core-view":3,"../../messages/subtables":26,"../../templates":67,"underscore":257}],222:[function(require,module,exports){
+},{"../../core-view":3,"../../messages/subtables":26,"../../templates":67,"underscore":258}],223:[function(require,module,exports){
 (function() {
   var CoreView, SubtableHeader, SubtableInner, buildSkipped,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -23900,7 +23954,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../core-view":3,"../../utils/build-skipset":72,"./subtable-header":221}],223:[function(require,module,exports){
+},{"../../core-view":3,"../../utils/build-skipset":72,"./subtable-header":222}],224:[function(require,module,exports){
 (function() {
   var CoreView, Messages, SubtableSummary, Templates,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -23962,7 +24016,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../core-view":3,"../../messages":16,"../../messages/subtables":26,"../../templates":67}],224:[function(require,module,exports){
+},{"../../core-view":3,"../../messages":16,"../../messages/subtables":26,"../../templates":67}],225:[function(require,module,exports){
 (function() {
   var Collection, CoreView, INITIAL_STATE, NestedTableModel, Options, PathCollection, PathModel, SubTable, SubtableInner, SubtableSummary, Templates, TypeAssertions, _, ignore,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -24117,7 +24171,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../core-view":3,"../../core/collection":5,"../../core/type-assertions":10,"../../models/nested-table":48,"../../models/path":56,"../../options":63,"../../templates":67,"../../utils/events":81,"./subtable-inner":222,"./subtable-summary":223,"underscore":257}],225:[function(require,module,exports){
+},{"../../core-view":3,"../../core/collection":5,"../../core/type-assertions":10,"../../models/nested-table":48,"../../models/path":56,"../../options":63,"../../templates":67,"../../utils/events":81,"./subtable-inner":223,"./subtable-summary":224,"underscore":258}],226:[function(require,module,exports){
 (function() {
   var CoreView, TableSummary, Templates, _,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -24162,7 +24216,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../core-view":3,"../../messages/table":28,"../../templates":67,"underscore":257}],226:[function(require,module,exports){
+},{"../../core-view":3,"../../messages/table":28,"../../templates":67,"underscore":258}],227:[function(require,module,exports){
 (function() {
   var Messages, Promise, TypeValueControls, View, _, asOption, fs, helpers, html, toNamedPath,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -24325,7 +24379,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../core-view":3,"../messages":16,"../templates/helpers":68,"../utils/to-named-path":107,"es6-promise":248,"underscore":257}],227:[function(require,module,exports){
+},{"../core-view":3,"../messages":16,"../templates/helpers":68,"../utils/to-named-path":107,"es6-promise":249,"underscore":258}],228:[function(require,module,exports){
 (function() {
   var CoreView, ELLIPSIS, Ellipsis, Messages, Options, Step, Templates, UndoHistory, _, childId, notTrivial,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -24523,7 +24577,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../core-view":3,"../messages":16,"../messages/undo":29,"../options":63,"../templates":67,"./undo-history/step":229,"underscore":257}],228:[function(require,module,exports){
+},{"../core-view":3,"../messages":16,"../messages/undo":29,"../options":63,"../templates":67,"./undo-history/step":230,"underscore":258}],229:[function(require,module,exports){
 (function() {
   var ClassSet, CoreView, QueryProperty, Templates, _,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -24616,7 +24670,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../core-view":3,"../../templates":67,"../../utils/css-class-set":79,"underscore":257}],229:[function(require,module,exports){
+},{"../../core-view":3,"../../templates":67,"../../utils/css-class-set":79,"underscore":258}],230:[function(require,module,exports){
 (function() {
   var Collection, ConstraintList, ConstraintModel, ConstraintsView, CoreView, M, ObjConstructorPM, OrderElementModel, PathModel, QueryProperty, SelectListView, SortOrder, SortOrderView, Templates, UndoStep, ViewList, _, idsLength, liftPathAndType, valuesLength, withAdded,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -25039,7 +25093,7 @@ module.exports = '2.1.0';
 
 }).call(this);
 
-},{"../../core-view":3,"../../core/collection":5,"../../messages":16,"../../messages/constraints":21,"../../messages/undo":29,"../../models/constraint":40,"../../models/order-element":53,"../../models/path":56,"../../templates":67,"./query-property-section":228,"underscore":257}],230:[function(require,module,exports){
+},{"../../core-view":3,"../../core/collection":5,"../../messages":16,"../../messages/constraints":21,"../../messages/undo":29,"../../models/constraint":40,"../../models/order-element":53,"../../models/path":56,"../../templates":67,"./query-property-section":229,"underscore":258}],231:[function(require,module,exports){
 (function (global){
 //     Backbone.js 1.4.0
 
@@ -27139,7 +27193,7 @@ module.exports = '2.1.0';
 });
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"jquery":252,"underscore":257}],231:[function(require,module,exports){
+},{"jquery":253,"underscore":258}],232:[function(require,module,exports){
 'use strict'
 
 exports.byteLength = byteLength
@@ -27292,7 +27346,7 @@ function fromByteArray (uint8) {
   return parts.join('')
 }
 
-},{}],232:[function(require,module,exports){
+},{}],233:[function(require,module,exports){
 // This file is autogenerated via the `commonjs` Grunt task. You can require() this file in a CommonJS environment.
 require('../../js/transition.js')
 require('../../js/alert.js')
@@ -27306,7 +27360,7 @@ require('../../js/popover.js')
 require('../../js/scrollspy.js')
 require('../../js/tab.js')
 require('../../js/affix.js')
-},{"../../js/affix.js":233,"../../js/alert.js":234,"../../js/button.js":235,"../../js/carousel.js":236,"../../js/collapse.js":237,"../../js/dropdown.js":238,"../../js/modal.js":239,"../../js/popover.js":240,"../../js/scrollspy.js":241,"../../js/tab.js":242,"../../js/tooltip.js":243,"../../js/transition.js":244}],233:[function(require,module,exports){
+},{"../../js/affix.js":234,"../../js/alert.js":235,"../../js/button.js":236,"../../js/carousel.js":237,"../../js/collapse.js":238,"../../js/dropdown.js":239,"../../js/modal.js":240,"../../js/popover.js":241,"../../js/scrollspy.js":242,"../../js/tab.js":243,"../../js/tooltip.js":244,"../../js/transition.js":245}],234:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: affix.js v3.4.1
  * https://getbootstrap.com/docs/3.4/javascript/#affix
@@ -27472,7 +27526,7 @@ require('../../js/affix.js')
 
 }(jQuery);
 
-},{}],234:[function(require,module,exports){
+},{}],235:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: alert.js v3.4.1
  * https://getbootstrap.com/docs/3.4/javascript/#alerts
@@ -27569,7 +27623,7 @@ require('../../js/affix.js')
 
 }(jQuery);
 
-},{}],235:[function(require,module,exports){
+},{}],236:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: button.js v3.4.1
  * https://getbootstrap.com/docs/3.4/javascript/#buttons
@@ -27696,7 +27750,7 @@ require('../../js/affix.js')
 
 }(jQuery);
 
-},{}],236:[function(require,module,exports){
+},{}],237:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: carousel.js v3.4.1
  * https://getbootstrap.com/docs/3.4/javascript/#carousel
@@ -27944,7 +27998,7 @@ require('../../js/affix.js')
 
 }(jQuery);
 
-},{}],237:[function(require,module,exports){
+},{}],238:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: collapse.js v3.4.1
  * https://getbootstrap.com/docs/3.4/javascript/#collapse
@@ -28158,7 +28212,7 @@ require('../../js/affix.js')
 
 }(jQuery);
 
-},{}],238:[function(require,module,exports){
+},{}],239:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: dropdown.js v3.4.1
  * https://getbootstrap.com/docs/3.4/javascript/#dropdowns
@@ -28325,7 +28379,7 @@ require('../../js/affix.js')
 
 }(jQuery);
 
-},{}],239:[function(require,module,exports){
+},{}],240:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: modal.js v3.4.1
  * https://getbootstrap.com/docs/3.4/javascript/#modals
@@ -28685,7 +28739,7 @@ require('../../js/affix.js')
 
 }(jQuery);
 
-},{}],240:[function(require,module,exports){
+},{}],241:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: popover.js v3.4.1
  * https://getbootstrap.com/docs/3.4/javascript/#popovers
@@ -28810,7 +28864,7 @@ require('../../js/affix.js')
 
 }(jQuery);
 
-},{}],241:[function(require,module,exports){
+},{}],242:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: scrollspy.js v3.4.1
  * https://getbootstrap.com/docs/3.4/javascript/#scrollspy
@@ -28984,7 +29038,7 @@ require('../../js/affix.js')
 
 }(jQuery);
 
-},{}],242:[function(require,module,exports){
+},{}],243:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: tab.js v3.4.1
  * https://getbootstrap.com/docs/3.4/javascript/#tabs
@@ -29141,7 +29195,7 @@ require('../../js/affix.js')
 
 }(jQuery);
 
-},{}],243:[function(require,module,exports){
+},{}],244:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: tooltip.js v3.4.1
  * https://getbootstrap.com/docs/3.4/javascript/#tooltip
@@ -29820,7 +29874,7 @@ require('../../js/affix.js')
 
 }(jQuery);
 
-},{}],244:[function(require,module,exports){
+},{}],245:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: transition.js v3.4.1
  * https://getbootstrap.com/docs/3.4/javascript/#transitions
@@ -29881,9 +29935,9 @@ require('../../js/affix.js')
 
 }(jQuery);
 
-},{}],245:[function(require,module,exports){
-
 },{}],246:[function(require,module,exports){
+
+},{}],247:[function(require,module,exports){
 (function (Buffer){
 /*!
  * The buffer module from node.js, for the browser.
@@ -31664,7 +31718,7 @@ function numberIsNaN (obj) {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"base64-js":231,"buffer":246,"ieee754":249}],247:[function(require,module,exports){
+},{"base64-js":232,"buffer":247,"ieee754":250}],248:[function(require,module,exports){
 module.exports = function() {
   var d3 = {
     version: "3.4.11"
@@ -40898,7 +40952,7 @@ module.exports = function() {
   return d3;
 }();
 
-},{}],248:[function(require,module,exports){
+},{}],249:[function(require,module,exports){
 (function (process,global){
 /*!
  * @overview es6-promise - a tiny implementation of Promises/A+.
@@ -42085,7 +42139,7 @@ return Promise$1;
 
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"_process":254}],249:[function(require,module,exports){
+},{"_process":255}],250:[function(require,module,exports){
 exports.read = function (buffer, offset, isLE, mLen, nBytes) {
   var e, m
   var eLen = (nBytes * 8) - mLen - 1
@@ -42171,7 +42225,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
   buffer[offset + i - d] |= s * 128
 }
 
-},{}],250:[function(require,module,exports){
+},{}],251:[function(require,module,exports){
 (function (global,Buffer){
 /*! imjs - v3.18.1 - 2020-01-20 */
 
@@ -56200,7 +56254,7 @@ function hasOwnProperty(obj, prop) {
 });
 })(window.intermine);
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer)
-},{"buffer":246}],251:[function(require,module,exports){
+},{"buffer":247}],252:[function(require,module,exports){
 /*! jQuery UI - v1.12.1 - 2017-03-19
 * http://jqueryui.com
 * Includes: widget.js, position.js, data.js, disable-selection.js, focusable.js, form-reset-mixin.js, jquery-1-7.js, keycode.js, labels.js, scroll-parent.js, tabbable.js, unique-id.js, widgets/draggable.js, widgets/droppable.js, widgets/resizable.js, widgets/selectable.js, widgets/sortable.js, widgets/accordion.js, widgets/autocomplete.js, widgets/button.js, widgets/checkboxradio.js, widgets/controlgroup.js, widgets/datepicker.js, widgets/dialog.js, widgets/menu.js, widgets/mouse.js, widgets/progressbar.js, widgets/selectmenu.js, widgets/slider.js, widgets/spinner.js, widgets/tabs.js, widgets/tooltip.js, effect.js, effects/effect-blind.js, effects/effect-bounce.js, effects/effect-clip.js, effects/effect-drop.js, effects/effect-explode.js, effects/effect-fade.js, effects/effect-fold.js, effects/effect-highlight.js, effects/effect-puff.js, effects/effect-pulsate.js, effects/effect-scale.js, effects/effect-shake.js, effects/effect-size.js, effects/effect-slide.js, effects/effect-transfer.js
@@ -74907,7 +74961,7 @@ var effectsEffectTransfer = effect;
 
 
 }));
-},{}],252:[function(require,module,exports){
+},{}],253:[function(require,module,exports){
 /*!
  * jQuery JavaScript Library v3.4.1
  * https://jquery.com/
@@ -85507,7 +85561,7 @@ if ( !noGlobal ) {
 return jQuery;
 } );
 
-},{}],253:[function(require,module,exports){
+},{}],254:[function(require,module,exports){
 /* global define */
 
 (function (root, pluralize) {
@@ -86012,7 +86066,7 @@ return jQuery;
   return pluralize;
 });
 
-},{}],254:[function(require,module,exports){
+},{}],255:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -86198,7 +86252,7 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],255:[function(require,module,exports){
+},{}],256:[function(require,module,exports){
 (function (setImmediate,clearImmediate){
 var nextTick = require('process/browser.js').nextTick;
 var apply = Function.prototype.apply;
@@ -86277,7 +86331,7 @@ exports.clearImmediate = typeof clearImmediate === "function" ? clearImmediate :
   delete immediateIds[id];
 };
 }).call(this,require("timers").setImmediate,require("timers").clearImmediate)
-},{"process/browser.js":254,"timers":255}],256:[function(require,module,exports){
+},{"process/browser.js":255,"timers":256}],257:[function(require,module,exports){
 (function (setImmediate){
 /*!
  * typeahead.js 0.11.1
@@ -88731,7 +88785,7 @@ exports.clearImmediate = typeof clearImmediate === "function" ? clearImmediate :
     })();
 });
 }).call(this,require("timers").setImmediate)
-},{"jquery":252,"timers":255}],257:[function(require,module,exports){
+},{"jquery":253,"timers":256}],258:[function(require,module,exports){
 (function (global){
 //     Underscore.js 1.9.1
 //     http://underscorejs.org

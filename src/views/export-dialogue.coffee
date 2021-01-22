@@ -15,6 +15,7 @@ FormatControls = require './export-dialogue/format-controls'
 RowControls = require './export-dialogue/row-controls'
 ColumnControls = require './export-dialogue/column-controls'
 CompressionControls = require './export-dialogue/compression-controls'
+ExportDataPackageControls = require './export-dialogue/datapackage-controls'
 FlatFileOptions = require './export-dialogue/flat-file-options'
 JSONOptions = require './export-dialogue/json-options'
 FastaOptions = require './export-dialogue/fasta-options'
@@ -58,6 +59,7 @@ class ExportModel extends Model
     max: null
     compress: false
     compression: 'gzip'
+    exportDataPackage: false
     headers: false
     jsonFormat: 'rows'
     fastaExtension: null
@@ -147,7 +149,7 @@ module.exports = class ExportDialogue extends Modal
   footer: Templates.templateFromParts FOOTER
 
   updateState: ->
-    {compress, compression, start, size, max, format, columns} = @model.toJSON()
+    {compress, compression, exportDataPackage, start, size, max, format, columns} = @model.toJSON()
 
     columnDesc = if _.isEqual(columns, @query.views)
       Messages.get('All')
@@ -171,6 +173,7 @@ module.exports = class ExportDialogue extends Modal
       exportURI: @getExportURI()
       rowCount: @getRowCount()
       compression: (if compress then compression else null)
+      exportDataPackage: (if exportDataPackage then true else false)
       columns: columnDesc
 
   getRowCount: ->
@@ -185,6 +188,7 @@ module.exports = class ExportDialogue extends Modal
       when 'format' then FormatControls
       when 'columns' then ColumnControls
       when 'compression' then CompressionControls
+      when 'exportDataPackage' then ExportDataPackageControls
       when 'column-headers' then FlatFileOptions
       when 'opts-json' then JSONOptions
       when 'opts-fasta' then FastaOptions

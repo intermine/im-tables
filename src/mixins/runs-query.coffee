@@ -39,6 +39,9 @@ exports.getExportParameters = (overrides = {}) ->
   data.query = @getExportQuery().toXML()
   if @model.get 'compress'
     data.compress = @model.get 'compression'
+  if @model.get 'exportDataPackage'
+    data.exportDataPackage = @model.get 'exportDataPackage'
+    data.compress = 'zip'
   if @model.get 'headers'
     data.columnheaders = @model.get 'headerType'
   # TODO - this is hacky - the model should reflect the request
