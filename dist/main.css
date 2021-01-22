@@ -9292,6 +9292,10 @@ span.twitter-typeahead {
 .modal a.close {
   cursor: pointer;
 }
+.modal .modal-content {
+  max-height: 90vh;
+  overflow: auto;
+}
 .modal .btn-cancel {
   color: #333;
   background-color: #fff;

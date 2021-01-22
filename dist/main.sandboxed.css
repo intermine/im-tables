@@ -7011,6 +7011,9 @@
   white-space: normal;}
 .imtables .modal a.close {
   cursor: pointer;}
+.imtables .modal .modal-content {
+  max-height: 90vh;
+  overflow: auto;}
 .imtables .modal .btn-cancel {
   color: #333;
   background-color: #fff;
