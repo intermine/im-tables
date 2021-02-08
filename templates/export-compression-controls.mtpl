@@ -1,29 +1,32 @@
 <h4><%- Messages.getText('export.category.Compression', state) %></h4>
 
-<div class="checkbox im-compress">
-    <label>
-        <input type="checkbox" <%= compress ? 'checked' : void 0 %>>
-        <%- Messages.getText('export.UseCompression') %>
-    </label>
-</div>
-
-<fieldset <%= compress ? void 0 : 'disabled' %>>
-    <div class="radio">
+<% if (exportDataPackage) { %>
+    <p>Frictionless Data Package uses ZIP Compression only.</p>
+<% } else { %>
+    <div class="checkbox im-compress">
         <label>
-            <input type="radio"
-                name="gzip"
-                <%= (compression === 'gzip') ? 'checked' : void 0 %>>
-            <%- Messages.getText('export.UseGZIP') %>
+            <input type="checkbox" <%= compress ? 'checked' : void 0 %>>
+            <%- Messages.getText('export.UseCompression') %>
         </label>
     </div>
 
-    <div class="radio">
-        <label>
-            <input type="radio"
-                name="zip"
-                <%= (compression === 'zip') ? 'checked' : void 0 %>>
-            <%- Messages.getText('export.UseZIP') %>
-        </label>
-    </div>
-</fieldset>
+    <fieldset <%= compress ? void 0 : 'disabled' %>>
+        <div class="radio">
+            <label>
+                <input type="radio"
+                    name="gzip"
+                    <%= (compression === 'gzip') ? 'checked' : void 0 %>>
+                <%- Messages.getText('export.UseGZIP') %>
+            </label>
+        </div>
 
+        <div class="radio">
+            <label>
+                <input type="radio"
+                    name="zip"
+                    <%= (compression === 'zip') ? 'checked' : void 0 %>>
+                <%- Messages.getText('export.UseZIP') %>
+            </label>
+        </div>
+    </fieldset>
+<% } %>

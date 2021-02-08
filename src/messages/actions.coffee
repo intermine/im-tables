@@ -7,6 +7,8 @@ module.exports =
   'export.category.Preview': "Preview",
   'export.preview.Limit': 'Preview is limited to at most 3 results.',
   'export.heading.Columns': "Columns",
+  'export.category.DataPackage': "Frictionless Data Package",
+  'export.DataPackage.Title': "Export Frictionless Data Package (uses ZIP compression).",
   'export.category.Rows': """
     <% if (rowCount === max) { %>
       All
@@ -16,7 +18,9 @@ module.exports =
     Rows
   """,
   'export.category.Compression': """
-    <% if (compression) { %>
+    <% if (exportDataPackage) { %>
+      ZIP
+    <% } else if (compression) { %>
       <%= compression.toUpperCase() %>
     <% } else { %>
       No

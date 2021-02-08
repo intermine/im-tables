@@ -1,0 +1,8 @@
+<h4><%- Messages.getText('export.category.DataPackage') %></h4>
+
+<div class="checkbox im-exportDataPackage">
+    <label>
+        <input type="checkbox" <%= exportDataPackage ? 'checked' : void 0 %>>
+        <%- Messages.getText('export.DataPackage.Title') %>
+    </label>
+</div>
