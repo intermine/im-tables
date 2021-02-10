@@ -81,7 +81,7 @@ module.exports = class Pagination extends View
     e?.preventDefault()
     pageForm = @$('.im-page-form')
     input = @$('.im-page-form input')
-    if input.size()
+    if input.length
       destination = ensureNumber input[0].value
       if destination >= 1
         page = Math.min @getMaxPage(), destination
